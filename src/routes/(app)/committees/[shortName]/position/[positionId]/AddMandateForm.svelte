@@ -54,7 +54,8 @@
         name="startDate"
         iso
         class="h-12"
-        value={$form.startDate?.toISOString().split("T")[0]}
+        bind:value={() => $form.startDate?.toISOString().split("T")[0],
+        (d) => (d ? ($form.startDate = new Date(d)) : () => "")}
         error={!!$errors.startDate}
         {...$constraints.startDate}
       />
@@ -66,7 +67,8 @@
         name="endDate"
         iso
         class="h-12"
-        value={$form.endDate?.toISOString().split("T")[0]}
+        bind:value={() => $form.endDate?.toISOString().split("T")[0],
+        (d) => (d ? ($form.endDate = new Date(d)) : () => "")}
         aria-invalid={!!$errors.endDate}
         {...$constraints.endDate}
       />
