@@ -511,3 +511,28 @@ CREATE TABLE _member_tag_subscriptions (
 );
 CREATE UNIQUE INDEX _member_tag_subscriptions_ab_unique ON _member_tag_subscriptions ("A", "B");
 CREATE INDEX _member_tag_subscriptions_b_index ON _member_tag_subscriptions ("B");
+
+-- Phase 10 ("Doors/Salto" - see DESIGN.md's roadmap). "id" is a
+-- nullable, unused-by-any-query legacy field (confirmed via psql \d, no
+-- schema.zmodel drift here) - kept for fidelity, not referenced anywhere.
+CREATE TABLE doors (
+    name         VARCHAR(255) NOT NULL PRIMARY KEY,
+    id           VARCHAR(255),
+    verbose_name VARCHAR(255) NOT NULL
+);
+
+-- role/student_id: exactly one is set per row (member-scoped or
+-- role/position-prefix-scoped policy), same convention as
+-- api_access_policies.role/student_id - never enforced by a DB CHECK here
+-- though, matching the live table (no such constraint exists there, unlike
+-- api_access_policies' Go-added one).
+CREATE TABLE door_access_policies (
+    id             UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    door_name      VARCHAR(255) NOT NULL REFERENCES doors (name),
+    role           VARCHAR(255),
+    student_id     VARCHAR(255) REFERENCES members (student_id),
+    start_datetime TIMESTAMPTZ,
+    end_datetime   TIMESTAMPTZ,
+    is_ban         BOOLEAN NOT NULL DEFAULT false,
+    information    VARCHAR(255)
+);

@@ -1,10 +1,7 @@
 import apiNames from "$lib/utils/apiNames";
 import { serverApi } from "$lib/server/apiClient";
 import { authorize } from "$lib/utils/authorization";
-import {
-  getCurrentDoorPoliciesForMember,
-  setNollningGroup,
-} from "$lib/utils/member";
+import { setNollningGroup } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
@@ -31,11 +28,15 @@ const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
 
 // Server-only load, not +page.ts - a documented exception (see DESIGN.md's
-// "Principles going forward"): doorAccess/medals/ping/phadderGroups/nollaIn
-// aren't part of the directory-foundation port (each belongs to a
-// different, later phase - see backend/CLAUDE.md's "Directory routes"
-// section) and are still real Prisma lookups, so this can't move to a
-// universal load the way the fully-ported fields below could on their own.
+// "Principles going forward"): medals/ping aren't part of the
+// directory-foundation port (each belongs to a different, later phase - see
+// backend/CLAUDE.md's "Directory routes" section) and are still real
+// Prisma lookups, so this can't move to a universal load the way the
+// fully-ported fields below could on their own. doorAccess was the last of
+// this route's Prisma-backed fields still on the old
+// getCurrentDoorPoliciesForMember helper - closed by Phase 10 ("Doors/
+// Salto", see backend/CLAUDE.md's "Doors routes" section), now a plain Go
+// call like everything else here.
 export const load: PageServerLoad = async (event) => {
   const { locals, params, cookies } = event;
   const api = serverApi(event);
@@ -124,9 +125,15 @@ export const load: PageServerLoad = async (event) => {
     nollaIn,
   };
 
+  // Go's MemberAccess itself only ever returns real data for the caller's
+  // own studentId (empty otherwise) - the member.id check here just skips
+  // the network round-trip entirely when viewing someone else's profile,
+  // not a duplicated authorization decision (Principle #5).
   const doorAccess =
     member.id === user?.memberId
-      ? await getCurrentDoorPoliciesForMember(prisma, studentId)
+      ? (await api.GET("/members/{studentId}/door-access", {
+          params: { path: { studentId } },
+        }).then((res) => res.data ?? []))
       : [];
 
   const showPhadderGroupModal =

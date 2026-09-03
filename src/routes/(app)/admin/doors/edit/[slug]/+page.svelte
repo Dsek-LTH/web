@@ -205,7 +205,7 @@
       <CardContent>
         <ul class="m-0 space-y-3">
           {#each policies as policy (policy.id)}
-            {@const type = policy.studentId === null ? "role" : "member"}
+            {@const type = policy.studentId == null ? "role" : "member"}
             <li
               class="flex items-start justify-between rounded-md border p-4 lg:items-center"
             >
@@ -233,7 +233,7 @@
                   {#if policy.endDatetime}
                     <Badge variant="rosa">
                       {m.admin_doors_expires()}
-                      {policy.endDatetime.toLocaleDateString("sv")}
+                      {new Date(policy.endDatetime).toLocaleDateString("sv")}
                     </Badge>
                   {/if}
                 </div>

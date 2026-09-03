@@ -21,6 +21,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
+	"github.com/dsek-lth/web/backend/internal/doors"
 	"github.com/dsek-lth/web/backend/internal/elections"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/gallery"
@@ -54,6 +55,7 @@ func NewRouter(
 	medalSvc *medals.Service,
 	gallerySvc *gallery.Service,
 	documentSvc *documents.Service,
+	doorSvc *doors.Service,
 	bookingSvc *booking.Service,
 	electionSvc *elections.Service,
 	cafeSvc *cafe.Service,
@@ -79,6 +81,7 @@ func NewRouter(
 	registerMedalRoutes(api, medalSvc)
 	registerGalleryRoutes(api, gallerySvc)
 	registerDocumentRoutes(api, documentSvc)
+	registerDoorRoutes(api, doorSvc)
 	registerBookingRoutes(api, bookingSvc)
 	registerElectionRoutes(api, electionSvc)
 	registerCafeRoutes(api, cafeSvc)
@@ -86,6 +89,10 @@ func NewRouter(
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))
+	// This exact path is polled by the university's own Salto door-lock
+	// system, unauthenticated - see SaltoHandler's doc comment and
+	// src/routes/(app)/salto/README.md ("this URL must not be changed").
+	mux.HandleFunc("GET /salto/{door}", SaltoHandler(doorSvc))
 	if oidcClient != nil {
 		mux.HandleFunc("GET /auth/login", oidcClient.LoginHandler)
 		mux.HandleFunc("GET /auth/callback", oidcClient.CallbackHandler)

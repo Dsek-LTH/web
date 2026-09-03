@@ -368,6 +368,23 @@ type Document struct {
 	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 }
 
+type Door struct {
+	Name        string      `json:"name"`
+	ID          pgtype.Text `json:"id"`
+	VerboseName string      `json:"verbose_name"`
+}
+
+type DoorAccessPolicy struct {
+	ID            pgtype.UUID        `json:"id"`
+	DoorName      string             `json:"door_name"`
+	Role          pgtype.Text        `json:"role"`
+	StudentID     pgtype.Text        `json:"student_id"`
+	StartDatetime pgtype.Timestamptz `json:"start_datetime"`
+	EndDatetime   pgtype.Timestamptz `json:"end_datetime"`
+	IsBan         bool               `json:"is_ban"`
+	Information   pgtype.Text        `json:"information"`
+}
+
 type Election struct {
 	ID          pgtype.UUID        `json:"id"`
 	CommitteeID pgtype.UUID        `json:"committee_id"`

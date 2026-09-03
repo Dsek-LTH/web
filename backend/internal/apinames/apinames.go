@@ -130,6 +130,17 @@ const (
 	CafeEditCiabattas = "cafe:edit_ciabattas"
 	CafeSeeAllWeeks   = "cafe:see_all_weeks"
 	CafeDayManager    = "cafe:day_manager"
+
+	// Phase 10 ("Doors/Salto" - see DESIGN.md's roadmap) below. Naming
+	// mirrors the old apiNames.DOOR crud() group exactly
+	// ("core:access:door:*"), so existing dev-DB AccessPolicy grants carry
+	// over unchanged. No DoorUpdate: the old zmodel's DoorAccessPolicy
+	// @@allow("update", ...) existed, but no create/edit-in-place UI ever
+	// called it (the admin page only ever created new rows or deleted old
+	// ones) - not replicated as a gap, there's nothing real to port.
+	DoorRead   = "core:access:door:read"
+	DoorCreate = "core:access:door:create"
+	DoorDelete = "core:access:door:delete"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -196,5 +207,8 @@ func All() []string {
 		CafeEditCiabattas,
 		CafeSeeAllWeeks,
 		CafeDayManager,
+		DoorRead,
+		DoorCreate,
+		DoorDelete,
 	}
 }

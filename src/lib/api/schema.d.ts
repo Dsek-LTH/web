@@ -583,6 +583,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/door-access-policies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a door access policy */
+        delete: operations["delete-door-access-policy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/doors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every physical door */
+        get: operations["list-doors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/doors/{name}/access-policies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List a door's non-expired access policies */
+        get: operations["list-door-access-policies"];
+        put?: never;
+        /** Grant or restrict access to a door */
+        post: operations["create-door-access-policy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/elections": {
         parameters: {
             query?: never;
@@ -900,6 +952,23 @@ export interface paths {
         head?: never;
         /** Replace a member's profile fields (full-replace, not a partial patch) */
         patch: operations["update-member-profile"];
+        trace?: never;
+    };
+    "/members/{studentId}/door-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The acting member's own current door access (self-view only, empty for anyone else) */
+        get: operations["get-member-door-access"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/members/{studentId}/food-preference": {
@@ -1746,6 +1815,22 @@ export interface components {
             memberIds: string[] | null;
             startDate: string;
         };
+        CreatePolicyInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CreatePolicyInput.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            endDatetime?: string;
+            mode: string;
+            reason?: string;
+            /** Format: date-time */
+            startDatetime?: string;
+            subject: string;
+            type: string;
+        };
         CurrentInfo: {
             /**
              * Format: uri
@@ -1798,6 +1883,29 @@ export interface components {
             title: string;
             type: string;
             url: string;
+        };
+        Door: {
+            name: string;
+            verboseName: string;
+        };
+        DoorAccessPolicy: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/DoorAccessPolicy.json
+             */
+            readonly $schema?: string;
+            doorName: string;
+            /** Format: date-time */
+            endDatetime?: string;
+            id: string;
+            information?: string;
+            isBan: boolean;
+            member?: components["schemas"]["Member"];
+            role?: string;
+            /** Format: date-time */
+            startDatetime?: string;
+            studentId?: string;
         };
         Election: {
             /**
@@ -2084,6 +2192,15 @@ export interface components {
             nickname?: string;
             picturePath?: string;
             studentId?: string;
+        };
+        MemberAccess: {
+            /** Format: date-time */
+            endDatetime?: string;
+            name: string;
+            roles: string[] | null;
+            /** Format: date-time */
+            startDatetime?: string;
+            verboseName: string;
         };
         MemberProfile: {
             /**
@@ -4062,6 +4179,130 @@ export interface operations {
             };
         };
     };
+    "delete-door-access-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-doors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Door"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-door-access-policies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoorAccessPolicy"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-door-access-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePolicyInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoorAccessPolicy"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-elections": {
         parameters: {
             query?: never;
@@ -5059,6 +5300,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberProfile"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-member-door-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberAccess"][] | null;
                 };
             };
             /** @description Error */

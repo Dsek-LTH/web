@@ -23,6 +23,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
+	"github.com/dsek-lth/web/backend/internal/doors"
 	"github.com/dsek-lth/web/backend/internal/elections"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/gallery"
@@ -142,6 +143,7 @@ func main() {
 	bookingSvc := booking.NewService(pool, realNotifier)
 	electionSvc := elections.NewService(pool)
 	cafeSvc := cafe.NewService(pool)
+	doorSvc := doors.NewService(pool)
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -156,6 +158,7 @@ func main() {
 		medalSvc,
 		gallerySvc,
 		documentSvc,
+		doorSvc,
 		bookingSvc,
 		electionSvc,
 		cafeSvc,

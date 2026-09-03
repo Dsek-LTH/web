@@ -1805,6 +1805,79 @@ updated in its own phase, same as phase 1 and phase 2 already did.
 10. **Doors/Salto** - physical access control integration; kept late
     since it depends on real hardware/vendor API access, not just DB
     work, and nothing else in this list depends on it.
+    **Superseded:** the "depends on real hardware/vendor API access"
+    reasoning above turned out to be wrong once actually implemented -
+    this domain has no outbound vendor API call at all. The university's
+    own Salto door-lock hardware polls a URL *this app* serves
+    (`GET /salto/{door}`, unauthenticated, returning a bare
+    newline-separated student-ID list) to decide who may enter; there's
+    nothing for Go to call out to. It was placed late in the roadmap
+    order anyway (dependency-wise it only needed phase 1's
+    members/mandates/positions, so it could have run much earlier), kept
+    here for historical continuity rather than reordering after the
+    fact.
+    **Status: backend and frontend both implemented 2026-09-03**
+    (`backend/internal/doors` - see `backend/CLAUDE.md`'s "Doors routes"
+    section for the exact endpoint list). `doors`/`door_access_policies`
+    pre-date this Go port (part of the original copied Prisma migration
+    history) - `schema.sql` additions only, no new migration, same as
+    songs/alerts/booking/elections/cafe/notifications. Two decisions
+    confirmed with the user before/during implementation:
+    - **A real, physical-security-relevant bug fix, confirmed explicitly
+      rather than decided silently** (unlike most "fix a real bug found
+      while porting" calls elsewhere in this doc, which the agent judged
+      unilaterally when the evidence was unambiguous and low-stakes):
+      both the old salto endpoint's role-to-position matching and the
+      admin create form's role-existence check used Prisma's
+      `startsWith: `${role}%``, which escapes `%` as a literal character
+      rather than a wildcard - meaning a role-based (position-prefix)
+      door policy has likely never actually granted anyone access via
+      that path in production; only direct per-student policies and the
+      `"*"` (recent-class-year) wildcard worked. Go now does a real
+      prefix match. The user's own words on this, given the stakes
+      (getting it wrong either way means someone either can't get into a
+      room they should, or can get into one they shouldn't): "It seems
+      to actually work in prod right now, though. But regardless, port
+      it as the intended functionality." Verified live against real
+      seed-data mandate holders, not just structurally.
+    - Include the member profile page's own self-view "which doors do
+      you have access to" widget (`getCurrentDoorPoliciesForMember`) in
+      this phase rather than deferring it - it's real, working code with
+      a real page (not a stub), so Principle #6 already covers it, but
+      the added grouping/role-to-position-name-display complexity made
+      it worth confirming explicitly rather than assuming.
+
+    Everything else - the admin door/access-policy management UI
+    (`admin/doors`), the create-form validation chain (ported verbatim
+    from the old zod `.refine()` chain, minus its async Prisma-backed
+    existence check, now server-side in Go per Principle #5) - is a
+    faithful, mechanical port. One old-app quirk was deliberately *not*
+    changed even though it looks similar to the `startsWith` bug: a
+    `door_access_policies` row's `studentId` and `role` fields are read
+    independently (not mutually exclusive), and a banned row's `role`
+    still participates in granting access to *other* people even though
+    that row's own `studentId` is excluded - this is how
+    `parseDoorPolicies`/`parseDoorBanPolicies` actually behaved, and the
+    user's fix request was scoped specifically to the prefix-matching
+    bug, not this.
+
+    **The public URL itself required special handling, unlike every
+    other ported route so far**: `salto/README.md` states the
+    university's Salto hardware polls `/salto/{door}` on this app's own
+    domain directly and that URL "must not be changed." Since nothing in
+    this repo sets up a same-origin reverse proxy from the SvelteKit
+    domain to the separately-hosted Go backend, simply deleting the
+    SvelteKit-side route (the usual "fully de-Prisma-ify this domain's
+    SvelteKit layer" move per principle #6) would have silently broken
+    physical door access in production. Instead,
+    `src/routes/(app)/salto/[door]/+server.ts` became a thin proxy to
+    Go's endpoint - the same pattern `medals/download-csv/+server.ts`
+    already established for a non-JSON Go endpoint - keeping the
+    external URL, origin, and response shape completely unchanged while
+    the actual logic moved to Go. Verified live: the SvelteKit proxy and
+    the Go backend produced byte-identical output for the same door, and
+    a real form-action create/delete round-trip through the `admin/doors`
+    UI was confirmed to change what the proxy subsequently returns.
 11. **Admin consolidation** - settings, links, minio browser, stocklist,
     debug - thin wrappers over domains that need to exist first.
 12. **Search** - cross-entity search, deliberately last so it has

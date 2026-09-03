@@ -52,6 +52,7 @@ type Querier interface {
 	CreateBookableCategory(ctx context.Context, arg CreateBookableCategoryParams) (BookableCategory, error)
 	CreateBookingRequest(ctx context.Context, arg CreateBookingRequestParams) (BookingRequest, error)
 	CreateCafeShift(ctx context.Context, arg CreateCafeShiftParams) (CafeShift, error)
+	CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAccessPolicyParams) (DoorAccessPolicy, error)
 	CreateElection(ctx context.Context, arg CreateElectionParams) (Election, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
@@ -75,6 +76,7 @@ type Querier interface {
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
 	DeleteCafeShift(ctx context.Context, id pgtype.UUID) (int64, error)
+	DeleteDoorAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	// Hard delete - the elections table has no removed_at/deleted_at column at
 	// all, unlike Song/Article/GoverningDocument.
 	DeleteElection(ctx context.Context, id pgtype.UUID) (int64, error)
@@ -82,6 +84,13 @@ type Querier interface {
 	DeleteMandate(ctx context.Context, id pgtype.UUID) error
 	DeleteNotifications(ctx context.Context, arg DeleteNotificationsParams) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
+	// pattern is built by the caller as "{prefix}%" - a real SQL LIKE
+	// wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
+	// literal-escaping of startsWith) only ever matched a position id that
+	// literally contained a "%" character, i.e. never. User-confirmed fix
+	// (2026-09-03, see DESIGN.md's Phase 10 entry): role-based door/create-form
+	// validation now does a real prefix match.
+	ExistsPositionWithPrefix(ctx context.Context, pattern string) (bool, error)
 	// The member's phadder/uppdrag mandate overlapping the group's season
 	// window, ordered like the old getPhadderMandates (position id asc, i.e.
 	// "phadder" before "uppdrag", then start_date asc) so the first row is the
@@ -138,6 +147,7 @@ type Querier interface {
 	// enforced at the DB level, since overlapping seasons would be an admin
 	// data error, not a normal state).
 	GetCurrentSeason(ctx context.Context) (NollningSeason, error)
+	GetDoorByName(ctx context.Context, name string) (Door, error)
 	// Unconstrained by expiry (unlike ListOpenElections) - the edit page looks
 	// up an election by id regardless of whether it has already expired,
 	// matching prisma.election.findFirst({where: {id}}).
@@ -201,9 +211,20 @@ type Querier interface {
 	// rows (role-scoped rows have no member to join).
 	ListAccessPolicies(ctx context.Context, apiName pgtype.Text) ([]ListAccessPoliciesRow, error)
 	ListActiveAlerts(ctx context.Context) ([]Alert, error)
+	// The real security-relevant read: policies currently in their active
+	// window (both start and end), for GET /salto/{door} to resolve into an
+	// allowed-student list. Unlike ListDoorAccessPoliciesForAdmin, a
+	// not-yet-started policy is excluded here - matches the old +server.ts's
+	// own filter exactly.
+	ListActiveDoorAccessPoliciesForSalto(ctx context.Context, doorName string) ([]ListActiveDoorAccessPoliciesForSaltoRow, error)
 	// "Active" mirrors the old TS backend's author-options query: currently
 	// within the mandate's start/end date range.
 	ListActiveMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListActiveMandatesForMemberRow, error)
+	// Backs the member profile page's own "which doors do I have access to"
+	// widget (self-view only) - a member's currently-held positions, used to
+	// both derive candidate door-policy roles and to display position names
+	// instead of raw role strings in the result.
+	ListActivePositionsForMemberByStudentID(ctx context.Context, studentID pgtype.Text) ([]ListActivePositionsForMemberByStudentIDRow, error)
 	// Unscoped (full history, not year-scoped) - the position detail page
 	// groups a position's entire mandate history client-side by year for
 	// historical study-year statistics, unlike the committee detail page's
@@ -261,6 +282,23 @@ type Querier interface {
 	ListDistinctAPINames(ctx context.Context) ([]string, error)
 	ListDistinctSongCategories(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
 	ListDistinctSongMelodies(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
+	// The admin edit-door page's own list: every non-expired policy for a
+	// door (start in the future is fine, still shown - only end in the past
+	// is excluded), joined to the member it names if it's a studentId-scoped
+	// row. Deliberately not filtered by start_datetime, unlike
+	// ListActiveDoorAccessPoliciesForSalto below - mirrors the old
+	// edit/[slug]/+page.server.ts load exactly.
+	ListDoorAccessPoliciesForAdmin(ctx context.Context, doorName string) ([]ListDoorAccessPoliciesForAdminRow, error)
+	// The self-view widget's own policy read: non-banned policies either
+	// naming this member's studentId directly, or naming one of their
+	// candidate derived roles (every dot-prefix of each held position id, plus
+	// "*"/"_"/"dsek.styr" as applicable - computed in Go, mirroring
+	// getDerivedRoles - and passed in as roles). Exact role equality, not a
+	// prefix LIKE - this is the opposite direction from salto's own matching
+	// (there, a stored role is a prefix of a position id; here, a candidate
+	// role is checked for exact membership).
+	ListDoorAccessPoliciesForMemberView(ctx context.Context, arg ListDoorAccessPoliciesForMemberViewParams) ([]ListDoorAccessPoliciesForMemberViewRow, error)
+	ListDoors(ctx context.Context) ([]Door, error)
 	ListEmailAliasesForPosition(ctx context.Context, positionID string) ([]EmailAlias, error)
 	ListEventComments(ctx context.Context, eventID pgtype.UUID) ([]ListEventCommentsRow, error)
 	ListEventGoing(ctx context.Context, eventID pgtype.UUID) ([]ListEventGoingRow, error)
@@ -343,8 +381,17 @@ type Querier interface {
 	// matches, which is the same no-op the old code got from Prisma ignoring
 	// an undefined filter.
 	ListPoliciesForRolesOrStudentID(ctx context.Context, arg ListPoliciesForRolesOrStudentIDParams) ([]string, error)
+	// patterns are caller-built "{role}%" LIKE patterns, one per non-wildcard
+	// role a door policy names - see ExistsPositionWithPrefix's doc comment for
+	// why this is a real prefix match, not the old app's broken literal one.
+	ListPositionIDsMatchingPrefixes(ctx context.Context, patterns []string) ([]string, error)
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 	ListPushEnabledMemberIDs(ctx context.Context, arg ListPushEnabledMemberIDsParams) ([]pgtype.UUID, error)
+	// Backs the "*" wildcard role (see 2024-11-25's "Added support for
+	// wildcard roles in door access policies") - every member whose class year
+	// is within the last ~10 years, matching the old app's
+	// `classYear: {gte: currentYear - 10}` exactly.
+	ListRecentMemberStudentIDs(ctx context.Context, minClassYear int32) ([]pgtype.Text, error)
 	ListSeasons(ctx context.Context) ([]NollningSeason, error)
 	// show_deleted toggles between two mutually exclusive views (mirroring the
 	// old app's "show-deleted" query param on the songbook list page): the
@@ -352,6 +399,9 @@ type Querier interface {
 	// soft-deleted songs (true) - never both at once, unlike GetSongBySlug's
 	// include_deleted below, which unions.
 	ListSongs(ctx context.Context, arg ListSongsParams) ([]Song, error)
+	// Current (start_date <= today <= end_date) mandate holders of any of the
+	// given positions - the role-based half of salto's allowed-student list.
+	ListStudentIDsForActivePositions(ctx context.Context, positionIds []string) ([]pgtype.Text, error)
 	ListTags(ctx context.Context) ([]Tag, error)
 	// Used by the Discord webhook to check for a NOLLNING-prefixed tag and pick
 	// the embed's color/footer from the article's first tag.
