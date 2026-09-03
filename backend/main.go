@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 
@@ -79,9 +80,36 @@ func main() {
 	}
 	notificationSvc := notifications.NewService(pool, nollningSvc, pushMock)
 
+	frontendOrigin := os.Getenv("PUBLIC_FRONTEND_URL")
+	if frontendOrigin == "" {
+		log.Fatal(
+			"PUBLIC_FRONTEND_URL is not set - required for CORS now that requests carry credentials (see internal/api.withCORS)",
+		)
+	}
+	// Go has no built-in dev/prod distinction the way e.g. Node has
+	// NODE_ENV - this is the closest free signal available: a real
+	// deployment MUST set PUBLIC_FRONTEND_URL to its real origin for
+	// login redirects/CORS to work at all (see internal/api.withCORS), so
+	// it can't accidentally still say "localhost" there the way an
+	// inherited AUTH_MOCK=true from the shared, git-tracked ../.env could
+	// accidentally still say "true" - see DESIGN.md's Auth section for
+	// the AUTH_MOCK-defaults-on-in-.env decision this backstops.
+	frontendURL, err := url.Parse(frontendOrigin)
+	if err != nil {
+		log.Fatalf("PUBLIC_FRONTEND_URL is not a valid URL: %v", err)
+	}
+	looksLikeLocalDev := frontendURL.Hostname() == "localhost" ||
+		frontendURL.Hostname() == "127.0.0.1"
+
 	var authenticator auth.Authenticator
 	var oidcClient *auth.OIDCClient
 	if os.Getenv("AUTH_MOCK") == "true" {
+		if !looksLikeLocalDev {
+			log.Fatalf(
+				"AUTH_MOCK=true but PUBLIC_FRONTEND_URL (%q) doesn't look like a local dev address (localhost/127.0.0.1) - refusing to start with mock auth against what looks like a real deployment. Set AUTH_MOCK=false (or unset it) for a real deployment.",
+				frontendOrigin,
+			)
+		}
 		identity, err := mockIdentity(ctx, queries)
 		if err != nil {
 			log.Fatalf("resolve mock auth identity: %v", err)
@@ -92,13 +120,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("set up real auth: %v", err)
 		}
-	}
-
-	frontendOrigin := os.Getenv("PUBLIC_FRONTEND_URL")
-	if frontendOrigin == "" {
-		log.Fatal(
-			"PUBLIC_FRONTEND_URL is not set - required for CORS now that requests carry credentials (see internal/api.withCORS)",
-		)
 	}
 
 	var store storage.Backend
