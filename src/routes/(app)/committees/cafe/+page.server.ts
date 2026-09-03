@@ -1,5 +1,6 @@
 import type { PageServerLoad, Actions } from "./$types";
-import { committeeActions, committeeLoad } from "../committee";
+import { committeeLoad } from "../committee";
+import { committeeActions } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { error, fail, type NumericRange } from "@sveltejs/kit";
 import { TimeSlot } from "./types";
