@@ -82,14 +82,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 export const actions: Actions = {
   ...committeeActions("cafe"),
   updateHours: async ({ request, locals }) => {
-    const { user, prisma } = locals;
+    const { prisma } = locals;
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
     const { markdownSv, markdownEn, markdownSlug } = form.data;
 
     if (markdownSlug && markdownSv) {
-      await updateMarkdown(user, prisma, {
+      await updateMarkdown(prisma, {
         name: markdownSlug,
         markdownSv,
         markdownEn,

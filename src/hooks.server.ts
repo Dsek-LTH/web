@@ -28,7 +28,10 @@ import { enhance } from "@zenstackhq/runtime";
 import RPCApiHandler from "@zenstackhq/server/api/rpc";
 import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
-import { getAccessPolicies } from "./hooks.server.helpers";
+import {
+  getAccessPolicies,
+  getEditableMarkdowns,
+} from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
 import {
   PrismaClientKnownRequestError,
@@ -179,6 +182,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       studentId: undefined,
       memberId: undefined,
       policies,
+      editableMarkdowns: getEditableMarkdowns(policies),
       externalCode: externalCode, // For anonymous users
       roles,
     };
@@ -217,10 +221,16 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       member.classYear ?? undefined,
       member.classProgramme ?? undefined,
     );
+    const policies = await getAccessPolicies(
+      prisma,
+      roles,
+      session.user.student_id,
+    );
     const user = {
       studentId: session.user.student_id,
       memberId: member!.id,
-      policies: await getAccessPolicies(prisma, roles, session.user.student_id),
+      policies,
+      editableMarkdowns: getEditableMarkdowns(policies),
       roles,
     };
 

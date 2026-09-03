@@ -74,12 +74,12 @@ export const actions: Actions = {
   },
   update: async (event) => {
     const { request, locals, params } = event;
-    const { user, prisma } = locals;
+    const { prisma } = locals;
     const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
     // read the form data sent by the browser
-    await updateMarkdown(user, prisma, { ...form.data, name });
+    await updateMarkdown(prisma, { ...form.data, name });
     throw redirect(
       `/info/${name}`,
       {

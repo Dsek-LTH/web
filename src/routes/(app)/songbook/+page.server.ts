@@ -1,4 +1,3 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { PageServerLoad } from "./$types";
 import {
   canAccessDeletedSongs,
@@ -7,12 +6,11 @@ import {
 } from "./helpers";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const { user } = locals;
+  const { prisma, user } = locals;
   const accessPolicies = user?.policies ?? [];
   const showDeleted =
     canAccessDeletedSongs(accessPolicies) &&
     url.searchParams.get("show-deleted") === "true";
-  const prismaClient = showDeleted ? authorizedPrismaClient : locals.prisma;
 
   const search = url.searchParams.get("search") || "";
   const categoryFilter = url.searchParams.getAll("category");
@@ -44,14 +42,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   };
 
   const [songs, totalCount, rawCategories] = await Promise.all([
-    prismaClient.song.findMany({
+    prisma.song.findMany({
       where,
       take,
       skip,
       orderBy: { title: "asc" },
     }),
-    prismaClient.song.count({ where }),
-    getExistingCategories(prismaClient, accessPolicies, showDeleted),
+    prisma.song.count({ where }),
+    getExistingCategories(prisma, accessPolicies, showDeleted),
   ]);
 
   const categoryMap = groupCategories(rawCategories);

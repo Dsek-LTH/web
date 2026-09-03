@@ -66,11 +66,12 @@ enum TimeSlot {
 }
 
 model User {
-  studentId    String   @id()
-  memberId     String
-  policies     String[]
-  externalCode String?
-  roles        String[]
+  studentId         String   @id()
+  memberId          String
+  policies          String[]
+  externalCode      String?
+  roles             String[]
+  editableMarkdowns String[]
 
   @@ignore()
 }

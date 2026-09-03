@@ -18,11 +18,12 @@ plugin openapi {
 }
 
 model User {
-    studentId    String   @id
-    memberId     String
-    policies     String[]
-    externalCode String? // for non-authenticated users, like purchasing tickets
-    roles        String[]
+    studentId         String   @id
+    memberId          String
+    policies          String[]
+    externalCode      String? // for non-authenticated users, like purchasing tickets
+    roles             String[]
+    editableMarkdowns String[]
     @@ignore
 }
 
@@ -544,6 +545,7 @@ model Markdown {
     @@allow("read", true)
     @@allow("create", has(auth().policies, "markdown:create"))
     @@allow("update", has(auth().policies, "markdown:update"))
+    @@allow("update", name in auth().editableMarkdowns)
     @@allow("delete", has(auth().policies, "markdown:delete"))
     @@map("markdowns")
 }
@@ -896,7 +898,7 @@ model Song {
 
     @@allow("create", has(auth().policies, "song:create"))
     @@allow("read", has(auth().policies, "song:read"))
-    @@deny("read", deletedAt != null)
+    @@deny("read", deletedAt != null && !has(auth().policies, "song:delete"))
     @@allow("update", has(auth().policies, "song:update"))
     @@map("songs")
 }

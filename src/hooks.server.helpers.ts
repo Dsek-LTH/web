@@ -76,3 +76,17 @@ const getAllAccessPolicies = async (prisma: ExtendedPrisma) =>
   prisma.accessPolicy
     .findMany({ distinct: "apiName" })
     .then((policies) => policies.map((p) => p.apiName));
+
+const MARKDOWN_PAGE_UPDATE_POLICY = /^markdowns:(.+):update$/;
+
+/**
+ * Markdown pages need per-page edit access, which zenstack's static
+ * @@allow rules can't express directly (they can't reference a dynamic,
+ * per-record permission string). Deriving the list of editable page names
+ * here lets `schema.zmodel` check `name in auth().editableMarkdowns`
+ * instead of a manual policy check outside zenstack.
+ */
+export const getEditableMarkdowns = (policies: string[]): string[] =>
+  policies
+    .map((policy) => policy.match(MARKDOWN_PAGE_UPDATE_POLICY)?.[1])
+    .filter((name): name is string => name != null);

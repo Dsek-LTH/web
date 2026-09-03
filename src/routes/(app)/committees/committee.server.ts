@@ -189,7 +189,7 @@ export const committeeActions = (
   shortName?: string,
 ): Actions<{ shortName: string }> => ({
   updateCommitteeMarkdown: async ({ request, locals }) => {
-    const { user, prisma } = locals;
+    const { prisma } = locals;
     const form = await superValidate(request, zod4(updateCommitteeBody));
     if (!form.valid) return fail(400);
 
@@ -214,7 +214,7 @@ export const committeeActions = (
     }
 
     if (markdownSlug && markdownSv) {
-      await updateMarkdown(user, prisma, {
+      await updateMarkdown(prisma, {
         name: markdownSlug,
         markdownSv,
         markdownEn: markdownEn ?? null,

@@ -1,12 +1,7 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { type ExtendedPrisma } from "$lib/server/extendedPrisma";
-import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
-import type { AuthUser } from "@zenstackhq/runtime";
 import DOMPurify from "isomorphic-dompurify";
 
 export const updateMarkdown = async (
-  user: AuthUser,
   prisma: ExtendedPrisma,
   markdown: {
     name: string;
@@ -14,14 +9,9 @@ export const updateMarkdown = async (
     markdownEn: string | null | undefined;
   },
 ) => {
-  // we cannot do page-specific access in zenstack so we have to do it like this
-  const prismaToUse = isAuthorized(
-    apiNames.MARKDOWNS.PAGE(markdown.name).UPDATE,
-    user,
-  )
-    ? authorizedPrismaClient
-    : prisma;
-  return await prismaToUse.markdown.update({
+  // Per-page edit access is granted via auth().editableMarkdowns,
+  // see schema.zmodel's Markdown model and getEditableMarkdowns().
+  return await prisma.markdown.update({
     where: {
       name: markdown.name,
     },
