@@ -3,9 +3,16 @@ import { z } from "zod";
 import { fail, message, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import dayjs from "dayjs";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
 import { redirect } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
+
+// drinkitembatch:update/delete (Go's apinames.DrinkItemBatchUpdate/Delete)
+// are enforced by Go itself now (internal/stocklist.Service.UpdateBatch/
+// DeleteBatch, which apply the item-quantity adjustment and the
+// negative-total guard atomically in one transaction) - no authorize()
+// call here, matching DESIGN.md's Principle #5. The old app's own
+// duplicated negative-total math (once in updateEntry, once in
+// deleteEntry) is gone from this file entirely - Go owns it.
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -22,7 +29,6 @@ const updateSchema = z.object({
 });
 
 export const load: PageServerLoad = async (event) => {
-  const { prisma } = event.locals;
   const date = event.url.searchParams.get("date");
   const deleteForm = await superValidate(zod4(deleteSchema));
   const updateForm = await superValidate(zod4(updateSchema));
@@ -31,22 +37,10 @@ export const load: PageServerLoad = async (event) => {
     zod4(dateSchema),
   );
 
-  let entries;
-
-  if (date) {
-    entries = await prisma.drinkItemBatch.findMany({
-      where: {
-        date: { lte: new Date(date) },
-      },
-      include: { item: true },
-      orderBy: { date: "desc" },
-    });
-  } else {
-    entries = await prisma.drinkItemBatch.findMany({
-      include: { item: true },
-      orderBy: { date: "desc" },
-    });
-  }
+  const res = await serverApi(event).GET("/drink-item-batches", {
+    params: { query: date ? { beforeDate: date } : {} },
+  });
+  const entries = res.data ?? [];
 
   const entriesOnDate =
     date == null
@@ -63,58 +57,17 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
   updateEntry: async (event) => {
-    const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.UPDATE, user);
     const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
-    const batchId = form.data.id;
-    const requestedQuantityDelta = form.data.quantityDelta;
-    const requestedNrBottlesDelta = form.data.nrBottlesDelta;
-    try {
-      await prisma.$transaction(async (tx) => {
-        const batch = await tx.drinkItemBatch.findUnique({
-          where: { id: batchId },
-          include: {
-            item: true,
-          },
-        });
-
-        const newQuantity =
-          batch!.item.quantityAvailable! -
-          batch!.quantityDelta +
-          requestedQuantityDelta;
-
-        const newNrBottles =
-          batch!.item.nrBottles! -
-          batch!.nrBottlesDelta! +
-          requestedNrBottlesDelta
-            ? batch!.item.nrBottles! -
-              batch!.nrBottlesDelta! +
-              requestedNrBottlesDelta
-            : 0;
-
-        if (newQuantity < 0 || newNrBottles < 0) {
-          throw new Error("Totalt antal blir negativt");
-        }
-
-        await tx.drinkItemBatch.update({
-          where: { id: batchId },
-          data: {
-            quantityDelta: requestedQuantityDelta,
-            nrBottlesDelta: requestedNrBottlesDelta,
-          },
-        });
-
-        await tx.drinkItem.update({
-          where: { id: batch?.item.id },
-          data: {
-            quantityAvailable: newQuantity,
-            nrBottles: newNrBottles,
-          },
-        });
-      });
-    } catch {
+    const res = await serverApi(event).PATCH("/drink-item-batches/{id}", {
+      params: { path: { id: form.data.id } },
+      body: {
+        quantityDelta: form.data.quantityDelta,
+        nrBottlesDelta: form.data.nrBottlesDelta,
+      },
+    });
+    if (res.error) {
       return message(form, { message: "Totalt antal blir negativt" });
     }
 
@@ -122,45 +75,13 @@ export const actions: Actions = {
   },
 
   deleteEntry: async (event) => {
-    const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.DELETE, user);
     const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
 
-    const batchId = form.data.id;
-    try {
-      await prisma.$transaction(async (tx) => {
-        const batch = await tx.drinkItemBatch.findUnique({
-          where: { id: batchId },
-          include: {
-            item: true,
-          },
-        });
-        const newQuantity =
-          batch!.item.quantityAvailable! - batch!.quantityDelta!;
-
-        const newNrBottles =
-          batch!.item.nrBottles! - batch!.nrBottlesDelta!
-            ? batch!.item.nrBottles! - batch!.nrBottlesDelta!
-            : 0;
-
-        if (newQuantity < 0 || newNrBottles < 0) {
-          throw new Error("Totalt antal blir negativt");
-        }
-
-        await tx.drinkItem.update({
-          where: { id: batch?.item.id },
-          data: {
-            quantityAvailable: newQuantity,
-            nrBottles: newNrBottles,
-          },
-        });
-
-        await tx.drinkItemBatch.delete({
-          where: { id: batchId },
-        });
-      });
-    } catch {
+    const res = await serverApi(event).DELETE("/drink-item-batches/{id}", {
+      params: { path: { id: form.data.id } },
+    });
+    if (res.error) {
       return message(form, { message: "Totalt antal blir negativt" });
     }
     return message(form, { message: `Logg borttagen` });

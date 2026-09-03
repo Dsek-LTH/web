@@ -7,6 +7,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 
 	"github.com/dsek-lth/web/backend/internal/accesspolicies"
+	"github.com/dsek-lth/web/backend/internal/adminsettings"
 	"github.com/dsek-lth/web/backend/internal/alerts"
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
@@ -17,11 +18,13 @@ import (
 	"github.com/dsek-lth/web/backend/internal/elections"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
+	"github.com/dsek-lth/web/backend/internal/links"
 	"github.com/dsek-lth/web/backend/internal/markdown"
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
+	"github.com/dsek-lth/web/backend/internal/stocklist"
 )
 
 // humaServiceError maps a domain-package error to a huma.StatusError,
@@ -44,7 +47,10 @@ func humaServiceError(err error) error {
 		errors.Is(err, elections.ErrNotFound),
 		errors.Is(err, cafe.ErrNotFound),
 		errors.Is(err, notifications.ErrNotFound),
-		errors.Is(err, doors.ErrNotFound):
+		errors.Is(err, doors.ErrNotFound),
+		errors.Is(err, adminsettings.ErrNotFound),
+		errors.Is(err, stocklist.ErrNotFound),
+		errors.Is(err, links.ErrNotFound):
 		return huma.Error404NotFound("not found")
 	case errors.Is(err, articles.ErrInvalidInput),
 		errors.Is(err, events.ErrInvalidInput),
@@ -59,7 +65,10 @@ func humaServiceError(err error) error {
 		errors.Is(err, elections.ErrInvalidInput),
 		errors.Is(err, cafe.ErrInvalidInput),
 		errors.Is(err, notifications.ErrInvalidInput),
-		errors.Is(err, doors.ErrInvalidInput):
+		errors.Is(err, doors.ErrInvalidInput),
+		errors.Is(err, adminsettings.ErrInvalidInput),
+		errors.Is(err, stocklist.ErrInvalidInput),
+		errors.Is(err, links.ErrInvalidInput):
 		return huma.Error400BadRequest(err.Error())
 	case errors.Is(err, auth.ErrUnauthenticated):
 		return huma.Error401Unauthorized("unauthenticated")

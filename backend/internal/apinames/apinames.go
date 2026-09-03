@@ -141,6 +141,38 @@ const (
 	DoorRead   = "core:access:door:read"
 	DoorCreate = "core:access:door:create"
 	DoorDelete = "core:access:door:delete"
+
+	// Phase 11 ("Admin consolidation" - see DESIGN.md's roadmap) below.
+
+	// AdminSettingsRead/Update/Delete mirror the old apiNames.ADMIN.SETTINGS
+	// crud() group - no AdminSettingsCreate, since the old app's single
+	// "update" action always upserted (no separate create path to gate).
+	AdminSettingsRead   = "admin:settings:read"
+	AdminSettingsUpdate = "admin:settings:update"
+	AdminSettingsDelete = "admin:settings:delete"
+
+	// AdminShlinkRead/Create/Update/Delete mirror the old
+	// apiNames.ADMIN.SHLINK crud() group exactly - all four old actions had
+	// their own distinct authorize() call.
+	AdminShlinkRead   = "admin:shlink:read"
+	AdminShlinkCreate = "admin:shlink:create"
+	AdminShlinkUpdate = "admin:shlink:update"
+	AdminShlinkDelete = "admin:shlink:delete"
+
+	// DrinkItem{Create,Update,Delete} mirror the old apiNames.DRINKITEM
+	// crud() group - no DrinkItemRead: the old ZModel's @@allow("read", true)
+	// makes reads fully public, same "nothing real to gate" situation as
+	// ElectionRead.
+	DrinkItemCreate = "drinkitem:create"
+	DrinkItemUpdate = "drinkitem:update"
+	DrinkItemDelete = "drinkitem:delete"
+
+	// DrinkItemBatch{Create,Update,Delete} mirror the old
+	// apiNames.DRINKITEMBATCH crud() group, same no-Read situation as
+	// DrinkItem above.
+	DrinkItemBatchCreate = "drinkitembatch:create"
+	DrinkItemBatchUpdate = "drinkitembatch:update"
+	DrinkItemBatchDelete = "drinkitembatch:delete"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -210,5 +242,18 @@ func All() []string {
 		DoorRead,
 		DoorCreate,
 		DoorDelete,
+		AdminSettingsRead,
+		AdminSettingsUpdate,
+		AdminSettingsDelete,
+		AdminShlinkRead,
+		AdminShlinkCreate,
+		AdminShlinkUpdate,
+		AdminShlinkDelete,
+		DrinkItemCreate,
+		DrinkItemUpdate,
+		DrinkItemDelete,
+		DrinkItemBatchCreate,
+		DrinkItemBatchUpdate,
+		DrinkItemBatchDelete,
 	}
 }

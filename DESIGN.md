@@ -1880,6 +1880,89 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     UI was confirmed to change what the proxy subsequently returns.
 11. **Admin consolidation** - settings, links, minio browser, stocklist,
     debug - thin wrappers over domains that need to exist first.
+    **Status: backend and frontend both implemented 2026-09-03**
+    (`backend/internal/adminsettings`, `internal/stocklist`, `internal/links`,
+    plus additions to the existing `internal/documents` - see
+    `backend/CLAUDE.md`'s "Admin routes" section for the exact endpoint
+    list). Five sub-features named in the roadmap bullet, four of which
+    needed real backend work:
+    - **Settings** (`admin/settings`): a genuine gap, not a redirect -
+      `admin_settings` already existed in `schema.sql` (added in Phase 9
+      for the Discord webhook config, and before that for the
+      now-superseded nollning-period window), but nothing had ever written
+      it from Go. `internal/adminsettings` is real CRUD over that same
+      table. The old app's `update`/`remove` actions had no `authorize()`
+      call at all - a real fix, not a replicated gap, same class of issue
+      several earlier phases already found and closed.
+    - **Stocklist** (`admin/stocklist`) is the "drink inventory" half of
+      this roadmap bullet's original Phase 8 description
+      ("shifts + drink inventory"), deliberately deferred here when Phase
+      8 ("Cafe") was implemented - see that entry above for the
+      user-confirmed scope split. `DrinkItem`/`DrinkItemBatch` (both
+      pre-existing Prisma tables) got real CRUD, a CSV bulk-import
+      endpoint, and the inventory-value calculation, all in
+      `internal/stocklist`. `SexetInventoryValueLog` (also named in the
+      original Phase 8 description) turned out to be dead - zero real
+      callers anywhere in the old app beyond the generic Prisma-REST
+      schema dump - and wasn't ported.
+      - **A real, deliberate improvement over the old app's actual
+        behavior**, not just a fidelity port: the old "out" stock-change
+        action only guarded `quantityAvailable` against going negative (via
+        a conditional Prisma `updateMany`), never `nrBottles` - a real gap
+        in the old code. Go's `AdjustDrinkItemQuantity` query guards both
+        atomically in one SQL statement, closing this for free rather than
+        replicating the asymmetry. The old app's "product still has batch
+        history" delete-blocked message (an old-code try/catch around a
+        Postgres FK-violation Prisma let propagate) is replicated as-is via
+        a real Postgres error-code check (`23503`) in Go.
+      - Verified live end-to-end via `AUTH_MOCK` through the *actual*
+        SvelteKit dev server's real form actions (not direct Go calls):
+        create a product, stock it in, confirm the running total and
+        inventory value update, confirm delete is blocked while batch
+        history exists, delete the batch (confirming the atomic reversal),
+        then delete the product successfully.
+    - **Links** (`admin/links`) is a thin wrapper around Shlink (the
+      university's URL shortener), the one sub-feature with **no local
+      table at all** - `internal/links` proxies straight through to
+      Shlink's own REST API v3, matching the "mock/wrap an out-of-scope
+      external dependency" precedent already used for the Discord webhook
+      and Expo push (Phase 9), except here nothing is mocked - it's a real
+      HTTP client replacing the old app's `@shlinkio/shlink-js-sdk`
+      dependency. Read responses (list short URLs, tags) are passed
+      through as raw JSON rather than decoded into a hand-modeled Go
+      struct, since `SHLINK_API_KEY` is blank in the shared dev `.env` and
+      there was no way to exercise a live response here to confirm a
+      hand-modeled shape against it before this port; write bodies
+      (create/update) are fully typed, mirroring the old app's own zod
+      schemas exactly. **Accidentally verified live anyway**: a real
+      `GET /links` round-trip through the actual SvelteKit dev server hit
+      the real `SHLINK_ENDPOINT` (`https://link.dsek.se`) and got back a
+      real, correctly-surfaced 400 ("Expected one of the following
+      authentication headers, [\"X-Api-Key\"], but none were provided") -
+      confirming the request shape, auth header name, and RFC 7807
+      error-surfacing all match Shlink's real API, even though full CRUD
+      couldn't be exercised without a real key.
+    - **Minio browser** (`admin/minio`) - "a page to upload files to the
+      server and get a link back" - turned out to be the smallest of the
+      four: three new methods (`ListMisc`/`UploadMisc`/`DeleteMisc`) on the
+      *existing* `internal/documents.Service`, reusing its already-shipped
+      `FileFilesRead/Create/Delete` policies verbatim (same bucket, just a
+      different fixed prefix - `public/miscellaneous` - than the meeting/
+      requirement-profile prefixes that package already manages). Not a
+      new domain package, since this genuinely was just another view onto
+      a domain that already existed - matching this roadmap bullet's own
+      "thin wrappers over domains that need to exist first" framing more
+      literally than any of the other four sub-features.
+    - **Debug** (`admin/debug`) needed **no backend change at all** -
+      it already called Go for `/nollning/current` (wired during Phase 2),
+      and its other two data points (`PRISMA_LOG_LEVEL`, a MinIO health
+      check via the still-live `src/lib/files` module) are out of scope
+      for this phase: the Meilisearch sync button is Phase 12 ("Search")'s
+      job, and `fileHandler.isMinIOHealthy()` has no Go equivalent to port
+      to since nothing else in Go exposes a health-check endpoint yet.
+    - `src/lib/utils/stocklistUtils.ts` (`inventoryValue`/`readCSV`,
+      confirmed zero remaining callers by grep) was deleted once
+      `admin/stocklist/+page.server.ts` moved onto Go.
 12. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 13. **Frontend implementation sweep** - per principle #6, phases 3-12

@@ -490,10 +490,10 @@ CREATE TABLE subscription_settings (
 
 -- Generic operator key/value store - existed already for the old
 -- AdminSetting-backed nollning-period window (superseded by
--- nollning_seasons in Phase 2) and the Discord webhook config this phase
--- reuses (keys "discord_webhook_se"/"webhook_tags_se"). Phase 11 ("Admin
--- consolidation") is where a real CRUD UI over this table belongs; this
--- phase only reads it.
+-- nollning_seasons in Phase 2) and the Discord webhook config Phase 9
+-- reuses (keys "discord_webhook_se"/"webhook_tags_se"). Real CRUD over
+-- this table (internal/adminsettings) shipped in Phase 11 ("Admin
+-- consolidation") - see backend/CLAUDE.md's "Admin routes" section.
 CREATE TABLE admin_settings (
     key        VARCHAR(255) PRIMARY KEY,
     value      VARCHAR(255),
@@ -535,4 +535,40 @@ CREATE TABLE door_access_policies (
     end_datetime   TIMESTAMPTZ,
     is_ban         BOOLEAN NOT NULL DEFAULT false,
     information    VARCHAR(255)
+);
+
+-- Phase 11 ("Admin consolidation" - see DESIGN.md's roadmap), the
+-- admin/stocklist drink-inventory feature deferred out of Phase 8 (see
+-- that phase's own note in this file's history / backend/CLAUDE.md's Cafe
+-- routes section). Both tables pre-date this Go port (Prisma-created) -
+-- schema.sql additions only, no new migration. SexetInventoryValueLog
+-- (also named in the roadmap's original "shifts + drink inventory"
+-- description) is confirmed dead - zero real callers anywhere in the old
+-- app beyond the generic Prisma-REST schema dump - and was not ported.
+CREATE TYPE "DrinkQuantityType" AS ENUM ('NONE', 'WEIGHT', 'COUNTS');
+CREATE TYPE "DrinkGroup" AS ENUM ('S1', 'S2', 'S3', 'S4');
+
+CREATE TABLE drinkitem (
+    id                  UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    quantity_type       "DrinkQuantityType" NOT NULL,
+    name                TEXT NOT NULL,
+    price               INTEGER NOT NULL,
+    "group"             "DrinkGroup" NOT NULL,
+    systembolaget_id    INTEGER NOT NULL,
+    bottle_empty_weight INTEGER,
+    bottle_full_weight  INTEGER,
+    quantity_available  INTEGER DEFAULT 0,
+    nr_bottles          INTEGER DEFAULT 0
+);
+
+-- "user" is genuinely the column name (a free-text studentId snapshot, not
+-- a members FK) - confirmed via psql \d, matched as-is despite being a
+-- reserved word.
+CREATE TABLE drinkitembatch (
+    id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    drink_item_id    UUID NOT NULL REFERENCES drinkitem (id),
+    "user"           TEXT NOT NULL,
+    date             TIMESTAMP(3) NOT NULL,
+    quantity_delta   INTEGER NOT NULL,
+    nr_bottles_delta INTEGER
 );

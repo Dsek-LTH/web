@@ -101,6 +101,93 @@ func (ns NullDocumentType) Value() (driver.Value, error) {
 	return string(ns.DocumentType), nil
 }
 
+type DrinkGroup string
+
+const (
+	DrinkGroupS1 DrinkGroup = "S1"
+	DrinkGroupS2 DrinkGroup = "S2"
+	DrinkGroupS3 DrinkGroup = "S3"
+	DrinkGroupS4 DrinkGroup = "S4"
+)
+
+func (e *DrinkGroup) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DrinkGroup(s)
+	case string:
+		*e = DrinkGroup(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DrinkGroup: %T", src)
+	}
+	return nil
+}
+
+type NullDrinkGroup struct {
+	DrinkGroup DrinkGroup `json:"DrinkGroup"`
+	Valid      bool       `json:"valid"` // Valid is true if DrinkGroup is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDrinkGroup) Scan(value interface{}) error {
+	if value == nil {
+		ns.DrinkGroup, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DrinkGroup.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDrinkGroup) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DrinkGroup), nil
+}
+
+type DrinkQuantityType string
+
+const (
+	DrinkQuantityTypeNONE   DrinkQuantityType = "NONE"
+	DrinkQuantityTypeWEIGHT DrinkQuantityType = "WEIGHT"
+	DrinkQuantityTypeCOUNTS DrinkQuantityType = "COUNTS"
+)
+
+func (e *DrinkQuantityType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DrinkQuantityType(s)
+	case string:
+		*e = DrinkQuantityType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DrinkQuantityType: %T", src)
+	}
+	return nil
+}
+
+type NullDrinkQuantityType struct {
+	DrinkQuantityType DrinkQuantityType `json:"DrinkQuantityType"`
+	Valid             bool              `json:"valid"` // Valid is true if DrinkQuantityType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDrinkQuantityType) Scan(value interface{}) error {
+	if value == nil {
+		ns.DrinkQuantityType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DrinkQuantityType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDrinkQuantityType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DrinkQuantityType), nil
+}
+
 type RecurringType string
 
 const (
@@ -383,6 +470,28 @@ type DoorAccessPolicy struct {
 	EndDatetime   pgtype.Timestamptz `json:"end_datetime"`
 	IsBan         bool               `json:"is_ban"`
 	Information   pgtype.Text        `json:"information"`
+}
+
+type Drinkitem struct {
+	ID                pgtype.UUID       `json:"id"`
+	QuantityType      DrinkQuantityType `json:"quantity_type"`
+	Name              string            `json:"name"`
+	Price             int32             `json:"price"`
+	Group             DrinkGroup        `json:"group"`
+	SystembolagetID   int32             `json:"systembolaget_id"`
+	BottleEmptyWeight pgtype.Int4       `json:"bottle_empty_weight"`
+	BottleFullWeight  pgtype.Int4       `json:"bottle_full_weight"`
+	QuantityAvailable pgtype.Int4       `json:"quantity_available"`
+	NrBottles         pgtype.Int4       `json:"nr_bottles"`
+}
+
+type Drinkitembatch struct {
+	ID             pgtype.UUID      `json:"id"`
+	DrinkItemID    pgtype.UUID      `json:"drink_item_id"`
+	User           string           `json:"user"`
+	Date           pgtype.Timestamp `json:"date"`
+	QuantityDelta  int32            `json:"quantity_delta"`
+	NrBottlesDelta pgtype.Int4      `json:"nr_bottles_delta"`
 }
 
 type Election struct {

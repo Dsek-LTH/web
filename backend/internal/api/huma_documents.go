@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/google/uuid"
 
 	"github.com/dsek-lth/web/backend/internal/documents"
 )
@@ -42,6 +43,26 @@ type deleteDocumentInput struct {
 }
 
 type deleteRequirementInput struct {
+	ID string `query:"id" required:"true"`
+}
+
+type listMiscFilesOutput struct {
+	Body []documents.DocumentFile
+}
+
+type uploadMiscFileInput struct {
+	RawBody huma.MultipartFormFiles[struct {
+		Prefix string        `form:"prefix"`
+		Name   string        `form:"name"  doc:"defaults to a random name if omitted"`
+		File   huma.FormFile `form:"file"  required:"true"`
+	}]
+}
+
+type miscFileOutput struct {
+	Body documents.DocumentFile
+}
+
+type deleteMiscFileInput struct {
 	ID string `query:"id" required:"true"`
 }
 
@@ -109,6 +130,52 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		DefaultStatus: http.StatusNoContent,
 	}, func(ctx context.Context, input *deleteRequirementInput) (*struct{}, error) {
 		if err := svc.DeleteRequirement(ctx, input.ID); err != nil {
+			return nil, humaServiceError(err)
+		}
+		return nil, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "list-misc-files",
+		Method:      http.MethodGet,
+		Path:        "/admin/files",
+		Summary:     "List admin/minio's miscellaneous-file browser",
+	}, func(ctx context.Context, input *struct{}) (*listMiscFilesOutput, error) {
+		files, err := svc.ListMisc(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &listMiscFilesOutput{Body: files}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "upload-misc-file",
+		Method:        http.MethodPost,
+		Path:          "/admin/files",
+		Summary:       "Upload a file to admin/minio's miscellaneous-file browser",
+		DefaultStatus: http.StatusCreated,
+	}, func(ctx context.Context, input *uploadMiscFileInput) (*miscFileOutput, error) {
+		data := input.RawBody.Data()
+		name := data.Name
+		if name == "" {
+			name = uuid.NewString()
+		}
+		file := documents.UploadFile{Filename: data.File.Filename, Data: data.File}
+		result, err := svc.UploadMisc(ctx, data.Prefix, name, file)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &miscFileOutput{Body: *result}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "delete-misc-file",
+		Method:        http.MethodDelete,
+		Path:          "/admin/files",
+		Summary:       "Delete a file from admin/minio's miscellaneous-file browser",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, input *deleteMiscFileInput) (*struct{}, error) {
+		if err := svc.DeleteMisc(ctx, input.ID); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil

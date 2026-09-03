@@ -1,11 +1,6 @@
 // Page to upload files to the server and get a link back
 
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
-import { fileHandler } from "$lib/files";
-import { getFileUrl } from "$lib/files/client";
-import { uploadFile } from "$lib/files/uploadFiles";
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { serverApi } from "$lib/server/apiClient";
 import * as m from "$paraglide/messages";
 import { fail, message, superValidate, withFiles } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -14,20 +9,21 @@ import { z } from "zod";
 
 const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 
-export const load = async ({ locals }) => {
-  const { user } = locals;
+// fileHandler:files:read/create/delete (Go's apinames.FileFiles*) are
+// enforced by Go itself now (internal/documents.Service's ListMisc/
+// UploadMisc/DeleteMisc) - no authorize() call here, matching DESIGN.md's
+// Principle #5.
 
-  authorize(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE, user);
-
-  // access is checked in the fileHandler
-  const files = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_FILES, MISCELLANEOUS_FILES_PREFIX, true)
-    .catch((err) => {
-      console.error("Error fetching files", err);
-      return [];
-    });
+export const load = async (event) => {
+  const res = await serverApi(event).GET("/admin/files", {});
+  if (res.error) {
+    // Matches the old load's own fileHandler.getInBucket(...).catch(...) -
+    // a storage error shouldn't fail the whole page, just leave the list
+    // empty.
+    console.error("Error fetching files", res.error);
+  }
   return {
-    files,
+    files: res.data ?? [],
     uploadForm: await superValidate(zod4(uploadSchema)),
     deleteForm: await superValidate(zod4(deleteSchema)),
     prefix: MISCELLANEOUS_FILES_PREFIX,
@@ -49,35 +45,29 @@ const deleteSchema = z.object({
 });
 
 export const actions = {
-  upload: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(uploadSchema), {
+  upload: async (event) => {
+    const form = await superValidate(event.request, zod4(uploadSchema), {
       allowFiles: true,
     });
     if (!form.valid) return fail(400, withFiles({ form }));
 
     const { file, fileName, prefix } = form.data;
-    const _prefix = `${MISCELLANEOUS_FILES_PREFIX}${prefix}`.replace("//", "/");
 
-    try {
-      const fileUrl = await uploadFile(
-        locals.user,
-        file,
-        _prefix.endsWith("/") ? _prefix.slice(0, _prefix.length - 1) : _prefix,
-        PUBLIC_BUCKETS_FILES,
-        fileName,
-        false,
-      );
-      form.data.fileUrl = getFileUrl(fileUrl) ?? null;
-    } catch (e) {
+    const body = new FormData();
+    body.append("file", file);
+    body.append("name", fileName);
+    body.append("prefix", prefix);
+    const res = await serverApi(event).POST("/admin/files", {
+      body: body as unknown as { file: string; name: string; prefix: string },
+    });
+    if (res.error) {
       return message(
         form,
-        {
-          message: e instanceof Error ? e.message : `${e}`,
-          type: "error",
-        },
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
         { status: 500 },
       );
     }
+    form.data.fileUrl = res.data.url;
 
     form.data.file = null as unknown as File; // will work, but not type correct
     form.data.fileName = "";
@@ -86,21 +76,17 @@ export const actions = {
       type: "success",
     });
   },
-  delete: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(deleteSchema));
+  delete: async (event) => {
+    const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, form);
 
-    const { id } = form.data;
-
-    try {
-      await fileHandler.remove(locals.user, PUBLIC_BUCKETS_FILES, [id]);
-    } catch (e) {
+    const res = await serverApi(event).DELETE("/admin/files", {
+      params: { query: { id: form.data.id } },
+    });
+    if (res.error) {
       return message(
         form,
-        {
-          message: e instanceof Error ? e.message : `${e}`,
-          type: "error",
-        },
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
         { status: 500 },
       );
     }

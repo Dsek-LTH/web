@@ -2,6 +2,7 @@ package documents
 
 import (
 	"context"
+	"path"
 	"strconv"
 	"strings"
 
@@ -330,6 +331,74 @@ func (s *Service) Delete(ctx context.Context, docType, id string) error {
 // deleteFile action had (it always targeted documentsBucket, where
 // requirement files never live).
 func (s *Service) DeleteRequirement(ctx context.Context, id string) error {
+	if err := auth.Require(ctx, apinames.FileFilesDelete); err != nil {
+		return err
+	}
+	return s.store.Remove(ctx, s.filesBucket, []string{id})
+}
+
+// miscPrefix is admin/minio's fixed MISCELLANEOUS_FILES_PREFIX - "a page
+// to upload files to the server and get a link back", the old app's own
+// doc comment for it.
+const miscPrefix = "public/miscellaneous"
+
+// ListMisc lists admin/minio's browser - every file under miscPrefix (plus
+// any subfolder prefix a caller has uploaded into) in filesBucket. Requires
+// FileFilesRead, matching fileHandler.ts's real getInBucket check (the old
+// page's own load() additionally required FILES.BUCKET(...).CREATE before
+// even calling getInBucket - a stricter, redundant outer gate for a page
+// whose only real purpose is uploading, not replicated as a second
+// requirement here since the real enforced check inside fileHandler was
+// always just READ).
+func (s *Service) ListMisc(ctx context.Context) ([]DocumentFile, error) {
+	if err := auth.Require(ctx, apinames.FileFilesRead); err != nil {
+		return nil, err
+	}
+	files, err := s.store.List(ctx, s.filesBucket, miscPrefix, true)
+	if err != nil {
+		return nil, invalidf("list misc files: %w", err)
+	}
+	out := make([]DocumentFile, len(files))
+	for i, f := range files {
+		out[i] = toDocumentFile(f)
+	}
+	return out, nil
+}
+
+// miscUploadKey mirrors admin/minio's upload action: `prefix` (default
+// "/") is appended to miscPrefix, with the resulting "//" collapsed and any
+// trailing slash trimmed, exactly as the old
+// `${MISCELLANEOUS_FILES_PREFIX}${prefix}`.replace("//", "/") did.
+func miscUploadKey(prefix, name, originalFilename string) string {
+	full := strings.Replace(miscPrefix+prefix, "//", "/", 1)
+	full = strings.TrimSuffix(full, "/")
+	return full + "/" + storage.PreparedFilename(name, originalFilename)
+}
+
+// UploadMisc stores one file under miscPrefix (optionally in a caller-given
+// subfolder), gated on FileFilesCreate.
+func (s *Service) UploadMisc(
+	ctx context.Context,
+	prefix, name string,
+	file UploadFile,
+) (*DocumentFile, error) {
+	if err := auth.Require(ctx, apinames.FileFilesCreate); err != nil {
+		return nil, err
+	}
+	if prefix == "" {
+		prefix = "/"
+	}
+	key := miscUploadKey(prefix, name, file.Filename)
+	url, err := s.store.Put(ctx, s.filesBucket, key, file.Data, -1)
+	if err != nil {
+		return nil, invalidf("upload %s: %w", key, err)
+	}
+	return &DocumentFile{ID: key, Name: path.Base(key), URL: url}, nil
+}
+
+// DeleteMisc removes one file from admin/minio's browser, gated on
+// FileFilesDelete (matching fileHandler.ts's remove() check).
+func (s *Service) DeleteMisc(ctx context.Context, id string) error {
 	if err := auth.Require(ctx, apinames.FileFilesDelete); err != nil {
 		return err
 	}

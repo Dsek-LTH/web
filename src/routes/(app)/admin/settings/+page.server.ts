@@ -1,5 +1,3 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 import { serverApi } from "$lib/server/apiClient";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -13,17 +11,20 @@ import type { PageServerLoad } from "./$types";
 // precedent as committees/nollu/groups/manage (see its +page.server.ts's
 // own comment) - keeps this server code correct instead of leaving it on
 // the now-superseded AdminSetting-backed nollning_start/nollning_end keys.
+//
+// admin:settings:read/update/delete (Go's apinames.AdminSettings*) are
+// enforced by Go itself now (internal/adminsettings) - no authorize() call
+// here, matching DESIGN.md's Principle #5. The old update/remove actions
+// had no authorize() call at all either, so this is a real fix, not a
+// replicated gap - see backend/CLAUDE.md's Admin routes section.
 
 export const load: PageServerLoad = async (event) => {
-  const { locals } = event;
-  const { prisma, user } = locals;
-  authorize(apiNames.ADMIN.SETTINGS.READ, user);
-  const settings = await prisma.adminSetting.findMany();
-
-  const seasonsRes = await serverApi(event).GET("/nollning/seasons", {});
+  const api = serverApi(event);
+  const settingsRes = await api.GET("/admin-settings", {});
+  const seasonsRes = await api.GET("/nollning/seasons", {});
 
   return {
-    settings,
+    settings: settingsRes.data ?? [],
     nollningSeasons: seasonsRes.data ?? [],
     updateForm: await superValidate(zod4(updateSchema)),
     createNollningSeasonForm: await superValidate(zod4(seasonSchema)),
@@ -47,25 +48,26 @@ const seasonSchema = z.object({
 });
 
 export const actions = {
-  async update({ locals, request }) {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(updateSchema));
+  async update(event) {
+    const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.adminSetting.upsert({
-      where: { key: form.data.key },
-      update: { value: form.data.value },
-      create: { key: form.data.key, value: form.data.value },
+    const res = await serverApi(event).PUT("/admin-settings/{key}", {
+      params: { path: { key: form.data.key } },
+      body: { value: form.data.value },
     });
+    if (res.error) return fail(400, { form });
     return message(form, {
       message: `Inställning ${form.data.key} uppdaterad`,
       type: "success",
     });
   },
-  async remove({ locals, request }) {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(removeSchema));
+  async remove(event) {
+    const form = await superValidate(event.request, zod4(removeSchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.adminSetting.delete({ where: { key: form.data.key } });
+    const res = await serverApi(event).DELETE("/admin-settings/{key}", {
+      params: { path: { key: form.data.key } },
+    });
+    if (res.error) return fail(400, { form });
     return message(form, {
       message: `Inställning ${form.data.key} raderad`,
       type: "success",

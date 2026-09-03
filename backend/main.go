@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/dsek-lth/web/backend/internal/accesspolicies"
+	"github.com/dsek-lth/web/backend/internal/adminsettings"
 	"github.com/dsek-lth/web/backend/internal/alerts"
 	"github.com/dsek-lth/web/backend/internal/api"
 	"github.com/dsek-lth/web/backend/internal/apinames"
@@ -30,12 +31,14 @@ import (
 	"github.com/dsek-lth/web/backend/internal/gallery"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/integrations"
+	"github.com/dsek-lth/web/backend/internal/links"
 	"github.com/dsek-lth/web/backend/internal/markdown"
 	"github.com/dsek-lth/web/backend/internal/medals"
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
+	"github.com/dsek-lth/web/backend/internal/stocklist"
 	"github.com/dsek-lth/web/backend/internal/storage"
 )
 
@@ -165,6 +168,9 @@ func main() {
 	electionSvc := elections.NewService(pool)
 	cafeSvc := cafe.NewService(pool)
 	doorSvc := doors.NewService(pool)
+	adminSettingsSvc := adminsettings.NewService(pool)
+	stocklistSvc := stocklist.NewService(pool)
+	linksSvc := links.NewService(os.Getenv("SHLINK_ENDPOINT"), os.Getenv("SHLINK_API_KEY"))
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -184,6 +190,9 @@ func main() {
 		electionSvc,
 		cafeSvc,
 		notificationSvc,
+		adminSettingsSvc,
+		stocklistSvc,
+		linksSvc,
 		authenticator,
 		oidcClient,
 		queries,

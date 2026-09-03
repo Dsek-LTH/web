@@ -1,14 +1,16 @@
 import type { PageServerLoad } from "./$types";
-import { ShlinkApiClient } from "@shlinkio/shlink-js-sdk";
-import type { ProblemDetailsError } from "@shlinkio/shlink-js-sdk/api-contract";
-import { env } from "$env/dynamic/private";
-import { NodeHttpClient } from "@shlinkio/shlink-js-sdk/node";
+import { serverApi } from "$lib/server/apiClient";
 import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
-import { authorize } from "$lib/utils/authorization";
-import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
+
+// admin:shlink:read/create/update/delete (Go's apinames.AdminShlink*) are
+// enforced by Go itself now (internal/links, a thin wrapper around Shlink's
+// own REST API - see backend/CLAUDE.md's Admin routes section for why
+// reads are proxied through as raw JSON rather than decoded into a
+// hand-modeled shape) - no authorize() call here, matching DESIGN.md's
+// Principle #5.
 
 const VALID_ORDER = [
   "title",
@@ -20,11 +22,6 @@ const VALID_ORDER = [
 ] as const;
 
 const VALID_DIR = ["ASC", "DESC"] as const;
-
-const apiClient = new ShlinkApiClient(new NodeHttpClient(), {
-  baseUrl: env.SHLINK_ENDPOINT,
-  apiKey: env.SHLINK_API_KEY,
-});
 
 const createLinksSchema = z.object({
   url: z.string().min(1).url(),
@@ -57,32 +54,49 @@ const deleteLinksSchema = z.object({
   deleting: z.string().array().min(1),
 });
 
-export const load: PageServerLoad = async ({ url, locals }) => {
-  authorize(apiNames.ADMIN.SHLINK.READ, locals.user);
+// Shlink's own response shapes, proxied through Go verbatim as `unknown` -
+// see internal/links' package doc comment for why these aren't part of the
+// generated openapi schema. Only the fields this page's load actually
+// reads are declared.
+type ShortUrlsList = {
+  data: unknown[];
+  pagination: unknown;
+};
+type TagsList = {
+  data: unknown[];
+};
 
+export const load: PageServerLoad = async (event) => {
+  const { url } = event;
+  const api = serverApi(event);
   const params = getParams(url);
-  let domains;
-  try {
-    domains = await apiClient.listShortUrls({
-      itemsPerPage: 20,
-      page: params.page.toString(),
-      orderBy: {
-        field: params.orderBy,
+
+  const linksRes = await api.GET("/links", {
+    params: {
+      query: {
+        page: params.page,
+        orderBy: params.orderBy,
         dir: params.dir,
+        tags: params.tags,
+        search: params.search,
       },
-      tags: params.tags,
-      searchTerm: params.search,
-    });
-  } catch (_e) {
-    const e = _e as ProblemDetailsError;
-    error(e.status as NumericRange<400, 599>, "Shlink error: " + e.title);
+    },
+  });
+  if (linksRes.error) {
+    error(
+      (linksRes.error.status ?? 500) as NumericRange<400, 599>,
+      "Shlink error: " + (linksRes.error.detail ?? linksRes.error.title ?? ""),
+    );
   }
-  const tags = await apiClient.listTags();
+  const domains = linksRes.data as ShortUrlsList;
+
+  const tagsRes = await api.GET("/links/tags", {});
+  const tags = (tagsRes.data as TagsList | undefined)?.data ?? [];
 
   return {
     domains: domains.data,
     pagination: domains.pagination,
-    tags: tags.data,
+    tags,
     createLinksForm: await superValidate(zod4(createLinksSchema), {
       id: "create",
     }),
@@ -92,27 +106,26 @@ export const load: PageServerLoad = async ({ url, locals }) => {
   };
 };
 export const actions: Actions = {
-  create: async ({ locals, request }) => {
-    authorize(apiNames.ADMIN.SHLINK.CREATE, locals.user);
-    const createForm = await superValidate(request, zod4(createLinksSchema));
+  create: async (event) => {
+    const createForm = await superValidate(
+      event.request,
+      zod4(createLinksSchema),
+    );
     if (!createForm.valid) {
       return fail(400, { createForm });
     }
-    try {
-      await apiClient.createShortUrl({
-        longUrl: createForm.data.url,
-        customSlug: createForm.data.slug,
+    const res = await serverApi(event).POST("/links", {
+      body: {
+        url: createForm.data.url,
+        slug: createForm.data.slug,
         tags: createForm.data.tags,
-      });
-    } catch (_e) {
-      const e = _e as ProblemDetailsError;
+      },
+    });
+    if (res.error) {
       return message(
         createForm,
-        {
-          message: e.detail,
-          type: "error",
-        },
-        { status: e.status as NumericRange<400, 599> },
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
+        { status: (res.error.status ?? 400) as NumericRange<400, 599> },
       );
     }
 
@@ -121,26 +134,23 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  update: async ({ locals, request }) => {
-    authorize(apiNames.ADMIN.SHLINK.UPDATE, locals.user);
-    const updateForm = await superValidate(request, zod4(updateLinksSchema));
+  update: async (event) => {
+    const updateForm = await superValidate(
+      event.request,
+      zod4(updateLinksSchema),
+    );
     if (!updateForm.valid) {
       return fail(400, { updateForm });
     }
-    try {
-      await apiClient.updateShortUrl(updateForm.data.slug, undefined, {
-        longUrl: updateForm.data.url,
-        tags: updateForm.data.tags,
-      });
-    } catch (_e) {
-      const e = _e as ProblemDetailsError;
+    const res = await serverApi(event).PATCH("/links/{shortCode}", {
+      params: { path: { shortCode: updateForm.data.slug } },
+      body: { url: updateForm.data.url, tags: updateForm.data.tags },
+    });
+    if (res.error) {
       return message(
         updateForm,
-        {
-          message: e.detail,
-          type: "error",
-        },
-        { status: e.status as NumericRange<400, 599> },
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
+        { status: (res.error.status ?? 400) as NumericRange<400, 599> },
       );
     }
 
@@ -149,33 +159,23 @@ export const actions: Actions = {
       type: "success",
     });
   },
-  delete: async ({ locals, request }) => {
-    authorize(apiNames.ADMIN.SHLINK.DELETE, locals.user);
-    const deleteForm = await superValidate(request, zod4(deleteLinksSchema));
+  delete: async (event) => {
+    const deleteForm = await superValidate(
+      event.request,
+      zod4(deleteLinksSchema),
+    );
     if (!deleteForm.valid) {
       return fail(400, { deleteForm });
     }
 
-    try {
-      await Promise.all(
-        deleteForm.data.deleting.map((t) => apiClient.deleteShortUrl(t)),
-      );
-
-      // Delete tags without any links
-      await apiClient.deleteTags(
-        (await apiClient.tagsStats()).data
-          .filter((t) => t.shortUrlsCount === 0)
-          .map((t) => t.tag),
-      );
-    } catch (_e) {
-      const e = _e as ProblemDetailsError;
+    const res = await serverApi(event).DELETE("/links", {
+      body: { shortCodes: deleteForm.data.deleting },
+    });
+    if (res.error) {
       return message(
         deleteForm,
-        {
-          message: e.detail,
-          type: "error",
-        },
-        { status: e.status as NumericRange<400, 599> },
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
+        { status: (res.error.status ?? 400) as NumericRange<400, 599> },
       );
     }
 
