@@ -45,12 +45,11 @@ RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_p
           class_year, visible, food_preference, bio, email, graduation_year, language;
 
 -- name: CreateMember :one
--- Minimal port of src/lib/utils/member.ts's createMember: this backend
--- doesn't own subscription_settings or tag subscriptions (nollning-period
--- defaults included), so this only creates the bare Member row those
--- features would otherwise hang off of - a deliberate gap, not an
--- oversight, consistent with nollning being out of scope elsewhere in this
--- rewrite (see DESIGN.md).
+-- Minimal port of src/lib/utils/member.ts's createMember: just the bare
+-- Member row. Default subscription_settings/tag-subscription seeding
+-- (previously a documented gap here) now happens as a separate step right
+-- after this insert - see internal/auth's resolveOrCreateMember and
+-- internal/notifications.Service.SeedDefaults (Phase 9).
 INSERT INTO members (student_id, first_name, last_name, email, class_year)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, student_id, first_name, last_name, email, class_year, class_programme;

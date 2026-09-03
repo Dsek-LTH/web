@@ -29,12 +29,14 @@
 
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import type { components } from "$lib/api/schema";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
   import { CircleUserRound, UserRoundPlus } from "@lucide/svelte";
   import { Spinner } from "$lib/components/ui/spinner";
   import { getFileUrl } from "$lib/files/client";
+
+  type NotificationGroup = components["schemas"]["Group"];
 
   const {
     notificationsPromise,

@@ -120,6 +120,16 @@ const (
 	ElectionCreate = "election:create"
 	ElectionUpdate = "election:update"
 	ElectionDelete = "election:delete"
+
+	// Phase 8 ("Cafe" - see DESIGN.md's roadmap) below. Naming mirrors the
+	// old apiNames.CAFE group exactly - four flat policies, not a crud()
+	// group, matching the live ZModel's own shape (CafeShift/
+	// CiabattaOfTheWeek's @@allow expressions reference these same four
+	// strings directly, not a create/read/update/delete split).
+	CafeEditWorkers   = "cafe:edit_workers"
+	CafeEditCiabattas = "cafe:edit_ciabattas"
+	CafeSeeAllWeeks   = "cafe:see_all_weeks"
+	CafeDayManager    = "cafe:day_manager"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -182,5 +192,9 @@ func All() []string {
 		ElectionCreate,
 		ElectionUpdate,
 		ElectionDelete,
+		CafeEditWorkers,
+		CafeEditCiabattas,
+		CafeSeeAllWeeks,
+		CafeDayManager,
 	}
 }

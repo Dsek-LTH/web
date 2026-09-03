@@ -42,6 +42,7 @@ type Querier interface {
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
 	CountSongSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountSongs(ctx context.Context, arg CountSongsParams) (int64, error)
+	CountUnreadNotifications(ctx context.Context, memberID pgtype.UUID) (int64, error)
 	CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error)
 	CreateAlert(ctx context.Context, arg CreateAlertParams) (Alert, error)
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
@@ -50,18 +51,22 @@ type Querier interface {
 	CreateBookable(ctx context.Context, arg CreateBookableParams) (CreateBookableRow, error)
 	CreateBookableCategory(ctx context.Context, arg CreateBookableCategoryParams) (BookableCategory, error)
 	CreateBookingRequest(ctx context.Context, arg CreateBookingRequestParams) (BookingRequest, error)
+	CreateCafeShift(ctx context.Context, arg CreateCafeShiftParams) (CafeShift, error)
 	CreateElection(ctx context.Context, arg CreateElectionParams) (Election, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
 	CreateGoverningDocument(ctx context.Context, arg CreateGoverningDocumentParams) (Document, error)
 	CreateMandate(ctx context.Context, arg CreateMandateParams) (CreateMandateRow, error)
-	// Minimal port of src/lib/utils/member.ts's createMember: this backend
-	// doesn't own subscription_settings or tag subscriptions (nollning-period
-	// defaults included), so this only creates the bare Member row those
-	// features would otherwise hang off of - a deliberate gap, not an
-	// oversight, consistent with nollning being out of scope elsewhere in this
-	// rewrite (see DESIGN.md).
+	// Minimal port of src/lib/utils/member.ts's createMember: just the bare
+	// Member row. Default subscription_settings/tag-subscription seeding
+	// (previously a documented gap here) now happens as a separate step right
+	// after this insert - see internal/auth's resolveOrCreateMember and
+	// internal/notifications.Service.SeedDefaults (Phase 9).
 	CreateMember(ctx context.Context, arg CreateMemberParams) (CreateMemberRow, error)
+	// title/message/type/link/from_author_id are constant across one Send call
+	// - only member_id varies per recipient - same "constant column + unnest"
+	// shape as AddArticleTags.
+	CreateNotifications(ctx context.Context, arg CreateNotificationsParams) error
 	CreatePhadderGroup(ctx context.Context, arg CreatePhadderGroupParams) (PhadderGroup, error)
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
 	CreateSeason(ctx context.Context, arg CreateSeasonParams) (NollningSeason, error)
@@ -69,11 +74,13 @@ type Querier interface {
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
+	DeleteCafeShift(ctx context.Context, id pgtype.UUID) (int64, error)
 	// Hard delete - the elections table has no removed_at/deleted_at column at
 	// all, unlike Song/Article/GoverningDocument.
 	DeleteElection(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
 	DeleteMandate(ctx context.Context, id pgtype.UUID) error
+	DeleteNotifications(ctx context.Context, arg DeleteNotificationsParams) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
 	// The member's phadder/uppdrag mandate overlapping the group's season
 	// window, ordered like the old getPhadderMandates (position id asc, i.e.
@@ -83,6 +90,7 @@ type Querier interface {
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
+	GetAdminSettings(ctx context.Context, keys []string) ([]GetAdminSettingsRow, error)
 	// Unconstrained by type, unlike GetGoverningDocumentByID above - the list
 	// page's delete action operates on any document by id regardless of type
 	// (MEETING/OTHER/etc. included), matching the old app's
@@ -103,9 +111,21 @@ type Querier interface {
 	// so this is no more exposed than the existing unauthenticated mutations;
 	// see backend/CLAUDE.md.
 	GetArticleRowBySlug(ctx context.Context, slug string) (GetArticleRowBySlugRow, error)
+	// Resolves the display identity of a notification's sender: the plain
+	// member fields, plus (if the author acted via a mandate) that mandate's
+	// position name - mirrors getAuthorName's "Mandate" branch. Custom-author
+	// bylines never send notifications in practice (no call site does), so
+	// that branch isn't modeled here.
+	GetAuthorForNotification(ctx context.Context, id pgtype.UUID) (GetAuthorForNotificationRow, error)
 	GetBookableByID(ctx context.Context, id pgtype.UUID) (GetBookableByIDRow, error)
 	GetBookableCategoryByID(ctx context.Context, id pgtype.UUID) (BookableCategory, error)
 	GetBookingRequestByID(ctx context.Context, id pgtype.UUID) (GetBookingRequestByIDRow, error)
+	// Re-fetches a single shift with its worker joined, after
+	// CreateCafeShift/UpdateCafeShiftWorker's own RETURNING (which has no room
+	// for the join) - used to build the full Shift (with nickname/picture)
+	// SetShift returns.
+	GetCafeShiftByID(ctx context.Context, id pgtype.UUID) (GetCafeShiftByIDRow, error)
+	GetCiabattaByYearWeek(ctx context.Context, arg GetCiabattaByYearWeekParams) (CiabattaOfTheWeek, error)
 	// Currently-active mandate/unique-member counts, same as
 	// ListCommitteesWithCounts - the committee detail page shows these too.
 	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (GetCommitteeByShortNameRow, error)
@@ -126,6 +146,10 @@ type Querier interface {
 	// ListEvents. The old TS getEvent() applied no such filter at all (see
 	// DESIGN.md's events section) - fixed here rather than replicated.
 	GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEventBySlugRow, error)
+	// Phase 9: setAttendance needs the organizer/title/slug to notify on
+	// going/interested (see integrations.EventNotification), not just the id
+	// GetEventIDBySlug returns.
+	GetEventForAttendance(ctx context.Context, slug pgtype.Text) (GetEventForAttendanceRow, error)
 	GetEventIDBySlug(ctx context.Context, slug pgtype.Text) (pgtype.UUID, error)
 	// Unfiltered lookup: no removed_at filter. Used internally after
 	// create/update, and by GetAny for callers - like an edit page - that need
@@ -140,6 +164,10 @@ type Querier interface {
 	GetMandateMemberID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	GetMarkdown(ctx context.Context, name string) (Markdown, error)
 	GetMemberByStudentID(ctx context.Context, studentID pgtype.Text) (GetMemberByStudentIDRow, error)
+	// Resolves a member's display name for message text the real Notifier
+	// synthesizes itself (e.g. "X har gillat din nyhet") - mirrors getFullName's
+	// inputs exactly (fullName in service.go is the Go port of getFullName).
+	GetMemberNameForNotification(ctx context.Context, id pgtype.UUID) (GetMemberNameForNotificationRow, error)
 	// Backs PhadderRoleFor's "nolla" branch.
 	GetMemberNollaGroupID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	// Backs PhadderRoleFor's "phadder" branch: which group (if any) this
@@ -162,6 +190,10 @@ type Querier interface {
 	// for a caller holding song:delete rather than requiring a separate
 	// "viewing the trash" mode.
 	GetSongBySlug(ctx context.Context, arg GetSongBySlugParams) (Song, error)
+	GetSubscribedTagIDsForMember(ctx context.Context, a pgtype.UUID) ([]pgtype.UUID, error)
+	GetSubscriptionSettingsForMember(ctx context.Context, memberID pgtype.UUID) ([]SubscriptionSetting, error)
+	InsertSubscribedTag(ctx context.Context, arg InsertSubscribedTagParams) error
+	InsertSubscriptionSetting(ctx context.Context, arg InsertSubscriptionSettingParams) error
 	// Backs IsStaben: does memberID hold a mandate, active today, on a position
 	// belonging to committeeID.
 	IsMemberActiveOnCommittee(ctx context.Context, arg IsMemberActiveOnCommitteeParams) (bool, error)
@@ -178,6 +210,10 @@ type Querier interface {
 	// single-year view. Includes class_year/class_programme for that stats
 	// computation and the member's programme badge.
 	ListAllMandatesForPosition(ctx context.Context, positionID string) ([]ListAllMandatesForPositionRow, error)
+	// Every member id - used for the ALWAYS_ON settingType bucket, which
+	// (per SUBSCRIPTION_SETTINGS_MAP) has no subscription_settings row
+	// requirement at all.
+	ListAllMemberIDs(ctx context.Context, arg ListAllMemberIDsParams) ([]pgtype.UUID, error)
 	ListArticleComments(ctx context.Context, articleID pgtype.UUID) ([]ListArticleCommentsRow, error)
 	// Shared column list for the "joined article" shape: article + committee +
 	// author (member / mandate+position / custom author) + comment & like
@@ -194,6 +230,13 @@ type Querier interface {
 	ListBookableCategories(ctx context.Context) ([]BookableCategory, error)
 	ListBookables(ctx context.Context) ([]ListBookablesRow, error)
 	ListBookablesForBookingRequests(ctx context.Context, bookingRequestIds []pgtype.UUID) ([]ListBookablesForBookingRequestsRow, error)
+	// Every shift (with its worker) in [start_date, end_date] inclusive -
+	// start_date/end_date share the same TIMESTAMP(3) precision as the
+	// column, so callers pass day-aligned bounds. Used both for a week's
+	// worth of shifts (ListShifts) and for a single day's shifts (the
+	// toggle logic in SetShift, which needs every slot for one date at once,
+	// mirroring the old updateSchedule action's single dayShifts query).
+	ListCafeShiftsInRange(ctx context.Context, arg ListCafeShiftsInRangeParams) ([]ListCafeShiftsInRangeRow, error)
 	ListClosedAlertIDsForMember(ctx context.Context, b pgtype.UUID) ([]pgtype.UUID, error)
 	// Full fields + currently-active mandate/unique-member counts, for the
 	// committee overview page (mirrors the old "about" page's query).
@@ -214,6 +257,7 @@ type Querier interface {
 	// every member can choose from every custom author. Revisit once real
 	// roles exist.
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
+	ListDefaultTagIDs(ctx context.Context) ([]pgtype.UUID, error)
 	ListDistinctAPINames(ctx context.Context) ([]string, error)
 	ListDistinctSongCategories(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
 	ListDistinctSongMelodies(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
@@ -236,6 +280,7 @@ type Querier interface {
 	// exactly one is non-null per row depending on 'past', the other ties (NULL)
 	// and is ignored.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
+	ListExpoTokensWithUnreadCount(ctx context.Context, memberIds []pgtype.UUID) ([]ListExpoTokensWithUnreadCountRow, error)
 	ListGoverningDocuments(ctx context.Context) ([]Document, error)
 	// Full mandate history (not just currently-active, unlike
 	// ListActiveMandatesForMember) for a member's profile page, joined to
@@ -249,6 +294,12 @@ type Querier interface {
 	// Year-scoped (overlapping [year-01-01, year-12-31]), joined to member -
 	// mirrors the committee detail page's year filter (GET /committees/{shortName}?year=).
 	ListMandatesForPosition(ctx context.Context, arg ListMandatesForPositionParams) ([]ListMandatesForPositionRow, error)
+	// Lists every markdowns row whose name matches prefix (a plain LIKE
+	// pattern, e.g. "cafe:open%") - internal/cafe's own private reuse of the
+	// markdowns table, same pattern as internal/committees' direct
+	// GetMarkdown call. internal/markdown itself only ever fetches one named
+	// page at a time, so this doesn't belong there.
+	ListMarkdownsByPrefix(ctx context.Context, prefix string) ([]Markdown, error)
 	// Distinct members who held any mandate active during [start, end) - the
 	// candidate set medalRecipients scopes its per-member computation to,
 	// mirroring the old app's mandatesInAfter query exactly.
@@ -263,7 +314,16 @@ type Querier interface {
 	// value to pre-fill a dropdown), not an intentional API restriction.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error)
 	ListMembersByIDs(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListMembersByIDsRow, error)
+	ListMembersSubscribedToAnyTag(ctx context.Context, tagIds []pgtype.UUID) ([]pgtype.UUID, error)
+	// Members subscribed to settingType, optionally narrowed to a specific
+	// candidate id list (mirrors sendNotification's memberIds intersection).
+	// Excludes fromMemberID (the sender) and any member already notified about
+	// this exact (type, link, fromAuthorId) unless allowDuplicates.
+	ListMembersWithSubscriptionSetting(ctx context.Context, arg ListMembersWithSubscriptionSettingParams) ([]pgtype.UUID, error)
+	ListNollaNotificationsForMember(ctx context.Context, arg ListNollaNotificationsForMemberParams) ([]Notification, error)
+	ListNollningTagIDs(ctx context.Context) ([]pgtype.UUID, error)
 	ListNollorForGroup(ctx context.Context, nollningGroupID pgtype.UUID) ([]ListNollorForGroupRow, error)
+	ListNotificationsForMember(ctx context.Context, memberID pgtype.UUID) ([]Notification, error)
 	// Only elections that haven't expired yet, soonest-closing first - matches
 	// the old /elections page's prisma.election.findMany({where: {expiresAt:
 	// {gte: now()}}, orderBy: [{expiresAt: "asc"}]}) exactly. Joins the small
@@ -284,6 +344,7 @@ type Querier interface {
 	// an undefined filter.
 	ListPoliciesForRolesOrStudentID(ctx context.Context, arg ListPoliciesForRolesOrStudentIDParams) ([]string, error)
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
+	ListPushEnabledMemberIDs(ctx context.Context, arg ListPushEnabledMemberIDsParams) ([]pgtype.UUID, error)
 	ListSeasons(ctx context.Context) ([]NollningSeason, error)
 	// show_deleted toggles between two mutually exclusive views (mirroring the
 	// old app's "show-deleted" query param on the songbook list page): the
@@ -292,6 +353,9 @@ type Querier interface {
 	// include_deleted below, which unions.
 	ListSongs(ctx context.Context, arg ListSongsParams) ([]Song, error)
 	ListTags(ctx context.Context) ([]Tag, error)
+	// Used by the Discord webhook to check for a NOLLNING-prefixed tag and pick
+	// the embed's color/footer from the article's first tag.
+	ListTagsByIDs(ctx context.Context, ids []pgtype.UUID) ([]ListTagsByIDsRow, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
 	// Mirrors the old app's getUpcomingBookingRequests: every request starting
@@ -299,9 +363,12 @@ type Querier interface {
 	// window), regardless of booker - visibility is gated at the service layer
 	// (booking_request:read), not per-row ownership.
 	ListUpcomingBookingRequests(ctx context.Context, since pgtype.Timestamptz) ([]ListUpcomingBookingRequestsRow, error)
+	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
 	RemoveArticleLike(ctx context.Context, arg RemoveArticleLikeParams) error
 	RemoveEventGoing(ctx context.Context, arg RemoveEventGoingParams) error
 	RemoveEventInterested(ctx context.Context, arg RemoveEventInterestedParams) error
+	ReplaceSubscribedTags(ctx context.Context, a pgtype.UUID) error
+	ReplaceSubscriptionSettings(ctx context.Context, memberID pgtype.UUID) error
 	RestoreSong(ctx context.Context, id pgtype.UUID) error
 	// Targeted single-field write: the caller's external scheduler task id,
 	// recorded after scheduling a future publish succeeds. Deliberately
@@ -329,6 +396,9 @@ type Querier interface {
 	// mirroring the old app's isAdmin branch exactly.
 	UpdateBookingRequest(ctx context.Context, arg UpdateBookingRequestParams) (BookingRequest, error)
 	UpdateBookingRequestStatus(ctx context.Context, arg UpdateBookingRequestStatusParams) (BookingRequest, error)
+	// Reassigns an existing shift to a different worker - the admin-only
+	// "there's already a shift here, but not this member's" branch.
+	UpdateCafeShiftWorker(ctx context.Context, arg UpdateCafeShiftWorkerParams) (CafeShift, error)
 	UpdateCommittee(ctx context.Context, arg UpdateCommitteeParams) (Committee, error)
 	UpdateElection(ctx context.Context, arg UpdateElectionParams) (Election, error)
 	// Full-replace of content fields (same PUT-not-PATCH convention as
@@ -345,6 +415,8 @@ type Querier interface {
 	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)
 	UpdateSeason(ctx context.Context, arg UpdateSeasonParams) (NollningSeason, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
+	UpsertCiabatta(ctx context.Context, arg UpsertCiabattaParams) (CiabattaOfTheWeek, error)
+	UpsertExpoToken(ctx context.Context, arg UpsertExpoTokenParams) error
 	UpsertMarkdown(ctx context.Context, arg UpsertMarkdownParams) (Markdown, error)
 }
 

@@ -13,17 +13,41 @@ import (
 )
 
 // ArticleNotification is what a Notifier/Webhooker/Scheduler needs to
-// announce a new article. Real implementations will likely want more than
-// this (resolved author/tag names, etc.) - extend as needed once one
-// exists; the mocks ignore all of it.
+// announce a new article. AuthorID is the authors.id used for the article's
+// byline (added in Phase 9 for the real Notifier/Webhooker - see
+// internal/notifications) - not necessarily a "self" author for
+// AuthorMemberID, since an article can be posted under a mandate's byline.
 type ArticleNotification struct {
 	ArticleID        string
 	Slug             string
 	HeaderSv         string
 	BodySv           string
 	AuthorMemberID   string
+	AuthorID         string
 	NotificationText string
 	TagIDs           []string
+}
+
+// LikeNotification is what Notifier.NotifyLike needs to announce a like -
+// mirrors likesAction's sendNotification call.
+type LikeNotification struct {
+	ArticleID             string
+	Slug                  string
+	HeaderSv              string
+	LikedByMemberID       string
+	ArticleAuthorMemberID string
+}
+
+// EventNotification is what Notifier needs for an RSVP (going/interested)
+// notification to an event's organizer - mirrors interestedGoing.ts's two
+// sendNotification calls, closing the gap events.Service's own doc comment
+// flags (see DESIGN.md's Phase 9 entry).
+type EventNotification struct {
+	EventID           string
+	Slug              string
+	TitleSv           string
+	OrganizerMemberID string
+	ActingMemberID    string
 }
 
 // Scheduler arranges for a future action (re-checking/notifying about an
@@ -60,9 +84,11 @@ type BookingRequestNotification struct {
 // Notifier sends push notifications (e.g. to subscribed members' devices).
 type Notifier interface {
 	NotifyNewArticle(ctx context.Context, notification ArticleNotification) error
-	NotifyLike(ctx context.Context, articleID, likedByMemberID, articleAuthorMemberID string) error
+	NotifyLike(ctx context.Context, notification LikeNotification) error
 	NotifyNewBookingRequest(ctx context.Context, notification BookingRequestNotification) error
 	NotifyBookingRequestStatus(ctx context.Context, notification BookingRequestNotification) error
+	NotifyEventGoing(ctx context.Context, notification EventNotification) error
+	NotifyEventInterested(ctx context.Context, notification EventNotification) error
 }
 
 // Webhooker posts announcements to external chat systems (Discord).

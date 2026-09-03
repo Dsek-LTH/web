@@ -1,15 +1,26 @@
 import type { RequestHandler } from "./$types";
 
 import { error } from "@sveltejs/kit";
-import { uploadNotificationToken } from "./uploadNotificationToken";
+import { serverApi } from "$lib/server/apiClient";
 
-export const POST: RequestHandler = async ({ locals, request }) => {
-  const { user } = locals;
+// Thin proxy to Go's POST /notifications/token (see backend/internal/api/
+// huma_notifications.go) - the native wrapper app calls this same-origin
+// route via a plain fetch (see AppNotificationTokenHandler.svelte), so it
+// stays a real endpoint rather than being inlined into that component.
+// uploadNotificationToken.ts's Prisma-based upsert (with its own in-memory
+// dedup cache) is gone - Go's UpsertExpoToken is already a cheap idempotent
+// upsert, so that cache bought nothing worth replicating.
+export const POST: RequestHandler = async (event) => {
+  const { request } = event;
   const body = await request.json();
   if (!("notificationToken" in body)) {
-    throw error(400, "Invalid body, missing notification token");
+    error(400, "Invalid body, missing notification token");
   }
-  const token = body.notificationToken;
-  await uploadNotificationToken(user, token);
+  const res = await serverApi(event).POST("/notifications/token", {
+    body: { token: body.notificationToken },
+  });
+  if (res.error) {
+    error(500, "Couldn't save token");
+  }
   return new Response("Token saved");
 };

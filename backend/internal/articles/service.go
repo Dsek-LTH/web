@@ -227,6 +227,7 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 		created.Slug,
 		dbutil.UUIDStr(created.ID),
 		identity.MemberID,
+		dbutil.UUIDStr(authorID),
 		in,
 		nil,
 	); err != nil {
@@ -335,6 +336,7 @@ func (s *Service) Update(
 		updated.Slug,
 		dbutil.UUIDStr(updated.ID),
 		identity.MemberID,
+		dbutil.UUIDStr(authorID),
 		in,
 		prevScheduledID,
 	); err != nil {
@@ -410,12 +412,13 @@ func (s *Service) Like(ctx context.Context, slug string) error {
 		return fmt.Errorf("like article: %w", err)
 	}
 
-	if err := s.notifier.NotifyLike(
-		ctx,
-		dbutil.UUIDStr(row.ID),
-		identity.MemberID,
-		dbutil.UUIDStr(row.MemberID),
-	); err != nil {
+	if err := s.notifier.NotifyLike(ctx, integrations.LikeNotification{
+		ArticleID:             dbutil.UUIDStr(row.ID),
+		Slug:                  row.Slug,
+		HeaderSv:              row.HeaderSv,
+		LikedByMemberID:       identity.MemberID,
+		ArticleAuthorMemberID: dbutil.UUIDStr(row.MemberID),
+	}); err != nil {
 		return fmt.Errorf("notify like: %w", err)
 	}
 	return nil
@@ -687,7 +690,7 @@ func (s *Service) setTags(ctx context.Context, articleID pgtype.UUID, tagIDs []p
 // immediately. prevScheduledID is nil for a newly-created article.
 func (s *Service) syncNotifications(
 	ctx context.Context,
-	slug, articleID, authorMemberID string,
+	slug, articleID, authorMemberID, authorID string,
 	in ArticleInput,
 	prevScheduledID *string,
 ) error {
@@ -697,6 +700,7 @@ func (s *Service) syncNotifications(
 		HeaderSv:       in.HeaderSv,
 		BodySv:         in.BodySv,
 		AuthorMemberID: authorMemberID,
+		AuthorID:       authorID,
 		TagIDs:         in.TagIDs,
 	}
 	if in.NotificationText != nil {

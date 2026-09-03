@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/oauth2"
@@ -57,9 +58,23 @@ type OIDCClient struct {
 	queries       *db.Queries
 	endSessionURL string
 	frontendURL   string
+	seeder        MemberSeeder
 	// refreshGroup collapses concurrent Refresh calls that share the same
 	// refresh token into a single upstream call - see Refresh's doc comment.
 	refreshGroup singleflight.Group
+}
+
+// MemberSeeder is the one piece of internal/notifications CallbackHandler
+// needs: giving a newly-created member its default subscription settings +
+// default tag subscriptions (Phase 9 - see resolveOrCreateMember and
+// notifications.Service.SeedDefaults). Declared here rather than OIDCClient
+// taking a *notifications.Service directly for the same import-cycle reason
+// as StabenInjector above: internal/notifications' own Service methods use
+// auth.FromContext/auth.ErrUnauthenticated like every other domain service,
+// so importing it back from here would cycle. main.go wires the concrete
+// value in.
+type MemberSeeder interface {
+	SeedDefaults(ctx context.Context, memberID string) error
 }
 
 // NewOIDCClient discovers the issuer's endpoints/JWKS via OIDC discovery.
@@ -76,6 +91,7 @@ func NewOIDCClient(
 	issuer, clientID, clientSecret, callbackURL, endSessionURL, frontendURL string,
 	sessionCodec *SessionCodec,
 	queries *db.Queries,
+	seeder MemberSeeder,
 ) (*OIDCClient, error) {
 	provider, err := oidc.NewProvider(ctx, issuer)
 	if err != nil {
@@ -111,6 +127,7 @@ func NewOIDCClient(
 		queries:       queries,
 		endSessionURL: endSessionURL,
 		frontendURL:   frontendURL,
+		seeder:        seeder,
 	}, nil
 }
 
@@ -208,7 +225,7 @@ func (c *OIDCClient) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := resolveOrCreateMember(r.Context(), c.queries, profile); err != nil {
+	if err := resolveOrCreateMember(r.Context(), c.queries, c.seeder, profile); err != nil {
 		log.Printf("auth: resolve member failed: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -313,6 +330,7 @@ func (c *OIDCClient) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 func resolveOrCreateMember(
 	ctx context.Context,
 	queries *db.Queries,
+	seeder MemberSeeder,
 	profile AuthentikProfile,
 ) error {
 	_, err := queries.GetMemberByStudentID(
@@ -325,14 +343,23 @@ func resolveOrCreateMember(
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return err
 	}
-	_, err = queries.CreateMember(ctx, db.CreateMemberParams{
+	created, err := queries.CreateMember(ctx, db.CreateMemberParams{
 		StudentID: pgtype.Text{String: profile.PreferredUsername, Valid: true},
 		FirstName: pgtype.Text{String: profile.GivenName, Valid: profile.GivenName != ""},
 		LastName:  pgtype.Text{String: profile.FamilyName, Valid: profile.FamilyName != ""},
 		Email:     pgtype.Text{String: profile.Email, Valid: profile.Email != ""},
 		ClassYear: pgtype.Int4{Int32: int32(time.Now().Year()), Valid: true},
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	// Best-effort, matching this project's other "seed defaults" call sites
+	// (e.g. booking's notifyNewBookingRequest) - a seeding failure shouldn't
+	// block the member from ever logging in.
+	if err := seeder.SeedDefaults(ctx, uuid.UUID(created.ID.Bytes).String()); err != nil {
+		log.Printf("auth: seed default subscription settings for new member: %v", err)
+	}
+	return nil
 }
 
 func randomToken() (string, error) {

@@ -37,8 +37,3 @@ export const tagSchema = z.object({
   color: z.string().nullable(),
   isDefault: z.boolean().nullable(),
 });
-export const notificationSchema = z.object({
-  notificationId: z.number().optional(),
-  notificationIds: z.number().array(),
-});
-export type NotificationSchema = Infer<typeof notificationSchema>;

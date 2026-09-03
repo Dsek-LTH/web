@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { form, getRequestEvent } from "$app/server";
-import { NotificationSettingType } from "$lib/utils/notifications/types";
+import { NotificationSettingType } from "$lib/notifications/settingTypes";
+import { serverApi } from "$lib/server/apiClient";
 
 // Create a schema for notification settings dynamically
 // Using z.coerce.boolean() with optional to handle unchecked checkboxes
@@ -26,63 +27,36 @@ const settingsSchema = z.object(schemaFields).and(
   }),
 );
 
+// Now a thin proxy to Go's PUT /notification-settings (full-replace,
+// backend/internal/api/huma_notifications.go) instead of a
+// prisma.$transaction + prisma.member.update pair - see
+// backend/CLAUDE.md's "Notifications routes" section.
 export const updateSettings = form(settingsSchema, async (data) => {
-  const { user, prisma } = getRequestEvent().locals;
-  if (!user) return { message: "401 Unauthorized", type: "error" as const };
+  const event = getRequestEvent();
+  if (!event.locals.user) {
+    return { message: "401 Unauthorized", type: "error" as const };
+  }
 
-  // Extract subscription types that are enabled
   const subscriptions: NotificationSettingType[] = [];
-  const pushNotifications: NotificationSettingType[] = [];
-
-  const settings = data;
-
+  const pushSubscriptions: NotificationSettingType[] = [];
   Object.values(NotificationSettingType).forEach((settingType) => {
-    if (settings[`subscription_${settingType}`]) {
+    if (data[`subscription_${settingType}`]) {
       subscriptions.push(settingType);
     }
-    if (settings[`push_${settingType}`]) {
-      pushNotifications.push(settingType);
+    if (data[`push_${settingType}`]) {
+      pushSubscriptions.push(settingType);
     }
   });
 
-  // Try-catch if for some reason form data isn't correct
-  try {
-    await prisma.$transaction(async (tx) => {
-      // Delete all existing subscription settings for this user
-      await tx.subscriptionSetting.deleteMany({
-        where: {
-          memberId: user.memberId,
-        },
-      });
-
-      // Create new subscription settings
-      if (subscriptions.length > 0) {
-        await tx.subscriptionSetting.createMany({
-          data: subscriptions.map((type) => ({
-            memberId: user.memberId as string,
-            type: type,
-            pushNotification: pushNotifications.includes(type),
-          })),
-        });
-      }
-    });
-
-    await prisma.member.update({
-      where: {
-        id: user.memberId as string,
-      },
-      data: {
-        subscribedTags: {
-          set: data.tags.map((tag) => ({ id: tag })),
-        },
-      },
-    });
-  } catch (err) {
-    console.error("Error updating notification settings:", err);
-    return {
-      message: "Failed updating settings: " + err,
-      type: "error" as const,
-    };
+  const res = await serverApi(event).PUT("/notification-settings", {
+    body: {
+      subscriptions,
+      pushSubscriptions,
+      subscribedTagIds: data.tags,
+    },
+  });
+  if (res.error) {
+    return { message: "Failed updating settings", type: "error" as const };
   }
   return { message: "Updated settings", type: "success" as const };
 });

@@ -1,24 +1,22 @@
 import { form, getRequestEvent } from "$app/server";
 import { m } from "$paraglide/messages";
 import z from "zod";
+import { serverApi } from "$lib/server/apiClient";
+
+// All three now proxy to Go's PATCH /notifications/read / DELETE
+// /notifications (backend/internal/api/huma_notifications.go) instead of
+// prisma.notification.* directly - see backend/CLAUDE.md's "Notifications
+// routes" section.
 
 export const readAllNotifications = form(z.object({}), async () => {
-  const { user, prisma } = getRequestEvent().locals;
-  if (!user?.memberId) {
+  const event = getRequestEvent();
+  if (!event.locals.user?.memberId) {
     return {
       message: m.notifications_errors_notLoggedIn(),
       type: "error" as const,
     };
   }
-  await prisma.notification.updateMany({
-    where: {
-      memberId: user.memberId,
-      readAt: null,
-    },
-    data: {
-      readAt: new Date(),
-    },
-  });
+  await serverApi(event).PATCH("/notifications/read", {});
   return {
     message: m.notifications_notificationsRead(),
     type: "hidden" as const,
@@ -26,18 +24,14 @@ export const readAllNotifications = form(z.object({}), async () => {
 });
 
 export const deleteAllNotifications = form(z.object({}), async () => {
-  const { user, prisma } = getRequestEvent().locals;
-  if (!user?.memberId) {
+  const event = getRequestEvent();
+  if (!event.locals.user?.memberId) {
     return {
       message: m.notifications_errors_notLoggedIn(),
       type: "error" as const,
     };
   }
-  await prisma.notification.deleteMany({
-    where: {
-      memberId: user.memberId,
-    },
-  });
+  await serverApi(event).DELETE("/notifications", {});
   return {
     message: m.notifications_notificationsRemoved(),
     type: "success" as const,
@@ -56,26 +50,19 @@ export const deleteNotification = form(
       .transform((val) => (val ? val.split(",").map(Number) : [])),
   }),
   async (data) => {
-    const { user, prisma } = getRequestEvent().locals;
+    const event = getRequestEvent();
+    const api = serverApi(event);
     if (data.notificationIds.length > 0) {
-      await prisma.notification.deleteMany({
-        where: {
-          memberId: user!.memberId,
-          id: {
-            in: data.notificationIds,
-          },
-        },
+      await api.DELETE("/notifications", {
+        params: { query: { ids: data.notificationIds } },
       });
       return {
         message: m.notifications_notificationsRemoved(),
         type: "success" as const,
       };
     } else if (data.notificationId) {
-      await prisma.notification.delete({
-        where: {
-          memberId: user!.memberId,
-          id: data.notificationId,
-        },
+      await api.DELETE("/notifications", {
+        params: { query: { id: data.notificationId } },
       });
       return {
         message: m.notifications_notificationRemoved(),

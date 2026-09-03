@@ -19,6 +19,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/booking"
+	"github.com/dsek-lth/web/backend/internal/cafe"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
@@ -31,6 +32,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/medals"
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
+	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/storage"
 )
@@ -62,6 +64,20 @@ func main() {
 	queries := db.New(pool)
 	nollningSvc := nollning.NewService(pool)
 
+	// PUSH_MOCK gates only the real Expo network call (in-app Notification
+	// rows are always created for real) - default true (mock/no-op) unless
+	// explicitly set to "false", same "explicit opt-in to real, loud either
+	// way" shape as AUTH_MOCK/STORAGE_MOCK. This should stay true for any
+	// non-production environment sharing the live dev DB's real device
+	// tokens - see DESIGN.md's Phase 9 entry.
+	pushMock := os.Getenv("PUSH_MOCK") != "false"
+	if pushMock {
+		log.Println(
+			"PUSH_MOCK is not \"false\" - push notifications will be logged, not sent for real via Expo. Set PUSH_MOCK=false to send real pushes.",
+		)
+	}
+	notificationSvc := notifications.NewService(pool, nollningSvc, pushMock)
+
 	var authenticator auth.Authenticator
 	var oidcClient *auth.OIDCClient
 	if os.Getenv("AUTH_MOCK") == "true" {
@@ -71,7 +87,7 @@ func main() {
 		}
 		authenticator = auth.NewMockAuthenticator(identity)
 	} else {
-		oidcClient, authenticator, err = newRealAuth(ctx, queries, nollningSvc)
+		oidcClient, authenticator, err = newRealAuth(ctx, queries, nollningSvc, notificationSvc)
 		if err != nil {
 			log.Fatalf("set up real auth: %v", err)
 		}
@@ -100,14 +116,15 @@ func main() {
 		}
 	}
 
+	realNotifier := notifications.NewRealNotifier(notificationSvc)
 	articleSvc := articles.NewService(
 		pool,
 		integrations.MockScheduler{},
-		integrations.MockNotifier{},
-		integrations.MockWebhooker{},
+		realNotifier,
+		notifications.NewRealWebhooker(notificationSvc),
 		store,
 	)
-	eventSvc := events.NewService(pool)
+	eventSvc := events.NewService(pool, realNotifier)
 	memberSvc := members.NewService(pool)
 	committeeSvc := committees.NewService(pool, nollningSvc)
 	accessPolicySvc := accesspolicies.NewService(pool)
@@ -122,8 +139,9 @@ func main() {
 		mustEnv("PUBLIC_BUCKETS_DOCUMENTS"),
 		mustEnv("PUBLIC_BUCKETS_FILES"),
 	)
-	bookingSvc := booking.NewService(pool, integrations.MockNotifier{})
+	bookingSvc := booking.NewService(pool, realNotifier)
 	electionSvc := elections.NewService(pool)
+	cafeSvc := cafe.NewService(pool)
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -140,6 +158,8 @@ func main() {
 		documentSvc,
 		bookingSvc,
 		electionSvc,
+		cafeSvc,
+		notificationSvc,
 		authenticator,
 		oidcClient,
 		queries,
@@ -194,6 +214,7 @@ func newRealAuth(
 	ctx context.Context,
 	queries *db.Queries,
 	nollningSvc auth.StabenInjector,
+	seeder auth.MemberSeeder,
 ) (*auth.OIDCClient, auth.Authenticator, error) {
 	required := []struct{ name, value string }{
 		{"AUTH_SECRET", os.Getenv("AUTH_SECRET")},
@@ -228,6 +249,7 @@ func newRealAuth(
 		required[4].value,                  // frontend URL, for post-login redirect
 		sessionCodec,
 		queries,
+		seeder,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("discover OIDC provider: %w", err)

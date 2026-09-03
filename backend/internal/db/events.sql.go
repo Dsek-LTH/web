@@ -262,6 +262,32 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEven
 	return i, err
 }
 
+const getEventForAttendance = `-- name: GetEventForAttendance :one
+SELECT id, slug, title_sv, author_id FROM events WHERE slug = $1
+`
+
+type GetEventForAttendanceRow struct {
+	ID       pgtype.UUID `json:"id"`
+	Slug     pgtype.Text `json:"slug"`
+	TitleSv  string      `json:"title_sv"`
+	AuthorID pgtype.UUID `json:"author_id"`
+}
+
+// Phase 9: setAttendance needs the organizer/title/slug to notify on
+// going/interested (see integrations.EventNotification), not just the id
+// GetEventIDBySlug returns.
+func (q *Queries) GetEventForAttendance(ctx context.Context, slug pgtype.Text) (GetEventForAttendanceRow, error) {
+	row := q.db.QueryRow(ctx, getEventForAttendance, slug)
+	var i GetEventForAttendanceRow
+	err := row.Scan(
+		&i.ID,
+		&i.Slug,
+		&i.TitleSv,
+		&i.AuthorID,
+	)
+	return i, err
+}
+
 const getEventIDBySlug = `-- name: GetEventIDBySlug :one
 SELECT id FROM events WHERE slug = $1
 `

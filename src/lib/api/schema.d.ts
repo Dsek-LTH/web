@@ -376,6 +376,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cafe/ciabatta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the ciabatta-of-the-week for a given year/week (upsert) */
+        put: operations["set-cafe-ciabatta"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cafe/opening-hours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the cafe's opening-hours pages ("cafe:open*" markdowns rows) */
+        get: operations["list-cafe-opening-hours"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cafe/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a week's cafe shifts and ciabatta-of-the-week */
+        get: operations["get-cafe-schedule"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cafe/shifts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Sign up for, quit, or (with cafe:edit_workers) reassign a cafe shift */
+        put: operations["set-cafe-shift"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/committees": {
         parameters: {
             query?: never;
@@ -1025,6 +1093,76 @@ export interface paths {
         patch: operations["update-nollning-season"];
         trace?: never;
     };
+    "/notification-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the acting member's subscription settings */
+        get: operations["get-notification-settings"];
+        /** Replace the acting member's subscription settings (full-replace) */
+        put: operations["put-notification-settings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the acting member's notifications, grouped */
+        get: operations["list-notifications"];
+        put?: never;
+        post?: never;
+        /** Delete one, several, or (with neither param) every notification */
+        delete: operations["delete-notifications"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Mark one, several, or (with neither param) every unread notification as read */
+        patch: operations["mark-notifications-read"];
+        trace?: never;
+    };
+    "/notifications/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register the acting member's Expo push token */
+        post: operations["upload-expo-token"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/positions": {
         parameters: {
             query?: never;
@@ -1482,6 +1620,20 @@ export interface components {
             bookingRequest: components["schemas"]["BookingRequest"];
             conflicts: components["schemas"]["BookingRequest"][] | null;
         };
+        Ciabatta: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Ciabatta.json
+             */
+            readonly $schema?: string;
+            id: string;
+            name: string;
+            /** Format: int32 */
+            week: number;
+            /** Format: int32 */
+            year: number;
+        };
         Comment: {
             /**
              * Format: uri
@@ -1831,6 +1983,20 @@ export interface components {
             titleEn?: string;
             titleSv: string;
         };
+        Group: {
+            authors: components["schemas"]["NotificationAuthor"][] | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: int32 */
+            id: number;
+            individualIds: number[] | null;
+            link: string;
+            message: string;
+            /** Format: date-time */
+            readAt?: string;
+            title: string;
+            type: string;
+        };
         GroupMemberInputBody: {
             /**
              * Format: uri
@@ -1943,6 +2109,17 @@ export interface components {
             picturePath?: string;
             studentId?: string;
             visible: boolean;
+        };
+        NotificationAuthor: {
+            id: string;
+            name: string;
+            pictureUrl?: string;
+        };
+        OpeningHour: {
+            markdown: string;
+            markdownEn?: string;
+            markdownSv: string;
+            name: string;
         };
         Page: {
             /**
@@ -2083,6 +2260,20 @@ export interface components {
             files: components["schemas"]["DocumentFile"][] | null;
             name: string;
         };
+        Schedule: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Schedule.json
+             */
+            readonly $schema?: string;
+            ciabatta?: components["schemas"]["Ciabatta"];
+            shifts: components["schemas"]["Shift"][] | null;
+            /** Format: int32 */
+            week: number;
+            /** Format: int32 */
+            year: number;
+        };
         Season: {
             /**
              * Format: uri
@@ -2128,6 +2319,19 @@ export interface components {
             /** @enum {string} */
             status: "going" | "interested" | "none";
         };
+        SetCiabattaInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/SetCiabattaInput.json
+             */
+            readonly $schema?: string;
+            name: string;
+            /** Format: int32 */
+            week: number;
+            /** Format: int32 */
+            year: number;
+        };
         SetScheduleInputBody: {
             /**
              * Format: uri
@@ -2136,6 +2340,45 @@ export interface components {
              */
             readonly $schema?: string;
             scheduledId: string;
+        };
+        SetShiftInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/SetShiftInput.json
+             */
+            readonly $schema?: string;
+            date: string;
+            studentId?: string;
+            timeSlot: string;
+        };
+        Settings: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Settings.json
+             */
+            readonly $schema?: string;
+            pushSubscriptions: string[] | null;
+            subscribedTagIds: string[] | null;
+            subscriptions: string[] | null;
+        };
+        Shift: {
+            /** Format: date-time */
+            date: string;
+            id: string;
+            timeSlot: string;
+            worker: components["schemas"]["Member"];
+        };
+        ShiftMutationResult: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ShiftMutationResult.json
+             */
+            readonly $schema?: string;
+            action: string;
+            shift?: components["schemas"]["Shift"];
         };
         Song: {
             /**
@@ -2259,6 +2502,15 @@ export interface components {
             language?: string;
             lastName: string;
             nickname?: string;
+        };
+        UploadExpoTokenInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UploadExpoTokenInputBody.json
+             */
+            readonly $schema?: string;
+            token: string;
         };
         UploadOutputBody: {
             /**
@@ -3307,6 +3559,135 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BookingRequest"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "set-cafe-ciabatta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetCiabattaInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ciabatta"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-cafe-opening-hours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpeningHour"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-cafe-schedule": {
+        parameters: {
+            query?: {
+                /** @description defaults to the current ISO year */
+                year?: number;
+                /** @description 1-53, defaults to the current ISO week */
+                week?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Schedule"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "set-cafe-shift": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetShiftInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftMutationResult"];
                 };
             };
             /** @description Error */
@@ -5156,6 +5537,189 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Season"];
                 };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-notification-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Settings"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "put-notification-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Settings"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-notifications": {
+        parameters: {
+            query?: {
+                /** @description true for the nollning-scoped subset (NEW_ARTICLE + /nollning-linked, since the current season started) instead of every notification */
+                nolla?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Group"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-notifications": {
+        parameters: {
+            query?: {
+                id?: number;
+                ids?: number[] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "mark-notifications-read": {
+        parameters: {
+            query?: {
+                id?: number;
+                ids?: number[] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "upload-expo-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadExpoTokenInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error */
             default: {

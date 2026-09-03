@@ -430,3 +430,84 @@ CREATE TABLE elections (
     created_at   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at   TIMESTAMPTZ NOT NULL
 );
+
+-- Phase 8 ("Cafe" - see DESIGN.md's roadmap). "workerId" is genuinely
+-- camelCase in the live table (confirmed via psql \d, not schema.zmodel),
+-- same situation as phadder_groups."createdAt"/bookables."isDisabled".
+CREATE TYPE time_slots AS ENUM ('DAYMANAGER', 'SHIFT_1', 'SHIFT_2', 'SHIFT_3');
+
+CREATE TABLE cafe_shifts (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    date       TIMESTAMP(3) NOT NULL,
+    "workerId" UUID NOT NULL REFERENCES members (id),
+    time_slot  time_slots NOT NULL,
+    UNIQUE (date, time_slot)
+);
+
+CREATE TABLE ciabatta_of_the_week (
+    id   UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    year INTEGER NOT NULL,
+    week INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    UNIQUE (year, week)
+);
+
+-- Phase 9 ("Real notifications + Discord webhook" - see DESIGN.md's
+-- roadmap). All five tables below pre-date this Go port (Prisma-created,
+-- part of the original copied migration history) - schema.sql additions
+-- only, no new migration, same as songs/alerts/booking/elections/cafe.
+--
+-- notifications.id is a genuine outlier: a plain autoincrement integer,
+-- not gen_random_uuid() like every other table in this file - matched
+-- exactly rather than "fixed", since this is a description of the live
+-- table, not a fresh design.
+CREATE TABLE notifications (
+    id              SERIAL PRIMARY KEY,
+    title           VARCHAR(255) NOT NULL,
+    message         VARCHAR(255) NOT NULL,
+    type            VARCHAR(255) NOT NULL,
+    link            VARCHAR(255) NOT NULL,
+    read_at         TIMESTAMPTZ,
+    member_id       UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    from_author_id  UUID REFERENCES authors (id) ON DELETE SET NULL
+);
+
+CREATE TABLE expo_tokens (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_id  UUID REFERENCES members (id),
+    expo_token VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE subscription_settings (
+    id                 UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_id          UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    type               VARCHAR(255) NOT NULL,
+    push_notification  BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE (member_id, type)
+);
+
+-- Generic operator key/value store - existed already for the old
+-- AdminSetting-backed nollning-period window (superseded by
+-- nollning_seasons in Phase 2) and the Discord webhook config this phase
+-- reuses (keys "discord_webhook_se"/"webhook_tags_se"). Phase 11 ("Admin
+-- consolidation") is where a real CRUD UI over this table belongs; this
+-- phase only reads it.
+CREATE TABLE admin_settings (
+    key        VARCHAR(255) PRIMARY KEY,
+    value      VARCHAR(255),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
+-- Implicit Prisma many-to-many join table (named "_member_tag_subscriptions"
+-- in the live DB) - which tags ("B") a member ("A") wants NEW_ARTICLE
+-- notifications for. Alphabetical-by-model-name column assignment
+-- (Member < Tag), same convention as every other implicit join table here.
+CREATE TABLE _member_tag_subscriptions (
+    "A" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES tags (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _member_tag_subscriptions_ab_unique ON _member_tag_subscriptions ("A", "B");
+CREATE INDEX _member_tag_subscriptions_b_index ON _member_tag_subscriptions ("B");

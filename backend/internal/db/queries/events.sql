@@ -153,6 +153,12 @@ WHERE e.slug = $1;
 -- name: GetEventIDBySlug :one
 SELECT id FROM events WHERE slug = $1;
 
+-- name: GetEventForAttendance :one
+-- Phase 9: setAttendance needs the organizer/title/slug to notify on
+-- going/interested (see integrations.EventNotification), not just the id
+-- GetEventIDBySlug returns.
+SELECT id, slug, title_sv, author_id FROM events WHERE slug = $1;
+
 -- name: CountEventSlugsWithPrefix :one
 SELECT count(*) FROM events WHERE slug LIKE $1 || '%';
 

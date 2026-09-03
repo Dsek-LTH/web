@@ -145,6 +145,57 @@ func (ns NullRecurringType) Value() (driver.Value, error) {
 	return string(ns.RecurringType), nil
 }
 
+type TimeSlots string
+
+const (
+	TimeSlotsDAYMANAGER TimeSlots = "DAYMANAGER"
+	TimeSlotsSHIFT1     TimeSlots = "SHIFT_1"
+	TimeSlotsSHIFT2     TimeSlots = "SHIFT_2"
+	TimeSlotsSHIFT3     TimeSlots = "SHIFT_3"
+)
+
+func (e *TimeSlots) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TimeSlots(s)
+	case string:
+		*e = TimeSlots(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TimeSlots: %T", src)
+	}
+	return nil
+}
+
+type NullTimeSlots struct {
+	TimeSlots TimeSlots `json:"time_slots"`
+	Valid     bool      `json:"valid"` // Valid is true if TimeSlots is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTimeSlots) Scan(value interface{}) error {
+	if value == nil {
+		ns.TimeSlots, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TimeSlots.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTimeSlots) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TimeSlots), nil
+}
+
+type AdminSetting struct {
+	Key       string             `json:"key"`
+	Value     pgtype.Text        `json:"value"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Alert struct {
 	ID        pgtype.UUID        `json:"id"`
 	Severity  string             `json:"severity"`
@@ -260,6 +311,20 @@ type BookingRequestsBookable struct {
 	B pgtype.UUID `json:"B"`
 }
 
+type CafeShift struct {
+	ID       pgtype.UUID      `json:"id"`
+	Date     pgtype.Timestamp `json:"date"`
+	WorkerId pgtype.UUID      `json:"workerId"`
+	TimeSlot TimeSlots        `json:"time_slot"`
+}
+
+type CiabattaOfTheWeek struct {
+	ID   pgtype.UUID `json:"id"`
+	Year int32       `json:"year"`
+	Week int32       `json:"week"`
+	Name string      `json:"name"`
+}
+
 type Committee struct {
 	ID                pgtype.UUID `json:"id"`
 	NameSv            string      `json:"name_sv"`
@@ -367,6 +432,12 @@ type EventTag struct {
 	B pgtype.UUID `json:"B"`
 }
 
+type ExpoToken struct {
+	ID        pgtype.UUID `json:"id"`
+	MemberID  pgtype.UUID `json:"member_id"`
+	ExpoToken string      `json:"expo_token"`
+}
+
 type Mandate struct {
 	ID          pgtype.UUID `json:"id"`
 	MemberID    pgtype.UUID `json:"member_id"`
@@ -402,6 +473,11 @@ type Member struct {
 	Language         pgtype.Text `json:"language"`
 }
 
+type MemberTagSubscription struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
+}
+
 type NollningSeason struct {
 	ID                    pgtype.UUID        `json:"id"`
 	Year                  int32              `json:"year"`
@@ -409,6 +485,19 @@ type NollningSeason struct {
 	RevealAt              pgtype.Timestamptz `json:"reveal_at"`
 	EndAt                 pgtype.Timestamptz `json:"end_at"`
 	OrganizingCommitteeID pgtype.UUID        `json:"organizing_committee_id"`
+}
+
+type Notification struct {
+	ID           int32              `json:"id"`
+	Title        string             `json:"title"`
+	Message      string             `json:"message"`
+	Type         string             `json:"type"`
+	Link         string             `json:"link"`
+	ReadAt       pgtype.Timestamptz `json:"read_at"`
+	MemberID     pgtype.UUID        `json:"member_id"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	FromAuthorID pgtype.UUID        `json:"from_author_id"`
 }
 
 type PhadderGroup struct {
@@ -454,6 +543,13 @@ type Song struct {
 	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 	Slug      string             `json:"slug"`
 	Video     pgtype.Text        `json:"video"`
+}
+
+type SubscriptionSetting struct {
+	ID               pgtype.UUID `json:"id"`
+	MemberID         pgtype.UUID `json:"member_id"`
+	Type             string      `json:"type"`
+	PushNotification bool        `json:"push_notification"`
 }
 
 type Tag struct {

@@ -70,11 +70,14 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
       where: { studentId: identity.studentId },
     });
     // Go's /auth/callback already resolves-or-creates the Member row on
-    // login (see backend/internal/auth's resolveOrCreateMember) - this
-    // fallback only matters if that's ever bypassed (e.g. AUTH_MOCK), and
-    // deliberately uses the full createMember (subscription defaults, tag
-    // subscriptions) that Go's minimal port doesn't replicate - see
-    // DESIGN.md's Auth section for that gap.
+    // login (see backend/internal/auth's resolveOrCreateMember, which as of
+    // Phase 9 also seeds default subscription settings/tag subscriptions via
+    // notifications.Service.SeedDefaults - no longer a "minimal" port) -
+    // this fallback only matters if that's ever bypassed (e.g. AUTH_MOCK).
+    // Still calls the full TS createMember (its own subscription-defaults/
+    // tag-subscription logic) rather than being trimmed to a bare insert,
+    // since this is a rare-path backstop, not Phase 9's job to redesign -
+    // see DESIGN.md's Auth section for the (now narrower) gap this leaves.
     const member =
       existingMember ||
       (await createMember(

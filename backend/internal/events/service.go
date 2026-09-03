@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -15,6 +16,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/backend/internal/integrations"
 	"github.com/dsek-lth/web/backend/internal/locale"
 	"github.com/dsek-lth/web/backend/internal/slug"
 )
@@ -44,21 +46,25 @@ const defaultPageSize = 10
 //
 // Not ported yet (no interface/method exists because nothing depends on it
 // in this pass - see DESIGN.md's events section for the full list):
-// push notifications to the organizer on going/interested, the calendar
-// range endpoint, the ICS subscribe feed, and the full-text typeahead
-// search endpoint. All are additive - none block the CRUD/recurring/
-// going-interested/comments/tags surface this Service already covers.
+// the calendar range endpoint, the ICS subscribe feed, and the full-text
+// typeahead search endpoint. All are additive - none block the CRUD/
+// recurring/going-interested/comments/tags surface this Service already
+// covers. Push notifications to the organizer on going/interested (the one
+// item this list used to name as missing) were closed in Phase 9 - see
+// setAttendance and DESIGN.md's Phase 9 entry.
 type Service struct {
 	pool      *pgxpool.Pool
 	queries   *db.Queries
 	sanitizer *bluemonday.Policy
+	notifier  integrations.Notifier
 }
 
-func NewService(pool *pgxpool.Pool) *Service {
+func NewService(pool *pgxpool.Pool, notifier integrations.Notifier) *Service {
 	return &Service{
 		pool:      pool,
 		queries:   db.New(pool),
 		sanitizer: bluemonday.UGCPolicy(),
+		notifier:  notifier,
 	}
 }
 
@@ -522,13 +528,14 @@ func (s *Service) setAttendance(
 	if !ok {
 		return auth.ErrUnauthenticated
 	}
-	eventID, err := s.queries.GetEventIDBySlug(ctx, dbutil.ToText(&eventSlug))
+	eventRow, err := s.queries.GetEventForAttendance(ctx, dbutil.ToText(&eventSlug))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return ErrNotFound
 		}
 		return fmt.Errorf("find event: %w", err)
 	}
+	eventID := eventRow.ID
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
 	if err != nil {
 		return invalidf("invalid member id: %v", err)
@@ -562,7 +569,34 @@ func (s *Service) setAttendance(
 		return fmt.Errorf("clear interested: %w", err)
 	}
 
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("commit: %w", err)
+	}
+
+	// Notify the organizer only when going/interested is being *set*, not
+	// cleared - mirrors interestedGoing.ts, which only ever called
+	// sendNotification inside its isGoing/isInterested branches. Best-effort:
+	// logged, never fails the RSVP itself, same convention as booking's
+	// notifyNewBookingRequest. Self-RSVPs are silently excluded by
+	// notifications.Service.Send's own sender-exclusion, not re-checked here.
+	n := integrations.EventNotification{
+		EventID:           dbutil.UUIDStr(eventID),
+		Slug:              eventSlug,
+		TitleSv:           eventRow.TitleSv,
+		OrganizerMemberID: dbutil.UUIDStr(eventRow.AuthorID),
+		ActingMemberID:    identity.MemberID,
+	}
+	if going {
+		if err := s.notifier.NotifyEventGoing(ctx, n); err != nil {
+			log.Printf("events: notify event going: %v", err)
+		}
+	} else if interested {
+		if err := s.notifier.NotifyEventInterested(ctx, n); err != nil {
+			log.Printf("events: notify event interested: %v", err)
+		}
+	}
+
+	return nil
 }
 
 // AddComment ports the events entity-type branch of src/lib/zod/comments.ts,

@@ -3,10 +3,12 @@
   import Spinner from "$lib/components/ui/spinner/spinner.svelte";
   import { Trash } from "@lucide/svelte";
   import * as m from "$paraglide/messages";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import type { components } from "$lib/api/schema";
   import { deleteAllNotifications } from "./data.remote";
   import NotificationItem from "./NotificationItem.svelte";
   import { enhanceWithToast } from "$lib/stores/toast";
+
+  type NotificationGroup = components["schemas"]["Group"];
 
   const {
     notificationsPromise,

@@ -1,7 +1,7 @@
 <script lang="ts">
   import DualSelect from "$lib/components/dualSelect/DualSelect.svelte";
   import * as Select from "$lib/components/ui/select/index.js";
-  import { NotificationSettingType } from "$lib/utils/notifications/types";
+  import { NotificationSettingType } from "$lib/notifications/settingTypes";
   import { mode, setMode } from "mode-watcher";
   import * as m from "$paraglide/messages";
   import { Switch } from "$lib/components/ui/switch/index.js";
@@ -15,16 +15,13 @@
   let items: Array<{
     title: string;
     checked: boolean;
-    color: string | null;
+    color: string | null | undefined;
     value: string;
   }> = $derived(
     data.tags.map((tag) => ({
       title: tag.name,
       color: tag.color,
-      checked:
-        (data.subscribedTags?.subscribedTags.filter(
-          (subscribedTag) => subscribedTag.name === tag.name,
-        ).length ?? 0) > 0,
+      checked: data.subscribedTagIds.includes(tag.id),
       value: tag.id,
     })),
   );

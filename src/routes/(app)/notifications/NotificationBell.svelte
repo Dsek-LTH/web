@@ -2,10 +2,12 @@
   import { Button } from "$lib/components/ui/button";
   import * as HoverCard from "$lib/components/ui/hover-card";
   import Bell from "@lucide/svelte/icons/bell";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
+  import type { components } from "$lib/api/schema";
   import { readAllNotifications } from "./data.remote";
   import NotificationList from "./NotificationList.svelte";
   import { enhanceWithToast } from "$lib/stores/toast";
+
+  type NotificationGroup = components["schemas"]["Group"];
 
   const {
     notificationsPromise,
@@ -19,7 +21,7 @@
   let unreadCount = $derived(
     locallyMarkedRead
       ? 0
-      : resolvedNotifications.filter((n) => n.readAt === null).length,
+      : resolvedNotifications.filter((n) => n.readAt == null).length,
   );
 
   $effect(() => {

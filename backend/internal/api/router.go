@@ -17,6 +17,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/articles"
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/booking"
+	"github.com/dsek-lth/web/backend/internal/cafe"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/documents"
@@ -29,6 +30,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/medals"
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
+	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
 )
 
@@ -54,6 +56,8 @@ func NewRouter(
 	documentSvc *documents.Service,
 	bookingSvc *booking.Service,
 	electionSvc *elections.Service,
+	cafeSvc *cafe.Service,
+	notificationSvc *notifications.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -77,6 +81,8 @@ func NewRouter(
 	registerDocumentRoutes(api, documentSvc)
 	registerBookingRoutes(api, bookingSvc)
 	registerElectionRoutes(api, electionSvc)
+	registerCafeRoutes(api, cafeSvc)
+	registerNotificationRoutes(api, notificationSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))

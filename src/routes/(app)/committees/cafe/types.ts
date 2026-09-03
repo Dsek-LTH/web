@@ -1,15 +1,18 @@
-import { Prisma } from "@prisma/client";
-import { TimeSlot as PrismaTimeSlot } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
-export type { CiabattaOfTheWeek as Ciabatta } from "@prisma/client";
+import type { components } from "$lib/api/schema";
+
+export type Ciabatta = components["schemas"]["Ciabatta"];
+export type Shift = components["schemas"]["Shift"];
+export type Schedule = components["schemas"]["Schedule"];
+export type OpeningHour = components["schemas"]["OpeningHour"];
 
 export const TimeSlot = {
   DAYMANAGER: "DAYMANAGER",
   SHIFT_1: "SHIFT_1",
   SHIFT_2: "SHIFT_2",
   SHIFT_3: "SHIFT_3",
-} as const satisfies Record<string, PrismaTimeSlot>;
+} as const;
 export type TimeSlot = (typeof TimeSlot)[keyof typeof TimeSlot];
 
 export const scheduleForm = z.object({
@@ -28,7 +31,3 @@ export const editWeeklyCiabattaSchema = z.object({
   week: z.number(),
   name: z.string(),
 });
-
-export type ShiftWithWorker = Prisma.CafeShiftGetPayload<{
-  include: { worker: true };
-}>;

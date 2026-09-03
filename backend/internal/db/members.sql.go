@@ -35,12 +35,11 @@ type CreateMemberRow struct {
 	ClassProgramme pgtype.Text `json:"class_programme"`
 }
 
-// Minimal port of src/lib/utils/member.ts's createMember: this backend
-// doesn't own subscription_settings or tag subscriptions (nollning-period
-// defaults included), so this only creates the bare Member row those
-// features would otherwise hang off of - a deliberate gap, not an
-// oversight, consistent with nollning being out of scope elsewhere in this
-// rewrite (see DESIGN.md).
+// Minimal port of src/lib/utils/member.ts's createMember: just the bare
+// Member row. Default subscription_settings/tag-subscription seeding
+// (previously a documented gap here) now happens as a separate step right
+// after this insert - see internal/auth's resolveOrCreateMember and
+// internal/notifications.Service.SeedDefaults (Phase 9).
 func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (CreateMemberRow, error) {
 	row := q.db.QueryRow(ctx, createMember,
 		arg.StudentID,

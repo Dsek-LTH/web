@@ -40,13 +40,10 @@ func (MockNotifier) NotifyNewArticle(_ context.Context, n ArticleNotification) e
 	return nil
 }
 
-func (MockNotifier) NotifyLike(
-	_ context.Context,
-	articleID, likedByMemberID, articleAuthorMemberID string,
-) error {
+func (MockNotifier) NotifyLike(_ context.Context, n LikeNotification) error {
 	log.Printf(
 		"integrations: mock notifier - pretending to tell %s that %s liked article %s",
-		articleAuthorMemberID, likedByMemberID, articleID,
+		n.ArticleAuthorMemberID, n.LikedByMemberID, n.ArticleID,
 	)
 	return nil
 }
@@ -66,6 +63,22 @@ func (MockNotifier) NotifyBookingRequestStatus(
 	log.Printf(
 		"integrations: mock notifier - pretending to tell %s their booking request %q was %s",
 		n.RecipientMemberID, n.Event, n.Status,
+	)
+	return nil
+}
+
+func (MockNotifier) NotifyEventGoing(_ context.Context, n EventNotification) error {
+	log.Printf(
+		"integrations: mock notifier - pretending to tell %s that %s is going to %q",
+		n.OrganizerMemberID, n.ActingMemberID, n.TitleSv,
+	)
+	return nil
+}
+
+func (MockNotifier) NotifyEventInterested(_ context.Context, n EventNotification) error {
+	log.Printf(
+		"integrations: mock notifier - pretending to tell %s that %s is interested in %q",
+		n.OrganizerMemberID, n.ActingMemberID, n.TitleSv,
 	)
 	return nil
 }

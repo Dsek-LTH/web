@@ -502,22 +502,25 @@ coexistence" framing above. Concretely:
   the token race. Each caller still respects its own `ctx` when waiting on
   the shared result, so a slow/cancelled caller doesn't block, but doesn't
   disrupt the shared work for the others either.
-- **Known gap: new members no longer get default tag subscriptions /
-  notification settings on first login.** `src/lib/utils/member.ts`'s
-  `createMember()` (subscription_settings + default/nollning tag
-  subscriptions) was, before this change, only ever called from
-  `hooks.server.ts` on first login. Go's `/auth/callback` now
-  resolves-or-creates the `Member` row *before* that SvelteKit code ever
-  runs (see the minimal `CreateMember` query's own doc comment in
-  `internal/db/queries/members.sql`), so by the time `hooks.server.ts` looks
-  the member up, the row already exists and the fuller TS `createMember()`
-  never fires. Accepted rather than fixed now, the same way nollning gaps
-  elsewhere in this rewrite are accepted: `subscription_settings` and the
-  tag-subscription join table aren't modeled in Go at all yet. Revisit if/
-  when those get ported - `hooks.server.ts`'s `createMember()` call is kept
-  in place as a fallback (reachable if e.g. `AUTH_MOCK` bypasses Go's own
-  member creation), so nothing needs to change there when this gets fixed,
-  only Go's side.
+- **Superseded 2026-09-03 (Phase 9):** this bullet originally flagged that
+  new members created via Go's `/auth/callback` got no default tag
+  subscriptions/notification settings, since `subscription_settings` and
+  the tag-subscription join table weren't modeled in Go at all yet and the
+  fuller TS `createMember()` (in `hooks.server.ts`, only reachable as a
+  fallback) never actually ran for them. Phase 9 ported both tables to Go
+  (`internal/notifications`) and gave `internal/auth`'s
+  `resolveOrCreateMember` its own default-seeding step
+  (`notifications.Service.SeedDefaults`, gated on `nollning.Service.Phase`
+  exactly like the TS version's nollning-vs-normal branch) - see
+  `backend/CLAUDE.md`'s "Notifications routes" section. The gap is now
+  narrower, not fully closed: `hooks.server.ts`'s TS `createMember()`
+  fallback (reachable only if Go's own member creation is ever bypassed,
+  e.g. `AUTH_MOCK`) still has its own independent copy of this defaulting
+  logic in `src/lib/utils/member.ts` - duplicated, not deleted, since
+  trimming that rare-path fallback down to a bare insert was judged out of
+  scope for a notifications-focused phase. Revisit together with whatever
+  phase finally removes that fallback entirely (tracked nowhere formally
+  yet - flag if it resurfaces).
 
 ## API shape and frontend integration
 
@@ -1628,12 +1631,177 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      "TEMPORARY dual-shape" comment updated to drop `home` and
      `elections/ElectionCard` from its still-Prisma consumer list.
 8. **Cafe** - shifts + drink inventory.
+   **Status: backend and frontend both implemented 2026-09-03**
+   (`backend/internal/cafe` - see `backend/CLAUDE.md`'s "Cafe routes"
+   section for the exact endpoint list). **Scope correction, user-confirmed
+   before implementation, same shape as Phase 3's and Phase 7's own roadmap
+   corrections**: "drink inventory" turned out to mean `DrinkItem`/
+   `DrinkItemBatch`/`SexetInventoryValueLog` (the `admin/stocklist` pages -
+   overview, addproduct, showproducts, stockchange, treasury) - a genuinely
+   separate feature already listed on its own under roadmap Phase 11
+   ("Admin consolidation"). Both features were backend-only right now
+   either way (every `admin/stocklist` `.svelte` file, like
+   `committees/cafe`'s own, was already `<NotImplemented />`), so nothing
+   about UI readiness forced the split - asked the user directly, who chose
+   to scope this phase to cafe shifts/ciabatta/opening-hours only and leave
+   stocklist for Phase 11 as originally planned, rather than pull it
+   forward into this pass. `cafe_shifts`/`ciabatta_of_the_week`/the
+   `time_slots` enum pre-date this Go port (Prisma-created, part of the
+   original copied migration history) - `schema.sql` additions only, no
+   new migration, same as songs/alerts/booking/elections.
+   - The old app's local dayjs `weekOfYear`-plugin-based week arithmetic
+     (`getWeek`, and the `week`/`year` echoed back to the client) was
+     **not** ported bit-for-bit - see `backend/CLAUDE.md`'s Cafe routes
+     section for the full reasoning. `GET /cafe/schedule` uses real
+     ISO-8601 week semantics (Go's `time.Time.ISOWeek()`) instead of
+     replicating dayjs's non-standard default-locale "week 1 contains
+     Jan 1, Sunday-start" convention and its year-boundary quirks - a
+     deliberate simplification accepted because nothing renders this page
+     yet (still `<NotImplemented />`, deferred to Phase 13 same as
+     booking's five pages). Revisit only if a real frontend consumer needs
+     bit-for-bit parity with specific historical week numbers the old
+     dayjs algorithm would have produced.
+   - `PUT /cafe/shifts` collapses the old `updateSchedule` action's
+     sign-up/quit/reassign toggle logic into one endpoint, faithfully
+     replicated including its real (not obviously intentional, but
+     replicated exactly since there's no evidence it was a bug) quirk: the
+     "you already have another shift this day" guard checks the *acting*
+     identity's own shifts, not the target member's - which only matters
+     for self-signup, since every path where target ≠ actor already
+     requires `cafe:edit_workers` and bypasses this guard entirely, same
+     as the old app. One accepted simplification bundled in: the
+     "too close to cancel" cutoff is day-granular rather than the old
+     app's exact `shiftDate > dayjs().add(1, "day")` instant comparison,
+     collapsing its two distinct "too close"/"already passed" error
+     messages into one - not preserved since nothing renders this page yet
+     to show the distinction. Requires an identity - a real, necessary
+     explicit check added: the old action had none, relying on `worker`
+     ending up empty/undefined for an anonymous caller and the resulting
+     Prisma create failing incidentally.
+   - Opening-hours *reads* get a bespoke endpoint (`GET
+     /cafe/opening-hours`, a prefix listing over the `markdowns` table -
+     `internal/markdown` itself only fetches one named page at a time, so
+     this doesn't belong there), but opening-hours *writes* deliberately
+     don't - the old app's `updateHours` action already just delegated to
+     a shared `updateMarkdown` helper gated by the same `markdown:update`
+     policy Phase 3's generic `PATCH /info/{slug}` already enforces, so
+     pointing a future frontend at that existing endpoint per-page is a
+     byte-for-byte replication of the real access model, not a new
+     restriction or a functionality reduction. This let a genuinely dead
+     file be deleted: `$lib/news/markdown/mutations.server.ts`
+     (`updateMarkdown`) had exactly one real caller left (this page's
+     `updateHours` action, per Phase 3's own note) - once that switched to
+     calling Go directly, grep confirmed zero remaining callers and the
+     file was removed.
+   - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
+     against the dev DB (opening-hours against real seeded
+     `cafe:open:0`..`cafe:open:4` rows, schedule default/explicit-week
+     views, the full sign-up/quit/reassign/invalid-input matrix, ciabatta
+     upsert), plus a live SSR load through the real SvelteKit dev server
+     against the real Go backend and `svelte-check`/`eslint` (0
+     errors/warnings). Same caveat as nollning's `GET /board` redaction and
+     markdown's per-page ACL bypass: the non-admin branches
+     (`cafe:edit_workers`/`cafe:see_all_weeks`/`cafe:day_manager` all
+     *absent*) were only verified by code inspection, not a live
+     differently-privileged request - `MockAuthenticator` always grants
+     every policy to its one fixed identity. `committees/cafe/+page.svelte`
+     stays `<NotImplemented />` (a pre-existing stub before this phase),
+     only its `+page.server.ts` load/actions were ported, per Principle #6.
 9. **Real notifications + Discord webhook** - replace `Notifier`/
    `Webhooker` mocks for real, wired into every domain that already calls
    them (articles, events) plus whichever of phases 3-8 turned out to
    want notifications too. Nolla-specific default subscription settings
    (see nollning section) get their permanent home here instead of the
    current hardcoded-cutoff-date hack.
+   **Status: backend and frontend both implemented 2026-09-03**
+   (`backend/internal/notifications` - see `backend/CLAUDE.md`'s
+   "Notifications routes" section for the exact endpoint list). `notifications`,
+   `expo_tokens`, `subscription_settings`, `admin_settings`, and the implicit
+   join table `_member_tag_subscriptions` all pre-date this Go port
+   (Prisma-created) - `schema.sql` additions only, no new migration, same as
+   every simple-CRUD phase since Phase 3. Three decisions confirmed with the
+   user before implementing: reuse the live `admin_settings` key/value table
+   for the Discord webhook's config (`discord_webhook_se`/`webhook_tags_se`
+   keys, byte-for-byte parity with the old app's admin-editable runtime
+   config) rather than a deploy-time env var; gate real Expo push sends
+   behind a `PUSH_MOCK` flag (default true/mock, mirroring `AUTH_MOCK`/
+   `STORAGE_MOCK`'s "explicit opt-in to real" shape) since this rewrite
+   shares the live dev DB's real device tokens; and port the bell/list's
+   duplicate-notification merge logic (`group.ts`'s `groupNotifications`)
+   faithfully rather than shipping ungrouped for v1.
+   - `Notifier` gained two new methods this phase, `NotifyEventGoing`/
+     `NotifyEventInterested`, closing the gap `events.Service`'s own doc
+     comment had flagged since the events port (push notifications to an
+     event's organizer on going/interested) - wired into `setAttendance`.
+     `ArticleNotification` gained an `AuthorID` field (the actual
+     `authors.id` used for the byline, not just the acting member) so the
+     real `Notifier`/`Webhooker` can attribute notifications/Discord embeds
+     to a mandate-based byline correctly, matching the old app's
+     `fromAuthor: article.author` exactly. `Notifier.NotifyLike`'s signature
+     changed from three loose strings to a `LikeNotification` struct
+     (adding `Slug`/`HeaderSv`, needed for the notification's title/link) -
+     a safe interface change since only the mock and one real call site
+     existed before this phase.
+   - **Real, necessary huma-gotcha fix caught at server startup, not
+     shipped**: the first cut named the bell/list's per-notification sender
+     DTO `Author`, which panicked huma's schema registry (`internal/articles`
+     already registers its own bare `Author` type) - renamed to
+     `NotificationAuthor`, the same fix this exact trap has required at
+     every prior phase that's hit it (see CLAUDE.md's huma gotcha note).
+   - **A real, deliberate simplification-turned-improvement, flagged
+     explicitly rather than silently picked**: `group.ts`'s
+     `groupAuthorNames` had a copy-paste bug in its exactly-3-authors
+     branch (read `secondAuthor`'s name twice instead of the third's) -
+     fixed while porting, not replicated, since it's an unambiguous typo
+     with no evidence of intent (same class of fix as songbook's minutes-
+     substring comma bug).
+   - The Discord webhook's own admin-configured URL/tag-filter, embed
+     payload shape (title/author/color/footer/truncated description), and
+     the `[NOLLNING]`-tag skip are a verbatim port of the pre-port
+     `sendNewArticleWebhook` (recovered from git history at the commit
+     before articles was ported, since the live code had already been
+     replaced with a Go call by the time this phase started) - including
+     its slightly redundant two-step description truncation, replicated
+     faithfully rather than "fixed". Real Expo push (`internal/notifications/
+     push.go`) is a bespoke small HTTP client against Expo's push API
+     directly (no access token required, matching the old app's own
+     unauthenticated `new Expo()`) rather than a third-party Go SDK
+     dependency - the protocol is simple enough not to warrant one.
+   - **Accepted gap, not this phase's job to close**: pings
+     (`members/[studentId]/pings.ts`) still call the old TS `sendNotification`
+     directly - no `internal/pings` domain exists in Go, and porting the ping
+     feature itself was never in this phase's scope (the roadmap only
+     mentions "articles, events" as `Notifier`'s existing callers). Because
+     of this, `src/lib/utils/notifications/index.ts` (`sendNotification`),
+     `push.ts`, and the parts of `types.ts` that back them
+     (`NotificationType`, `SUBSCRIPTION_SETTINGS_MAP`,
+     `DUPLICATE_ALLOWED_TYPES`) are **not** dead code and were deliberately
+     kept, not deleted - confirmed via grep before making that call, the same
+     diligence this port applies before every "genuinely dead code deleted"
+     claim elsewhere. `DEFAULT_SUBSCRIPTION_SETTINGS`/
+     `NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS` in that same file are *also* still
+     alive, for a second, unrelated reason - see the Auth section's
+     `createMember()` fallback note above, superseded but not closed by this
+     phase. `myNotifications.ts`, `nollaNotifications.ts`, and `group.ts`
+     (the bell/list's old Prisma-backed read path) had zero remaining
+     callers once `+layout.server.ts`/`(nollning)/nollning/+layout.server.ts`
+     were repointed at Go, and were deleted, along with the now-caller-less
+     `api/notifications/my/+server.ts` route (`depends("/api/notifications/my")`
+     is just a SvelteKit invalidation key, not a real fetch target - nothing
+     ever called this route over HTTP).
+   - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
+     against the dev DB: the full `Send` pipeline end-to-end (article
+     creation → tag-subscribed member notified → in-app row created →
+     mock-push fired for a registered token), event going/interested
+     notifying the organizer with correctly-formatted Swedish message text,
+     notification listing/grouping/mark-read/delete/settings CRUD, and the
+     Discord webhook's real no-op path (no `admin_settings` row configured
+     in dev). Booking's notification call sites share the exact same `Send`
+     core already proven by the article/event tests, so weren't separately
+     re-verified beyond confirming the (correct) real-world case where the
+     seeded kårhusmästare simply has no `BOOKING_REQUEST` subscription row
+     yet. Frontend verified via the Svelte MCP `svelte-autofixer` tool
+     (0 issues) on every edited component.
 10. **Doors/Salto** - physical access control integration; kept late
     since it depends on real hardware/vendor API access, not just DB
     work, and nothing else in this list depends on it.
