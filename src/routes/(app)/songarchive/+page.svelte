@@ -9,6 +9,8 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
+  import { Switch } from "$lib/components/ui/switch/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { SvelteURLSearchParams } from "svelte/reactivity";
@@ -24,6 +26,9 @@
 
   const canCreate = $derived(
     data.user?.policies?.includes(apiNames.SONG.CREATE),
+  );
+  const canDelete = $derived(
+    data.user?.policies?.includes(apiNames.SONG.DELETE),
   );
 
   const debouncedSearch = debounce((value: string) => {
@@ -48,6 +53,44 @@
     debouncedSearch(value);
   }
 
+  function handleShowDeletedChange(checked: boolean) {
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+    if (checked) {
+      searchParams.set("show-deleted", "true");
+    } else {
+      searchParams.delete("show-deleted");
+    }
+    searchParams.set("page", "1");
+
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
+    goto(`?${searchParams.toString()}`, {
+      keepFocus: true,
+      noScroll: true,
+      replaceState: true,
+    });
+  }
+
+  function toggleCategory(category: string, currentSelected: boolean) {
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+    if (currentSelected) {
+      // Removing category: we need to reconstruct the URLSearchParams
+      // because delete() removes all instances of the key
+      const newCategories = data.categoryFilter.filter((c) => c !== category);
+      searchParams.delete("category");
+      newCategories.forEach((c) => searchParams.append("category", c));
+    } else {
+      searchParams.append("category", category);
+    }
+    searchParams.set("page", "1");
+
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
+    goto(`?${searchParams.toString()}`, {
+      keepFocus: true,
+      noScroll: true,
+      replaceState: true,
+    });
+  }
+
   // Having two rows of pagination buttons looks weird with few results.
   const showBottomPagination = $derived(data.songs.length > 2);
 </script>
@@ -59,7 +102,7 @@
         <h1 class="mb-0">{m.songBook()}</h1>
         {#if canCreate}
           <Button
-            href="/songbook/create"
+            href="/songarchive/create"
             size="sm"
             class="flex items-center gap-2"
           >
@@ -82,7 +125,7 @@
     </div>
   </div>
 
-  <div class="mb-4">
+  <div class="mb-8 flex flex-col gap-4">
     <div class="flex flex-col gap-4 md:flex-row md:items-center">
       <div class="flex-1">
         <Input
@@ -94,6 +137,39 @@
           <SearchIcon />
         </Input>
       </div>
+
+      {#if canDelete}
+        <div
+          class="border-border bg-card flex items-center gap-3 rounded-lg border px-4 py-2"
+        >
+          <Switch
+            id="show-deleted"
+            checked={data.showDeleted}
+            onCheckedChange={handleShowDeletedChange}
+          />
+          <Label
+            for="show-deleted"
+            class="cursor-pointer text-sm font-medium whitespace-nowrap"
+          >
+            {m.songbook_showDeleted()}
+          </Label>
+        </div>
+      {/if}
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      {#each data.categories as category (category)}
+        {@const isSelected = data.categoryFilter.includes(category)}
+        <button
+          type="button"
+          class="cursor-pointer"
+          onclick={() => toggleCategory(category, isSelected)}
+        >
+          <Badge variant={isSelected ? "lila" : "outline"}>
+            {data.categoryMap[category]}
+          </Badge>
+        </button>
+      {/each}
     </div>
   </div>
 
@@ -102,9 +178,9 @@
   {/if}
 
   <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-    {#each data.songs as { song, page, numberOnPage }, index (song.id)}
+    {#each data.songs as song, index (song.id)}
       <a
-        href={resolve(`/songbook/${page}/${numberOnPage}`)}
+        href={resolve(`/songarchive/${song.slug}`)}
         class="block h-full transition-transform"
       >
         <Card
@@ -127,9 +203,10 @@
                   </span>
                 {/if}
               </CardTitle>
-              <Badge variant="outline" class="shrink-0"
-                >{m.songbook_page()} {page}</Badge
-              >
+              {#if song.category}
+                <Badge variant="outline" class="shrink-0">{song.category}</Badge
+                >
+              {/if}
             </div>
           </CardHeader>
           <CardContent>

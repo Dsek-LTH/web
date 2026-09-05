@@ -1,9 +1,10 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
-import { setError, superValidate } from "sveltekit-superforms/server";
+import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { createSongBookEntrySchema } from "../schema";
+import { createSongSchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
+import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     getExistingMelodies(prisma),
   ]);
   return {
-    form: await superValidate(zod4(createSongBookEntrySchema)),
+    form: await superValidate(zod4(createSongSchema)),
     existingCategories,
     existingMelodies,
   };
@@ -31,29 +32,24 @@ export const actions: Actions = {
     const { prisma, user } = locals;
     authorize(apiNames.SONG.CREATE, user);
 
-    const form = await superValidate(request, zod4(createSongBookEntrySchema));
+    const form = await superValidate(request, zod4(createSongSchema));
     if (!form.valid) return fail(400, { form });
-    const { songId, page, numberOnPage } = form.data;
-
-    if (
-      (await prisma.songBookEntry.count({ where: { page, numberOnPage } })) > 0
-    ) {
-      return setError(
-        form,
-        "numberOnPage",
-        m.songbook_compositeKeyDuplicateError(),
-      );
-    }
-
-    const result = await prisma.songBookEntry.create({
+    const { title, melody, category, lyrics, video } = form.data;
+    const now = new Date();
+    const result = await prisma.song.create({
       data: {
-        songId: DOMPurify.sanitize(songId),
-        page,
-        numberOnPage,
+        title: DOMPurify.sanitize(title),
+        slug: await slugifySongTitle(prisma, title),
+        melody: melody.trim(),
+        category: category.trim(),
+        lyrics: DOMPurify.sanitize(lyrics),
+        video: video?.trim() || null,
+        createdAt: now,
+        updatedAt: now,
       },
     });
     throw redirect(
-      `/songbook/${result.page}/${result.numberOnPage}`,
+      `/songarchive/${result.slug}`,
       {
         message: m.songbook_songCreated(),
         type: "success",

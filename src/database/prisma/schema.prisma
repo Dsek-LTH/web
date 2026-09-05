@@ -744,20 +744,33 @@ model ProductInventory {
   @@map("product_inventory")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Songs{
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Song {
-  id        String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  title     String    @db.VarChar(255)
-  lyrics    String
-  slug      String    @unique(map: "songs_slug_unique") @db.VarChar(255)
-  melody    String?   @db.VarChar(255)
-  category  String?   @db.VarChar(255)
-  createdAt DateTime? @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  video     String?
+  id            String         @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  title         String         @db.VarChar(255)
+  lyrics        String
+  slug          String         @unique(map: "songs_slug_unique") @db.VarChar(255)
+  melody        String?        @db.VarChar(255)
+  category      String?        @db.VarChar(255)
+  createdAt     DateTime?      @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime?      @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime?      @map("deleted_at") @db.Timestamptz(6)
+  video         String?
+  songBookEntry SongBookEntry?
 
   @@map("songs")
+}
+
+model SongBookEntry {
+  songId       String   @unique() @db.Uuid()
+  song         Song     @relation(fields: [songId], references: [id])
+  page         Int
+  numberOnPage Int
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt() @map("updated_at") @db.Timestamptz(6)
+
+  @@id([page, numberOnPage])
+  @@map("song_book_entries")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
