@@ -56,7 +56,7 @@
   <div class="mb-8 flex flex-row items-center justify-between">
     <div class="md:w-7/12">
       <div class="mb-4 flex flex-wrap items-center gap-4">
-        <h1 class="mb-0">{m.songBook()}</h1>
+        <h1 class="mb-0">{m.songbook_header()}</h1>
         {#if canCreate}
           <Button
             href="/songbook/create"
@@ -64,20 +64,15 @@
             class="flex items-center gap-2"
           >
             <Plus class="h-4 w-4" />
-            {m.songbook_createNewSong()}
+            {m.songbook_createNewSongbookEntry()}
           </Button>
         {/if}
       </div>
-      <p>{m.songbook_hereYoullFind()}</p>
-      <p class="text-muted-foreground italic">{m.songbook_disclaimer()}</p>
+      <p>{m.songbook_explanation()}</p>
     </div>
-    <div class="hidden w-4/12 rounded-lg md:block">
-      <div
-        class="bg-primary/5 flex aspect-[4/3] items-center justify-center rounded-lg border-[1px] shadow-xl"
-      >
-        <MusicIcon
-          class="text-primary h-32 w-32 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-        />
+    <div class="hidden w-3/12 rounded-lg md:block">
+      <div class="rounded-lg border-[1px] shadow-xl">
+        <img class="rounded-lg" src="/songbook/latest.png" alt="" />
       </div>
     </div>
   </div>
