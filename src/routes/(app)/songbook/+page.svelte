@@ -87,7 +87,7 @@
       <div class="flex-1">
         <Input
           type="text"
-          placeholder="Search by song title or page"
+          placeholder={m.songbook_searchPlaceholder()}
           value={data.search}
           oninput={handleSearch}
         >
@@ -127,7 +127,9 @@
                   </span>
                 {/if}
               </CardTitle>
-              <Badge variant="outline" class="shrink-0">Sida {page}</Badge>
+              <Badge variant="outline" class="shrink-0"
+                >{m.songbook_page()} {page}</Badge
+              >
             </div>
           </CardHeader>
           <CardContent>

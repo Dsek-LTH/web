@@ -46,7 +46,7 @@ export const actions: Actions = {
       return setError(
         form,
         "numberOnPage",
-        "A song book entry with this number already exists on the page",
+        m.songbook_compositeKeyDuplicateError(),
       );
     }
 

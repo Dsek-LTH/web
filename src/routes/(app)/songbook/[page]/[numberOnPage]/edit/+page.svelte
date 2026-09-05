@@ -39,7 +39,7 @@
 <div class="mx-auto max-w-2xl px-4 py-8">
   <Button
     variant="ghost"
-    href="/songbook/{song.slug}"
+    href="/songbook/{data.songBookEntry.page}/{data.songBookEntry.numberOnPage}"
     class="mb-6 flex items-center gap-2"
   >
     <ArrowLeft class="h-4 w-4" />
@@ -81,12 +81,14 @@
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div class="flex flex-col gap-2">
-            <Label for="page" class="text-base font-medium">Sida</Label>
+            <Label for="page" class="text-base font-medium"
+              >{m.songbook_page()}</Label
+            >
             <Input
               id="page"
               name="page"
               bind:value={$form.page}
-              placeholder="Sida i sångboken"
+              placeholder={m.songbook_page_placeholder()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
                   $errors.page,
@@ -101,13 +103,13 @@
 
           <div class="flex flex-col gap-2">
             <Label for="numberOnPage" class="text-base font-medium"
-              >Nummer på sidan</Label
+              >{m.songbook_numberOnPage()}</Label
             >
             <Input
               id="numberOnPage"
               name="numberOnPage"
               bind:value={$form.numberOnPage}
-              placeholder="Sida i sångboken"
+              placeholder={m.songbook_numberOnPagePlaceholder()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
                   $errors.numberOnPage,
