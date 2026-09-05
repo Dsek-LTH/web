@@ -38,6 +38,18 @@ export const actions: Actions = {
     const originalPage = Number(params.page);
     const originalNumber = Number(params.numberOnPage);
 
+    if (
+      (await prisma.songBookEntry.count({
+        where: { page: data.page, numberOnPage: data.numberOnPage },
+      })) > 0
+    ) {
+      return setError(
+        form,
+        "numberOnPage",
+        "A song book entry with this number already exists on the page",
+      );
+    }
+
     const updatedSong = await prisma.songBookEntry.update({
       where: {
         page_numberOnPage: { page: originalPage, numberOnPage: originalNumber },

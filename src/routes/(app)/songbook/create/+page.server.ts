@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { fail } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
+import { setError, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { createSongBookEntrySchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
@@ -34,6 +34,17 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(createSongBookEntrySchema));
     if (!form.valid) return fail(400, { form });
     const { songId, page, numberOnPage } = form.data;
+
+    if (
+      (await prisma.songBookEntry.count({ where: { page, numberOnPage } })) > 0
+    ) {
+      return setError(
+        form,
+        "numberOnPage",
+        "A song book entry with this number already exists on the page",
+      );
+    }
+
     const result = await prisma.songBookEntry.create({
       data: {
         songId: DOMPurify.sanitize(songId),

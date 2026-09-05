@@ -15,9 +15,6 @@ export const searchSongTitles = query(z.string(), async (titleFilter) => {
   }
 
   try {
-    // If using ZenStack, use locals.db (your enhanced client).
-    // If standard Prisma, use the prisma instance.
-
     const songs = await prisma.song.findMany({
       where: {
         title: {

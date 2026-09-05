@@ -9,8 +9,6 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Switch } from "$lib/components/ui/switch/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { SvelteURLSearchParams } from "svelte/reactivity";
@@ -26,9 +24,6 @@
 
   const canCreate = $derived(
     data.user?.policies?.includes(apiNames.SONG.CREATE),
-  );
-  const canDelete = $derived(
-    data.user?.policies?.includes(apiNames.SONG.DELETE),
   );
 
   const debouncedSearch = debounce((value: string) => {
@@ -51,44 +46,6 @@
   function handleSearch(e: Event) {
     const value = (e.target as HTMLInputElement).value;
     debouncedSearch(value);
-  }
-
-  function handleShowDeletedChange(checked: boolean) {
-    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-    if (checked) {
-      searchParams.set("show-deleted", "true");
-    } else {
-      searchParams.delete("show-deleted");
-    }
-    searchParams.set("page", "1");
-
-    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
-    goto(`?${searchParams.toString()}`, {
-      keepFocus: true,
-      noScroll: true,
-      replaceState: true,
-    });
-  }
-
-  function toggleCategory(category: string, currentSelected: boolean) {
-    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-    if (currentSelected) {
-      // Removing category: we need to reconstruct the URLSearchParams
-      // because delete() removes all instances of the key
-      const newCategories = data.categoryFilter.filter((c) => c !== category);
-      searchParams.delete("category");
-      newCategories.forEach((c) => searchParams.append("category", c));
-    } else {
-      searchParams.append("category", category);
-    }
-    searchParams.set("page", "1");
-
-    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
-    goto(`?${searchParams.toString()}`, {
-      keepFocus: true,
-      noScroll: true,
-      replaceState: true,
-    });
   }
 
   // Having two rows of pagination buttons looks weird with few results.

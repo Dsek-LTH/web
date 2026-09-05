@@ -111,8 +111,6 @@
                 value={song.id}
                 onSelect={() => {
                   songId = song.id;
-                  // Optional: auto-fill the form title based on the selected song
-                  // if (!$form.title) $form.title = song.title;
                   closeAndFocusTrigger();
                 }}
               >

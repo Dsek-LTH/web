@@ -18,7 +18,6 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
   import apiNames from "$lib/utils/apiNames";
-  import { Plus } from "@lucide/svelte";
   import SongSearch from "../../../SongSearch.svelte";
 
   let { data } = $props();
@@ -93,6 +92,11 @@
                   $errors.page,
               }}
             />
+            {#if $errors.page}
+              <p class="text-destructive text-sm font-medium">
+                {$errors.page}
+              </p>
+            {/if}
           </div>
 
           <div class="flex flex-col gap-2">
@@ -106,9 +110,14 @@
               placeholder="Sida i sångboken"
               class={{
                 "border-destructive focus-visible:ring-destructive":
-                  $errors.page,
+                  $errors.numberOnPage,
               }}
             />
+            {#if $errors.numberOnPage}
+              <p class="text-destructive text-sm font-medium">
+                {$errors.numberOnPage}
+              </p>
+            {/if}
           </div>
         </div>
       </form>

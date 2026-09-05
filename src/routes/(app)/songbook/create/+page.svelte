@@ -75,6 +75,11 @@
                   $errors.page,
               }}
             />
+            {#if $errors.page}
+              <p class="text-destructive text-sm font-medium">
+                {$errors.page}
+              </p>
+            {/if}
           </div>
 
           <div class="flex flex-col gap-2">
@@ -88,9 +93,14 @@
               placeholder="Sida i sångboken"
               class={{
                 "border-destructive focus-visible:ring-destructive":
-                  $errors.page,
+                  $errors.numberOnPage,
               }}
             />
+            {#if $errors.numberOnPage}
+              <p class="text-destructive text-sm font-medium">
+                {$errors.numberOnPage}
+              </p>
+            {/if}
           </div>
         </div>
 

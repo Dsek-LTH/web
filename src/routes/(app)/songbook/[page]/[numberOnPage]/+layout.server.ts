@@ -2,12 +2,7 @@ import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
-import {
-  canAccessDeletedSongs,
-  fixSongText,
-  getExistingCategories,
-  getExistingMelodies,
-} from "../../helpers";
+import { canAccessDeletedSongs, fixSongText } from "../../helpers";
 import { updateSongBookEntrySchema } from "../../schema";
 import type { LayoutServerLoad } from "./$types";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
@@ -38,11 +33,6 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     });
   }
 
-  const [existingCategories, existingMelodies] = await Promise.all([
-    getExistingCategories(client, accessPolicies, isDeletedAccessible),
-    getExistingMelodies(client, accessPolicies, isDeletedAccessible),
-  ]);
-
   const form = await superValidate(
     songBookEntry,
     zod4(updateSongBookEntrySchema),
@@ -56,7 +46,5 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     },
     songBookEntry,
     updateForm: form,
-    existingCategories,
-    existingMelodies,
   };
 };
