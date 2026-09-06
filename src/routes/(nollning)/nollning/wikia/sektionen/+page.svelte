@@ -68,6 +68,10 @@
         <strong>{m.nolla_guild_board_activities()}</strong>
         {m.nolla_guild_board_activities_description()}
       </li>
+      <li>
+        <strong>{m.nolla_guild_board_cpu()}</strong>
+        {m.nolla_guild_board_cpu_description()}
+      </li>
     </ul>
   </section>
   <br /><br />
