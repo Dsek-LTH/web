@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
   import board from "$lib/nollning/sektionen/styrelsen.jpg";
-  import dchip from "./d-chip.jpg";
+  import dchip from "./d-chip.webp";
 </script>
 
 <!-- limit width and center -->
@@ -85,7 +85,7 @@
     <p class="nolla-prose">
       {m.landing_dchip_description()}
     </p>
-    <a href="https://dchip.dsek.se" target="_blank" class="btn-primary-dark btn"
+    <a href="https://dchip.se" target="_blank" class="btn-primary-dark btn"
       >{m.website()} <span class="i-mdi-arrow-right"></span></a
     >
   </section>
