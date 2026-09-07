@@ -4,20 +4,18 @@ import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { createSongSchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
-import { slugifySongTitle } from "./helpers";
-import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
-import DOMPurify from "isomorphic-dompurify";
 import { redirect } from "sveltekit-flash-message/server";
+import * as songs from "$lib/server/songs/service";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma, user } = locals;
+  const { user } = locals;
   authorize(apiNames.SONG.CREATE, user);
 
   const [existingCategories, existingMelodies] = await Promise.all([
-    getExistingCategories(prisma),
-    getExistingMelodies(prisma),
+    songs.categories(locals),
+    songs.melodies(locals),
   ]);
   return {
     form: await superValidate(zod4(createSongSchema)),
@@ -29,24 +27,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
-    const { prisma, user } = locals;
-    authorize(apiNames.SONG.CREATE, user);
 
     const form = await superValidate(request, zod4(createSongSchema));
     if (!form.valid) return fail(400, { form });
     const { title, melody, category, lyrics, video } = form.data;
-    const now = new Date();
-    const result = await prisma.song.create({
-      data: {
-        title: DOMPurify.sanitize(title),
-        slug: await slugifySongTitle(prisma, title),
-        melody: melody.trim(),
-        category: category.trim(),
-        lyrics: DOMPurify.sanitize(lyrics),
-        video: video?.trim() || null,
-        createdAt: now,
-        updatedAt: now,
-      },
+    const result = await songs.create(locals, {
+      title,
+      lyrics,
+      melody,
+      category,
+      video,
     });
     throw redirect(
       `/songbook/${result.slug}`,

@@ -896,7 +896,7 @@ model Song {
 
     @@allow("create", has(auth().policies, "song:create"))
     @@allow("read", has(auth().policies, "song:read"))
-    @@deny("read", deletedAt != null)
+    @@deny("read", deletedAt != null && !has(auth().policies, "song:delete"))
     @@allow("update", has(auth().policies, "song:update"))
     @@map("songs")
 }
