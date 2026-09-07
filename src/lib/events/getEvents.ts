@@ -113,7 +113,7 @@ export const getEvents = async (
   let before = undefined;
 
   if (isPaginated) {
-    page = filters.page;
+    page = filters.page - 1;
     pageSize = filters.pageSize;
 
     if (filters.span == "past") {
