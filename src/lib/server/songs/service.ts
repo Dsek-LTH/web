@@ -1,7 +1,6 @@
 import DOMPurify from "isomorphic-dompurify";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import apiNames from "$lib/utils/apiNames";
-import { ForbiddenError, NotFoundError } from "$lib/server/api/errors";
+import { NotFoundError } from "$lib/server/api/errors";
 import * as queries from "./queries";
 import type { SongRow } from "./queries";
 import { fixSongText, toSongDto } from "./convert";
@@ -97,9 +96,10 @@ export async function create(
 ): Promise<z.infer<typeof SongDto>> {
   const title = input.title.trim();
   const now = new Date();
+  const slug = await queries.uniqueSlug(locals.prisma, title);
   const song = await queries.create(locals.prisma, {
     title: fixSongText(DOMPurify.sanitize(title)),
-    slug: await queries.uniqueSlug(locals.prisma, title),
+    slug,
     lyrics: fixSongText(DOMPurify.sanitize(input.lyrics.trim())),
     melody: input.melody?.trim() || null,
     category: input.category?.trim() || null,
@@ -122,34 +122,23 @@ export async function update(
   },
 ): Promise<z.infer<typeof SongDto>> {
   const { slug, ...fields } = input;
-  try {
-    const song = await queries.updateBySlug(locals.prisma, slug, {
-      ...(fields.title !== undefined && {
-        title: fixSongText(DOMPurify.sanitize(fields.title.trim())),
-      }),
-      ...(fields.lyrics !== undefined && {
-        lyrics: fixSongText(DOMPurify.sanitize(fields.lyrics.trim())),
-      }),
-      ...(fields.melody !== undefined && {
-        melody: fields.melody?.trim() || null,
-      }),
-      ...(fields.category !== undefined && {
-        category: fields.category?.trim() || null,
-      }),
-      ...(fields.video !== undefined && {
-        video: fields.video?.trim() || null,
-      }),
-      updatedAt: new Date(),
-    });
-    return toSongDto(song);
-  } catch (err) {
-    // ZenStack reports "no row matched" (P2025) for both a genuinely
-    // missing slug and a row this policy set can't see — it deliberately
-    // doesn't distinguish the two, to avoid leaking existence to a caller
-    // who lacks read access. A clean 404 is the right response either way.
-    if (err instanceof PrismaClientKnownRequestError && err.code === "P2025") {
-      throw new NotFoundError(`No song with slug "${slug}"`);
-    }
-    throw err;
-  }
+  const song = await queries.updateBySlug(locals.prisma, slug, {
+    ...(fields.title !== undefined && {
+      title: fixSongText(DOMPurify.sanitize(fields.title.trim())),
+    }),
+    ...(fields.lyrics !== undefined && {
+      lyrics: fixSongText(DOMPurify.sanitize(fields.lyrics.trim())),
+    }),
+    ...(fields.melody !== undefined && {
+      melody: fields.melody?.trim() || null,
+    }),
+    ...(fields.category !== undefined && {
+      category: fields.category?.trim() || null,
+    }),
+    ...(fields.video !== undefined && {
+      video: fields.video?.trim() || null,
+    }),
+    updatedAt: new Date(),
+  });
+  return toSongDto(song);
 }

@@ -4,6 +4,7 @@ import type {
   ExtendedPrismaModel,
 } from "$lib/server/extendedPrisma";
 import { slugify } from "$lib/utils/slugify";
+import { withZenStackErrors } from "$lib/server/api/errors";
 
 export type SongRow = ExtendedPrismaModel<"Song">;
 
@@ -45,7 +46,11 @@ export function buildWhere({
 
 export function findMany(
   prisma: ExtendedPrisma,
-  { where, take, skip }: { where: Prisma.SongWhereInput; take: number; skip: number },
+  {
+    where,
+    take,
+    skip,
+  }: { where: Prisma.SongWhereInput; take: number; skip: number },
 ) {
   return prisma.song.findMany({ where, take, skip, orderBy: { title: "asc" } });
 }
@@ -89,16 +94,21 @@ export function updateBySlug(
   slug: string,
   data: Prisma.SongUpdateInput,
 ) {
-  return prisma.song.update({ where: { slug }, data });
+  return withZenStackErrors(() =>
+    prisma.song.update({ where: { slug }, data }),
+  );
 }
 
 export function create(prisma: ExtendedPrisma, data: Prisma.SongCreateInput) {
-  return prisma.song.create({ data });
+  return withZenStackErrors(() => prisma.song.create({ data }));
 }
 
 // Appends "-<n>" when the slugified title collides with an existing one,
 // so two songs never end up sharing a slug.
-export async function uniqueSlug(prisma: ExtendedPrisma, title: string): Promise<string> {
+export async function uniqueSlug(
+  prisma: ExtendedPrisma,
+  title: string,
+): Promise<string> {
   const slug = slugify(title);
   const count = await prisma.song.count({
     where: { slug: { startsWith: slug } },

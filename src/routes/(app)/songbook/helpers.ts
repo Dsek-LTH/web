@@ -1,9 +1,3 @@
-import apiNames from "$lib/utils/apiNames";
-
-export function canAccessDeletedSongs(accessPolicies: string[]): boolean {
-  return accessPolicies.includes(apiNames.SONG.DELETE);
-}
-
 export function mayWatchVideos(user?: { roles: string[] } | null): boolean {
   if (!user) return false;
   return (

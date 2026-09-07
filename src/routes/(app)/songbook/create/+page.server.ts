@@ -8,6 +8,7 @@ import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { redirect } from "sveltekit-flash-message/server";
 import * as songs from "$lib/server/songs/service";
+import { handleServiceError } from "$lib/server/api/errors";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
@@ -31,13 +32,9 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(createSongSchema));
     if (!form.valid) return fail(400, { form });
     const { title, melody, category, lyrics, video } = form.data;
-    const result = await songs.create(locals, {
-      title,
-      lyrics,
-      melody,
-      category,
-      video,
-    });
+    const result = await songs
+      .create(locals, { title, lyrics, melody, category, video })
+      .catch(handleServiceError);
     throw redirect(
       `/songbook/${result.slug}`,
       {

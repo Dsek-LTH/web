@@ -1,12 +1,9 @@
 import * as songs from "$lib/server/songs/service";
 import type { PageServerLoad } from "./$types";
-import { canAccessDeletedSongs, groupCategories } from "./helpers";
+import { groupCategories } from "./helpers";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const accessPolicies = locals.user?.policies ?? [];
-  const showDeleted =
-    canAccessDeletedSongs(accessPolicies) &&
-    url.searchParams.get("show-deleted") === "true";
+  const showDeleted = url.searchParams.get("show-deleted") === "true";
 
   const search = url.searchParams.get("search") || "";
   const categoryFilter = url.searchParams.getAll("category");
