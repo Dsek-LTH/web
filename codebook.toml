@@ -2,6 +2,10 @@ use_global = false
 
 dictionaries = [ 'en_gb' ]
 
+ignore_paths = [
+    'pnpm-lock.yaml',
+]
+
 ignore_patterns = [
     # Names
     'AF Bostäder',
