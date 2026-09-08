@@ -13,12 +13,14 @@
   import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
   import { enhance } from "$app/forms";
   import * as m from "$paraglide/messages.js";
   import Trash from "@lucide/svelte/icons/trash";
   import X from "@lucide/svelte/icons/x";
   import Plus from "@lucide/svelte/icons/plus";
   import type { PageData } from "./$types";
+  import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
 
   let { group }: { group: PageData["groups"][number] } = $props();
 
@@ -27,8 +29,12 @@
     id: group.id,
   });
 
-  let newNollaId = $state("");
-  let newPhadderId = $state("");
+  let newNolla = $state<(MemberSearchReturnAttributes & { id?: string }) | null>(
+    null,
+  );
+  let newPhadder = $state<
+    (MemberSearchReturnAttributes & { id?: string }) | null
+  >(null);
 </script>
 
 <Card>
@@ -102,13 +108,25 @@
             </form>
           {/each}
         </div>
-        <form method="POST" action="?/addNolla" use:enhance class="flex gap-2">
+        <form
+          method="POST"
+          action="?/addNolla"
+          use:enhance={() => {
+            return async ({ update }) => {
+              await update();
+              newNolla = null;
+            };
+          }}
+          class="flex gap-2"
+        >
           <input type="hidden" name="groupId" value={group.id} />
-          <Input
+          <MemberSelector
+            multiple={false}
+            showId
+            showClass
             name="studentId"
-            bind:value={newNollaId}
-            placeholder={m.nollu_manage_studentIdPlaceholder()}
-            class="h-8"
+            bind:selectedMember={newNolla}
+            inputClass="h-8"
           />
           <Button type="submit" size="icon-sm" variant="outline" aria-label={m.nollu_manage_addNolla()}>
             <Plus class="h-4 w-4" />
@@ -137,13 +155,25 @@
             </form>
           {/each}
         </div>
-        <form method="POST" action="?/addPhadder" use:enhance class="flex gap-2">
+        <form
+          method="POST"
+          action="?/addPhadder"
+          use:enhance={() => {
+            return async ({ update }) => {
+              await update();
+              newPhadder = null;
+            };
+          }}
+          class="flex gap-2"
+        >
           <input type="hidden" name="groupId" value={group.id} />
-          <Input
+          <MemberSelector
+            multiple={false}
+            showId
+            showClass
             name="studentId"
-            bind:value={newPhadderId}
-            placeholder={m.nollu_manage_studentIdPlaceholder()}
-            class="h-8"
+            bind:selectedMember={newPhadder}
+            inputClass="h-8"
           />
           <Button type="submit" size="icon-sm" variant="outline" aria-label={m.nollu_manage_addPhadder()}>
             <Plus class="h-4 w-4" />
