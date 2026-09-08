@@ -1182,5 +1182,7 @@
   "tickets_not_found": "The ticket could not be found",
   "tickets_create_not_logged_in": "You need to be logged in to create tickets",
   "tickets_create_generic_error": "Could not create ticket",
-  "tickets_updated": "Ticket updated"
+  "tickets_updated": "Ticket updated",
+  "yrka_could_not_send": "Could not send email",
+  "yrka_sent": "Motion sent!"
 }
