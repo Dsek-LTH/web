@@ -282,20 +282,6 @@ export const getFooterRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/about",
         },
-        /* Here, an act of cowardice has been performed: I did not dare remove these completely in the event that someone wants to make these pages.
-        {
-          title: m.nav_trivia(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/trivia",
-        },
-        {
-          title: m.nav_studybank(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/study-bank",
-        },
-        */
         {
           title: m.nav_songbook(),
           accessRequired: null,
