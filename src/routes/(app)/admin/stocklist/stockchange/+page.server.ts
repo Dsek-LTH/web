@@ -4,7 +4,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import dayjs from "dayjs";
 
 export const load: PageServerLoad = async (event) => {
@@ -41,7 +41,7 @@ const createInBatchSchema = z.object({
 export const actions: Actions = {
   createInBatch: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.CREATE, user);
+    authorise(apiNames.DRINKITEMBATCH.CREATE, user);
     const form = await superValidate(event.request, zod4(createInBatchSchema));
     if (!form.valid) return fail(400, { form });
 
@@ -75,7 +75,7 @@ export const actions: Actions = {
 
   createOutBatch: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.CREATE, user);
+    authorise(apiNames.DRINKITEMBATCH.CREATE, user);
     const form = await superValidate(event.request, zod4(createOutBatchSchema));
     if (!form.valid) return fail(400, { form });
 

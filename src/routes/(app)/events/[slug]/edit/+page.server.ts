@@ -1,7 +1,7 @@
 import { actionType, eventSchema } from "$lib/events/schema";
 import { updateEvent } from "$lib/events/server/actions";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (!event) {
     throw error(404, m.events_errors_event_not_found());
   }
-  if (event.authorId !== user.memberId) authorize(apiNames.EVENT.UPDATE, user);
+  if (event.authorId !== user.memberId) authorise(apiNames.EVENT.UPDATE, user);
   const isRecurring = event.recurringParentId !== null;
   const recurringEvent = isRecurring
     ? await prisma.recurringEvent.findUnique({

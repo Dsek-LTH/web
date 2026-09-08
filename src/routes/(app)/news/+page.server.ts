@@ -8,7 +8,7 @@ import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 
@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, member, user } = locals;
 
   // News admins can see everyone's scheduled articles, not just their own.
-  const canSeeAllScheduled = isAuthorized(apiNames.NEWS.UPDATE, user);
+  const canSeeAllScheduled = isAuthorised(apiNames.NEWS.UPDATE, user);
 
   const articleCount = await prisma.article.count();
   const pageSize = getPageSizeOrThrowSvelteError(url);

@@ -3,7 +3,7 @@ import type { Actions, PageServerLoad } from "../$types";
 import { z } from "zod";
 import { fail, message, superValidate } from "sveltekit-superforms";
 import { DrinkGroup } from "@prisma/client";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 
 const zDrinkGroup = z.nativeEnum(DrinkGroup);
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
   deleteEntry: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEM.DELETE, user);
+    authorise(apiNames.DRINKITEM.DELETE, user);
     const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
 
@@ -54,7 +54,7 @@ export const actions: Actions = {
 
   updateEntry: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEM.UPDATE, user);
+    authorise(apiNames.DRINKITEM.UPDATE, user);
     const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 

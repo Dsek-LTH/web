@@ -1177,5 +1177,6 @@
   "applying_studentlund": "Studentlund",
   "applying_studentlund_desc": "Lunds studentliv erbjuder mängder av möjligheter, även utanför D-sektionen. På Studentlunds sida kan du läsa mer om nationerna, Akademiska föreningen och andra föreningar.",
   "nav_home": "Hem",
-  "nav_account": "Konto"
+  "nav_account": "Konto",
+  "events_create_not_logged_in": "Du måste vara inloggad för att skapa evenemang."
 }

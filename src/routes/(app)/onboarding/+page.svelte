@@ -39,7 +39,7 @@
     }
   });
 
-  let phaddergroups = $derived(
+  let phadderGroups = $derived(
     data.phadderGroups
       .filter(
         (group) => group.year === ($form.classYear ?? new Date().getFullYear),
@@ -165,11 +165,11 @@
                 ? 'text-foreground'
                 : 'text-muted-foreground'}"
               ><Users />{$form.nollningGroupId
-                ? phaddergroups.find((g) => g.id == $form.nollningGroupId)!.name
+                ? phadderGroups.find((g) => g.id == $form.nollningGroupId)!.name
                 : m.onboarding_choose()}</Select.Trigger
             >
             <Select.Content>
-              {#each phaddergroups as group (group.id)}
+              {#each phadderGroups as group (group.id)}
                 <Select.Item value={group.id}>{group.name}</Select.Item>
               {/each}
             </Select.Content>

@@ -1,6 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
-import { authorize, isAuthorized } from "$lib/utils/authorization";
+import { authorise, isAuthorised } from "$lib/utils/authorization";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
@@ -113,7 +113,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
 
   const email =
     user.studentId === studentId ||
-    isAuthorized(apiNames.MEMBER.SEE_EMAIL, user)
+    isAuthorised(apiNames.MEMBER.SEE_EMAIL, user)
       ? member.email
       : undefined;
 
@@ -345,7 +345,7 @@ export const actions: Actions = {
   ping: async ({ params, locals, request }) => {
     const { user, prisma } = locals;
     const form = await superValidate(request, zod4(emptySchema));
-    authorize(apiNames.MEMBER.PING, user);
+    authorise(apiNames.MEMBER.PING, user);
     if (!user?.memberId) return fail(401, { form });
 
     const { studentId } = params;

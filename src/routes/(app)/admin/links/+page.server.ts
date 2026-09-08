@@ -4,7 +4,7 @@ import type { ProblemDetailsError } from "@shlinkio/shlink-js-sdk/api-contract";
 import { env } from "$env/dynamic/private";
 import { NodeHttpClient } from "@shlinkio/shlink-js-sdk/node";
 import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -58,7 +58,7 @@ const deleteLinksSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ url, locals }) => {
-  authorize(apiNames.ADMIN.SHLINK.READ, locals.user);
+  authorise(apiNames.ADMIN.SHLINK.READ, locals.user);
 
   const params = getParams(url);
   let domains;
@@ -93,7 +93,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 };
 export const actions: Actions = {
   create: async ({ locals, request }) => {
-    authorize(apiNames.ADMIN.SHLINK.CREATE, locals.user);
+    authorise(apiNames.ADMIN.SHLINK.CREATE, locals.user);
     const createForm = await superValidate(request, zod4(createLinksSchema));
     if (!createForm.valid) {
       return fail(400, { createForm });
@@ -122,7 +122,7 @@ export const actions: Actions = {
     });
   },
   update: async ({ locals, request }) => {
-    authorize(apiNames.ADMIN.SHLINK.UPDATE, locals.user);
+    authorise(apiNames.ADMIN.SHLINK.UPDATE, locals.user);
     const updateForm = await superValidate(request, zod4(updateLinksSchema));
     if (!updateForm.valid) {
       return fail(400, { updateForm });
@@ -150,7 +150,7 @@ export const actions: Actions = {
     });
   },
   delete: async ({ locals, request }) => {
-    authorize(apiNames.ADMIN.SHLINK.DELETE, locals.user);
+    authorise(apiNames.ADMIN.SHLINK.DELETE, locals.user);
     const deleteForm = await superValidate(request, zod4(deleteLinksSchema));
     if (!deleteForm.valid) {
       return fail(400, { deleteForm });

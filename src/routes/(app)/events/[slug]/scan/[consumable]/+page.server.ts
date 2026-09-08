@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
 
@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     error(401, m.inventory_errors_unauthorised());
   }
 
-  authorize(apiNames.WEBSHOP.CONSUME, user);
+  authorise(apiNames.WEBSHOP.CONSUME, user);
 
   const consumable = await prisma.consumable.findUnique({
     where: {
@@ -60,7 +60,7 @@ export const actions: Actions = {
       error(401, m.inventory_errors_unauthorised());
     }
 
-    authorize(apiNames.WEBSHOP.CONSUME, user);
+    authorise(apiNames.WEBSHOP.CONSUME, user);
 
     const consumable = await prisma.consumable.findFirst({
       where: {

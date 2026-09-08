@@ -14,7 +14,7 @@
   import User from "@lucide/svelte/icons/user";
 
   import { getRoutes } from "../routes";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import { page } from "$app/state";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { getLocale, setLocale } from "$paraglide/runtime";
@@ -43,7 +43,7 @@
     $props();
 
   const canAccess = (accessRequired: string | null) =>
-    accessRequired === null || isAuthorized(accessRequired, page.data.user);
+    accessRequired === null || isAuthorised(accessRequired, page.data.user);
 
   const visibleRoutes = $derived(
     getRoutes()

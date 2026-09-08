@@ -44,11 +44,15 @@ ignore_patterns = [
 ]
 
 words = [
+    'accelerometer',
     'adapters',
+    'approvements',
     'bookables',
     'breakpoint',
     'café',
+    'checkboxes',
     'cli',
+    'contentful',
     'cta', # Call To Action
     'enforceability',
     'funsies',
@@ -96,6 +100,8 @@ words = [
     'dompurify',
     'Dynmap',
     'embla',
+    'Meili',
+    'Meilisearch',
     'MinIO',
     'nodemailer',
     'paraglide',
@@ -106,6 +112,7 @@ words = [
     'tiptap',
     'vaul',
     'vitest',
+    'vercel',
     'zod',
 
     # Guild-specific words
@@ -119,6 +126,7 @@ words = [
     'Singbook',
     'Slasque',
     'spex',
+    'VTM',
 
     # Swedish words sanctioned for code use.
     "sexet's",
@@ -255,10 +263,12 @@ extra_words = [
 
 [[overrides]] # CSS
 paths = [
+    '**/*.css',
     'src/translations/*.json',
 ]
 extra_ignore_patterns = [
-    'font-extrabold'
+    'font-extrabold',
+    'scroll-behavior',
 ]
 
 # Configs for specific files.

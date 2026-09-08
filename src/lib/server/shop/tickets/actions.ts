@@ -4,7 +4,7 @@ import {
   type AddToCartResult,
 } from "$lib/server/shop/addToCart/addToCart";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import type { Actions } from "@sveltejs/kit";
@@ -21,7 +21,7 @@ export const ticketPageActions = (prefix = "/shop/"): Actions => ({
   addToCart: async (event) => {
     const { locals, request } = event;
     const { prisma, user } = locals;
-    authorize(apiNames.WEBSHOP.PURCHASE, user);
+    authorise(apiNames.WEBSHOP.PURCHASE, user);
     const form = await superValidate(request, zod4(addToCartSchema));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {

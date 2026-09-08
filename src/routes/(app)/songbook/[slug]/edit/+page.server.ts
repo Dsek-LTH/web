@@ -7,10 +7,10 @@ import { setError, superValidate } from "sveltekit-superforms/server";
 import { updateSongSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  authorize(apiNames.SONG.UPDATE, locals.user);
+  authorise(apiNames.SONG.UPDATE, locals.user);
   const form = await superValidate(zod4(updateSongSchema));
   return { form };
 };
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
   update: async (event) => {
     const { request, locals } = event;
-    authorize(apiNames.SONG.UPDATE, locals.user);
+    authorise(apiNames.SONG.UPDATE, locals.user);
     const { prisma } = locals;
     const formData = await request.formData();
     const form = await superValidate(formData, zod4(updateSongSchema));
@@ -62,7 +62,7 @@ export const actions: Actions = {
   delete: async (event) => {
     const { locals, request } = event;
     const { prisma } = locals;
-    authorize(apiNames.SONG.DELETE, locals.user);
+    authorise(apiNames.SONG.DELETE, locals.user);
     const data = await request.formData();
     const id = data.get("id");
     if (id == null) {
@@ -97,7 +97,7 @@ export const actions: Actions = {
   restore: async (event) => {
     const { locals, request } = event;
     const { prisma } = locals;
-    authorize(apiNames.SONG.DELETE, locals.user);
+    authorise(apiNames.SONG.DELETE, locals.user);
     const data = await request.formData();
     const id = data.get("id");
     if (id == null) {

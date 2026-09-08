@@ -35,7 +35,7 @@
     en: m.language_english(),
   };
 
-  let phaddergroups = $derived(
+  let phadderGroups = $derived(
     data.phadderGroups
       .filter(
         (group) => group.year === ($form.classYear ?? new Date().getFullYear),
@@ -44,7 +44,7 @@
   );
 </script>
 
-<main class="overflow-y-scoll flex flex-col items-center gap-2">
+<main class="overflow-x-scroll flex flex-col items-center gap-2">
   <PictureSelector {data} />
   <form
     id="member"
@@ -166,11 +166,11 @@
         >
           <Select.Trigger class="w-full"
             ><Users />{$form.nollningGroupId
-              ? phaddergroups.find((g) => g.id == $form.nollningGroupId)!.name
+              ? phadderGroups.find((g) => g.id == $form.nollningGroupId)!.name
               : ""}</Select.Trigger
           >
           <Select.Content>
-            {#each phaddergroups as group (group.id)}
+            {#each phadderGroups as group (group.id)}
               <Select.Item value={group.id}>{group.name}</Select.Item>
             {/each}
           </Select.Content>

@@ -7,7 +7,7 @@
   import * as m from "$paraglide/messages";
   import * as Select from "$lib/components/ui/select";
   import createBasicReceipt, { createBasicReceiptRow } from "../baseItem";
-  import { costCenters } from "../config";
+  import { costCentres } from "../config";
   import dayjs from "dayjs";
   import { Label } from "$lib/components/ui/label";
   import Button, {
@@ -113,7 +113,7 @@
                         .value.toString()}
                     </Select.Trigger>
                     <Select.Content>
-                      {#each costCenters as item (item.value)}
+                      {#each costCentres as item (item.value)}
                         <Select.Item value={item.value}
                           >{item.label}</Select.Item
                         >

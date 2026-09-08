@@ -1,5 +1,5 @@
 <!-- @component
-  This component takes a markdown string, buils a HTML page around
+  This component takes a markdown string, builds an HTML page around
   the markdown content and finally renders it all in an iframe.
   It also includes all stylesheets from the parent document,
   so that the iframe looks the same as the parent document.
@@ -53,7 +53,7 @@
     return () => window.removeEventListener("message", handleMessage);
   });
 
-  let srcdoc = $derived(
+  let html = $derived(
     bioFrame
       .replace("%STYLESHEETS%", stylesheets)
       .replace("%CSS%", css)
@@ -67,6 +67,6 @@
   sandbox="allow-top-navigation allow-scripts"
   class="max-h-80 w-full"
   style="height: 0;"
-  {srcdoc}
+  srcdoc={html}
   bind:this={iframeEl}
 ></iframe>
