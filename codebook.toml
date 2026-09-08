@@ -416,3 +416,7 @@ extra_ignore_patterns = [
     '".*?"',
     '`.*?`',
 ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/songbook/helpers.ts' ]
+extra_ignore_patterns = [ 'e\.g\. ".*?"' ] # Song category examples.
