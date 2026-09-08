@@ -43,7 +43,7 @@
             class="h-auto w-full whitespace-normal"
             href="https://bit.ly/trivselkontakt"
           >
-            <UsersRound class="shrink-0" />{m.home_contact_wellbeing()}
+            <UsersRound class="shrink-0" />{m.home_contact_well_being()}
           </Button>
         </div>
         <div class="flex min-w-0 flex-col">

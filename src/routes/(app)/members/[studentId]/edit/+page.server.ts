@@ -58,7 +58,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     }),
   ]);
   if (memberResult.status === "rejected")
-    throw error(500, m.members_errors_couldnt_fetch_member());
+    throw error(500, m.members_errors_could_not_fetch_member());
   if (!memberResult.value) throw error(404, m.members_errors_member_not_found());
   if (phadderGroupsResult.status === "rejected")
     throw error(505, phadderGroupsResult.reason);
@@ -79,7 +79,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
   } catch {
-    throw error(500, m.members_errors_couldnt_fetch_pings());
+    throw error(500, m.members_errors_could_not_fetch_pings());
   }
 };
 
@@ -143,7 +143,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: `${m.members_errors_couldnt_upload_file()}: ${await res.text()}`,
+            message: `${m.members_errors_could_not_upload_file()}: ${await res.text()}`,
             type: "error",
           },
           { status: 500 },
@@ -154,7 +154,7 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: `${m.members_errors_couldnt_upload_file()}: ${errMsg}`,
+          message: `${m.members_errors_could_not_upload_file()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },

@@ -20,8 +20,13 @@ ignore_patterns = [
     '&shy;', # Soft-hyphen
     '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', # Email
     'iCal',
-    'www\.dchip\.se',
 
+    # Abbreviations (only allowed in lower case)
+    'dchip',
+    'dguild',
+    'dsek',
+    'gammal_och_äcklig',
+    'infocom',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
@@ -37,6 +42,7 @@ words = [
     'breakpoint',
     'café',
     'cli',
+    'cta', # Call To Action
     'enforceability',
     'funsies',
     'gyckle',
@@ -48,6 +54,8 @@ words = [
     'sublicensable',
     'sublicense',
     'unapprove',
+    'unapproving',
+    'unbooked',
     'unported',
     'webshop',
     'wikia',
@@ -97,16 +105,22 @@ words = [
     'phadders',
     'Stab',
     'Øverpeppare',
+    'Källarmästare'
 ]
 
 [[overrides]] # Swedish
 paths = [ 'src/translations/sv.json' ]
 dictionaries = [ 'sv' ]
 extra_ignore_patterns = [
+    '[Nn]0llades',
     '[Nn]0llan',
     '[Nn]0llans',
     '[Nn]0llepolicy',
+    '[Nn]0llningen',
     '[Nn]0llningens',
+    '[Nn]0llningsevent',
+    '[Nn]0llningsnyheter',
+    '[Nn]0llningspolicy',
     '[Nn]0llorna',
 
     '\\nön', # Bug in codebook.
@@ -244,7 +258,6 @@ extra_words = [
 [[overrides]] # TODO: Remove this.
 paths = [ 'src/translations/en.json' ]
 extra_ignore_patterns = [
-    '".*":', # Keys
     'href=\\".*?\\"',
 ]
 

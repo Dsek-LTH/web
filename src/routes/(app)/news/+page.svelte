@@ -58,7 +58,7 @@
 {#if data.nollningArticles.length > 0}
   <section class="mb-6">
     {#if showNollning}
-      <h2 class="mb-3 text-lg font-semibold">{m.news_nollning_news()}</h2>
+      <h2 class="mb-3 text-lg font-semibold">{m.news_n0llning_news()}</h2>
       <div class="flex flex-col gap-2">
         {#each data.nollningArticles as article (article.id)}
           <a
@@ -79,7 +79,7 @@
       </div>
     {/if}
     <Button variant="outline" onclick={() => (showNollning = !showNollning)}>
-      {showNollning ? m.news_hide_nollning_news() : m.news_show_nollning_news()}
+      {showNollning ? m.news_hide_n0llning_news() : m.news_show_n0llning_news()}
     </Button>
   </section>
 {/if}
