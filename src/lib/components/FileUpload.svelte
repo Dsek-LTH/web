@@ -104,7 +104,8 @@
         </AlertDialog.Trigger>
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>{m.file_upload_dialog_title()}</AlertDialog.Title>
+            <AlertDialog.Title>{m.file_upload_dialog_title()}</AlertDialog.Title
+            >
             <AlertDialog.Description>
               <Input
                 bind:ref={urlInput}
