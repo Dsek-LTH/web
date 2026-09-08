@@ -9,10 +9,14 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
+  import RoleSelector from "$lib/components/RoleSelector.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages.js";
   import Plus from "@lucide/svelte/icons/plus";
   import Trash from "@lucide/svelte/icons/trash";
+  import type { RoleOption } from "$lib/components/RoleSelector.svelte";
+  import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
 
   let { data } = $props();
 
@@ -21,6 +25,11 @@
     id: "create",
     resetForm: true,
   });
+
+  let selectedRole = $state<RoleOption | null>(null);
+  let selectedMember = $state<
+    (MemberSearchReturnAttributes & { id?: string }) | null
+  >(null);
 
   // svelte-ignore state_referenced_locally
   const { enhance: deleteEnhance } = superForm(data.deleteForm, { id: "delete" });
@@ -41,7 +50,7 @@
       <form method="POST" action="?/createPolicy" use:enhance class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
           <Label for="position">{m.admin_access_position()}</Label>
-          <Input id="position" name="position" bind:value={$form.position} />
+          <RoleSelector multiple={false} name="position" bind:selectedRole />
         </div>
         <div class="flex flex-col gap-2">
           <Label for="apiName">{m.admin_access_policyCode()}</Label>
@@ -52,7 +61,13 @@
         </div>
         <div class="flex flex-col gap-2">
           <Label for="studentId">{m.admin_access_studentID()}</Label>
-          <Input id="studentId" name="studentId" bind:value={$form.studentId} />
+          <MemberSelector
+            multiple={false}
+            showId
+            showClass
+            name="studentId"
+            bind:selectedMember
+          />
         </div>
         <div class="flex justify-end">
           <Button type="submit" class="flex items-center gap-2">
