@@ -21,7 +21,12 @@
   // svelte-ignore state_referenced_locally
   const createForm = superForm(data.createForm, { id: "create" });
   // svelte-ignore state_referenced_locally
-  const updateForm = superForm(data.updateForm, { id: "update" });
+  const updateForm = superForm(data.updateForm, {
+    id: "update",
+    onUpdated: ({ form }) => {
+      if (form.valid) editOpen = false;
+    },
+  });
 
   const { form: createFormData, enhance: createEnhance } = createForm;
   const {
@@ -136,7 +141,7 @@
       </div>
 
       <Dialog.Footer>
-        <Dialog.Close class={buttonVariants({ variant: "outline" })}>
+        <Dialog.Close type="button" class={buttonVariants({ variant: "outline" })}>
           {m.cancel()}
         </Dialog.Close>
         <Button type="submit">{m.news_tags_save()}</Button>
