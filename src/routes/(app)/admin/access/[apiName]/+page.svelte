@@ -6,24 +6,33 @@
     CardTitle,
     CardContent,
   } from "$lib/components/ui/card/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
+  import * as ButtonGroup from "$lib/components/ui/button-group/index.js";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
+  import RoleSelector from "$lib/components/RoleSelector.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages.js";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import Plus from "@lucide/svelte/icons/plus";
   import Trash from "@lucide/svelte/icons/trash";
   import { page } from "$app/state";
+  import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
+  import type { RoleOption } from "$lib/components/RoleSelector.svelte";
 
   let { data } = $props();
   let apiName = $derived(page.params.apiName ?? "");
 
   // svelte-ignore state_referenced_locally
-  const { form, errors, enhance } = superForm(data.createForm, {
+  const { errors, enhance } = superForm(data.createForm, {
     id: "create",
     resetForm: true,
   });
+
+  let subjectType = $state<"member" | "role">("member");
+  let selectedMember = $state<(MemberSearchReturnAttributes & { id?: string }) | null>(
+    null,
+  );
+  let selectedRole = $state<RoleOption | null>(null);
 
   // svelte-ignore state_referenced_locally
   const { enhance: deleteEnhance } = superForm(data.deleteForm, {
@@ -46,18 +55,41 @@
       <CardTitle>{m.admin_access_newPolicy()}</CardTitle>
     </CardHeader>
     <CardContent>
-      <form method="POST" action="?/create" use:enhance class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="role">{m.admin_access_role()}</Label>
-          <Input id="role" name="role" bind:value={$form.role} />
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="studentId">{m.admin_access_studentID()}</Label>
-          <Input id="studentId" name="studentId" bind:value={$form.studentId} />
-        </div>
-        <p class="text-muted-foreground text-sm">
-          {m.admin_access_roleOrStudentId()}
-        </p>
+      <form
+        method="POST"
+        action="?/create"
+        use:enhance
+        class="flex flex-col gap-4"
+      >
+        <ButtonGroup.Root>
+          <Button
+            type="button"
+            variant={subjectType === "member" ? "rosa" : "outline"}
+            onclick={() => (subjectType = "member")}
+          >
+            {m.admin_doors_member()}
+          </Button>
+          <Button
+            type="button"
+            variant={subjectType === "role" ? "rosa" : "outline"}
+            onclick={() => (subjectType = "role")}
+          >
+            {m.admin_doors_role()}
+          </Button>
+        </ButtonGroup.Root>
+
+        {#if subjectType === "member"}
+          <MemberSelector
+            multiple={false}
+            showId
+            showClass
+            name="studentId"
+            bind:selectedMember
+          />
+        {:else}
+          <RoleSelector multiple={false} name="role" bind:selectedRole />
+        {/if}
+
         {#if $errors.role}
           <p class="text-destructive text-sm font-medium">{$errors.role}</p>
         {/if}
