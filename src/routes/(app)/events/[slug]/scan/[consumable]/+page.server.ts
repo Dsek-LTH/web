@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
 
   if (!user) {
-    error(401, m.inventory_errors_unauthorized());
+    error(401, m.inventory_errors_unauthorised());
   }
 
   authorize(apiNames.WEBSHOP.CONSUME, user);
@@ -57,7 +57,7 @@ export const actions: Actions = {
     const { prisma, user } = locals;
 
     if (!user) {
-      error(401, m.inventory_errors_unauthorized());
+      error(401, m.inventory_errors_unauthorised());
     }
 
     authorize(apiNames.WEBSHOP.CONSUME, user);

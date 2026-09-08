@@ -56,7 +56,7 @@ delar information samtycker denne till att informationen sparas och
 tillgängliggörs för allmänheten.
 
 Utöver ovan nämnd data samlas teknisk information in vid besök på och
-användande av Dsektionens digitala tjänster. Detta inkluderar IP-adress
+användande av D-sektionens digitala tjänster. Detta inkluderar IP-adress
 och webbläsarinformation.
 
 ## Hur samlas datan in?

@@ -35,7 +35,7 @@
       <CardTitle class="text-3xl font-bold"
         >{m.songbook_createNewSong()}</CardTitle
       >
-      <CardDescription>{m.songbook_hereYoullFind()}</CardDescription>
+      <CardDescription>{m.songbook_hereYouWillFind()}</CardDescription>
     </CardHeader>
     <CardContent class="pt-6">
       <form

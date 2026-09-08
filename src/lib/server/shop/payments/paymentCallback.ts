@@ -31,7 +31,7 @@ const stripeCallbackLoad =
     switch (intent.status) {
       case "canceled":
         return {
-          message: m.cart_payment_canceled(),
+          message: m.cart_payment_cancelled(),
         };
       case "processing":
         return {

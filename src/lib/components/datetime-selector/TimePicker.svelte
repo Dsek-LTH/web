@@ -41,7 +41,7 @@
     let parsed = formatTimeString(timeString);
 
     if (parsed === undefined) {
-      error = new Error(m.timepicker_invalid_time());
+      error = new Error(m.time_picker_invalid_time());
       return;
     }
 

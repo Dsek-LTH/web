@@ -57,7 +57,7 @@ export const sendPing = async (
   } catch (e) {
     throw error(
       500,
-      m.members_errors_couldntPing({
+      m.members_errors_couldNotPing({
         e: e instanceof Error ? e.message : "???",
       }),
     );
@@ -76,7 +76,7 @@ export const sendPing = async (
 const assertMemberExists = async (
   prisma: ExtendedPrisma,
   member: MemberIdentification,
-  errorMsg = m.members_errors_memberDoesntExist(),
+  errorMsg = m.members_errors_memberDoesNotExist(),
 ) => {
   try {
     const foundMember = await prisma.member.findFirst({
