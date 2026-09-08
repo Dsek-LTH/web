@@ -132,12 +132,13 @@ words = [
 
     # Swedish words sanctioned for code use.
     "sexet's",
+    'Källarmästare',
     'Peppare',
     'phadder',
     'phadders',
     'Stab',
+    'yrkande',
     'Øverpeppare',
-    'Källarmästare'
 ]
 
 [[overrides]] # Swedish

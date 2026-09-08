@@ -1182,5 +1182,7 @@
   "tickets_not_found": "Biljetten kunde inte hittas",
   "tickets_create_not_logged_in": "Du måste vara inloggad för att skapa biljetter",
   "tickets_create_generic_error": "Kunde inte skapa biljett",
-  "tickets_updated": "Biljett uppdaterad"
+  "tickets_updated": "Biljett uppdaterad",
+  "yrka_could_not_send": "Kunde inte skicka e-postmeddelande",
+  "yrka_sent": "Yrkande skickat!"
 }
