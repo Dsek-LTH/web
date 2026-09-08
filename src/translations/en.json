@@ -1200,5 +1200,8 @@
   "medals_pageTitle": "Medals",
   "medals_noRecipients": "No recipients for this semester.",
   "medals_previousSemester": "Previous semester",
-  "medals_nextSemester": "Next semester"
+  "medals_nextSemester": "Next semester",
+  "info_edit_createTitle": "Create info page \"{slug}\"",
+  "info_edit_editTitle": "Edit info page \"{slug}\"",
+  "info_edit_save": "Save"
 }

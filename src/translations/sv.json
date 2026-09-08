@@ -1200,5 +1200,8 @@
   "medals_pageTitle": "Medaljer",
   "medals_noRecipients": "Inga mottagare denna termin.",
   "medals_previousSemester": "Föregående termin",
-  "medals_nextSemester": "Nästa termin"
+  "medals_nextSemester": "Nästa termin",
+  "info_edit_createTitle": "Skapa infosida \"{slug}\"",
+  "info_edit_editTitle": "Redigera infosida \"{slug}\"",
+  "info_edit_save": "Spara"
 }
