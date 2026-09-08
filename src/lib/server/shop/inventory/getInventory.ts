@@ -55,7 +55,7 @@ export const inventoryLoadFunction = async ({
   const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(
     (consumable) => {
       if (consumable.shoppable.type !== ShoppableType.TICKET) {
-        throw new Error(m.errors_notImplemented());
+        throw new Error(m.errors_not_implemented());
       }
       return {
         ...consumable,
@@ -118,7 +118,7 @@ export const inventoryItemLoadFunction = async ({
     },
   });
   if (!consumable) {
-    error(404, m.inventory_errors_consumableNotFound());
+    error(404, m.inventory_errors_consumable_not_found());
   }
   return {
     consumable: {

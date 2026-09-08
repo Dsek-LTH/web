@@ -103,7 +103,7 @@ export const getRoutes = (): Route[] =>
           path: "/board",
         },
         {
-          title: m.documents_meetingDocuments(),
+          title: m.documents_meeting_documents(),
           description: m.documents_desc(),
           accessRequired: null,
           appBehaviour: "none",
@@ -133,7 +133,7 @@ export const getRoutes = (): Route[] =>
           path: "/volunteer",
         },
         {
-          title: m.openElections(),
+          title: m.open_elections(),
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_elections_desc(),
@@ -203,13 +203,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
         },
         {
-          title: m.linkShortener(),
+          title: m.link_shortener(),
           path: "/admin/links",
           accessRequired: null,
           appBehaviour: "none",
         },
         {
-          title: m.adminSettings(),
+          title: m.admin_settings(),
           path: "/admin/settings",
           accessRequired: null,
           appBehaviour: "none",

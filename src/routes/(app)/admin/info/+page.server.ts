@@ -33,7 +33,7 @@ export const actions: Actions = {
     throw redirect(
       `/info/${name}`,
       {
-        message: `${m.admin_info_infoPageCreated()}`,
+        message: `${m.admin_info_info_page_created()}`,
         type: "success",
       },
       event,

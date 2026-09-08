@@ -43,7 +43,7 @@ export const ticketPageActions = (prefix = "/shop/"): Actions => ({
       throw redirect(
         `${prefix}inventory`,
         {
-          message: m.tickets_addToCart_addedToInventory(),
+          message: m.tickets_add_to_cart_added_to_inventory(),
           type: "success",
         },
         event,
@@ -52,19 +52,19 @@ export const ticketPageActions = (prefix = "/shop/"): Actions => ({
     let successMessage: string;
     switch (result.status) {
       case AddToCartStatus.AddedToCart:
-        successMessage = m.tickets_addToCart_addedToCart();
+        successMessage = m.tickets_add_to_cart_added_to_cart();
         break;
       case AddToCartStatus.Reserved:
-        successMessage = m.tickets_addToCart_lotteryReservation();
+        successMessage = m.tickets_add_to_cart_lottery_reservation();
         break;
       case AddToCartStatus.PutInQueue:
-        successMessage = m.tickets_addToCart_inQueue({
+        successMessage = m.tickets_add_to_cart_in_queue({
           queuePosition: result.queuePosition,
         });
         break;
       default:
         return message(form, {
-          message: m.tickets_addToCart_unknownResult(),
+          message: m.tickets_add_to_cart_unknown_result(),
           type: "error",
         });
     }

@@ -58,7 +58,7 @@
       class="bg-background w-full rounded-xl p-4 py-16 md:mx-32 md:max-w-xl md:p-10"
     >
       <div class="text-5xl font-bold">{m.onboarding_welcome()}</div>
-      <div class="text-lg">{m.onboarding_fillInInfoBelow()}</div>
+      <div class="text-lg">{m.onboarding_fill_in_info_below()}</div>
 
       <form
         id="edit-member"
@@ -69,7 +69,7 @@
       >
         <div class="flex flex-row gap-2">
           <div class="grid w-full items-center gap-1.5">
-            <Label for="firstName">{m.onboarding_firstName()}</Label>
+            <Label for="firstName">{m.onboarding_first_name()}</Label>
             <Input
               name="firstName"
               required
@@ -79,7 +79,7 @@
             />
           </div>
           <div class="grid w-full items-center gap-1.5">
-            <Label for="lastName">{m.onboarding_lastName()}</Label>
+            <Label for="lastName">{m.onboarding_last_name()}</Label>
             <Input
               name="lastName"
               required
@@ -102,12 +102,12 @@
           >
         </div>
         <div class="grid w-full items-center gap-1.5">
-          <Label for="pref">{m.onboarding_foodPreference()}</Label>
+          <Label for="pref">{m.onboarding_food_preference()}</Label>
           <Input
             name="pref"
             bind:value={$form.foodPreference}
             {...$constraints.foodPreference}
-            placeholder={m.onboarding_foodPreferencePlaceholder()}
+            placeholder={m.onboarding_food_preference_placeholder()}
             aria-errormessage={$errors.foodPreference?.at(0)}
             ><UtensilsCrossed /></Input
           >
@@ -154,7 +154,7 @@
           </div>
         </div>
         <div class="flex w-full flex-col gap-1.5">
-          <Label for="nollningGroupId">{m.onboarding_phadderGroup()}</Label>
+          <Label for="nollningGroupId">{m.onboarding_phadder_group()}</Label>
           <Select.Root
             type="single"
             name="nollningGroupId"

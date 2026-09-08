@@ -68,9 +68,9 @@
   <!-- Form -->
   <Card>
     <CardHeader>
-      <CardTitle>{m.admin_doors_addAccessRule()}</CardTitle>
+      <CardTitle>{m.admin_doors_add_access_rule()}</CardTitle>
       <CardDescription>
-        {m.admin_doors_grantOrRestrict({ door: door.verboseName })}
+        {m.admin_doors_grant_or_restrict({ door: door.verboseName })}
       </CardDescription>
     </CardHeader>
     <CardContent>
@@ -140,7 +140,7 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="space-y-2">
-            <Label for="start-date">{m.admin_doors_startDate_optional()}</Label>
+            <Label for="start-date">{m.admin_doors_start_date_optional()}</Label>
             <Input
               id="start-date"
               type="datetime-local"
@@ -154,9 +154,9 @@
           <div class="space-y-2">
             <Label for="end-date">
               {#if $form.type === "member"}
-                {m.admin_doors_endDate()}
+                {m.admin_doors_end_date()}
               {:else}
-                {m.admin_doors_endDate_optional()}
+                {m.admin_doors_end_date_optional()}
               {/if}
             </Label>
             <Input
@@ -171,10 +171,10 @@
         </div>
 
         <div class="space-y-2 sm:col-span-2">
-          <Label for="reason">{m.admin_doors_reasonLabel()}</Label>
+          <Label for="reason">{m.admin_doors_reason_label()}</Label>
           <Input
             id="reason"
-            placeholder={m.admin_doors_reasonPlaceholder()}
+            placeholder={m.admin_doors_reason_placeholder()}
             name="reason"
             aria-invalid={$errors.reason ? "true" : undefined}
             bind:value={$form.reason}
@@ -192,12 +192,12 @@
   <!-- Access policy list -->
   <Card>
     <CardHeader>
-      <CardTitle>{m.admin_doors_currentRules()}</CardTitle>
+      <CardTitle>{m.admin_doors_current_rules()}</CardTitle>
       <CardDescription>
         {#if policies.length === 0}
-          {m.admin_doors_noRules()}
+          {m.admin_doors_no_rules()}
         {:else}
-          {m.admin_doors_numRules({ count: policies.length })}
+          {m.admin_doors_num_rules({ count: policies.length })}
         {/if}
       </CardDescription>
     </CardHeader>
@@ -271,10 +271,10 @@
       getFullName(selectedPolicy.member!, { hideNickname: true })}
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>{m.admin_doors_removeAccessRule()}</AlertDialogTitle>
+        <AlertDialogTitle>{m.admin_doors_remove_access_rule()}</AlertDialogTitle>
         <AlertDialogDescription>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.admin_doors_areYouSure({ door: door.verboseName, subject })}
+          {@html m.admin_doors_are_you_sure({ door: door.verboseName, subject })}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

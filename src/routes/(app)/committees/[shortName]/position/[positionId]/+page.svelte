@@ -110,7 +110,7 @@
               isAdding = !isAdding;
             }}
           >
-            {isAdding ? m.positions_cancel() : m.positions_addMandate()}
+            {isAdding ? m.positions_cancel() : m.positions_add_mandate()}
           </Button>
         {/if}
         {#if isAuthorized(apiNames.POSITION.UPDATE, data.user)}
@@ -119,7 +119,7 @@
               class={cn(buttonVariants({ size: "sm", variant: "lila" }))}
               ><Pen />
               {isEditing
-                ? m.positions_stopEditing()
+                ? m.positions_stop_editing()
                 : m.positions_edit()}</Dialog.Trigger
             >
 
@@ -155,7 +155,7 @@
     {/if}
     {#if data.position.emailAliases.length > 0}
       <h4 class="text-xs opacity-75">
-        {m.positions_theFollowingAddresses()}
+        {m.positions_the_following_addresses()}
       </h4>
       <div class="mb-2 flex gap-2 text-xs opacity-75">
         {#each data.position.emailAliases.filter((alias) => alias.email != data.position.email) as alias (alias.email)}

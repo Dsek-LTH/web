@@ -61,7 +61,7 @@
     >
       <div>
         <h3 class="text-lg font-bold">{m.songbook_deleted()}</h3>
-        <p class="text-sm opacity-90">{m.songbook_deletedExplanation()}</p>
+        <p class="text-sm opacity-90">{m.songbook_deleted_explanation()}</p>
       </div>
       {#if data.user?.policies?.includes(apiNames.SONG.DELETE)}
         <form method="POST" action="/songbook/{song.slug}/edit?/restore">
@@ -73,7 +73,7 @@
             class="flex items-center gap-2"
           >
             <RotateCcw class="h-4 w-4" />
-            {m.songbook_restoreFromGarbageCan()}
+            {m.songbook_restore_from_garbage_can()}
           </Button>
         </form>
       {/if}
@@ -112,7 +112,7 @@
         <Separator class="my-8" />
         <div class="flex flex-col gap-4">
           <h3 class="text-xl font-bold tracking-tight">
-            {m.songbook_videoPerformance()}
+            {m.songbook_video_performance()}
           </h3>
           <div
             class="border-border overflow-hidden rounded-lg border shadow-md"

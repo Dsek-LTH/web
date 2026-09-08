@@ -30,12 +30,12 @@ export const sendPing = async (
   const sendingMember = await assertMemberExists(
     prisma,
     fromMemberId,
-    m.members_errors_senderNotFound(),
+    m.members_errors_sender_not_found(),
   );
   const receivingMember = await assertMemberExists(
     prisma,
     toMemberId,
-    m.members_errors_receiverNotFound(),
+    m.members_errors_receiver_not_found(),
   );
 
   try {
@@ -57,7 +57,7 @@ export const sendPing = async (
   } catch (e) {
     throw error(
       500,
-      m.members_errors_couldntPing({
+      m.members_errors_couldnt_ping({
         e: e instanceof Error ? e.message : "???",
       }),
     );
@@ -76,7 +76,7 @@ export const sendPing = async (
 const assertMemberExists = async (
   prisma: ExtendedPrisma,
   member: MemberIdentification,
-  errorMsg = m.members_errors_memberDoesntExist(),
+  errorMsg = m.members_errors_member_doesnt_exist(),
 ) => {
   try {
     const foundMember = await prisma.member.findFirst({
@@ -98,7 +98,7 @@ const assertMemberExists = async (
     console.error(e);
     throw error(
       500,
-      m.members_errors_failedToFindMember({
+      m.members_errors_failed_to_find_member({
         e: e instanceof Error ? e.message : "???",
       }),
     );

@@ -242,7 +242,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     },
   });
   if (!existingEvent) {
-    throw error(404, m.events_errors_eventNotFound());
+    throw error(404, m.events_errors_event_not_found());
   }
 
   if (image) eventData.imageUrl = await uploadImage(user, image, slug);
@@ -343,7 +343,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   throw redirect(
     `/events/${slug}`,
     {
-      message: m.events_eventUpdated(),
+      message: m.events_event_updated(),
       type: "success",
     },
     event,

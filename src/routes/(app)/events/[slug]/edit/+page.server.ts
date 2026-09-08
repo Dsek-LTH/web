@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (!event) {
-    throw error(404, m.events_errors_eventNotFound());
+    throw error(404, m.events_errors_event_not_found());
   }
   if (event.authorId !== user.memberId) authorize(apiNames.EVENT.UPDATE, user);
   const isRecurring = event.recurringParentId !== null;
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       })
     : null;
   if (isRecurring && !recurringEvent) {
-    error(500, m.events_errors_recurringParentNotFound());
+    error(500, m.events_errors_recurring_parent_not_found());
   }
   const completeEvent = {
     ...event,

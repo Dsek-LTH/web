@@ -95,7 +95,7 @@ export const actions: Actions = {
         markdownEn,
       });
       return message(form, {
-        message: m.committees_committeeUpdated(),
+        message: m.committees_committee_updated(),
         type: "success",
       });
     } else {

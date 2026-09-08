@@ -30,7 +30,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   ]);
 
   if (!election) {
-    throw error(404, m.elections_notFound());
+    throw error(404, m.elections_not_found());
   }
 
   return {

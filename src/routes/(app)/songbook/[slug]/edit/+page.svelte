@@ -99,7 +99,7 @@
               name="category"
               list="category-options"
               bind:value={$form.category}
-              placeholder={m.songbook_categoryExplanation()}
+              placeholder={m.songbook_category_explanation()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
                   $errors.category,
@@ -126,7 +126,7 @@
               name="melody"
               list="melody-options"
               bind:value={$form.melody}
-              placeholder={m.songbook_melodyExplanation()}
+              placeholder={m.songbook_melody_explanation()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
                   $errors.melody,
@@ -147,14 +147,14 @@
 
         <div class="flex flex-col gap-2">
           <Label for="video" class="text-base font-medium"
-            >{m.songbook_videoUrlLabel()}</Label
+            >{m.songbook_video_url_label()}</Label
           >
           <Input
             id="video"
             name="video"
             type="url"
             bind:value={$form.video}
-            placeholder={m.songbook_videoPlaceholder()}
+            placeholder={m.songbook_video_placeholder()}
             class={{
               "border-destructive focus-visible:ring-destructive":
                 $errors.video,
@@ -202,7 +202,7 @@
                   class="flex items-center gap-2"
                 >
                   <RotateCcw class="h-4 w-4" />
-                  {m.songbook_restoreFromGarbageCan()}
+                  {m.songbook_restore_from_garbage_can()}
                 </Button>
               </form>
             {:else}
@@ -211,15 +211,15 @@
                   class={buttonVariants({ variant: "destructive" })}
                 >
                   <Trash class="h-4 w-4" />
-                  {m.songbook_removeSong()}
+                  {m.songbook_remove_song()}
                 </AlertDialog.Trigger>
                 <AlertDialog.Content>
                   <AlertDialog.Header>
                     <AlertDialog.Title
-                      >{m.songbook_removeSong()}</AlertDialog.Title
+                      >{m.songbook_remove_song()}</AlertDialog.Title
                     >
                     <AlertDialog.Description>
-                      {m.songbook_areYouSure()} "{song.title}"?
+                      {m.songbook_are_you_sure()} "{song.title}"?
                     </AlertDialog.Description>
                   </AlertDialog.Header>
                   <AlertDialog.Footer>
@@ -232,7 +232,7 @@
                         type="submit"
                         class={buttonVariants({ variant: "destructive" })}
                       >
-                        {m.songbook_removeSong()}
+                        {m.songbook_remove_song()}
                       </AlertDialog.Action>
                     </form>
                   </AlertDialog.Footer>

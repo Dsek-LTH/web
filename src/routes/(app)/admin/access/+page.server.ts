@@ -41,7 +41,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: m.admin_access_policyCreated(),
+      message: m.admin_access_policy_created(),
       type: "success",
     });
   },

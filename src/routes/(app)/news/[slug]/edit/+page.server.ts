@@ -44,7 +44,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   ]);
 
   if (article?.author.id !== undefined) article.author.id = "";
-  if (!article) throw error(404, m.news_errors_articleNotFound());
+  if (!article) throw error(404, m.news_errors_article_not_found());
   if (article.author.memberId !== user.memberId)
     authorize(apiNames.NEWS.UPDATE, user);
   const at = article.createdAt;
@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
 
   if (!memberWithMandtes)
-    throw error(500, m.news_errors_authorMemberNotFound());
+    throw error(500, m.news_errors_author_member_not_found());
   const authorOptions = await getArticleAuthorOptions(
     prisma,
     memberWithMandtes,
@@ -108,7 +108,7 @@ export const actions: Actions = {
       },
     });
 
-    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
+    if (!existingArticle) return error(404, m.news_errors_article_not_found());
 
     await prisma.article.update({
       where: {
@@ -122,7 +122,7 @@ export const actions: Actions = {
     throw redirect(
       "/news",
       {
-        message: m.news_articleDeleted(),
+        message: m.news_article_deleted(),
         type: "success",
       },
       event,

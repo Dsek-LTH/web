@@ -27,7 +27,7 @@ const cartActions: Actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: m.cart_errors_noCart(),
+        message: m.cart_errors_no_cart(),
         type: "error",
       });
     }
@@ -38,7 +38,7 @@ const cartActions: Actions = {
     });
     if (!consumable) {
       return message(form, {
-        message: m.cart_errors_itemNotInCart(),
+        message: m.cart_errors_item_not_in_cart(),
         type: "error",
       });
     }
@@ -55,7 +55,7 @@ const cartActions: Actions = {
     sendQueuedNotifications(queuedNotifications);
 
     return message(form, {
-      message: m.cart_itemHasBeenRemoved(),
+      message: m.cart_item_has_been_removed(),
       type: "success",
     });
   },
@@ -68,7 +68,7 @@ const cartActions: Actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: m.cart_errors_noCart(),
+        message: m.cart_errors_no_cart(),
         type: "error",
       });
     }
@@ -79,7 +79,7 @@ const cartActions: Actions = {
     });
     if (!reservation) {
       return message(form, {
-        message: m.cart_errors_reservationNotInCart(),
+        message: m.cart_errors_reservation_not_in_cart(),
         type: "error",
       });
     }
@@ -98,7 +98,7 @@ const cartActions: Actions = {
     });
 
     return message(form, {
-      message: m.cart_reservationHasBeenRemoved(),
+      message: m.cart_reservation_has_been_removed(),
       type: "success",
     });
   },
@@ -108,7 +108,7 @@ const cartActions: Actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: m.cart_errors_noCart(),
+        message: m.cart_errors_no_cart(),
         type: "error",
       });
     }
@@ -143,7 +143,7 @@ const cartActions: Actions = {
     const form = await superValidate(request, zod4(purchaseForm));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
-      throw error(401, m.cart_errors_noCart());
+      throw error(401, m.cart_errors_no_cart());
     }
     let redirectUrl: string | undefined = undefined;
     let data: Omit<Awaited<ReturnType<typeof purchaseCart>>, "redirect">;

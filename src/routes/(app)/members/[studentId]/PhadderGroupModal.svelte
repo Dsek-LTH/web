@@ -64,7 +64,7 @@
       class="gap-2"
     >
       <div class="flex w-full flex-col gap-1.5 px-4">
-        <Label for="nollningGroupId">{m.onboarding_phadderGroup()}</Label>
+        <Label for="nollningGroupId">{m.onboarding_phadder_group()}</Label>
         <Select.Root
           type="single"
           bind:value={$form.nollningGroupId as string | undefined}

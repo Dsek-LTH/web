@@ -18,13 +18,13 @@ export type MandateWithPositionAndCommitte = Pick<
 
 export const uploadPictureSchema = z.object({
   image: z
-    .instanceof(File, { message: m.members_errors_invalidPicture() })
+    .instanceof(File, { message: m.members_errors_invalid_picture() })
     .refine((f) => f.size > 0, {
-      message: m.members_errors_invalidPicture(),
+      message: m.members_errors_invalid_picture(),
     })
     .refine(
       (f) => f.size < 8_000_000,
-      m.members_errors_tooLargePicture({ size: "8MB" }),
+      m.members_errors_too_large_picture({ size: "8MB" }),
     ),
   cropWidth: z.number().min(0).default(0),
   cropHeight: z.number().min(0).default(0),

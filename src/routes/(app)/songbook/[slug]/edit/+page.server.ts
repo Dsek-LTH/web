@@ -25,16 +25,16 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     const data = form.data;
     if (data.title == null) {
-      return setError(form, "title", m.songbook_missingTitle());
+      return setError(form, "title", m.songbook_missing_title());
     }
     if (data.lyrics == null) {
-      return setError(form, "lyrics", m.songbook_missingLyrics());
+      return setError(form, "lyrics", m.songbook_missing_lyrics());
     }
     if (data.category == null) {
-      return setError(form, "category", m.songbook_missingCategory());
+      return setError(form, "category", m.songbook_missing_category());
     }
     if (data.melody == null) {
-      return setError(form, "melody", m.songbook_missingMelody());
+      return setError(form, "melody", m.songbook_missing_melody());
     }
     const updatedSong = await prisma.song.update({
       where: {
@@ -52,7 +52,7 @@ export const actions: Actions = {
     throw redirect(
       encodeURI(`/songbook/${updatedSong.slug}`),
       {
-        message: m.songbook_songUpdated(),
+        message: m.songbook_song_updated(),
         type: "success",
       },
       event,
@@ -67,12 +67,12 @@ export const actions: Actions = {
     const id = data.get("id");
     if (id == null) {
       throw error(400, {
-        message: m.songbook_errors_missingID(),
+        message: m.songbook_errors_missing_id(),
       });
     }
     if (typeof id !== "string") {
       throw error(400, {
-        message: m.songbook_errors_invalidID(),
+        message: m.songbook_errors_invalid_id(),
       });
     }
     const song = await prisma.song.update({
@@ -87,7 +87,7 @@ export const actions: Actions = {
     throw redirect(
       encodeURI(`/songbook/${song.slug}`),
       {
-        message: m.songbook_songRemoved(),
+        message: m.songbook_song_removed(),
         type: "success",
       },
       event,
@@ -102,12 +102,12 @@ export const actions: Actions = {
     const id = data.get("id");
     if (id == null) {
       throw error(400, {
-        message: m.songbook_errors_missingID(),
+        message: m.songbook_errors_missing_id(),
       });
     }
     if (typeof id !== "string") {
       throw error(400, {
-        message: m.songbook_errors_invalidID(),
+        message: m.songbook_errors_invalid_id(),
       });
     }
     const song = await prisma.song.update({
@@ -121,7 +121,7 @@ export const actions: Actions = {
     throw redirect(
       encodeURI(`/songbook/${song.slug}`),
       {
-        message: m.songbook_songRestored(),
+        message: m.songbook_song_restored(),
         type: "success",
       },
       event,

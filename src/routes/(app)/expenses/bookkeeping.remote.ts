@@ -36,7 +36,7 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
     };
   } catch (e) {
     return {
-      message: e instanceof Error ? e.message : m.expense_errorOccurred(),
+      message: e instanceof Error ? e.message : m.expense_error_occurred(),
       type: "error" as const,
     };
   }

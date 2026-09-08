@@ -34,7 +34,7 @@ export const actions: Actions = {
     form.data.file = null as unknown as File; // will work, but not type correct
     form.data.name = "";
     return message(form, {
-      message: m.documents_fileUploaded(),
+      message: m.documents_file_uploaded(),
       type: "success",
     });
   },

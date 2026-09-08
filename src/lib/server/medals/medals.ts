@@ -154,7 +154,7 @@ const gammalOchÄckligSemester = (
  * @returns a string with the name.
  */
 const committeeMedalName = (committee: ExtendedPrismaModel<"Committee">) =>
-  m.medals_committeeMedal() +
+  m.medals_committee_medal() +
   " — " +
   (getLocale() === "sv" ? committee.nameSv : committee.nameEn);
 
@@ -221,13 +221,13 @@ export const memberMedals = async (
 
   if (volunteerMedalSem)
     res.push({
-      medal: m.medals_volunteerMedal(),
+      medal: m.medals_volunteer_medal(),
       after: volunteerMedalSem,
     });
 
   if (gammalOchÄckligSem)
     res.push({
-      medal: m.medals_gammalOchÄcklig(),
+      medal: m.medals_gammal_och_äcklig(),
       after: gammalOchÄckligSem,
     });
 
@@ -298,7 +298,7 @@ export const medalRecipients = async (
 
   if (volunteerMedalRecipients.length > 0)
     res.push({
-      medal: m.medals_volunteerMedal(),
+      medal: m.medals_volunteer_medal(),
       recipients: await getMembers(prisma, volunteerMedalRecipients),
     });
 
@@ -312,7 +312,7 @@ export const medalRecipients = async (
 
   if (gammalOchÄckligRecipients.length > 0)
     res.push({
-      medal: m.medals_gammalOchÄcklig(),
+      medal: m.medals_gammal_och_äcklig(),
       recipients: await getMembers(prisma, gammalOchÄckligRecipients),
     });
 

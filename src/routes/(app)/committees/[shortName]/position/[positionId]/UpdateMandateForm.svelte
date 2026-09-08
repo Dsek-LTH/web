@@ -30,7 +30,7 @@
 >
   <input type="hidden" name="mandateId" value={$form.mandateId} />
   <div class="flex flex-col gap-1.5">
-    <Label>{m.positions_startDate()}</Label>
+    <Label>{m.positions_start_date()}</Label>
     <DatePicker
       name="startDate"
       iso
@@ -42,7 +42,7 @@
     />
   </div>
   <div class="flex flex-col gap-1.5">
-    <Label>{m.positions_endDate()}</Label>
+    <Label>{m.positions_end_date()}</Label>
     <DatePicker
       name="endDate"
       iso

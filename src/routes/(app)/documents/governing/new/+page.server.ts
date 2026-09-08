@@ -27,7 +27,7 @@ export const actions: Actions = {
     throw redirect(
       "/documents/governing",
       {
-        message: m.documents_governing_documentCreated(),
+        message: m.documents_governing_document_created(),
         type: "success",
       },
       event,

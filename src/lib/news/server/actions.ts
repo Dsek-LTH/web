@@ -145,8 +145,8 @@ export const createArticle: Action = async (event) => {
       { ...result, tags, notificationText },
       publishTime,
       form,
-      m.news_errors_schedulingFailed(),
-      m.news_articleScheduled(),
+      m.news_errors_scheduling_failed(),
+      m.news_article_scheduled(),
       "/news",
       event,
     );
@@ -198,7 +198,7 @@ export const createArticle: Action = async (event) => {
   throw redirect(
     pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
     {
-      message: m.news_articleCreated(),
+      message: m.news_article_created(),
       type: "success",
     },
     event,
@@ -333,8 +333,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           notificationPayload,
           publishedAt,
           form,
-          m.news_errors_schedulingFailed(),
-          m.news_articleScheduled(),
+          m.news_errors_scheduling_failed(),
+          m.news_article_scheduled(),
           `/news/${slug}`,
           event,
         );
@@ -396,7 +396,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           throw redirect(
             `/news/${slug}/edit`,
             {
-              message: `${m.news_errors_schedulingFailed()}: ${
+              message: `${m.news_errors_scheduling_failed()}: ${
                 error instanceof Error ? error.message : String(error)
               }`,
               type: "error",
@@ -409,7 +409,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           throw redirect(
             `/news/${slug}/edit`,
             {
-              message: m.news_errors_schedulingFailed(),
+              message: m.news_errors_scheduling_failed(),
               type: "error",
             },
             event,
@@ -429,7 +429,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       return message(
         form,
         {
-          message: m.news_errors_articleNotFound(),
+          message: m.news_errors_article_not_found(),
           type: "error",
         },
         { status: 400 },
@@ -441,7 +441,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   throw redirect(
     `/news/${publishedAt < new Date() ? event.params.slug : ""}`,
     {
-      message: m.news_articleUpdated(),
+      message: m.news_article_updated(),
       type: "success",
     },
     event,

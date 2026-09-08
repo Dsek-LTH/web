@@ -120,7 +120,7 @@ export const ensurePaymentIntentState = async (
     case "processing":
       // payment in progress, do not start a new transaction
       await onPaymentProcessing(intent);
-      throw new Error(m.tickets_purchase_errors_existingPaymentIsOngoing());
+      throw new Error(m.tickets_purchase_errors_existing_payment_is_ongoing());
     case "canceled":
       // payment was canceled
       await onPaymentCancellation(intent);
@@ -151,8 +151,8 @@ export const refundConsumable = async (
     return refund;
   } catch (e) {
     if (e instanceof Error) {
-      throw new Error(`${m.tickets_errors_couldNotRefund()}: ${e}`);
+      throw new Error(`${m.tickets_errors_could_not_refund()}: ${e}`);
     }
-    throw new Error(m.tickets_errors_couldNotRefund());
+    throw new Error(m.tickets_errors_could_not_refund());
   }
 };

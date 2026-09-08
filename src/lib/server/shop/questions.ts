@@ -40,7 +40,7 @@ export const answerQuestion = async (
     },
   });
   if (!consumable) {
-    throw new Error(m.cart_errors_itemNotInCart());
+    throw new Error(m.cart_errors_item_not_in_cart());
   }
   const question = consumable.shoppable.questions.find(
     (q) => q.id === data.questionId,

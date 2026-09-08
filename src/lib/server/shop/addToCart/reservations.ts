@@ -492,7 +492,7 @@ const performReservationLottery = async (
     },
   });
   if (ticket == null) {
-    throw new Error(m.tickets_errors_ticketNotFound());
+    throw new Error(m.tickets_errors_ticket_not_found());
   }
   const stock = ticket?.stock ?? 0;
   if (reservations.length <= stock) {

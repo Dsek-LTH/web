@@ -126,7 +126,7 @@ const purchaseCart = async (
     },
   });
   if (userConsumables.length === 0) {
-    throw new Error(m.tickets_purchase_errors_cartEmpty());
+    throw new Error(m.tickets_purchase_errors_cart_empty());
   }
   // Step 2: Check if the consumables are still available (should not happen but you never know I guess)
   for (const consumable of userConsumables) {
@@ -136,7 +136,7 @@ const purchaseCart = async (
           (res) => res.queuedNotifications,
         ),
       );
-      throw new Error(m.tickets_purchase_errors_expiredConsumable());
+      throw new Error(m.tickets_purchase_errors_expired_consumable());
     }
     if (
       consumable.shoppable.type === ShoppableType.TICKET &&
@@ -148,7 +148,7 @@ const purchaseCart = async (
   }
   if (soldOutShoppableIds.length > 0) {
     await clearOutConsumablesAfterSellingOut(soldOutShoppableIds);
-    throw new Error(m.tickets_purchase_errors_soldOutDuringPurchase()); // with our reservation system, this shouldn't happen, but it's just a safety measure
+    throw new Error(m.tickets_purchase_errors_sold_out_during_purchase()); // with our reservation system, this shouldn't happen, but it's just a safety measure
   }
 
   let didUpdateAlreadyPaidFor = false;
@@ -166,7 +166,7 @@ const purchaseCart = async (
   }
   if (didUpdateAlreadyPaidFor) {
     return {
-      message: m.tickets_purchase_alreadyPaidFor(),
+      message: m.tickets_purchase_already_paid_for(),
       type: "success",
       redirect: "inventory",
     };
@@ -187,7 +187,7 @@ const purchaseCart = async (
         ),
     )
   ) {
-    throw new Error(m.tickets_purchase_errors_missingAnswers());
+    throw new Error(m.tickets_purchase_errors_missing_answers());
   }
 
   // Step 3: Calculate price
@@ -211,7 +211,7 @@ const purchaseCart = async (
       },
     });
     return {
-      message: m.tickets_purchase_freeConsumablesPurchased(),
+      message: m.tickets_purchase_free_consumables_purchased(),
       type: "success",
       redirect: "inventory",
     };
@@ -263,7 +263,7 @@ const purchaseCart = async (
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     }).catch((err) => {
       console.error(err);
-      throw new Error(m.tickets_purchase_errors_unableToCreatePaymentIntent());
+      throw new Error(m.tickets_purchase_errors_unable_to_create_payment_intent());
     });
   }
   try {
@@ -288,7 +288,7 @@ const purchaseCart = async (
         },
       });
       if (consumables.length !== userConsumables.length) {
-        throw new Error(m.tickets_purchase_errors_multipleActivePayments());
+        throw new Error(m.tickets_purchase_errors_multiple_active_payments());
       }
       const results = await Promise.allSettled(
         userConsumables.map((consumable) =>
@@ -304,7 +304,7 @@ const purchaseCart = async (
         ),
       );
       if (results.some((result) => result.status === "rejected")) {
-        throw new Error(m.tickets_purchase_errors_couldNotSaveIntentID());
+        throw new Error(m.tickets_purchase_errors_could_not_save_intent_id());
       }
     });
   } catch (err) {
@@ -313,7 +313,7 @@ const purchaseCart = async (
   }
   return {
     clientSecret: intent.client_secret,
-    message: m.tickets_purchase_readyToPurchase(),
+    message: m.tickets_purchase_ready_to_purchase(),
     type: "hidden",
   };
 };

@@ -25,9 +25,9 @@
 
 <div class="flex flex-row gap-1">
   <a href="/expenses/all"
-    ><Button variant="lila"><List /> {m.expense_allExpenses()}</Button></a
+    ><Button variant="lila"><List /> {m.expense_all_expenses()}</Button></a
   >
 </div>
 
-<h2 class="py-5">{m.expense_myExpenses()}</h2>
+<h2 class="py-5">{m.expense_my_expenses()}</h2>
 <ExpenseTable {columns} data={myExpenses} />

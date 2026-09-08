@@ -27,7 +27,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
     },
   });
 
-  if (!existingEvent) return error(404, m.events_errors_eventNotFound());
+  if (!existingEvent) return error(404, m.events_errors_event_not_found());
 
   if (form.data.removeType === "ALL") {
     await prisma.event.updateMany({
@@ -41,7 +41,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
     throw redirect(
       "/events",
       {
-        message: m.events_eventsDeleted(),
+        message: m.events_events_deleted(),
         type: "success",
       },
       event,
@@ -70,7 +70,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
     throw redirect(
       "/events",
       {
-        message: m.events_eventDeleted(),
+        message: m.events_event_deleted(),
         type: "success",
       },
       event,

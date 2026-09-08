@@ -85,7 +85,7 @@ export const actions: Actions = {
     });
 
     if (!consumable) {
-      error(404, m.inventory_errors_consumableNotFound());
+      error(404, m.inventory_errors_consumable_not_found());
     }
 
     if (consumable.consumedAt) {

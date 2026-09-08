@@ -86,7 +86,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     });
   }
   if (!position) {
-    throw error(404, m.positions_errors_positionNotFound());
+    throw error(404, m.positions_errors_position_not_found());
   }
 
   //Logic for startMonth and endMonth that can wrap over new years
@@ -220,7 +220,7 @@ export const actions: Actions = {
         break;
     }
     return message(form, {
-      message: m.positions_positionUpdated(),
+      message: m.positions_position_updated(),
       type: "success",
     });
   },
@@ -239,7 +239,7 @@ export const actions: Actions = {
       if (!member)
         return message(
           form,
-          { message: m.positions_errors_memberNotFound() },
+          { message: m.positions_errors_member_not_found() },
           { status: 400 },
         );
 
@@ -256,11 +256,11 @@ export const actions: Actions = {
       memberNames.push(member?.firstName ?? "");
     });
     return message(form, {
-      message: m.positions_newMandateGivenTo({
+      message: m.positions_new_mandate_given_to({
         name:
           memberNames.length > 0
             ? memberNames.join(", ")
-            : m.positions_theMember(),
+            : m.positions_the_member(),
       }),
       type: "success",
     });
@@ -285,7 +285,7 @@ export const actions: Actions = {
     if (!member)
       return message(
         form,
-        { message: m.positions_errors_mandateNotFound(), type: "error" },
+        { message: m.positions_errors_mandate_not_found(), type: "error" },
         { status: 400 },
       );
     await prisma.mandate.update({
@@ -298,8 +298,8 @@ export const actions: Actions = {
     throw redirect(
       getPositionLink(searchId),
       {
-        message: m.positions_mandateUpdated({
-          names: genitiveCase(member.firstName ?? m.positions_theMember()),
+        message: m.positions_mandate_updated({
+          names: genitiveCase(member.firstName ?? m.positions_the_member()),
         }),
         type: "success",
       },
@@ -325,15 +325,15 @@ export const actions: Actions = {
     if (!member)
       return message(
         form,
-        { message: m.positions_errors_mandateNotFound(), type: "error" },
+        { message: m.positions_errors_mandate_not_found(), type: "error" },
         { status: 400 },
       );
     await prisma.mandate.delete({
       where: { id: form.data.mandateId, positionId: searchId },
     });
     return message(form, {
-      message: m.positions_mandateRemoved({
-        names: genitiveCase(member.firstName ?? m.positions_theMember()),
+      message: m.positions_mandate_removed({
+        names: genitiveCase(member.firstName ?? m.positions_the_member()),
       }),
       type: "success",
     });

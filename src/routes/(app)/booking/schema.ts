@@ -14,7 +14,7 @@ export const bookingSchema = z
     bookables: z.array(z.string()).min(1),
   })
   .refine((data) => dayjs(data.start).isBefore(dayjs(data.end)), {
-    message: m.booking_startDateBeforeEndDate(),
+    message: m.booking_start_date_before_end_date(),
     path: ["end"],
   });
 

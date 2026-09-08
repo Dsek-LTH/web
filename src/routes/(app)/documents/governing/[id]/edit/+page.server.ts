@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   });
 
   if (!governingDocument) {
-    throw error(404, m.documents_governing_errors_notFound());
+    throw error(404, m.documents_governing_errors_not_found());
   }
 
   return {
@@ -59,7 +59,7 @@ export const actions: Actions = {
     throw redirect(
       "/documents/governing",
       {
-        message: m.documents_governing_documentUpdated(),
+        message: m.documents_governing_document_updated(),
         type: "success",
       },
       event,

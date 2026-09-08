@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     redirect(302, "/");
   }
   if (!memberResult.value) {
-    throw error(404, m.onboarding_errors_memberNotFound());
+    throw error(404, m.onboarding_errors_member_not_found());
   }
   if (phadderGroupsResult.status === "rejected")
     throw error(
@@ -74,13 +74,13 @@ export const actions: Actions = {
         },
       });
     } else {
-      throw error(500, m.onboarding_errors_studentIDNotFound());
+      throw error(500, m.onboarding_errors_student_id_not_found());
     }
     return redirect(
       "/",
       {
         type: "success",
-        message: m.onboarding_memberUpdated(),
+        message: m.onboarding_member_updated(),
       },
       cookies,
     );

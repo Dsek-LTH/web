@@ -54,8 +54,8 @@ export const likesAction =
     }
     return message(form, {
       message: shouldLike
-        ? m.news_likedArticle()
-        : m.news_stoppedLikingArticle(),
+        ? m.news_liked_article()
+        : m.news_stopped_liking_article(),
       type: "hidden",
     });
   };

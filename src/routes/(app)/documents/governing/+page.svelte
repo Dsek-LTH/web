@@ -72,7 +72,7 @@
     <div class="mb-4 flex gap-2">
       {#if canCreate}
         <Button href="/documents/governing/new" variant="rosa" size="sm">
-          + {m.documents_governing_createNew()}
+          + {m.documents_governing_create_new()}
         </Button>
       {/if}
       {#if canEdit}
@@ -83,7 +83,7 @@
             isEditing = !isEditing;
           }}
         >
-          {isEditing ? m.documents_stopEditing() : m.documents_edit()}
+          {isEditing ? m.documents_stop_editing() : m.documents_edit()}
         </Button>
       {/if}
     </div>
@@ -92,7 +92,7 @@
   <div class="prose dark:prose-invert mb-8">
     <p>{m.documents_governing_blurb()}</p>
     <p>
-      {m.documents_governing_forQuestions()}
+      {m.documents_governing_for_questions()}
       <a href="mailto:styrelsen@dsek.se" class="text-primary hover:underline"
         >styrelsen@dsek.se</a
       >
@@ -159,7 +159,7 @@
     >
       <h2 class="flex shrink-0 items-center gap-2 text-2xl font-bold">
         <Calendar class="text-primary size-6 shrink-0" />
-        {m.documents_governing_yearSpecificDocuments()}
+        {m.documents_governing_year_specific_documents()}
       </h2>
       <div
         class="flex w-full min-w-0 md:max-w-xs md:justify-end lg:max-w-sm xl:max-w-md"
@@ -176,7 +176,7 @@
         class="cursor-pointer rounded-sm"
       >
         <FileText class="mr-2 size-4" />
-        {m.documents_plansOfOperations()}
+        {m.documents_plans_of_operations()}
       </Button>
       <Button
         href={data.frameworkBudgets[0]?.url}
@@ -185,7 +185,7 @@
         class="cursor-pointer rounded-sm"
       >
         <FileText class="mr-2 size-4" />
-        {m.documents_frameworkBudgets()}
+        {m.documents_framework_budgets()}
       </Button>
       <Button
         href={data.strategicGoals[0]?.url}
@@ -194,7 +194,7 @@
         class="cursor-pointer rounded-sm"
       >
         <FileText class="mr-2 size-4" />
-        {m.documents_strategicGoals()}
+        {m.documents_strategic_goals()}
       </Button>
     </div>
 
@@ -203,7 +203,7 @@
         {#if data.plansOfOperations.length > 0}
           <div>
             <h3 class="text-lg font-semibold">
-              {m.documents_plansOfOperations()}
+              {m.documents_plans_of_operations()}
             </h3>
             {@render documentList(data.plansOfOperations)}
           </div>
@@ -211,7 +211,7 @@
         {#if data.frameworkBudgets.length > 0}
           <div>
             <h3 class="text-lg font-semibold">
-              {m.documents_frameworkBudgets()}
+              {m.documents_framework_budgets()}
             </h3>
             {@render documentList(data.frameworkBudgets)}
           </div>
@@ -219,7 +219,7 @@
         {#if data.strategicGoals.length > 0}
           <div>
             <h3 class="text-lg font-semibold">
-              {m.documents_strategicGoals()}
+              {m.documents_strategic_goals()}
             </h3>
             {@render documentList(data.strategicGoals)}
           </div>

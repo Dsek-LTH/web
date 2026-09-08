@@ -104,7 +104,7 @@
     <div
       class="text-muted-foreground col-start-1 col-end-4 flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
     >
-      <span class="font-medium">{m.home_calendarEmpty()}</span>
+      <span class="font-medium">{m.home_calendar_empty()}</span>
     </div>
   {/if}
 </div>
@@ -134,7 +134,7 @@
     <div
       class="text-muted-foreground col-start-1 col-end-8 flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
     >
-      <span class="font-medium">{m.home_calendarEmpty()}</span>
+      <span class="font-medium">{m.home_calendar_empty()}</span>
     </div>
   {/if}
 </div>

@@ -51,7 +51,7 @@ export const actions: Actions = {
     throw redirect(
       `/songbook/${result.slug}`,
       {
-        message: m.songbook_songCreated(),
+        message: m.songbook_song_created(),
         type: "success",
       },
       event,

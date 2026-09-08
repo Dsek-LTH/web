@@ -92,10 +92,10 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       }),
     ]);
   if (memberResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchMember());
+    throw error(500, m.members_errors_couldnt_fetch_member());
   if (publishedArticlesResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchArticles());
-  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
+    throw error(500, m.members_errors_couldnt_fetch_articles());
+  if (!memberResult.value) throw error(404, m.members_errors_member_not_found());
   if (phadderGroupsResult.status === "rejected")
     throw error(505, phadderGroupsResult.reason);
 
@@ -153,7 +153,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
   } catch {
-    throw error(500, m.members_errors_couldntFetchPings());
+    throw error(500, m.members_errors_couldnt_fetch_pings());
   }
 };
 
@@ -227,7 +227,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            message: `${m.members_errors_couldnt_upload_file()}: ${await res.text()}`,
             type: "error",
           },
           { status: 500 },
@@ -238,14 +238,14 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
+          message: `${m.members_errors_couldnt_upload_file()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },
       );
     }
     return message(form, {
-      message: m.members_pictureUploaded(),
+      message: m.members_picture_uploaded(),
       type: "success",
     });
   },
@@ -266,7 +266,7 @@ export const actions: Actions = {
       ]);
     }
     return message(form, {
-      message: m.members_pictureRemoved(),
+      message: m.members_picture_removed(),
       type: "success",
     });
   },
@@ -285,7 +285,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: m.members_memberUpdated(),
+      message: m.members_member_updated(),
       type: "success",
     });
   },
@@ -317,7 +317,7 @@ export const actions: Actions = {
 
     if (form.data.nollningGroupId !== null)
       return message(form, {
-        message: m.members_memberUpdated(),
+        message: m.members_member_updated(),
         type: "success",
       });
     else return null;
@@ -338,7 +338,7 @@ export const actions: Actions = {
     });
 
     return message(form, {
-      message: m.members_memberUpdated(),
+      message: m.members_member_updated(),
       type: "success",
     });
   },
@@ -374,7 +374,7 @@ export const actions: Actions = {
       });
     }
     return message(form, {
-      message: m.members_pingSent(),
+      message: m.members_ping_sent(),
       type: "success",
     });
   },

@@ -34,7 +34,7 @@ export const committeeLoad = async (
     firstDayOfYear.getFullYear() !== year ||
     lastDayOfYear.getFullYear() !== year
   ) {
-    error(400, m.committees_errors_invalidYear());
+    error(400, m.committees_errors_invalid_year());
   }
 
   const committee = await prisma.committee.findUnique({
@@ -82,7 +82,7 @@ export const committeeLoad = async (
     },
   });
   if (!committee) {
-    throw error(404, m.committees_errors_committeeNotFound());
+    throw error(404, m.committees_errors_committee_not_found());
   }
   const [uniqueMembersInCommittee, numberOfMandates, markdown, links] =
     await Promise.allSettled([
@@ -132,16 +132,16 @@ export const committeeLoad = async (
       }),
     ]);
   if (uniqueMembersInCommittee.status === "rejected") {
-    error(500, m.committees_errors_fetchUniqueMembers());
+    error(500, m.committees_errors_fetch_unique_members());
   }
   if (numberOfMandates.status === "rejected") {
-    error(500, m.committees_errors_fetchNumberOfMandates());
+    error(500, m.committees_errors_fetch_number_of_mandates());
   }
   if (markdown.status === "rejected") {
-    error(500, m.committees_errors_fetchMarkdown());
+    error(500, m.committees_errors_fetch_markdown());
   }
   if (links.status === "rejected") {
-    error(500, m.committees_errors_fetchMarkdown());
+    error(500, m.committees_errors_fetch_markdown());
   }
 
   const form = await superValidate(
@@ -208,7 +208,7 @@ export const committeeActions = (
       });
 
       return message(form, {
-        message: m.committees_committeeUpdated(),
+        message: m.committees_committee_updated(),
         type: "success",
       });
     }
@@ -221,7 +221,7 @@ export const committeeActions = (
       });
     }
     return message(form, {
-      message: m.committees_committeeUpdated(),
+      message: m.committees_committee_updated(),
       type: "success",
     });
   },
@@ -242,7 +242,7 @@ export const committeeActions = (
     });
 
     return message(form, {
-      message: m.committees_committeeUpdated(),
+      message: m.committees_committee_updated(),
       type: "success",
     });
   },

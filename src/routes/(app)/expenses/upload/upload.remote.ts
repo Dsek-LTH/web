@@ -128,7 +128,7 @@ export const createExpense = form(expenseSchema, async (data) => {
   const { user, prisma, member } = getRequestEvent().locals;
   if (!user?.memberId || !member?.id) {
     return {
-      message: m.notifications_errors_notLoggedIn(),
+      message: m.notifications_errors_not_logged_in(),
       type: "error" as const,
     };
   }
@@ -231,7 +231,7 @@ export const createExpense = form(expenseSchema, async (data) => {
   throw redirect(
     `/expenses`,
     {
-      message: m.expenseCreated(),
+      message: m.expense_created(),
       type: "success" as const,
     },
     getRequestEvent(),

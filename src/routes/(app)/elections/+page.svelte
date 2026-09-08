@@ -17,7 +17,7 @@
 
 <div class="layout-container">
   <div class="flex flex-row">
-    <h1>{m.openElections()}</h1>
+    <h1>{m.open_elections()}</h1>
     {#if isAuthorized(apiNames.ELECTION.CREATE, data.user)}
       <Button href="/elections/create" class="ml-auto"
         >+ {m.elections_new()}</Button

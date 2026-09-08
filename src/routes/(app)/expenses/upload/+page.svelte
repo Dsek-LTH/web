@@ -53,7 +53,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <Label>{m.is_guildCard()}</Label>
+      <Label>{m.is_guild_card()}</Label>
       <Checkbox {...isGuildCard.as("checkbox", false)} type={undefined} />
     </div>
     <div class="flex flex-col gap-1.5">

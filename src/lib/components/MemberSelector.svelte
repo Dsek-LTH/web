@@ -314,7 +314,7 @@
               bind:ref={searchResultElement}
             >
               <Command.Empty class="p-4 pb-2 text-center text-sm">
-                {isSearching ? m.search_searching() : m.search_noResults()}
+                {isSearching ? m.search_searching() : m.search_no_results()}
               </Command.Empty>
               <Command.Group class="w-full p-2 pb-0">
                 {#each filteredResults as result (result.studentId)}

@@ -36,9 +36,9 @@ export const load = async ({ locals }) => {
 
 const uploadSchema = z.object({
   file: z
-    .instanceof(File, { message: m.documents_errors_erroneousFile() })
+    .instanceof(File, { message: m.documents_errors_erroneous_file() })
     .refine((f) => f.size > 0, {
-      message: m.documents_errors_erroneousFile(),
+      message: m.documents_errors_erroneous_file(),
     }),
   fileName: z.string().default(uuid),
   fileUrl: z.string().url().nullable().default(null),
@@ -82,7 +82,7 @@ export const actions = {
     form.data.file = null as unknown as File; // will work, but not type correct
     form.data.fileName = "";
     return message(form, {
-      message: m.documents_fileUploaded(),
+      message: m.documents_file_uploaded(),
       type: "success",
     });
   },
@@ -106,7 +106,7 @@ export const actions = {
     }
 
     return message(form, {
-      message: m.documents_fileDeleted(),
+      message: m.documents_file_deleted(),
       type: "success",
     });
   },

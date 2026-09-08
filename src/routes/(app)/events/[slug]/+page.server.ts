@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const event = await getEvent(prisma, params.slug);
   if (event == undefined) {
     throw error(404, {
-      message: m.events_errors_eventNotFound(),
+      message: m.events_errors_event_not_found(),
     });
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, event.comments);

@@ -37,7 +37,7 @@
 
 {#if data.scheduledArticles.length > 0}
   <section class="mb-6">
-    <h2 class="mb-3 text-lg font-semibold">{m.news_scheduledNews()}</h2>
+    <h2 class="mb-3 text-lg font-semibold">{m.news_scheduled_news()}</h2>
     <div class="flex flex-col gap-2">
       {#each data.scheduledArticles as article (article.id)}
         <a
@@ -46,7 +46,7 @@
         >
           <span class="font-medium">{article.header}</span>
           <span class="text-muted-foreground ml-4 shrink-0">
-            {m.news_scheduledFor()}
+            {m.news_scheduled_for()}
             {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
           </span>
         </a>
@@ -58,7 +58,7 @@
 {#if data.nollningArticles.length > 0}
   <section class="mb-6">
     {#if showNollning}
-      <h2 class="mb-3 text-lg font-semibold">{m.news_nollningNews()}</h2>
+      <h2 class="mb-3 text-lg font-semibold">{m.news_nollning_news()}</h2>
       <div class="flex flex-col gap-2">
         {#each data.nollningArticles as article (article.id)}
           <a
@@ -68,7 +68,7 @@
             <span class="font-medium">{article.header}</span>
             <span class="text-muted-foreground ml-4 shrink-0">
               {#if article.publishedAt && new Date(article.publishedAt) > new Date()}
-                {m.news_scheduledFor()}
+                {m.news_scheduled_for()}
                 {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
               {:else}
                 {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
@@ -79,7 +79,7 @@
       </div>
     {/if}
     <Button variant="outline" onclick={() => (showNollning = !showNollning)}>
-      {showNollning ? m.news_hideNollningNews() : m.news_showNollningNews()}
+      {showNollning ? m.news_hide_nollning_news() : m.news_show_nollning_news()}
     </Button>
   </section>
 {/if}

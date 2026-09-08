@@ -102,7 +102,7 @@
         class="flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:gap-10"
       >
         <Button href="/applying" size="lg" class="text-lg">
-          <GraduationCap class="size-6" />{m.landing_forStudents()}
+          <GraduationCap class="size-6" />{m.landing_for_students()}
         </Button>
         <Button
           href="/info/for-foretag"
@@ -110,7 +110,7 @@
           class="hover:bg-secondary-background/30 text-lg text-white"
           variant="outline"
         >
-          <Building class="size-6" />{m.home_forCompanies()}
+          <Building class="size-6" />{m.home_for_companies()}
         </Button>
       </div>
     </div>

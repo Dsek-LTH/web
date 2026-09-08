@@ -58,7 +58,7 @@
     >
       <div class="flex flex-row gap-2">
         <div class="flex w-full flex-col gap-1.5">
-          <Label for="firstName">{m.members_firstName()}</Label><Input
+          <Label for="firstName">{m.members_first_name()}</Label><Input
             bind:value={$form.firstName}
             type="text"
             id="firstName"
@@ -69,7 +69,7 @@
           >
         </div>
         <div class="flex w-full flex-col gap-1.5">
-          <Label for="lastName">{m.members_lastName()}</Label><Input
+          <Label for="lastName">{m.members_last_name()}</Label><Input
             bind:value={$form.lastName}
             type="text"
             id="lastName"
@@ -92,12 +92,12 @@
         >
       </div>
       <div class="flex w-full flex-col gap-1.5">
-        <Label for="foodPreference">{m.members_foodPreference()}</Label><Input
+        <Label for="foodPreference">{m.members_food_preference()}</Label><Input
           bind:value={$form.foodPreference}
           type="text"
           id="foodPreference"
           name="foodPreference"
-          placeholder={m.onboarding_foodPreferencePlaceholder()}
+          placeholder={m.onboarding_food_preference_placeholder()}
           aria-invalid={!!$errors.foodPreference}
           aria-errormessage={$errors.foodPreference?.at(0)}><Pen /></Input
         >
@@ -158,7 +158,7 @@
         </div>
       </div>
       <div class="flex w-full flex-col gap-1.5">
-        <Label for="nollningGroupId">{m.onboarding_phadderGroup()}</Label>
+        <Label for="nollningGroupId">{m.onboarding_phadder_group()}</Label>
         <Select.Root
           type="single"
           bind:value={$form.nollningGroupId as string | undefined}

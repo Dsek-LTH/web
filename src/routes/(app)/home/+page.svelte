@@ -26,9 +26,9 @@
             {m.home_greeting({ name: data.member?.firstName ?? "" })}
           </h1>
           {#await data.notificationsPromise}
-            {m.home_notificationCount({ count: 0 })}
+            {m.home_notification_count({ count: 0 })}
           {:then notifications}
-            {m.home_notificationCount({
+            {m.home_notification_count({
               count:
                 notifications?.filter((n) => n.readAt === null).length ?? 0,
             })}
@@ -43,23 +43,23 @@
             class="h-auto w-full whitespace-normal"
             href="https://bit.ly/trivselkontakt"
           >
-            <UsersRound class="shrink-0" />{m.home_contactWellbeing()}
+            <UsersRound class="shrink-0" />{m.home_contact_wellbeing()}
           </Button>
         </div>
         <div class="flex min-w-0 flex-col">
-          <span class="p-2 font-light">{m.home_feedbackSRD()}</span>
+          <span class="p-2 font-light">{m.home_feedback_srd()}</span>
           <Button
             variant="outline"
             class="h-auto w-full whitespace-normal"
             href="mailto:srdordforande@dsek.se"
           >
-            <BookOpen class="shrink-0" />{m.home_contactSRD()}
+            <BookOpen class="shrink-0" />{m.home_contact_srd()}
           </Button>
         </div>
       </div>
     </div>
     <div>
-      <h3>{m.openElections()}</h3>
+      <h3>{m.open_elections()}</h3>
       <div class="mt-2 grid grid-cols-2 gap-4 sm:flex sm:flex-row">
         {#each data.elections as election, i (election.id)}
           <Card.Root
@@ -86,7 +86,7 @@
           <div
             class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
           >
-            <span class="font-medium">{m.home_electionsEmpty()}</span>
+            <span class="font-medium">{m.home_elections_empty()}</span>
           </div>
         {/each}
       </div>
@@ -153,7 +153,7 @@
         <div
           class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
         >
-          <span class="font-medium">{m.home_newsEmpty()}</span>
+          <span class="font-medium">{m.home_news_empty()}</span>
         </div>
       {/each}
     </div>

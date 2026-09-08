@@ -52,7 +52,7 @@
   <div class={cn("flex flex-row", dialog ? "" : "mb-2")}>
     {#if canSign && expense.items.some((item) => !item.signedBy)}
       <Button onclick={() => approveAll(expense.id)}
-        ><Check /> {m.expense_approveAll()}</Button
+        ><Check /> {m.expense_approve_all()}</Button
       >
     {/if}
 
@@ -65,7 +65,7 @@
         variant="lila"
       >
         <FileText />
-        {m.expense_sendToBookkeeping()}
+        {m.expense_send_to_bookkeeping()}
       </Button>
     {/if}
 
@@ -211,12 +211,12 @@
           <div class="font-bold opacity-60">{m.expense_signed()}</div>
           {item.signedAt
             ? dayjs(item.signedAt).format("D MMM YYYY, HH:mm")
-            : m.expense_notSigned()}
+            : m.expense_not_signed()}
         </div>
 
         <div>
           {#if item.signedBy}
-            <div class="font-bold opacity-60">{m.expense_signedBy()}</div>
+            <div class="font-bold opacity-60">{m.expense_signed_by()}</div>
             {item.signedBy.firstName}
             {item.signedBy.lastName}
           {:else}

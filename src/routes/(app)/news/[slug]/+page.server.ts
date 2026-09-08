@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const article = await getArticle(prisma, params.slug);
   if (article == undefined) {
     throw error(404, {
-      message: m.news_errors_articleNotFound(),
+      message: m.news_errors_article_not_found(),
     });
   }
   if (article.tags.some((t) => t.name.startsWith(NOLLNING_TAG_PREFIX))) {
@@ -64,7 +64,7 @@ export const actions: Actions = {
       },
     });
 
-    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
+    if (!existingArticle) return error(404, m.news_errors_article_not_found());
 
     await prisma.article.update({
       where: {
@@ -78,7 +78,7 @@ export const actions: Actions = {
     throw redirect(
       "/news",
       {
-        message: m.news_articleDeleted(),
+        message: m.news_article_deleted(),
         type: "success",
       },
       event,

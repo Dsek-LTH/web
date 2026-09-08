@@ -44,16 +44,16 @@
   });
 
   const documentTypes = [
-    { value: "meeting", label: m.documents_boardGuildMeetings() },
-    { value: "srd", label: m.documents_srdMeetings() },
-    { value: "requirement", label: m.documents_requirementProfiles() },
+    { value: "meeting", label: m.documents_board_guild_meetings() },
+    { value: "srd", label: m.documents_srd_meetings() },
+    { value: "requirement", label: m.documents_requirement_profiles() },
   ];
 </script>
 
-<SetPageTitle title={m.documents_uploadDocument()} />
+<SetPageTitle title={m.documents_upload_document()} />
 
 <div class="layout-container">
-  <h2 class="mb-4">{m.documents_uploadDocument()}</h2>
+  <h2 class="mb-4">{m.documents_upload_document()}</h2>
   <form
     id="upload-file"
     class="flex flex-col items-stretch gap-4"
@@ -64,7 +64,7 @@
     <div class="flex flex-row gap-4">
       <div class="flex flex-col gap-1.5">
         <Label>
-          {m.documents_chooseDocumentType()}
+          {m.documents_choose_document_type()}
         </Label>
         <Select.Root required type="single" name="type" bind:value={$form.type}>
           <Select.Trigger
@@ -73,11 +73,11 @@
             class="min-w-64"
           >
             {documentTypes.find((t) => t.value === $form.type)?.label ??
-              m.documents_chooseDocumentType()}
+              m.documents_choose_document_type()}
           </Select.Trigger>
           <Select.Content>
             <Select.Group>
-              <Select.Label>{m.documents_documentType()}</Select.Label>
+              <Select.Label>{m.documents_document_type()}</Select.Label>
               {#each documentTypes as type (type.value)}
                 <Select.Item value={type.value} label={type.label}>
                   {type.label}
@@ -90,7 +90,7 @@
 
       <div class="flex w-full flex-col gap-1.5">
         <Label for="folder">
-          {m.documents_writeMeetingName()}
+          {m.documents_write_meeting_name()}
         </Label>
 
         <Input
@@ -108,7 +108,7 @@
 
         {#if $form.type !== "requirement"}
           <p class="text-base-content/70 mt-0 text-sm italic">
-            {m.documents_uploadInfo()}
+            {m.documents_upload_info()}
           </p>
         {/if}
       </div>
@@ -116,7 +116,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label for="file">
-        {m.documents_uploadFile()}
+        {m.documents_upload_file()}
       </Label>
       <Input
         bind:ref={fileInput}
@@ -142,8 +142,8 @@
     <div class="flex flex-col gap-1.5">
       <Label
         >{$form.type === "requirement"
-          ? m.documents_writePositionName()
-          : m.documents_fileName()}</Label
+          ? m.documents_write_position_name()
+          : m.documents_file_name()}</Label
       >
       <Input
         id="name"
@@ -152,7 +152,7 @@
         aria-errormessage={$errors.name?.at(0)}
         type="text"
         placeholder={$form.type !== "requirement"
-          ? m.documents_filePlaceholder()
+          ? m.documents_file_placeholder()
           : meetingPlaceholder}
         bind:value={$form.name}
         {...$constraints.name}
@@ -160,7 +160,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <Label for="year">{m.documents_pickMeetingYear()}</Label>
+      <Label for="year">{m.documents_pick_meeting_year()}</Label>
       <Input
         id="year"
         name="year"

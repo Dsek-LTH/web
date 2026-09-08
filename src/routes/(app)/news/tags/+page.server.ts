@@ -50,7 +50,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: m.news_tags_tagCreated(),
+      message: m.news_tags_tag_created(),
       type: "success",
     });
   },
@@ -71,7 +71,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: m.news_errors_tagNotFound(),
+            message: m.news_errors_tag_not_found(),
             type: "error",
           },
           { status: 400 },
@@ -80,7 +80,7 @@ export const actions: Actions = {
       throw error;
     }
     return message(form, {
-      message: m.news_tags_tagUpdated(),
+      message: m.news_tags_tag_updated(),
       type: "success",
     });
   },

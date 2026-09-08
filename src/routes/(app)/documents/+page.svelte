@@ -61,18 +61,18 @@
     class="flex flex-col justify-between gap-4 *:w-full md:flex-row md:gap-8"
   >
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
-      <h3>{m.documents_guildMeetings()}</h3>
-      <p class="mt-0">{m.documents_guildMeetings_prose()}</p>
+      <h3>{m.documents_guild_meetings()}</h3>
+      <p class="mt-0">{m.documents_guild_meetings_prose()}</p>
     </div>
 
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
-      <h3>{m.documents_boardMeetings()}</h3>
-      <p class="mt-0">{m.documents_boardMeetings_prose()}</p>
+      <h3>{m.documents_board_meetings()}</h3>
+      <p class="mt-0">{m.documents_board_meetings_prose()}</p>
     </div>
 
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
-      <h3>{m.documents_srdMeetings()}</h3>
-      <p class="mt-0">{m.documents_srdMeetings_prose()}</p>
+      <h3>{m.documents_srd_meetings()}</h3>
+      <p class="mt-0">{m.documents_srd_meetings_prose()}</p>
     </div>
   </div>
 
@@ -81,17 +81,17 @@
       <Tabs.List class="flex-col px-4 sm:flex-row sm:px-1">
         <a href={generateLink("guild-meeting")}>
           <Tabs.Trigger value="guild-meeting"
-            >{m.documents_guildMeetings()}</Tabs.Trigger
+            >{m.documents_guild_meetings()}</Tabs.Trigger
           ></a
         >
         <a href={generateLink("board-meeting")}
           ><Tabs.Trigger value="board-meeting"
-            >{m.documents_boardMeetings()}</Tabs.Trigger
+            >{m.documents_board_meetings()}</Tabs.Trigger
           ></a
         >
         <a href={generateLink("SRD-meeting")}
           ><Tabs.Trigger value="SRD-meeting"
-            >{m.documents_srdMeetings()}</Tabs.Trigger
+            >{m.documents_srd_meetings()}</Tabs.Trigger
           ></a
         >
       </Tabs.List>
@@ -104,7 +104,7 @@
     <div class="mt-2 mb-4 flex flex-row gap-2">
       {#if canCreate}
         <a href="/documents/upload"
-          ><Button variant="rosa" size="sm">{m.documents_uploadFile()}</Button
+          ><Button variant="rosa" size="sm">{m.documents_upload_file()}</Button
           ></a
         >
       {/if}
@@ -116,7 +116,7 @@
             isEditing = !isEditing;
           }}
         >
-          {isEditing ? m.documents_stopEditing() : m.documents_edit()}
+          {isEditing ? m.documents_stop_editing() : m.documents_edit()}
         </Button>
       {/if}
     </div>

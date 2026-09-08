@@ -27,20 +27,20 @@
     {/each}
     {#if list.length === 0}
       <p class="text-muted-foreground py-4 text-center text-sm">
-        {m.navbar_bell_noNotifications()}
+        {m.navbar_bell_no_notifications()}
       </p>
     {/if}
   </div>
   <div class="border-t p-2">
     <form {...enhanceWithToast(deleteAllNotifications)}>
       <Button
-        aria-label={m.navbar_bell_deleteAll()}
+        aria-label={m.navbar_bell_delete_all()}
         variant="ghost"
         class="text-muted-foreground w-full"
         type="submit"
         disabled={list.length === 0}
         ><Trash class="size-4" />
-        {m.navbar_bell_deleteAll()}</Button
+        {m.navbar_bell_delete_all()}</Button
       >
     </form>
   </div>

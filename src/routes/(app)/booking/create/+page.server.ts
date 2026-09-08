@@ -112,7 +112,7 @@ export const actions = {
     throw redirect(
       `/booking`,
       {
-        message: m.booking_requestSent(),
+        message: m.booking_request_sent(),
         type: "success",
       },
       event,
