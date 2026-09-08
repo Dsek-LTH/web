@@ -53,6 +53,7 @@ words = [
     'strikethrough', # Noun
     'sublicensable',
     'sublicense',
+    'subprocessor',
     'unapprove',
     'unapproving',
     'unbooked',
@@ -109,7 +110,10 @@ words = [
 ]
 
 [[overrides]] # Swedish
-paths = [ 'src/translations/sv.json' ]
+paths = [
+    'src/translations/sv.json',
+    'src/routes/(app)/privacy-policy/+page.svelte',
+]
 dictionaries = [ 'sv' ]
 extra_ignore_patterns = [
     '[Nn]0llades',
@@ -122,13 +126,19 @@ extra_ignore_patterns = [
     '[Nn]0llningsnyheter',
     '[Nn]0llningspolicy',
     '[Nn]0llorna',
+    'enl\.',
 
-    '\\nön', # Bug in codebook.
+    # Names
+    'StiL',
+
+    # Bugs in codebook.
+    '\\nön',
 ]
 words = [
     'admininställningar',
     'aliaset',
     'dagsansvarig',
+    'datan',
     'filsökväg',
     'ickefungerande',
     'issue', # 'Issue' as in 'GitHub issue' is well established terminology.
@@ -149,8 +159,10 @@ words = [
     'wikia',
 
     # Names
-    'dagisar',
+    'Dagisar',
     'Delphi',
+    'Kallini', # Subprocessor 2026
+    'Ohrgren', # Head of Frontend 2026
     'Råsenbad',
     'Shäraton',
     'Sjøn',
@@ -160,6 +172,7 @@ words = [
     # Tools
     'authentik',
     'Dynmap',
+    'Orbi',
     'Stocklist',
 
     # Guild-specific words
@@ -192,6 +205,7 @@ words = [
     'trivselrådet',
     'träningsphasen',
     'Øverpeppare',
+    'VTM',
 ]
 
 flag_words = [
