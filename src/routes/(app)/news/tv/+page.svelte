@@ -32,7 +32,7 @@
     {/each}
     {#if data.articles.length > 1}
       <div class="fixed bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
-        {#each data.articles as _, index (index)}
+        {#each data.articles as article, index (article.id)}
           <div
             class="h-2 w-2 rounded-full transition-colors"
             class:bg-primary={index === current}

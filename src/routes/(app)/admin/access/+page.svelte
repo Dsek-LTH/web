@@ -13,6 +13,7 @@
   import Search from "@lucide/svelte/icons/search";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import { SvelteMap } from "svelte/reactivity";
 
   let { data } = $props();
 
@@ -27,7 +28,7 @@
   );
 
   let groups = $derived.by(() => {
-    const map = new Map<string, typeof data.apiNames>();
+    const map = new SvelteMap<string, typeof data.apiNames>();
     for (const entry of filtered) {
       const key = entry.name.includes(":")
         ? entry.name.split(":")[0]!

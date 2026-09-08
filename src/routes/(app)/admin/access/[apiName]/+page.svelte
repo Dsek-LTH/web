@@ -6,7 +6,7 @@
     CardTitle,
     CardContent,
   } from "$lib/components/ui/card/index.js";
-  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
   import * as ButtonGroup from "$lib/components/ui/button-group/index.js";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import RoleSelector from "$lib/components/RoleSelector.svelte";

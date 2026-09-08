@@ -9,6 +9,7 @@
   import PositionRow from "./PositionRow.svelte";
   import apiNames from "$lib/utils/apiNames";
   import * as m from "$paraglide/messages.js";
+  import { SvelteMap } from "svelte/reactivity";
 
   let { data } = $props();
 
@@ -17,7 +18,7 @@
   );
 
   let groups = $derived.by(() => {
-    const map = new Map<string, typeof data.positions>();
+    const map = new SvelteMap<string, typeof data.positions>();
     for (const position of data.positions) {
       const key = position.committee?.name ?? m.positions_noCommittee();
       map.set(key, [...(map.get(key) ?? []), position]);
