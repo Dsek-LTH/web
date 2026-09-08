@@ -78,7 +78,7 @@ export const actions = {
       // this should be handled by the authorization call above
       return message(form, {
         message: messages.tickets_create_not_logged_in(),
-        type: "error,",
+        type: "error",
       });
     }
     const ticketId = event.params.slug;
@@ -92,7 +92,7 @@ export const actions = {
       console.log("Error updating ticket", errorMsg);
       return message(form, {
         message: messages.tickets_create_generic_error() + ": " + errorMsg,
-        type: "error,",
+        type: "error",
       });
     }
     throw redirect(
