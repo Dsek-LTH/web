@@ -1231,5 +1231,13 @@
   "nollu_manage_deleteGroup": "Delete group",
   "nollu_manage_addNolla": "Add nolla",
   "nollu_manage_addPhadder": "Add phadder",
-  "nollu_manage_studentIdPlaceholder": "Student ID"
+  "nollu_manage_studentIdPlaceholder": "Student ID",
+  "select_role": "Select role",
+  "select_roles": "Select roles",
+  "role_everyone": "Everyone",
+  "role_signedIn": "Signed in members",
+  "role_nolla": "This year's nollor",
+  "role_boardMembers": "Board members",
+  "role_specialRoles": "Special roles",
+  "role_positions": "Positions"
 }

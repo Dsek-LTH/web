@@ -1231,5 +1231,13 @@
   "nollu_manage_deleteGroup": "Ta bort grupp",
   "nollu_manage_addNolla": "Lägg till nolla",
   "nollu_manage_addPhadder": "Lägg till phadder",
-  "nollu_manage_studentIdPlaceholder": "Studentid"
+  "nollu_manage_studentIdPlaceholder": "Studentid",
+  "select_role": "Välj roll",
+  "select_roles": "Välj roller",
+  "role_everyone": "Alla",
+  "role_signedIn": "Inloggade medlemmar",
+  "role_nolla": "Årets nollor",
+  "role_boardMembers": "Styrelsemedlemmar",
+  "role_specialRoles": "Specialroller",
+  "role_positions": "Poster"
 }

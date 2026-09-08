@@ -23,6 +23,7 @@
     showId = true,
     showClass = true,
     limit = 0,
+    name = undefined,
     class: klass = "",
     inputClass = "",
     ...restProps
@@ -35,6 +36,12 @@
     showId: boolean;
     showClass: boolean;
     limit?: number;
+    /**
+     * When set, renders hidden input(s) carrying the selected member's
+     * studentId (one per selected member when `multiple`), so this
+     * component can be used inside a plain <form> and submit without JS.
+     */
+    name?: string;
     class?: string;
     inputClass?: string;
   } & InputProps = $props();
@@ -271,6 +278,15 @@
       class="m-0 flex w-fit list-none flex-row flex-wrap gap-2"
       bind:this={selectedItemsElement}
     >
+      {#if name}
+        {#if multiple}
+          {#each selectedMembers as member (member.studentId)}
+            <input type="hidden" {name} value={member.studentId} />
+          {/each}
+        {:else}
+          <input type="hidden" {name} value={selectedMember?.studentId ?? ""} />
+        {/if}
+      {/if}
       {#each selectedMembers as member (member.studentId)}
         <li class="relative m-0 list-none">
           <Button
