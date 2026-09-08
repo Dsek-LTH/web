@@ -28,30 +28,12 @@
 
 <SetPageTitle title={m.admin_info_createNewInfoPage()} />
 
-<div class="mx-auto w-full max-w-5xl px-4 py-8">
+<div class="mx-auto w-full max-w-4xl px-4 py-8">
   <Card class="border-border shadow-xl">
-    <CardHeader
-      class="bg-primary/5 border-border flex flex-row items-center justify-between border-b-[1px] pb-6"
-    >
+    <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
       <CardTitle class="text-3xl font-bold"
         >{m.admin_info_createNewInfoPage()}</CardTitle
       >
-      <ButtonGroup.Root>
-        <Button
-          type="button"
-          variant={activeTab === "sv" ? "rosa" : "outline"}
-          onclick={() => (activeTab = "sv")}
-        >
-          {m.language_swedish()}
-        </Button>
-        <Button
-          type="button"
-          variant={activeTab === "en" ? "rosa" : "outline"}
-          onclick={() => (activeTab = "en")}
-        >
-          {m.language_english()}
-        </Button>
-      </ButtonGroup.Root>
     </CardHeader>
     <CardContent class="flex flex-col gap-6 pt-6">
       <div class="flex flex-col gap-2">
@@ -75,6 +57,27 @@
         use:enhance
         class="flex flex-col gap-6"
       >
+        <div class="flex items-center justify-between">
+          <Label>{m.admin_info_content()}</Label>
+          <ButtonGroup.Root>
+            <Button
+              type="button"
+              size="sm"
+              variant={activeTab === "sv" ? "rosa" : "outline"}
+              onclick={() => (activeTab = "sv")}
+            >
+              {m.language_swedish()}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={activeTab === "en" ? "rosa" : "outline"}
+              onclick={() => (activeTab = "en")}
+            >
+              {m.language_english()}
+            </Button>
+          </ButtonGroup.Root>
+        </div>
         <div class={activeTab === "sv" ? "block" : "hidden"}>
           <Editor
             name="markdownSv"

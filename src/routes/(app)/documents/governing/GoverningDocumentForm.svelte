@@ -39,7 +39,7 @@
   };
 </script>
 
-<div class="mx-auto max-w-2xl px-4 py-8">
+<div class="mx-auto w-full max-w-4xl px-4 py-8">
   <Button
     variant="ghost"
     href="/documents/governing"
