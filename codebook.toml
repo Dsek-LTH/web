@@ -1,0 +1,269 @@
+use_global = false
+
+dictionaries = [ 'en_gb' ]
+
+ignore_patterns = [
+    # Names
+    'AF Bostäder',
+    'AF-borgen',
+    'BoPoolen',
+    'D-Chip',
+    'D-sektionen inom TLTH',
+    'Fr\*nch',
+    'Gammal && Äcklig',
+    'IBM Plex Mono',
+    'iDét',
+    'RåsenbaD',
+    'YouTube',
+
+    # Technical
+    '&shy;', # Soft-hyphen
+    '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', # Email
+    'iCal',
+    'www\.dchip\.se',
+
+
+    # Swedish words sanctioned for code use.
+    '[Nn]0lla',
+    '[Nn]0llegasque',
+    '[Nn]0llegeneral',
+    '[Nn]0llning',
+    '[Nn]0llor', # This looks better than the English or null plural-form.
+]
+
+words = [
+    'adapters',
+    'bookables',
+    'breakpoint',
+    'café',
+    'cli',
+    'enforceability',
+    'funsies',
+    'gyckle',
+    'licensor',
+    'Oklch',
+    'selectable',
+    'shortener',
+    'strikethrough', # Noun
+    'sublicensable',
+    'sublicense',
+    'unapprove',
+    'unported',
+    'webshop',
+    'wikia',
+    'woggle',
+
+    # Names
+    'CSN',
+    'Datagården',
+    'Kiosken',
+    'Kämnärsrätten',
+    'LTH',
+    'Lund',
+    'Québec',
+    'Repobeats',
+    'Råsa',
+    'Råsenbad',
+    'Sjøn',
+    'SRD',
+    'Studentlund',
+    'Teknologkåren',
+    'TLTH',
+    'zenstack',
+
+    # Tools
+    'authentik',
+    'Dynmap',
+    'MinIO',
+    'prisma',
+    'Stocklist',
+
+    # Guild-specific words
+    'Cheps',
+    'Gasque',
+    'gyckle',
+    'gyckles',
+    'Ouveralle',
+    'Ouvve',
+    'Shäraton',
+    'Singbook',
+    'Slasque',
+    'spex',
+
+    # Swedish words sanctioned for code use.
+    "sexet's",
+    'Peppare',
+    'phadder',
+    'phadders',
+    'Stab',
+    'Øverpeppare',
+]
+
+[[overrides]] # Swedish
+paths = [ 'src/translations/sv.json' ]
+dictionaries = [ 'sv' ]
+extra_ignore_patterns = [
+    '[Nn]0llan',
+    '[Nn]0llans',
+    '[Nn]0llepolicy',
+    '[Nn]0llningens',
+    '[Nn]0llorna',
+
+    '\\nön', # Bug in codebook.
+]
+words = [
+    'admininställningar',
+    'aliaset',
+    'dagsansvarig',
+    'filsökväg',
+    'ickefungerande',
+    'issue', # 'Issue' as in 'GitHub issue' is well established terminology.
+    'jättestängd',
+    'LAN',
+    'länkförkortare',
+    'mejlalias',
+    'mejlaliaset',
+    'mötesår',
+    'notistext',
+    'nyhetstaggar',
+    'onajs',
+    'ping',
+    'skojsigt',
+    'spegatklädd',
+    'spärrningsregler',
+    'taggnamn',
+    'wikia',
+
+    # Names
+    'dagisar',
+    'Delphi',
+    'Råsenbad',
+    'Shäraton',
+    'Sjøn',
+    'Studentlund',
+    'tlth',
+
+    # Tools
+    'authentik',
+    'Dynmap',
+    'Stocklist',
+
+    # Guild-specific words
+    'Cheps',
+    'Delphivrål',
+    'Gasque',
+    'gyckle',
+    'matpref',
+    'Nollegasque',
+    'Nollegeneral',
+    'Ouveralle',
+    'Ouvve',
+    'ouvven',
+    'peppare',
+    'Pepparnas',
+    'phadder',
+    'phaddergrupp',
+    'phaddergruppen',
+    'phaddergrupper',
+    'phaddrar',
+    'phaddrarna',
+    'policykod',
+    'Råsa',
+    'Sjungbok',
+    'Slasque',
+    'slasquen',
+    'SRD',
+    'Studentlunds',
+    'trivselråd',
+    'trivselrådet',
+    'träningsphasen',
+    'Øverpeppare',
+]
+
+flag_words = [
+    'gyckel'
+]
+
+[[overrides]] # Commands
+paths = [
+    'dev/README.md',
+    'Dockerfile',
+    'README.md',
+]
+extra_ignore_patterns = [
+    'chmod\s[ugoa]?[-+=][rwxXstugo]+'
+]
+extra_words = [
+    'chmod',
+    'chown',
+    'lsof',
+    'mkdir',
+    'openssl',
+    'pnpm',
+]
+
+[[overrides]] # CSS
+paths = [
+    'src/translations/*.json',
+]
+extra_ignore_patterns = [
+    'font-extrabold'
+]
+
+# Configs for specific files.
+
+[[overrides]]
+paths = [ 'AGENTS.md' ]
+extra_words = [ 'mcp' ]
+
+[[overrides]]
+paths = [ 'LICENSE' ]
+extra_ignore_patterns = [
+    'CeCILL' # Some Fr*nch license
+]
+extra_words = [
+    'agpl', # Affero General Public License
+    'epl', # Eclipse Public License
+    'eupl', # EU Public License
+    'osl', # Open Software License
+]
+
+[[overrides]]
+paths = [ 'README.md' ]
+extra_words = [
+    'EUPL',
+]
+
+[[overrides]]
+paths = [ 'shell.nix' ]
+extra_words = [
+    'nixpkgs',
+    'pkgs',
+]
+
+[[overrides]] # TODO: Remove this.
+paths = [ 'src/translations/en.json' ]
+extra_ignore_patterns = [
+    '".*":', # Keys
+    'href=\\".*?\\"',
+]
+
+[[overrides]]
+paths = [ 'src/translations/sv.json' ]
+extra_ignore_patterns = [
+    '".*":', # The JSON keys are english and spellchecked in the english version.
+    '\{\w+\}', # The parameters are english and spellchecked in the english version.
+    'href=\\".*?\\"', # Routes are english and spellchecked in the english version.
+
+    '[kåååst]', # Phonetic notation.
+    'font-extrabold', # CSS class
+    'Software Engineering', # A specialisation.
+]
+
+[[overrides]]
+paths = [ 'codebook.toml' ]
+extra_ignore_patterns = [
+    # This monstrosity matches toml strings.
+    # We only want to lint the comments in this file.
+    "\"\"\"(?:\\\\.|[^\\\\])*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'[^'\\n]*'"
+]
