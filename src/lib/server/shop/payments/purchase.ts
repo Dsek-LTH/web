@@ -263,7 +263,9 @@ const purchaseCart = async (
       idempotencyKey: idempotencyKey, // makes sure if user presses button twice, only one payment intent is created
     }).catch((err) => {
       console.error(err);
-      throw new Error(m.tickets_purchase_errors_unable_to_create_payment_intent());
+      throw new Error(
+        m.tickets_purchase_errors_unable_to_create_payment_intent(),
+      );
     });
   }
   try {

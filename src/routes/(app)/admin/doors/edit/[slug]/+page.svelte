@@ -140,7 +140,8 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="space-y-2">
-            <Label for="start-date">{m.admin_doors_start_date_optional()}</Label>
+            <Label for="start-date">{m.admin_doors_start_date_optional()}</Label
+            >
             <Input
               id="start-date"
               type="datetime-local"
@@ -271,10 +272,14 @@
       getFullName(selectedPolicy.member!, { hideNickname: true })}
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>{m.admin_doors_remove_access_rule()}</AlertDialogTitle>
+        <AlertDialogTitle>{m.admin_doors_remove_access_rule()}</AlertDialogTitle
+        >
         <AlertDialogDescription>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.admin_doors_are_you_sure({ door: door.verboseName, subject })}
+          {@html m.admin_doors_are_you_sure({
+            door: door.verboseName,
+            subject,
+          })}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

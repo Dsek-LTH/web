@@ -95,7 +95,8 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
     throw error(500, m.members_errors_could_not_fetch_member());
   if (publishedArticlesResult.status === "rejected")
     throw error(500, m.members_errors_could_not_fetch_articles());
-  if (!memberResult.value) throw error(404, m.members_errors_member_not_found());
+  if (!memberResult.value)
+    throw error(404, m.members_errors_member_not_found());
   if (phadderGroupsResult.status === "rejected")
     throw error(505, phadderGroupsResult.reason);
 

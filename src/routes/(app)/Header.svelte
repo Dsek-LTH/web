@@ -175,7 +175,8 @@
               aria-label="sign out"
               variant="outline"
               class="text-muted-foreground"
-              onclick={signOut}><LogOut /> {m.navbar_user_menu_log_out()}</Button
+              onclick={signOut}
+              ><LogOut /> {m.navbar_user_menu_log_out()}</Button
             >
           </HoverCard.Content>
         </HoverCard.Root>

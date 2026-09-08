@@ -39,7 +39,9 @@
       <AlertDialog.Header>
         <AlertDialog.Title
           ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.documents_delete_are_you_sure({ fileName })}</AlertDialog.Title
+          {@html m.documents_delete_are_you_sure({
+            fileName,
+          })}</AlertDialog.Title
         >
         <AlertDialog.Description>
           {m.documents_modal_subtitle()}
