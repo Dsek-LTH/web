@@ -1183,5 +1183,15 @@
   "applying_housing_desc": "Do you want to know more about finding housing in Lund? On Studentlund's website, you'll find information about different types of housing and housing queues, and other information you may want to know.",
   "applying_housing_cta": "Housing in Lund",
   "applying_studentlund": "Studentlund",
-  "applying_studentlund_desc": "Lund's student life offers a multitude of opportunities, even outside the D-guild. On the Studentlund website, you can read more about the nations, the Academic Society (Akademiska Föreningen), and other associations."
+  "applying_studentlund_desc": "Lund's student life offers a multitude of opportunities, even outside the D-guild. On the Studentlund website, you can read more about the nations, the Academic Society (Akademiska Föreningen), and other associations.",
+  "yrka_title": "Submit a motion",
+  "yrka_description": "Submit a motion (\"yrkande\") to be raised at the next section meeting.",
+  "yrka_titleLabel": "Title",
+  "yrka_contentLabel": "Motion text",
+  "yrka_submit": "Send motion",
+  "readme_title": "README {number}, {year}",
+  "readme_publishedOn": "Published {date}",
+  "readme_view": "Open README",
+  "news_tv": "News TV",
+  "news_tv_noArticles": "No news articles to show."
 }

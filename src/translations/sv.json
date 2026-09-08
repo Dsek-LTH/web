@@ -1183,5 +1183,15 @@
   "applying_housing_desc": "Vill du veta mer om att hitta boende i Lund? På Studentlunds hemsida finns information om olika typer av boende och bostadsköer, och annat viktigt du kan behöva veta.",
   "applying_housing_cta": "Boende i Lund",
   "applying_studentlund": "Studentlund",
-  "applying_studentlund_desc": "Lunds studentliv erbjuder mängder av möjligheter, även utanför D-sektionen. På Studentlunds sida kan du läsa mer om nationerna, Akademiska föreningen och andra föreningar."
+  "applying_studentlund_desc": "Lunds studentliv erbjuder mängder av möjligheter, även utanför D-sektionen. På Studentlunds sida kan du läsa mer om nationerna, Akademiska föreningen och andra föreningar.",
+  "yrka_title": "Skicka ett yrkande",
+  "yrka_description": "Skicka in ett yrkande som ska tas upp på nästa sektionsmöte.",
+  "yrka_titleLabel": "Titel",
+  "yrka_contentLabel": "Yrkandetext",
+  "yrka_submit": "Skicka yrkande",
+  "readme_title": "README {number}, {year}",
+  "readme_publishedOn": "Publicerad {date}",
+  "readme_view": "Öppna README",
+  "news_tv": "Nyhets-TV",
+  "news_tv_noArticles": "Inga nyhetsartiklar att visa."
 }
