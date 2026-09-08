@@ -116,6 +116,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/documents/governing",
         },
+        {
+          title: m.documents_requirementProfiles(),
+          description: m.documents_requirementProfilesBlurb(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/requirements",
+        },
       ],
     },
     {
@@ -154,6 +161,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_bookings_desc(),
           path: "/booking",
+        },
+        {
+          title: m.yrka_title(),
+          accessRequired: apiNames.YRKA.SEND,
+          appBehaviour: "none",
+          description: m.yrka_description(),
+          path: "/yrka",
         },
         {
           title: m.nav_expenses(),

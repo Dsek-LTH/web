@@ -23,7 +23,12 @@
 <SetPageTitle title={m.admin_access_pageTitle()} />
 
 <div class="mx-auto max-w-2xl px-4 py-8">
-  <h1 class="mb-6 text-3xl font-bold">{m.admin_access_pageTitle()}</h1>
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-3xl font-bold">{m.admin_access_pageTitle()}</h1>
+    <Button href="/admin/access/positions" variant="outline">
+      {m.admin_access_positionsPageTitle()}
+    </Button>
+  </div>
 
   <Card class="mb-6">
     <CardHeader>
