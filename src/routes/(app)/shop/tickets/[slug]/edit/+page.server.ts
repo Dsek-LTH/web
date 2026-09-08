@@ -6,6 +6,7 @@ import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { updateTicket } from "$lib/server/shop/tickets/mutations";
+import * as messages from "$paraglide/messages";
 
 export const load = async ({ locals, params }) => {
   const { user } = locals;
@@ -29,7 +30,7 @@ export const load = async ({ locals, params }) => {
     },
   });
   if (!ticket) {
-    error(404, { message: "Biljetten kunde inte hittas" });
+    error(404, { message: messages.tickets_not_found() });
   }
   if (ticket.shoppable.authorId !== user.memberId) {
     // author can always edit
@@ -76,7 +77,7 @@ export const actions = {
     if (!member) {
       // this should be handled by the authorization call above
       return message(form, {
-        message: "Du måste vara inloggad för att skapa biljetter",
+        message: messages.tickets_create_not_logged_in(),
         type: "error,",
       });
     }
@@ -90,14 +91,14 @@ export const actions = {
       else errorMsg = String(err);
       console.log("Error updating ticket", errorMsg);
       return message(form, {
-        message: "Kunde inte skapa biljett: " + errorMsg,
+        message: messages.tickets_create_generic_error() + ": " + errorMsg,
         type: "error,",
       });
     }
     throw redirect(
       `/shop/tickets/${ticketId}`,
       {
-        message: "Biljett uppdaterad",
+        message: messages.tickets_updated(),
         type: "success",
       },
       event,

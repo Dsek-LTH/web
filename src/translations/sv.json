@@ -1178,5 +1178,9 @@
   "applying_studentlund_desc": "Lunds studentliv erbjuder mängder av möjligheter, även utanför D-sektionen. På Studentlunds sida kan du läsa mer om nationerna, Akademiska föreningen och andra föreningar.",
   "nav_home": "Hem",
   "nav_account": "Konto",
-  "events_create_not_logged_in": "Du måste vara inloggad för att skapa evenemang."
+  "events_create_not_logged_in": "Du måste vara inloggad för att skapa evenemang.",
+  "tickets_not_found": "Biljetten kunde inte hittas",
+  "tickets_create_not_logged_in": "Du måste vara inloggad för att skapa biljetter",
+  "tickets_create_generic_error": "Kunde inte skapa biljett",
+  "tickets_updated": "Biljett uppdaterad"
 }
