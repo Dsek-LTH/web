@@ -149,13 +149,6 @@ export const getRoutes = (): Route[] =>
       list: true,
       children: [
         {
-          title: m.tickets(),
-          accessRequired: null,
-          appBehaviour: "none",
-          description: m.nav_tickets_desc(),
-          path: "/shop/tickets",
-        },
-        {
           title: m.nav_booking(),
           accessRequired: null,
           appBehaviour: "none",
@@ -223,12 +216,6 @@ export const getRoutes = (): Route[] =>
         {
           title: m.info(),
           path: "/admin/info",
-          accessRequired: null,
-          appBehaviour: "none",
-        },
-        {
-          title: m.qr_code(),
-          path: "/admin/qr",
           accessRequired: null,
           appBehaviour: "none",
         },
