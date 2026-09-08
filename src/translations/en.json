@@ -1178,5 +1178,9 @@
   "applying_studentlund_desc": "The student life in Lund offers a multitude of opportunities, even outside the D-guild. On the Studentlund website, you can read more about the nations, the Academic Society (AF), and other associations.",
   "nav_home": "Home",
   "nav_account": "Account",
-  "events_create_not_logged_in": "You must be logged in to create events."
+  "events_create_not_logged_in": "You must be logged in to create events.",
+  "tickets_not_found": "The ticket could not be found",
+  "tickets_create_not_logged_in": "You need to be logged in to create tickets",
+  "tickets_create_generic_error": "Could not create ticket",
+  "tickets_updated": "Ticket updated"
 }
