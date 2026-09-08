@@ -1193,5 +1193,8 @@
   "readme_publishedOn": "Published {date}",
   "readme_view": "Open README",
   "news_tv": "News TV",
-  "news_tv_noArticles": "No news articles to show."
+  "news_tv_noArticles": "No news articles to show.",
+  "positions_pageTitle": "All positions",
+  "positions_noCommittee": "Other",
+  "positions_email": "Email"
 }

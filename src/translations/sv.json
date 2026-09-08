@@ -1193,5 +1193,8 @@
   "readme_publishedOn": "Publicerad {date}",
   "readme_view": "Öppna README",
   "news_tv": "Nyhets-TV",
-  "news_tv_noArticles": "Inga nyhetsartiklar att visa."
+  "news_tv_noArticles": "Inga nyhetsartiklar att visa.",
+  "positions_pageTitle": "Alla poster",
+  "positions_noCommittee": "Övrigt",
+  "positions_email": "E-post"
 }
