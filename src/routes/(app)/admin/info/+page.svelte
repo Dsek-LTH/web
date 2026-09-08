@@ -28,7 +28,7 @@
 
 <SetPageTitle title={m.admin_info_createNewInfoPage()} />
 
-<div class="mx-auto max-w-3xl px-4 py-8">
+<div class="mx-auto max-w-5xl px-4 py-8">
   <Card class="border-border shadow-xl">
     <CardHeader
       class="bg-primary/5 border-border flex flex-row items-center justify-between border-b-[1px] pb-6"

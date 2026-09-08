@@ -25,14 +25,19 @@
   // svelte-ignore state_referenced_locally
   const { errors, enhance } = superForm(data.createForm, {
     id: "create",
-    resetForm: true,
+    onUpdated: ({ form }) => {
+      if (form.valid) {
+        selectedMembers = [];
+        selectedRoles = [];
+      }
+    },
   });
 
   let subjectType = $state<"member" | "role">("member");
-  let selectedMember = $state<(MemberSearchReturnAttributes & { id?: string }) | null>(
-    null,
+  let selectedMembers = $state<Array<MemberSearchReturnAttributes & { id?: string }>>(
+    [],
   );
-  let selectedRole = $state<RoleOption | null>(null);
+  let selectedRoles = $state<RoleOption[]>([]);
 
   // svelte-ignore state_referenced_locally
   const { enhance: deleteEnhance } = superForm(data.deleteForm, {
@@ -42,7 +47,7 @@
 
 <SetPageTitle title={apiName} />
 
-<div class="mx-auto max-w-2xl px-4 py-8">
+<div class="mx-auto max-w-4xl px-4 py-8">
   <Button variant="ghost" href="/admin/access" class="mb-6 flex items-center gap-2">
     <ArrowLeft class="h-4 w-4" />
     {m.back()}
@@ -78,23 +83,23 @@
           </Button>
         </ButtonGroup.Root>
 
+        <input type="hidden" name="type" value={subjectType} />
         {#if subjectType === "member"}
           <MemberSelector
-            multiple={false}
+            multiple
             showId
             showClass
-            name="studentId"
-            bind:selectedMember
+            name="subjects"
+            bind:selectedMembers
           />
         {:else}
-          <RoleSelector multiple={false} name="role" bind:selectedRole />
+          <RoleSelector multiple name="subjects" bind:selectedRoles />
         {/if}
 
-        {#if $errors.role}
-          <p class="text-destructive text-sm font-medium">{$errors.role}</p>
-        {/if}
-        {#if $errors.studentId}
-          <p class="text-destructive text-sm font-medium">{$errors.studentId}</p>
+        {#if $errors._errors}
+          <p class="text-destructive text-sm font-medium">
+            {$errors._errors.join(", ")}
+          </p>
         {/if}
         <div class="flex justify-end">
           <Button type="submit" class="flex items-center gap-2">

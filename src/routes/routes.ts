@@ -163,13 +163,6 @@ export const getRoutes = (): Route[] =>
           path: "/booking",
         },
         {
-          title: m.yrka_title(),
-          accessRequired: apiNames.YRKA.SEND,
-          appBehaviour: "none",
-          description: m.yrka_description(),
-          path: "/yrka",
-        },
-        {
           title: m.nav_expenses(),
           accessRequired: null,
           appBehaviour: "none",

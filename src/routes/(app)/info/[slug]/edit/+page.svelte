@@ -26,7 +26,7 @@
   let activeTab = $state<"sv" | "en">("sv");
 </script>
 
-<div class="mx-auto max-w-3xl px-4 py-8">
+<div class="mx-auto max-w-5xl px-4 py-8">
   <Button
     variant="ghost"
     href="/info/{slug}"

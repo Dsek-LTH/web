@@ -33,7 +33,7 @@
 
 <SetPageTitle title={m.admin_minio_pageTitle()} />
 
-<div class="mx-auto max-w-3xl px-4 py-8">
+<div class="mx-auto max-w-5xl px-4 py-8">
   <h1 class="mb-6 text-3xl font-bold">{m.admin_minio_pageTitle()}</h1>
 
   <Card class="mb-6">

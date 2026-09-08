@@ -44,7 +44,7 @@
 
 <SetPageTitle title={m.admin_access_pageTitle()} />
 
-<div class="mx-auto max-w-2xl px-4 py-8">
+<div class="mx-auto max-w-4xl px-4 py-8">
   <div class="mb-6 flex items-center justify-between">
     <h1 class="text-3xl font-bold">{m.admin_access_pageTitle()}</h1>
     <Button href="/admin/access/positions" variant="outline">

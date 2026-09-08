@@ -6,11 +6,6 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 
 const deletePolicySchema = z.object({ policyId: z.string() });
-const createPolicySchema = z.object({
-  position: z.string().nullable(),
-  apiName: z.string(),
-  studentId: z.string().nullable(),
-});
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -32,9 +27,8 @@ export const load: PageServerLoad = async ({ locals }) => {
       ]);
     }
   });
-  const createForm = await superValidate(zod4(createPolicySchema));
   const deleteForm = await superValidate(zod4(deletePolicySchema));
-  return { posToAccessPolicies, createForm, deleteForm };
+  return { posToAccessPolicies, deleteForm };
 };
 
 export const actions: Actions = {
@@ -45,18 +39,6 @@ export const actions: Actions = {
     await prisma.accessPolicy.delete({
       where: {
         id: form.data.policyId,
-      },
-    });
-  },
-  createPolicy: async ({ locals, request }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(createPolicySchema));
-    if (!form.valid) return fail(400, { form });
-    await prisma.accessPolicy.create({
-      data: {
-        apiName: form.data.apiName,
-        role: form.data.position,
-        studentId: form.data.studentId,
       },
     });
   },

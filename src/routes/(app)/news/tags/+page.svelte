@@ -48,7 +48,7 @@
 
 <SetPageTitle title={m.news_tags_newsTags()} />
 
-<div class="mx-auto max-w-2xl px-4 py-8">
+<div class="mx-auto max-w-4xl px-4 py-8">
   <h1 class="mb-6 text-3xl font-bold">{m.news_tags_newsTags()}</h1>
 
   <Card class="mb-6">

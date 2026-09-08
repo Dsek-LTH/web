@@ -1246,5 +1246,6 @@
   "admin_access_grantCount": "{count} behörigheter",
   "admin_access_grantCount_one": "1 behörighet",
   "admin_access_goToCustom": "Hantera \"{name}\"",
-  "admin_access_noMatches": "Inga matchande policykoder"
+  "admin_access_noMatches": "Inga matchande policykoder",
+  "admin_access_positionsPageDesc": "Bläddra bland alla behörigheter grupperade per roll, för att se allt en viss roll har tillgång till."
 }

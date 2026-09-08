@@ -7,103 +7,93 @@
     CardContent,
   } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
-  import MemberSelector from "$lib/components/MemberSelector.svelte";
-  import RoleSelector from "$lib/components/RoleSelector.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages.js";
-  import Plus from "@lucide/svelte/icons/plus";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import Search from "@lucide/svelte/icons/search";
   import Trash from "@lucide/svelte/icons/trash";
-  import type { RoleOption } from "$lib/components/RoleSelector.svelte";
-  import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
 
   let { data } = $props();
 
   // svelte-ignore state_referenced_locally
-  const { form, errors, enhance } = superForm(data.createForm, {
-    id: "create",
-    resetForm: true,
-  });
-
-  let selectedRole = $state<RoleOption | null>(null);
-  let selectedMember = $state<
-    (MemberSearchReturnAttributes & { id?: string }) | null
-  >(null);
-
-  // svelte-ignore state_referenced_locally
   const { enhance: deleteEnhance } = superForm(data.deleteForm, { id: "delete" });
 
-  let groups = $derived([...data.posToAccessPolicies.entries()]);
+  let search = $state("");
+
+  let groups = $derived.by(() => {
+    const all = [...data.posToAccessPolicies.entries()];
+    const filtered = search.trim()
+      ? all.filter(([role]) =>
+          role.toLowerCase().includes(search.trim().toLowerCase()),
+        )
+      : all;
+    return filtered.sort(([a], [b]) => a.localeCompare(b));
+  });
 </script>
 
 <SetPageTitle title={m.admin_access_positionsPageTitle()} />
 
-<div class="mx-auto max-w-2xl px-4 py-8">
-  <h1 class="mb-6 text-3xl font-bold">{m.admin_access_positionsPageTitle()}</h1>
+<div class="mx-auto max-w-4xl px-4 py-8">
+  <Button
+    variant="ghost"
+    href="/admin/access"
+    class="mb-6 flex items-center gap-2"
+  >
+    <ArrowLeft class="h-4 w-4" />
+    {m.back()}
+  </Button>
 
-  <Card class="mb-6">
-    <CardHeader>
-      <CardTitle>{m.admin_access_newPolicy()}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form method="POST" action="?/createPolicy" use:enhance class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="position">{m.admin_access_position()}</Label>
-          <RoleSelector multiple={false} name="position" bind:selectedRole />
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="apiName">{m.admin_access_policyCode()}</Label>
-          <Input id="apiName" name="apiName" bind:value={$form.apiName} required />
-          {#if $errors.apiName}
-            <p class="text-destructive text-sm font-medium">{$errors.apiName}</p>
-          {/if}
-        </div>
-        <div class="flex flex-col gap-2">
-          <Label for="studentId">{m.admin_access_studentID()}</Label>
-          <MemberSelector
-            multiple={false}
-            showId
-            showClass
-            name="studentId"
-            bind:selectedMember
-          />
-        </div>
-        <div class="flex justify-end">
-          <Button type="submit" class="flex items-center gap-2">
-            <Plus class="h-4 w-4" />
-            {m.admin_access_add()}
-          </Button>
-        </div>
-      </form>
-    </CardContent>
-  </Card>
+  <h1 class="mb-2 text-3xl font-bold">{m.admin_access_positionsPageTitle()}</h1>
+  <p class="text-muted-foreground mb-6">
+    {m.admin_access_positionsPageDesc()}
+  </p>
 
-  <div class="flex flex-col gap-6">
-    {#each groups as [role, policies] (role)}
-      <Card>
-        <CardHeader>
-          <CardTitle class="font-mono text-base">{role}</CardTitle>
-        </CardHeader>
-        <CardContent class="flex flex-col divide-y">
-          {#each policies as policy (policy.id)}
-            <div class="flex items-center justify-between gap-4 py-2">
-              <span class="font-mono text-sm">{policy.apiName}</span>
-              <form method="POST" action="?/deletePolicy" use:deleteEnhance>
-                <input type="hidden" name="policyId" value={policy.id} />
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={m.delete_delete()}
-                >
-                  <Trash class="h-4 w-4" />
-                </Button>
-              </form>
-            </div>
-          {/each}
-        </CardContent>
-      </Card>
-    {/each}
+  <div class="relative mb-6">
+    <Search
+      class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+    />
+    <Input
+      bind:value={search}
+      placeholder={m.admin_access_role()}
+      class="pl-9"
+    />
   </div>
+
+  {#if groups.length === 0}
+    <p class="text-muted-foreground">{m.admin_access_noMatches()}</p>
+  {:else}
+    <div class="flex flex-col gap-6">
+      {#each groups as [role, policies] (role)}
+        <Card>
+          <CardHeader>
+            <CardTitle class="font-mono text-base">{role}</CardTitle>
+          </CardHeader>
+          <CardContent class="flex flex-col divide-y">
+            {#each policies as policy (policy.id)}
+              <div class="flex items-center justify-between gap-4 py-2">
+                <a
+                  href="/admin/access/{policy.apiName}"
+                  class="font-mono text-sm hover:underline"
+                >
+                  {policy.apiName}
+                </a>
+                <form method="POST" action="?/deletePolicy" use:deleteEnhance>
+                  <input type="hidden" name="policyId" value={policy.id} />
+                  <Button
+                    type="submit"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={m.delete_delete()}
+                  >
+                    <Trash class="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
+            {/each}
+          </CardContent>
+        </Card>
+      {/each}
+    </div>
+  {/if}
 </div>

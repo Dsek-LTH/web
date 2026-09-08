@@ -24,7 +24,7 @@
   });
 </script>
 
-<div class="mx-auto max-w-2xl px-4 py-8">
+<div class="mx-auto max-w-4xl px-4 py-8">
   <Card class="border-border shadow-xl">
     <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
       <CardTitle class="text-3xl font-bold">{m.yrka_title()}</CardTitle>
