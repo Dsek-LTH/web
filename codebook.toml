@@ -4,6 +4,7 @@ dictionaries = [ 'en_gb' ]
 
 ignore_paths = [
     'pnpm-lock.yaml',
+    'scheduler-service/go.sum',
 ]
 
 ignore_patterns = [
@@ -24,6 +25,8 @@ ignore_patterns = [
     '&shy;', # Soft-hyphen
     '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', # Email
     'iCal',
+    'github\.com/Dsek-LTH',
+    '[A-Za-z0-9+/]{40,}', # Base64 data of 40+ characters.
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -265,6 +268,13 @@ paths = [ 'AGENTS.md' ]
 extra_words = [ 'mcp' ]
 
 [[overrides]]
+paths = [ '**/Dockerfile' ]
+extra_ignore_patterns = [
+    'gcr\.io/distroless',
+    'USER nonroot:nonroot',
+]
+
+[[overrides]]
 paths = [ 'LICENSE' ]
 extra_ignore_patterns = [
     'CeCILL' # Some Fr*nch license
@@ -277,9 +287,60 @@ extra_words = [
 ]
 
 [[overrides]]
+paths = [ '**/Makefile' ]
+extra_ignore_patterns = [
+    'PHONY', # Case sensitive
+]
+
+[[overrides]]
 paths = [ 'README.md' ]
 extra_words = [
     'EUPL',
+]
+
+[[overrides]]
+paths = [
+    "scheduler-service/go.mod",
+    "scheduler-service/Makefile",
+]
+extra_words = [
+    # Tools
+    'goimports',
+    'gorm',
+
+    # Tool Authors
+    'alecthomas',
+    'goccy',
+    'jinzhu',
+    'rogpeppe',
+    'segmentio',
+    'xhit',
+
+    # Tools with Authors
+    'golines', 'golangci',
+    'fastjson', 'valyala',
+    'structtags', 'ldez',
+    'pgpassfile', 'jackc',
+    'pgservicefile',
+    'pgx',
+    'dcrd', 'decred',
+    'dcrec',
+    'godotenv', 'joho',
+    'gofumpt', 'mvdan',
+    'blackmagic', 'lestrrat',
+    'dsig',
+    'httpcc',
+    'httprc',
+    'jwx',
+    'secp',
+]
+
+[[overrides]]
+paths = [ 'scheduler-service/databaseHandler.go' ]
+extra_words = [
+    'DSN', # Database Source Name
+    'dbname', # Part of the source name
+    'sslmode', # Part of the source name
 ]
 
 [[overrides]]
