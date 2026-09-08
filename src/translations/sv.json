@@ -1184,5 +1184,6 @@
   "tickets_create_generic_error": "Kunde inte skapa biljett",
   "tickets_updated": "Biljett uppdaterad",
   "yrka_could_not_send": "Kunde inte skicka e-postmeddelande",
-  "yrka_sent": "Yrkande skickat!"
+  "yrka_sent": "Yrkande skickat!",
+  "tickets_created": "Biljett skapad"
 }
