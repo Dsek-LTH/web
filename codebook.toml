@@ -47,6 +47,7 @@ words = [
     'accelerometer',
     'adapters',
     'approvements',
+    'blop',
     'bookables',
     'breakpoint',
     'café',
@@ -264,11 +265,22 @@ extra_words = [
 [[overrides]] # CSS
 paths = [
     '**/*.css',
+    '**/*.svelte',
     'src/translations/*.json',
 ]
 extra_ignore_patterns = [
     'font-extrabold',
+    'h-dvh',
     'scroll-behavior',
+    'w-dvw',
+]
+
+[[override]] # SVG
+paths = [ '**.*/svg' ]
+extra_words = [
+    'dasharray',
+    'miterlimit',
+    'xlink',
 ]
 
 # Configs for specific files.
