@@ -1239,5 +1239,12 @@
   "role_nolla": "Årets nollor",
   "role_boardMembers": "Styrelsemedlemmar",
   "role_specialRoles": "Specialroller",
-  "role_positions": "Poster"
+  "role_positions": "Poster",
+  "admin_access_search": "Sök policyer",
+  "admin_access_searchPlaceholder": "Sök på apiName, t.ex. news:article",
+  "admin_access_unused": "Inga behörigheter än",
+  "admin_access_grantCount": "{count} behörigheter",
+  "admin_access_grantCount_one": "1 behörighet",
+  "admin_access_goToCustom": "Hantera \"{name}\"",
+  "admin_access_noMatches": "Inga matchande policykoder"
 }

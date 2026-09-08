@@ -1239,5 +1239,12 @@
   "role_nolla": "This year's nollor",
   "role_boardMembers": "Board members",
   "role_specialRoles": "Special roles",
-  "role_positions": "Positions"
+  "role_positions": "Positions",
+  "admin_access_search": "Search policies",
+  "admin_access_searchPlaceholder": "Search by apiName, e.g. news:article",
+  "admin_access_unused": "No grants yet",
+  "admin_access_grantCount": "{count} grants",
+  "admin_access_grantCount_one": "1 grant",
+  "admin_access_goToCustom": "Manage \"{name}\"",
+  "admin_access_noMatches": "No matching policy codes"
 }

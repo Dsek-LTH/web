@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { superForm } from "$lib/utils/client/superForms";
   import {
     Card,
     CardHeader,
@@ -7,17 +6,40 @@
     CardContent,
   } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
+  import { Badge } from "$lib/components/ui/badge/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages.js";
-  import Plus from "@lucide/svelte/icons/plus";
+  import Search from "@lucide/svelte/icons/search";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
   let { data } = $props();
 
-  // svelte-ignore state_referenced_locally
-  const { form, errors, enhance } = superForm(data.form);
+  let search = $state("");
+
+  let filtered = $derived(
+    search.trim()
+      ? data.apiNames.filter((a) =>
+          a.name.toLowerCase().includes(search.trim().toLowerCase()),
+        )
+      : data.apiNames,
+  );
+
+  let groups = $derived.by(() => {
+    const map = new Map<string, typeof data.apiNames>();
+    for (const entry of filtered) {
+      const key = entry.name.includes(":")
+        ? entry.name.split(":")[0]!
+        : entry.name;
+      map.set(key, [...(map.get(key) ?? []), entry]);
+    }
+    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
+  });
+
+  let exactMatch = $derived(
+    data.apiNames.some((a) => a.name === search.trim()),
+  );
 </script>
 
 <SetPageTitle title={m.admin_access_pageTitle()} />
@@ -30,41 +52,65 @@
     </Button>
   </div>
 
-  <Card class="mb-6">
-    <CardHeader>
-      <CardTitle>{m.admin_access_addNewPolicy()}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form method="POST" action="?/create" use:enhance class="flex items-end gap-2">
-        <div class="flex flex-1 flex-col gap-2">
-          <Label for="apiName">{m.admin_access_policyCode()}</Label>
-          <Input id="apiName" name="apiName" bind:value={$form.apiName} required />
-          {#if $errors.apiName}
-            <p class="text-destructive text-sm font-medium">{$errors.apiName}</p>
-          {/if}
-        </div>
-        <Button type="submit" class="flex items-center gap-2">
-          <Plus class="h-4 w-4" />
-          {m.admin_access_add()}
-        </Button>
-      </form>
-    </CardContent>
-  </Card>
+  <div class="relative mb-6">
+    <Search
+      class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+    />
+    <Input
+      bind:value={search}
+      placeholder={m.admin_access_searchPlaceholder()}
+      class="pl-9"
+    />
+  </div>
 
-  <Card>
-    <CardHeader>
-      <CardTitle>{m.admin_access_knownPolicies()}</CardTitle>
-    </CardHeader>
-    <CardContent class="flex flex-col divide-y">
-      {#each data.accessPolicies as apiName (apiName)}
-        <a
-          href="/admin/access/{apiName}"
-          class="flex items-center justify-between py-3 hover:underline"
-        >
-          <span class="font-mono text-sm">{apiName}</span>
-          <ChevronRight class="text-muted-foreground h-4 w-4" />
-        </a>
+  {#if search.trim() && !exactMatch}
+    <a href="/admin/access/{search.trim()}" class="mb-6 block">
+      <Card
+        class="hover:bg-muted/50 flex-row items-center justify-between p-4 transition-colors"
+      >
+        <span class="flex items-center gap-2">
+          <ArrowRight class="text-muted-foreground h-4 w-4" />
+          {m.admin_access_goToCustom({ name: search.trim() })}
+        </span>
+      </Card>
+    </a>
+  {/if}
+
+  {#if groups.length === 0}
+    <p class="text-muted-foreground">{m.admin_access_noMatches()}</p>
+  {:else}
+    <div class="flex flex-col gap-6">
+      {#each groups as [prefix, entries] (prefix)}
+        <Card>
+          <CardHeader>
+            <CardTitle class="font-mono text-base">{prefix}</CardTitle>
+          </CardHeader>
+          <CardContent class="flex flex-col divide-y">
+            {#each entries as entry (entry.name)}
+              <a
+                href="/admin/access/{entry.name}"
+                class="hover:bg-muted/50 -mx-2 flex items-center justify-between gap-4 rounded-md px-2 py-3 transition-colors"
+              >
+                <span class="font-mono text-sm">{entry.name}</span>
+                <span class="flex items-center gap-2">
+                  {#if entry.inUse}
+                    <Badge variant="outline">
+                      {entry.grantCount === 1
+                        ? m.admin_access_grantCount_one()
+                        : m.admin_access_grantCount({ count: entry.grantCount })}
+                    </Badge>
+                  {:else}
+                    <Badge variant="outline" class="text-muted-foreground">
+                      {m.admin_access_unused()}
+                    </Badge>
+                  {/if}
+                  <ChevronRight class="text-muted-foreground h-4 w-4" />
+                </span>
+              </a>
+            {/each}
+          </CardContent>
+        </Card>
       {/each}
-    </CardContent>
-  </Card>
+    </div>
+  {/if}
 </div>
