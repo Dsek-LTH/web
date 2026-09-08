@@ -6,6 +6,7 @@
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import X from "@lucide/svelte/icons/x";
 
   let { data } = $props();
 
@@ -21,6 +22,16 @@
     selectedIndex =
       (selectedIndex - 1 + data.pictures.length) % data.pictures.length;
   }
+
+  $effect(() => {
+    if (!lightboxOpen) return;
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") prev();
+    };
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  });
 </script>
 
 <SetPageTitle title={data.album} />
@@ -70,33 +81,42 @@
     if (!open) selectedIndex = null;
   }}
 >
-  <Dialog.Content class="flex max-w-3xl items-center justify-center border-none bg-transparent p-0 shadow-none">
+  <Dialog.Content
+    showCloseButton={false}
+    class="flex h-[100dvh] max-h-none w-screen max-w-none items-center justify-center rounded-none border-none bg-transparent p-0 shadow-none sm:max-w-none"
+  >
     {#if selectedIndex !== null}
-      <div class="relative flex w-full items-center justify-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          class="absolute left-0 text-white hover:bg-white/10 hover:text-white"
-          aria-label={m.gallery_previous()}
-          onclick={prev}
-        >
-          <ChevronLeft class="h-6 w-6" />
-        </Button>
-        <img
-          src={data.pictures[selectedIndex]!.thumbnailUrl}
-          alt={data.pictures[selectedIndex]!.name}
-          class="max-h-[80vh] max-w-full object-contain"
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          class="absolute right-0 text-white hover:bg-white/10 hover:text-white"
-          aria-label={m.gallery_next()}
-          onclick={next}
-        >
-          <ChevronRight class="h-6 w-6" />
-        </Button>
-      </div>
+      <Dialog.Close
+        type="button"
+        aria-label={m.gallery_close()}
+        class="absolute top-4 right-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-md text-white hover:bg-white/10"
+      >
+        <X class="h-6 w-6" />
+      </Dialog.Close>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        class="absolute left-2 z-10 text-white hover:bg-white/10 hover:text-white sm:left-4"
+        aria-label={m.gallery_previous()}
+        onclick={prev}
+      >
+        <ChevronLeft class="h-8 w-8" />
+      </Button>
+      <img
+        src={data.pictures[selectedIndex]!.thumbnailUrl}
+        alt={data.pictures[selectedIndex]!.name}
+        class="max-h-[92dvh] max-w-[92vw] object-contain"
+      />
+      <Button
+        variant="ghost"
+        size="icon"
+        class="absolute right-2 z-10 text-white hover:bg-white/10 hover:text-white sm:right-4"
+        aria-label={m.gallery_next()}
+        onclick={next}
+      >
+        <ChevronRight class="h-8 w-8" />
+      </Button>
     {/if}
   </Dialog.Content>
 </Dialog.Root>
