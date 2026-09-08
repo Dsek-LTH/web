@@ -6,8 +6,9 @@
     CardTitle,
     CardContent,
   } from "$lib/components/ui/card/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
   import * as ButtonGroup from "$lib/components/ui/button-group/index.js";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import RoleSelector from "$lib/components/RoleSelector.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -114,6 +115,11 @@
   <Card>
     <CardContent class="flex flex-col divide-y">
       {#each data.policies as policy (policy.id)}
+        {@const subject =
+          policy.role ??
+          (policy.member
+            ? `${policy.member.firstName} ${policy.member.lastName}`
+            : policy.studentId)}
         <div class="flex items-center justify-between gap-4 py-3">
           <div>
             {#if policy.role}
@@ -127,17 +133,36 @@
               <p class="font-medium">{policy.studentId}</p>
             {/if}
           </div>
-          <form method="POST" action="?/delete" use:deleteEnhance>
-            <input type="hidden" name="id" value={policy.id} />
-            <Button
-              type="submit"
-              variant="ghost"
-              size="icon-sm"
+          <AlertDialog.Root>
+            <AlertDialog.Trigger
+              class={buttonVariants({ variant: "ghost", size: "icon-sm" })}
               aria-label={m.delete_delete()}
             >
               <Trash class="h-4 w-4" />
-            </Button>
-          </form>
+            </AlertDialog.Trigger>
+            <AlertDialog.Content>
+              <AlertDialog.Header>
+                <AlertDialog.Title>
+                  {m.admin_confirmDelete_title({ item: subject ?? "" })}
+                </AlertDialog.Title>
+                <AlertDialog.Description>
+                  {m.admin_confirmDelete_description()}
+                </AlertDialog.Description>
+              </AlertDialog.Header>
+              <AlertDialog.Footer>
+                <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+                <form method="POST" action="?/delete" use:deleteEnhance>
+                  <input type="hidden" name="id" value={policy.id} />
+                  <AlertDialog.Action
+                    type="submit"
+                    class={buttonVariants({ variant: "destructive" })}
+                  >
+                    {m.delete_delete()}
+                  </AlertDialog.Action>
+                </form>
+              </AlertDialog.Footer>
+            </AlertDialog.Content>
+          </AlertDialog.Root>
         </div>
       {:else}
         <p class="text-muted-foreground py-3">{m.admin_access_noEntries()}</p>

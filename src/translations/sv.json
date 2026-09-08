@@ -1248,5 +1248,7 @@
   "admin_access_goToCustom": "Hantera \"{name}\"",
   "admin_access_noMatches": "Inga matchande policykoder",
   "admin_access_positionsPageDesc": "Bläddra bland alla behörigheter grupperade per roll, för att se allt en viss roll har tillgång till.",
-  "admin_info_content": "Innehåll"
+  "admin_info_content": "Innehåll",
+  "admin_confirmDelete_title": "Ta bort {item}?",
+  "admin_confirmDelete_description": "Detta går inte att ångra."
 }

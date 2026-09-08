@@ -1248,5 +1248,7 @@
   "admin_access_goToCustom": "Manage \"{name}\"",
   "admin_access_noMatches": "No matching policy codes",
   "admin_access_positionsPageDesc": "Browse every access policy grouped by role, to see everything a given role can do.",
-  "admin_info_content": "Content"
+  "admin_info_content": "Content",
+  "admin_confirmDelete_title": "Delete {item}?",
+  "admin_confirmDelete_description": "This action cannot be undone."
 }

@@ -7,7 +7,8 @@
     CardContent,
   } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages.js";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
@@ -78,17 +79,36 @@
                 >
                   {policy.apiName}
                 </a>
-                <form method="POST" action="?/deletePolicy" use:deleteEnhance>
-                  <input type="hidden" name="policyId" value={policy.id} />
-                  <Button
-                    type="submit"
-                    variant="ghost"
-                    size="icon-sm"
+                <AlertDialog.Root>
+                  <AlertDialog.Trigger
+                    class={buttonVariants({ variant: "ghost", size: "icon-sm" })}
                     aria-label={m.delete_delete()}
                   >
                     <Trash class="h-4 w-4" />
-                  </Button>
-                </form>
+                  </AlertDialog.Trigger>
+                  <AlertDialog.Content>
+                    <AlertDialog.Header>
+                      <AlertDialog.Title>
+                        {m.admin_confirmDelete_title({ item: policy.apiName })}
+                      </AlertDialog.Title>
+                      <AlertDialog.Description>
+                        {m.admin_confirmDelete_description()}
+                      </AlertDialog.Description>
+                    </AlertDialog.Header>
+                    <AlertDialog.Footer>
+                      <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+                      <form method="POST" action="?/deletePolicy" use:deleteEnhance>
+                        <input type="hidden" name="policyId" value={policy.id} />
+                        <AlertDialog.Action
+                          type="submit"
+                          class={buttonVariants({ variant: "destructive" })}
+                        >
+                          {m.delete_delete()}
+                        </AlertDialog.Action>
+                      </form>
+                    </AlertDialog.Footer>
+                  </AlertDialog.Content>
+                </AlertDialog.Root>
               </div>
             {/each}
           </CardContent>

@@ -8,7 +8,8 @@
   } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
   import { enhance } from "$app/forms";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
@@ -96,38 +97,61 @@
   <Card>
     <CardContent class="flex flex-col divide-y">
       {#each data.settings as setting (setting.key)}
-        <form
-          method="POST"
-          action="?/update"
-          use:enhance
-          class="flex flex-wrap items-end gap-4 py-3"
-        >
-          <input type="hidden" name="key" value={setting.key} />
-          <div class="flex flex-col gap-1">
-            <Label>{m.admin_settings_key()}</Label>
-            <p class="text-sm font-medium">{setting.key}</p>
-          </div>
-          <div class="flex flex-1 flex-col gap-1.5">
-            <Label for="value-{setting.key}">{m.admin_settings_value()}</Label>
-            <Input
-              id="value-{setting.key}"
-              name="value"
-              value={setting.value}
-            />
-          </div>
-          <Button type="submit" variant="outline" size="sm">
-            {m.admin_settings_save()}
-          </Button>
-          <Button
-            type="submit"
-            formaction="?/remove"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={m.delete_delete()}
+        <div class="flex flex-wrap items-end gap-4 py-3">
+          <form
+            method="POST"
+            action="?/update"
+            use:enhance
+            class="flex flex-1 flex-wrap items-end gap-4"
           >
-            <Trash class="h-4 w-4" />
-          </Button>
-        </form>
+            <input type="hidden" name="key" value={setting.key} />
+            <div class="flex flex-col gap-1">
+              <Label>{m.admin_settings_key()}</Label>
+              <p class="text-sm font-medium">{setting.key}</p>
+            </div>
+            <div class="flex flex-1 flex-col gap-1.5">
+              <Label for="value-{setting.key}">{m.admin_settings_value()}</Label>
+              <Input
+                id="value-{setting.key}"
+                name="value"
+                value={setting.value}
+              />
+            </div>
+            <Button type="submit" variant="outline" size="sm">
+              {m.admin_settings_save()}
+            </Button>
+          </form>
+          <AlertDialog.Root>
+            <AlertDialog.Trigger
+              class={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+              aria-label={m.delete_delete()}
+            >
+              <Trash class="h-4 w-4" />
+            </AlertDialog.Trigger>
+            <AlertDialog.Content>
+              <AlertDialog.Header>
+                <AlertDialog.Title>
+                  {m.admin_confirmDelete_title({ item: setting.key })}
+                </AlertDialog.Title>
+                <AlertDialog.Description>
+                  {m.admin_confirmDelete_description()}
+                </AlertDialog.Description>
+              </AlertDialog.Header>
+              <AlertDialog.Footer>
+                <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+                <form method="POST" action="?/remove" use:enhance>
+                  <input type="hidden" name="key" value={setting.key} />
+                  <AlertDialog.Action
+                    type="submit"
+                    class={buttonVariants({ variant: "destructive" })}
+                  >
+                    {m.delete_delete()}
+                  </AlertDialog.Action>
+                </form>
+              </AlertDialog.Footer>
+            </AlertDialog.Content>
+          </AlertDialog.Root>
+        </div>
       {/each}
     </CardContent>
   </Card>
