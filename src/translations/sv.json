@@ -1220,5 +1220,16 @@
   "admin_access_positionsPageTitle": "Behörighet per post",
   "admin_access_position": "Post",
   "admin_access_noEntries": "Inga poster",
-  "admin_access_roleOrStudentId": "Ange antingen en roll eller ett studentid, inte båda"
+  "admin_access_roleOrStudentId": "Ange antingen en roll eller ett studentid, inte båda",
+  "nollu_manage_pageTitle": "Hantera phaddergrupper",
+  "nollu_manage_createGroup": "Skapa grupp",
+  "nollu_manage_groupName": "Namn",
+  "nollu_manage_groupYear": "År",
+  "nollu_manage_groupDescription": "Beskrivning",
+  "nollu_manage_groupImage": "Bild-URL",
+  "nollu_manage_save": "Spara",
+  "nollu_manage_deleteGroup": "Ta bort grupp",
+  "nollu_manage_addNolla": "Lägg till nolla",
+  "nollu_manage_addPhadder": "Lägg till phadder",
+  "nollu_manage_studentIdPlaceholder": "Studentid"
 }

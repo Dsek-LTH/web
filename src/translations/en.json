@@ -1220,5 +1220,16 @@
   "admin_access_positionsPageTitle": "Access by position",
   "admin_access_position": "Position",
   "admin_access_noEntries": "No entries",
-  "admin_access_roleOrStudentId": "Provide either a role or a student ID, not both"
+  "admin_access_roleOrStudentId": "Provide either a role or a student ID, not both",
+  "nollu_manage_pageTitle": "Manage phadder groups",
+  "nollu_manage_createGroup": "Create group",
+  "nollu_manage_groupName": "Name",
+  "nollu_manage_groupYear": "Year",
+  "nollu_manage_groupDescription": "Description",
+  "nollu_manage_groupImage": "Image URL",
+  "nollu_manage_save": "Save",
+  "nollu_manage_deleteGroup": "Delete group",
+  "nollu_manage_addNolla": "Add nolla",
+  "nollu_manage_addPhadder": "Add phadder",
+  "nollu_manage_studentIdPlaceholder": "Student ID"
 }

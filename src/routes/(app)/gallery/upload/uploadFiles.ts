@@ -12,5 +12,5 @@ export const uploadAlbumFiles = async (user: AuthUser, data: UploadSchema) => {
   Array.from(data.files).forEach((file) => {
     tasks.push(uploadFile(user, file, prefix, bucket, file.name));
   });
-  await Promise.resolve();
+  await Promise.all(tasks);
 };

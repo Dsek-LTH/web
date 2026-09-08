@@ -68,7 +68,7 @@ const deletePhadderGroupSchema = phadderGroupSchema.pick({
 });
 
 const personSchema = z.object({
-  memberId: z.string().uuid(),
+  studentId: z.string(),
   groupId: z.string().uuid(),
 });
 
@@ -125,6 +125,10 @@ export const actions = {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
+    const member = await prisma.member.findUnique({
+      where: { studentId: form.data.studentId },
+    });
+    if (!member) return setError(form, "studentId", "Medlem hittades inte");
     await prisma.phadderGroup.update({
       where: {
         id: form.data.groupId,
@@ -132,7 +136,7 @@ export const actions = {
       data: {
         nollor: {
           connect: {
-            id: form.data.memberId,
+            id: member.id,
           },
         },
       },
@@ -146,6 +150,10 @@ export const actions = {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
+    const member = await prisma.member.findUnique({
+      where: { studentId: form.data.studentId },
+    });
+    if (!member) return setError(form, "studentId", "Medlem hittades inte");
     await prisma.phadderGroup.update({
       where: {
         id: form.data.groupId,
@@ -153,7 +161,7 @@ export const actions = {
       data: {
         nollor: {
           disconnect: {
-            id: form.data.memberId,
+            id: member.id,
           },
         },
       },
@@ -173,16 +181,20 @@ export const actions = {
       },
     });
     if (!group) return setError(form, "groupId", "Group not found");
+    const member = await prisma.member.findUnique({
+      where: { studentId: form.data.studentId },
+    });
+    if (!member) return setError(form, "studentId", "Medlem hittades inte");
     const mandate = await getPhadderMandates(
       prisma,
-      form.data.memberId,
+      member.id,
       group.year,
     ).then((mandates) => mandates?.[0]); // get first
 
     if (!mandate)
       return setError(
         form,
-        "memberId",
+        "studentId",
         "Personen hittas inte som phadder det året",
       );
     await prisma.phadderGroup.update({
@@ -212,15 +224,19 @@ export const actions = {
       },
     });
     if (!group) return setError(form, "groupId", "Group not found");
+    const member = await prisma.member.findUnique({
+      where: { studentId: form.data.studentId },
+    });
+    if (!member) return setError(form, "studentId", "Medlem hittades inte");
     const mandates = await getPhadderMandates(
       prisma,
-      form.data.memberId,
+      member.id,
       group?.year,
     );
     if (mandates.length === 0)
       return setError(
         form,
-        "memberId",
+        "studentId",
         "Personen hittas inte som phadder det året",
       );
     await prisma.phadderGroup.update({
