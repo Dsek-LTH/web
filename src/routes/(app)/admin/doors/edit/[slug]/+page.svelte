@@ -18,6 +18,10 @@
     SelectTrigger,
   } from "$lib/components/ui/select";
   import { superForm } from "$lib/utils/client/superForms";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
+  import RoleSelector from "$lib/components/RoleSelector.svelte";
+  import type { RoleOption } from "$lib/components/RoleSelector.svelte";
+  import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
   import TrashIcon from "@lucide/svelte/icons/trash";
   import { getFullName } from "$lib/utils/client/member";
   import { Badge } from "$lib/components/ui/badge";
@@ -62,6 +66,11 @@
   let open = $state(false);
   let selectedPolicy: (typeof data)["doorAccessPolicies"][number] | null =
     $state(null);
+
+  let selectedMember = $state<
+    (MemberSearchReturnAttributes & { id?: string }) | null
+  >(null);
+  let selectedRole = $state<RoleOption | null>(null);
 </script>
 
 <div class="space-y-6">
@@ -85,14 +94,22 @@
                 {m.admin_doors_role()}
               {/if}
             </Label>
-            <Input
-              id="subject"
-              name="subject"
-              placeholder={$form.type === "member" ? "ab1234cd-s" : "dsek.cpu"}
-              aria-invalid={$errors.subject ? "true" : undefined}
-              bind:value={$form.subject}
-              {...$constraints.subject}
-            />
+            {#if $form.type === "member"}
+              <MemberSelector
+                multiple={false}
+                showId
+                showClass
+                name="subject"
+                bind:selectedMember
+              />
+            {:else}
+              <RoleSelector multiple={false} name="subject" bind:selectedRole />
+            {/if}
+            {#if $errors.subject}
+              <p class="text-destructive text-sm font-medium">
+                {$errors.subject}
+              </p>
+            {/if}
           </div>
 
           <div class="space-y-2">
