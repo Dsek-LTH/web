@@ -72,6 +72,11 @@ const personSchema = z.object({
   groupId: z.string().uuid(),
 });
 
+const addPersonSchema = z.object({
+  studentId: z.array(z.string()).min(1),
+  groupId: z.string().uuid(),
+});
+
 export const actions = {
   create: async ({ locals, request }) => {
     const form = await superValidate(request, zod4(createPhadderGroupSchema));
@@ -122,22 +127,22 @@ export const actions = {
     });
   },
   addNolla: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(personSchema));
+    const form = await superValidate(request, zod4(addPersonSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
-    const member = await prisma.member.findUnique({
-      where: { studentId: form.data.studentId },
+    const members = await prisma.member.findMany({
+      where: { studentId: { in: form.data.studentId } },
     });
-    if (!member) return setError(form, "studentId", "Medlem hittades inte");
+    if (members.length !== form.data.studentId.length) {
+      return setError(form, "En eller flera medlemmar hittades inte");
+    }
     await prisma.phadderGroup.update({
       where: {
         id: form.data.groupId,
       },
       data: {
         nollor: {
-          connect: {
-            id: member.id,
-          },
+          connect: members.map((member) => ({ id: member.id })),
         },
       },
     });
@@ -172,7 +177,7 @@ export const actions = {
     });
   },
   addPhadder: async ({ locals, request }) => {
-    const form = await superValidate(request, zod4(personSchema));
+    const form = await superValidate(request, zod4(addPersonSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     const group = await prisma.phadderGroup.findUnique({
@@ -181,31 +186,34 @@ export const actions = {
       },
     });
     if (!group) return setError(form, "groupId", "Group not found");
-    const member = await prisma.member.findUnique({
-      where: { studentId: form.data.studentId },
+    const members = await prisma.member.findMany({
+      where: { studentId: { in: form.data.studentId } },
     });
-    if (!member) return setError(form, "studentId", "Medlem hittades inte");
-    const mandate = await getPhadderMandates(
-      prisma,
-      member.id,
-      group.year,
-    ).then((mandates) => mandates?.[0]); // get first
-
-    if (!mandate)
+    if (members.length !== form.data.studentId.length) {
+      return setError(form, "En eller flera medlemmar hittades inte");
+    }
+    const withMandates = await Promise.all(
+      members.map(async (member) => ({
+        member,
+        mandate: (await getPhadderMandates(prisma, member.id, group.year))[0],
+      })),
+    );
+    const missingMandate = withMandates.filter((m) => !m.mandate);
+    if (missingMandate.length > 0) {
       return setError(
         form,
-        "studentId",
-        "Personen hittas inte som phadder det året",
+        `Följande är inte phadder det året: ${missingMandate
+          .map((m) => `${m.member.firstName} ${m.member.lastName}`)
+          .join(", ")}`,
       );
+    }
     await prisma.phadderGroup.update({
       where: {
         id: form.data.groupId,
       },
       data: {
         phaddrar: {
-          connect: {
-            id: mandate.id,
-          },
+          connect: withMandates.map((m) => ({ id: m.mandate!.id })),
         },
       },
     });
@@ -228,11 +236,7 @@ export const actions = {
       where: { studentId: form.data.studentId },
     });
     if (!member) return setError(form, "studentId", "Medlem hittades inte");
-    const mandates = await getPhadderMandates(
-      prisma,
-      member.id,
-      group?.year,
-    );
+    const mandates = await getPhadderMandates(prisma, member.id, group?.year);
     if (mandates.length === 0)
       return setError(
         form,

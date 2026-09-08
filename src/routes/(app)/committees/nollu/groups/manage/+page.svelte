@@ -14,6 +14,7 @@
   import PhadderGroupManageCard from "./PhadderGroupManageCard.svelte";
   import * as m from "$paraglide/messages.js";
   import Plus from "@lucide/svelte/icons/plus";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
 
   let { data } = $props();
 
@@ -27,6 +28,15 @@
 <SetPageTitle title={m.nollu_manage_pageTitle()} />
 
 <div class="mx-auto w-full max-w-4xl px-4 py-8">
+  <Button
+    variant="ghost"
+    href="/committees/nollu/groups"
+    class="mb-6 flex items-center gap-2"
+  >
+    <ArrowLeft class="h-4 w-4" />
+    {m.back()}
+  </Button>
+
   <h1 class="mb-6 text-3xl font-bold">{m.nollu_manage_pageTitle()}</h1>
 
   <Card class="mb-6">
@@ -34,7 +44,12 @@
       <CardTitle>{m.nollu_manage_createGroup()}</CardTitle>
     </CardHeader>
     <CardContent>
-      <form method="POST" action="?/create" use:enhance class="flex flex-col gap-4">
+      <form
+        method="POST"
+        action="?/create"
+        use:enhance
+        class="flex flex-col gap-4"
+      >
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-2">
             <Label for="new-name">{m.nollu_manage_groupName()}</Label>
@@ -52,10 +67,16 @@
         </div>
         <div class="flex flex-col gap-2">
           <Label for="new-imageUrl">{m.nollu_manage_groupImage()}</Label>
-          <Input id="new-imageUrl" name="imageUrl" bind:value={$form.imageUrl} />
+          <Input
+            id="new-imageUrl"
+            name="imageUrl"
+            bind:value={$form.imageUrl}
+          />
         </div>
         <div class="flex flex-col gap-2">
-          <Label for="new-description">{m.nollu_manage_groupDescription()}</Label>
+          <Label for="new-description"
+            >{m.nollu_manage_groupDescription()}</Label
+          >
           <Textarea
             id="new-description"
             name="description"

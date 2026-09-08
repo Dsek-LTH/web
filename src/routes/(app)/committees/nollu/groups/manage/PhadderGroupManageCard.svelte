@@ -15,39 +15,63 @@
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import { enhance } from "$app/forms";
+  import { toast } from "$lib/stores/toast";
   import * as m from "$paraglide/messages.js";
   import Trash from "@lucide/svelte/icons/trash";
   import X from "@lucide/svelte/icons/x";
   import Plus from "@lucide/svelte/icons/plus";
   import type { PageData } from "./$types";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
+  import type { ActionResult } from "@sveltejs/kit";
 
   let { group }: { group: PageData["groups"][number] } = $props();
 
   // svelte-ignore state_referenced_locally
-  const { form, errors, enhance: updateEnhance } = superForm(group.form, {
+  const {
+    form,
+    errors,
+    enhance: updateEnhance,
+  } = superForm(group.form, {
     id: group.id,
   });
 
-  let newNolla = $state<(MemberSearchReturnAttributes & { id?: string }) | null>(
-    null,
-  );
-  let newPhadder = $state<
-    (MemberSearchReturnAttributes & { id?: string }) | null
-  >(null);
+  let newNollaMembers = $state<
+    Array<MemberSearchReturnAttributes & { id?: string }>
+  >([]);
+  let newPhadderMembers = $state<
+    Array<MemberSearchReturnAttributes & { id?: string }>
+  >([]);
+
+  function toastOnFailure(result: ActionResult) {
+    if (result.type !== "failure") return;
+    const errorForm = (
+      result.data as { form?: { errors?: Record<string, unknown> } } | undefined
+    )?.form;
+    const messages = Object.values(errorForm?.errors ?? {}).flat();
+    if (messages.length > 0) toast(messages.join(", "), "error");
+  }
 </script>
 
 <Card>
   <CardHeader>
     <CardTitle class="flex items-center gap-3">
       {#if group.imageUrl}
-        <img src={group.imageUrl} alt="" class="h-8 w-8 rounded object-contain" />
+        <img
+          src={group.imageUrl}
+          alt=""
+          class="h-8 w-8 rounded object-contain"
+        />
       {/if}
       {group.name}
     </CardTitle>
   </CardHeader>
   <CardContent class="flex flex-col gap-6">
-    <form method="POST" action="?/update" use:updateEnhance class="flex flex-col gap-4">
+    <form
+      method="POST"
+      action="?/update"
+      use:updateEnhance
+      class="flex flex-col gap-4"
+    >
       <input type="hidden" name="id" value={group.id} />
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div class="flex flex-col gap-2">
@@ -101,7 +125,11 @@
               <Badge variant="outline" class="gap-1 pr-1">
                 {nolla.firstName}
                 {nolla.lastName}
-                <button type="submit" class="hover:text-destructive" aria-label={m.delete_delete()}>
+                <button
+                  type="submit"
+                  class="hover:text-destructive"
+                  aria-label={m.delete_delete()}
+                >
                   <X class="h-3 w-3" />
                 </button>
               </Badge>
@@ -112,23 +140,28 @@
           method="POST"
           action="?/addNolla"
           use:enhance={() => {
-            return async ({ update }) => {
+            return async ({ result, update }) => {
+              toastOnFailure(result);
+              if (result.type !== "failure") newNollaMembers = [];
               await update();
-              newNolla = null;
             };
           }}
-          class="flex gap-2"
+          class="flex items-start gap-2"
         >
           <input type="hidden" name="groupId" value={group.id} />
           <MemberSelector
-            multiple={false}
+            multiple
             showId
             showClass
             name="studentId"
-            bind:selectedMember={newNolla}
-            inputClass="h-8"
+            bind:selectedMembers={newNollaMembers}
           />
-          <Button type="submit" size="icon-sm" variant="outline" aria-label={m.nollu_manage_addNolla()}>
+          <Button
+            type="submit"
+            size="icon-sm"
+            variant="outline"
+            aria-label={m.nollu_manage_addNolla()}
+          >
             <Plus class="h-4 w-4" />
           </Button>
         </form>
@@ -148,7 +181,11 @@
               <Badge variant="outline" class="gap-1 pr-1">
                 {phadder.member.firstName}
                 {phadder.member.lastName}
-                <button type="submit" class="hover:text-destructive" aria-label={m.delete_delete()}>
+                <button
+                  type="submit"
+                  class="hover:text-destructive"
+                  aria-label={m.delete_delete()}
+                >
                   <X class="h-3 w-3" />
                 </button>
               </Badge>
@@ -159,23 +196,28 @@
           method="POST"
           action="?/addPhadder"
           use:enhance={() => {
-            return async ({ update }) => {
+            return async ({ result, update }) => {
+              toastOnFailure(result);
+              if (result.type !== "failure") newPhadderMembers = [];
               await update();
-              newPhadder = null;
             };
           }}
-          class="flex gap-2"
+          class="flex items-start gap-2"
         >
           <input type="hidden" name="groupId" value={group.id} />
           <MemberSelector
-            multiple={false}
+            multiple
             showId
             showClass
             name="studentId"
-            bind:selectedMember={newPhadder}
-            inputClass="h-8"
+            bind:selectedMembers={newPhadderMembers}
           />
-          <Button type="submit" size="icon-sm" variant="outline" aria-label={m.nollu_manage_addPhadder()}>
+          <Button
+            type="submit"
+            size="icon-sm"
+            variant="outline"
+            aria-label={m.nollu_manage_addPhadder()}
+          >
             <Plus class="h-4 w-4" />
           </Button>
         </form>
@@ -184,7 +226,9 @@
   </CardContent>
   <CardFooter class="justify-end">
     <AlertDialog.Root>
-      <AlertDialog.Trigger class={buttonVariants({ variant: "destructive", size: "sm" })}>
+      <AlertDialog.Trigger
+        class={buttonVariants({ variant: "destructive", size: "sm" })}
+      >
         <Trash class="h-4 w-4" />
         {m.nollu_manage_deleteGroup()}
       </AlertDialog.Trigger>
@@ -197,7 +241,10 @@
           <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
           <form method="POST" action="?/delete" use:enhance>
             <input type="hidden" name="id" value={group.id} />
-            <AlertDialog.Action type="submit" class={buttonVariants({ variant: "destructive" })}>
+            <AlertDialog.Action
+              type="submit"
+              class={buttonVariants({ variant: "destructive" })}
+            >
               {m.delete_delete()}
             </AlertDialog.Action>
           </form>
