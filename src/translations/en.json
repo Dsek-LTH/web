@@ -1203,5 +1203,16 @@
   "medals_nextSemester": "Next semester",
   "info_edit_createTitle": "Create info page \"{slug}\"",
   "info_edit_editTitle": "Edit info page \"{slug}\"",
-  "info_edit_save": "Save"
+  "info_edit_save": "Save",
+  "admin_settings_pageTitle": "Admin settings",
+  "admin_settings_key": "Key",
+  "admin_settings_value": "Value",
+  "admin_settings_addNew": "Add setting",
+  "admin_settings_save": "Save",
+  "admin_settings_nollningPeriod": "Nollning period",
+  "admin_settings_nollningStart": "Start",
+  "admin_settings_nollningEnd": "End",
+  "admin_minio_pageTitle": "Files",
+  "admin_minio_uploadTitle": "Upload a file",
+  "admin_minio_fileName": "File name"
 }

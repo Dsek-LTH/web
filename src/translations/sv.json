@@ -1203,5 +1203,16 @@
   "medals_nextSemester": "Nästa termin",
   "info_edit_createTitle": "Skapa infosida \"{slug}\"",
   "info_edit_editTitle": "Redigera infosida \"{slug}\"",
-  "info_edit_save": "Spara"
+  "info_edit_save": "Spara",
+  "admin_settings_pageTitle": "Admin-inställningar",
+  "admin_settings_key": "Nyckel",
+  "admin_settings_value": "Värde",
+  "admin_settings_addNew": "Lägg till inställning",
+  "admin_settings_save": "Spara",
+  "admin_settings_nollningPeriod": "Nollningsperiod",
+  "admin_settings_nollningStart": "Start",
+  "admin_settings_nollningEnd": "Slut",
+  "admin_minio_pageTitle": "Filer",
+  "admin_minio_uploadTitle": "Ladda upp en fil",
+  "admin_minio_fileName": "Filnamn"
 }
