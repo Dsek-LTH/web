@@ -82,10 +82,24 @@ words = [
 
     # Tools
     'authentik',
+    'cjs',
+    'clsx',
+    'croppie',
+    'dayjs',
+    'dompurify',
     'Dynmap',
+    'embla',
     'MinIO',
+    'nodemailer',
+    'paraglide',
+    'pnpm',
+    'postcss',
     'prisma',
     'Stocklist',
+    'tiptap',
+    'vaul',
+    'vitest',
+    'zod',
 
     # Guild-specific words
     'Cheps',
@@ -215,11 +229,13 @@ flag_words = [
 [[overrides]] # Commands
 paths = [
     'dev/README.md',
+    'dev/setup.ts',
     'Dockerfile',
     'README.md',
 ]
 extra_ignore_patterns = [
-    'chmod\s[ugoa]?[-+=][rwxXstugo]+'
+    'chmod\s[ugoa]?[-+=][rwxXstugo]+',
+    'pg_isready',
 ]
 extra_words = [
     'chmod',
