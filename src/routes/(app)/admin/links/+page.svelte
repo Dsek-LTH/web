@@ -83,7 +83,7 @@
 
 <SetPageTitle title={m.admin_links_table_title()} />
 
-<div class="mx-auto max-w-5xl px-4 py-8">
+<div class="mx-auto w-full max-w-5xl px-4 py-8">
   <div class="mb-6 flex items-center justify-between">
     <h1 class="text-3xl font-bold">{m.admin_links_table_title()}</h1>
     <div class="flex items-center gap-2">

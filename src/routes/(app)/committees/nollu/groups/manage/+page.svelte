@@ -26,7 +26,7 @@
 
 <SetPageTitle title={m.nollu_manage_pageTitle()} />
 
-<div class="mx-auto max-w-4xl px-4 py-8">
+<div class="mx-auto w-full max-w-4xl px-4 py-8">
   <h1 class="mb-6 text-3xl font-bold">{m.nollu_manage_pageTitle()}</h1>
 
   <Card class="mb-6">

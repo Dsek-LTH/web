@@ -260,7 +260,7 @@
   onfocusin={handleFocusIn}
   shouldFilter={false}
   loop
-  class={cn(klass, "relative w-fit overflow-visible p-0")}
+  class={cn(klass, "relative w-full overflow-visible p-0")}
   {...restProps}
 >
   <Button
@@ -275,7 +275,7 @@
     }}
   >
     <ul
-      class="m-0 flex w-fit list-none flex-row flex-wrap gap-2"
+      class="m-0 flex w-full list-none flex-row flex-wrap gap-2"
       bind:this={selectedItemsElement}
     >
       {#if name}
@@ -301,11 +301,11 @@
         </li>
       {/each}
       {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
-        <li class="relative m-0 flex max-w-full list-none p-0">
+        <li class="relative m-0 flex min-w-24 flex-1 list-none p-0">
           <Input
             name="input"
             type="none"
-            class="mx-0 h-full w-fit border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+            class="mx-0 h-full w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
             placeholder={multiple
               ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
               : m.select_member()}

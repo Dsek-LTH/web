@@ -28,7 +28,7 @@
 
 <SetPageTitle title={m.admin_info_createNewInfoPage()} />
 
-<div class="mx-auto max-w-5xl px-4 py-8">
+<div class="mx-auto w-full max-w-5xl px-4 py-8">
   <Card class="border-border shadow-xl">
     <CardHeader
       class="bg-primary/5 border-border flex flex-row items-center justify-between border-b-[1px] pb-6"
@@ -56,7 +56,13 @@
     <CardContent class="flex flex-col gap-6 pt-6">
       <div class="flex flex-col gap-2">
         <Label for="name">{m.admin_info_name()}</Label>
-        <Input id="name" name="name" bind:value={$form.name} form="create-form" required />
+        <Input
+          id="name"
+          name="name"
+          bind:value={$form.name}
+          form="create-form"
+          required
+        />
         {#if $errors.name}
           <p class="text-destructive text-sm font-medium">{$errors.name}</p>
         {/if}

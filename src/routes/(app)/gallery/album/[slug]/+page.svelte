@@ -25,7 +25,7 @@
 
 <SetPageTitle title={data.album} />
 
-<div class="mx-auto max-w-5xl px-4 py-8">
+<div class="mx-auto w-full max-w-5xl px-4 py-8">
   <Button variant="ghost" href="/gallery" class="mb-6 flex items-center gap-2">
     <ArrowLeft class="h-4 w-4" />
     {m.gallery_back()}

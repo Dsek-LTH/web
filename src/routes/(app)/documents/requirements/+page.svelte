@@ -26,7 +26,7 @@
 
 <SetPageTitle title={m.documents_requirementProfiles()} />
 
-<div class="mx-auto max-w-4xl px-4 py-8">
+<div class="mx-auto w-full max-w-4xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
       <h1 class="text-3xl font-bold">{m.documents_requirementProfiles()}</h1>

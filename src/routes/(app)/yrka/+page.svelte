@@ -11,6 +11,7 @@
   import { Textarea } from "$lib/components/ui/textarea/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages.js";
   import Send from "@lucide/svelte/icons/send";
   import { Spinner } from "$lib/components/ui/spinner";
@@ -24,7 +25,9 @@
   });
 </script>
 
-<div class="mx-auto max-w-4xl px-4 py-8">
+<SetPageTitle title={m.yrka_title()} />
+
+<div class="mx-auto w-full max-w-4xl px-4 py-8">
   <Card class="border-border shadow-xl">
     <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
       <CardTitle class="text-3xl font-bold">{m.yrka_title()}</CardTitle>
