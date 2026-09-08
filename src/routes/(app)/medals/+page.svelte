@@ -32,7 +32,8 @@
     }
   });
 
-  const semesterToString = (s: Semester) => `${semesterTerm(s)} ${semesterYear(s)}`;
+  const semesterToString = (s: Semester) =>
+    `${semesterTerm(s)} ${semesterYear(s)}`;
 
   function semesterHref(s: Semester) {
     const url = new URL(page.url);

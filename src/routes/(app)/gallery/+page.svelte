@@ -25,7 +25,9 @@
       {@const cover = files.find((f) => f.thumbnailUrl)}
       <a href="/gallery/album/{album}">
         <Card class="overflow-hidden py-0">
-          <div class="bg-muted-background flex aspect-video items-center justify-center">
+          <div
+            class="bg-muted-background flex aspect-video items-center justify-center"
+          >
             {#if cover?.thumbnailUrl}
               <img
                 src={cover.thumbnailUrl}

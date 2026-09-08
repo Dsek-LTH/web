@@ -97,18 +97,24 @@
           </AlertDialog.Trigger>
           <AlertDialog.Content>
             <AlertDialog.Header>
-              <AlertDialog.Title>{m.admin_links_remove_title()}</AlertDialog.Title>
+              <AlertDialog.Title
+                >{m.admin_links_remove_title()}</AlertDialog.Title
+              >
               <AlertDialog.Description>
                 {m.admin_links_remove_confirmation({ amount: selected.length })}
               </AlertDialog.Description>
             </AlertDialog.Header>
             <AlertDialog.Footer>
-              <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+              <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel
+              >
               <form method="POST" action="?/delete" use:deleteEnhance>
                 {#each selected as slug (slug)}
                   <input type="hidden" name="deleting" value={slug} />
                 {/each}
-                <AlertDialog.Action type="submit" class={buttonVariants({ variant: "destructive" })}>
+                <AlertDialog.Action
+                  type="submit"
+                  class={buttonVariants({ variant: "destructive" })}
+                >
                   {m.admin_links_remove_submit()}
                 </AlertDialog.Action>
               </form>
@@ -170,7 +176,8 @@
             </div>
           </Table.Cell>
           <Table.Cell>{link.visitsSummary?.total ?? 0}</Table.Cell>
-          <Table.Cell>{dayjs(link.dateCreated).format("YYYY-MM-DD")}</Table.Cell>
+          <Table.Cell>{dayjs(link.dateCreated).format("YYYY-MM-DD")}</Table.Cell
+          >
           <Table.Cell>
             <Button
               variant="ghost"
@@ -191,7 +198,12 @@
 
 <Dialog.Root bind:open={createOpen}>
   <Dialog.Content>
-    <form method="POST" action="?/create" use:createEnhance class="flex flex-col gap-4">
+    <form
+      method="POST"
+      action="?/create"
+      use:createEnhance
+      class="flex flex-col gap-4"
+    >
       <Dialog.Header>
         <Dialog.Title>{m.admin_links_add_title()}</Dialog.Title>
       </Dialog.Header>
@@ -204,7 +216,9 @@
           bind:value={$createFormData.slug}
         />
         {#if $createErrors.slug}
-          <p class="text-destructive text-sm font-medium">{$createErrors.slug}</p>
+          <p class="text-destructive text-sm font-medium">
+            {$createErrors.slug}
+          </p>
         {/if}
       </div>
       <div class="flex flex-col gap-2">
@@ -216,7 +230,9 @@
           bind:value={$createFormData.url}
         />
         {#if $createErrors.url}
-          <p class="text-destructive text-sm font-medium">{$createErrors.url}</p>
+          <p class="text-destructive text-sm font-medium">
+            {$createErrors.url}
+          </p>
         {/if}
       </div>
       <div class="flex flex-col gap-2">
@@ -231,11 +247,16 @@
           <input type="hidden" name="tags" value={tag} />
         {/each}
         {#if $createErrors.tags}
-          <p class="text-destructive text-sm font-medium">{$createErrors.tags}</p>
+          <p class="text-destructive text-sm font-medium">
+            {$createErrors.tags}
+          </p>
         {/if}
       </div>
       <Dialog.Footer>
-        <Dialog.Close type="button" class={buttonVariants({ variant: "outline" })}>
+        <Dialog.Close
+          type="button"
+          class={buttonVariants({ variant: "outline" })}
+        >
           {m.admin_links_edit_cancel()}
         </Dialog.Close>
         <Button type="submit">{m.admin_links_add_submit()}</Button>
@@ -246,7 +267,12 @@
 
 <Dialog.Root bind:open={editOpen}>
   <Dialog.Content>
-    <form method="POST" action="?/update" use:updateEnhance class="flex flex-col gap-4">
+    <form
+      method="POST"
+      action="?/update"
+      use:updateEnhance
+      class="flex flex-col gap-4"
+    >
       <input type="hidden" name="slug" value={editingSlug} />
       <Dialog.Header>
         <Dialog.Title>{m.admin_links_edit_title()}</Dialog.Title>
@@ -255,7 +281,9 @@
         <Label for="update-url">{m.admin_links_add_label_URL()}</Label>
         <Input id="update-url" name="url" bind:value={$updateFormData.url} />
         {#if $updateErrors.url}
-          <p class="text-destructive text-sm font-medium">{$updateErrors.url}</p>
+          <p class="text-destructive text-sm font-medium">
+            {$updateErrors.url}
+          </p>
         {/if}
       </div>
       <div class="flex flex-col gap-2">
@@ -270,11 +298,16 @@
           <input type="hidden" name="tags" value={tag} />
         {/each}
         {#if $updateErrors.tags}
-          <p class="text-destructive text-sm font-medium">{$updateErrors.tags}</p>
+          <p class="text-destructive text-sm font-medium">
+            {$updateErrors.tags}
+          </p>
         {/if}
       </div>
       <Dialog.Footer>
-        <Dialog.Close type="button" class={buttonVariants({ variant: "outline" })}>
+        <Dialog.Close
+          type="button"
+          class={buttonVariants({ variant: "outline" })}
+        >
           {m.admin_links_edit_cancel()}
         </Dialog.Close>
         <Button type="submit">{m.admin_links_edit_submit()}</Button>

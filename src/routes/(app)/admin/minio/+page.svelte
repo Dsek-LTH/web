@@ -106,7 +106,9 @@
                 </AlertDialog.Description>
               </AlertDialog.Header>
               <AlertDialog.Footer>
-                <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+                <AlertDialog.Cancel type="button"
+                  >{m.cancel()}</AlertDialog.Cancel
+                >
                 <form method="POST" action="?/delete" use:deleteEnhance>
                   <input type="hidden" name="id" value={file.id} />
                   <AlertDialog.Action

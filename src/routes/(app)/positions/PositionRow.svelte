@@ -54,7 +54,8 @@
         bind:checked={$form.boardMember}
         disabled={!canUpdate}
       />
-      <Label for="boardMember-{position.id}">{m.positions_board_member()}</Label>
+      <Label for="boardMember-{position.id}">{m.positions_board_member()}</Label
+      >
     </div>
     {#if canUpdate}
       <Button type="submit" size="sm" variant="outline" disabled={$submitting}>

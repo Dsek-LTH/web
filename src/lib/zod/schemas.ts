@@ -69,4 +69,3 @@ export const notificationSchema = z.object({
   notificationIds: z.number().array(),
 });
 export type NotificationSchema = Infer<typeof notificationSchema>;
-

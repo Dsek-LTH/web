@@ -23,15 +23,16 @@ export const load: PageServerLoad = async ({ locals }) => {
   // Union of apiNames that already have a grant, and every apiName the
   // static registry declares (so admins can find & set up permissions
   // that don't have any policy yet, not just already-configured ones).
-  const allNames = new Set([...grantCounts.keys(), ...flattenApiNames(apiNames)]);
+  const allNames = new Set([
+    ...grantCounts.keys(),
+    ...flattenApiNames(apiNames),
+  ]);
 
-  const apiNameList: ApiNameEntry[] = [...allNames]
-    .sort()
-    .map((name) => ({
-      name,
-      grantCount: grantCounts.get(name) ?? 0,
-      inUse: grantCounts.has(name),
-    }));
+  const apiNameList: ApiNameEntry[] = [...allNames].sort().map((name) => ({
+    name,
+    grantCount: grantCounts.get(name) ?? 0,
+    inUse: grantCounts.has(name),
+  }));
 
   return {
     apiNames: apiNameList,

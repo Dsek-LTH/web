@@ -64,7 +64,12 @@
       >
         <div class="flex flex-1 flex-col gap-2">
           <Label for="nameSv">{m.news_tags_tagName()}</Label>
-          <Input id="nameSv" name="nameSv" bind:value={$createFormData.nameSv} required />
+          <Input
+            id="nameSv"
+            name="nameSv"
+            bind:value={$createFormData.nameSv}
+            required
+          />
         </div>
         <Button type="submit" class="flex items-center gap-2">
           <Plus class="h-4 w-4" />
@@ -99,7 +104,12 @@
 
 <Dialog.Root bind:open={editOpen}>
   <Dialog.Content class="sm:max-w-md">
-    <form method="POST" action="?/update" use:updateEnhance class="flex flex-col gap-4">
+    <form
+      method="POST"
+      action="?/update"
+      use:updateEnhance
+      class="flex flex-col gap-4"
+    >
       <input type="hidden" name="id" bind:value={$updateFormData.id} />
       <Dialog.Header>
         <Dialog.Title>{m.news_tags_edit()}</Dialog.Title>
@@ -107,11 +117,19 @@
 
       <div class="flex flex-col gap-2">
         <Label for="update-nameSv">{m.news_tags_tagName()} (SV)</Label>
-        <Input id="update-nameSv" name="nameSv" bind:value={$updateFormData.nameSv} />
+        <Input
+          id="update-nameSv"
+          name="nameSv"
+          bind:value={$updateFormData.nameSv}
+        />
       </div>
       <div class="flex flex-col gap-2">
         <Label for="update-nameEn">{m.news_tags_tagName()} (EN)</Label>
-        <Input id="update-nameEn" name="nameEn" bind:value={$updateFormData.nameEn} />
+        <Input
+          id="update-nameEn"
+          name="nameEn"
+          bind:value={$updateFormData.nameEn}
+        />
       </div>
       <div class="flex flex-col gap-2">
         <Label for="update-color">{m.news_tags_color()}</Label>
@@ -141,7 +159,10 @@
       </div>
 
       <Dialog.Footer>
-        <Dialog.Close type="button" class={buttonVariants({ variant: "outline" })}>
+        <Dialog.Close
+          type="button"
+          class={buttonVariants({ variant: "outline" })}
+        >
           {m.cancel()}
         </Dialog.Close>
         <Button type="submit">{m.news_tags_save()}</Button>

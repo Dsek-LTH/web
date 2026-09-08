@@ -98,7 +98,9 @@
                     <Badge variant="outline">
                       {entry.grantCount === 1
                         ? m.admin_access_grantCount_one()
-                        : m.admin_access_grantCount({ count: entry.grantCount })}
+                        : m.admin_access_grantCount({
+                            count: entry.grantCount,
+                          })}
                     </Badge>
                   {:else}
                     <Badge variant="outline" class="text-muted-foreground">

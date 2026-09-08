@@ -104,10 +104,12 @@
       const data = result.data as PositionSearchReturnAttributes;
       const role: RoleOption = {
         id: data.dsekId,
-        label: (getLocale() === "sv" ? data.nameSv : data.nameEn) ?? data.dsekId,
+        label:
+          (getLocale() === "sv" ? data.nameSv : data.nameEn) ?? data.dsekId,
         sublabel:
-          (getLocale() === "sv" ? data.committeeNameSv : data.committeeNameEn) ??
-          undefined,
+          (getLocale() === "sv"
+            ? data.committeeNameSv
+            : data.committeeNameEn) ?? undefined,
         committee: data.committee,
       };
       return selectedRoles.some((r) => r.id === role.id) ? [] : [role];

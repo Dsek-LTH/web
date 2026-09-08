@@ -36,7 +36,8 @@
 
   <Card class="border-border shadow-xl">
     <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
-      <CardTitle class="text-3xl font-bold">{m.gallery_uploadAlbum()}</CardTitle>
+      <CardTitle class="text-3xl font-bold">{m.gallery_uploadAlbum()}</CardTitle
+      >
     </CardHeader>
     <CardContent class="pt-6">
       <form

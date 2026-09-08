@@ -20,10 +20,11 @@
   let { data } = $props();
 
   // svelte-ignore state_referenced_locally
-  const { form, errors, enhance: nollningEnhance } = superForm(
-    data.updateNollningForm,
-    { id: "nollning" },
-  );
+  const {
+    form,
+    errors,
+    enhance: nollningEnhance,
+  } = superForm(data.updateNollningForm, { id: "nollning" });
 </script>
 
 <SetPageTitle title={m.admin_settings_pageTitle()} />
@@ -110,7 +111,8 @@
               <p class="text-sm font-medium">{setting.key}</p>
             </div>
             <div class="flex flex-1 flex-col gap-1.5">
-              <Label for="value-{setting.key}">{m.admin_settings_value()}</Label>
+              <Label for="value-{setting.key}">{m.admin_settings_value()}</Label
+              >
               <Input
                 id="value-{setting.key}"
                 name="value"
@@ -138,7 +140,9 @@
                 </AlertDialog.Description>
               </AlertDialog.Header>
               <AlertDialog.Footer>
-                <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+                <AlertDialog.Cancel type="button"
+                  >{m.cancel()}</AlertDialog.Cancel
+                >
                 <form method="POST" action="?/remove" use:enhance>
                   <input type="hidden" name="key" value={setting.key} />
                   <AlertDialog.Action

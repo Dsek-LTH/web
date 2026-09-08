@@ -35,9 +35,9 @@
   });
 
   let subjectType = $state<"member" | "role">("member");
-  let selectedMembers = $state<Array<MemberSearchReturnAttributes & { id?: string }>>(
-    [],
-  );
+  let selectedMembers = $state<
+    Array<MemberSearchReturnAttributes & { id?: string }>
+  >([]);
   let selectedRoles = $state<RoleOption[]>([]);
 
   // svelte-ignore state_referenced_locally
@@ -49,7 +49,11 @@
 <SetPageTitle title={apiName} />
 
 <div class="mx-auto w-full max-w-4xl px-4 py-8">
-  <Button variant="ghost" href="/admin/access" class="mb-6 flex items-center gap-2">
+  <Button
+    variant="ghost"
+    href="/admin/access"
+    class="mb-6 flex items-center gap-2"
+  >
     <ArrowLeft class="h-4 w-4" />
     {m.back()}
   </Button>
@@ -127,7 +131,8 @@
             {/if}
             {#if policy.member}
               <p class="font-medium">
-                {policy.member.firstName} {policy.member.lastName} ({policy.studentId})
+                {policy.member.firstName}
+                {policy.member.lastName} ({policy.studentId})
               </p>
             {:else if policy.studentId}
               <p class="font-medium">{policy.studentId}</p>
@@ -150,7 +155,9 @@
                 </AlertDialog.Description>
               </AlertDialog.Header>
               <AlertDialog.Footer>
-                <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
+                <AlertDialog.Cancel type="button"
+                  >{m.cancel()}</AlertDialog.Cancel
+                >
                 <form method="POST" action="?/delete" use:deleteEnhance>
                   <input type="hidden" name="id" value={policy.id} />
                   <AlertDialog.Action

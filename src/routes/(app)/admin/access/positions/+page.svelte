@@ -18,7 +18,9 @@
   let { data } = $props();
 
   // svelte-ignore state_referenced_locally
-  const { enhance: deleteEnhance } = superForm(data.deleteForm, { id: "delete" });
+  const { enhance: deleteEnhance } = superForm(data.deleteForm, {
+    id: "delete",
+  });
 
   let search = $state("");
 
@@ -81,7 +83,10 @@
                 </a>
                 <AlertDialog.Root>
                   <AlertDialog.Trigger
-                    class={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                    class={buttonVariants({
+                      variant: "ghost",
+                      size: "icon-sm",
+                    })}
                     aria-label={m.delete_delete()}
                   >
                     <Trash class="h-4 w-4" />
@@ -96,9 +101,19 @@
                       </AlertDialog.Description>
                     </AlertDialog.Header>
                     <AlertDialog.Footer>
-                      <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
-                      <form method="POST" action="?/deletePolicy" use:deleteEnhance>
-                        <input type="hidden" name="policyId" value={policy.id} />
+                      <AlertDialog.Cancel type="button"
+                        >{m.cancel()}</AlertDialog.Cancel
+                      >
+                      <form
+                        method="POST"
+                        action="?/deletePolicy"
+                        use:deleteEnhance
+                      >
+                        <input
+                          type="hidden"
+                          name="policyId"
+                          value={policy.id}
+                        />
                         <AlertDialog.Action
                           type="submit"
                           class={buttonVariants({ variant: "destructive" })}

@@ -39,10 +39,9 @@
 
   let input = $state(page.url.searchParams.get("q") ?? "");
   let selected = $state(
-    Object.fromEntries(availableSearchIndexes.map((index) => [index, true])) as Record<
-      (typeof availableSearchIndexes)[number],
-      boolean
-    >,
+    Object.fromEntries(
+      availableSearchIndexes.map((index) => [index, true]),
+    ) as Record<(typeof availableSearchIndexes)[number], boolean>,
   );
   let isSearching = $state(false);
   let hasSearched = $state(false);
@@ -134,7 +133,9 @@
       <div class="flex flex-col gap-6">
         {#if grouped.committees.length > 0}
           <Card>
-            <CardHeader><CardTitle>{m.search_committees()}</CardTitle></CardHeader>
+            <CardHeader
+              ><CardTitle>{m.search_committees()}</CardTitle></CardHeader
+            >
             <CardContent class="flex flex-col gap-1">
               {#each grouped.committees as result, i (`committee-${i}`)}
                 <CommitteeSearchResult data={result.data as never} />
@@ -144,7 +145,9 @@
         {/if}
         {#if grouped.positions.length > 0}
           <Card>
-            <CardHeader><CardTitle>{m.search_positions()}</CardTitle></CardHeader>
+            <CardHeader
+              ><CardTitle>{m.search_positions()}</CardTitle></CardHeader
+            >
             <CardContent class="flex flex-col gap-1">
               {#each grouped.positions as result, i (`position-${i}`)}
                 <PositionSearchResult data={result.data as never} />
@@ -174,7 +177,8 @@
         {/if}
         {#if grouped.articles.length > 0}
           <Card>
-            <CardHeader><CardTitle>{m.search_articles()}</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{m.search_articles()}</CardTitle></CardHeader
+            >
             <CardContent class="flex flex-col gap-1">
               {#each grouped.articles as result, i (`article-${i}`)}
                 <ArticleSearchResult data={result.data as never} />
@@ -208,8 +212,7 @@
         {#if grouped.meetingDocuments.length > 0}
           <Card>
             <CardHeader
-              ><CardTitle>{m.search_meeting_documents()}</CardTitle
-              ></CardHeader
+              ><CardTitle>{m.search_meeting_documents()}</CardTitle></CardHeader
             >
             <CardContent class="flex flex-col gap-1">
               {#each grouped.meetingDocuments as result, i (`meetdoc-${i}`)}
