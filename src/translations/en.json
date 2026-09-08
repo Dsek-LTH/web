@@ -1196,5 +1196,9 @@
   "news_tv_noArticles": "No news articles to show.",
   "positions_pageTitle": "All positions",
   "positions_noCommittee": "Other",
-  "positions_email": "Email"
+  "positions_email": "Email",
+  "medals_pageTitle": "Medals",
+  "medals_noRecipients": "No recipients for this semester.",
+  "medals_previousSemester": "Previous semester",
+  "medals_nextSemester": "Next semester"
 }

@@ -1196,5 +1196,9 @@
   "news_tv_noArticles": "Inga nyhetsartiklar att visa.",
   "positions_pageTitle": "Alla poster",
   "positions_noCommittee": "Övrigt",
-  "positions_email": "E-post"
+  "positions_email": "E-post",
+  "medals_pageTitle": "Medaljer",
+  "medals_noRecipients": "Inga mottagare denna termin.",
+  "medals_previousSemester": "Föregående termin",
+  "medals_nextSemester": "Nästa termin"
 }
