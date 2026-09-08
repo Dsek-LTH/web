@@ -276,8 +276,8 @@ extra_ignore_patterns = [
     'w-dvw',
 ]
 
-[[override]] # SVG
-paths = [ '**.*/svg' ]
+[[overrides]] # SVG
+paths = [ '**/*.svg' ]
 extra_words = [
     'dasharray',
     'miterlimit',
