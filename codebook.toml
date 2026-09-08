@@ -3,8 +3,10 @@ use_global = false
 dictionaries = [ 'en_gb' ]
 
 ignore_paths = [
-    'pnpm-lock.yaml',
+    '**/pnpm-lock.yaml',
     'scheduler-service/go.sum',
+    'src/database/prisma/migrations/**',
+    'src/database/prisma/schema.prisma',
 ]
 
 ignore_patterns = [
@@ -16,9 +18,10 @@ ignore_patterns = [
     'D-sektionen inom TLTH',
     'Fr\*nch',
     'Gammal && Äcklig',
-    'IBM Plex Mono',
+    'IBM Plex',
     'iDét',
     'RåsenbaD',
+    'SEK',
     'YouTube',
 
     # Technical
@@ -60,6 +63,7 @@ words = [
     'gyckle',
     'licensor',
     'Oklch',
+    'purchasables',
     'selectable',
     'shortener',
     'shoppable',
@@ -69,11 +73,13 @@ words = [
     'subprocessor',
     'unapprove',
     'unapproving',
+    'unconsume',
     'unbooked',
     'unported',
     'webshop',
     'wikia',
     'woggle',
+    'öre',
 
     # Names
     'CSN',
@@ -102,6 +108,7 @@ words = [
     'dompurify',
     'Dynmap',
     'embla',
+    'inlang',
     'Meili',
     'Meilisearch',
     'MinIO',
@@ -129,6 +136,7 @@ words = [
     'Slasque',
     'spex',
     'VTM',
+    'Øverphøs',
 
     # Swedish words sanctioned for code use.
     "sexet's",
@@ -137,6 +145,7 @@ words = [
     'phadder',
     'phadders',
     'Stab',
+    'yrka',
     'yrkande',
     'Øverpeppare',
 ]
@@ -398,4 +407,12 @@ extra_ignore_patterns = [
     # This monstrosity matches toml strings.
     # We only want to lint the comments in this file.
     "\"\"\"(?:\\\\.|[^\\\\])*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'[^'\\n]*'"
+]
+
+[[overrides]]
+paths = [ 'src/database/seed/data.ts' ]
+# We just ignore all string, kind of a cop-out but this data is not important.
+extra_ignore_patterns = [
+    '".*?"',
+    '`.*?`',
 ]
