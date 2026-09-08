@@ -92,7 +92,7 @@ func executeTask(ctx context.Context, task scheduledTask) {
 
 	var bodyMap map[string]any
 	if err := json.Unmarshal([]byte(task.Body), &bodyMap); err != nil {
-		log.Printf("Error unmarshalling body for task ID %d: %v", task.ID, err)
+		log.Printf("Error unmarshaling body for task ID %d: %v", task.ID, err)
 
 		return
 	}
