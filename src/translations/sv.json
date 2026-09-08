@@ -1214,5 +1214,11 @@
   "admin_settings_nollningEnd": "Slut",
   "admin_minio_pageTitle": "Filer",
   "admin_minio_uploadTitle": "Ladda upp en fil",
-  "admin_minio_fileName": "Filnamn"
+  "admin_minio_fileName": "Filnamn",
+  "admin_access_pageTitle": "Behörigheter",
+  "admin_access_knownPolicies": "Kända policykoder",
+  "admin_access_positionsPageTitle": "Behörighet per post",
+  "admin_access_position": "Post",
+  "admin_access_noEntries": "Inga poster",
+  "admin_access_roleOrStudentId": "Ange antingen en roll eller ett studentid, inte båda"
 }

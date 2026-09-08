@@ -1214,5 +1214,11 @@
   "admin_settings_nollningEnd": "End",
   "admin_minio_pageTitle": "Files",
   "admin_minio_uploadTitle": "Upload a file",
-  "admin_minio_fileName": "File name"
+  "admin_minio_fileName": "File name",
+  "admin_access_pageTitle": "Access policies",
+  "admin_access_knownPolicies": "Known policy codes",
+  "admin_access_positionsPageTitle": "Access by position",
+  "admin_access_position": "Position",
+  "admin_access_noEntries": "No entries",
+  "admin_access_roleOrStudentId": "Provide either a role or a student ID, not both"
 }
