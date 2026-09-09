@@ -82,22 +82,27 @@ words = [
     'öre',
 
     # Names
+    'Agardh', # Head Processor 2026
     'CSN',
     'Datagården',
+    'Gehlsdorf', # Treasurer 2026
+    'Helander', # Head of Facilities 2026
+    'Hemberg', # Auditor 2026
     'Kiosken',
     'Kämnärsrätten',
     'LTH',
     'Lund',
     'Québec',
     'Repobeats',
+    'Rilde', # Auditor 2026
     'Råsa',
     'Råsenbad',
     'Sjøn',
     'SRD',
     'Studentlund',
+    'Svensson', # Guild President 2026
     'Teknologkåren',
     'TLTH',
-    'zenstack',
 
     # Tools
     'authentik',
@@ -120,8 +125,9 @@ words = [
     'Stocklist',
     'tiptap',
     'vaul',
-    'vitest',
     'vercel',
+    'vitest',
+    'zenstack',
     'zod',
 
     # Guild-specific words
@@ -148,6 +154,10 @@ words = [
     'yrka',
     'yrkande',
     'Øverpeppare',
+    'Processmästare',
+    'Skattmästare',
+    'Revisor',
+    'Ordförande',
 ]
 
 [[overrides]] # Swedish
@@ -420,3 +430,11 @@ extra_ignore_patterns = [
 [[overrides]]
 paths = [ 'src/routes/(app)/songbook/helpers.ts' ]
 extra_ignore_patterns = [ 'e\.g\. ".*?"' ] # Song category examples.
+
+
+[[overrides]]
+paths = [ 'src/routes/(app)/salto/[door]/constants.ts' ]
+# This file contains names and positions in Swedish.
+extra_words = [
+    'Processmästare',
+]
