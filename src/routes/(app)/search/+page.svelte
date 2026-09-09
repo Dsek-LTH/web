@@ -4,6 +4,7 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Checkbox } from "$lib/components/ui/checkbox/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
+  import * as Command from "$lib/components/ui/command/index.js";
   import {
     Card,
     CardHeader,
@@ -15,6 +16,7 @@
   import { enhance } from "$app/forms";
   import { page } from "$app/state";
   import { isSearchResultData } from "$lib/utils/search";
+  import { debounce } from "$lib/utils/debounce";
   import { availableSearchIndexes } from "$lib/search/searchTypes";
   import type { SearchDataWithType } from "$lib/search/searchTypes";
   import Search from "@lucide/svelte/icons/search";
@@ -58,9 +60,14 @@
     ) as Record<(typeof availableSearchIndexes)[number], SearchDataWithType[]>,
   );
 
+  const debouncedSubmit = debounce(() => formElement?.requestSubmit(), 300);
+
   $effect(() => {
+    // Track filter changes too, so toggling a checkbox re-runs the search
+    // for whatever query is already entered.
+    void Object.values(selected);
     if (input.trim().length > 0) {
-      formElement?.requestSubmit();
+      debouncedSubmit();
     }
   });
 </script>
@@ -130,98 +137,110 @@
     {#if results.length === 0}
       <p class="text-muted-foreground">{m.search_noResults()}</p>
     {:else}
-      <div class="flex flex-col gap-6">
-        {#if grouped.committees.length > 0}
-          <Card>
-            <CardHeader
-              ><CardTitle>{m.search_committees()}</CardTitle></CardHeader
-            >
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.committees as result, i (`committee-${i}`)}
-                <CommitteeSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-        {#if grouped.positions.length > 0}
-          <Card>
-            <CardHeader
-              ><CardTitle>{m.search_positions()}</CardTitle></CardHeader
-            >
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.positions as result, i (`position-${i}`)}
-                <PositionSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-        {#if grouped.members.length > 0}
-          <Card>
-            <CardHeader><CardTitle>{m.search_members()}</CardTitle></CardHeader>
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.members as result, i (`member-${i}`)}
-                <MemberSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-        {#if grouped.events.length > 0}
-          <Card>
-            <CardHeader><CardTitle>{m.search_events()}</CardTitle></CardHeader>
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.events as result, i (`event-${i}`)}
-                <EventSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-        {#if grouped.articles.length > 0}
-          <Card>
-            <CardHeader><CardTitle>{m.search_articles()}</CardTitle></CardHeader
-            >
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.articles as result, i (`article-${i}`)}
-                <ArticleSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-        {#if grouped.songs.length > 0}
-          <Card>
-            <CardHeader><CardTitle>{m.search_songs()}</CardTitle></CardHeader>
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.songs as result, i (`song-${i}`)}
-                <SongSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-        {#if grouped.governingDocuments.length > 0}
-          <Card>
-            <CardHeader
-              ><CardTitle>{m.search_governing_documents()}</CardTitle
-              ></CardHeader
-            >
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.governingDocuments as result, i (`govdoc-${i}`)}
-                <DocumentSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-        {#if grouped.meetingDocuments.length > 0}
-          <Card>
-            <CardHeader
-              ><CardTitle>{m.search_meeting_documents()}</CardTitle></CardHeader
-            >
-            <CardContent class="flex flex-col gap-1">
-              {#each grouped.meetingDocuments as result, i (`meetdoc-${i}`)}
-                <DocumentSearchResult data={result.data as never} />
-              {/each}
-            </CardContent>
-          </Card>
-        {/if}
-      </div>
+      <Command.Root shouldFilter={false} class="contents">
+        <Command.List class="contents max-h-none overflow-visible">
+          <div class="flex flex-col gap-6">
+            {#if grouped.committees.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_committees()}</CardTitle></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.committees as result, i (`committee-${i}`)}
+                    <CommitteeSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+            {#if grouped.positions.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_positions()}</CardTitle></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.positions as result, i (`position-${i}`)}
+                    <PositionSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+            {#if grouped.members.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_members()}</CardTitle></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.members as result, i (`member-${i}`)}
+                    <MemberSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+            {#if grouped.events.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_events()}</CardTitle></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.events as result, i (`event-${i}`)}
+                    <EventSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+            {#if grouped.articles.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_articles()}</CardTitle></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.articles as result, i (`article-${i}`)}
+                    <ArticleSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+            {#if grouped.songs.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_songs()}</CardTitle></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.songs as result, i (`song-${i}`)}
+                    <SongSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+            {#if grouped.governingDocuments.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_governing_documents()}</CardTitle
+                  ></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.governingDocuments as result, i (`govdoc-${i}`)}
+                    <DocumentSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+            {#if grouped.meetingDocuments.length > 0}
+              <Card>
+                <CardHeader
+                  ><CardTitle>{m.search_meeting_documents()}</CardTitle
+                  ></CardHeader
+                >
+                <CardContent class="flex flex-col gap-1">
+                  {#each grouped.meetingDocuments as result, i (`meetdoc-${i}`)}
+                    <DocumentSearchResult data={result.data as never} />
+                  {/each}
+                </CardContent>
+              </Card>
+            {/if}
+          </div>
+        </Command.List>
+      </Command.Root>
     {/if}
   {/if}
 </div>
