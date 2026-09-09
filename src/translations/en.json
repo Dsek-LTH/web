@@ -1185,5 +1185,8 @@
   "tickets_updated": "Ticket updated",
   "yrka_could_not_send": "Could not send email",
   "yrka_sent": "Motion sent!",
-  "tickets_created": "Ticket created"
+  "tickets_created": "Ticket created",
+  "tickets_could_not_unconsume": "Could not unconsume the ticket.",
+  "tickets_unconsumed": "The ticket has been unconsumed.",
+  "tickets_refunded": "The ticket has been refunded."
 }
