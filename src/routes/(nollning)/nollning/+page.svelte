@@ -38,12 +38,16 @@
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
   $: headerAndFooterHeight = 128 + topInsets + bottomInsets;
 
+  /** @type {HTMLIFrameElement} */
   let iframeEl;
 
   function goFullscreen() {
-    iframeEl.requestFullscreen().catch((err) => {
-      console.error("Fullscreen misslyckades:", err);
-    });
+    iframeEl.requestFullscreen().catch(
+      /** @param {unknown} err */
+      (err) => {
+        console.error("Fullscreen misslyckades:", err);
+      },
+    );
   }
 
   const stab = [
