@@ -38,6 +38,14 @@
   $: bottomInsets = $page.data.appInfo?.insets?.bottom ?? 0;
   $: headerAndFooterHeight = 128 + topInsets + bottomInsets;
 
+  let iframeEl;
+
+  function goFullscreen() {
+    iframeEl.requestFullscreen().catch((err) => {
+      console.error("Fullscreen misslyckades:", err);
+    });
+  }
+
   const stab = [
     {
       name: "Øverphøs\nVe||oria PolarIX",
@@ -346,10 +354,6 @@ See you! ✌️
       </div>
     </section>
     {#if data.revealTheme}
-      <script>
-        let snowActive = $state(false);
-      </script>
-
       <SnowEffect bind:active={snowActive} />
       <div
         class="relative mx-auto mb-12 aspect-square max-h-[500px] max-w-[500px] rounded-full border-8 border-secondary bg-[#080817] max-md:scale-75"
@@ -371,15 +375,32 @@ See you! ✌️
         <p class="nolla-prose">
           {m.nollning_landing_lore_body()}
         </p>
-        <!-- <iframe waiting for final video src
+        <!--<iframe
           class="aspect-video w-full"
-          src=""
+          src="https://www.youtube.com/embed/ZFXH2HXEDlc"
           title="Reveal film"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
-        ></iframe> -->
+        ></iframe>-->
+        <div class="mx-auto mt-8 w-full max-w-3xl">
+          <div
+            class="aspect-[8/5] w-full overflow-hidden rounded-lg border-4 border-secondary bg-black"
+          >
+            <iframe
+              bind:this={iframeEl}
+              src="/STABEN26_WEBFINAL/index.html"
+              title="STABEN26 spel"
+              class="h-full w-full"
+              allow="fullscreen"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <button onclick={goFullscreen} class="btn btn-secondary mt-2">
+            Fullscreen
+          </button>
+        </div>
       </section>
 
       <section
@@ -454,27 +475,13 @@ See you! ✌️
     {#if data.revealTheme}
       <!--<iframe
         class="aspect-video w-full"
-        src="https://www.youtube.com/embed/rRPQs_kM_nw"
+        src=""
         title="Nolledans film"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin"
         allowfullscreen
       ></iframe>-->
-
-      <!--<div class="mx-auto max-w-3xl">
-        <div
-          class="aspect-[8/5] w-full overflow-hidden rounded-lg border-4 border-secondary"
-        >
-          <iframe
-            src="/STABEN26_Web/index.html"
-            title="STABEN26 spel"
-            class="h-full w-full"
-            allow="fullscreen"
-            allowfullscreen
-          ></iframe>
-        </div>
-      </div>-->
     {/if}
     <section class="mt-16 flex flex-col items-center">
       <h1 class="mb-16 text-3xl font-medium">
