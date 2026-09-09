@@ -3,6 +3,8 @@
   import Alert from "$lib/components/Alert.svelte";
   import Header from "./Header.svelte";
   import Footer from "./Footer.svelte";
+  import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
+  import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
 
@@ -19,6 +21,15 @@
     : 0) + "px"}
 >
   <Header notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
+
+  {#if data.isApp}
+    {#await data.notificationsPromise then notifications}
+      <AppUnreadNotificationHandler
+        notificationCount={notifications?.filter((n) => !n.readAt).length}
+      />
+    {/await}
+    <AppNotificationTokenHandler />
+  {/if}
 
   <main class="flex min-h-0 flex-1 flex-col">
     {#each data.alerts as alert (alert.id)}
