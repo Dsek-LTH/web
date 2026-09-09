@@ -1,5 +1,5 @@
 // This needs to be updated at the turn of every year,
-// and it is chosen by the Head of Faculties (Källarmästare).
+// and it is chosen by the Head of Facilities (Källarmästare).
 // Do not edit it without consulting them.
 export const BACKUP_LIST_OF_STUDENT_IDS = [
   "em8241he-s", // Källarmästare, Emil Helander
