@@ -157,7 +157,19 @@
               }}
             />
           </Table.Cell>
-          <Table.Cell class="font-medium">{link.shortCode}</Table.Cell>
+          <Table.Cell class="font-medium">
+            <div class="flex flex-col">
+              <span>{link.shortCode}</span>
+              <a
+                href={link.shortUrl}
+                target="_blank"
+                class="text-muted-foreground flex items-center gap-1 text-xs font-normal hover:underline"
+              >
+                <ExternalLink class="h-3 w-3 shrink-0" />
+                {link.shortUrl.replace(/^https?:\/\//, "")}
+              </a>
+            </div>
+          </Table.Cell>
           <Table.Cell class="max-w-xs truncate">
             <a
               href={link.longUrl}
@@ -215,6 +227,12 @@
           placeholder={m.admin_links_add_placeholder_slug()}
           bind:value={$createFormData.slug}
         />
+        {#if data.defaultDomain}
+          <p class="text-muted-foreground text-xs">
+            {m.admin_links_resulting_url()}: {data.defaultDomain}/{$createFormData.slug ||
+              m.admin_links_add_placeholder_slug()}
+          </p>
+        {/if}
         {#if $createErrors.slug}
           <p class="text-destructive text-sm font-medium">
             {$createErrors.slug}
@@ -276,6 +294,11 @@
       <input type="hidden" name="slug" value={editingSlug} />
       <Dialog.Header>
         <Dialog.Title>{m.admin_links_edit_title()}</Dialog.Title>
+        {#if data.defaultDomain}
+          <p class="text-muted-foreground text-xs">
+            {m.admin_links_resulting_url()}: {data.defaultDomain}/{editingSlug}
+          </p>
+        {/if}
       </Dialog.Header>
       <div class="flex flex-col gap-2">
         <Label for="update-url">{m.admin_links_add_label_URL()}</Label>
