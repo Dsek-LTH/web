@@ -46,7 +46,9 @@ const getSemesters = (
   mandates: Array<ExtendedPrismaModel<"Mandate">>,
 ): Semester[] => [
   ...mandates.reduce((accumulator, current) => {
-    coveredSemesters(current.startDate, current.endDate).forEach((x) => accumulator.add(x));
+    coveredSemesters(current.startDate, current.endDate).forEach((x) =>
+      accumulator.add(x),
+    );
     return accumulator;
   }, new Set<Semester>()),
 ];
@@ -215,7 +217,10 @@ export const memberMedals = async (
     );
 
   const volunteerMedalSem = volunteerMedalSemester(volunteerSemesters);
-  const gammalOchÄckligSem = gammalOchÄckligSemester(boardSemesters, volunteerSemesters);
+  const gammalOchÄckligSem = gammalOchÄckligSemester(
+    boardSemesters,
+    volunteerSemesters,
+  );
 
   const res: Array<{ medal: string; after: Semester }> = [];
 
