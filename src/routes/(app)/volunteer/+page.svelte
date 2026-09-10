@@ -3,7 +3,7 @@
   import * as Card from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
-  import MessageCircle from "@lucide/svelte/icons/message-circle";
+  import { siDiscord } from "simple-icons";
   import Info from "@lucide/svelte/icons/info";
   import Users from "@lucide/svelte/icons/users";
   import Clock from "@lucide/svelte/icons/clock";
@@ -34,17 +34,17 @@
       step: "3",
     },
     {
-      path: "/(app)/volunteer/meetings",
-      title: m.volunteer_nav_meetings,
-      desc: m.volunteer_meetings_subtitle,
-      icon: FileText,
-      step: "4",
-    },
-    {
       path: "/(app)/volunteer/apply",
       title: m.volunteer_nav_apply,
       desc: m.volunteer_apply_subtitle,
       icon: ClipboardCheck,
+      step: "4",
+    },
+    {
+      path: "/(app)/volunteer/meetings",
+      title: m.volunteer_nav_meetings,
+      desc: m.volunteer_meetings_subtitle,
+      icon: FileText,
       step: "5",
     },
   ] as const;
@@ -134,7 +134,15 @@
           variant="outline"
           class="flex items-center gap-2"
         >
-          <MessageCircle class="size-4 text-[#5865F2]" />
+          <svg
+            role="img"
+            fill="#5865F2"
+            height="16"
+            width="16"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            ><title>Discord</title><path d={siDiscord.path} /></svg
+          >
           <span>{m.volunteer_landing_join_discord()}</span>
         </Button>
       </div>

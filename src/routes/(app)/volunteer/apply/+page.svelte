@@ -1,14 +1,24 @@
 <script lang="ts">
+  import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import * as Card from "$lib/components/ui/card";
   import * as Tabs from "$lib/components/ui/tabs";
   import { Separator } from "$lib/components/ui/separator";
-  import ClipboardCheck from "@lucide/svelte/icons/clipboard-check";
+  import { Button } from "$lib/components/ui/button";
+  import GuideCard from "../GuideCard.svelte";
+  import ElectionCard from "$lib/components/ElectionCard.svelte";
   import Video from "@lucide/svelte/icons/video";
   import Users from "@lucide/svelte/icons/users";
   import FileText from "@lucide/svelte/icons/file-text";
   import ExternalLink from "@lucide/svelte/icons/external-link";
-  import { Button } from "$lib/components/ui/button";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Gift from "@lucide/svelte/icons/gift";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
+  import Coffee from "@lucide/svelte/icons/coffee";
+  import Calendar from "@lucide/svelte/icons/calendar";
+  import { resolve } from "$app/paths";
+
+  let { data }: { data: PageData } = $props();
 
   const meetingSteps = [
     m.volunteer_apply_meeting_step1,
@@ -40,132 +50,188 @@
     m.volunteer_apply_form_step4,
     m.volunteer_apply_form_step5,
   ];
+
+  const alwaysItems = [
+    m.volunteer_roles_always_item1,
+    m.volunteer_roles_always_item2,
+    m.volunteer_roles_always_item3,
+    m.volunteer_roles_always_item4,
+    m.volunteer_roles_always_item5,
+    m.volunteer_roles_always_item6,
+    m.volunteer_roles_always_item7,
+  ];
+
+  const htm1Items = [
+    m.volunteer_roles_htm1_item1,
+    m.volunteer_roles_htm1_item2,
+    m.volunteer_roles_htm1_item3,
+  ];
+
+  const htmvalGroups = [
+    {
+      label: m.volunteer_roles_htmval_board_label,
+      desc: m.volunteer_roles_htmval_board,
+    },
+    {
+      label: m.volunteer_roles_htmval_vice_label,
+      desc: m.volunteer_roles_htmval_vice,
+    },
+    {
+      label: m.volunteer_roles_htmval_other_label,
+      desc: m.volunteer_roles_htmval_other,
+    },
+  ] as const;
+
+  // Committee names are proper nouns and identical in both locales.
+  const committeeRoles = [
+    { name: "Café", desc: m.volunteer_roles_comm_cafe },
+    { name: "Källar", desc: m.volunteer_roles_comm_kallar },
+    { name: "AktU", desc: m.volunteer_roles_comm_aktu },
+    { name: "InfU", desc: m.volunteer_roles_comm_infu },
+    { name: "Sexet", desc: m.volunteer_roles_comm_sexet },
+    { name: "NollU", desc: m.volunteer_roles_comm_nollu },
+    { name: "Framtid", desc: m.volunteer_roles_comm_future },
+    { name: "CPU", desc: m.volunteer_roles_comm_cpu },
+  ] as const;
+
+  const benefits = [
+    {
+      title: m.volunteer_benefits_utskott_title,
+      icon: Gift,
+      desc: m.volunteer_benefits_utskott_desc,
+    },
+    {
+      title: m.volunteer_benefits_sektion_title,
+      icon: Sparkles,
+      desc: m.volunteer_benefits_sektion_desc,
+    },
+    {
+      title: m.volunteer_benefits_coffee_title,
+      icon: Coffee,
+      desc: m.volunteer_benefits_coffee_desc,
+    },
+    {
+      title: m.volunteer_benefits_skiphtes_title,
+      icon: Calendar,
+      desc: m.volunteer_benefits_skiphtes_desc,
+    },
+  ] as const;
 </script>
 
 <div class="flex flex-col gap-10">
-  <!-- Header -->
-  <div class="flex flex-col gap-2">
-    <h2 class="font-sans text-3xl font-bold tracking-tight">
-      {m.volunteer_apply_title()}
-    </h2>
+  <header class="flex flex-col gap-2">
+    <h1>{m.volunteer_apply_title()}</h1>
     <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
       {m.volunteer_apply_subtitle()}
     </p>
-  </div>
+  </header>
 
-  <!-- Guide intro -->
-  <section class="flex flex-col gap-6">
-    <div class="flex items-center gap-3">
-      <div class="bg-primary/10 text-primary rounded-lg p-2">
-        <ClipboardCheck class="size-5" />
-      </div>
-      <h3 class="font-sans text-2xl font-bold tracking-tight">
-        {m.volunteer_apply_guide_title()}
-      </h3>
-    </div>
-    <p class="text-muted-foreground max-w-4xl text-sm leading-relaxed">
-      {m.volunteer_apply_guide_desc()}
+  <!-- How elections work overall -->
+  <section class="flex flex-col gap-2">
+    <h2>{m.volunteer_apply_process_title()}</h2>
+    <p class="text-muted-foreground max-w-4xl leading-relaxed">
+      {m.volunteer_apply_process_desc()}
     </p>
+  </section>
 
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <!-- Steps at Meetings -->
+  <Separator />
+
+  <!-- 1. Elections held at guild meetings -->
+  <section class="flex flex-col gap-5">
+    <h2>{m.volunteer_apply_meeting_title()}</h2>
+
+    <ol class="flex flex-col gap-3">
+      {#each meetingSteps as step, i (i)}
+        <li class="text-muted-foreground flex gap-3 text-sm leading-relaxed">
+          <span
+            class="bg-primary/15 text-primary mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+          >
+            {i + 1}
+          </span>
+          <span>{step()}</span>
+        </li>
+      {/each}
+    </ol>
+
+    <div
+      class="border-border/80 bg-muted-background flex flex-col gap-2 rounded-xl border p-5"
+    >
+      <p class="text-muted-foreground text-sm leading-relaxed">
+        {m.volunteer_apply_meeting_footer()}
+      </p>
+      <p class="text-primary text-sm leading-relaxed font-semibold">
+        {m.volunteer_apply_meeting_note()}
+      </p>
+    </div>
+  </section>
+
+  <Separator />
+
+  <!-- 2. Elections run by nomination committees -->
+  <section class="flex flex-col gap-5">
+    <div class="flex flex-col gap-2">
+      <h2>{m.volunteer_apply_board_title()}</h2>
+      <p class="text-muted-foreground max-w-4xl leading-relaxed">
+        {m.volunteer_apply_board_desc()}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
-        <h4 class="text-primary font-sans text-base font-bold">
-          {m.volunteer_apply_meeting_title()}
-        </h4>
-        <ol class="flex-1 space-y-3">
-          {#each meetingSteps as step, i (i)}
+        <h3 class="flex items-center gap-2 text-base font-semibold">
+          <Users class="text-primary size-4" />
+          <span>{m.volunteer_apply_interview_title()}</span>
+        </h3>
+        <ol class="flex flex-col gap-2.5">
+          {#each interviewSteps as step, i (i)}
             <li
-              class="text-muted-foreground flex gap-3 text-xs leading-relaxed"
+              class="text-muted-foreground flex gap-2.5 text-sm leading-relaxed"
             >
-              <span
-                class="bg-primary/15 text-primary flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
-              >
-                {i + 1}
-              </span>
+              <span class="text-primary shrink-0 font-bold">{i + 1}.</span>
               <span>{step()}</span>
             </li>
           {/each}
         </ol>
-        <p
-          class="text-muted-foreground border-border/60 border-t pt-4 text-[11px] leading-relaxed"
-        >
-          {m.volunteer_apply_meeting_footer()}
-        </p>
-        <p class="text-primary text-[11px] leading-relaxed font-semibold">
-          {m.volunteer_apply_meeting_note()}
-        </p>
       </Card.Root>
 
-      <!-- Steps by Nomination committees -->
       <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
-        <h4 class="text-primary font-sans text-base font-bold">
-          {m.volunteer_apply_board_title()}
-        </h4>
-        <p class="text-muted-foreground text-xs leading-relaxed">
-          {m.volunteer_apply_board_desc()}
-        </p>
-
-        <div class="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
-          <div class="flex flex-col gap-2">
-            <h5 class="flex items-center gap-1.5 text-xs font-semibold">
-              <Users class="text-primary size-3.5" />
-              <span>{m.volunteer_apply_interview_title()}</span>
-            </h5>
-            <ol class="space-y-1.5">
-              {#each interviewSteps as step, i (i)}
-                <li
-                  class="text-muted-foreground flex gap-2 text-[10px] leading-relaxed"
-                >
-                  <span class="text-primary shrink-0 font-bold">{i + 1}.</span>
-                  <span>{step()}</span>
-                </li>
-              {/each}
-            </ol>
-          </div>
-
-          <div
-            class="border-border/60 flex flex-col gap-2 border-t pt-4 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4"
-          >
-            <h5 class="flex items-center gap-1.5 text-xs font-semibold">
-              <FileText class="text-primary size-3.5" />
-              <span>{m.volunteer_apply_form_title()}</span>
-            </h5>
-            <ol class="space-y-1.5">
-              {#each formSteps as step, i (i)}
-                <li
-                  class="text-muted-foreground flex gap-2 text-[10px] leading-relaxed"
-                >
-                  <span class="text-primary shrink-0 font-bold">{i + 1}.</span>
-                  <span>{step()}</span>
-                </li>
-              {/each}
-            </ol>
-          </div>
-        </div>
+        <h3 class="flex items-center gap-2 text-base font-semibold">
+          <FileText class="text-primary size-4" />
+          <span>{m.volunteer_apply_form_title()}</span>
+        </h3>
+        <ol class="flex flex-col gap-2.5">
+          {#each formSteps as step, i (i)}
+            <li
+              class="text-muted-foreground flex gap-2.5 text-sm leading-relaxed"
+            >
+              <span class="text-primary shrink-0 font-bold">{i + 1}.</span>
+              <span>{step()}</span>
+            </li>
+          {/each}
+        </ol>
       </Card.Root>
     </div>
+  </section>
 
-    <!-- Video walkthrough section -->
+  <Separator />
+
+  <!-- 3. How to interview -->
+  <section class="flex flex-col gap-5">
+    <h2>{m.volunteer_apply_howto_title()}</h2>
     <Card.Root
       class="bg-muted-background border-border/80 flex flex-col items-center gap-6 p-6 sm:flex-row"
     >
       <div class="bg-primary/10 text-primary shrink-0 rounded-2xl p-4">
         <Video class="size-8" />
       </div>
-      <div class="flex flex-1 flex-col gap-2">
-        <h4 class="font-sans text-base font-bold">
-          {m.volunteer_apply_howto_title()}
-        </h4>
-        <p class="text-muted-foreground max-w-2xl text-xs leading-relaxed">
-          {m.volunteer_apply_howto_desc()}
-        </p>
-      </div>
+      <p class="text-muted-foreground flex-1 text-sm leading-relaxed">
+        {m.volunteer_apply_howto_desc()}
+      </p>
       <Button
         href="https://www.youtube.com/watch?v=7bB-VnYGuBw"
         target="_blank"
         rel="noreferrer"
-        class="bg-primary hover:bg-rosa-hover flex items-center gap-2 text-white shadow-sm"
+        class="bg-primary hover:bg-rosa-hover flex shrink-0 items-center gap-2 text-white shadow-sm"
       >
         <span>{m.volunteer_apply_howto_btn()}</span>
         <ExternalLink class="size-4" />
@@ -175,185 +241,171 @@
 
   <Separator />
 
-  <!-- Positions you can apply for -->
+  <!-- 4. Which positions are open when -->
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
-      <h3 class="font-sans text-2xl font-bold tracking-tight">
-        {m.volunteer_roles_title()}
-      </h3>
-      <p class="text-muted-foreground max-w-3xl text-sm leading-relaxed">
+      <h2>{m.volunteer_roles_title()}</h2>
+      <p class="text-muted-foreground max-w-3xl leading-relaxed">
         {m.volunteer_roles_subtitle()}
       </p>
     </div>
 
     <Tabs.Root value="always" class="w-full">
       <Tabs.List class="grid h-auto w-full grid-cols-2 gap-1 lg:grid-cols-4">
-        <Tabs.Trigger value="always" class="py-2.5 text-xs"
-          >{m.volunteer_roles_always_title()}</Tabs.Trigger
-        >
+        <Tabs.Trigger value="always" class="py-2.5 text-xs">
+          {m.volunteer_roles_always_title()}
+        </Tabs.Trigger>
         <Tabs.Trigger value="htm1" class="py-2.5 text-xs">HTM-1</Tabs.Trigger>
         <Tabs.Trigger value="htmval" class="py-2.5 text-xs"
           >HTM-Val</Tabs.Trigger
         >
-        <Tabs.Trigger value="committee" class="py-2.5 text-xs"
-          >Utskottsval</Tabs.Trigger
-        >
+        <Tabs.Trigger value="committee" class="py-2.5 text-xs">
+          {m.volunteer_roles_tab_committee()}
+        </Tabs.Trigger>
       </Tabs.List>
 
-      <!-- Tab Content: Always Possible -->
       <Tabs.Content value="always" class="mt-4">
-        <Card.Root class="bg-card border-border/80 p-6">
-          <Card.Header class="px-0 pt-0 pb-3">
-            <Card.Title class="text-base font-bold"
-              >{m.volunteer_roles_always_title()}</Card.Title
-            >
-            <Card.Description class="text-xs"
-              >{m.volunteer_roles_always_desc()}</Card.Description
-            >
-          </Card.Header>
-          <Card.Content class="px-0 pb-0">
-            <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-xs">
-              <li>{m.volunteer_roles_always_item1()}</li>
-              <li>{m.volunteer_roles_always_item2()}</li>
-              <li>{m.volunteer_roles_always_item3()}</li>
-              <li>{m.volunteer_roles_always_item4()}</li>
-              <li>{m.volunteer_roles_always_item5()}</li>
-              <li>{m.volunteer_roles_always_item6()}</li>
-              <li>{m.volunteer_roles_always_item7()}</li>
-            </ul>
-          </Card.Content>
+        <Card.Root class="bg-card border-border/80 flex flex-col gap-3 p-6">
+          <h3 class="text-base font-bold">
+            {m.volunteer_roles_always_title()}
+          </h3>
+          <p class="text-muted-foreground text-sm leading-relaxed">
+            {m.volunteer_roles_always_desc()}
+          </p>
+          <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-sm">
+            {#each alwaysItems as item, i (i)}
+              <li>{item()}</li>
+            {/each}
+          </ul>
         </Card.Root>
       </Tabs.Content>
 
-      <!-- Tab Content: HTM-1 -->
       <Tabs.Content value="htm1" class="mt-4">
-        <Card.Root class="bg-card border-border/80 p-6">
-          <Card.Header class="px-0 pt-0 pb-3">
-            <Card.Title class="text-base font-bold"
-              >{m.volunteer_roles_htm1_title()}</Card.Title
-            >
-          </Card.Header>
-          <Card.Content class="px-0 pb-0">
-            <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-xs">
-              <li>{m.volunteer_roles_htm1_item1()}</li>
-              <li>{m.volunteer_roles_htm1_item2()}</li>
-              <li>{m.volunteer_roles_htm1_item3()}</li>
-            </ul>
-          </Card.Content>
+        <Card.Root class="bg-card border-border/80 flex flex-col gap-3 p-6">
+          <h3 class="text-base font-bold">{m.volunteer_roles_htm1_title()}</h3>
+          <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-sm">
+            {#each htm1Items as item, i (i)}
+              <li>{item()}</li>
+            {/each}
+          </ul>
         </Card.Root>
       </Tabs.Content>
 
-      <!-- Tab Content: HTM-Val -->
       <Tabs.Content value="htmval" class="mt-4">
-        <Card.Root class="bg-card border-border/80 p-6">
-          <Card.Header class="px-0 pt-0 pb-3">
-            <Card.Title class="text-base font-bold"
-              >HTM-Val (Sektionsmötets val)</Card.Title
-            >
-            <Card.Description class="text-xs"
-              >{m.volunteer_roles_htmval_desc()}</Card.Description
-            >
-          </Card.Header>
-          <Card.Content class="flex flex-col gap-4 px-0 pb-0">
+        <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
+          <div class="flex flex-col gap-2">
+            <h3 class="text-base font-bold">
+              {m.volunteer_roles_htmval_heading()}
+            </h3>
+            <p class="text-muted-foreground text-sm leading-relaxed">
+              {m.volunteer_roles_htmval_desc()}
+            </p>
+          </div>
+          {#each htmvalGroups as group (group.label)}
             <div class="flex flex-col gap-1.5">
-              <h5 class="text-primary text-xs font-semibold">Styrelsen</h5>
-              <p class="text-muted-foreground text-xs leading-relaxed">
-                {m.volunteer_roles_htmval_board()}
+              <h4 class="text-primary text-sm font-semibold">
+                {group.label()}
+              </h4>
+              <p class="text-muted-foreground text-sm leading-relaxed">
+                {group.desc()}
               </p>
             </div>
-            <div class="flex flex-col gap-1.5">
-              <h5 class="text-primary text-xs font-semibold">
-                Vice utskottsordförande
-              </h5>
-              <p class="text-muted-foreground text-xs leading-relaxed">
-                {m.volunteer_roles_htmval_vice()}
-              </p>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <h5 class="text-primary text-xs font-semibold">Övriga poster</h5>
-              <p class="text-muted-foreground text-xs leading-relaxed">
-                {m.volunteer_roles_htmval_other()}
-              </p>
-            </div>
-            <Separator class="my-2" />
-            <div class="flex flex-col gap-1.5">
-              <h5 class="text-primary text-xs font-semibold">HTM-2 & VTM</h5>
-              <p class="text-muted-foreground text-xs leading-relaxed">
-                {m.volunteer_roles_htm2_desc1()}
-              </p>
-              <p class="text-muted-foreground text-xs leading-relaxed">
-                {m.volunteer_roles_htm2_desc2()}
-              </p>
-            </div>
-          </Card.Content>
+          {/each}
+          <Separator class="my-1" />
+          <div class="flex flex-col gap-1.5">
+            <h4 class="text-primary text-sm font-semibold">
+              {m.volunteer_roles_htm2_label()}
+            </h4>
+            <p class="text-muted-foreground text-sm leading-relaxed">
+              {m.volunteer_roles_htm2_desc1()}
+            </p>
+            <p class="text-muted-foreground text-sm leading-relaxed">
+              {m.volunteer_roles_htm2_desc2()}
+            </p>
+          </div>
         </Card.Root>
       </Tabs.Content>
 
-      <!-- Tab Content: Committee elections -->
       <Tabs.Content value="committee" class="mt-4">
-        <Card.Root class="bg-card border-border/80 p-6">
-          <Card.Header class="px-0 pt-0 pb-3">
-            <Card.Title class="text-base font-bold"
-              >{m.volunteer_roles_comm_title()}</Card.Title
-            >
-            <Card.Description class="text-xs"
-              >{m.volunteer_roles_comm_desc()}</Card.Description
-            >
-          </Card.Header>
-          <Card.Content class="flex flex-col gap-4 px-0 pb-0">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
+          <div class="flex flex-col gap-2">
+            <h3 class="text-base font-bold">
+              {m.volunteer_roles_comm_title()}
+            </h3>
+            <p class="text-muted-foreground text-sm leading-relaxed">
+              {m.volunteer_roles_comm_desc()}
+            </p>
+          </div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {#each committeeRoles as role (role.name)}
               <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">Café</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_cafe()}
+                <h4 class="text-primary text-sm font-semibold">{role.name}</h4>
+                <p class="text-muted-foreground text-sm leading-relaxed">
+                  {role.desc()}
                 </p>
               </div>
-              <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">Källar</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_kallar()}
-                </p>
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">AktU</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_aktu()}
-                </p>
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">InfU</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_infu()}
-                </p>
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">Sexet</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_sexet()}
-                </p>
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">NollU</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_nollu()}
-                </p>
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">Framtid</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_future()}
-                </p>
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <h5 class="text-primary text-xs font-semibold">CPU</h5>
-                <p class="text-muted-foreground text-xs leading-relaxed">
-                  {m.volunteer_roles_comm_cpu()}
-                </p>
-              </div>
-            </div>
-          </Card.Content>
+            {/each}
+          </div>
         </Card.Root>
       </Tabs.Content>
     </Tabs.Root>
+  </section>
+
+  <Separator />
+
+  <!-- 5. Open elections, straight from the database -->
+  <section class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2">
+      <h2>{m.openElections()}</h2>
+      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+        {m.elections_description()}
+      </p>
+    </div>
+
+    {#if data.openElections.length > 0}
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {#each data.openElections as election, index (election.id)}
+          <ElectionCard {election} user={data.user} {index} />
+        {/each}
+      </div>
+    {:else}
+      <p
+        class="text-muted-foreground rounded-xl border-2 border-dashed p-8 text-center text-sm"
+      >
+        {m.volunteer_elections_empty()}
+      </p>
+    {/if}
+
+    <Button
+      href={resolve("/(app)/elections")}
+      variant="outline"
+      class="flex w-fit items-center gap-2"
+    >
+      <span>{m.volunteer_elections_all()}</span>
+      <ArrowRight class="size-4" />
+    </Button>
+  </section>
+
+  <Separator />
+
+  <!-- 6. Perks -->
+  <section class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2">
+      <h2>{m.volunteer_benefits_title()}</h2>
+      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+        {m.volunteer_benefits_subtitle()}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      {#each benefits as item, index (item.title)}
+        <GuideCard
+          title={item.title()}
+          description={item.desc()}
+          icon={item.icon}
+          {index}
+        />
+      {/each}
+    </div>
   </section>
 </div>

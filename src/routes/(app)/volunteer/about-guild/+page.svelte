@@ -1,16 +1,16 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import * as Card from "$lib/components/ui/card";
   import { Separator } from "$lib/components/ui/separator";
+  import GuideCard from "../GuideCard.svelte";
+  import GuildMap from "../GuildMap.svelte";
   import Users from "@lucide/svelte/icons/users";
   import Landmark from "@lucide/svelte/icons/landmark";
   import Sparkles from "@lucide/svelte/icons/sparkles";
-  import Map from "@lucide/svelte/icons/map";
-  import ExternalLink from "@lucide/svelte/icons/external-link";
   import Music from "@lucide/svelte/icons/music";
   import Theater from "@lucide/svelte/icons/theater";
   import PartyPopper from "@lucide/svelte/icons/party-popper";
   import Globe from "@lucide/svelte/icons/globe";
+  import Drum from "@lucide/svelte/icons/drum";
   import { resolve } from "$app/paths";
 
   const coreGuild = [
@@ -18,22 +18,25 @@
       title: m.volunteer_about_committees_title,
       icon: Users,
       desc: m.volunteer_about_committees_desc,
-      link: "/(app)/committees",
-      isInternal: true,
+      href: resolve("/(app)/about#committees"),
+      cta: m.volunteer_about_cta_committees,
+      external: false,
     },
     {
       title: m.volunteer_about_board_title,
       icon: Landmark,
       desc: m.volunteer_about_board_desc,
-      link: "/(app)/board",
-      isInternal: true,
+      href: resolve("/(app)/board"),
+      cta: m.volunteer_about_cta_board,
+      external: false,
     },
     {
       title: m.volunteer_about_dchip_title,
       icon: Sparkles,
       desc: m.volunteer_about_dchip_desc,
-      link: "https://www.dchip.se/sv/",
-      isInternal: false,
+      href: "https://www.dchip.se/sv/",
+      cta: m.volunteer_about_cta_dchip,
+      external: true,
     },
   ] as const;
 
@@ -42,31 +45,43 @@
       title: m.volunteer_about_tlth_title,
       icon: Landmark,
       desc: m.volunteer_about_tlth_desc,
-      link: "https://www.tlth.se/",
+      href: "https://www.tlth.se/",
+      cta: m.volunteer_about_cta_readmore,
     },
     {
       title: m.volunteer_about_sas_title,
       icon: Music,
       desc: m.volunteer_about_sas_desc,
-      link: "mailto:sangarstridsforman@dsek.se",
+      href: "mailto:sangarstridsforman@dsek.se",
+      cta: m.footer_contact,
     },
     {
       title: m.volunteer_about_spex_title,
       icon: Theater,
       desc: m.volunteer_about_spex_desc,
-      link: null,
+      href: undefined,
+      cta: undefined,
+    },
+    {
+      title: m.volunteer_about_orchestra_title,
+      icon: Drum,
+      desc: m.volunteer_about_orchestra_desc,
+      href: "https://www.studentlund.se/verksamhet/",
+      cta: m.volunteer_about_cta_readmore,
     },
     {
       title: m.volunteer_about_karneval_title,
       icon: PartyPopper,
       desc: m.volunteer_about_karneval_desc,
-      link: "https://lundakarnevalen.se/",
+      href: "https://lundakarnevalen.se/",
+      cta: m.volunteer_about_cta_readmore,
     },
     {
-      title: m.volunteer_about_studentlund_title,
+      title: m.volunteer_about_nations_title,
       icon: Globe,
-      desc: m.volunteer_about_studentlund_desc,
-      link: "https://www.studentlund.se/",
+      desc: m.volunteer_about_nations_desc,
+      href: "https://www.studentlund.se/",
+      cta: m.volunteer_about_cta_readmore,
     },
   ] as const;
 
@@ -107,169 +122,100 @@
   ] as const;
 </script>
 
+{#snippet pills(items: ReadonlyArray<{ name: string; link: string | null }>)}
+  <div class="flex flex-wrap gap-2">
+    {#each items as item (item.name)}
+      {#if item.link}
+        <a
+          href={item.link}
+          target="_blank"
+          rel="noreferrer"
+          class="border-border text-muted-foreground hover:text-primary hover:border-primary/50 bg-card rounded-full border px-4 py-1.5 text-xs shadow-xs transition-colors"
+        >
+          {item.name}
+        </a>
+      {:else}
+        <span
+          class="border-border text-muted-foreground bg-muted-background rounded-full border px-4 py-1.5 text-xs select-none"
+        >
+          {item.name}
+        </span>
+      {/if}
+    {/each}
+  </div>
+{/snippet}
+
 <div class="flex flex-col gap-10">
-  <!-- Header -->
-  <div class="flex flex-col gap-2">
-    <h2 class="font-sans text-3xl font-bold tracking-tight">
-      {m.volunteer_about_title()}
-    </h2>
+  <header class="flex flex-col gap-2">
+    <h1>{m.volunteer_about_title()}</h1>
     <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
       {m.volunteer_about_subtitle()}
     </p>
-  </div>
+  </header>
 
-  <!-- Core Guild Structure -->
   <section class="grid grid-cols-1 gap-6 md:grid-cols-3">
-    {#each coreGuild as item (item.link)}
-      <Card.Root
-        class="bg-card border-border/80 hover:border-primary/50 flex flex-col transition-colors"
-      >
-        <Card.Header class="pb-3">
-          <div class="flex items-center gap-3">
-            <div class="bg-primary/10 text-primary rounded-lg p-2">
-              <item.icon class="size-5" />
-            </div>
-            <Card.Title class="flex items-center gap-1.5 text-lg font-semibold">
-              <span>{item.title()}</span>
-            </Card.Title>
-          </div>
-        </Card.Header>
-        <Card.Content
-          class="text-muted-foreground flex-1 text-sm leading-relaxed"
-        >
-          {item.desc()}
-        </Card.Content>
-        <Card.Footer class="pt-0">
-          <a
-            href={item.isInternal
-              ? resolve(item.link as "/(app)/board" | "/(app)/committees")
-              : item.link}
-            target={item.isInternal ? undefined : "_blank"}
-            rel="noreferrer"
-            class="text-primary flex items-center gap-1 text-xs font-semibold hover:underline"
-          >
-            <span>{m.volunteer_landing_explore_committees()}</span>
-            <ExternalLink class="size-3" />
-          </a>
-        </Card.Footer>
-      </Card.Root>
+    {#each coreGuild as item, index (item.href)}
+      <GuideCard
+        title={item.title()}
+        description={item.desc()}
+        icon={item.icon}
+        href={item.href}
+        external={item.external}
+        cta={item.cta()}
+        {index}
+      />
     {/each}
   </section>
 
-  <!-- Sektionskarta Explanation -->
-  <section
-    class="border-border/80 bg-muted-background flex items-start gap-4 rounded-2xl border p-6 md:p-8"
-  >
-    <div class="bg-primary/10 text-primary shrink-0 rounded-xl p-3">
-      <Map class="size-6" />
-    </div>
+  <!-- Sektionskarta -->
+  <section class="flex flex-col gap-5">
     <div class="flex flex-col gap-2">
-      <h3 class="font-sans text-lg font-semibold">
-        {m.volunteer_about_map_title()}
-      </h3>
-      <p class="text-muted-foreground max-w-4xl text-sm leading-relaxed">
+      <h2>{m.volunteer_about_map_title()}</h2>
+      <p class="text-muted-foreground max-w-3xl leading-relaxed">
         {m.volunteer_about_map_desc()}
       </p>
     </div>
+    <GuildMap />
   </section>
 
   <Separator />
 
-  <!-- Outside the Guild -->
+  <!-- Outside the guild -->
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
-      <h2 class="font-sans text-2xl font-bold tracking-tight">
-        {m.volunteer_about_outside_title()}
-      </h2>
-      <p class="text-muted-foreground max-w-3xl text-sm leading-relaxed">
+      <h2>{m.volunteer_about_outside_title()}</h2>
+      <p class="text-muted-foreground max-w-3xl leading-relaxed">
         {m.volunteer_about_outside_subtitle()}
       </p>
     </div>
 
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {#each outsideGuild as item (item.title)}
-        <Card.Root class="bg-card border-border/80 flex flex-col">
-          <Card.Header class="pb-3">
-            <div class="flex items-center gap-3">
-              <div class="bg-primary/10 text-primary rounded-lg p-2">
-                <item.icon class="size-5" />
-              </div>
-              <Card.Title class="text-base font-semibold">
-                {item.title()}
-              </Card.Title>
-            </div>
-          </Card.Header>
-          <Card.Content
-            class="text-muted-foreground flex-1 text-xs leading-relaxed"
-          >
-            {item.desc()}
-          </Card.Content>
-          {#if item.link}
-            <Card.Footer class="pt-0">
-              <a
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                class="text-primary flex items-center gap-1 text-xs font-semibold hover:underline"
-              >
-                <span
-                  >{item.title() === m.volunteer_about_sas_title()
-                    ? m.footer_contact()
-                    : "Läs mer"}</span
-                >
-                <ExternalLink class="size-3" />
-              </a>
-            </Card.Footer>
-          {/if}
-        </Card.Root>
+      {#each outsideGuild as item, index (item.title)}
+        <GuideCard
+          title={item.title()}
+          description={item.desc()}
+          icon={item.icon}
+          href={item.href}
+          external={item.href !== undefined}
+          cta={item.cta?.()}
+          {index}
+        />
       {/each}
     </div>
 
-    <!-- Nations List -->
     <div class="mt-4 flex flex-col gap-3">
-      <h4 class="text-base font-semibold">
+      <h3 class="text-base font-semibold">
         {m.volunteer_about_nations_list()}
-      </h4>
-      <div class="flex flex-wrap gap-2">
-        {#each nations as nation (nation.name)}
-          <a
-            href={nation.link}
-            target="_blank"
-            rel="noreferrer"
-            class="border-border text-muted-foreground hover:text-primary hover:border-primary/50 bg-card rounded-full border px-4 py-1.5 text-xs shadow-xs transition-colors"
-          >
-            {nation.name}
-          </a>
-        {/each}
-      </div>
+      </h3>
+      {@render pills(nations)}
       <p class="text-muted-foreground mt-1 text-[11px] italic">
-        *Smålands Nation är inte med i Studentlund.
+        {m.volunteer_about_nations_footnote()}
       </p>
     </div>
 
-    <!-- Spex List -->
     <div class="mt-4 flex flex-col gap-3">
-      <h4 class="text-base font-semibold">{m.volunteer_about_spex_list()}</h4>
-      <div class="flex flex-wrap gap-2">
-        {#each spex as item (item.name)}
-          {#if item.link}
-            <a
-              href={item.link}
-              target="_blank"
-              rel="noreferrer"
-              class="border-border text-muted-foreground hover:text-primary hover:border-primary/50 bg-card rounded-full border px-4 py-1.5 text-xs shadow-xs transition-colors"
-            >
-              {item.name}
-            </a>
-          {:else}
-            <span
-              class="border-border text-muted-foreground bg-muted-background rounded-full border px-4 py-1.5 text-xs select-none"
-            >
-              {item.name}
-            </span>
-          {/if}
-        {/each}
-      </div>
+      <h3 class="text-base font-semibold">{m.volunteer_about_spex_list()}</h3>
+      {@render pills(spex)}
     </div>
   </section>
 </div>

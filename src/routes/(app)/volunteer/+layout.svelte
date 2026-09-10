@@ -17,8 +17,8 @@
       path: "/(app)/volunteer/involvement",
       label: m.volunteer_nav_involvement,
     },
-    { path: "/(app)/volunteer/meetings", label: m.volunteer_nav_meetings },
     { path: "/(app)/volunteer/apply", label: m.volunteer_nav_apply },
+    { path: "/(app)/volunteer/meetings", label: m.volunteer_nav_meetings },
   ] as const;
 
   let currentPath = $derived(page.url.pathname.replace(/\/$/, "")); // Normalize trailing slashes
@@ -44,51 +44,52 @@
     >
       {#each steps as step (step.path)}
         {@const isActive = currentPath === resolve(step.path)}
-        <a href={resolve(step.path)} class="shrink-0 md:w-full">
-          <Button
-            variant={isActive ? "rosa" : "ghost"}
-            class="w-full justify-start text-left {isActive
-              ? 'bg-primary font-semibold text-white shadow-md'
-              : 'text-muted-foreground hover:text-foreground'}"
-          >
-            {step.label()}
-          </Button>
-        </a>
+        <Button
+          href={resolve(step.path)}
+          variant={isActive ? "rosa" : "ghost"}
+          aria-current={isActive ? "page" : undefined}
+          class="shrink-0 justify-start text-left md:w-full {isActive
+            ? 'bg-primary font-semibold text-white shadow-md'
+            : 'text-muted-foreground hover:text-foreground'}"
+        >
+          {step.label()}
+        </Button>
       {/each}
     </nav>
   </aside>
 
   <!-- Page Content Shell -->
   <div class="flex min-w-0 flex-1 flex-col gap-10">
-    <main class="w-full">
+    <div class="w-full">
       {@render children?.()}
-    </main>
+    </div>
 
     <!-- Navigation Footer -->
     {#if currentIndex >= 0}
       <div class="border-border border-t pt-6">
         <div class="flex flex-row items-center justify-between gap-4">
           {#if prevStep}
-            <a href={resolve(prevStep.path)}>
-              <Button variant="outline" class="flex items-center gap-2">
-                <ChevronLeft class="size-4" />
-                <span>{prevStep.label()}</span>
-              </Button>
-            </a>
+            <Button
+              href={resolve(prevStep.path)}
+              variant="outline"
+              class="flex items-center gap-2"
+            >
+              <ChevronLeft class="size-4" />
+              <span>{prevStep.label()}</span>
+            </Button>
           {:else}
             <div></div>
           {/if}
 
           {#if nextStep}
-            <a href={resolve(nextStep.path)}>
-              <Button
-                variant="rosa"
-                class="bg-primary hover:bg-rosa-hover flex items-center gap-2 text-white shadow-md"
-              >
-                <span>{nextStep.label()}</span>
-                <ChevronRight class="size-4" />
-              </Button>
-            </a>
+            <Button
+              href={resolve(nextStep.path)}
+              variant="rosa"
+              class="bg-primary hover:bg-rosa-hover flex items-center gap-2 text-white shadow-md"
+            >
+              <span>{nextStep.label()}</span>
+              <ChevronRight class="size-4" />
+            </Button>
           {/if}
         </div>
       </div>
