@@ -1,6 +1,6 @@
 <script lang="ts">
   /**
-   * A keyboard key visualizer that highlights when the corresponding physical key is pressed.
+   * A keyboard key visualiser that highlights when the corresponding physical key is pressed.
    * Supports multiple simultaneous highlights for key combinations and shortcuts.
    *
    * @prop {string} symbol - The visual string or icon rendered in the UI (e.g., "⌘").

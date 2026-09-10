@@ -5,7 +5,7 @@ import { fileHandler } from "$lib/files";
 
 export const load = async () => {
   return {
-    isNollning: await isNollningPeriod(),
+    isN0llning: await isNollningPeriod(),
     prismaLogLevel: env.PRISMA_LOG_LEVEL,
     minIOHealthy: await fileHandler.isMinIOHealthy(),
   };

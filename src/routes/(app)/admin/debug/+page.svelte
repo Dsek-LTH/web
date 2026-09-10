@@ -18,7 +18,7 @@
       <h3>Actions</h3>
       <form action="?/meilisearchSync" method="post">
         <Button type="submit">Sync Meilisearch</Button>
-        <p>This will update Meilisearch's sync index.</p>
+        <p>This will update the sync index for Meilisearch.</p>
       </form>
     </section>
   {/if}
@@ -60,7 +60,7 @@
         Prisma log level:
         <pre class="inline">{data.prismaLogLevel}</pre>
       </li>
-      <li>Is nollning: {data.isNollning}</li>
+      <li>Is n0llning: {data.isN0llning}</li>
       <li>
         Is app: {data.isApp}
       </li>

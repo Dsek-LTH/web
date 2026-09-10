@@ -1,6 +1,6 @@
 import type { AuthUser } from "@zenstackhq/runtime";
 
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { error } from "@sveltejs/kit";
 
 // since this can be called quite often, on every page refresh basically, we want to do an in-memory cache to skip going to the DB
@@ -23,7 +23,7 @@ export const uploadNotificationToken = async (
   }
   if (cache.get(token) == user.memberId) return;
   try {
-    const existing = await authorizedPrismaClient.expoToken.findUnique({
+    const existing = await authorisedPrismaClient.expoToken.findUnique({
       where: {
         expoToken: token,
         memberId: user.memberId,
@@ -33,7 +33,7 @@ export const uploadNotificationToken = async (
       cache.set(token, user.memberId);
       return;
     }
-    await authorizedPrismaClient.expoToken.upsert({
+    await authorisedPrismaClient.expoToken.upsert({
       update: {
         memberId: user.memberId,
       },

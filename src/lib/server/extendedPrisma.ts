@@ -1,10 +1,10 @@
 import translatedExtension from "$database/prisma/translationExtension";
 import loggingExtension from "$database/prisma/loggingExtension";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type { Locale } from "$paraglide/runtime";
 
 export function getExtendedPrismaClient(lang: Locale, studentId?: string) {
-  return authorizedPrismaClient
+  return authorisedPrismaClient
     .$extends(translatedExtension(lang))
     .$extends(loggingExtension(studentId));
 }

@@ -1,7 +1,7 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { createSchema, updateSchema } from "$lib/news/schema";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { redirect } from "sveltekit-flash-message/server";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
@@ -67,8 +67,8 @@ export const createArticle: Action = async (event) => {
     },
   });
   let slug = slugify(headerSv);
-  // authorized so we actually count all
-  const slugCount = await authorizedPrismaClient.article.count({
+  // authorised so we actually count all
+  const slugCount = await authorisedPrismaClient.article.count({
     where: {
       slug: { startsWith: slug },
     },
@@ -137,8 +137,8 @@ export const createArticle: Action = async (event) => {
     },
   });
 
-  const pubishTimeIsInFuture = publishTime && publishTime > new Date();
-  if (pubishTimeIsInFuture && shouldSendNotification) {
+  const publishTimeIsInFuture = publishTime && publishTime > new Date();
+  if (publishTimeIsInFuture && shouldSendNotification) {
     const scheduleResult = await scheduleExecution(
       request,
       `${url.origin}/api/schedule/news`,
@@ -196,7 +196,7 @@ export const createArticle: Action = async (event) => {
   }
 
   throw redirect(
-    pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
+    publishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
     {
       message: m.news_article_created(),
       type: "success",

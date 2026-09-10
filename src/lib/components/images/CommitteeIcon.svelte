@@ -25,7 +25,7 @@
       "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/color.svg",
   };
 
-  /** Fallback to D-sektionen icon if the committee icon is not found */
+  /** Fallback to the guild icon if the committee icon is not found */
   const onError =
     (imageUrl: string): EventHandler =>
     (event) => {
@@ -52,14 +52,14 @@
   );
 </script>
 
-<!-- 
+<!--
   @component
-  This component renders an icon for a committee. It will render a colored 
+  This component renders an icon for a committee. It will render a coloured
   icon by default (with respect to the user's theme), but can be set to
-  render a monochrome icon instead. It fallbacks to the guild logo if
+  render a monochrome icon instead. It falls back to the guild logo if
   the committee icon is not available.
 
-  Note that `darkImageUrl` corresponds to the icon used in dark theme, 
+  Note that `darkImageUrl` corresponds to the icon used in dark theme,
   and `lightImageUrl` corresponds to the icon used in light theme.
 -->
 

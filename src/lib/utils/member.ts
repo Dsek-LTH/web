@@ -127,9 +127,9 @@ export const getCurrentDoorPoliciesForMember = async (
   const doors = await prisma.door.findMany();
 
   const policiesByDoor: MemberDoorPolicies = userDoorPolicies.reduce(
-    (acc, policy) => {
+    (accumulator, policy) => {
       const role = policy.role ?? "Du";
-      const duplicate = acc.find(
+      const duplicate = accumulator.find(
         (p) =>
           p.name === policy.doorName &&
           p.startDate === policy.startDatetime &&
@@ -137,9 +137,9 @@ export const getCurrentDoorPoliciesForMember = async (
       );
       if (duplicate) {
         duplicate.roles.push(role);
-        return acc;
+        return accumulator;
       }
-      acc.push({
+      accumulator.push({
         name: policy.doorName,
         verboseName: doors.find((door) => door.name == policy.doorName)
           ?.verboseName,
@@ -147,7 +147,7 @@ export const getCurrentDoorPoliciesForMember = async (
         startDate: policy.startDatetime,
         endDate: policy.endDatetime,
       });
-      return acc;
+      return accumulator;
     },
     [] as MemberDoorPolicies,
   );

@@ -1,5 +1,5 @@
 import { eventLink } from "$lib/events/events";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import { error, redirect } from "@sveltejs/kit";
 
@@ -9,7 +9,7 @@ import { error, redirect } from "@sveltejs/kit";
  */
 export const GET = async ({ params }) => {
   const id = params.id;
-  const event = await authorizedPrismaClient.event.findUnique({
+  const event = await authorisedPrismaClient.event.findUnique({
     where: {
       id,
     },
@@ -20,7 +20,7 @@ export const GET = async ({ params }) => {
   let eventSlug = event?.slug;
   if (eventSlug == null) {
     const slug = slugify(event.title);
-    const slugCount = await authorizedPrismaClient.event.count({
+    const slugCount = await authorisedPrismaClient.event.count({
       where: {
         slug: {
           startsWith: slug,
@@ -28,7 +28,7 @@ export const GET = async ({ params }) => {
       },
     });
     const newSlug = slugWithCount(slug, slugCount);
-    await authorizedPrismaClient.event.update({
+    await authorisedPrismaClient.event.update({
       where: {
         id,
       },

@@ -16,6 +16,7 @@ ignore_patterns = [
     'BoPoolen',
     'D-Chip',
     'D-sektionen inom TLTH',
+    'Dokt',
     'Fr\*nch',
     'Gammal && Äcklig',
     'IBM Plex',
@@ -23,6 +24,8 @@ ignore_patterns = [
     'RåsenbaD',
     'SEK',
     'YouTube',
+    'getmeili',
+    'StiL',
 
     # Technical
     '&shy;', # Soft-hyphen
@@ -35,8 +38,12 @@ ignore_patterns = [
     'dchip',
     'dguild',
     'dsek',
+    'esek',
+    'fsek',
     'gammal_och_äcklig',
     'infocom',
+    'vscode',
+    'dsekweb',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
@@ -50,32 +57,52 @@ words = [
     'accelerometer',
     'adapters',
     'approvements',
+    'bindable',
     'blop',
     'bookables',
     'breakpoint',
     'café',
+    'capturable',
     'checkboxes',
     'cli',
     'contentful',
     'cta', # Call To Action
+    'decrypted',
+    'decrypts',
+    'durations',
     'enforceability',
     'funsies',
     'gyckle',
+    'hostnames',
+    'inflight',
+    'infos',
+    'instrumentations',
     'licensor',
+    'likers',
+    'lmao',
+    'luminance',
+    'namings',
+    'noninfringement',
     'Oklch',
+    'presigned',
     'purchasables',
+    'satisfiable',
     'selectable',
-    'shortener',
     'shoppable',
+    'shoppables',
+    'shortener',
+    'sortable',
     'strikethrough', # Noun
     'sublicensable',
     'sublicense',
     'subprocessor',
+    'umami',
     'unapprove',
     'unapproving',
-    'unconsume',
     'unbooked',
+    'unconsume',
     'unported',
+    'webhooks',
     'webshop',
     'wikia',
     'woggle',
@@ -85,6 +112,8 @@ words = [
     'Agardh', # Head Processor 2026
     'CSN',
     'Datagården',
+    'DELTΔ',
+    'Frazer',
     'Gehlsdorf', # Treasurer 2026
     'Helander', # Head of Facilities 2026
     'Hemberg', # Auditor 2026
@@ -92,23 +121,30 @@ words = [
     'Kämnärsrätten',
     'LTH',
     'Lund',
+    'Maja',
+    'Måns',
     'Québec',
     'Repobeats',
     'Rilde', # Auditor 2026
     'Råsa',
     'Råsenbad',
     'Sjøn',
+    'SMS',
     'SRD',
     'Studentlund',
     'Svensson', # Guild President 2026
+    'Systembolaget',
     'Teknologkåren',
+    'TLS',
     'TLTH',
+    'WCAG',
 
     # Tools
     'authentik',
     'cjs',
     'clsx',
     'croppie',
+    'daygrid',
     'dayjs',
     'dompurify',
     'Dynmap',
@@ -117,12 +153,17 @@ words = [
     'Meili',
     'Meilisearch',
     'MinIO',
+    'multer',
     'nodemailer',
     'paraglide',
     'pnpm',
+    'Poppler',
     'postcss',
     'prisma',
+    'Salto',
     'Stocklist',
+    'superform',
+    'superforms',
     'tiptap',
     'vaul',
     'vercel',
@@ -131,7 +172,9 @@ words = [
     'zod',
 
     # Guild-specific words
+    'BME',
     'Cheps',
+    'Figma',
     'Gasque',
     'gyckle',
     'gyckles',
@@ -145,19 +188,20 @@ words = [
     'Øverphøs',
 
     # Swedish words sanctioned for code use.
+    "sexet",
     "sexet's",
     'Källarmästare',
+    'Ordförande',
     'Peppare',
     'phadder',
     'phadders',
+    'Processmästare',
+    'Revisor',
+    'Skattmästare',
     'Stab',
     'yrka',
     'yrkande',
     'Øverpeppare',
-    'Processmästare',
-    'Skattmästare',
-    'Revisor',
-    'Ordförande',
 ]
 
 [[overrides]] # Swedish
@@ -188,6 +232,8 @@ extra_ignore_patterns = [
 words = [
     'admininställningar',
     'aliaset',
+    'avkonsumera',
+    'avkonsumerats',
     'dagsansvarig',
     'datan',
     'filsökväg',
@@ -267,20 +313,30 @@ flag_words = [
 paths = [
     'dev/README.md',
     'dev/setup.ts',
-    'Dockerfile',
+    'dev/setup_db.sh',
+    '**/Dockerfile',
+    'podman-dev.yaml',
+    'poppler-server/README.md',
     'README.md',
+    'src/database/seed/helpers.ts',
+    'src/database/seed/main.ts',
 ]
 extra_ignore_patterns = [
     'chmod\s[ugoa]?[-+=][rwxXstugo]+',
     'pg_isready',
+    'postgresq?l?',
 ]
 extra_words = [
     'chmod',
     'chown',
+    'kube',
     'lsof',
     'mkdir',
     'openssl',
+    'pdftotext',
     'pnpm',
+    'pnpx',
+    'podman',
 ]
 
 [[overrides]] # CSS
@@ -290,10 +346,12 @@ paths = [
     'src/translations/*.json',
 ]
 extra_ignore_patterns = [
+    'fc-scrollgrid',
     'font-extrabold',
     'h-dvh',
     'scroll-behavior',
     'w-dvw',
+    'lucide-[a-z-]+?',
 ]
 
 [[overrides]] # SVG
@@ -419,8 +477,11 @@ extra_ignore_patterns = [
     "\"\"\"(?:\\\\.|[^\\\\])*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'[^'\\n]*'"
 ]
 
-[[overrides]]
-paths = [ 'src/database/seed/data.ts' ]
+[[overrides]] # Test/Seed data
+paths = [
+    'src/database/seed/data.ts',
+    'src/lib/utils/slugify.test.ts',
+]
 # We just ignore all string, kind of a cop-out but this data is not important.
 extra_ignore_patterns = [
     '".*?"',
@@ -438,3 +499,13 @@ paths = [ 'src/routes/(app)/salto/[door]/constants.ts' ]
 extra_words = [
     'Processmästare',
 ]
+
+[[overrides]]
+paths = [ '**/*.zmodel' ]
+extra_ignore_patterns = [
+    'dbgenerated',
+]
+
+[[overrides]] # Bugs in codebook :(
+paths = [ '**/*.svelte' ]
+extra_ignore_patterns = [ '  on[a-z]+?=' ]

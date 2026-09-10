@@ -18,11 +18,11 @@ if (typeof Object.groupBy === typeof undefined) {
     items: Iterable<T>,
     keySelector: (item: T, index: number) => K,
   ): Partial<Record<K, T[]>> => {
-    return Array.from(items).reduce((acc: Partial<Record<K, T[]>>, ...args) => {
+    return Array.from(items).reduce((accumulator: Partial<Record<K, T[]>>, ...args) => {
       const key = keySelector(args[0], args[1]);
-      acc[key] ??= [];
-      acc[key].push(args[0]);
-      return acc;
+      accumulator[key] ??= [];
+      accumulator[key].push(args[0]);
+      return accumulator;
     }, {});
   };
 }

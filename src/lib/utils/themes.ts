@@ -1,6 +1,6 @@
 export const themes = ["dark", "light", "system"] as const;
 export type Theme = (typeof themes)[number];
-export const colors = {
+export const colours = {
   light: {
     primary: "#CC5E80",
     secondary: "#9966CC",
