@@ -1,23 +1,18 @@
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 
-export const createSongSchema = z.object({
-  title: z.string().default(""),
-  lyrics: z.string().default(""),
-  melody: z.string().default(""),
-  category: z.string().default(""),
-  video: z.string().optional().default(""),
+export const createSongBookEntrySchema = z.object({
+  songId: z.uuid(),
+  page: z.int().positive(),
+  numberOnPage: z.int().positive().default(1),
 });
 
-export type CreateSongSchema = Infer<typeof createSongSchema>;
+export type CreateSongSchema = Infer<typeof createSongBookEntrySchema>;
 
-export const updateSongSchema = z.object({
-  id: z.string(),
-  title: z.string().optional(),
-  lyrics: z.string().optional(),
-  melody: z.string().optional().nullable(),
-  category: z.string().optional().nullable(),
-  video: z.string().optional().nullable(),
+export const updateSongBookEntrySchema = z.object({
+  songId: z.uuid(),
+  page: z.int().positive(),
+  numberOnPage: z.int().positive(),
 });
 
-export type UpdateSongSchema = Infer<typeof updateSongSchema>;
+export type UpdateSongSchema = Infer<typeof updateSongBookEntrySchema>;
