@@ -67,7 +67,7 @@
             </CommitteePlaceholder>
           {/if}
           <div class="flex flex-col gap-1 p-3 transition-all">
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized before output -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitised before output -->
             <h3>{@html breakName(committee.name)}</h3>
             <span>{committee.description}</span>
           </div>

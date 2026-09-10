@@ -3,7 +3,7 @@ import * as m from "$paraglide/messages";
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import { uploadFile } from "$lib/files/uploadFiles";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { redirect } from "sveltekit-flash-message/server";
 import type { Prisma } from "@prisma/client";
 import type { AuthUser } from "@zenstackhq/runtime";
@@ -174,7 +174,7 @@ export const createExpense = form(expenseSchema, async (data) => {
   );
   for (const promiseResult of itemPromiseResults) {
     if (promiseResult.status === "rejected") {
-      await authorizedPrismaClient.expense.delete({
+      await authorisedPrismaClient.expense.delete({
         where: {
           id: expense.id,
         },
@@ -202,7 +202,7 @@ export const createExpense = form(expenseSchema, async (data) => {
       data: items,
     });
   } catch (e) {
-    await authorizedPrismaClient.expense.delete({
+    await authorisedPrismaClient.expense.delete({
       where: {
         id: expense.id,
       },

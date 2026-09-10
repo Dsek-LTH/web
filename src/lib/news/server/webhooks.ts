@@ -1,5 +1,5 @@
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 const limitDescription = (text: string): string => {
@@ -20,12 +20,12 @@ export const sendNewArticleWebhook = async (
   },
   notificationText: string | null | undefined,
 ) => {
-  const member = await authorizedPrismaClient.member.findUnique({
+  const member = await authorisedPrismaClient.member.findUnique({
     where: {
       id: article.author.memberId,
     },
   });
-  const tags = await authorizedPrismaClient.tag.findMany({
+  const tags = await authorisedPrismaClient.tag.findMany({
     where: {
       id: {
         in: article.tags.map((tag) => tag.id),
@@ -37,13 +37,13 @@ export const sendNewArticleWebhook = async (
 
   let title: string | undefined = undefined;
   if (article.author.mandateId !== null) {
-    const mandate = await authorizedPrismaClient.mandate.findUnique({
+    const mandate = await authorisedPrismaClient.mandate.findUnique({
       where: {
         id: article.author.mandateId ?? undefined,
       },
     });
     if (mandate) {
-      const position = await authorizedPrismaClient.position.findUnique({
+      const position = await authorisedPrismaClient.position.findUnique({
         where: {
           id: mandate?.positionId,
         },
@@ -56,7 +56,7 @@ export const sendNewArticleWebhook = async (
   // keys. Removes potential duplicates (if possible)
   const settings = Object.fromEntries(
     (
-      await authorizedPrismaClient.adminSetting.findMany({
+      await authorisedPrismaClient.adminSetting.findMany({
         where: {
           key: {
             in: ["discord_webhook_se", "webhook_tags_se"],

@@ -11,9 +11,9 @@ import {
 } from "./mock";
 import apiNames from "$lib/utils/apiNames";
 import { getDerivedRoles } from "$lib/utils/authorization";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-const prisma = authorizedPrismaClient;
+const prisma = authorisedPrismaClient;
 const SUITE_PREFIX = "getTickets";
 
 const getTicketsTest = async (

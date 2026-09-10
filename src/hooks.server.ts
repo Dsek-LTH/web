@@ -7,7 +7,7 @@ import {
   defineCustomServerStrategy,
   getLocale,
 } from "$paraglide/runtime";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import Authentik, {
   type AuthentikProfile,
 } from "@auth/core/providers/authentik";
@@ -187,7 +187,7 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     });
     event.locals.user = user;
   } else {
-    const existingMember = await authorizedPrismaClient.member.findUnique({
+    const existingMember = await authorisedPrismaClient.member.findUnique({
       where: { studentId: session.user.student_id },
     });
 
@@ -338,7 +338,7 @@ defineCustomServerStrategy("custom-userPreference", {
     const data = getRequestEvent();
     const studentId = (await data.locals.auth())?.user.student_id;
     if (studentId) {
-      const lang = await authorizedPrismaClient.member.findFirst({
+      const lang = await authorisedPrismaClient.member.findFirst({
         where: { studentId },
         select: { language: true },
       });

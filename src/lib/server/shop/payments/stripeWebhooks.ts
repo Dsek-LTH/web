@@ -1,11 +1,11 @@
 import { resetConsumablesForIntent } from "$lib/server/shop/payments/stripeMethods";
 import Stripe from "stripe";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 
 export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
-  const purchasedConsumables = await authorizedPrismaClient.$transaction(
+  const purchasedConsumables = await authorisedPrismaClient.$transaction(
     async (tx) => {
       let relevantConsumables = await tx.consumable.findMany({
         where: {
@@ -81,7 +81,7 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
 
 export const tryToSavePaymentIntent = async (
   intent: Stripe.PaymentIntent,
-  tx: Parameters<Parameters<typeof authorizedPrismaClient.$transaction>[0]>[0],
+  tx: Parameters<Parameters<typeof authorisedPrismaClient.$transaction>[0]>[0],
 ) => {
   const consumableIds = intent.metadata?.["consumableIds"]?.split(", ");
   if (!consumableIds) {
@@ -122,7 +122,7 @@ export const tryToSavePaymentIntent = async (
 };
 
 export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
-  const failedConsumables = await authorizedPrismaClient.$transaction(
+  const failedConsumables = await authorisedPrismaClient.$transaction(
     async (tx) => {
       const relevantConsumables = await tx.consumable.findMany({
         where: {

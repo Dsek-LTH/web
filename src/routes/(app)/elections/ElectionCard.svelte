@@ -57,7 +57,7 @@
   </div>
 
   <h3 class="text-center">
-    <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags Already Sanitised -->
     {@html breakName(election.committee?.name ?? "")}
   </h3>
 

@@ -34,14 +34,14 @@
     dateStyle: "full",
   });
 
-  function capitalize(s: string) {
+  function capitalise(s: string) {
     return s.at(0)?.toUpperCase() + s.slice(1);
   }
 
   function format(date: Date): string {
     let parts = df.formatToParts(date);
     let text = "";
-    text += capitalize(parts.find((p) => p.type == "weekday")?.value ?? "");
+    text += capitalise(parts.find((p) => p.type == "weekday")?.value ?? "");
     text += m.datepicker_weekday_separator();
     text += parts.find((p) => p.type === "day")?.value;
     text += " ";

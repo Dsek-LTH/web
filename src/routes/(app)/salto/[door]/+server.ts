@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { BACKUP_LIST_OF_STUDENT_IDS } from "./constants";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type {
   ExtendedPrisma,
   ExtendedPrismaModel,
@@ -97,7 +97,7 @@ async function fetchStudentsWithPositions(
 export const GET: RequestHandler = async ({ params }) => {
   try {
     const now = new Date().toISOString();
-    const policies = await authorizedPrismaClient.doorAccessPolicy.findMany({
+    const policies = await authorisedPrismaClient.doorAccessPolicy.findMany({
       select: {
         studentId: true,
         role: true,
@@ -120,7 +120,7 @@ export const GET: RequestHandler = async ({ params }) => {
     const { studentIdsBanned } = parseDoorBanPolicies(policies);
 
     const studentsFromWildcard = positionIds.includes("*")
-      ? authorizedPrismaClient.member
+      ? authorisedPrismaClient.member
           .findMany({
             where: { classYear: { gte: new Date().getFullYear() - 10 } },
             select: { studentId: true },
@@ -134,15 +134,15 @@ export const GET: RequestHandler = async ({ params }) => {
 
     const positions = await fetchMatchingPositions(
       positionIds,
-      authorizedPrismaClient,
+      authorisedPrismaClient,
     );
 
     const studentsFromPositions = await fetchStudentsWithPositions(
       positions.map((p) => p.id),
-      authorizedPrismaClient,
+      authorisedPrismaClient,
     );
 
-    // Fpr no we are only interested in the studentIds that are banned,
+    // For now we are only interested in the studentIds that are banned,
     // but we might want to use the positionIdsBanned in the future.
     const bannedStudents = new Set(studentIdsBanned);
 

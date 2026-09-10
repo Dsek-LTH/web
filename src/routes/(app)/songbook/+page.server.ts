@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type { PageServerLoad } from "./$types";
 import {
   canAccessDeletedSongs,
@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const showDeleted =
     canAccessDeletedSongs(accessPolicies) &&
     url.searchParams.get("show-deleted") === "true";
-  const prismaClient = showDeleted ? authorizedPrismaClient : locals.prisma;
+  const prismaClient = showDeleted ? authorisedPrismaClient : locals.prisma;
 
   const search = url.searchParams.get("search") || "";
   const categoryFilter = url.searchParams.getAll("category");

@@ -112,7 +112,7 @@
         <a href="/committees/{committee.shortName}/news"
           >{m.committees_news()}</a
         >
-        <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags Already Sanitised -->
         {@html breakMarked.parseInline(data.links?.markdown ?? "")}
       </div>
       {#if canEdit}

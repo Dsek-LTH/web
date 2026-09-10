@@ -1,6 +1,6 @@
 import { env } from "$env/dynamic/private";
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import servePdf from "$lib/utils/servePdf";
 import { error, type NumericRange } from "@sveltejs/kit";
 import { getMeilisearch } from "./meilisearch";
@@ -37,7 +37,7 @@ export const syncGoverningDocuments = async () => {
   await resetIndex(documentsIndex, meilisearchConstants.governingDocument);
 
   // In Prisma, we store our governing documents, which has a URL to the actual document.
-  const governingDocuments = await authorizedPrismaClient.document.findMany({
+  const governingDocuments = await authorisedPrismaClient.document.findMany({
     select: {
       id: true,
       title: true,

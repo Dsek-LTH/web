@@ -3,7 +3,7 @@ import {
   moveQueueToCart,
   sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { purchaseForm } from "$lib/server/shop/cart/types";
 import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
@@ -42,7 +42,7 @@ const cartActions: Actions = {
         type: "error",
       });
     }
-    const queuedNotifications = await authorizedPrismaClient.$transaction(
+    const queuedNotifications = await authorisedPrismaClient.$transaction(
       async (tx) => {
         await tx.consumable.delete({
           where: {
@@ -83,7 +83,7 @@ const cartActions: Actions = {
         type: "error",
       });
     }
-    await authorizedPrismaClient.$transaction(async (tx) => {
+    await authorisedPrismaClient.$transaction(async (tx) => {
       await tx.consumableReservation.delete({
         where: {
           id: reservation.id,

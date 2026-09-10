@@ -15,7 +15,7 @@ export const codeToMessage: Record<number, string> = {
   306: "Unused",
   307: "Temporary Redirect",
   400: "Bad Request",
-  401: "Unauthorized",
+  401: "Unauthorised",
   402: "Payment Required",
   403: "Forbidden",
   404: "Not Found",

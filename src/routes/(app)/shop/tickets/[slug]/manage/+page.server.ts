@@ -3,7 +3,7 @@ import {
   moveQueueToCart,
   withHandledNotificationQueue,
 } from "$lib/server/shop/addToCart/reservations";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -140,14 +140,14 @@ export const actions = {
           consumable.priceAtPurchase ?? consumable.shoppable.price, // to ensure correct refund amount if shoppable price has changed
         );
       }
-      await authorizedPrismaClient.consumable.delete({
+      await authorisedPrismaClient.consumable.delete({
         where: {
           id: consumable.id,
         },
       });
       await withHandledNotificationQueue(
         moveQueueToCart(
-          authorizedPrismaClient,
+          authorisedPrismaClient,
           consumable.shoppableId,
           1,
           true,

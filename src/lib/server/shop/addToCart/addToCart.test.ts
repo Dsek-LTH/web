@@ -24,9 +24,9 @@ import {
   removeMockUsers,
 } from "../mock";
 import { performLotteryIfNecessary } from "./reservations";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-const prisma = authorizedPrismaClient;
+const prisma = authorisedPrismaClient;
 
 const SUITE_PREFIX = "addToCart";
 
@@ -110,7 +110,7 @@ const addTicketsTestForUser = (
       await expectConsumableCount(ticket.id, 0);
       await expectReservationCount(ticket.id, 0);
     });
-    it("purchases free item immidiately", async ({ tickets }) => {
+    it("purchases free item immediately", async ({ tickets }) => {
       const ticket = tickets.freeActiveTicket;
       const before = new Date();
       const result = await addTicketToCart(prismaWithAccess, ticket.id, user);

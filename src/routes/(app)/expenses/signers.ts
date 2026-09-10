@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import { COST_CENTRES } from "./config";
 
@@ -19,7 +19,7 @@ export const updateSignersCacheIfNecessary = async () => {
     TREASURER,
     PRESIDENT,
   ]);
-  const signers = await authorizedPrismaClient.mandate.findMany({
+  const signers = await authorisedPrismaClient.mandate.findMany({
     where: {
       positionId: {
         in: [...allSigners],

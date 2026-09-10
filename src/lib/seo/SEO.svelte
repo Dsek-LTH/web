@@ -1,5 +1,5 @@
 <!--
-  This component adds metadata to a page for search engine optimization reasons.
+  This component adds metadata to a page for search engine optimisation reasons.
   It uses Open Graph protocol to define how the page should be represented on social media platforms.
   https://ogp.me/
 -->

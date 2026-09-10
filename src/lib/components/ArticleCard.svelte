@@ -68,7 +68,7 @@
       {article.header}
     </h3>
     <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
-      <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitised -->
       {@html previewMarked.parse(article.body)}
     </div></a
   >

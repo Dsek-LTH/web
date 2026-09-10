@@ -17,14 +17,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   authorise(apiNames.ACCESS_POLICY.CREATE, user);
 
-  const accesspolicies = await prisma.accessPolicy.findMany({
+  const accessPolicies = await prisma.accessPolicy.findMany({
     select: { role: true, apiName: true, id: true },
   });
   const posToAccessPolicies = new Map<
     string,
     Array<{ apiName: string; id: string }>
   >();
-  accesspolicies.forEach((a) => {
+  accessPolicies.forEach((a) => {
     if (a.role) {
       posToAccessPolicies.set(a.role, [
         ...(posToAccessPolicies.get(a.role) ?? []),

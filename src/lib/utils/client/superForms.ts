@@ -17,7 +17,7 @@ export function superForm<T extends Record<string, unknown>, M = Message>(
           "error",
         );
       } else if (response.result.status === 403) {
-        toast("Du har inte acccess för att göra detta", "error");
+        toast("Du har inte access för att göra detta", "error");
       } else {
         toast(response.result.error.message, "error");
       }

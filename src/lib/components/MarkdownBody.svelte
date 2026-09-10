@@ -11,6 +11,6 @@
     klass,
   )}
 >
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitised client-side -->
   {@html marked(body)}
 </section>

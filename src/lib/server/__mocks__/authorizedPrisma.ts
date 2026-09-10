@@ -3,9 +3,9 @@ import { beforeEach } from "vitest";
 import { mockDeep, mockReset } from "vitest-mock-extended";
 
 beforeEach(() => {
-  mockReset(authorizedPrismaClient);
+  mockReset(authorisedPrismaClient);
 });
 
-const authorizedPrismaClient = mockDeep<PrismaClient>();
+const authorisedPrismaClient = mockDeep<PrismaClient>();
 
-export default authorizedPrismaClient;
+export default authorisedPrismaClient;

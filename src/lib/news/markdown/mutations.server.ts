@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { type ExtendedPrisma } from "$lib/server/extendedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorised } from "$lib/utils/authorization";
@@ -19,7 +19,7 @@ export const updateMarkdown = async (
     apiNames.MARKDOWNS.PAGE(markdown.name).UPDATE,
     user,
   )
-    ? authorizedPrismaClient
+    ? authorisedPrismaClient
     : prisma;
   return await prismaToUse.markdown.update({
     where: {
