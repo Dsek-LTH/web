@@ -379,7 +379,7 @@ See you! ✌️
         <p class="nolla-prose">
           {m.nollning_landing_lore_body()}
         </p>
-        <!--<iframe
+        <iframe
           class="aspect-video w-full"
           src="https://www.youtube.com/embed/ZFXH2HXEDlc"
           title="Reveal film"
@@ -387,8 +387,8 @@ See you! ✌️
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
-        ></iframe>-->
-        <div class="mx-auto mt-8 w-full max-w-3xl">
+        ></iframe>
+        <div class="mx-auto mt-8 hidden w-full max-w-3xl md:block">
           <div
             class="aspect-[8/5] w-full overflow-hidden rounded-lg border-4 border-secondary bg-black"
           >
