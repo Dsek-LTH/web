@@ -1,124 +1,209 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import * as Card from "$lib/components/ui/card";
+  import { Button } from "$lib/components/ui/button";
+  import { Separator } from "$lib/components/ui/separator";
+  import GuideCard from "../GuideCard.svelte";
   import Smartphone from "@lucide/svelte/icons/smartphone";
-  import User from "@lucide/svelte/icons/user";
-  import Bell from "@lucide/svelte/icons/bell";
-  import BellRing from "@lucide/svelte/icons/bell-ring";
   import Calendar from "@lucide/svelte/icons/calendar";
   import Share2 from "@lucide/svelte/icons/share-2";
-  import Instagram from "@lucide/svelte/icons/instagram";
-  import Facebook from "@lucide/svelte/icons/facebook";
-  import MessageSquare from "@lucide/svelte/icons/message-square";
+  import Tag from "@lucide/svelte/icons/tag";
+  import Bell from "@lucide/svelte/icons/bell";
+  import BellRing from "@lucide/svelte/icons/bell-ring";
+  import Settings from "@lucide/svelte/icons/settings";
+  import { siInstagram, siFacebook, siDiscord } from "simple-icons";
+  import { resolve } from "$app/paths";
 
-  const steps = [
+  const APP_STORE =
+    "https://apps.apple.com/se/app/d-sektionen/id6444569402?l=en";
+  const PLAY_STORE = "https://play.google.com/store/apps/details?id=se.dsek";
+  const DISCORD = "https://discord.com/invite/wxHQcvZ38p";
+
+  const socials = [
     {
-      num: 1,
-      title: m.volunteer_informed_step1_title,
-      icon: Smartphone,
-      descHtml: `${m.volunteer_informed_step1_desc()} <a href="https://apps.apple.com/se/app/d-sektionen/id6444569402?l=en" class="link" target="_blank" rel="noreferrer">iOS</a> och <a href="https://play.google.com/store/apps/details?id=se.dsek" class="link" target="_blank" rel="noreferrer">Android</a>.`,
+      name: "Instagram",
+      href: "https://instagram.com/dseklth",
+      icon: siInstagram,
     },
     {
-      num: 2,
-      title: m.volunteer_informed_step2_title,
-      icon: User,
-      descHtml: `Vid problem: kontakta <a href="mailto:processmastare@dsek.se" class="link">processmastare@dsek.se</a> eller <a href="mailto:root@dsek.se" class="link">root@dsek.se</a> (<a href="https://www.dsek.se/committees/cpu" class="link" target="_blank" rel="noreferrer">CPU</a>).`,
+      name: "Facebook",
+      href: "https://facebook.com/Dsektionen",
+      icon: siFacebook,
+    },
+  ] as const;
+
+  // Send the visitor straight to their own store instead of making them pick.
+  // Undefined during SSR and on desktop, where we show both links instead.
+  let platform = $derived.by<"ios" | "android" | undefined>(() => {
+    if (typeof navigator === "undefined") return undefined;
+    const ua = navigator.userAgent;
+    if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+    if (/Android/i.test(ua)) return "android";
+    return undefined;
+  });
+
+  const notificationSteps = [
+    {
+      title: m.volunteer_notifications_tags_title,
+      desc: m.volunteer_notifications_tags_desc,
+      icon: Tag,
     },
     {
-      num: 3,
-      title: m.volunteer_informed_step3_title,
+      title: m.volunteer_notifications_types_title,
+      desc: m.volunteer_notifications_types_desc,
       icon: Bell,
-      descHtml: m.volunteer_informed_step3_desc(),
     },
     {
-      num: 4,
-      title: m.volunteer_informed_step4_title,
+      title: m.volunteer_notifications_push_title,
+      desc: m.volunteer_notifications_push_desc,
       icon: BellRing,
-      descHtml: m.volunteer_informed_step4_desc(),
     },
     {
-      num: 5,
-      title: m.volunteer_informed_step5_title,
-      icon: Calendar,
-      descHtml: `Lägg in D-sek-kalendern i Google Calendar eller iCal via <a href="https://www.dsek.se/events/subscribe" class="link" target="_blank" rel="noreferrer">dsek.se/events/subscribe</a>, eller gå till <a href="https://www.dsek.se/events" class="link" target="_blank" rel="noreferrer">dsek.se/events</a> och tryck "Prenumerera".`,
-    },
-    {
-      num: 6,
-      title: m.volunteer_informed_step6_title,
+      title: m.volunteer_notifications_discord_title,
+      desc: m.volunteer_notifications_discord_desc,
       icon: Share2,
-      descHtml: `Följ D-sektionen på Instagram och Facebook (många utskott har egna också). Och gå med i sektionens <a href="https://discord.com/invite/wxHQcvZ38p" class="link" target="_blank" rel="noreferrer">Discord</a>.`,
-      socials: true,
     },
-  ];
+  ] as const;
 </script>
 
-<div class="flex flex-col gap-8">
-  <div class="flex flex-col gap-2">
-    <h2 class="font-sans text-3xl font-bold tracking-tight">
-      {m.volunteer_informed_title()}
-    </h2>
+<div class="flex flex-col gap-10">
+  <header class="flex flex-col gap-2">
+    <h1>{m.volunteer_informed_title()}</h1>
     <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
       {m.volunteer_informed_subtitle()}
     </p>
-  </div>
+  </header>
 
-  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-    {#each steps as step (step.num)}
-      <Card.Root
-        class="border-border/80 bg-card relative pt-6 transition-all hover:shadow-md"
+  <section class="flex flex-col gap-4">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <!-- The app card links straight to the right store when we can tell. -->
+      <GuideCard
+        title={m.volunteer_informed_step1_title()}
+        description={m.volunteer_informed_app_desc()}
+        icon={Smartphone}
+        index={0}
       >
-        <!-- Circular absolute badge -->
-        <div
-          class="bg-primary absolute -top-3 -left-3 flex size-8 items-center justify-center rounded-full text-sm font-bold text-white shadow-[0_0_10px_rgba(242,128,161,0.5)]"
-        >
-          {step.num}
-        </div>
-
-        <Card.Header class="pb-3">
-          <div class="flex items-center gap-3">
-            <div class="bg-primary/10 text-primary rounded-lg p-2">
-              <step.icon class="size-5" />
-            </div>
-            <Card.Title class="text-base leading-tight font-semibold">
-              {step.title()}
-            </Card.Title>
+        {#if platform}
+          <Button
+            href={platform === "ios" ? APP_STORE : PLAY_STORE}
+            target="_blank"
+            rel="noreferrer"
+            class="w-fit"
+          >
+            {m.volunteer_informed_app_cta()}
+          </Button>
+        {:else}
+          <div class="flex flex-wrap gap-2">
+            <Button href={APP_STORE} target="_blank" rel="noreferrer">
+              {m.volunteer_informed_app_ios()}
+            </Button>
+            <Button
+              href={PLAY_STORE}
+              variant="outline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {m.volunteer_informed_app_android()}
+            </Button>
           </div>
-        </Card.Header>
+        {/if}
+      </GuideCard>
 
-        <Card.Content class="text-muted-foreground text-sm leading-relaxed">
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          <p>{@html step.descHtml}</p>
+      <GuideCard
+        title={m.volunteer_informed_step5_title()}
+        description={m.volunteer_informed_calendar_desc()}
+        icon={Calendar}
+        href={resolve("/(app)/events/subscribe")}
+        cta={m.volunteer_informed_calendar_cta()}
+        index={1}
+      />
 
-          {#if step.socials}
-            <div class="mt-4 flex items-center gap-4">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                class="text-muted-foreground hover:text-primary transition-colors"
+      <GuideCard
+        title={m.volunteer_informed_discord_title()}
+        description={m.volunteer_informed_discord_desc()}
+        icon={Share2}
+        href={DISCORD}
+        external
+        cta={m.volunteer_informed_discord_cta()}
+        index={2}
+      />
+
+      <GuideCard
+        title={m.volunteer_informed_social_title()}
+        description={m.volunteer_informed_social_desc()}
+        icon={Share2}
+        index={3}
+        class="md:col-span-2 lg:col-span-3"
+      >
+        <div class="flex items-center gap-4">
+          {#each socials as social (social.name)}
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noreferrer"
+              class="text-muted-foreground hover:text-primary flex items-center gap-2 transition-colors"
+            >
+              <svg
+                role="img"
+                fill="currentColor"
+                height="20"
+                width="20"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                ><title>{social.name}</title><path d={social.icon.path} /></svg
               >
-                <Instagram class="size-5" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                class="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Facebook class="size-5" />
-              </a>
-              <a
-                href="https://discord.com/invite/wxHQcvZ38p"
-                target="_blank"
-                rel="noreferrer"
-                class="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <MessageSquare class="size-5" />
-              </a>
-            </div>
-          {/if}
-        </Card.Content>
-      </Card.Root>
-    {/each}
-  </div>
+              <span class="text-sm">{social.name}</span>
+            </a>
+          {/each}
+          <a
+            href={DISCORD}
+            target="_blank"
+            rel="noreferrer"
+            class="text-muted-foreground hover:text-primary flex items-center gap-2 transition-colors"
+          >
+            <svg
+              role="img"
+              fill="currentColor"
+              height="20"
+              width="20"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              ><title>Discord</title><path d={siDiscord.path} /></svg
+            >
+            <span class="text-sm">Discord</span>
+          </a>
+        </div>
+      </GuideCard>
+    </div>
+
+    <p class="text-muted-foreground text-sm">
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- translated string contains mailto links -->
+      {@html m.volunteer_informed_help_html()}
+    </p>
+  </section>
+
+  <Separator />
+
+  <section class="flex flex-col gap-6">
+    <div class="flex flex-col gap-3">
+      <h2>{m.volunteer_notifications_title()}</h2>
+      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+        {m.volunteer_notifications_subtitle()}
+      </p>
+      <Button href={resolve("/(app)/settings")} class="w-fit gap-2">
+        <Settings class="size-4" />
+        {m.volunteer_notifications_cta()}
+      </Button>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {#each notificationSteps as step, index (step.title)}
+        <GuideCard
+          title={step.title()}
+          description={step.desc()}
+          icon={step.icon}
+          {index}
+        />
+      {/each}
+    </div>
+  </section>
 </div>
