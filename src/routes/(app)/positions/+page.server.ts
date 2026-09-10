@@ -18,10 +18,12 @@ export const load: PageServerLoad = async ({ locals }) => {
   });
 
   const updateForms = Object.fromEntries(
-    positions.map((pos) => [
-      pos.id,
-      superValidate(pos, zod4(updateSchema), { id: pos.id }),
-    ]),
+    await Promise.all(
+      positions.map(async (pos) => [
+        pos.id,
+        await superValidate(pos, zod4(updateSchema), { id: pos.id }),
+      ]),
+    ),
   );
 
   return {

@@ -1,5 +1,13 @@
-<script>
-  import NotImplemented from "$lib/components/NotImplemented.svelte";
+<script lang="ts">
+  import GoverningDocumentForm from "../GoverningDocumentForm.svelte";
+  import * as m from "$paraglide/messages.js";
+
+  let { data } = $props();
 </script>
 
-<NotImplemented />
+<GoverningDocumentForm
+  form={data.form}
+  action="?/create"
+  title={m.documents_governing_createNewDocument()}
+  submitLabel={m.documents_governing_create()}
+/>

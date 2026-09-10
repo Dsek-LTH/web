@@ -116,6 +116,13 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/documents/governing",
         },
+        {
+          title: m.documents_requirementProfiles(),
+          description: m.documents_requirementProfilesBlurb(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/requirements",
+        },
       ],
     },
     {
@@ -148,13 +155,6 @@ export const getRoutes = (): Route[] =>
       path: null,
       list: true,
       children: [
-        {
-          title: m.tickets(),
-          accessRequired: null,
-          appBehaviour: "none",
-          description: m.nav_tickets_desc(),
-          path: "/shop/tickets",
-        },
         {
           title: m.nav_booking(),
           accessRequired: null,
@@ -223,12 +223,6 @@ export const getRoutes = (): Route[] =>
         {
           title: m.info(),
           path: "/admin/info",
-          accessRequired: null,
-          appBehaviour: "none",
-        },
-        {
-          title: m.qr_code(),
-          path: "/admin/qr",
           accessRequired: null,
           appBehaviour: "none",
         },

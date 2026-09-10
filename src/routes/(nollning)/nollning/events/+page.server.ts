@@ -1,5 +1,4 @@
-import { getEventsWithTickets } from "$lib/server/shop/getTickets";
-import { ticketPageActions } from "$lib/server/shop/tickets/actions";
+import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types.js";
 
@@ -47,11 +46,10 @@ export const load: PageServerLoad = async ({
   }
   const { weekStart, weekEnd } = getWeekInterval(week);
 
-  depends("tickets");
-  const events = await getEventsWithTickets(
-    prisma,
-    locals.user,
-    {
+  depends("nollning-events");
+  const events = await prisma.event.findMany({
+    where: {
+      ...BASIC_EVENT_FILTER(revealTheme),
       startDatetime: {
         gte: weekStart,
       },
@@ -59,14 +57,17 @@ export const load: PageServerLoad = async ({
         lte: weekEnd,
       },
     },
-    revealTheme,
-  );
+    orderBy: {
+      startDatetime: "asc",
+    },
+    include: {
+      tags: true,
+    },
+  });
 
   return {
     week,
-    events: events,
+    events,
     weeks: weekStarts.length,
   };
 };
-
-export const actions = ticketPageActions("shop/");
