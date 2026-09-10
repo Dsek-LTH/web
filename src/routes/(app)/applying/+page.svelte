@@ -23,8 +23,8 @@
       link: "https://www.lth.se/utbildning/informations-och-kommunikationsteknik/",
     },
     {
-      title: m.applying_vrar(),
-      description: m.applying_vrar_desc(),
+      title: m.applying_vr_ar(),
+      description: m.applying_vr_ar_desc(),
       variant: "pistachio",
       image:
         "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/vr_ar/color.svg",
