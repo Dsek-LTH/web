@@ -125,7 +125,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     allTags,
     likeForm: await superValidate(zod4(likeSchema)),
     scheduledArticles,
-    n0llningArticles: n0llningArticles,
+    n0llningArticles,
   };
 };
 

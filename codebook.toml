@@ -362,7 +362,8 @@ extra_ignore_patterns = [
     'scroll-behavior',
     'w-dvw',
     'lucide-[a-z-]+?',
-    '--tw-[a-z-]+'
+    '--tw-[a-z-]+',
+    'transition-colors',
 ]
 
 [[overrides]] # SVG
