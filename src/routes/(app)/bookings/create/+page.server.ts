@@ -7,18 +7,40 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { sendNotificationToKM } from "$lib/bookings/server/actions";
+import { toMemberSearchAttributes } from "$lib/bookings/server/queries";
 import { redirect } from "sveltekit-flash-message/server";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { Actions } from "./$types";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export const load = async ({ locals }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
   const bookables = await prisma.bookable.findMany();
+  const doors = await authorizedPrismaClient.door.findMany();
   const form = await superValidate(zod4(bookingSchema));
 
-  return { bookables, form };
+  const currentMember = user?.memberId
+    ? await authorizedPrismaClient.member.findUnique({
+        where: { id: user.memberId },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          nickname: true,
+          studentId: true,
+          picturePath: true,
+          classYear: true,
+          classProgramme: true,
+        },
+      })
+    : null;
+  const currentMemberSearchAttributes = currentMember
+    ? toMemberSearchAttributes(currentMember)
+    : null;
+
+  return { bookables, doors, form, currentMemberSearchAttributes };
 };
 
 export const actions: Actions = {
@@ -28,7 +50,8 @@ export const actions: Actions = {
 
     const form = await superValidate(request, zod4(bookingSchema));
     if (!form.valid) return fail(400, { form });
-    const { start, end, name, bookables } = form.data;
+    const { start, end, name, bookables, accessDoors, accessMemberIds } =
+      form.data;
 
     const createdRequest = await prisma.bookingRequest.create({
       data: {
@@ -44,6 +67,12 @@ export const actions: Actions = {
         event: name,
         bookables: {
           connect: bookables.map((bookable) => ({ id: bookable })),
+        },
+        accessDoors: {
+          connect: accessDoors.map((doorName) => ({ name: doorName })),
+        },
+        accessMembers: {
+          connect: accessMemberIds.map((memberId) => ({ id: memberId })),
         },
         status: "PENDING",
       },

@@ -14,9 +14,11 @@
     CalendarIcon,
     CircleCheckBigIcon,
     ClockIcon,
+    DoorOpenIcon,
     PartyPopperIcon,
     SendHorizontalIcon,
     CheckIcon,
+    UsersIcon,
     XIcon,
   } from "@lucide/svelte";
   import Calendar from "$lib/components/ui/calendar/calendar.svelte";
@@ -29,6 +31,8 @@
     type DateValue,
   } from "@internationalized/date";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
+  import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
   import * as m from "$paraglide/messages";
 
   const {
@@ -40,6 +44,13 @@
     data: {
       form: SuperValidated<Infer<BookingSchema>>;
       bookables: Array<ExtendedPrismaModel<"Bookable">>;
+      doors: Array<ExtendedPrismaModel<"Door">>;
+      currentMemberSearchAttributes?:
+        | (MemberSearchReturnAttributes & { id: string })
+        | null;
+      initialAccessMembers?: Array<
+        MemberSearchReturnAttributes & { id: string }
+      >;
     };
     mode?: "create" | "edit" | "review";
     booking?: { id: string; status: "ACCEPTED" | "PENDING" | "DENIED" };
@@ -48,12 +59,33 @@
 
   const form = $derived(
     superForm(data.form, {
+      dataType: "json",
       validators: zod4Client(bookingSchema),
     }),
   );
   const bookables = $derived(data.bookables);
+  const doors = $derived(data.doors);
 
   const { form: formData, enhance } = $derived(form);
+
+  let selectedAccessMembers = $state<
+    Array<MemberSearchReturnAttributes & { id: string }>
+  >(
+    data.currentMemberSearchAttributes
+      ? [data.currentMemberSearchAttributes]
+      : (data.initialAccessMembers ?? []),
+  );
+
+  $effect(() => {
+    // The bookable's own door should be obviously included among the
+    // selectable doors once it's booked, without overriding manual edits.
+    for (const bookableId of $formData.bookables) {
+      const doorName = bookables.find((b) => b.id === bookableId)?.doorName;
+      if (doorName && !$formData.accessDoors.includes(doorName)) {
+        $formData.accessDoors = [...$formData.accessDoors, doorName];
+      }
+    }
+  });
 
   const id = $props.id();
   const readOnly = $derived(mode === "review");
@@ -325,6 +357,84 @@
               </Form.Control>
             {/each}
           </ToggleGroup.Root>
+          <Form.FieldErrors />
+        </Form.Fieldset>
+      </Card.Content>
+    </Card.Root>
+
+    {#snippet doorItem(props: object, value: string, label: string)}
+      <ToggleGroup.Item
+        {...props}
+        {value}
+        aria-label={label}
+        class="group data-[state=on]:bg-primary/10 data-[state=on]:text-primary bg-muted hover:bg-primary/10 hover:text-primary h-auto justify-start rounded-md border-none px-4 py-8 text-base font-medium whitespace-normal transition-all duration-100 ease-out hover:-translate-y-0.5 active:scale-95"
+      >
+        <div class="flex w-full items-center justify-between gap-3">
+          {label}
+          <CircleCheckBigIcon
+            class="text-primary size-5 scale-75 transform-gpu opacity-0 transition-all duration-100 ease-in group-data-[state=on]:scale-100 group-data-[state=on]:opacity-100"
+          />
+        </div>
+        <input
+          class="hidden"
+          {...props}
+          type="checkbox"
+          bind:group={$formData.accessDoors}
+          {value}
+        />
+      </ToggleGroup.Item>
+    {/snippet}
+    <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+      <Card.Header>
+        <Card.Title
+          class="text-primary flex items-center gap-2 text-xl font-semibold"
+        >
+          <DoorOpenIcon class="size-5" />
+          {m.booking_doorAccess()}
+        </Card.Title>
+      </Card.Header>
+      <Card.Content>
+        <Form.Fieldset {form} name="accessDoors">
+          <ToggleGroup.Root
+            bind:value={$formData.accessDoors}
+            variant="outline"
+            type="multiple"
+            spacing={3}
+            class="grid w-full grid-cols-2"
+          >
+            {#each doors as door (door.name)}
+              <Form.Control>
+                {#snippet children({ props })}
+                  {@render doorItem(props, door.name, door.verboseName)}
+                {/snippet}
+              </Form.Control>
+            {/each}
+          </ToggleGroup.Root>
+          <Form.FieldErrors />
+        </Form.Fieldset>
+      </Card.Content>
+    </Card.Root>
+
+    <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+      <Card.Header>
+        <Card.Title
+          class="text-primary flex items-center gap-2 text-xl font-semibold"
+        >
+          <UsersIcon class="size-5" />
+          {m.booking_doorAccessMembers()}
+        </Card.Title>
+      </Card.Header>
+      <Card.Content>
+        <Form.Fieldset {form} name="accessMemberIds">
+          <MemberSelector
+            multiple={true}
+            showId={false}
+            showClass={true}
+            class="w-full!"
+            inputClass="min-h-12 w-full"
+            bind:selectedMembers={selectedAccessMembers}
+            bind:selectedMembersIds={$formData.accessMemberIds}
+          />
           <Form.FieldErrors />
         </Form.Fieldset>
       </Card.Content>

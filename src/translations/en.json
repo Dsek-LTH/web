@@ -340,6 +340,8 @@
   "booking_week": "Week",
   "booking_day": "Day",
   "booking_booking": "Booking",
+  "booking_doorAccess": "Door access",
+  "booking_doorAccessMembers": "Who should get access?",
   "booking_from": "From",
   "booking_until": "Until",
   "booking_event": "Event",

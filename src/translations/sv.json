@@ -340,6 +340,8 @@
   "booking_week": "Vecka",
   "booking_day": "Dag",
   "booking_booking": "Bokning",
+  "booking_doorAccess": "Dörrtillgång",
+  "booking_doorAccessMembers": "Vem ska få tillgång?",
   "booking_from": "Från",
   "booking_until": "Till",
   "booking_event": "Event",

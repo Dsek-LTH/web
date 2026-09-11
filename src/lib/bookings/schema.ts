@@ -18,6 +18,8 @@ export const bookingSchema = z
       })
       .default(() => dayjs().endOf("hour").format("YYYY-MM-DDTHH:mm")),
     bookables: z.array(z.string()).min(1),
+    accessDoors: z.array(z.string()).default([]),
+    accessMemberIds: z.array(z.uuid()).default([]),
   })
   .refine((data) => dayjs(data.start).isBefore(dayjs(data.end)), {
     message: m.booking_startDateBeforeEndDate(),

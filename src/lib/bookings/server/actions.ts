@@ -1,4 +1,8 @@
 import { fail, type RequestEvent } from "@sveltejs/kit";
+import { z } from "zod";
+import { superValidate } from "sveltekit-superforms/server";
+import { zod4 } from "sveltekit-superforms/adapters";
+import { redirect } from "sveltekit-flash-message/server";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -7,6 +11,10 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize, isAuthorized } from "$lib/utils/authorization";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
+import {
+  clearBookingDoorAccess,
+  grantBookingDoorAccess,
+} from "$lib/bookings/server/doorAccess";
 import type {
   ExtendedPrisma,
   ExtendedPrismaModel,
@@ -76,9 +84,19 @@ async function notifyBooker(
   });
 }
 
+const reviewAccessSchema = z.object({
+  accessDoors: z.array(z.string()).default([]),
+  accessMemberIds: z.array(z.uuid()).default([]),
+});
+
 async function updateBookingStatus(
   event: RequestEvent,
   status: "ACCEPTED" | "DENIED",
+  // Only the dedicated review page lets the admin edit the requested
+  // doors/members before accepting. The calendar and table quick-actions
+  // don't submit that data at all, so applying it there would wipe out
+  // whatever the booker originally requested.
+  { updateAccessRequest = false }: { updateAccessRequest?: boolean } = {},
 ) {
   const { request, locals } = event;
   const { prisma, user } = locals;
@@ -91,10 +109,39 @@ async function updateBookingStatus(
     return fail(422, { message: "Invalid booking request id" });
   }
 
+  let accessDoors: string[] | undefined;
+  let accessMemberIds: string[] | undefined;
+  if (updateAccessRequest) {
+    const accessForm = await superValidate(formData, zod4(reviewAccessSchema));
+    if (!accessForm.valid) {
+      return fail(400, { message: "Invalid access request" });
+    }
+    ({ accessDoors, accessMemberIds } = accessForm.data);
+  }
+
   const bookingRequest = await prisma.bookingRequest.update({
     where: { id },
-    data: { status },
+    data: {
+      status,
+      // The admin can edit the requested doors/members up until acceptance
+      ...(status === "ACCEPTED" &&
+        accessDoors &&
+        accessMemberIds && {
+          accessDoors: { set: accessDoors.map((name) => ({ name })) },
+          accessMembers: { set: accessMemberIds.map((id) => ({ id })) },
+        }),
+    },
+    include: {
+      accessDoors: true,
+      accessMembers: { select: { studentId: true } },
+    },
   });
+
+  if (status === "ACCEPTED") {
+    await grantBookingDoorAccess(bookingRequest);
+  } else {
+    await clearBookingDoorAccess(bookingRequest.id);
+  }
 
   await notifyBooker(
     bookingRequest.bookerId,
@@ -139,5 +186,39 @@ export async function deleteBookingRequest(event: RequestEvent) {
 export const bookingReviewActions = {
   accept: (event: RequestEvent) => updateBookingStatus(event, "ACCEPTED"),
   reject: (event: RequestEvent) => updateBookingStatus(event, "DENIED"),
+  delete: deleteBookingRequest,
+};
+
+// Used on the dedicated review page (/bookings/admin/[id]), where accepting
+// or rejecting should send the admin back to the booking list. The calendar
+// and table views use bookingReviewActions instead, since they update the
+// booking in place and must stay on the same page.
+async function updateBookingStatusAndRedirect(
+  event: RequestEvent,
+  status: "ACCEPTED" | "DENIED",
+) {
+  const result = await updateBookingStatus(event, status, {
+    updateAccessRequest: true,
+  });
+  if (!("success" in result && result.success)) {
+    return result;
+  }
+
+  throw redirect(
+    `/bookings/admin`,
+    {
+      message:
+        status === "ACCEPTED" ? m.booking_accepted() : m.booking_denied(),
+      type: "success",
+    },
+    event,
+  );
+}
+
+export const bookingReviewPageActions = {
+  accept: (event: RequestEvent) =>
+    updateBookingStatusAndRedirect(event, "ACCEPTED"),
+  reject: (event: RequestEvent) =>
+    updateBookingStatusAndRedirect(event, "DENIED"),
   delete: deleteBookingRequest,
 };

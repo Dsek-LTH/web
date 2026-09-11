@@ -11,8 +11,6 @@
   import { enhance } from "$app/forms";
   import { cn } from "$lib/utils";
   import {
-    CheckIcon,
-    XIcon,
     PencilIcon,
     Trash2Icon,
     ArrowLeftIcon,
@@ -53,10 +51,10 @@
           <Table.Head class="w-[18%]">{m.booking_booking()}</Table.Head>
           <Table.Head class="w-[12%]">{m.booking_from()}</Table.Head>
           <Table.Head class="w-[12%]">{m.booking_until()}</Table.Head>
-          <Table.Head class="w-[17%]">{m.booking_event()}</Table.Head>
-          <Table.Head class="w-[14%]">{m.booking_responsible()}</Table.Head>
+          <Table.Head class="w-[20%]">{m.booking_event()}</Table.Head>
+          <Table.Head class="w-[16%]">{m.booking_responsible()}</Table.Head>
           <Table.Head class="w-[8%]">{m.booking_status()}</Table.Head>
-          <Table.Head class="w-[19%]"></Table.Head>
+          <Table.Head class="w-[14%]"></Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -110,8 +108,7 @@
               </span>
             </Table.Cell>
             <Table.Cell>
-              <form method="POST" use:enhance class="flex items-center gap-2">
-                <input hidden name="id" type="text" value={bookingRequest.id} />
+              <div class="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="icon-sm"
@@ -119,28 +116,6 @@
                   aria-label={m.booking_reviewBooking()}
                 >
                   <ClipboardCheckIcon class="size-4" />
-                </Button>
-
-                <Button
-                  type="submit"
-                  formaction="?/accept"
-                  variant="outline"
-                  size="icon-sm"
-                  disabled={bookingRequest.status === "ACCEPTED"}
-                  aria-label={m.booking_accept()}
-                >
-                  <CheckIcon class="size-4" />
-                </Button>
-                <Button
-                  type="submit"
-                  formaction="?/reject"
-                  variant="outline"
-                  size="icon-sm"
-                  disabled={bookingRequest.status === "DENIED"}
-                  aria-label={m.booking_deny()}
-                  class="border-destructive text-destructive hover:bg-destructive/10"
-                >
-                  <XIcon class="size-4" />
                 </Button>
 
                 <Button
@@ -196,7 +171,7 @@
                     </form>
                   </AlertDialog.Content>
                 </AlertDialog.Root>
-              </form>
+              </div>
             </Table.Cell>
           </Table.Row>
         {:else}
