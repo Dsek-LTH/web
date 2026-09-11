@@ -83,7 +83,7 @@ export function renderComponent<
 }
 
 /**
- * A helper function to help create cells from Svelte Snippets through ColumnDef's `cell` and `header` properties.
+ * A helper function to help create cells from Svelte Snippets through the `cell` and `header` properties of ColumnDef.
  *
  * The snippet must only take one parameter.
  *

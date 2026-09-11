@@ -37,7 +37,7 @@
       </div>
       <div class="grid grid-cols-2 gap-2 pt-2">
         <div class="flex min-w-0 flex-col">
-          <span class="p-2 font-light">{data.wellbeing}</span>
+          <span class="p-2 font-light">{data.well_being}</span>
           <Button
             variant="outline"
             class="h-auto w-full whitespace-normal"
