@@ -79,9 +79,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       })
     : [];
 
-  // Nollning articles authored by current member – hidden by BASIC_ARTICLE_FILTER by default
-  // Includes both published (lte now) and scheduled (gt now), filtered same way as /nollning/messages
-  const nollningArticles = member
+  // N0llning articles authored by current member – hidden by BASIC_ARTICLE_FILTER by default
+  // Includes both published (lte: now) and scheduled (gt: now), filtered same way as /nollning/messages
+  const n0llningArticles = member
     ? await prisma.article.findMany({
         where: {
           publishedAt: {
@@ -125,7 +125,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     allTags,
     likeForm: await superValidate(zod4(likeSchema)),
     scheduledArticles,
-    nollningArticles,
+    n0llningArticles: n0llningArticles,
   };
 };
 

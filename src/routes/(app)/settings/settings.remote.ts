@@ -28,7 +28,7 @@ const settingsSchema = z.object(schemaFields).and(
 
 export const updateSettings = form(settingsSchema, async (data) => {
   const { user, prisma } = getRequestEvent().locals;
-  if (!user) return { message: "401 Unauthorized", type: "error" as const };
+  if (!user) return { message: "401 Unauthorised", type: "error" as const };
 
   // Extract subscription types that are enabled
   const subscriptions: NotificationSettingType[] = [];

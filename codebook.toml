@@ -33,6 +33,8 @@ ignore_patterns = [
     'iCal',
     'github\.com/Dsek-LTH',
     '[A-Za-z0-9+/]{40,}', # Base64 data of 40+ characters.
+    'MMM', # dayjs format fragment
+    'DSEK',
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -44,6 +46,8 @@ ignore_patterns = [
     'infocom',
     'vscode',
     'dsekweb',
+    'idet',
+    'pdfs',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
@@ -71,6 +75,7 @@ words = [
     'decrypts',
     'durations',
     'enforceability',
+    'fulfill',
     'funsies',
     'gyckle',
     'hostnames',
@@ -86,6 +91,7 @@ words = [
     'Oklch',
     'presigned',
     'purchasables',
+    'replacer',
     'satisfiable',
     'selectable',
     'shoppable',
@@ -138,6 +144,7 @@ words = [
     'TLS',
     'TLTH',
     'WCAG',
+    'Pantern',
 
     # Tools
     'authentik',
@@ -150,6 +157,7 @@ words = [
     'Dynmap',
     'embla',
     'inlang',
+    'Klarna',
     'Meili',
     'Meilisearch',
     'MinIO',
@@ -161,6 +169,7 @@ words = [
     'postcss',
     'prisma',
     'Salto',
+    'Shlink',
     'Stocklist',
     'superform',
     'superforms',
@@ -316,6 +325,7 @@ paths = [
     'dev/setup_db.sh',
     '**/Dockerfile',
     'podman-dev.yaml',
+    'poppler-server/poppler.js',
     'poppler-server/README.md',
     'README.md',
     'src/database/seed/helpers.ts',
@@ -352,6 +362,7 @@ extra_ignore_patterns = [
     'scroll-behavior',
     'w-dvw',
     'lucide-[a-z-]+?',
+    '--tw-[a-z-]+'
 ]
 
 [[overrides]] # SVG
@@ -465,7 +476,6 @@ extra_ignore_patterns = [
     'href=\\".*?\\"', # Routes are english and spellchecked in the english version.
 
     '[kåååst]', # Phonetic notation.
-    'font-extrabold', # CSS class
     'Software Engineering', # A specialisation.
 ]
 
@@ -480,6 +490,7 @@ extra_ignore_patterns = [
 [[overrides]] # Test/Seed data
 paths = [
     'src/database/seed/data.ts',
+    'src/lib/server/shop/payments/purchase.test.ts',
     'src/lib/utils/slugify.test.ts',
 ]
 # We just ignore all string, kind of a cop-out but this data is not important.
@@ -509,3 +520,13 @@ extra_ignore_patterns = [
 [[overrides]] # Bugs in codebook :(
 paths = [ '**/*.svelte' ]
 extra_ignore_patterns = [ '  on[a-z]+?=' ]
+
+[[overrides]] # Prisma
+paths = [ '**/*.ts' ]
+extra_ignore_patterns = [ 'lte:' ]
+
+[[overrides]]
+paths = [ 'src/lib/server/shop/payments/**' ]
+extra_ignore_patterns = [
+    'pi_[a-zA-Z0-9]+'
+]
