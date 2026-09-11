@@ -34,13 +34,10 @@
             <h1 class="font-sans whitespace-nowrap">
               {m.home_greeting({ name: data.member?.firstName ?? "" })}
             </h1>
-            {#await data.notificationsPromise}
+            {#await data.unreadCountPromise}
               {m.home_notificationCount({ count: 0 })}
-            {:then notifications}
-              {m.home_notificationCount({
-                count:
-                  notifications?.filter((n) => n.readAt === null).length ?? 0,
-              })}
+            {:then count}
+              {m.home_notificationCount({ count: count ?? 0 })}
             {/await}
           </div>
         </div>{:else}

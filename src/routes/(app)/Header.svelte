@@ -29,7 +29,6 @@
 
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
   import { CircleUserRound, UserRoundPlus } from "@lucide/svelte";
@@ -37,10 +36,9 @@
   import { getFileUrl } from "$lib/files/client";
 
   const {
-    notificationsPromise,
+    unreadCountPromise,
     isApp,
-  }: { notificationsPromise?: Promise<NotificationGroup[]>; isApp: boolean } =
-    $props();
+  }: { unreadCountPromise?: Promise<number>; isApp: boolean } = $props();
 
   const canAccess = (accessRequired: string | null) =>
     accessRequired === null || isAuthorized(accessRequired, page.data.user);
@@ -139,7 +137,7 @@
         class="p-1.5"><Languages /></Button
       >
       {#if page.data.member}
-        <NotificationBell {notificationsPromise} />
+        <NotificationBell {unreadCountPromise} />
         <HoverCard.Root bind:open={memberOpen} openDelay={0} closeDelay={125}>
           <HoverCard.Trigger onclick={() => (memberOpen = !memberOpen)}>
             <MemberAvatar
