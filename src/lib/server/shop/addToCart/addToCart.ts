@@ -16,7 +16,7 @@ import {
   sendQueuedNotifications,
 } from "./reservations";
 import { error } from "console";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 
 export enum AddToCartStatus {
   AddedToCart = "AddedToCart",
@@ -54,7 +54,7 @@ export const addTicketToCart = async (
         },
   );
 
-  await authorizedPrismaClient.$transaction(async (prisma) => {
+  await authorisedPrismaClient.$transaction(async (prisma) => {
     const result = await ensureState(prisma, now, ticketId);
     queuedNotifications.push(...result.queuedNotifications);
   });
@@ -98,7 +98,7 @@ export const addTicketToCart = async (
         },
       },
     });
-    if (!ticket) throw new Error(m.tickets_errors_ticketNotFound());
+    if (!ticket) throw new Error(m.tickets_errors_ticket_not_found());
     if (
       ticket.shoppable.accessPolicies.length > 0 &&
       !ticket.shoppable.accessPolicies.some(
@@ -107,15 +107,15 @@ export const addTicketToCart = async (
           (p.studentId && p.studentId === user.studentId),
       )
     ) {
-      throw new Error(m.tickets_addToCart_errors_notAllowed());
+      throw new Error(m.tickets_add_to_cart_errors_not_allowed());
     }
     if (ticket.shoppable.availableTo && ticket.shoppable.availableTo < now)
-      throw new Error(m.tickets_addToCart_errors_salePeriodEnded());
+      throw new Error(m.tickets_add_to_cart_errors_sale_period_ended());
     if (ticket.shoppable.availableFrom > now)
-      throw new Error(m.tickets_addToCart_errors_salePeriodNotStarted());
+      throw new Error(m.tickets_add_to_cart_errors_sale_period_not_started());
     if (ticket.shoppable._count.consumables >= ticket.stock)
       // purchased items
-      throw new Error(m.tickets_addToCart_errors_ticketSoldOut());
+      throw new Error(m.tickets_add_to_cart_errors_ticket_sold_out());
 
     await checkUserMaxAmount(tx, idPart, ticket);
 
@@ -176,9 +176,9 @@ const checkUserMaxAmount = async (
     },
   });
   if (ticket.maxAmountPerUser == 1 && currentlyInCart > 0)
-    throw new Error(m.tickets_addToCart_errors_alreadyOwned());
+    throw new Error(m.tickets_add_to_cart_errors_already_owned());
   else if (currentlyInCart >= ticket.maxAmountPerUser)
-    throw new Error(m.tickets_addToCart_errors_alreadyOwnsMax());
+    throw new Error(m.tickets_add_to_cart_errors_already_owns_max());
 
   const currentlyReserved = await prisma.consumableReservation.count({
     where: {
@@ -187,7 +187,7 @@ const checkUserMaxAmount = async (
     },
   });
   if (currentlyReserved > 0)
-    throw new Error(m.tickets_addToCart_errors_alreadyReserved());
+    throw new Error(m.tickets_add_to_cart_errors_already_reserved());
 };
 
 const addToQueue = async (
@@ -219,7 +219,7 @@ const addToQueue = async (
 
 const afterGracePeriod = async (shoppableId: string) => {
   try {
-    const queuedNotifications = await authorizedPrismaClient.$transaction(
+    const queuedNotifications = await authorisedPrismaClient.$transaction(
       async (prisma) => {
         return await performLotteryIfNecessary(prisma, new Date(), shoppableId);
       },
@@ -244,7 +244,7 @@ const addReservationInReserveWindow = async (
     },
   });
   if (existingReservation)
-    throw new Error(m.tickets_addToCart_errors_alreadyReserved());
+    throw new Error(m.tickets_add_to_cart_errors_already_reserved());
   await prisma.consumableReservation.create({
     data: {
       ...id,

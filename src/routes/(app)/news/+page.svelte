@@ -6,13 +6,13 @@
   import { Button } from "$lib/components/ui/button";
   import Pagination from "$lib/components/Pagination.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import dayjs from "dayjs";
 
   let { data } = $props();
 
-  let showNollning = $state(false);
+  let showN0llning = $state(false);
 </script>
 
 <SetPageTitle title={m.news()} />
@@ -30,14 +30,14 @@
   <div class="flex-1 gap-2 md:flex-row md:items-end">
     <NewsSearch />
   </div>
-  {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
+  {#if isAuthorised(apiNames.NEWS.CREATE, data.user)}
     <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
   {/if}
 </div>
 
 {#if data.scheduledArticles.length > 0}
   <section class="mb-6">
-    <h2 class="mb-3 text-lg font-semibold">{m.news_scheduledNews()}</h2>
+    <h2 class="mb-3 text-lg font-semibold">{m.news_scheduled_news()}</h2>
     <div class="flex flex-col gap-2">
       {#each data.scheduledArticles as article (article.id)}
         <a
@@ -46,7 +46,7 @@
         >
           <span class="font-medium">{article.header}</span>
           <span class="text-muted-foreground ml-4 shrink-0">
-            {m.news_scheduledFor()}
+            {m.news_scheduled_for()}
             {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
           </span>
         </a>
@@ -55,12 +55,12 @@
   </section>
 {/if}
 
-{#if data.nollningArticles.length > 0}
+{#if data.n0llningArticles.length > 0}
   <section class="mb-6">
-    {#if showNollning}
-      <h2 class="mb-3 text-lg font-semibold">{m.news_nollningNews()}</h2>
+    {#if showN0llning}
+      <h2 class="mb-3 text-lg font-semibold">{m.news_n0llning_news()}</h2>
       <div class="flex flex-col gap-2">
-        {#each data.nollningArticles as article (article.id)}
+        {#each data.n0llningArticles as article (article.id)}
           <a
             href="/news/{article.slug}/edit"
             class="hover:bg-muted/50 flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors"
@@ -68,7 +68,7 @@
             <span class="font-medium">{article.header}</span>
             <span class="text-muted-foreground ml-4 shrink-0">
               {#if article.publishedAt && new Date(article.publishedAt) > new Date()}
-                {m.news_scheduledFor()}
+                {m.news_scheduled_for()}
                 {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
               {:else}
                 {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
@@ -78,8 +78,8 @@
         {/each}
       </div>
     {/if}
-    <Button variant="outline" onclick={() => (showNollning = !showNollning)}>
-      {showNollning ? m.news_hideNollningNews() : m.news_showNollningNews()}
+    <Button variant="outline" onclick={() => (showN0llning = !showN0llning)}>
+      {showN0llning ? m.news_hide_n0llning_news() : m.news_show_n0llning_news()}
     </Button>
   </section>
 {/if}

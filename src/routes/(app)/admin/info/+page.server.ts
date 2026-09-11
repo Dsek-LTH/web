@@ -6,12 +6,12 @@ import { infoPageSchema } from "./schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
-  authorize(apiNames.MARKDOWN.CREATE, user);
+  authorise(apiNames.MARKDOWN.CREATE, user);
 
   return { form: await superValidate(zod4(infoPageSchema)) };
 };
@@ -33,7 +33,7 @@ export const actions: Actions = {
     throw redirect(
       `/info/${name}`,
       {
-        message: `${m.admin_info_infoPageCreated()}`,
+        message: `${m.admin_info_info_page_created()}`,
         type: "success",
       },
       event,

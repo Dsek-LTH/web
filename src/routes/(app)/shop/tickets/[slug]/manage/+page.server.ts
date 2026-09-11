@@ -3,7 +3,7 @@ import {
   moveQueueToCart,
   withHandledNotificationQueue,
 } from "$lib/server/shop/addToCart/reservations";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -12,6 +12,7 @@ import { z } from "zod";
 import { loadTicketData } from "./loadTicketData";
 import { consumeConsumable } from "$lib/server/shop/consumable";
 import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import * as messages from "$paraglide/messages";
 
 export type ManagedTicket = ExtendedPrismaModel<"Ticket"> &
   ExtendedPrismaModel<"Shoppable"> & {
@@ -101,12 +102,12 @@ export const actions = {
           type: "error",
         });
       return message(form, {
-        message: "Kunde inte avkonsumera biljetten.",
+        message: messages.tickets_could_not_unconsume(),
         type: "error",
       });
     }
     return message(form, {
-      message: "Biljetten har avkonsumerats.",
+      message: messages.tickets_unconsumed(),
       type: "success",
     });
   },
@@ -129,7 +130,7 @@ export const actions = {
       });
       if (!consumable) {
         return message(form, {
-          message: "Biljetten hittades inte.",
+          message: messages.tickets_not_found(),
           type: "error",
         });
       }
@@ -139,14 +140,14 @@ export const actions = {
           consumable.priceAtPurchase ?? consumable.shoppable.price, // to ensure correct refund amount if shoppable price has changed
         );
       }
-      await authorizedPrismaClient.consumable.delete({
+      await authorisedPrismaClient.consumable.delete({
         where: {
           id: consumable.id,
         },
       });
       await withHandledNotificationQueue(
         moveQueueToCart(
-          authorizedPrismaClient,
+          authorisedPrismaClient,
           consumable.shoppableId,
           1,
           true,
@@ -154,7 +155,7 @@ export const actions = {
       );
 
       return message(form, {
-        message: "Biljetten har återbetalats.",
+        message: messages.tickets_refunded(),
         type: "success",
       });
     } catch (e) {
@@ -164,7 +165,7 @@ export const actions = {
           type: "error",
         });
       return message(form, {
-        message: "Kunde inte återbetala biljetten.",
+        message: messages.tickets_errors_could_not_refund(),
         type: "error",
       });
     }

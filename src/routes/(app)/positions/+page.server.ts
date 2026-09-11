@@ -50,7 +50,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: m.positions_positionUpdated(),
+      message: m.positions_position_updated(),
       type: "success",
     });
   },

@@ -32,13 +32,13 @@
   // const initialLocale = getLocale();
   // console.log(initialLocale);
   // let selectedLanguage = $state<"en" | "sv">(initialLocale);
-  // let languageInitialized = false;
+  // let languageInitialised = false;
   // $effect(() => {
   //   const fun = async () => {
   //     const lang = selectedLanguage;
   //     console.log(selectedLanguage);
-  //     if (!languageInitialized) {
-  //       languageInitialized = true;
+  //     if (!languageInitialised) {
+  //       languageInitialised = true;
   //       return;
   //     }
   //
@@ -84,12 +84,12 @@
     Record<NotificationSettingType, { subscription: boolean; push: boolean }>
   >(
     Object.values(NotificationSettingType).reduce(
-      (acc, settingType) => {
-        acc[settingType] = {
+      (accumulator, settingType) => {
+        accumulator[settingType] = {
           subscription: data.subscriptions.includes(settingType),
           push: data.pushSubscriptions.includes(settingType),
         };
-        return acc;
+        return accumulator;
       },
       {} as Record<
         NotificationSettingType,
@@ -159,7 +159,7 @@
   <form
     {...enhanceWithToast(updateSettings, async ({ submit }) => {
       // By default the form is reset when submitted, and if you click it again your subscription settings will be cleared
-      // This takes over the form lifecycle so that the reset doesn't happen
+      // This takes over the form life cycle so that the reset doesn't happen
       await submit();
     })}
   >

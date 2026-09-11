@@ -72,7 +72,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <Label>{m.committees_committeeImage_light()}</Label>
+      <Label>{m.committees_committee_image_light()}</Label>
       <Input
         name="lightImageUrl"
         aria-invalid={!!$errors.lightImageUrl}
@@ -84,7 +84,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <Label>{m.committees_committeeImage_dark()}</Label>
+      <Label>{m.committees_committee_image_dark()}</Label>
       <Input
         name="darkImageUrl"
         aria-invalid={!!$errors.darkImageUrl}
@@ -96,7 +96,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <Label>{m.committees_committeeImage_mono()}</Label>
+      <Label>{m.committees_committee_image_mono()}</Label>
       <Input
         name="monoImageUrl"
         aria-invalid={!!$errors.monoImageUrl}
@@ -108,7 +108,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <Label>{m.committees_committeeImage_symbol()}</Label>
+      <Label>{m.committees_committee_image_symbol()}</Label>
       <Input
         name="symbolUrl"
         aria-invalid={!!$errors.symbolUrl}

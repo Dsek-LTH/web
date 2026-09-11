@@ -5,7 +5,7 @@
   import Price from "./Price.svelte";
   import type { ExpandedExpense } from "./getExpenses";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import { page } from "$app/state";
   import { Button, buttonVariants } from "$lib/components/ui/button";
   import Check from "@lucide/svelte/icons/check";
@@ -23,7 +23,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import X from "@lucide/svelte/icons/x";
   import * as Select from "$lib/components/ui/select";
-  import { costCenters } from "./config";
+  import { costCentres } from "./config";
   import { PiggyBank } from "@lucide/svelte";
   import { enhanceWithToast, toast } from "$lib/stores/toast";
   import { goto } from "$app/navigation";
@@ -41,7 +41,7 @@
   let canSign = $derived(
     !expense.hasBeenSentToBookkeeping &&
       (expense.items.some((item) => item.signerMemberId === user?.memberId) ||
-        isAuthorized(apiNames.EXPENSES.CERTIFICATION, user)),
+        isAuthorised(apiNames.EXPENSES.CERTIFICATION, user)),
   );
 
   let editingId: string | undefined = $state(undefined);
@@ -52,11 +52,11 @@
   <div class={cn("flex flex-row", dialog ? "" : "mb-2")}>
     {#if canSign && expense.items.some((item) => !item.signedBy)}
       <Button onclick={() => approveAll(expense.id)}
-        ><Check /> {m.expense_approveAll()}</Button
+        ><Check /> {m.expense_approve_all()}</Button
       >
     {/if}
 
-    {#if isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
+    {#if isAuthorised(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
       <Button
         onclick={async () => {
           const result = await sendToBookkeeping(expense.id);
@@ -65,7 +65,7 @@
         variant="lila"
       >
         <FileText />
-        {m.expense_sendToBookkeeping()}
+        {m.expense_send_to_bookkeeping()}
       </Button>
     {/if}
 
@@ -171,7 +171,7 @@
                   ).value}
                 </Select.Trigger>
                 <Select.Content>
-                  {#each costCenters as costCenter (costCenter.value)}
+                  {#each costCentres as costCenter (costCenter.value)}
                     <Select.Item value={costCenter.value}
                       >{costCenter.label}</Select.Item
                     >
@@ -211,12 +211,12 @@
           <div class="font-bold opacity-60">{m.expense_signed()}</div>
           {item.signedAt
             ? dayjs(item.signedAt).format("D MMM YYYY, HH:mm")
-            : m.expense_notSigned()}
+            : m.expense_not_signed()}
         </div>
 
         <div>
           {#if item.signedBy}
-            <div class="font-bold opacity-60">{m.expense_signedBy()}</div>
+            <div class="font-bold opacity-60">{m.expense_signed_by()}</div>
             {item.signedBy.firstName}
             {item.signedBy.lastName}
           {:else}

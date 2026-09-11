@@ -14,7 +14,7 @@
   let { data }: { data: PageData } = $props();
 </script>
 
-<SetPageTitle title={m.theBoard()} />
+<SetPageTitle title={m.the_board()} />
 
 <div class="layout-container">
   <div class="flex flex-col items-center justify-between md:flex-row">
@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="gap-2 px-4 md:w-8/12 md:gap-0 md:pl-8">
-      <h1>{m.theBoard()}</h1>
+      <h1>{m.the_board()}</h1>
 
       <p>{m.board_prose()}</p>
 

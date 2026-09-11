@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   const type = url.searchParams.get("type") || dt.boardMeeting;
   if (!isValidDocumentType(type)) {
-    throw error(400, m.documents_errors_invalidType());
+    throw error(400, m.documents_errors_invalid_type());
   }
 
   const files: FileData[] = await fileHandler
@@ -51,7 +51,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       console.error("Error fetching files", err);
       return [];
     });
-  const SRDfiles = await fileHandler
+  const SRDFiles = await fileHandler
     .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
     .catch((err) => {
       console.error("Error fetching files", err);
@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       break;
 
     case dt.SRDMeeting:
-      SRDfiles.forEach((file) => {
+      SRDFiles.forEach((file) => {
         const fileParts = file.id.split("/");
         const meetingName =
           fileParts[fileParts.length - 2] ?? m.documents_unknown();
@@ -146,7 +146,7 @@ export const actions: Actions = {
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
     return message(form, {
-      message: m.documents_fileDeleted(),
+      message: m.documents_file_deleted(),
       type: "success",
     });
   },

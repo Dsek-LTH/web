@@ -8,7 +8,7 @@ import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 
@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, member, user } = locals;
 
   // News admins can see everyone's scheduled articles, not just their own.
-  const canSeeAllScheduled = isAuthorized(apiNames.NEWS.UPDATE, user);
+  const canSeeAllScheduled = isAuthorised(apiNames.NEWS.UPDATE, user);
 
   const articleCount = await prisma.article.count();
   const pageSize = getPageSizeOrThrowSvelteError(url);
@@ -79,9 +79,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       })
     : [];
 
-  // Nollning articles authored by current member – hidden by BASIC_ARTICLE_FILTER by default
-  // Includes both published (lte now) and scheduled (gt now), filtered same way as /nollning/messages
-  const nollningArticles = member
+  // N0llning articles authored by current member – hidden by BASIC_ARTICLE_FILTER by default
+  // Includes both published (lte: now) and scheduled (gt: now), filtered same way as /nollning/messages
+  const n0llningArticles = member
     ? await prisma.article.findMany({
         where: {
           publishedAt: {
@@ -125,7 +125,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     allTags,
     likeForm: await superValidate(zod4(likeSchema)),
     scheduledArticles,
-    nollningArticles,
+    n0llningArticles,
   };
 };
 

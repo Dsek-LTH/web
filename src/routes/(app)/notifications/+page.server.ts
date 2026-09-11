@@ -15,7 +15,7 @@ export const actions: Actions = {
   readNotifications: async ({ locals, request }) => {
     const { user, prisma } = locals;
     if (!user.memberId) {
-      error(403, m.notifications_errors_notLoggedIn());
+      error(403, m.notifications_errors_not_logged_in());
     }
     const form = await superValidate(request, zod4(notificationSchema));
     if (!form.valid) return fail(400, { form });
@@ -38,7 +38,7 @@ export const actions: Actions = {
     });
 
     return message(form, {
-      message: m.notifications_notificationsRead(),
+      message: m.notifications_notifications_read(),
       type: "hidden",
     });
   },
@@ -46,7 +46,7 @@ export const actions: Actions = {
   deleteNotification: async ({ locals, request }) => {
     const { user, prisma } = locals;
     if (!user.memberId) {
-      error(403, m.notifications_errors_notLoggedIn());
+      error(403, m.notifications_errors_not_logged_in());
     }
     const form = await superValidate(request, zod4(notificationSchema));
     if (!form.valid) return fail(400, { form });
@@ -62,7 +62,7 @@ export const actions: Actions = {
         },
       });
       return message(form, {
-        message: m.notifications_notificationsRemoved(),
+        message: m.notifications_notifications_removed(),
         type: "hidden",
       });
     } else if (form.data.notificationId) {
@@ -73,12 +73,12 @@ export const actions: Actions = {
         },
       });
       return message(form, {
-        message: m.notifications_notificationRemoved(),
+        message: m.notifications_notification_removed(),
         type: "success",
       });
     }
     return message(form, {
-      message: m.notifications_errors_couldNotRemove(),
+      message: m.notifications_errors_could_not_remove(),
       type: "error",
     });
   },

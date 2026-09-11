@@ -1,6 +1,6 @@
 import type { PageServerLoad, Actions } from "./$types";
 import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import { committeeActions, committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
@@ -24,7 +24,7 @@ dayjs.extend(weekYear);
 function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
   const currentWeek = dayjs().startOf("week");
   const weekNum = Number(weekString ?? currentWeek.week());
-  if (!isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user)) {
+  if (!isAuthorised(apiNames.CAFE.SEE_ALL_WEEKS, user)) {
     if (weekNum < currentWeek.week() || weekNum > currentWeek.week() + 2) {
       error(403, { message: m.cafe_error_no_week_viewing_perms() });
     }
@@ -95,7 +95,7 @@ export const actions: Actions = {
         markdownEn,
       });
       return message(form, {
-        message: m.committees_committeeUpdated(),
+        message: m.committees_committee_updated(),
         type: "success",
       });
     } else {
@@ -121,9 +121,9 @@ export const actions: Actions = {
     if (!member) {
       return fail(400, { form });
     }
-    const isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
+    const isSetByAdmin = isAuthorised(apiNames.CAFE.EDIT_WORKERS, user);
     if (member != user.studentId) {
-      if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
+      if (!isAuthorised(apiNames.CAFE.EDIT_WORKERS, user)) {
         return message(form, {
           message: m.cafe_error_no_edit_worker_perms(),
           type: "error",
@@ -137,11 +137,11 @@ export const actions: Actions = {
 
     const cafeShift = dayShifts.find((shift) => shift.timeSlot == timeSlot);
 
-    const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
+    const isDayManager = isAuthorised(apiNames.CAFE.DAY_MANAGER, user);
     if (!cafeShift) {
       if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
         return message(form, {
-          message: m.cafe_error_only_daymanagers(),
+          message: m.cafe_error_only_day_managers(),
           type: "error",
         });
       }
@@ -246,7 +246,7 @@ export const actions: Actions = {
     const { user, prisma } = locals;
     const form = await superValidate(request, zod4(editWeeklyCiabattaSchema));
     if (!form.valid) return fail(400, { form });
-    if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) {
+    if (!isAuthorised(apiNames.CAFE.EDIT_CIABATTAS, user)) {
       return message(form, {
         message: m.cafe_error_no_ciabatta_edit_perms(),
         type: "error",

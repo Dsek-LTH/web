@@ -23,7 +23,7 @@
   import { toString, type Semester } from "$lib/utils/semesters";
   import { getFullName } from "$lib/utils/client/member";
   import SEO from "$lib/seo/SEO.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import * as m from "$paraglide/messages";
@@ -58,7 +58,7 @@
 
   let canEdit = $derived(
     page.data.user?.studentId === member.studentId ||
-      isAuthorized(apiNames.MEMBER.UPDATE, page.data.user),
+      isAuthorised(apiNames.MEMBER.UPDATE, page.data.user),
   );
 
   const logoUrl = { D: "datateknik", C: "infocom", "VR/AR": "vr_ar" } as const;
@@ -299,7 +299,6 @@
   </aside>
 
   <main class="bg-background border-r-[1px] pb-4 md:w-9/12">
-    <!-- <h4>Riddare</h4> -->
     <div class="border-b-[1px] pr-4 pl-8">
       <div class="flex flex-row items-end gap-1 pt-7">
         <h1>{member.firstName} {member.lastName}</h1>

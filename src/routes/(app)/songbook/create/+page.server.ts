@@ -6,14 +6,14 @@ import { createSongSchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
 import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../helpers";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import DOMPurify from "isomorphic-dompurify";
 import { redirect } from "sveltekit-flash-message/server";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.SONG.CREATE, user);
+  authorise(apiNames.SONG.CREATE, user);
 
   const [existingCategories, existingMelodies] = await Promise.all([
     getExistingCategories(prisma),
@@ -30,7 +30,7 @@ export const actions: Actions = {
   create: async (event) => {
     const { request, locals } = event;
     const { prisma, user } = locals;
-    authorize(apiNames.SONG.CREATE, user);
+    authorise(apiNames.SONG.CREATE, user);
 
     const form = await superValidate(request, zod4(createSongSchema));
     if (!form.valid) return fail(400, { form });
@@ -51,7 +51,7 @@ export const actions: Actions = {
     throw redirect(
       `/songbook/${result.slug}`,
       {
-        message: m.songbook_songCreated(),
+        message: m.songbook_song_created(),
         type: "success",
       },
       event,

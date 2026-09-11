@@ -5,8 +5,8 @@ set -euo pipefail
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-jq --raw-output 'keys[]' src/translations/en.json >"$tmp/en-keys"
-jq --raw-output 'keys[]' src/translations/sv.json >"$tmp/sv-keys"
+jq --raw-output 'keys[]' src/translations/en.json | sort >"$tmp/en-keys"
+jq --raw-output 'keys[]' src/translations/sv.json | sort >"$tmp/sv-keys"
 
 if cmp --quiet "$tmp/en-keys" "$tmp/sv-keys"; then
     exit 0

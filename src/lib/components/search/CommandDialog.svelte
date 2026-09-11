@@ -231,7 +231,7 @@
   </form>
   <Command.List>
     <Command.Empty>
-      {isSearching ? "Searching..." : m.search_noResults()}
+      {isSearching ? "Searching..." : m.search_no_results()}
     </Command.Empty>
 
     {#if groupedResults.committees.length > 0}
@@ -310,7 +310,7 @@
           }}
         >
           <Search />
-          <span>{m.search_advancedSearch()}</span>
+          <span>{m.search_advanced_search()}</span>
         </Command.Item>
       </Command.Group>
     {/if}

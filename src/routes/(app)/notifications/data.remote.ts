@@ -6,7 +6,7 @@ export const readAllNotifications = form(z.object({}), async () => {
   const { user, prisma } = getRequestEvent().locals;
   if (!user?.memberId) {
     return {
-      message: m.notifications_errors_notLoggedIn(),
+      message: m.notifications_errors_not_logged_in(),
       type: "error" as const,
     };
   }
@@ -20,7 +20,7 @@ export const readAllNotifications = form(z.object({}), async () => {
     },
   });
   return {
-    message: m.notifications_notificationsRead(),
+    message: m.notifications_notifications_read(),
     type: "hidden" as const,
   };
 });
@@ -29,7 +29,7 @@ export const deleteAllNotifications = form(z.object({}), async () => {
   const { user, prisma } = getRequestEvent().locals;
   if (!user?.memberId) {
     return {
-      message: m.notifications_errors_notLoggedIn(),
+      message: m.notifications_errors_not_logged_in(),
       type: "error" as const,
     };
   }
@@ -39,7 +39,7 @@ export const deleteAllNotifications = form(z.object({}), async () => {
     },
   });
   return {
-    message: m.notifications_notificationsRemoved(),
+    message: m.notifications_notifications_removed(),
     type: "success" as const,
   };
 });
@@ -67,7 +67,7 @@ export const deleteNotification = form(
         },
       });
       return {
-        message: m.notifications_notificationsRemoved(),
+        message: m.notifications_notifications_removed(),
         type: "success" as const,
       };
     } else if (data.notificationId) {
@@ -78,12 +78,12 @@ export const deleteNotification = form(
         },
       });
       return {
-        message: m.notifications_notificationRemoved(),
+        message: m.notifications_notification_removed(),
         type: "success" as const,
       };
     }
     return {
-      message: m.notifications_errors_couldNotRemove(),
+      message: m.notifications_errors_could_not_remove(),
       type: "error" as const,
     };
   },

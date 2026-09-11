@@ -113,10 +113,10 @@
             >
               <AlertDialog.Header>
                 <AlertDialog.Title
-                  >{m.member_removePicture_title()}</AlertDialog.Title
+                  >{m.member_remove_picture_title()}</AlertDialog.Title
                 >
                 <AlertDialog.Description>
-                  {m.member_removePicture_desc()}
+                  {m.member_remove_picture_desc()}
                 </AlertDialog.Description>
               </AlertDialog.Header>
               <AlertDialog.Footer>

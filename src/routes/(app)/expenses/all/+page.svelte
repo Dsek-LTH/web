@@ -41,11 +41,11 @@
 
 <div class="flex flex-row gap-1">
   <a href="/expenses"
-    ><Button variant="lila"><List /> {m.expense_myExpenses()}</Button></a
+    ><Button variant="lila"><List /> {m.expense_my_expenses()}</Button></a
   >
 </div>
 
-<h2 class="mt-4">{m.expense_allExpenses()}</h2>
+<h2 class="mt-4">{m.expense_all_expenses()}</h2>
 
 <Tabs.Root
   class="mt-4 mb-2"
@@ -53,7 +53,7 @@
 >
   <Tabs.List>
     <Tabs.Trigger onclick={() => setFilterLink("all")} value="all"
-      >{m.expense_allExpenses()}</Tabs.Trigger
+      >{m.expense_all_expenses()}</Tabs.Trigger
     >
     <Tabs.Trigger onclick={() => setFilterLink("not-signed")} value="not-signed"
       >{m.expense_unsigned()}</Tabs.Trigger

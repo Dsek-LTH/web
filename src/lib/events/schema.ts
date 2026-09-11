@@ -54,14 +54,14 @@ export const eventSchema = z
       .default(() => new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)), // one week later
   })
   .refine((data) => data.startDatetime < data.endDatetime, {
-    message: m.events_errors_endAfterStart(),
+    message: m.events_errors_end_after_start(),
     path: ["endDatetime"],
   })
   .refine(
     (data) =>
       !data.isRecurring || data.startDatetime < data.recurringEndDatetime,
     {
-      message: m.events_errors_endAfterStart(),
+      message: m.events_errors_end_after_start(),
       path: ["recurringEndDatetime"],
     },
   );

@@ -99,7 +99,7 @@
   <div class="mb-8 flex flex-row items-center justify-between">
     <div class="md:w-7/12">
       <div class="mb-4 flex flex-wrap items-center gap-4">
-        <h1 class="mb-0">{m.songBook()}</h1>
+        <h1 class="mb-0">{m.song_book()}</h1>
         {#if canCreate}
           <Button
             href="/songbook/create"
@@ -107,11 +107,11 @@
             class="flex items-center gap-2"
           >
             <Plus class="h-4 w-4" />
-            {m.songbook_createNewSong()}
+            {m.songbook_create_new_song()}
           </Button>
         {/if}
       </div>
-      <p>{m.songbook_hereYoullFind()}</p>
+      <p>{m.songbook_here_you_will_find()}</p>
       <p class="text-muted-foreground italic">{m.songbook_disclaimer()}</p>
     </div>
     <div class="hidden w-4/12 rounded-lg md:block">
@@ -130,7 +130,7 @@
       <div class="flex-1">
         <Input
           type="text"
-          placeholder={m.songbook_searchPlaceholder()}
+          placeholder={m.songbook_search_placeholder()}
           value={data.search}
           oninput={handleSearch}
         >
@@ -151,7 +151,7 @@
             for="show-deleted"
             class="cursor-pointer text-sm font-medium whitespace-nowrap"
           >
-            {m.songbook_showDeleted()}
+            {m.songbook_show_deleted()}
           </Label>
         </div>
       {/if}
@@ -228,10 +228,10 @@
           <MusicIcon class="h-8 w-8" />
         </div>
         <h3 class="text-xl font-bold tracking-tight">
-          {m.songbook_noSongsFound()}
+          {m.songbook_no_songs_found()}
         </h3>
         <p class="text-muted-foreground mt-2 max-w-sm text-sm">
-          {m.songbook_noSongsMatchingSearchDescription()}
+          {m.songbook_no_songs_matching_search_description()}
         </p>
       </div>
     {/each}

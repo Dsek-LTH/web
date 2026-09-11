@@ -10,7 +10,7 @@
 <div
   class="mb-8 flex w-full flex-col justify-between gap-2 md:flex-row md:gap-8"
 >
-  <h2>{m.phadderGroups()}</h2>
+  <h2>{m.phadder_groups()}</h2>
   <YearSelector />
 </div>
 

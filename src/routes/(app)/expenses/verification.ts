@@ -1,14 +1,14 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import { COST_CENTERS } from "./config";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import { COST_CENTRES } from "./config";
 
 /**
- * Verifies that the hard coded data in expenses config (cost centers) is correct and exists in the database.
+ * Verifies that the hard coded data in expenses config (cost centres) is correct and exists in the database.
  * If not, it will print an error
  */
 export const verifyCostCenterData = async () => {
-  const prisma = authorizedPrismaClient;
+  const prisma = authorisedPrismaClient;
   const results = await Promise.allSettled(
-    COST_CENTERS.map(async (center) => {
+    COST_CENTRES.map(async (center) => {
       await prisma.committee
         .findFirstOrThrow({
           where: {
@@ -37,6 +37,6 @@ export const verifyCostCenterData = async () => {
     .filter((result) => result.status === "rejected")
     .map((result) => `${result.reason}`);
   if (errors.length > 0) {
-    console.error(`ERROR WITH EXPENSE COST CENTERS`, errors.join("\n"));
+    console.error(`ERROR WITH EXPENSE COST CENTRES`, errors.join("\n"));
   }
 };

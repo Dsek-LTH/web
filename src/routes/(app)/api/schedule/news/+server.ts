@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const { password, notificationText } = body;
   if (!password || password !== env.SCHEDULER_PASSWORD) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response("Unauthorised", { status: 401 });
   }
 
   await Promise.allSettled([

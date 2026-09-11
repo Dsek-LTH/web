@@ -1,7 +1,7 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { createSchema, updateSchema } from "$lib/news/schema";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { redirect } from "sveltekit-flash-message/server";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
@@ -67,8 +67,8 @@ export const createArticle: Action = async (event) => {
     },
   });
   let slug = slugify(headerSv);
-  // authorized so we actually count all
-  const slugCount = await authorizedPrismaClient.article.count({
+  // authorised so we actually count all
+  const slugCount = await authorisedPrismaClient.article.count({
     where: {
       slug: { startsWith: slug },
     },
@@ -137,16 +137,16 @@ export const createArticle: Action = async (event) => {
     },
   });
 
-  const pubishTimeIsInFuture = publishTime && publishTime > new Date();
-  if (pubishTimeIsInFuture && shouldSendNotification) {
+  const publishTimeIsInFuture = publishTime && publishTime > new Date();
+  if (publishTimeIsInFuture && shouldSendNotification) {
     const scheduleResult = await scheduleExecution(
       request,
       `${url.origin}/api/schedule/news`,
       { ...result, tags, notificationText },
       publishTime,
       form,
-      m.news_errors_schedulingFailed(),
-      m.news_articleScheduled(),
+      m.news_errors_scheduling_failed(),
+      m.news_article_scheduled(),
       "/news",
       event,
     );
@@ -196,9 +196,9 @@ export const createArticle: Action = async (event) => {
   }
 
   throw redirect(
-    pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
+    publishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
     {
-      message: m.news_articleCreated(),
+      message: m.news_article_created(),
       type: "success",
     },
     event,
@@ -333,8 +333,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           notificationPayload,
           publishedAt,
           form,
-          m.news_errors_schedulingFailed(),
-          m.news_articleScheduled(),
+          m.news_errors_scheduling_failed(),
+          m.news_article_scheduled(),
           `/news/${slug}`,
           event,
         );
@@ -396,7 +396,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           throw redirect(
             `/news/${slug}/edit`,
             {
-              message: `${m.news_errors_schedulingFailed()}: ${
+              message: `${m.news_errors_scheduling_failed()}: ${
                 error instanceof Error ? error.message : String(error)
               }`,
               type: "error",
@@ -409,7 +409,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
           throw redirect(
             `/news/${slug}/edit`,
             {
-              message: m.news_errors_schedulingFailed(),
+              message: m.news_errors_scheduling_failed(),
               type: "error",
             },
             event,
@@ -429,7 +429,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       return message(
         form,
         {
-          message: m.news_errors_articleNotFound(),
+          message: m.news_errors_article_not_found(),
           type: "error",
         },
         { status: 400 },
@@ -441,7 +441,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   throw redirect(
     `/news/${publishedAt < new Date() ? event.params.slug : ""}`,
     {
-      message: m.news_articleUpdated(),
+      message: m.news_article_updated(),
       type: "success",
     },
     event,

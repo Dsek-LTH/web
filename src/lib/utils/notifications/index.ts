@@ -1,4 +1,4 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import sendPushNotifications from "$lib/utils/notifications/push";
 import {
@@ -49,7 +49,7 @@ export type SendNotificationProps = BaseSendNotificationProps &
   );
 
 // Need permissions to read expo tokens and send notifications without sharing expo tokens to the public
-const prisma = authorizedPrismaClient;
+const prisma = authorisedPrismaClient;
 
 /**
  *

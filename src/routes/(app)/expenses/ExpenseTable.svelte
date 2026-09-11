@@ -72,7 +72,7 @@
       {:else}
         <Table.Row>
           <Table.Cell colspan={columns.length} class="h-24 text-center">
-            {m.expense_noResults()}
+            {m.expense_no_results()}
           </Table.Cell>
         </Table.Row>
       {/each}

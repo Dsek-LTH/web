@@ -7,7 +7,8 @@ import type { Actions, PageServerLoad } from "./$types";
 import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
 import { env } from "$env/dynamic/private";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
+import * as messages from "$paraglide/messages";
 
 const transporter = nodemailer.createTransport({
   host: "mailmaster.blossom.dsek.se",
@@ -21,7 +22,7 @@ const transporter = nodemailer.createTransport({
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
-  authorize(apiNames.YRKA.SEND, user);
+  authorise(apiNames.YRKA.SEND, user);
   return {
     form: await superValidate(zod4(createSchema)),
   };
@@ -53,14 +54,14 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: "Kunde inte skicka e-postmeddelande",
+          message: messages.yrka_could_not_send(),
           type: "error",
         },
         { status: 500 },
       );
     }
     return message(form, {
-      message: "Yrkande skickat!",
+      message: messages.yrka_sent(),
       type: "success",
     });
   },

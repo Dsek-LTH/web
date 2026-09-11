@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -17,9 +17,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     },
   });
   if (markdownPage == undefined) {
-    authorize(apiNames.MARKDOWNS.CREATE, user);
+    authorise(apiNames.MARKDOWNS.CREATE, user);
   } else {
-    authorize(apiNames.MARKDOWNS.PAGE(params.slug).UPDATE, user);
+    authorise(apiNames.MARKDOWNS.PAGE(params.slug).UPDATE, user);
   }
 
   return {

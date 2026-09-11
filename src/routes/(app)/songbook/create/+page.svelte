@@ -33,9 +33,9 @@
   <Card class="border-border shadow-xl">
     <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
       <CardTitle class="text-3xl font-bold"
-        >{m.songbook_createNewSong()}</CardTitle
+        >{m.songbook_create_new_song()}</CardTitle
       >
-      <CardDescription>{m.songbook_hereYoullFind()}</CardDescription>
+      <CardDescription>{m.songbook_here_you_will_find()}</CardDescription>
     </CardHeader>
     <CardContent class="pt-6">
       <form
@@ -74,7 +74,7 @@
               name="category"
               list="category-options"
               bind:value={$form.category}
-              placeholder={m.songbook_categoryExplanation()}
+              placeholder={m.songbook_category_explanation()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
                   $errors.category,
@@ -101,7 +101,7 @@
               name="melody"
               list="melody-options"
               bind:value={$form.melody}
-              placeholder={m.songbook_melodyExplanation()}
+              placeholder={m.songbook_melody_explanation()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
                   $errors.melody,
@@ -122,14 +122,14 @@
 
         <div class="flex flex-col gap-2">
           <Label for="video" class="text-base font-medium"
-            >{m.songbook_videoUrlLabel()}</Label
+            >{m.songbook_video_url_label()}</Label
           >
           <Input
             id="video"
             name="video"
             type="url"
             bind:value={$form.video}
-            placeholder={m.songbook_videoPlaceholder()}
+            placeholder={m.songbook_video_placeholder()}
             class={{
               "border-destructive focus-visible:ring-destructive":
                 $errors.video,

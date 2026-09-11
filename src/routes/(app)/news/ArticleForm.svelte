@@ -98,16 +98,16 @@
     a.customId === b.customId &&
     a.type === b.type;
 
-  let filelist: FileList | undefined = $state();
+  let fileList: FileList | undefined = $state();
 
   $form.images.forEach((f) => {
     const dt = new DataTransfer();
     dt.items.add(f);
-    filelist = dt.files;
+    fileList = dt.files;
   });
   function onFileUpload() {
     // @ts-expect-error -- expected
-    $form.images = [...filelist];
+    $form.images = [...fileList];
   }
 </script>
 
@@ -245,7 +245,7 @@
   <FileUpload
     multiple
     onchange={() => onFileUpload()}
-    bind:files={() => filelist, (f) => (filelist = f)}
+    bind:files={() => fileList, (f) => (fileList = f)}
   />
 
   <div class="flex w-full flex-col gap-1.5">
@@ -294,7 +294,7 @@
       type="text"
       id="notificationText"
       name="notificationText"
-      placeholder="Notistext"><Pen /></Input
+      placeholder={m.news_notification_text()}><Pen /></Input
     >
     <span class="text-xs">{m.news_notification_explanation()}</span>
   </div>

@@ -5,7 +5,7 @@ import {
 } from "$lib/server/shop/payments/stripeWebhooks";
 import * as m from "$paraglide/messages";
 import Stripe from "stripe";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { getStripe } from "./stripe";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
@@ -67,7 +67,7 @@ export const getPaymentIntent = (
 };
 
 export const resetConsumablesForIntent = async (intentId: string) => {
-  await authorizedPrismaClient.consumable.updateMany({
+  await authorisedPrismaClient.consumable.updateMany({
     where: {
       stripeIntentId: intentId,
       purchasedAt: null,
@@ -82,7 +82,7 @@ export const resetConsumablesForIntent = async (intentId: string) => {
 /**
  * You can cancel a PaymentIntent object when it's in one of these statuses: requires_payment_method, requires_capture, requires_confirmation, requires_action or, in rare cases, processing.
 
-After it's canceled, no additional charges are made by the PaymentIntent and any operations on the PaymentIntent fail with an error. For PaymentIntents with a status of requires_capture, the remaining amount_capturable is automatically refunded.
+After it's cancelled, no additional charges are made by the PaymentIntent and any operations on the PaymentIntent fail with an error. For PaymentIntents with a status of requires_capture, the remaining amount_capturable is automatically refunded.
 
 You can't cancel the PaymentIntent for a Checkout Session. Expire the Checkout Session instead.
  */
@@ -110,7 +110,7 @@ export const ensurePaymentIntentState = async (
       canRetryPayment = true;
       break;
     case "requires_capture":
-      // only valid if you use the stripe "authorization then capture" workflow, where payment method is authorized, and THEN payment is captured at a later time.
+      // only valid if you use the stripe "authorisation then capture" workflow, where payment method is authorised, and THEN payment is captured at a later time.
       canRetryPayment = true;
       break;
     case "requires_confirmation":
@@ -120,7 +120,7 @@ export const ensurePaymentIntentState = async (
     case "processing":
       // payment in progress, do not start a new transaction
       await onPaymentProcessing(intent);
-      throw new Error(m.tickets_purchase_errors_existingPaymentIsOngoing());
+      throw new Error(m.tickets_purchase_errors_existing_payment_is_ongoing());
     case "canceled":
       // payment was canceled
       await onPaymentCancellation(intent);
@@ -151,8 +151,8 @@ export const refundConsumable = async (
     return refund;
   } catch (e) {
     if (e instanceof Error) {
-      throw new Error(`${m.tickets_errors_couldNotRefund()}: ${e}`);
+      throw new Error(`${m.tickets_errors_could_not_refund()}: ${e}`);
     }
-    throw new Error(m.tickets_errors_couldNotRefund());
+    throw new Error(m.tickets_errors_could_not_refund());
   }
 };

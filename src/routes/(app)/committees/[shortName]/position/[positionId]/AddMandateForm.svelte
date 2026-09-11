@@ -48,7 +48,7 @@
       {/if}
     </div>
     <div class="flex w-full flex-col gap-1.5">
-      <Label>{m.positions_startDate()}</Label>
+      <Label>{m.positions_start_date()}</Label>
 
       <DatePicker
         name="startDate"
@@ -61,7 +61,7 @@
     </div>
 
     <div class="flex w-full flex-col gap-1.5">
-      <Label>{m.positions_endDate()}</Label>
+      <Label>{m.positions_end_date()}</Label>
       <DatePicker
         name="endDate"
         iso

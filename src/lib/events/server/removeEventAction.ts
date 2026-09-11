@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import { error, fail, type Action } from "@sveltejs/kit";
@@ -19,7 +19,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
 
   const form = await superValidate(request, zod4(removeEventSchema));
   if (!form.valid) return fail(400, { form });
-  authorize(apiNames.EVENT.DELETE, user);
+  authorise(apiNames.EVENT.DELETE, user);
 
   const existingEvent = await prisma.event.findUnique({
     where: {
@@ -27,7 +27,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
     },
   });
 
-  if (!existingEvent) return error(404, m.events_errors_eventNotFound());
+  if (!existingEvent) return error(404, m.events_errors_event_not_found());
 
   if (form.data.removeType === "ALL") {
     await prisma.event.updateMany({
@@ -41,7 +41,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
     throw redirect(
       "/events",
       {
-        message: m.events_eventsDeleted(),
+        message: m.events_events_deleted(),
         type: "success",
       },
       event,
@@ -70,7 +70,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
     throw redirect(
       "/events",
       {
-        message: m.events_eventDeleted(),
+        message: m.events_event_deleted(),
         type: "success",
       },
       event,

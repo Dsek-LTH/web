@@ -1,11 +1,12 @@
 import { QuestionType, ticketSchema } from "$lib/utils/shop/types";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { updateTicket } from "$lib/server/shop/tickets/mutations";
+import * as messages from "$paraglide/messages";
 
 export const load = async ({ locals, params }) => {
   const { user } = locals;
@@ -29,11 +30,11 @@ export const load = async ({ locals, params }) => {
     },
   });
   if (!ticket) {
-    error(404, { message: "Biljetten kunde inte hittas" });
+    error(404, { message: messages.tickets_not_found() });
   }
   if (ticket.shoppable.authorId !== user.memberId) {
     // author can always edit
-    authorize(apiNames.WEBSHOP.MANAGE, user);
+    authorise(apiNames.WEBSHOP.MANAGE, user);
   }
 
   return {
@@ -72,12 +73,12 @@ export const actions = {
     const { prisma, user, member } = locals;
     const form = await superValidate(request, zod4(ticketSchema));
     if (!form.valid) return fail(400, { form });
-    authorize(apiNames.WEBSHOP.CREATE, user);
+    authorise(apiNames.WEBSHOP.CREATE, user);
     if (!member) {
       // this should be handled by the authorization call above
       return message(form, {
-        message: "Du måste vara inloggad för att skapa biljetter",
-        type: "error,",
+        message: messages.tickets_create_not_logged_in(),
+        type: "error",
       });
     }
     const ticketId = event.params.slug;
@@ -90,14 +91,14 @@ export const actions = {
       else errorMsg = String(err);
       console.log("Error updating ticket", errorMsg);
       return message(form, {
-        message: "Kunde inte skapa biljett: " + errorMsg,
-        type: "error,",
+        message: messages.tickets_create_generic_error() + ": " + errorMsg,
+        type: "error",
       });
     }
     throw redirect(
       `/shop/tickets/${ticketId}`,
       {
-        message: "Biljett uppdaterad",
+        message: messages.tickets_updated(),
         type: "success",
       },
       event,

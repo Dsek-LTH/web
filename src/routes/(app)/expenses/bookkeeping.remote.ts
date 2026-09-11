@@ -1,7 +1,7 @@
 import { command, getRequestEvent } from "$app/server";
 import { sendExpenseToBookkeeping } from "$lib/expenses/sendToBookkeeping";
 import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
 import z from "zod";
 import * as m from "$paraglide/messages";
@@ -19,7 +19,7 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
     throw error(401, m.expense_error_logged_in_bookkeeping());
   }
 
-  if (!isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user)) {
+  if (!isAuthorised(apiNames.EXPENSES.BOOKKEEPING, user)) {
     throw error(403, m.expense_error_permission());
   }
 
@@ -36,7 +36,7 @@ export const sendToBookkeeping = command(z.number(), async (id) => {
     };
   } catch (e) {
     return {
-      message: e instanceof Error ? e.message : m.expense_errorOccurred(),
+      message: e instanceof Error ? e.message : m.expense_error_occurred(),
       type: "error" as const,
     };
   }

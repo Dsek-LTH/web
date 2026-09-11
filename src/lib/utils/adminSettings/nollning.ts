@@ -1,5 +1,5 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 
 export const NOLLNING_START_KEY = "nollning_start";
 export const NOLLNING_END_KEY = "nollning_end";
@@ -22,7 +22,7 @@ export const isNollningPeriod = async () => {
     cache.lastFetched.valueOf() + CACHE_TIME > now.valueOf()
   )
     return cache.value;
-  const rows = await authorizedPrismaClient.adminSetting.findMany({
+  const rows = await authorisedPrismaClient.adminSetting.findMany({
     where: {
       OR: [
         {
@@ -54,7 +54,7 @@ export const getNollningStart = async () => {
     startCache.lastFetched.valueOf() + CACHE_TIME > now.valueOf()
   )
     return startCache.value;
-  const row = await authorizedPrismaClient.adminSetting.findUnique({
+  const row = await authorisedPrismaClient.adminSetting.findUnique({
     where: {
       key: NOLLNING_START_KEY,
     },

@@ -36,14 +36,14 @@
     <div class="mt-2 flex justify-center gap-2">
       <MembersList
         variant="outline"
-        title="{m.nollor_in()} {group.name}"
-        members={group.nollor}>{m.nollor()}</MembersList
+        title="{m.n0llor_in()} {group.name}"
+        members={group.nollor}>{m.n0llor()}</MembersList
       >
       <MembersList
         variant="outline"
-        title="{m.phaddrar_in()}  {group.name}"
+        title="{m.phadders_in()}  {group.name}"
         members={group.phaddrar.map((p) => p.member)}
-        >{m.phaddrar()}</MembersList
+        >{m.phadders()}</MembersList
       >
     </div>
   </div>

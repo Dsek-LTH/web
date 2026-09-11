@@ -4,7 +4,7 @@ import {
 } from "$lib/components/postReveal/types";
 import { getArticle } from "$lib/news/getArticles";
 import apiNames from "$lib/utils/apiNames";
-import { authorize, isAuthorized } from "$lib/utils/authorization";
+import { authorise, isAuthorised } from "$lib/utils/authorization";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
 import { redirect } from "sveltekit-flash-message/server";
 import {
@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const article = await getArticle(prisma, params.slug);
   if (article == undefined) {
     throw error(404, {
-      message: m.news_errors_articleNotFound(),
+      message: m.news_errors_article_not_found(),
     });
   }
   if (article.tags.some((t) => t.name.startsWith(NOLLNING_TAG_PREFIX))) {
@@ -33,10 +33,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
   const canEdit =
-    (isAuthorized(apiNames.NEWS.MANAGE, user) &&
-      isAuthorized(apiNames.NEWS.UPDATE, user)) ||
+    (isAuthorised(apiNames.NEWS.MANAGE, user) &&
+      isAuthorised(apiNames.NEWS.UPDATE, user)) ||
     article.author.memberId === user.memberId;
-  const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
+  const canDelete = isAuthorised(apiNames.NEWS.DELETE, user);
   return {
     article,
     allTaggedMembers,
@@ -56,7 +56,7 @@ export const actions: Actions = {
   removeArticle: async (event) => {
     const { locals, params } = event;
     const { prisma, user } = locals;
-    authorize(apiNames.NEWS.DELETE, user);
+    authorise(apiNames.NEWS.DELETE, user);
 
     const existingArticle = prisma.article.findUnique({
       where: {
@@ -64,7 +64,7 @@ export const actions: Actions = {
       },
     });
 
-    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
+    if (!existingArticle) return error(404, m.news_errors_article_not_found());
 
     await prisma.article.update({
       where: {
@@ -78,7 +78,7 @@ export const actions: Actions = {
     throw redirect(
       "/news",
       {
-        message: m.news_articleDeleted(),
+        message: m.news_article_deleted(),
         type: "success",
       },
       event,

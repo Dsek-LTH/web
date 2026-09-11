@@ -4,8 +4,8 @@ import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { error, fail } from "@sveltejs/kit";
-import { authorize } from "$lib/utils/authorization";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { authorise } from "$lib/utils/authorization";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -15,12 +15,12 @@ dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.DOOR.READ, user);
+  authorise(apiNames.DOOR.READ, user);
 
   const { doors } = await parent();
   const door = doors.find((door) => door.name === params.slug);
 
-  if (!door) error(404, m.admin_doors_notFound());
+  if (!door) error(404, m.admin_doors_not_found());
 
   const doorAccessPolicies = await prisma.doorAccessPolicy.findMany({
     where: {
@@ -53,22 +53,22 @@ const createSchema = z
     // Require the start date to be before the end date
     ({ startDatetime: start, endDatetime: end }) =>
       !(start && end && dayjs(end).isBefore(start)),
-    { message: m.admin_doors_endDateBeforeStart(), path: ["endDatetime"] },
+    { message: m.admin_doors_end_date_before_start(), path: ["endDatetime"] },
   )
   .refine(
     // Require an end date for member rules
     (data) => !(data.type === "member" && !data.endDatetime),
-    { message: m.admin_doors_memberRuleRequireEnd(), path: ["endDatetime"] },
+    { message: m.admin_doors_member_rule_require_end(), path: ["endDatetime"] },
   )
   .refine(
     // Require a reason for member rules
     (data) => !(data.type === "member" && !data.reason),
-    { message: m.admin_doors_memberRuleRequireReason(), path: ["reason"] },
+    { message: m.admin_doors_member_rule_require_reason(), path: ["reason"] },
   )
   .refine(
     // Require a reason for bans
     (data) => !(data.mode === "deny" && !data.reason),
-    { message: m.admin_doors_banRuleRequireReason(), path: ["reason"] },
+    { message: m.admin_doors_ban_rule_require_reason(), path: ["reason"] },
   )
   .refine(
     // TODO: Banning groups is not implemented
@@ -79,20 +79,20 @@ const createSchema = z
     async (data) => {
       if (data.type === "member") {
         // check if member exists
-        return await authorizedPrismaClient.member.findFirst({
+        return await authorisedPrismaClient.member.findFirst({
           where: { studentId: data.subject },
         });
       } else {
         // check if role exists
         return (
           data.subject === "*" ||
-          (await authorizedPrismaClient.position.findFirst({
+          (await authorisedPrismaClient.position.findFirst({
             where: { id: { startsWith: `${data.subject}%` } },
           }))
         );
       }
     },
-    { message: m.admin_doors_memberOrRoleNotFound(), path: ["subject"] },
+    { message: m.admin_doors_member_or_role_not_found(), path: ["subject"] },
   );
 
 const deleteSchema = z.object({
@@ -122,7 +122,7 @@ export const actions: Actions = {
     });
 
     return message(form, {
-      message: m.admin_doors_ruleCreated(),
+      message: m.admin_doors_rule_created(),
       type: "success",
     });
   },
@@ -135,7 +135,7 @@ export const actions: Actions = {
       where: { id },
     });
     return message(form, {
-      message: m.admin_doors_ruleDeleted(),
+      message: m.admin_doors_rule_deleted(),
       type: "success",
     });
   },

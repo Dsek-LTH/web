@@ -2,7 +2,7 @@ import { fileExists, isDir } from "$lib/files/helpers";
 import { MINIO_BASE_URL } from "$lib/files/client";
 import minio, { CopyConditions } from "$lib/files/minio";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import path from "path";
@@ -83,7 +83,7 @@ const getFilesInBucket = async (
   if (!bucket) {
     return Promise.resolve([]);
   }
-  authorize(apiNames.FILES.BUCKET(bucket).READ, user);
+  authorise(apiNames.FILES.BUCKET(bucket).READ, user);
   const basePath = "";
   const files = (
     await getFilesInFolder(
@@ -106,7 +106,7 @@ const getPresignedPutUrl = async (
   if (!isHealthy) {
     return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
   }
-  authorize(apiNames.FILES.BUCKET(bucket).CREATE, user);
+  authorise(apiNames.FILES.BUCKET(bucket).CREATE, user);
   if (fileName === "") throw error(400, "File name cannot be empty");
 
   if (!allowOverwrite && (await fileExists(bucket, fileName))) {
@@ -171,12 +171,12 @@ export const removeFilesWithoutAccessCheck = async (
   try {
     await Promise.all(
       fileNames.map(async (fileName) => {
-        const deltedForFilePath = await removeFileGivenPath(
+        const deletedForFilePath = await removeFileGivenPath(
           user,
           bucket,
           fileName,
         );
-        deleted.push(...deltedForFilePath);
+        deleted.push(...deletedForFilePath);
       }),
     );
   } catch (e) {
@@ -196,7 +196,7 @@ const removeObjects = async (
   if (!isHealthy) {
     return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
   }
-  authorize(apiNames.FILES.BUCKET(bucket).DELETE, user);
+  authorise(apiNames.FILES.BUCKET(bucket).DELETE, user);
   await removeFilesWithoutAccessCheck(user, bucket, fileNames);
 };
 
@@ -214,7 +214,7 @@ const moveObject = async (
   if (!isHealthy) {
     return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
   }
-  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
+  authorise(apiNames.FILES.BUCKET(bucket).UPDATE, user);
   const moved: FileChange[] = [];
 
   await Promise.all(
@@ -224,7 +224,7 @@ const moveObject = async (
       if (isDir(fileName)) {
         const filesInFolder = await getFilesInBucket(user, bucket, fileName);
         if (filesInFolder) {
-          const recursivedMoved = await moveObject(
+          const recursivelyMoved = await moveObject(
             user,
             bucket,
             filesInFolder.map((file) => file.id),
@@ -239,7 +239,7 @@ const moveObject = async (
             oldFile: { id: fileName, name: basename, isDir: true },
           };
           moved.push(FileChange);
-          moved.push(...recursivedMoved);
+          moved.push(...recursivelyMoved);
         }
       } else {
         const newFileName = path.join(newFolder, basename);
@@ -295,7 +295,7 @@ const renameObject = async (
   if (!isHealthy) {
     return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
   }
-  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
+  authorise(apiNames.FILES.BUCKET(bucket).UPDATE, user);
   if (await fileExists(bucket, newFileName)) {
     throw error(409, `File ${newFileName} already exists`);
   }

@@ -13,6 +13,6 @@ export const uploadSchema = z.object({
     .min(1962)
     .max(CURRENT_YEAR + 1)
     .default(CURRENT_YEAR),
-  file: z.instanceof(File, { message: m.documents_errors_erroneousFile() }),
+  file: z.instanceof(File, { message: m.documents_errors_erroneous_file() }),
 });
 export type UploadSchema = Infer<typeof uploadSchema>;

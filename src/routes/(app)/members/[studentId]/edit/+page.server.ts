@@ -58,8 +58,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     }),
   ]);
   if (memberResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchMember());
-  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
+    throw error(500, m.members_errors_could_not_fetch_member());
+  if (!memberResult.value)
+    throw error(404, m.members_errors_member_not_found());
   if (phadderGroupsResult.status === "rejected")
     throw error(505, phadderGroupsResult.reason);
   const member = memberResult.value;
@@ -79,7 +80,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
   } catch {
-    throw error(500, m.members_errors_couldntFetchPings());
+    throw error(500, m.members_errors_could_not_fetch_pings());
   }
 };
 
@@ -143,7 +144,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            message: `${m.members_errors_could_not_upload_file()}: ${await res.text()}`,
             type: "error",
           },
           { status: 500 },
@@ -154,14 +155,14 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
+          message: `${m.members_errors_could_not_upload_file()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },
       );
     }
     return message(form, {
-      message: m.members_pictureUploaded(),
+      message: m.members_picture_uploaded(),
       type: "success",
     });
   },
@@ -183,7 +184,7 @@ export const actions: Actions = {
       ]);
     }
     return message(form, {
-      message: m.members_pictureRemoved(),
+      message: m.members_picture_removed(),
       type: "success",
     });
   },

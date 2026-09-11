@@ -36,7 +36,7 @@
   <input type="hidden" name="mandateId" value={mandateId} />
   <Button variant="lila" type="submit" size="sm">
     <Trash />
-    {m.positions_removeMandate()}
+    {m.positions_remove_mandate()}
   </Button>
   {#if $errors.mandateId}
     <p class="text-error">{$errors.mandateId}</p>

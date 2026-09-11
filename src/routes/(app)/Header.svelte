@@ -14,7 +14,7 @@
   import User from "@lucide/svelte/icons/user";
 
   import { getRoutes } from "../routes";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import { page } from "$app/state";
   import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { getLocale, setLocale } from "$paraglide/runtime";
@@ -43,7 +43,7 @@
     $props();
 
   const canAccess = (accessRequired: string | null) =>
-    accessRequired === null || isAuthorized(accessRequired, page.data.user);
+    accessRequired === null || isAuthorised(accessRequired, page.data.user);
 
   const visibleRoutes = $derived(
     getRoutes()
@@ -160,7 +160,7 @@
                 aria-label="profile"
                 variant="outline"
                 class="text-muted-foreground"
-                ><User /> {m.navbar_userMenu_profile()}</Button
+                ><User /> {m.navbar_user_menu_profile()}</Button
               ></a
             >
             <a href="/settings">
@@ -168,14 +168,15 @@
                 aria-label="settings"
                 variant="outline"
                 class="text-muted-foreground"
-                ><Settings /> {m.navbar_userMenu_settings()}</Button
+                ><Settings /> {m.navbar_user_menu_settings()}</Button
               ></a
             >
             <Button
               aria-label="sign out"
               variant="outline"
               class="text-muted-foreground"
-              onclick={signOut}><LogOut /> {m.navbar_userMenu_logOut()}</Button
+              onclick={signOut}
+              ><LogOut /> {m.navbar_user_menu_log_out()}</Button
             >
           </HoverCard.Content>
         </HoverCard.Root>
@@ -196,7 +197,7 @@
             {:else}
               <CircleUserRound class="-ml-2 size-7" />
             {/if}
-            {m.navbar_logIn()}
+            {m.navbar_log_in()}
           </Button>
           <Button
             onclick={signIn}
@@ -288,7 +289,7 @@
                       aria-label="sign in"
                       variant="outline"
                       class="text-muted-foreground h-9"
-                      ><LogIn /> {m.navbar_logIn()}</Button
+                      ><LogIn /> {m.navbar_log_in()}</Button
                     >
                   {/if}
                 </div>

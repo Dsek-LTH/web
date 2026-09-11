@@ -4,7 +4,7 @@
   import { Button } from "$lib/components/ui/button";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import Pen from "@lucide/svelte/icons/pen";
   import type { AuthUser } from "@zenstackhq/runtime";
@@ -42,7 +42,7 @@
   class="bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] relative flex flex-col items-center gap-1 rounded-md border-[1px] p-4 duration-300"
   style="animation-delay:{(index ?? 0) * 50}ms"
 >
-  {#if isAuthorized(apiNames.ELECTION.UPDATE, user)}
+  {#if isAuthorised(apiNames.ELECTION.UPDATE, user)}
     <Button
       href={"/elections/" + election.id + "/edit"}
       class="absolute top-2 right-2"
@@ -57,7 +57,7 @@
   </div>
 
   <h3 class="text-center">
-    <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags Already Sanitised -->
     {@html breakName(election.committee?.name ?? "")}
   </h3>
 

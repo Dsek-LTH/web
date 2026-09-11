@@ -92,7 +92,7 @@
       <h1
         class="font-sans text-5xl font-bold break-keep text-white uppercase sm:mb-10 sm:text-7xl lg:text-9xl xl:text-[125px]"
       >
-        {m.dsektionen()}
+        {m.dguild()}
       </h1>
       <p class="mb-10 max-w-prose font-medium text-white lg:mb-9 lg:text-xl">
         {m.landing_intro()}
@@ -102,7 +102,7 @@
         class="flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:gap-10"
       >
         <Button href="/applying" size="lg" class="text-lg">
-          <GraduationCap class="size-6" />{m.landing_forStudents()}
+          <GraduationCap class="size-6" />{m.landing_for_students()}
         </Button>
         <Button
           href="/info/for-foretag"
@@ -110,7 +110,7 @@
           class="hover:bg-secondary-background/30 text-lg text-white"
           variant="outline"
         >
-          <Building class="size-6" />{m.home_forCompanies()}
+          <Building class="size-6" />{m.home_for_companies()}
         </Button>
       </div>
     </div>

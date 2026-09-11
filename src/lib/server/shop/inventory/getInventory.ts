@@ -3,7 +3,7 @@ import * as m from "$paraglide/messages";
 import { ShoppableType } from "@prisma/client";
 import { error, type ServerLoadEvent } from "@sveltejs/kit";
 import type { ConsumableWithMoreInfo } from "./types";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 
 export const inventoryLoadFunction = async ({
@@ -14,7 +14,7 @@ export const inventoryLoadFunction = async ({
 
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) {
-    error(401, m.inventory_errors_unauthorized());
+    error(401, m.inventory_errors_unauthorised());
   }
   depends("consumables");
 
@@ -49,13 +49,13 @@ export const inventoryLoadFunction = async ({
     },
   });
   if (!memberId && consumables) {
-    throw error(403, m.inventory_errors_unauthorized());
+    throw error(403, m.inventory_errors_unauthorised());
   }
-  authorize(apiNames.WEBSHOP.PURCHASE, user);
+  authorise(apiNames.WEBSHOP.PURCHASE, user);
   const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(
     (consumable) => {
       if (consumable.shoppable.type !== ShoppableType.TICKET) {
-        throw new Error(m.errors_notImplemented());
+        throw new Error(m.errors_not_implemented());
       }
       return {
         ...consumable,
@@ -81,7 +81,7 @@ export const inventoryItemLoadFunction = async ({
 
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) {
-    error(401, m.inventory_errors_unauthorized());
+    error(401, m.inventory_errors_unauthorised());
   }
   const userId = dbIdentification(
     memberId
@@ -118,7 +118,7 @@ export const inventoryItemLoadFunction = async ({
     },
   });
   if (!consumable) {
-    error(404, m.inventory_errors_consumableNotFound());
+    error(404, m.inventory_errors_consumable_not_found());
   }
   return {
     consumable: {

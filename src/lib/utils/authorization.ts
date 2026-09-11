@@ -4,10 +4,10 @@ import type { AuthUser } from "@zenstackhq/runtime";
 import * as m from "$paraglide/messages";
 
 /**
- * Check if the user is authorized to perform an action.
- * @returns Whether the user is authorized.
+ * Check if the user is authorised to perform an action.
+ * @returns Whether the user is authorised.
  */
-export const isAuthorized = (
+export const isAuthorised = (
   apiName: string,
   user: AuthUser | undefined,
 ): boolean => {
@@ -17,17 +17,17 @@ export const isAuthorized = (
 };
 
 /**
- * Authorize a user to perform an action or a list of actions.
- * @throws {HttpError} If the user is not authorized.
+ * Authorise a user to perform an action or a list of actions.
+ * @throws {HttpError} If the user is not authorised.
  */
-export const authorize = (
+export const authorise = (
   apiName: string | string[],
   user: AuthUser | undefined,
 ) => {
   const apiNames = Array.isArray(apiName) ? apiName : [apiName];
   for (const name of apiNames) {
-    if (!isAuthorized(name, user)) {
-      throw error(403, `${m.errors_missingPermissions()} ${name}`);
+    if (!isAuthorised(name, user)) {
+      throw error(403, `${m.errors_missing_permissions()} ${name}`);
     }
   }
 };

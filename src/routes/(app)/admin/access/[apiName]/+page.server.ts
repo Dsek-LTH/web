@@ -9,7 +9,7 @@ import {
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 
 const createSchema = z
   .object({
@@ -33,7 +33,7 @@ export type DeleteSchema = Infer<typeof deleteSchema>;
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.ACCESS_POLICY.CREATE, user);
+  authorise(apiNames.ACCESS_POLICY.CREATE, user);
 
   const policies = await prisma.accessPolicy.findMany({
     where: {

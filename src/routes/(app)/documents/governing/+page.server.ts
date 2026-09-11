@@ -58,7 +58,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: m.documents_governing_documentDeleted(),
+      message: m.documents_governing_document_deleted(),
       type: "success",
     });
   },

@@ -5,7 +5,7 @@ import { fileHandler } from "$lib/files";
 import { getFileUrl } from "$lib/files/client";
 import { uploadFile } from "$lib/files/uploadFiles";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { fail, message, superValidate, withFiles } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -17,7 +17,7 @@ const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 export const load = async ({ locals }) => {
   const { user } = locals;
 
-  authorize(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE, user);
+  authorise(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE, user);
 
   // access is checked in the fileHandler
   const files = await fileHandler
@@ -36,9 +36,9 @@ export const load = async ({ locals }) => {
 
 const uploadSchema = z.object({
   file: z
-    .instanceof(File, { message: m.documents_errors_erroneousFile() })
+    .instanceof(File, { message: m.documents_errors_erroneous_file() })
     .refine((f) => f.size > 0, {
-      message: m.documents_errors_erroneousFile(),
+      message: m.documents_errors_erroneous_file(),
     }),
   fileName: z.string().default(uuid),
   fileUrl: z.string().url().nullable().default(null),
@@ -82,7 +82,7 @@ export const actions = {
     form.data.file = null as unknown as File; // will work, but not type correct
     form.data.fileName = "";
     return message(form, {
-      message: m.documents_fileUploaded(),
+      message: m.documents_file_uploaded(),
       type: "success",
     });
   },
@@ -106,7 +106,7 @@ export const actions = {
     }
 
     return message(form, {
-      message: m.documents_fileDeleted(),
+      message: m.documents_file_deleted(),
       type: "success",
     });
   },

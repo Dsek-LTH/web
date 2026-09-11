@@ -15,14 +15,14 @@
   import * as m from "$paraglide/messages";
   import LinksDialog from "./LinksDialog.svelte";
   import { Marked } from "marked";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
 
   let { data, children }: { data: CommitteeLoadData; children: Snippet } =
     $props();
 
-  let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
+  let canEdit = $state(isAuthorised(apiNames.COMMITTEE.UPDATE, page.data.user));
 
   let committee = $derived(data.committee);
 
@@ -112,7 +112,7 @@
         <a href="/committees/{committee.shortName}/news"
           >{m.committees_news()}</a
         >
-        <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags Already Sanitised -->
         {@html breakMarked.parseInline(data.links?.markdown ?? "")}
       </div>
       {#if canEdit}

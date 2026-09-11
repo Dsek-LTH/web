@@ -1,6 +1,6 @@
 <script lang="ts">
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import type { Prisma } from "@prisma/client";
   import AddMandateForm from "./AddMandateForm.svelte";
@@ -102,7 +102,7 @@
     <div class="flex w-full flex-wrap items-center justify-between gap-x-2">
       <h3>{data.position.name}</h3>
       <div class="mt-2 flex flex-row gap-2 lg:mt-0">
-        {#if isAuthorized(apiNames.MANDATE.CREATE, data.user)}
+        {#if isAuthorised(apiNames.MANDATE.CREATE, data.user)}
           <Button
             size="sm"
             variant="rosa"
@@ -110,16 +110,16 @@
               isAdding = !isAdding;
             }}
           >
-            {isAdding ? m.positions_cancel() : m.positions_addMandate()}
+            {isAdding ? m.positions_cancel() : m.positions_add_mandate()}
           </Button>
         {/if}
-        {#if isAuthorized(apiNames.POSITION.UPDATE, data.user)}
+        {#if isAuthorised(apiNames.POSITION.UPDATE, data.user)}
           <Dialog.Root>
             <Dialog.Trigger
               class={cn(buttonVariants({ size: "sm", variant: "lila" }))}
               ><Pen />
               {isEditing
-                ? m.positions_stopEditing()
+                ? m.positions_stop_editing()
                 : m.positions_edit()}</Dialog.Trigger
             >
 
@@ -155,7 +155,7 @@
     {/if}
     {#if data.position.emailAliases.length > 0}
       <h4 class="text-xs opacity-75">
-        {m.positions_theFollowingAddresses()}
+        {m.positions_the_following_addresses()}
       </h4>
       <div class="mb-2 flex gap-2 text-xs opacity-75">
         {#each data.position.emailAliases.filter((alias) => alias.email != data.position.email) as alias (alias.email)}

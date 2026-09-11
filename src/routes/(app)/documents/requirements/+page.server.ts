@@ -67,7 +67,7 @@ export const actions: Actions = {
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
     return message(form, {
-      message: m.documents_fileDeleted(),
+      message: m.documents_file_deleted(),
       type: "success",
     });
   },

@@ -1,0 +1,533 @@
+use_global = false
+
+dictionaries = [ 'en_gb' ]
+
+ignore_paths = [
+    '**/pnpm-lock.yaml',
+    'scheduler-service/go.sum',
+    'src/database/prisma/migrations/**',
+    'src/database/prisma/schema.prisma',
+]
+
+ignore_patterns = [
+    # Names
+    'AF Bostäder',
+    'AF-borgen',
+    'BoPoolen',
+    'D-Chip',
+    'D-sektionen inom TLTH',
+    'Dokt',
+    'Fr\*nch',
+    'Gammal && Äcklig',
+    'IBM Plex',
+    'iDét',
+    'RåsenbaD',
+    'SEK',
+    'YouTube',
+    'getmeili',
+    'StiL',
+
+    # Technical
+    '&shy;', # Soft-hyphen
+    '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', # Email
+    'iCal',
+    'github\.com/Dsek-LTH',
+    '[A-Za-z0-9+/]{40,}', # Base64 data of 40+ characters.
+    'MMM', # dayjs format fragment
+    'DSEK',
+
+    # Abbreviations (only allowed in lower case)
+    'dchip',
+    'dguild',
+    'dsek',
+    'esek',
+    'fsek',
+    'gammal_och_äcklig',
+    'infocom',
+    'vscode',
+    'dsekweb',
+    'idet',
+    'pdfs',
+
+    # Swedish words sanctioned for code use.
+    '[Nn]0lla',
+    '[Nn]0llegasque',
+    '[Nn]0llegeneral',
+    '[Nn]0llning',
+    '[Nn]0llor', # This looks better than the English or null plural-form.
+]
+
+words = [
+    'accelerometer',
+    'adapters',
+    'approvements',
+    'bindable',
+    'blop',
+    'bookables',
+    'breakpoint',
+    'café',
+    'capturable',
+    'checkboxes',
+    'cli',
+    'contentful',
+    'cta', # Call To Action
+    'decrypted',
+    'decrypts',
+    'durations',
+    'enforceability',
+    'fulfill',
+    'funsies',
+    'gyckle',
+    'hostnames',
+    'inflight',
+    'infos',
+    'instrumentations',
+    'licensor',
+    'likers',
+    'lmao',
+    'luminance',
+    'namings',
+    'noninfringement',
+    'Oklch',
+    'presigned',
+    'purchasables',
+    'replacer',
+    'satisfiable',
+    'selectable',
+    'shoppable',
+    'shoppables',
+    'shortener',
+    'sortable',
+    'strikethrough', # Noun
+    'sublicensable',
+    'sublicense',
+    'subprocessor',
+    'umami',
+    'unapprove',
+    'unapproving',
+    'unbooked',
+    'unconsume',
+    'unported',
+    'webhooks',
+    'webshop',
+    'wikia',
+    'woggle',
+    'öre',
+
+    # Names
+    'Agardh', # Head Processor 2026
+    'CSN',
+    'Datagården',
+    'DELTΔ',
+    'Frazer',
+    'Gehlsdorf', # Treasurer 2026
+    'Helander', # Head of Facilities 2026
+    'Hemberg', # Auditor 2026
+    'Kiosken',
+    'Kämnärsrätten',
+    'LTH',
+    'Lund',
+    'Maja',
+    'Måns',
+    'Québec',
+    'Repobeats',
+    'Rilde', # Auditor 2026
+    'Råsa',
+    'Råsenbad',
+    'Sjøn',
+    'SMS',
+    'SRD',
+    'Studentlund',
+    'Svensson', # Guild President 2026
+    'Systembolaget',
+    'Teknologkåren',
+    'TLS',
+    'TLTH',
+    'WCAG',
+    'Pantern',
+
+    # Tools
+    'authentik',
+    'cjs',
+    'clsx',
+    'croppie',
+    'daygrid',
+    'dayjs',
+    'dompurify',
+    'Dynmap',
+    'embla',
+    'inlang',
+    'Klarna',
+    'Meili',
+    'Meilisearch',
+    'MinIO',
+    'multer',
+    'nodemailer',
+    'paraglide',
+    'pnpm',
+    'Poppler',
+    'postcss',
+    'prisma',
+    'Salto',
+    'Shlink',
+    'Stocklist',
+    'superform',
+    'superforms',
+    'tiptap',
+    'vaul',
+    'vercel',
+    'vitest',
+    'zenstack',
+    'zod',
+
+    # Guild-specific words
+    'BME',
+    'Cheps',
+    'Figma',
+    'Gasque',
+    'gyckle',
+    'gyckles',
+    'Ouveralle',
+    'Ouvve',
+    'Shäraton',
+    'Singbook',
+    'Slasque',
+    'spex',
+    'VTM',
+    'Øverphøs',
+
+    # Swedish words sanctioned for code use.
+    "sexet",
+    "sexet's",
+    'Källarmästare',
+    'Ordförande',
+    'Peppare',
+    'phadder',
+    'phadders',
+    'Processmästare',
+    'Revisor',
+    'Skattmästare',
+    'Stab',
+    'yrka',
+    'yrkande',
+    'Øverpeppare',
+]
+
+[[overrides]] # Swedish
+paths = [
+    'src/translations/sv.json',
+    'src/routes/(app)/privacy-policy/+page.svelte',
+]
+dictionaries = [ 'sv' ]
+extra_ignore_patterns = [
+    '[Nn]0llades',
+    '[Nn]0llan',
+    '[Nn]0llans',
+    '[Nn]0llepolicy',
+    '[Nn]0llningen',
+    '[Nn]0llningens',
+    '[Nn]0llningsevent',
+    '[Nn]0llningsnyheter',
+    '[Nn]0llningspolicy',
+    '[Nn]0llorna',
+    'enl\.',
+
+    # Names
+    'StiL',
+
+    # Bugs in codebook.
+    '\\nön',
+]
+words = [
+    'admininställningar',
+    'aliaset',
+    'avkonsumera',
+    'avkonsumerats',
+    'dagsansvarig',
+    'datan',
+    'filsökväg',
+    'ickefungerande',
+    'issue', # 'Issue' as in 'GitHub issue' is well established terminology.
+    'jättestängd',
+    'LAN',
+    'länkförkortare',
+    'mejlalias',
+    'mejlaliaset',
+    'mötesår',
+    'notistext',
+    'nyhetstaggar',
+    'onajs',
+    'ping',
+    'skojsigt',
+    'spegatklädd',
+    'spärrningsregler',
+    'taggnamn',
+    'wikia',
+
+    # Names
+    'Dagisar',
+    'Delphi',
+    'Kallini', # Subprocessor 2026
+    'Ohrgren', # Head of Frontend 2026
+    'Råsenbad',
+    'Shäraton',
+    'Sjøn',
+    'Studentlund',
+    'tlth',
+
+    # Tools
+    'authentik',
+    'Dynmap',
+    'Orbi',
+    'Stocklist',
+
+    # Guild-specific words
+    'Cheps',
+    'Delphivrål',
+    'Gasque',
+    'gyckle',
+    'matpref',
+    'Nollegasque',
+    'Nollegeneral',
+    'Ouveralle',
+    'Ouvve',
+    'ouvven',
+    'peppare',
+    'Pepparnas',
+    'phadder',
+    'phaddergrupp',
+    'phaddergruppen',
+    'phaddergrupper',
+    'phaddrar',
+    'phaddrarna',
+    'policykod',
+    'Råsa',
+    'Sjungbok',
+    'Slasque',
+    'slasquen',
+    'SRD',
+    'Studentlunds',
+    'trivselråd',
+    'trivselrådet',
+    'träningsphasen',
+    'Øverpeppare',
+    'VTM',
+]
+
+flag_words = [
+    'gyckel'
+]
+
+[[overrides]] # Commands
+paths = [
+    'dev/README.md',
+    'dev/setup.ts',
+    'dev/setup_db.sh',
+    '**/Dockerfile',
+    'podman-dev.yaml',
+    'poppler-server/poppler.js',
+    'poppler-server/README.md',
+    'README.md',
+    'src/database/seed/helpers.ts',
+    'src/database/seed/main.ts',
+]
+extra_ignore_patterns = [
+    'chmod\s[ugoa]?[-+=][rwxXstugo]+',
+    'pg_isready',
+    'postgresq?l?',
+]
+extra_words = [
+    'chmod',
+    'chown',
+    'kube',
+    'lsof',
+    'mkdir',
+    'openssl',
+    'pdftotext',
+    'pnpm',
+    'pnpx',
+    'podman',
+]
+
+[[overrides]] # CSS
+paths = [
+    '**/*.css',
+    '**/*.svelte',
+    'src/translations/*.json',
+]
+extra_ignore_patterns = [
+    'fc-scrollgrid',
+    'font-extrabold',
+    'h-dvh',
+    'scroll-behavior',
+    'w-dvw',
+    'lucide-[a-z-]+?',
+    '--tw-[a-z-]+',
+    'transition-colors',
+]
+
+[[overrides]] # SVG
+paths = [ '**/*.svg' ]
+extra_words = [
+    'dasharray',
+    'miterlimit',
+    'xlink',
+]
+
+# Configs for specific files.
+
+[[overrides]]
+paths = [ 'AGENTS.md' ]
+extra_words = [ 'mcp' ]
+
+[[overrides]]
+paths = [ '**/Dockerfile' ]
+extra_ignore_patterns = [
+    'gcr\.io/distroless',
+    'USER nonroot:nonroot',
+]
+
+[[overrides]]
+paths = [ 'LICENSE' ]
+extra_ignore_patterns = [
+    'CeCILL' # Some Fr*nch license
+]
+extra_words = [
+    'agpl', # Affero General Public License
+    'epl', # Eclipse Public License
+    'eupl', # EU Public License
+    'osl', # Open Software License
+]
+
+[[overrides]]
+paths = [ '**/Makefile' ]
+extra_ignore_patterns = [
+    'PHONY', # Case sensitive
+]
+
+[[overrides]]
+paths = [ 'README.md' ]
+extra_words = [
+    'EUPL',
+]
+
+[[overrides]]
+paths = [
+    "scheduler-service/go.mod",
+    "scheduler-service/Makefile",
+]
+extra_words = [
+    # Tools
+    'goimports',
+    'gorm',
+
+    # Tool Authors
+    'alecthomas',
+    'goccy',
+    'jinzhu',
+    'rogpeppe',
+    'segmentio',
+    'xhit',
+
+    # Tools with Authors
+    'golines', 'golangci',
+    'fastjson', 'valyala',
+    'structtags', 'ldez',
+    'pgpassfile', 'jackc',
+    'pgservicefile',
+    'pgx',
+    'dcrd', 'decred',
+    'dcrec',
+    'godotenv', 'joho',
+    'gofumpt', 'mvdan',
+    'blackmagic', 'lestrrat',
+    'dsig',
+    'httpcc',
+    'httprc',
+    'jwx',
+    'secp',
+]
+
+[[overrides]]
+paths = [ 'scheduler-service/databaseHandler.go' ]
+extra_words = [
+    'DSN', # Database Source Name
+    'dbname', # Part of the source name
+    'sslmode', # Part of the source name
+]
+
+[[overrides]]
+paths = [ 'shell.nix' ]
+extra_words = [
+    'nixpkgs',
+    'pkgs',
+]
+
+[[overrides]] # TODO: Remove this.
+paths = [ 'src/translations/en.json' ]
+extra_ignore_patterns = [
+    'href=\\".*?\\"',
+]
+
+[[overrides]]
+paths = [ 'src/translations/sv.json' ]
+extra_ignore_patterns = [
+    '".*":', # The JSON keys are english and spellchecked in the english version.
+    '\{\w+\}', # The parameters are english and spellchecked in the english version.
+    'href=\\".*?\\"', # Routes are english and spellchecked in the english version.
+
+    '[kåååst]', # Phonetic notation.
+    'Software Engineering', # A specialisation.
+]
+
+[[overrides]]
+paths = [ 'codebook.toml' ]
+extra_ignore_patterns = [
+    # This monstrosity matches toml strings.
+    # We only want to lint the comments in this file.
+    "\"\"\"(?:\\\\.|[^\\\\])*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'[^'\\n]*'"
+]
+
+[[overrides]] # Test/Seed data
+paths = [
+    'src/database/seed/data.ts',
+    'src/lib/server/shop/payments/purchase.test.ts',
+    'src/lib/utils/slugify.test.ts',
+]
+# We just ignore all string, kind of a cop-out but this data is not important.
+extra_ignore_patterns = [
+    '".*?"',
+    '`.*?`',
+]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/songbook/helpers.ts' ]
+extra_ignore_patterns = [ 'e\.g\. ".*?"' ] # Song category examples.
+
+
+[[overrides]]
+paths = [ 'src/routes/(app)/salto/[door]/constants.ts' ]
+# This file contains names and positions in Swedish.
+extra_words = [
+    'Processmästare',
+]
+
+[[overrides]]
+paths = [ '**/*.zmodel' ]
+extra_ignore_patterns = [
+    'dbgenerated',
+]
+
+[[overrides]] # Bugs in codebook :(
+paths = [ '**/*.svelte' ]
+extra_ignore_patterns = [ '  on[a-z]+?=' ]
+
+[[overrides]] # Prisma
+paths = [ '**/*.ts' ]
+extra_ignore_patterns = [ 'lte:' ]
+
+[[overrides]]
+paths = [ 'src/lib/server/shop/payments/**' ]
+extra_ignore_patterns = [
+    'pi_[a-zA-Z0-9]+'
+]

@@ -51,9 +51,9 @@
     </div>
     <div class="flex flex-col gap-1.5">
       <Label>
-        {m.positions_emailAddress()}</Label
+        {m.positions_email_address()}</Label
       >
-      <span class="text-sm">{m.positions_emailNotice()}</span>
+      <span class="text-sm">{m.positions_email_notice()}</span>
 
       <Input
         name="email"

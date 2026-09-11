@@ -3,12 +3,12 @@ import {
   moveQueueToCart,
   sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import { purchaseForm } from "$lib/server/shop/cart/types";
 import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
@@ -27,7 +27,7 @@ const cartActions: Actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: m.cart_errors_noCart(),
+        message: m.cart_errors_no_cart(),
         type: "error",
       });
     }
@@ -38,11 +38,11 @@ const cartActions: Actions = {
     });
     if (!consumable) {
       return message(form, {
-        message: m.cart_errors_itemNotInCart(),
+        message: m.cart_errors_item_not_in_cart(),
         type: "error",
       });
     }
-    const queuedNotifications = await authorizedPrismaClient.$transaction(
+    const queuedNotifications = await authorisedPrismaClient.$transaction(
       async (tx) => {
         await tx.consumable.delete({
           where: {
@@ -55,7 +55,7 @@ const cartActions: Actions = {
     sendQueuedNotifications(queuedNotifications);
 
     return message(form, {
-      message: m.cart_itemHasBeenRemoved(),
+      message: m.cart_item_has_been_removed(),
       type: "success",
     });
   },
@@ -68,7 +68,7 @@ const cartActions: Actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: m.cart_errors_noCart(),
+        message: m.cart_errors_no_cart(),
         type: "error",
       });
     }
@@ -79,11 +79,11 @@ const cartActions: Actions = {
     });
     if (!reservation) {
       return message(form, {
-        message: m.cart_errors_reservationNotInCart(),
+        message: m.cart_errors_reservation_not_in_cart(),
         type: "error",
       });
     }
-    await authorizedPrismaClient.$transaction(async (tx) => {
+    await authorisedPrismaClient.$transaction(async (tx) => {
       await tx.consumableReservation.delete({
         where: {
           id: reservation.id,
@@ -98,7 +98,7 @@ const cartActions: Actions = {
     });
 
     return message(form, {
-      message: m.cart_reservationHasBeenRemoved(),
+      message: m.cart_reservation_has_been_removed(),
       type: "success",
     });
   },
@@ -108,7 +108,7 @@ const cartActions: Actions = {
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
       return message(form, {
-        message: m.cart_errors_noCart(),
+        message: m.cart_errors_no_cart(),
         type: "error",
       });
     }
@@ -139,11 +139,11 @@ const cartActions: Actions = {
   purchase: async (event) => {
     const { locals, request } = event;
     const { user, prisma } = locals;
-    authorize(apiNames.WEBSHOP.PURCHASE, user);
+    authorise(apiNames.WEBSHOP.PURCHASE, user);
     const form = await superValidate(request, zod4(purchaseForm));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {
-      throw error(401, m.cart_errors_noCart());
+      throw error(401, m.cart_errors_no_cart());
     }
     let redirectUrl: string | undefined = undefined;
     let data: Omit<Awaited<ReturnType<typeof purchaseCart>>, "redirect">;

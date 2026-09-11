@@ -3,7 +3,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { bookingSchema } from "../../schema";
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { getBookingRequestOrThrow, getSuperValidatedForm } from "../../utils";
 import dayjs from "dayjs";
@@ -25,7 +25,7 @@ export const actions = {
     const { request, locals } = event;
     const { prisma, user } = locals;
 
-    const isAdmin = isAuthorized(apiNames.BOOKABLES.UPDATE, user);
+    const isAdmin = isAuthorised(apiNames.BOOKABLES.UPDATE, user);
 
     const form = await superValidate(request, zod4(bookingSchema));
     if (!form.valid) return fail(400, { form });
@@ -61,7 +61,7 @@ export const actions = {
     throw redirect(
       `/booking`,
       {
-        message: m.booking_requestSent(),
+        message: m.booking_request_sent(),
         type: "success",
       },
       event,

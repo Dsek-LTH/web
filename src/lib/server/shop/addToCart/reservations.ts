@@ -13,18 +13,18 @@ import {
   type TransactionClient,
 } from "../types";
 import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 
 /*
 NOTE ON NOTIFICATION QUEUE SYSTEM:
-So a lof of these method below perform actions which should send notifications afterwards. Like someone's item expiring, winning the lottery etc.
+So a lot of these method below perform actions which should send notifications afterwards. Like someone's item expiring, winning the lottery etc.
 All of these methods are built to be run in a transaction as well, but this creates a problem. Because the transaction can fail later and be reverted, but at that point a notification would have already been sent.
 To fix this, notifications are instead "queued" and returned as a list. A method which calls one of this methods MUST keep track of the returned notification and either send them, or pass onto the caller.
-For the method which starts the original transaction, make sure to send the notifications after the transaction suceeds, or wrap it in the `withHandledNotificationQueue` decorator function.
+For the method which starts the original transaction, make sure to send the notifications after the transaction succeeds, or wrap it in the `withHandledNotificationQueue` decorator function.
 */
 
 /**
- * Ensures the reservation state of the given shoppable. It will ensure the state at the timepoint "now".
+ * Ensures the reservation state of the given shoppable. It will ensure the state at the instant "now".
  * It removes all consumables which have expired at "now". It also performs the reservation lottery if "now" is after the grace period window.
  * IMPORTANT! This method returns some notifications it wants the caller to send afterwards, remember to do this. This can be turned off with one of the properties
  * @returns an array of ticket ids that were modified, if any, as well as the queued notifications
@@ -83,7 +83,7 @@ export const removeExpiredConsumables = async (
           // payment not completed
           await removePaymentIntent(intentId!);
         } else {
-          // success, canceled, or unknown. Do nothing
+          // success, cancelled, or unknown. Do nothing
         }
       } catch {
         // do not expire it. Either processing, or something else failed
@@ -137,7 +137,7 @@ let pruneTimeout: ReturnType<typeof setTimeout> | null = null;
 export const queueNextExpiredConsumablesPruning = async () => {
   if (pruneTimeout) return;
   const nextConsumableToExpire =
-    await authorizedPrismaClient.consumable.findFirst({
+    await authorisedPrismaClient.consumable.findFirst({
       where: {
         expiresAt: {
           not: null,
@@ -153,7 +153,7 @@ export const queueNextExpiredConsumablesPruning = async () => {
   pruneTimeout = setTimeout(async () => {
     const now = new Date();
     await withHandledNotificationQueue(
-      removeExpiredConsumables(authorizedPrismaClient, now).then(
+      removeExpiredConsumables(authorisedPrismaClient, now).then(
         (r) => r.queuedNotifications,
       ),
     );
@@ -181,7 +181,7 @@ const updateAllNecessaryQueues = async (
           some: {}, // 'some' ensures that there is at least one reservation
           every: {
             order: {
-              not: null, // if there is a null order, lotter should have been performed or should be performed
+              not: null, // if there is a null order, lottery should have been performed or should be performed
             },
           },
         },
@@ -304,7 +304,7 @@ const updateQueueGivenStock = async (
     };
   }
   if (inCartOrPurchased >= stock) {
-    return { moved: 0, spaceLeft: 0, queuedNotifications: [] }; // no space left, don't move anyhing
+    return { moved: 0, spaceLeft: 0, queuedNotifications: [] }; // no space left, don't move anything
   }
   // there is space left for new items space left
   const toMove = Math.min(stock - inCartOrPurchased, reservations.length);
@@ -492,7 +492,7 @@ const performReservationLottery = async (
     },
   });
   if (ticket == null) {
-    throw new Error(m.tickets_errors_ticketNotFound());
+    throw new Error(m.tickets_errors_ticket_not_found());
   }
   const stock = ticket?.stock ?? 0;
   if (reservations.length <= stock) {

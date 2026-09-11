@@ -78,11 +78,11 @@
     {/if}
     <p>
       {#if members.length === 0}
-        {m.members_noMembers()}
+        {m.members_no_members()}
       {:else if members.length > 1}
         {m.members_members({ x: members.length })}
       {:else}
-        {m.members_oneMember()}
+        {m.members_one_member()}
       {/if}
     </p>
   </div>

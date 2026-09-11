@@ -115,7 +115,7 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <Label>{m.elections_expiryDate()}</Label>
+        <Label>{m.elections_expiry_date()}</Label>
         <DatePicker
           class="w-full"
           name="expiresAt"

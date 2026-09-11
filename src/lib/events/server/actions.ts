@@ -1,7 +1,7 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { actionType, eventSchema } from "$lib/events/schema";
 import { uploadFile } from "$lib/files/uploadFiles";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import {
   getIncrementType,
   isRecurringType,
@@ -55,8 +55,8 @@ export const createEvent: Action = async (event) => {
     ...eventData
   } = form.data;
   const slug = slugify(form.data.titleSv);
-  // has to be authorized to count all slugs
-  let slugCount = await authorizedPrismaClient.event.count({
+  // has to be authorised to count all slugs
+  let slugCount = await authorisedPrismaClient.event.count({
     where: {
       slug: {
         startsWith: slug,
@@ -71,7 +71,7 @@ export const createEvent: Action = async (event) => {
     .map((tag) => ({
       id: tag.id,
     }));
-  // sanitize
+  // sanitise
   eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)
@@ -242,7 +242,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     },
   });
   if (!existingEvent) {
-    throw error(404, m.events_errors_eventNotFound());
+    throw error(404, m.events_errors_event_not_found());
   }
 
   if (image) eventData.imageUrl = await uploadImage(user, image, slug);
@@ -343,7 +343,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   throw redirect(
     `/events/${slug}`,
     {
-      message: m.events_eventUpdated(),
+      message: m.events_event_updated(),
       type: "success",
     },
     event,

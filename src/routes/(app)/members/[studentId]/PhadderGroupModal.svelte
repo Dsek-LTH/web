@@ -51,7 +51,7 @@
         {m.members_phadder_group_modal_title()}
       </Dialog.Title>
       <Dialog.Description>
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitised client-side -->
         {@html marked(m.members_phadder_group_modal_subtitle())}
       </Dialog.Description>
     </Dialog.Header>
@@ -64,7 +64,7 @@
       class="gap-2"
     >
       <div class="flex w-full flex-col gap-1.5 px-4">
-        <Label for="nollningGroupId">{m.onboarding_phadderGroup()}</Label>
+        <Label for="nollningGroupId">{m.onboarding_phadder_group()}</Label>
         <Select.Root
           type="single"
           bind:value={$form.nollningGroupId as string | undefined}

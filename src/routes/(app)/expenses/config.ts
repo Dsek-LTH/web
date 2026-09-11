@@ -1,4 +1,4 @@
-export const COST_CENTERS = [
+export const COST_CENTRES = [
   {
     name: "AKTU01",
     description: "Funktionärer",
@@ -412,13 +412,13 @@ export const COST_CENTERS = [
   },
 ] as const;
 
-export type CostCenter = (typeof COST_CENTERS)[number];
-export type CostCenterName = (typeof COST_CENTERS)[number]["name"];
+export type CostCenter = (typeof COST_CENTRES)[number];
+export type CostCenterName = (typeof COST_CENTRES)[number]["name"];
 
-export const COST_CENTER_MAP = COST_CENTERS.reduce(
-  (acc, cur) => {
-    acc[cur.name] = cur;
-    return acc;
+export const COST_CENTER_MAP = COST_CENTRES.reduce(
+  (accumulator, cur) => {
+    accumulator[cur.name] = cur;
+    return accumulator;
   },
   {} as Record<CostCenterName, CostCenter>,
 );
@@ -432,9 +432,9 @@ export const getCostCenter = (costCenterName: string) => {
   return center;
 };
 
-export const costCenters = [
+export const costCentres = [
   { label: "Välj kostnadsställe", value: "" },
-  ...COST_CENTERS.map((center) => ({
+  ...COST_CENTRES.map((center) => ({
     label: `${center.name} - ${center.description} (${center.example})`,
     value: center.name,
   })),

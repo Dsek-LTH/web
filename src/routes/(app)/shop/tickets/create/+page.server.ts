@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
@@ -7,10 +7,11 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { createTicket } from "$lib/server/shop/tickets/mutations";
 import { ticketSchema } from "$lib/utils/shop/types";
+import * as messages from "$paraglide/messages";
 
 export const load = async ({ locals }) => {
   const { user } = locals;
-  authorize(apiNames.WEBSHOP.CREATE, user);
+  authorise(apiNames.WEBSHOP.CREATE, user);
 
   return {
     form: await superValidate(
@@ -37,12 +38,12 @@ export const actions = {
     const { prisma, user, member } = locals;
     const form = await superValidate(request, zod4(ticketSchema));
     if (!form.valid) return fail(400, { form });
-    authorize(apiNames.WEBSHOP.CREATE, user);
+    authorise(apiNames.WEBSHOP.CREATE, user);
     if (!member) {
       // this should be handled by the authorization call above
       return message(form, {
-        message: "Du måste vara inloggad för att skapa biljetter",
-        type: "error,",
+        message: messages.tickets_create_not_logged_in(),
+        type: "error",
       });
     }
     let ticketId: string;
@@ -55,14 +56,14 @@ export const actions = {
       else errorMsg = String(err);
       console.log("Error creating ticket", errorMsg);
       return message(form, {
-        message: "Kunde inte skapa biljett: " + errorMsg,
-        type: "error,",
+        message: messages.tickets_create_generic_error() + ": " + errorMsg,
+        type: "error",
       });
     }
     throw redirect(
       `/shop/tickets/${ticketId}`,
       {
-        message: "Biljett skapad",
+        message: messages.tickets_created(),
         type: "success",
       },
       event,
