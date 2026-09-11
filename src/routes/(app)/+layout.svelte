@@ -20,7 +20,7 @@
     ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
     : 0) + "px"}
 >
-  <Header notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
+  <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
 
   {#if data.isApp}
     {#await data.notificationsPromise then notifications}

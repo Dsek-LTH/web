@@ -368,6 +368,7 @@
   "navbar_bell_markAllAsRead": "Mark all as read",
   "navbar_bell_deleteAll": "Delete all",
   "navbar_bell_noNotifications": "You have no notifications!",
+  "navbar_bell_loadMore": "Load more",
   "navbar_userMenu_loggedInAs": "Logged in as",
   "navbar_userMenu_profile": "Profile",
   "navbar_userMenu_settings": "Settings",
