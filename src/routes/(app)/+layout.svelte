@@ -18,7 +18,7 @@
     ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
     : 0) + "px"}
 >
-  <Header notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
+  <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
 
   <main class="flex min-h-0 flex-1 flex-col">
     {#each data.alerts as alert (alert.id)}
