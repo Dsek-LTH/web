@@ -12,7 +12,9 @@
 
 <div class="layout-container mt-6 w-3/5 space-y-6">
   <div class="flex items-center justify-between gap-4">
-    <h1 class="text-2xl font-semibold uppercase">{m.booking_reviewBooking()}</h1>
+    <h1 class="text-2xl font-semibold uppercase">
+      {m.booking_reviewBooking()}
+    </h1>
     <Button variant="outline" href="/bookings/admin">
       <ArrowLeftIcon class="size-4" />
       {m.booking_goBack()}

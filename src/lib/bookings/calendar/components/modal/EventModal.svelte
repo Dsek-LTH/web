@@ -47,9 +47,7 @@
   const endDate = $derived(calendarEvent.end);
 
   const currentUser = $derived(page.data.user);
-  const isAdmin = $derived(
-    isAuthorized(apiNames.BOOKINGS.UPDATE, currentUser),
-  );
+  const isAdmin = $derived(isAuthorized(apiNames.BOOKINGS.UPDATE, currentUser));
   const isOwner = $derived(
     !!currentUser?.studentId &&
       currentUser.studentId === bookingEvent.bookerStudentId,

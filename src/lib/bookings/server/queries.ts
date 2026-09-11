@@ -16,12 +16,13 @@ import type {
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export type BookingRequestWithRelations = ExtendedPrismaModel<"BookingRequest"> & {
-  bookables: Array<ExtendedPrismaModel<"Bookable">>;
-  booker: ExtendedPrismaModel<"Member"> | null;
-  accessDoors: Array<ExtendedPrismaModel<"Door">>;
-  accessMembers: Array<ExtendedPrismaModel<"Member">>;
-};
+export type BookingRequestWithRelations =
+  ExtendedPrismaModel<"BookingRequest"> & {
+    bookables: Array<ExtendedPrismaModel<"Bookable">>;
+    booker: ExtendedPrismaModel<"Member"> | null;
+    accessDoors: Array<ExtendedPrismaModel<"Door">>;
+    accessMembers: Array<ExtendedPrismaModel<"Member">>;
+  };
 
 export async function getUpcomingBookingRequests(prisma: ExtendedPrisma) {
   return prisma.bookingRequest.findMany({
