@@ -12,7 +12,7 @@
 
   let { data } = $props();
 
-  let showNollning = $state(false);
+  let showN0llning = $state(false);
 </script>
 
 <SetPageTitle title={m.news()} />
@@ -55,12 +55,12 @@
   </section>
 {/if}
 
-{#if data.nollningArticles.length > 0}
+{#if data.n0llningArticles.length > 0}
   <section class="mb-6">
-    {#if showNollning}
+    {#if showN0llning}
       <h2 class="mb-3 text-lg font-semibold">{m.news_n0llning_news()}</h2>
       <div class="flex flex-col gap-2">
-        {#each data.nollningArticles as article (article.id)}
+        {#each data.n0llningArticles as article (article.id)}
           <a
             href="/news/{article.slug}/edit"
             class="hover:bg-muted/50 flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors"
@@ -78,8 +78,8 @@
         {/each}
       </div>
     {/if}
-    <Button variant="outline" onclick={() => (showNollning = !showNollning)}>
-      {showNollning ? m.news_hide_n0llning_news() : m.news_show_n0llning_news()}
+    <Button variant="outline" onclick={() => (showN0llning = !showN0llning)}>
+      {showN0llning ? m.news_hide_n0llning_news() : m.news_show_n0llning_news()}
     </Button>
   </section>
 {/if}
