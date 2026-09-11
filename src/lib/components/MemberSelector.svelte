@@ -22,9 +22,12 @@
     multiple = false,
     showId = true,
     showClass = true,
+    showNickname = true,
     limit = 0,
     class: klass = "",
     inputClass = "",
+    onchange = $bindable(),
+    onremove = $bindable(),
     ...restProps
   }: {
     selectedMembers?: Array<MemberSearchReturnAttributes & { id?: string }>;
@@ -34,9 +37,12 @@
     multiple: boolean;
     showId: boolean;
     showClass: boolean;
+    showNickname?: boolean;
     limit?: number;
     class?: string;
     inputClass?: string;
+    onchange: () => void;
+    onremove: () => void;
   } & InputProps = $props();
 
   let componentElement: HTMLElement | null = $state(null);
@@ -50,14 +56,18 @@
 
   $effect(() => {
     if (selectedMember?.id) {
-      selectedMemberId = new TextDecoder().decode(
-        base64ToBytes(selectedMember?.id),
-      );
+      if (selectedMember.id.includes("-")) {
+        selectedMemberId = selectedMember.id;
+      } else {
+        selectedMemberId = new TextDecoder().decode(
+          base64ToBytes(selectedMember?.id),
+        );
+      }
     }
     if (selectedMembers) {
-      selectedMembersIds = selectedMembers.map((m) =>
-        new TextDecoder().decode(base64ToBytes(m.id!)),
-      );
+      selectedMembersIds = selectedMembers
+        .filter((m) => !m.id?.includes("-"))
+        .map((m) => new TextDecoder().decode(base64ToBytes(m.id!)));
     }
   });
 
@@ -244,6 +254,7 @@
     selectedMembers = selectedMembers.filter(
       (mem) => mem.studentId !== member.studentId,
     );
+    onremove();
   }
 </script>
 
@@ -278,7 +289,12 @@
             class="added-item hover:bg-muted bg-background h-full cursor-pointer rounded-full p-0"
             onclick={() => removeMember(member)}
           >
-            <MemberCard {member} links={false} class="rounded-full p-1 pr-2">
+            <MemberCard
+              {member}
+              nickname={showNickname}
+              links={false}
+              class="rounded-full p-1 pr-2"
+            >
               <X class="h-4 w-4" />
             </MemberCard>
           </Button>
@@ -297,10 +313,11 @@
             bind:ref={inputElement}
             oninput={handleSearch}
             autocomplete="off"
+            {onchange}
           />
           {#if input && isFocused()}
             <Command.List
-              class="bg-popover absolute top-full z-50 mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
+              class="bg-popover absolute top-full z-250! mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
               style="
                   max-width: calc(100vw - 2rem);
                   margin-left:
@@ -326,6 +343,7 @@
                     <MemberCard
                       member={result}
                       links={false}
+                      nickname={showNickname}
                       {showId}
                       {showClass}
                       class="w-full rounded-full p-1 pr-2  "
