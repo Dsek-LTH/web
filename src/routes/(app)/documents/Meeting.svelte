@@ -34,9 +34,11 @@
       )
       .pop();
 
-  let notice = findFile(["Kallelse", "Notice"]);
-  let agenda = findFile(["Föredragningslista", "Foredragningslista", "Agenda"]);
-  let minutes = findFile(["Protokoll", "Minutes, Minute"]);
+  let notice = $derived(findFile(["Kallelse", "Notice"]));
+  let agenda = $derived(
+    findFile(["Föredragningslista", "Foredragningslista", "Agenda"]),
+  );
+  let minutes = $derived(findFile(["Protokoll", "Minutes, Minute"]));
 
   let filteredFiles = $derived(
     files.filter((f) => {
