@@ -136,10 +136,16 @@
   const now = dayjs();
   const year = now.year();
   const weeksInYear = dayjs(`${year}-12-31`).week();
-  const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
-  const canEditWorkers = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
-  const canEditCiabattas = isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user);
-  const canSeeAllWeeks = isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user);
+  const isDayManager = $derived(isAuthorized(apiNames.CAFE.DAY_MANAGER, user));
+  const canEditWorkers = $derived(
+    isAuthorized(apiNames.CAFE.EDIT_WORKERS, user),
+  );
+  const canEditCiabattas = $derived(
+    isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user),
+  );
+  const canSeeAllWeeks = $derived(
+    isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user),
+  );
 
   let editing: boolean = $state(false);
 
@@ -159,9 +165,11 @@
     ciabattaOfTheWeek?.name ?? m.errors_notImplemented(),
   );
 
-  let weeks = canSeeAllWeeks
-    ? Array.from(Array(weeksInYear).keys())
-    : [week.week() - 1, week.week(), week.week() + 1];
+  let weeks = $derived(
+    canSeeAllWeeks
+      ? Array.from(Array(weeksInYear).keys())
+      : [week.week() - 1, week.week(), week.week() + 1],
+  );
 
   function handleWeekChange(value: string) {
     if (weeks.includes(Number(value))) {
