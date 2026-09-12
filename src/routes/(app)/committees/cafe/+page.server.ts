@@ -1,7 +1,9 @@
+import type { PageServerLoad, Actions } from "./$types";
 import { committeeActions } from "../committee.server";
-import type { PageServerLoad } from "./$types";
+import { scheduleActions, scheduleLoad } from "./schedule.server";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async (event) => {
+  const { locals } = event;
   const { prisma } = locals;
 
   const openingHours = await prisma.markdown.findMany({
@@ -14,7 +16,11 @@ export const load: PageServerLoad = async ({ locals }) => {
       name: "asc",
     },
   });
-  return { openingHours };
+
+  return { ...(await scheduleLoad(event)), openingHours };
 };
 
-export const actions = committeeActions();
+export const actions: Actions = {
+  ...committeeActions("cafe"),
+  ...scheduleActions(),
+};

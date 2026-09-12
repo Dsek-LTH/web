@@ -1,82 +1,73 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
+  import LocaleData from "dayjs/plugin/localeData";
   import * as Card from "$lib/components/ui/card";
+  import { Button } from "$lib/components/ui/button";
+  import Pen from "@lucide/svelte/icons/pen";
+  import { Save, X } from "@lucide/svelte";
+  import { Input } from "$lib/components/ui/input";
+  import { enhanceWithToast } from "$lib/stores/toast";
+  import { updateHours } from "./times.remote";
   import type { PageData } from "./$types";
 
-  let { data }: { data: PageData } = $props();
+  let { openingHours }: { openingHours: PageData["openingHours"] } = $props();
 
   let isEditing = $state(false);
 
-  /*const getWeekdayName = (weekday: number): string => {
-    let date = dayjs();
-    // we assign monday to 0, not sunday
-    while (date.day() - 1 !== weekday) {
-      date = date + 1;
-    }
-    return date.toLocaleString(languageTag(), {
-      weekday: "long",
-    });
-  };
-  dayjs.extend(weekOfYear);
-  dayjs.extend(weekYear);
-
-  let week = $derived(
-    dayjs()
-      .startOf("year")
-      .add(data.week - 1, "week"),
-  );*/
+  dayjs.extend(LocaleData);
 </script>
 
 <Card.Root>
   <Card.Content>
-    <h3>
+    <h3 class="flex flex-row justify-between">
       {m.committees_cafe_openinghours()}
+      <Button
+        onclick={() => {
+          isEditing = !isEditing;
+        }}
+        variant="outline"
+        size="icon-sm"
+        >{#if isEditing}<X />{:else}<Pen />{/if}</Button
+      >
     </h3>
-    <span class="">{m.committees_cafe_thecafe()}</span>
-    <ol>
-      {#each data.openingHours as openingHour, i (openingHour)}
-        {@const weekday = "Måndag"}
+    <span class="text-muted-foreground">{m.committees_cafe_thecafe()}</span>
+    <ol class="ml-0 list-none">
+      {#each openingHours as openingHour, i (openingHour)}
+        {@const weekday = dayjs.weekdays()[i + 1]}
 
-        {@const isToday = new Date().getDay() - 1 === i}
+        {@const isToday = dayjs().day() - 1 === i}
         <li
-          class="bg-opacity-10 flex gap-4 p-2"
-          class:bg-primary={isToday}
-          class:font-bold={isToday}
+          class="odd:bg-background flex flex-row items-center justify-between gap-10 rounded-sm p-2 {isToday
+            ? 'bg-rosa-50 border-rosa-500 border-[1px]'
+            : ''}"
         >
-          <p class="flex-1 self-center capitalize">{weekday}</p>
+          <p class="capitalize">{weekday}</p>
           {#if isEditing}
-            <form
-              class="flex gap-4"
-              action="?/updateHours"
-              method="POST"
-              use:enhance={() => {
-                return ({ update }) => update({ reset: false });
-              }}
-            >
+            <form class="flex gap-4" {...enhanceWithToast(updateHours.for(i))}>
               <input
                 hidden
                 type="text"
                 name="markdownSlug"
                 value={openingHour.name}
               />
-              <input
+              <Input
                 type="text"
-                class="input input-bordered font-normal"
+                class="w-30"
                 name="markdownSv"
                 value={openingHour.markdown}
-                size="8"
               />
-              <button
-                class="btn btn-outline btn-primary btn-sm h-auto"
+              <Button
+                variant="outline"
+                size="icon-sm"
                 type="submit"
                 aria-label="submit new cafe opening time"
               >
-                <span class="i-mdi-content-save text-base"></span>
-              </button>
+                <Save />
+              </Button>
             </form>
           {:else}
-            {openingHour.markdown}
+            <span class="whitespace-nowrap">{openingHour.markdown}</span>
           {/if}
         </li>
       {/each}

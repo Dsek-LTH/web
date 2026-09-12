@@ -47,7 +47,7 @@
   href="/committees/{data.committee?.shortName}/members"
 >
   <div
-    class="after:to-background relative flex flex-row gap-4 overflow-x-scroll after:fixed after:top-0 after:right-0 after:z-100 after:h-full after:w-8 after:bg-linear-to-r after:from-transparent after:pl-10"
+    class="after:to-background relative flex flex-row gap-4 overflow-x-auto after:fixed after:top-0 after:right-0 after:z-100 after:h-full after:w-8 after:bg-linear-to-r after:from-transparent after:pl-10"
   >
     {#each previewPositions as position (position.id)}
       <div

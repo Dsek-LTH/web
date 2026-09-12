@@ -1,14 +1,12 @@
-import type { PageServerLoad, Actions } from "../$types";
+import type { Actions, PageServerLoadEvent } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import { committeeActions, committeeLoad } from "../../committee.server";
+import { committeeLoad } from "../committee.server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
 import { TimeSlot } from "./types";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { updateMarkdown } from "$lib/news/markdown/mutations.server";
-import { updateSchema } from "./types";
 
 import dayjs from "dayjs";
 
@@ -34,7 +32,7 @@ function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
     .add(weekNum - 1, "week");
 }
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const scheduleLoad = async ({ locals, url }: PageServerLoadEvent) => {
   const { user, prisma } = locals;
 
   const targetWeek = getWeek(url.searchParams.get("week"), user);
@@ -79,30 +77,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   }));
 };
 
-export const actions: Actions = {
-  ...committeeActions("cafe"),
-  updateHours: async ({ request, locals }) => {
-    const { user, prisma } = locals;
-    const form = await superValidate(request, zod4(updateSchema));
-    if (!form.valid) return fail(400, { form });
-
-    const { markdownSv, markdownEn, markdownSlug } = form.data;
-
-    if (markdownSlug && markdownSv) {
-      await updateMarkdown(user, prisma, {
-        name: markdownSlug,
-        markdownSv,
-        markdownEn,
-      });
-      return message(form, {
-        message: m.committees_committeeUpdated(),
-        type: "success",
-      });
-    } else {
-      return fail(400, { form });
-    }
-  },
-
+export const scheduleActions = (): Actions => ({
   updateSchedule: async ({ request, locals }) => {
     const { user, prisma } = locals;
     const form = await superValidate(request, zod4(scheduleForm));
@@ -273,4 +248,4 @@ export const actions: Actions = {
       type: "success",
     });
   },
-};
+});
