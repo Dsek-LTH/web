@@ -125,7 +125,7 @@
   function toggleEdit() {
     editing = !editing;
     if (!editing) {
-      ciabattaString = ciabattaOfTheWeek?.name ?? m.errors_notImplemented();
+      ciabattaString = ciabattaOfTheWeek?.name ?? "";
     }
   }
 
@@ -217,6 +217,7 @@
                 action="?/editWeeklyCiabatta"
                 method="POST"
                 use:enhance={() => {
+                  toggleEdit();
                   return ({ update }) => update({ reset: false });
                 }}
               >
