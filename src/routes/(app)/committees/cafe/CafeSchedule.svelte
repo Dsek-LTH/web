@@ -1,34 +1,37 @@
 <script lang="ts">
-  import * as m from "$paraglide/messages";
+  import { page } from "$app/state";
+  import { enhance } from "$app/forms";
+  import { goto } from "$app/navigation";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
+  import type { AuthUser } from "@zenstackhq/runtime";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import { cn } from "$lib/utils";
+  import apiNames from "$lib/utils/apiNames";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import { getFullName } from "$lib/utils/client/member";
+
   import dayjs from "dayjs";
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
-  import { enhance } from "$app/forms";
-  import { isAuthorized } from "$lib/utils/authorization";
-  import apiNames from "$lib/utils/apiNames";
-  import type { AuthUser } from "@zenstackhq/runtime";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import MemberSelector from "$lib/components/MemberSelector.svelte";
-  import type { ShiftWithWorker, Ciabatta } from "./types";
-  import { TimeSlot } from "./types";
-  import "dayjs/locale/en-gb";
-  import { getLocale } from "$paraglide/runtime";
-  import { page } from "$app/state";
-  import { Button, buttonVariants } from "$lib/components/ui/button";
-  import * as Select from "$lib/components/ui/select";
+
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import Pen from "@lucide/svelte/icons/pen";
   import Sandwich from "@lucide/svelte/icons/sandwich";
-  import { SvelteURLSearchParams } from "svelte/reactivity";
-  import { goto } from "$app/navigation";
-  import { getFullName } from "$lib/utils/client/member";
+  import UserPlus from "@lucide/svelte/icons/user-plus";
+
+  import { Button, buttonVariants } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
-  import { Input } from "$lib/components/ui/input";
-  import * as Tooltip from "$lib/components/ui/tooltip";
   import * as Dialog from "$lib/components/ui/dialog";
-  import { cn } from "$lib/utils";
-  import { UserPlus } from "@lucide/svelte";
+  import { Input } from "$lib/components/ui/input";
+  import * as Select from "$lib/components/ui/select";
+  import * as Tooltip from "$lib/components/ui/tooltip";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
+
+  import { TimeSlot, type Ciabatta, type ShiftWithWorker } from "./types";
+
+  import * as m from "$paraglide/messages";
+  import { getLocale } from "$paraglide/runtime";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(weekYear);
@@ -91,13 +94,6 @@
         dayjs(s.date).isSame(day, "day") &&
         s.timeSlot === timeSlot &&
         s.worker.studentId === user.studentId,
-    );
-  }
-
-  function shiftExists(day: dayjs.Dayjs, timeSlot: TimeSlot) {
-    return !!shifts.find(
-      (shift) =>
-        dayjs(shift.date).isSame(day, "day") && shift.timeSlot === timeSlot,
     );
   }
 
@@ -186,11 +182,8 @@
   const formRefs: Record<string, HTMLFormElement> = $state({});
 </script>
 
-<!-- The bg-zinc here is very ugly, but I couldn't find better fitting colours...-->
 <Card.Root>
-  <div
-    class="i-mdi-border-radius:25px border-primary relative col-span-2 grid gap-2 rounded-lg px-4"
-  >
+  <div class=" border-primary relative col-span-2 grid gap-2 rounded-lg px-4">
     <div class="flex flex-row flex-wrap gap-2 overflow-x-auto align-middle">
       <div class="flex w-full flex-col">
         <div class="flex w-full flex-row items-center">
@@ -257,11 +250,7 @@
       {#each { length: 5 }, dayIndex}
         {@const day = week.startOf("week").add(dayIndex, "day")}
         {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
-        {#snippet DayForm(
-          timeSlot: TimeSlot,
-          disabled: boolean,
-          name_color_override: boolean = false,
-        )}
+        {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
           <form
             method="POST"
             action="?/updateSchedule"
@@ -284,10 +273,7 @@
                   type="submit"
                   class={cn(
                     buttonVariants({ variant: "outline" }),
-                    "block w-full  overflow-hidden overflow-ellipsis",
-                    disabled && !name_color_override
-                      ? "text-slate-500"
-                      : "border-base-300 border",
+                    "block w-full overflow-hidden overflow-ellipsis",
                   )}
                   {disabled}>{getName(day, timeSlot)}</Tooltip.Trigger
                 >
@@ -299,10 +285,7 @@
               <Button
                 variant="outline"
                 type="submit"
-                class="text-muted-foreground flex w-full overflow-hidden border-dashed overflow-ellipsis
-              {disabled && !name_color_override
-                  ? 'text-slate-500'
-                  : 'border-base-300 border'}"
+                class="text-muted-foreground flex w-full overflow-hidden border-dashed overflow-ellipsis"
                 {disabled}><UserPlus /> Ledigt</Button
               >
             {/if}
@@ -332,33 +315,18 @@
                 canSignUpForShift(day, TimeSlot.DAYMANAGER, user)
               ) &&
               !hasShift(day, TimeSlot.DAYMANAGER, user),
-            shiftExists(day, TimeSlot.DAYMANAGER),
           )}
 
-          <hr class="border-base-content mt-2 mb-2" />
+          <hr class="border-muted-background mt-2 mb-2" />
 
-          <p
-            class="gap-1 text-center font-medium {dayHasManager ||
-            canEditWorkers
-              ? ''
-              : 'text-slate-500'}"
-          >
-            11:00 - 12:00
-          </p>
+          <p class="gap-1 text-center font-medium">11:00 - 12:00</p>
           {@render DayWorkerForm(TimeSlot.SHIFT_1)}
 
           {@render DayWorkerForm(TimeSlot.SHIFT_2)}
 
-          <hr class="border-base-content mt-2 mb-2" />
+          <hr class="border-muted-background mt-2 mb-2" />
 
-          <p
-            class="gap-1 text-center font-medium {dayHasManager ||
-            canEditWorkers
-              ? ''
-              : 'text-slate-500'}"
-          >
-            12:00 - 13:00
-          </p>
+          <p class="gap-1 text-center font-medium">12:00 - 13:00</p>
           {@render DayWorkerForm(TimeSlot.SHIFT_3)}
         </div>
       {/each}
@@ -454,30 +422,16 @@
             <p class="gap-1 text-center font-bold">{m.cafe_day_manager()}</p>
             {@render DayForm(TimeSlot.DAYMANAGER)}
 
-            <hr class="border-base-content mt-2 mb-2" />
+            <hr class="border-muted-background mt-2 mb-2" />
 
-            <p
-              class="gap-1 text-center font-medium {dayHasManager ||
-              canEditWorkers
-                ? ''
-                : 'text-slate-500'}"
-            >
-              11:00 - 12:00
-            </p>
+            <p class="gap-1 text-center font-medium">11:00 - 12:00</p>
             {@render DayWorkerForm(TimeSlot.SHIFT_1)}
 
             {@render DayWorkerForm(TimeSlot.SHIFT_2)}
 
-            <hr class="border-base-content mt-2 mb-2" />
+            <hr class="border-muted-background mt-2 mb-2" />
 
-            <p
-              class="gap-1 text-center font-medium {dayHasManager ||
-              canEditWorkers
-                ? ''
-                : 'text-slate-500'}"
-            >
-              12:00 - 13:00
-            </p>
+            <p class="gap-1 text-center font-medium">12:00 - 13:00</p>
             {@render DayWorkerForm(TimeSlot.SHIFT_3)}
           </div>
         {/each}
