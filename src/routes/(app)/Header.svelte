@@ -355,7 +355,11 @@
                 href={child.path}
               >
                 {#if route.list}
-                  {child.title}
+                  {@const Icon = child.icon}
+                  <div class="flex flex-row items-center gap-1">
+                    <Icon size="24" class="text-rosa-400" />
+                    {child.title}
+                  </div>
                   <span class="text-muted-foreground text-xs"
                     >{child.description}</span
                   >
@@ -363,6 +367,7 @@
                   <NavigationMenu.ContentItem
                     title={child.title}
                     description={child.description ?? ""}
+                    icon={child.icon}
                   />
                 {/if}
               </NavigationMenu.Link>
@@ -401,10 +406,12 @@
           <div>
             <ul class="list-none border-l-[1px]">
               {#each route.children as child (child.title)}
+                {@const Icon = child.icon}
                 <a
-                  class="hover:bg-secondary-hover text-foreground ml-[6px] block rounded-sm py-[6px] pr-[12px] pl-[6px] transition-all"
+                  class="hover:bg-secondary-hover text-foreground ml-[6px] flex flex-row items-center gap-1.5 rounded-sm py-[6px] pr-[12px] pl-[6px] transition-all"
                   href={child.path}
                 >
+                  <Icon size="16" class="text-rosa-400 max-w-4" />
                   {child.title}
                 </a>
               {/each}
