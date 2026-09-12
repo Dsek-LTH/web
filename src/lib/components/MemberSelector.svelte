@@ -41,8 +41,8 @@
     limit?: number;
     class?: string;
     inputClass?: string;
-    onchange: () => void;
-    onremove: () => void;
+    onchange?: () => void;
+    onremove?: () => void;
   } & InputProps = $props();
 
   let componentElement: HTMLElement | null = $state(null);
@@ -254,7 +254,7 @@
     selectedMembers = selectedMembers.filter(
       (mem) => mem.studentId !== member.studentId,
     );
-    onremove();
+    onremove?.();
   }
 </script>
 
