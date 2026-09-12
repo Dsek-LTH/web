@@ -5,6 +5,7 @@
   import BookOpen from "@lucide/svelte/icons/book-open";
   import UsersRound from "@lucide/svelte/icons/users-round";
   import CircleUserRound from "@lucide/svelte/icons/circle-user-round";
+  import Coffee from "@lucide/svelte/icons/coffee";
 
   import dayjs from "dayjs";
   import { signIn } from "$lib/utils/auth";
@@ -93,17 +94,12 @@
       </div>
     </div>
 
-    <div>
-      <h2>{m.events()}</h2>
-      <HomeCalendar
-        events={data.events.map((e) => ({
-          startDate: e.startDatetime,
-          endDate: e.endDatetime,
-          slug: e.slug ?? "",
-          title: e.title,
-        }))}
-      />
-    </div>
+    <Button variant="outline" size="lg" href="/committees/cafe">
+      <Coffee class="text-rosa-500" />
+      {m.home_cafeOpenHours()}:
+      <span class=" font-bold">{data.cafeOpen?.markdown}</span>
+    </Button>
+
     <div>
       <h2>{m.news()}</h2>
       <div class="mt-4 flex flex-col gap-4 lg:flex-row">
@@ -157,6 +153,18 @@
           </div>
         {/each}
       </div>
+    </div>
+
+    <div>
+      <h2>{m.events()}</h2>
+      <HomeCalendar
+        events={data.events.map((e) => ({
+          startDate: e.startDatetime,
+          endDate: e.endDatetime,
+          slug: e.slug ?? "",
+          title: e.title,
+        }))}
+      />
     </div>
   </div>
 </div>

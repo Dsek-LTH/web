@@ -1,8 +1,13 @@
+import z from "zod/v4";
 import { Prisma } from "@prisma/client";
 import { TimeSlot as PrismaTimeSlot } from "@prisma/client";
 import dayjs from "dayjs";
-import { z } from "zod";
 export type { CiabattaOfTheWeek as Ciabatta } from "@prisma/client";
+
+export const updateTimeSchema = z.object({
+  markdownSlug: z.string(),
+  markdownSv: z.string(),
+});
 
 export const TimeSlot = {
   DAYMANAGER: "DAYMANAGER",
