@@ -350,7 +350,6 @@
       <div class="grid grid-cols-1 px-4 md:grid-cols-5">
         {#each { length: 5 }, dayIndex}
           {@const day = week.startOf("week").add(dayIndex, "day")}
-          {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
           {#snippet DayForm(timeSlot: TimeSlot)}
             <form
               method="POST"
