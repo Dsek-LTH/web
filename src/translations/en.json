@@ -1398,5 +1398,12 @@
   "shop_tickets_unknown": "Unknown",
   "footer_quote": "&ast;<i>Speaks Swedish</i>&ast;",
   "shop_customerDescription": "D-guild customer: {id}",
-  "show_unknownId": "unknown ID"
+  "show_unknownId": "unknown ID",
+  "programs_computerScience": "Computer Science",
+  "programs_infoCom": "InfoCom",
+  "programs_vrAr": "Master programme in VR/AR",
+  "programs_electricalEngineering": "Electrical Engineering",
+  "programs_BME": "Biomedical Engineering",
+  "programs_phD": "PhD student",
+  "programs_other": "Other"
 }
