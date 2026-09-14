@@ -31,15 +31,33 @@
       {/if}
     {/each}
     {#if data.articles.length > 1}
-      <div class="fixed bottom-8 left-1/2 flex -translate-x-1/2 gap-2">
+      <div class="fixed bottom-8 left-1/2 flex w-full max-w-3xl -translate-x-1/2 gap-2 px-8">
         {#each data.articles as article, index (article.id)}
-          <div
-            class="h-2 w-2 rounded-full transition-colors"
-            class:bg-primary={index === current}
-            class:bg-muted={index !== current}
-          ></div>
+          <div class="bg-muted h-1 flex-1 overflow-hidden rounded-full">
+            {#if index < current}
+              <div class="bg-primary h-full w-full"></div>
+            {:else if index === current}
+              {#key current}
+                <div
+                  class="bg-primary h-full w-0"
+                  style="animation: tv-progress {ROTATE_MS}ms linear forwards;"
+                ></div>
+              {/key}
+            {/if}
+          </div>
         {/each}
       </div>
     {/if}
   {/if}
 </div>
+
+<style>
+  @keyframes -global-tv-progress {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+</style>

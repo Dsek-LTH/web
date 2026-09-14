@@ -3,6 +3,8 @@
   import * as Table from "$lib/components/ui/table/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import * as Select from "$lib/components/ui/select/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
@@ -15,10 +17,87 @@
   import Pen from "@lucide/svelte/icons/pen";
   import Trash from "@lucide/svelte/icons/trash";
   import ExternalLink from "@lucide/svelte/icons/external-link";
+  import SearchIcon from "@lucide/svelte/icons/search";
+  import TagsIcon from "@lucide/svelte/icons/tags";
+  import ArrowUp from "@lucide/svelte/icons/arrow-up";
+  import ArrowDown from "@lucide/svelte/icons/arrow-down";
   import dayjs from "dayjs";
   import type { ShlinkShortUrl } from "@shlinkio/shlink-js-sdk/api-contract";
+  import { page } from "$app/state";
+  import { goto } from "$app/navigation";
+  import { debounce } from "$lib/utils/debounce";
 
   let { data } = $props();
+
+  const ORDER_BY_OPTIONS = [
+    { value: "dateCreated", label: m.admin_links_filter_sort_created },
+    { value: "shortCode", label: m.admin_links_filter_sort_slug },
+    { value: "longUrl", label: m.admin_links_filter_sort_url },
+    { value: "visits", label: m.admin_links_filter_sort_visits },
+  ] as const;
+
+  // svelte-ignore state_referenced_locally
+  let searchValue = $state(page.url.searchParams.get("search") ?? "");
+  // svelte-ignore state_referenced_locally
+  let selectedTags = $state<string[]>(page.url.searchParams.getAll("tags"));
+  // svelte-ignore state_referenced_locally
+  let orderBy = $state(page.url.searchParams.get("orderBy") ?? "dateCreated");
+  // svelte-ignore state_referenced_locally
+  let dir = $state(
+    page.url.searchParams.get("dir") === "ASC" ? "ASC" : "DESC",
+  );
+
+  let orderByLabel = $derived(
+    ORDER_BY_OPTIONS.find((o) => o.value === orderBy)?.label() ?? orderBy,
+  );
+
+  function updateParams(overrides: {
+    search?: string;
+    tags?: string[];
+    orderBy?: string;
+    dir?: string;
+  }) {
+    const params = new URLSearchParams(page.url.searchParams);
+    params.delete("page");
+    if (overrides.search !== undefined) {
+      if (overrides.search) params.set("search", overrides.search);
+      else params.delete("search");
+    }
+    if (overrides.tags !== undefined) {
+      params.delete("tags");
+      overrides.tags.forEach((tag) => params.append("tags", tag));
+    }
+    if (overrides.orderBy !== undefined) params.set("orderBy", overrides.orderBy);
+    if (overrides.dir !== undefined) params.set("dir", overrides.dir);
+    goto(`?${params.toString()}`, { keepFocus: true, noScroll: true });
+  }
+
+  const debouncedSearch = debounce(
+    (value: string) => updateParams({ search: value }),
+    300,
+  );
+
+  function toggleTag(tag: string) {
+    selectedTags = selectedTags.includes(tag)
+      ? selectedTags.filter((t) => t !== tag)
+      : [...selectedTags, tag];
+    updateParams({ tags: selectedTags });
+  }
+
+  function clearTags() {
+    selectedTags = [];
+    updateParams({ tags: [] });
+  }
+
+  function setOrderBy(value: string) {
+    orderBy = value;
+    updateParams({ orderBy: value });
+  }
+
+  function toggleDir() {
+    dir = dir === "ASC" ? "DESC" : "ASC";
+    updateParams({ dir });
+  }
 
   let createOpen = $state(false);
   let editOpen = $state(false);
@@ -130,6 +209,83 @@
         {m.admin_links_add_title()}
       </Button>
     </div>
+  </div>
+
+  <div class="mb-4 flex flex-wrap items-center gap-2">
+    <div class="relative min-w-48 flex-1 sm:max-w-xs">
+      <SearchIcon
+        class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2"
+      />
+      <Input
+        class="pl-8"
+        placeholder={m.admin_links_filter_search_placeholder()}
+        bind:value={searchValue}
+        oninput={() => debouncedSearch(searchValue)}
+      />
+    </div>
+
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger class={buttonVariants({ variant: "outline" })}>
+        <TagsIcon class="h-4 w-4" />
+        {m.admin_links_filter_tags()}
+        {#if selectedTags.length > 0}
+          <Badge variant="outline">{selectedTags.length}</Badge>
+        {/if}
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="start">
+        {#if data.tags.length === 0}
+          <DropdownMenu.Label>
+            {m.admin_links_filter_tags_empty()}
+          </DropdownMenu.Label>
+        {:else}
+          {#each data.tags as tag (tag)}
+            <DropdownMenu.CheckboxItem
+              checked={selectedTags.includes(tag)}
+              onCheckedChange={() => toggleTag(tag)}
+              closeOnSelect={false}
+            >
+              {tag}
+            </DropdownMenu.CheckboxItem>
+          {/each}
+        {/if}
+        {#if selectedTags.length > 0}
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item onclick={clearTags}>
+            {m.admin_links_filter_tags_clear()}
+          </DropdownMenu.Item>
+        {/if}
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+
+    <Select.Root
+      type="single"
+      value={orderBy}
+      onValueChange={(value) => value && setOrderBy(value)}
+    >
+      <Select.Trigger class="w-44">
+        {orderByLabel}
+      </Select.Trigger>
+      <Select.Content>
+        {#each ORDER_BY_OPTIONS as option (option.value)}
+          <Select.Item value={option.value}>{option.label()}</Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
+
+    <Button
+      variant="outline"
+      size="icon"
+      onclick={toggleDir}
+      aria-label={dir === "ASC"
+        ? m.admin_links_filter_sort_direction_asc()
+        : m.admin_links_filter_sort_direction_desc()}
+    >
+      {#if dir === "ASC"}
+        <ArrowUp class="h-4 w-4" />
+      {:else}
+        <ArrowDown class="h-4 w-4" />
+      {/if}
+    </Button>
   </div>
 
   <Table.Root>
@@ -264,9 +420,9 @@
         {#each $createFormData.tags as tag (tag)}
           <input type="hidden" name="tags" value={tag} />
         {/each}
-        {#if $createErrors.tags}
+        {#if $createErrors.tags?._errors}
           <p class="text-destructive text-sm font-medium">
-            {$createErrors.tags}
+            {$createErrors.tags._errors.join(", ")}
           </p>
         {/if}
       </div>
@@ -320,9 +476,9 @@
         {#each $updateFormData.tags as tag (tag)}
           <input type="hidden" name="tags" value={tag} />
         {/each}
-        {#if $updateErrors.tags}
+        {#if $updateErrors.tags?._errors}
           <p class="text-destructive text-sm font-medium">
-            {$updateErrors.tags}
+            {$updateErrors.tags._errors.join(", ")}
           </p>
         {/if}
       </div>
