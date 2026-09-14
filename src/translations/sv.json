@@ -1398,5 +1398,11 @@
   "admin_access_member_not_found": "Medlem hittades inte",
   "admin_access_policy_deleted": "Policy borttagen",
   "shop_product": "Produkt",
-  "shop_unknown_error": "Okänt fel"
+  "shop_unknown_error": "Okänt fel",
+  "medals_csvHeader": "Namn,StiL-ID,Medalj",
+  "shop_tickets_csvHeader": "Namn,StiL-ID,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum,Betalningsavsikts-ID",
+  "shop_tickets_anonymousUser": "Anonym användare",
+  "shop_tickets_doesNotExist": "Finns inte",
+  "shop_tickets_unknown": "Okänt",
+  "footer_quote": "Er linje,<br class=\"hidden md:inline\" /> Er färg!"
 }

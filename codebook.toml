@@ -39,6 +39,8 @@ ignore_patterns = [
     'MMM', # dayjs format fragment
     'DSEK',
     'bit.ly/trivselkontakt',
+    'mailmaster.blossom.dsek.se',
+    'stiL',
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -161,6 +163,8 @@ words = [
     'TLTH',
     'WCAG',
     'Pantern',
+    'Oddput',
+    'Clementin',
 
     # Tools
     'authentik',

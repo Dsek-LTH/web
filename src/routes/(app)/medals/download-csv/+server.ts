@@ -2,6 +2,7 @@ import { type Semester, toString } from "$lib/utils/semesters";
 import { medalRecipients } from "$lib/server/medals/medals";
 import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import * as messages from "$paraglide/messages";
 
 export const GET = async ({ locals, url }) => {
   const { prisma } = locals;
@@ -22,7 +23,7 @@ export const GET = async ({ locals, url }) => {
     }),
   );
 
-  const csv: string = ["Namn,StilID,Medalj", ...recipientLines].join("\n");
+  const csv: string = [messages.medals_csvHeader(), ...recipientLines].join("\n");
 
   // return csv as file
   const res = new Response(csv, {
