@@ -72,7 +72,7 @@ export const settingsActions = {
           }),
         });
         if (res.count !== subscription.length) {
-          // If nbr created isn't the same as number of subscribed tags, something went wrong, do rollback
+          // If the number of created tags isn't the same as the number of subscribed tags, something went wrong; rollback
           throw new Error(
             `${res.count} created but supposed to be ${subscription.length}`,
           );
