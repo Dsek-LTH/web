@@ -78,7 +78,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: messages.admin_access_policy_created(),
+      message: messages.admin_access_policyCreated(),
       type: "success",
     });
   },

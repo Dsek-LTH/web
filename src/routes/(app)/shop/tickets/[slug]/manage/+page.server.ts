@@ -165,7 +165,7 @@ export const actions = {
           type: "error",
         });
       return message(form, {
-        message: messages.tickets_errors_could_not_refund(),
+        message: messages.tickets_errors_couldNotRefund(),
         type: "error",
       });
     }
