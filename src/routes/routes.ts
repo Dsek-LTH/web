@@ -1,6 +1,28 @@
+import DsekLogo from "$lib/components/DsekLogo.svelte";
+
 import { getFileUrl } from "$lib/files/client";
 import apiNames from "$lib/utils/apiNames";
 import * as m from "$paraglide/messages";
+
+import Cap from "$lib/components/icons/Cap.svelte";
+import CalendarDays from "@lucide/svelte/icons/calendar-days";
+import Coins from "@lucide/svelte/icons/coins";
+import DoorClosedLocked from "@lucide/svelte/icons/door-closed-locked";
+import Files from "@lucide/svelte/icons/files";
+import FileText from "@lucide/svelte/icons/file-text";
+import HousePlus from "@lucide/svelte/icons/house-plus";
+import Info from "@lucide/svelte/icons/info";
+import Link from "@lucide/svelte/icons/link";
+import Megaphone from "@lucide/svelte/icons/megaphone";
+import Newspaper from "@lucide/svelte/icons/newspaper";
+import ScrollText from "@lucide/svelte/icons/scroll-text";
+import Send from "@lucide/svelte/icons/send";
+import Settings from "@lucide/svelte/icons/settings";
+import ShieldUser from "@lucide/svelte/icons/shield-user";
+import UserPlus from "@lucide/svelte/icons/user-plus";
+import Users from "@lucide/svelte/icons/users";
+import Vote from "@lucide/svelte/icons/vote";
+import type { Component } from "svelte";
 
 // bottom-nav: Show in the bottom navigation bar
 // home-link: Show on the home page
@@ -21,6 +43,7 @@ export type Route = {
   picturePath?: string;
   children?: Route[];
   list?: boolean;
+  icon?: Component;
   isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
@@ -42,6 +65,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/applying",
+          icon: Send,
         },
         {
           title: m.nav_nollning(),
@@ -49,6 +73,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/nolla",
+          icon: Cap,
         },
         {
           title: m.nav_about_guild(),
@@ -56,6 +81,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/about",
+          icon: DsekLogo,
         },
       ],
     },
@@ -71,6 +97,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/news",
+          icon: Newspaper,
         },
         {
           title: m.events(),
@@ -78,6 +105,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/events",
+          icon: CalendarDays,
         },
       ],
     },
@@ -94,6 +122,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/about",
+          icon: DsekLogo,
         },
         {
           title: m.nav_board(),
@@ -101,6 +130,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/board",
+          icon: Users,
         },
         {
           title: m.documents_meetingDocuments(),
@@ -108,6 +138,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/documents",
+          icon: FileText,
         },
         {
           title: m.documents_governing(),
@@ -115,6 +146,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/documents/governing",
+          icon: ScrollText,
         },
       ],
     },
@@ -131,6 +163,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_volunteer_desc(),
           path: "/volunteer",
+          icon: UserPlus,
         },
         {
           title: m.openElections(),
@@ -138,6 +171,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_elections_desc(),
           path: "/elections",
+          icon: Vote,
         },
       ],
     },
@@ -161,6 +195,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_bookings_desc(),
           path: "/booking",
+          icon: HousePlus,
         },
         {
           title: m.nav_expenses(),
@@ -168,6 +203,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
+          icon: Coins,
         },
         {
           title: m.stocklist(),
@@ -189,42 +225,49 @@ export const getRoutes = (): Route[] =>
           path: "/admin/access",
           accessRequired: null,
           appBehaviour: "none",
+          icon: ShieldUser,
         },
         {
           title: m.doors(),
           path: "/admin/doors",
           accessRequired: null,
           appBehaviour: "none",
+          icon: DoorClosedLocked,
         },
         {
           title: m.alerts(),
           path: "/admin/alerts",
           accessRequired: null,
           appBehaviour: "none",
+          icon: Megaphone,
         },
         {
           title: m.linkShortener(),
           path: "/admin/links",
           accessRequired: null,
           appBehaviour: "none",
+          icon: Link,
         },
         {
           title: m.adminSettings(),
           path: "/admin/settings",
           accessRequired: null,
           appBehaviour: "none",
+          icon: Settings,
         },
         {
           title: m.files(),
           path: "/admin/minio",
           accessRequired: null,
           appBehaviour: "none",
+          icon: Files,
         },
         {
           title: m.info(),
           path: "/admin/info",
           accessRequired: null,
           appBehaviour: "none",
+          icon: Info,
         },
         {
           title: m.qr_code(),
@@ -366,7 +409,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
       path: "/app/home",
       accessRequired: null,
       appBehaviour: "bottom-nav",
-    } as Route,
+    } as unknown as Route,
   ]
     .concat(
       routes
