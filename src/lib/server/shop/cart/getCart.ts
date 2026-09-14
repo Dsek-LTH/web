@@ -10,7 +10,7 @@ import {
   type ShopIdentification,
 } from "$lib/server/shop/types";
 import apiNames from "$lib/utils/apiNames";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import {
   passOnTransactionFee,
   priceWithTransactionFee,
@@ -22,7 +22,7 @@ import { error, type ServerLoadEvent } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { purchaseForm } from "./types";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import * as messages from "$paraglide/messages";
 
 export const getCart = async (
@@ -31,7 +31,7 @@ export const getCart = async (
 ) => {
   const now = new Date();
   await withHandledNotificationQueue(
-    removeExpiredConsumables(authorisedPrismaClient, now).then(
+    removeExpiredConsumables(authorizedPrismaClient, now).then(
       (res) => res.queuedNotifications,
     ),
   );
@@ -156,7 +156,7 @@ export const cartLoadFunction = async ({
     throw error(401, messages.shop_no_cart());
   }
   depends("cart");
-  authorise(apiNames.WEBSHOP.PURCHASE, user);
+  authorize(apiNames.WEBSHOP.PURCHASE, user);
 
   return await getCartWithExtras(
     prisma,

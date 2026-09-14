@@ -15,7 +15,7 @@ import { getFullName } from "$lib/utils/client/member";
 import { ShoppableType } from "@prisma/client";
 import type Stripe from "stripe";
 import * as m from "$paraglide/messages";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { dbIdentification, type ShopIdentification } from "../types";
 import {
   createPaymentIntent,
@@ -30,7 +30,7 @@ const clearOutConsumablesAfterSellingOut = async (
   soldOutShoppableIds: string[],
 ) => {
   await withHandledNotificationQueue(
-    authorisedPrismaClient.$transaction(async (tx) => {
+    authorizedPrismaClient.$transaction(async (tx) => {
       const soldOutConsumables = await tx.consumable.findMany({
         where: {
           shoppableId: {
@@ -194,7 +194,7 @@ const purchaseCart = async (
   // Step 3: Calculate price
   const price = calculateCartPrice(userConsumables);
   if (price <= 0) {
-    await authorisedPrismaClient.consumable.updateMany({
+    await authorizedPrismaClient.consumable.updateMany({
       where: {
         id: {
           in: userConsumables.map((c) => c.id),
@@ -269,7 +269,7 @@ const purchaseCart = async (
   }
   try {
     // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. Could lead to an intent not connected to a consumable.
-    await authorisedPrismaClient.$transaction(async (tx): Promise<void> => {
+    await authorizedPrismaClient.$transaction(async (tx): Promise<void> => {
       // ensure all of the consumables are still without a stripeIntentId, and not removed
       const consumables = await tx.consumable.findMany({
         where: {

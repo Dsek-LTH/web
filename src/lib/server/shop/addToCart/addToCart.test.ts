@@ -24,9 +24,9 @@ import {
   removeMockUsers,
 } from "../mock";
 import { performLotteryIfNecessary } from "./reservations";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-const prisma = authorisedPrismaClient;
+const prisma = authorizedPrismaClient;
 
 const SUITE_PREFIX = "addToCart";
 

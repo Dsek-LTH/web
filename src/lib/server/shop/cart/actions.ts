@@ -3,12 +3,12 @@ import {
   moveQueueToCart,
   sendQueuedNotifications,
 } from "$lib/server/shop/addToCart/reservations";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { purchaseForm } from "$lib/server/shop/cart/types";
 import purchaseCart from "$lib/server/shop/payments/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { questionForm } from "$lib/utils/shop/types";
 import * as m from "$paraglide/messages";
@@ -42,7 +42,7 @@ const cartActions: Actions = {
         type: "error",
       });
     }
-    const queuedNotifications = await authorisedPrismaClient.$transaction(
+    const queuedNotifications = await authorizedPrismaClient.$transaction(
       async (tx) => {
         await tx.consumable.delete({
           where: {
@@ -83,7 +83,7 @@ const cartActions: Actions = {
         type: "error",
       });
     }
-    await authorisedPrismaClient.$transaction(async (tx) => {
+    await authorizedPrismaClient.$transaction(async (tx) => {
       await tx.consumableReservation.delete({
         where: {
           id: reservation.id,
@@ -139,7 +139,7 @@ const cartActions: Actions = {
   purchase: async (event) => {
     const { locals, request } = event;
     const { user, prisma } = locals;
-    authorise(apiNames.WEBSHOP.PURCHASE, user);
+    authorize(apiNames.WEBSHOP.PURCHASE, user);
     const form = await superValidate(request, zod4(purchaseForm));
     if (!form.valid) return fail(400, { form });
     if (!user?.memberId && !user?.externalCode) {

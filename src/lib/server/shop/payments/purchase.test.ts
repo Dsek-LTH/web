@@ -37,7 +37,7 @@ import {
 } from "../types";
 import apiNames from "$lib/utils/apiNames";
 import { NotificationType } from "$lib/utils/notifications/types";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 const mockFunctions = vi.hoisted(() => ({
@@ -81,7 +81,7 @@ vi.mock("./stripe", () => ({
 }));
 /* eslint-enable @typescript-eslint/no-explicit-any -- End of mocking*/
 
-const prisma = authorisedPrismaClient;
+const prisma = authorizedPrismaClient;
 
 const SUITE_PREFIX = "purchase";
 

@@ -1,4 +1,4 @@
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { getStripe } from "./stripe";
 import { getFullName } from "$lib/utils/client/member";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
@@ -18,7 +18,7 @@ const createStripeCustomer = async ({
       },
     });
     try {
-      await authorisedPrismaClient.member.update({
+      await authorizedPrismaClient.member.update({
         where: { id },
         data: { stripeCustomerId: customer.id },
       });

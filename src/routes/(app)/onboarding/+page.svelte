@@ -1,7 +1,7 @@
 <script lang="ts">
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { superForm } from "$lib/utils/client/superForms";
-  import { programmes } from "$lib/utils/programmes";
+  import { programs } from "$lib/utils/programs";
   import * as m from "$paraglide/messages";
   import { onMount } from "svelte";
   import type { PageData } from "./$types";
@@ -114,10 +114,10 @@
         </div>
         <div class="flex flex-row gap-2">
           <div class="flex w-full flex-col gap-1.5">
-            <Label for="classProgramme">{m.onboarding_programme()}</Label>
+            <Label for="classProgramme">{m.onboarding_program()}</Label>
             <Select.Root
               type="single"
-              name="classProgramme"
+              name="classProgram"
               bind:value={$form.classProgramme as string | undefined}
             >
               <Select.Trigger class="w-full"
@@ -129,9 +129,9 @@
                 ></Select.Trigger
               >
               <Select.Content>
-                {#each programmes as programme (programme.id)}
-                  <Select.Item value={programme.id}
-                    >{programme.name}</Select.Item
+                {#each programs as program (program.id)}
+                  <Select.Item value={program.id}
+                    >{program.name}</Select.Item
                   >
                 {/each}
               </Select.Content>

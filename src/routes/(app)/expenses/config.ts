@@ -1,6 +1,6 @@
 import * as messages from "$paraglide/messages";
 
-export const COST_CENTRES = [
+export const COST_CENTERS = [
   {
     name: "AKTU01",
     description: messages.cost_centre_aktu_volunteer_description(),
@@ -385,10 +385,10 @@ export const COST_CENTRES = [
   },
 ] as const;
 
-export type CostCenter = (typeof COST_CENTRES)[number];
-export type CostCenterName = (typeof COST_CENTRES)[number]["name"];
+export type CostCenter = (typeof COST_CENTERS)[number];
+export type CostCenterName = (typeof COST_CENTERS)[number]["name"];
 
-export const COST_CENTER_MAP = COST_CENTRES.reduce(
+export const COST_CENTER_MAP = COST_CENTERS.reduce(
   (accumulator, cur) => {
     accumulator[cur.name] = cur;
     return accumulator;
@@ -405,9 +405,9 @@ export const getCostCenter = (costCenterName: string) => {
   return center;
 };
 
-export const costCentres = [
+export const costCenters = [
   { label: messages.expenses_choose_cost_centre(), value: "" },
-  ...COST_CENTRES.map((center) => ({
+  ...COST_CENTERS.map((center) => ({
     label: `${center.name} - ${center.description} (${center.example})`,
     value: center.name,
   })),

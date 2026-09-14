@@ -1,6 +1,6 @@
 import { QuestionType, ticketSchema } from "$lib/utils/shop/types";
 import apiNames from "$lib/utils/apiNames";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -34,7 +34,7 @@ export const load = async ({ locals, params }) => {
   }
   if (ticket.shoppable.authorId !== user.memberId) {
     // author can always edit
-    authorise(apiNames.WEBSHOP.MANAGE, user);
+    authorize(apiNames.WEBSHOP.MANAGE, user);
   }
 
   return {
@@ -73,7 +73,7 @@ export const actions = {
     const { prisma, user, member } = locals;
     const form = await superValidate(request, zod4(ticketSchema));
     if (!form.valid) return fail(400, { form });
-    authorise(apiNames.WEBSHOP.CREATE, user);
+    authorize(apiNames.WEBSHOP.CREATE, user);
     if (!member) {
       // this should be handled by the authorization call above
       return message(form, {

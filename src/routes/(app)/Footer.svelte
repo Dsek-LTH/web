@@ -57,7 +57,7 @@
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         <span>{@html m.nav_visitor_address()}</span>
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        <span>{@html m.nav_organisation_number()}</span>
+        <span>{@html m.nav_organization_number()}</span>
       </div>
     </section>
   </div>
@@ -192,7 +192,7 @@
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           <span>{@html m.nav_visitor_address()}</span>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          <span>{@html m.nav_organisation_number()}</span>
+          <span>{@html m.nav_organization_number()}</span>
         </div>
       </div>
     </details>

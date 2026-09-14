@@ -1,4 +1,4 @@
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import dayjs from "dayjs";
 import {
@@ -10,7 +10,7 @@ import {
 
 export const load = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorise(apiNames.BOOKINGS.UPDATE, user);
+  authorize(apiNames.BOOKINGS.UPDATE, user);
   const bookables = await prisma.bookable.findMany();
 
   const allBookingRequests = await prisma.bookingRequest.findMany({

@@ -121,7 +121,7 @@
       </div>
 
       <div class="flex flex-col">
-        <span class="font-bold">{m.contact_organisation_number()}</span>
+        <span class="font-bold">{m.contact_organization_number()}</span>
         <span>805003-2878</span>
       </div>
 

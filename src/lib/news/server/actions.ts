@@ -1,7 +1,7 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { createSchema, updateSchema } from "$lib/news/schema";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { redirect } from "sveltekit-flash-message/server";
 import { slugWithCount, slugify } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
@@ -67,8 +67,8 @@ export const createArticle: Action = async (event) => {
     },
   });
   let slug = slugify(headerSv);
-  // authorised so we actually count all
-  const slugCount = await authorisedPrismaClient.article.count({
+  // authorized so we actually count all
+  const slugCount = await authorizedPrismaClient.article.count({
     where: {
       slug: { startsWith: slug },
     },

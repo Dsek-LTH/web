@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorise, isAuthorised } from "$lib/utils/authorization";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   if (article?.author.id !== undefined) article.author.id = "";
   if (!article) throw error(404, m.news_errors_articleNotFound());
   if (article.author.memberId !== user.memberId)
-    authorise(apiNames.NEWS.UPDATE, user);
+    authorize(apiNames.NEWS.UPDATE, user);
   const at = article.createdAt;
   const memberWithMandates = await prisma.member.findUnique({
     where: {
@@ -76,7 +76,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     memberWithMandates,
   );
 
-  const canDelete = isAuthorised(apiNames.NEWS.DELETE, user);
+  const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
 
   return {
     allTags,
@@ -100,7 +100,7 @@ export const actions: Actions = {
   removeArticle: async (event) => {
     const { locals, params } = event;
     const { prisma, user } = locals;
-    authorise(apiNames.NEWS.DELETE, user);
+    authorize(apiNames.NEWS.DELETE, user);
 
     const existingArticle = await prisma.article.findUnique({
       where: {

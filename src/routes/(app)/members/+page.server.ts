@@ -3,30 +3,30 @@ import type { PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
-const allowedProgrammes = ["D", "C", "VR/AR"];
+const allowedPrograms = ["D", "C", "VR/AR"];
 
 export const load: PageServerLoad = async (request) => {
   const { prisma, user } = request.locals;
   if (!user?.memberId) {
     error(401, m.members_errors_notLoggedIn());
   }
-  let classProgramme = request.url.searchParams.get("programme");
-  if (!classProgramme || !allowedProgrammes.includes(classProgramme)) {
-    classProgramme = "all";
+  let classProgram = request.url.searchParams.get("program");
+  if (!classProgram || !allowedPrograms.includes(classProgram)) {
+    classProgram = "all";
   }
   const classYear = getYearOrThrowSvelteError(request.url);
   const members = await prisma.member.findMany({
     where: {
       classYear,
       classProgramme:
-        classProgramme === "all"
+        classProgram === "all"
           ? {
-              // dont actually show ALL members in db, only those in the specified programmes
-              // we have some members for other programmes, but they are not part of the guild
-              in: allowedProgrammes,
+              // dont actually show ALL members in db, only those in the specified programs
+              // we have some members for other programs, but they are not part of the guild
+              in: allowedPrograms,
             }
           : {
-              equals: classProgramme,
+              equals: classProgram,
             },
     },
     orderBy: [
@@ -44,7 +44,7 @@ export const load: PageServerLoad = async (request) => {
 
   return {
     members,
-    programme: classProgramme,
+    program: classProgram,
     year: classYear,
   };
 };

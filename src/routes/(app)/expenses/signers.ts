@@ -1,6 +1,6 @@
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-import { COST_CENTRES } from "./config";
+import { COST_CENTERS } from "./config";
 
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 week
 const CACHED_SIGNERS: Record<
@@ -15,11 +15,11 @@ const PRESIDENT = "dsek.ordf";
 export const updateSignersCacheIfNecessary = async () => {
   if (CACHE_UPDATED_AT + CACHE_TTL >= Date.now()) return;
   const allSigners = new Set([
-    ...COST_CENTRES.map((center) => center.signer),
+    ...COST_CENTERS.map((center) => center.signer),
     TREASURER,
     PRESIDENT,
   ]);
-  const signers = await authorisedPrismaClient.mandate.findMany({
+  const signers = await authorizedPrismaClient.mandate.findMany({
     where: {
       positionId: {
         in: [...allSigners],

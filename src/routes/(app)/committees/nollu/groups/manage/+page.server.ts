@@ -3,7 +3,7 @@ import {
   phadderMandateFilter,
 } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -33,7 +33,7 @@ const getPhadderMandates = async (
 
 export const load = async ({ locals }) => {
   const { user, prisma } = locals;
-  authorise(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, user);
+  authorize(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, user);
 
   const phadderGroups = await prisma.phadderGroup.findMany({
     include: {

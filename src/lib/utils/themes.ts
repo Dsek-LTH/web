@@ -1,6 +1,6 @@
 export const themes = ["dark", "light", "system"] as const;
 export type Theme = (typeof themes)[number];
-export const colours = {
+export const colors = {
   light: {
     primary: "#CC5E80",
     secondary: "#9966CC",
@@ -27,13 +27,13 @@ export const colours = {
     warning: "#fbbd23",
     error: "#f87272",
   },
-  nollningPostReveal: {
+  n0llningPostReveal: {
     primary: "#F280A1",
     secondary: "#921010",
     neutral: "#FFFFFF", // "comment"
     accent: "#1dcdbc", // unused in figma
     "base-100": "#E6D3B1", // "new background"
-    "base-200": "#4E4A45", // "backround"
+    "base-200": "#4E4A45", // "background"
     "base-300": "#44475A", // "current line"
     "base-content": "#4E4A45", // "foreground"
     // unused in figma below

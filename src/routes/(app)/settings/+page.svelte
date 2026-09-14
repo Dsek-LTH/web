@@ -32,13 +32,13 @@
   // const initialLocale = getLocale();
   // console.log(initialLocale);
   // let selectedLanguage = $state<"en" | "sv">(initialLocale);
-  // let languageInitialised = false;
+  // let languageInitialized = false;
   // $effect(() => {
   //   const fun = async () => {
   //     const lang = selectedLanguage;
   //     console.log(selectedLanguage);
-  //     if (!languageInitialised) {
-  //       languageInitialised = true;
+  //     if (!languageInitialized) {
+  //       languageInitialized = true;
   //       return;
   //     }
   //

@@ -5,7 +5,7 @@ import {
 } from "$lib/server/shop/payments/stripeWebhooks";
 import * as m from "$paraglide/messages";
 import Stripe from "stripe";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { getStripe } from "./stripe";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
@@ -67,7 +67,7 @@ export const getPaymentIntent = (
 };
 
 export const resetConsumablesForIntent = async (intentId: string) => {
-  await authorisedPrismaClient.consumable.updateMany({
+  await authorizedPrismaClient.consumable.updateMany({
     where: {
       stripeIntentId: intentId,
       purchasedAt: null,
@@ -110,7 +110,7 @@ export const ensurePaymentIntentState = async (
       canRetryPayment = true;
       break;
     case "requires_capture":
-      // only valid if you use the stripe "authorisation then capture" workflow, where payment method is authorised, and THEN payment is captured at a later time.
+      // only valid if you use the stripe "authorization then capture" workflow, where payment method is authorized, and THEN payment is captured at a later time.
       canRetryPayment = true;
       break;
     case "requires_confirmation":

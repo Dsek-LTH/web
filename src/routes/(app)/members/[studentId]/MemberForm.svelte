@@ -15,7 +15,7 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { languages } from "$lib/utils/languages";
   import * as Select from "$lib/components/ui/select";
-  import { programmes } from "$lib/utils/programmes";
+  import { programs } from "$lib/utils/programs";
 
   import * as Dialog from "$lib/components/ui/dialog";
   import type { PageData } from "./$types";
@@ -123,11 +123,11 @@
       </div>
       <div class="flex w-full flex-row gap-1">
         <div class="flex w-full flex-col gap-1.5">
-          <Label for="classProgramme">{m.members_programme()}</Label>
+          <Label for="classProgram">{m.members_program()}</Label>
           <Select.Root
             type="single"
             bind:value={$form.classProgramme as string | undefined}
-            name="classProgramme"
+            name="classProgram"
           >
             <Select.Trigger class="w-full"
               ><span class="flex flex-row items-center gap-1.5"
@@ -135,8 +135,8 @@
               ></Select.Trigger
             >
             <Select.Content>
-              {#each programmes as programme (programme.id)}
-                <Select.Item value={programme.id}>{programme.name}</Select.Item>
+              {#each programs as program (program.id)}
+                <Select.Item value={program.id}>{program.name}</Select.Item>
               {/each}
             </Select.Content>
           </Select.Root>

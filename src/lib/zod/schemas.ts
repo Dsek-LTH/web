@@ -1,4 +1,4 @@
-import { programmes } from "$lib/utils/programmes";
+import { programs } from "$lib/utils/programs";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import { QuestionType } from "$lib/utils/shop/types";
@@ -25,8 +25,8 @@ export const memberSchema = z.object({
   classProgramme: z
     .string()
     .nullable()
-    .refine((p) => p == null || programmes.some((c) => c.id === p), {
-      message: messages.invalid_programme(),
+    .refine((p) => p == null || programs.some((c) => c.id === p), {
+      message: messages.invalid_program(),
     }),
   graduationYear: z.number().min(1962).nullable().default(null),
   foodPreference: z.string().nullable().default(null),

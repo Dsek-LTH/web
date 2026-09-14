@@ -7,7 +7,7 @@
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import PositionCard from "$lib/components/PositionCard.svelte";
-  import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
+  import ProgramBadge from "$lib/components/member/ProgramBadge.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
@@ -23,7 +23,7 @@
   import { toString, type Semester } from "$lib/utils/semesters";
   import { getFullName } from "$lib/utils/client/member";
   import SEO from "$lib/seo/SEO.svelte";
-  import { isAuthorised } from "$lib/utils/authorization";
+  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import * as m from "$paraglide/messages";
@@ -58,7 +58,7 @@
 
   let canEdit = $derived(
     page.data.user?.studentId === member.studentId ||
-      isAuthorised(apiNames.MEMBER.UPDATE, page.data.user),
+      isAuthorized(apiNames.MEMBER.UPDATE, page.data.user),
   );
 
   const logoUrl = { D: "datateknik", C: "infocom", "VR/AR": "vr_ar" } as const;
@@ -117,10 +117,10 @@
         <h3>{member.firstName} {member.lastName}</h3>
         <a
           href={member.classYear && member.classProgramme
-            ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
+            ? `/members?year=${member.classYear}&program=${member.classProgramme}`
             : "/members"}
         >
-          <ProgrammeBadge {member} />
+          <ProgramBadge {member} />
         </a>
       </div>
       {#if member.nickname}<p class="text-rosa-500 mt-0">
@@ -304,10 +304,10 @@
         <h1>{member.firstName} {member.lastName}</h1>
         <a
           href={member.classYear && member.classProgramme
-            ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
+            ? `/members?year=${member.classYear}&program=${member.classProgramme}`
             : "/members"}
         >
-          <ProgrammeBadge {member} class="mb-2 ml-1" size="lg" />
+          <ProgramBadge {member} class="mb-2 ml-1" size="lg" />
         </a>
         {#if canEdit}
           <Dialog.Root>

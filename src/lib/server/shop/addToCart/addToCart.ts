@@ -16,7 +16,7 @@ import {
   sendQueuedNotifications,
 } from "./reservations";
 import { error } from "console";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 export enum AddToCartStatus {
   AddedToCart = "AddedToCart",
@@ -54,7 +54,7 @@ export const addTicketToCart = async (
         },
   );
 
-  await authorisedPrismaClient.$transaction(async (prisma) => {
+  await authorizedPrismaClient.$transaction(async (prisma) => {
     const result = await ensureState(prisma, now, ticketId);
     queuedNotifications.push(...result.queuedNotifications);
   });
@@ -219,7 +219,7 @@ const addToQueue = async (
 
 const afterGracePeriod = async (shoppableId: string) => {
   try {
-    const queuedNotifications = await authorisedPrismaClient.$transaction(
+    const queuedNotifications = await authorizedPrismaClient.$transaction(
       async (prisma) => {
         return await performLotteryIfNecessary(prisma, new Date(), shoppableId);
       },

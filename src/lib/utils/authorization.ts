@@ -4,10 +4,10 @@ import type { AuthUser } from "@zenstackhq/runtime";
 import * as m from "$paraglide/messages";
 
 /**
- * Check if the user is authorised to perform an action.
- * @returns Whether the user is authorised.
+ * Check if the user is authorized to perform an action.
+ * @returns Whether the user is authorized.
  */
-export const isAuthorised = (
+export const isAuthorized = (
   apiName: string,
   user: AuthUser | undefined,
 ): boolean => {
@@ -17,16 +17,16 @@ export const isAuthorised = (
 };
 
 /**
- * Authorise a user to perform an action or a list of actions.
- * @throws {HttpError} If the user is not authorised.
+ * Authorize a user to perform an action or a list of actions.
+ * @throws {HttpError} If the user is not authorized.
  */
-export const authorise = (
+export const authorize = (
   apiName: string | string[],
   user: AuthUser | undefined,
 ) => {
   const apiNames = Array.isArray(apiName) ? apiName : [apiName];
   for (const name of apiNames) {
-    if (!isAuthorised(name, user)) {
+    if (!isAuthorized(name, user)) {
       throw error(403, `${m.errors_missingPermissions()} ${name}`);
     }
   }
@@ -42,7 +42,7 @@ export const getDerivedRoles = (
   groupList?: string[],
   signedIn = false,
   classYear: number | undefined = undefined,
-  classProgramme: string | undefined = undefined,
+  classProgram: string | undefined = undefined,
 ) => {
   const splitGroups = new Set<string>();
   groupList?.forEach((group) =>
@@ -56,10 +56,10 @@ export const getDerivedRoles = (
     splitGroups.add("nolla");
   if (classYear !== undefined) {
     const shortYear = String(classYear % 100);
-    splitGroups.add(classProgramme + shortYear);
+    splitGroups.add(classProgram + shortYear);
   }
-  if (classProgramme !== undefined) {
-    splitGroups.add(classProgramme);
+  if (classProgram !== undefined) {
+    splitGroups.add(classProgram);
   }
 
   return [...splitGroups];

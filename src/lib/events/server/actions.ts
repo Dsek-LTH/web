@@ -1,7 +1,7 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { actionType, eventSchema } from "$lib/events/schema";
 import { uploadFile } from "$lib/files/uploadFiles";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import {
   getIncrementType,
   isRecurringType,
@@ -55,8 +55,8 @@ export const createEvent: Action = async (event) => {
     ...eventData
   } = form.data;
   const slug = slugify(form.data.titleSv);
-  // has to be authorised to count all slugs
-  let slugCount = await authorisedPrismaClient.event.count({
+  // has to be authorized to count all slugs
+  let slugCount = await authorizedPrismaClient.event.count({
     where: {
       slug: {
         startsWith: slug,
@@ -71,7 +71,7 @@ export const createEvent: Action = async (event) => {
     .map((tag) => ({
       id: tag.id,
     }));
-  // sanitise
+  // sanitize
   eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)

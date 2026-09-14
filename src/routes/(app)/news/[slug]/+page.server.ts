@@ -4,7 +4,7 @@ import {
 } from "$lib/components/postReveal/types";
 import { getArticle } from "$lib/news/getArticles";
 import apiNames from "$lib/utils/apiNames";
-import { authorise, isAuthorised } from "$lib/utils/authorization";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
 import { redirect } from "sveltekit-flash-message/server";
 import {
@@ -33,10 +33,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);
   const canEdit =
-    (isAuthorised(apiNames.NEWS.MANAGE, user) &&
-      isAuthorised(apiNames.NEWS.UPDATE, user)) ||
+    (isAuthorized(apiNames.NEWS.MANAGE, user) &&
+      isAuthorized(apiNames.NEWS.UPDATE, user)) ||
     article.author.memberId === user.memberId;
-  const canDelete = isAuthorised(apiNames.NEWS.DELETE, user);
+  const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
   return {
     article,
     allTaggedMembers,
@@ -56,7 +56,7 @@ export const actions: Actions = {
   removeArticle: async (event) => {
     const { locals, params } = event;
     const { prisma, user } = locals;
-    authorise(apiNames.NEWS.DELETE, user);
+    authorize(apiNames.NEWS.DELETE, user);
 
     const existingArticle = prisma.article.findUnique({
       where: {

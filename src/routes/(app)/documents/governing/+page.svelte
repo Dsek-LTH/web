@@ -5,7 +5,7 @@
   import YearSelector from "$lib/components/YearSelector.svelte";
   import { Button } from "$lib/components/ui/button";
   import * as m from "$paraglide/messages";
-  import { isAuthorised } from "$lib/utils/authorization";
+  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import Pencil from "@lucide/svelte/icons/pencil";
   import Scale from "@lucide/svelte/icons/scale";
@@ -22,13 +22,13 @@
   let isEditing = $state(false);
 
   let canCreate = $derived(
-    isAuthorised(apiNames.GOVERNING_DOCUMENT.CREATE, data.user),
+    isAuthorized(apiNames.GOVERNING_DOCUMENT.CREATE, data.user),
   );
   let canUpdate = $derived(
-    isAuthorised(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user),
+    isAuthorized(apiNames.GOVERNING_DOCUMENT.UPDATE, data.user),
   );
   let canDelete = $derived(
-    isAuthorised(apiNames.GOVERNING_DOCUMENT.DELETE, data.user),
+    isAuthorized(apiNames.GOVERNING_DOCUMENT.DELETE, data.user),
   );
   let canEdit = $derived(canUpdate || canDelete);
 </script>

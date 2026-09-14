@@ -4,8 +4,8 @@ import translatedExtension from "$database/prisma/translationExtension";
 /**
  * Prisma client without zenstack access policies, allowing for unrestricted access to the database.
  */
-const authorisedPrismaClient = new PrismaClient().$extends(
+const authorizedPrismaClient = new PrismaClient().$extends(
   translatedExtension("sv"),
 );
 
-export default authorisedPrismaClient;
+export default authorizedPrismaClient;

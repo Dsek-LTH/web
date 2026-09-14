@@ -1,12 +1,12 @@
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import apiNames from "$lib/utils/apiNames";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, user } = locals;
-  authorise(apiNames.WEBSHOP.CONSUME, user);
+  authorize(apiNames.WEBSHOP.CONSUME, user);
 
   // Get page number from URL query params (default to 1)
   const page = parseInt(url.searchParams.get("page") || "1");

@@ -1,4 +1,4 @@
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
@@ -11,7 +11,7 @@ export const sendNewArticleNotification = async (
   },
   notificationText: string | null | undefined,
 ) => {
-  const subscribedMembers = await authorisedPrismaClient.member.findMany({
+  const subscribedMembers = await authorizedPrismaClient.member.findMany({
     where: {
       subscribedTags: {
         some: {

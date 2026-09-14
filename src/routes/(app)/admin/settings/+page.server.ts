@@ -4,7 +4,7 @@ import {
   updateNollningPeriod,
 } from "$lib/utils/adminSettings/nollning";
 import apiNames from "$lib/utils/apiNames";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import { fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -14,7 +14,7 @@ import * as messages from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
-  authorise(apiNames.ADMIN.SETTINGS.READ, user);
+  authorize(apiNames.ADMIN.SETTINGS.READ, user);
   const settings = await prisma.adminSetting.findMany();
   const nollningStartStr = settings.find(
     (setting) => setting.key === NOLLNING_START_KEY,

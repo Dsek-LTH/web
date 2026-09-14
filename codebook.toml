@@ -1,6 +1,8 @@
 use_global = false
 
-dictionaries = [ 'en_gb' ]
+# Since svelte uses this funky spelling, we have chosen to use if for all code to have cohesion.
+# For any user facing content, such as translations, European english ('en_gb') should be used.
+dictionaries = [ 'en_us' ]
 
 ignore_paths = [
     '**/pnpm-lock.yaml',
@@ -346,6 +348,14 @@ flag_words = [
     'gyckel'
 ]
 
+[[overrides]] # User-facing English
+paths = [
+    'LICENSE',
+    '**/*.md',
+    'src/translations/en.json',
+]
+dictionaries = [ 'en_gb' ]
+
 [[overrides]] # Commands
 paths = [
     'dev/README.md',
@@ -491,21 +501,27 @@ extra_words = [
     'pkgs',
 ]
 
-[[overrides]] # TODO: Remove this.
+# TODO: Remove this.
+[[overrides]]
 paths = [ 'src/translations/en.json' ]
 extra_ignore_patterns = [
     'href=\\".*?\\"',
 ]
 
 [[overrides]]
+paths = [ 'src/translations/*.json' ]
+extra_ignore_patterns = [
+    '".*":', # The JSON keys are "code" and spellchecked att the call site.
+    '\{\w+\}', # The parameters are "code" and spellchecked att the call site.
+]
+
+[[overrides]]
 paths = [ 'src/translations/sv.json' ]
 extra_ignore_patterns = [
-    '".*":', # The JSON keys are english and spellchecked in the english version.
-    '\{\w+\}', # The parameters are english and spellchecked in the english version.
     'href=\\".*?\\"', # Routes are english and spellchecked in the english version.
 
     '[kåååst]', # Phonetic notation.
-    'Software Engineering', # A specialisation.
+    'Software Engineering', # A specialization.
 ]
 
 [[overrides]]

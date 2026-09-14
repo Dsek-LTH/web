@@ -7,7 +7,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
 import { env } from "$env/dynamic/private";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import * as messages from "$paraglide/messages";
 
 const transporter = nodemailer.createTransport({
@@ -22,7 +22,7 @@ const transporter = nodemailer.createTransport({
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
-  authorise(apiNames.YRKA.SEND, user);
+  authorize(apiNames.YRKA.SEND, user);
   return {
     form: await superValidate(zod4(createSchema)),
   };

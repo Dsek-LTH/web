@@ -16,7 +16,7 @@ import {
   setRulesForIndex,
   waitForTask,
 } from "$lib/search/syncHelpers";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import {
   syncGoverningDocuments,
   syncMeetingDocuments,
@@ -33,19 +33,19 @@ const BATCH_SIZE = 1000;
  * function. It will then fetch all relevant data from the
  * database and dump it into Meilisearch.
  */
-let meiliInitialised = false;
+let meiliInitialized = false;
 const sync = async () => {
   const currentTime = Date.now();
   console.log("Meilisearch: Syncing data");
-  if (!meiliInitialised) {
-    console.log("Meilisearch: Initialising");
+  if (!meiliInitialized) {
+    console.log("Meilisearch: Initializing");
     for (const index of availableSearchIndexes) {
       await waitForTask(
         () => getMeilisearch().createIndex(index),
         `Creating index ${index}`,
       );
     }
-    meiliInitialised = true;
+    meiliInitialized = true;
   }
 
   await syncMembers();
@@ -64,12 +64,12 @@ const sync = async () => {
 export default sync;
 
 async function syncMembers() {
-  const numMembers = await authorisedPrismaClient.member.count();
+  const numMembers = await authorizedPrismaClient.member.count();
   const membersIndex = await getMeilisearch().getIndex("members");
   await resetIndex(membersIndex, meilisearchConstants.member);
   for (let i = 0; i < numMembers; i += BATCH_SIZE) {
     const members: MemberDataInMeilisearch[] =
-      await authorisedPrismaClient.member
+      await authorizedPrismaClient.member
         .findMany({
           select: {
             id: true,
@@ -100,11 +100,11 @@ async function syncMembers() {
 }
 
 async function syncSongs() {
-  const numSongs = await authorisedPrismaClient.song.count();
+  const numSongs = await authorizedPrismaClient.song.count();
   const songsIndex = await getMeilisearch().getIndex("songs");
   await resetIndex(songsIndex, meilisearchConstants.song);
   for (let i = 0; i < numSongs; i += BATCH_SIZE) {
-    const songs: SongDataInMeilisearch[] = await authorisedPrismaClient.song
+    const songs: SongDataInMeilisearch[] = await authorizedPrismaClient.song
       .findMany({
         select: {
           id: true,
@@ -135,12 +135,12 @@ async function syncSongs() {
 }
 
 async function syncArticles() {
-  const numArticles = await authorisedPrismaClient.article.count();
+  const numArticles = await authorizedPrismaClient.article.count();
   const articlesIndex = await getMeilisearch().getIndex("articles");
   await resetIndex(articlesIndex, meilisearchConstants.article);
   for (let i = 0; i < numArticles; i += BATCH_SIZE) {
     const articles: ArticleDataInMeilisearch[] =
-      await authorisedPrismaClient.article
+      await authorizedPrismaClient.article
         .findMany({
           select: {
             id: true,
@@ -199,11 +199,11 @@ async function syncArticles() {
 }
 
 async function syncEvents() {
-  const numEvents = await authorisedPrismaClient.event.count();
+  const numEvents = await authorizedPrismaClient.event.count();
   const eventsIndex = await getMeilisearch().getIndex("events");
   await resetIndex(eventsIndex, meilisearchConstants.event);
   for (let i = 0; i < numEvents; i += BATCH_SIZE) {
-    const events: EventDataInMeilisearch[] = await authorisedPrismaClient.event
+    const events: EventDataInMeilisearch[] = await authorizedPrismaClient.event
       .findMany({
         select: {
           id: true,
@@ -241,12 +241,12 @@ async function syncEvents() {
 }
 
 async function syncPositions() {
-  const numPositions = await authorisedPrismaClient.position.count();
+  const numPositions = await authorizedPrismaClient.position.count();
   const positionsIndex = await getMeilisearch().getIndex("positions");
   await resetIndex(positionsIndex, meilisearchConstants.position);
   for (let i = 0; i < numPositions; i += BATCH_SIZE) {
     const positions: PositionDataInMeilisearch[] =
-      await authorisedPrismaClient.position
+      await authorizedPrismaClient.position
         .findMany({
           select: {
             id: true,
@@ -279,12 +279,12 @@ async function syncPositions() {
 }
 
 async function syncCommittees() {
-  const numCommittees = await authorisedPrismaClient.committee.count();
+  const numCommittees = await authorizedPrismaClient.committee.count();
   const committeesIndex = await getMeilisearch().getIndex("committees");
   await resetIndex(committeesIndex, meilisearchConstants.committee);
   for (let i = 0; i < numCommittees; i += BATCH_SIZE) {
     const committees: CommitteeDataInMeilisearch[] =
-      await authorisedPrismaClient.committee
+      await authorizedPrismaClient.committee
         .findMany({
           select: {
             id: true,

@@ -13,7 +13,7 @@ import {
   type TransactionClient,
 } from "../types";
 import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 /*
 NOTE ON NOTIFICATION QUEUE SYSTEM:
@@ -137,7 +137,7 @@ let pruneTimeout: ReturnType<typeof setTimeout> | null = null;
 export const queueNextExpiredConsumablesPruning = async () => {
   if (pruneTimeout) return;
   const nextConsumableToExpire =
-    await authorisedPrismaClient.consumable.findFirst({
+    await authorizedPrismaClient.consumable.findFirst({
       where: {
         expiresAt: {
           not: null,
@@ -153,7 +153,7 @@ export const queueNextExpiredConsumablesPruning = async () => {
   pruneTimeout = setTimeout(async () => {
     const now = new Date();
     await withHandledNotificationQueue(
-      removeExpiredConsumables(authorisedPrismaClient, now).then(
+      removeExpiredConsumables(authorizedPrismaClient, now).then(
         (r) => r.queuedNotifications,
       ),
     );

@@ -9,12 +9,12 @@ import {
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorise } from "$lib/utils/authorization";
+import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
-  authorise(apiNames.TAGS.READ, user);
+  authorize(apiNames.TAGS.READ, user);
 
   const tags = await prisma.tag.findMany({ orderBy: { nameSv: "asc" } });
   const createForm = await superValidate(zod4(createSchema));

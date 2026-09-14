@@ -40,7 +40,7 @@ export function useQRScanner() {
 
       return {};
     } catch (error) {
-      console.error("Camera initialisation error:", error);
+      console.error("Camera initialization error:", error);
       return { error: `Camera error: ${error}` };
     }
   };

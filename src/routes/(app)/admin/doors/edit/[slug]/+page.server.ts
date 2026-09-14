@@ -4,8 +4,8 @@ import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { error, fail } from "@sveltejs/kit";
-import { authorise } from "$lib/utils/authorization";
-import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import { authorize } from "$lib/utils/authorization";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -15,7 +15,7 @@ dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
-  authorise(apiNames.DOOR.READ, user);
+  authorize(apiNames.DOOR.READ, user);
 
   const { doors } = await parent();
   const door = doors.find((door) => door.name === params.slug);
@@ -79,14 +79,14 @@ const createSchema = z
     async (data) => {
       if (data.type === "member") {
         // check if member exists
-        return await authorisedPrismaClient.member.findFirst({
+        return await authorizedPrismaClient.member.findFirst({
           where: { studentId: data.subject },
         });
       } else {
         // check if role exists
         return (
           data.subject === "*" ||
-          (await authorisedPrismaClient.position.findFirst({
+          (await authorizedPrismaClient.position.findFirst({
             where: { id: { startsWith: `${data.subject}%` } },
           }))
         );
