@@ -4,7 +4,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { error, fail } from "@sveltejs/kit";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
@@ -15,7 +15,7 @@ dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.DOOR.READ, user);
+  authorise(apiNames.DOOR.READ, user);
 
   const { doors } = await parent();
   const door = doors.find((door) => door.name === params.slug);

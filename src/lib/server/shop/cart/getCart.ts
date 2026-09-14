@@ -10,7 +10,7 @@ import {
   type ShopIdentification,
 } from "$lib/server/shop/types";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import {
   passOnTransactionFee,
   priceWithTransactionFee,
@@ -155,7 +155,7 @@ export const cartLoadFunction = async ({
     throw error(401, "Du har ingen kundvagn.");
   }
   depends("cart");
-  authorize(apiNames.WEBSHOP.PURCHASE, user);
+  authorise(apiNames.WEBSHOP.PURCHASE, user);
 
   return await getCartWithExtras(
     prisma,

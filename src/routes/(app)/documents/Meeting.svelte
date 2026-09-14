@@ -9,7 +9,7 @@
   import FileLink from "./FileLink.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { DeleteSchema } from "./+page.server";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
 
   let {
@@ -97,7 +97,7 @@
               full
             />
           {/if}
-          {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, page.data.user) && isEditing}
+          {#if isAuthorised(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, page.data.user) && isEditing}
             <DeleteFileForm
               class={isEditing
                 ? "rounded-r-full! border-[1px] py-5! pr-0.5!"

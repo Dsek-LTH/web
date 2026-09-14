@@ -1,6 +1,6 @@
 import { command, getRequestEvent } from "$app/server";
 import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
 import z from "zod";
 import {
@@ -14,7 +14,7 @@ export const approveAll = command(z.number(), async (id) => {
   const { locals } = getRequestEvent();
   const { prisma, user } = locals;
   if (!user?.memberId) throw error(401, m.expense_error_logged_in_sign());
-  const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
+  const canAlwaysSign = isAuthorised(apiNames.EXPENSES.CERTIFICATION, user);
   const result = await prisma.expenseItem.updateMany({
     where: {
       expenseId: id,
@@ -55,7 +55,7 @@ export const unapproveReceipt = command(
         type: "error" as const,
       };
 
-    const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
+    const canAlwaysSign = isAuthorised(apiNames.EXPENSES.CERTIFICATION, user);
     try {
       await prisma.expenseItem.update({
         where: {
@@ -107,7 +107,7 @@ export const approveReceipt = command(
     const { prisma, user } = locals;
     if (!user?.memberId) throw error(401, m.expense_error_logged_in_sign());
 
-    const canAlwaysSign = isAuthorized(apiNames.EXPENSES.CERTIFICATION, user);
+    const canAlwaysSign = isAuthorised(apiNames.EXPENSES.CERTIFICATION, user);
     try {
       await prisma.expenseItem.update({
         where: {

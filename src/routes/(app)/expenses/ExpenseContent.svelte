@@ -5,7 +5,7 @@
   import Price from "./Price.svelte";
   import type { ExpandedExpense } from "./getExpenses";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import { page } from "$app/state";
   import { Button, buttonVariants } from "$lib/components/ui/button";
   import Check from "@lucide/svelte/icons/check";
@@ -23,7 +23,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import X from "@lucide/svelte/icons/x";
   import * as Select from "$lib/components/ui/select";
-  import { costCenters } from "./config";
+  import { costCentres } from "./config";
   import { PiggyBank } from "@lucide/svelte";
   import { enhanceWithToast, toast } from "$lib/stores/toast";
   import { goto } from "$app/navigation";
@@ -41,7 +41,7 @@
   let canSign = $derived(
     !expense.hasBeenSentToBookkeeping &&
       (expense.items.some((item) => item.signerMemberId === user?.memberId) ||
-        isAuthorized(apiNames.EXPENSES.CERTIFICATION, user)),
+        isAuthorised(apiNames.EXPENSES.CERTIFICATION, user)),
   );
 
   let editingId: string | undefined = $state(undefined);
@@ -56,7 +56,7 @@
       >
     {/if}
 
-    {#if isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
+    {#if isAuthorised(apiNames.EXPENSES.BOOKKEEPING, user) && !expense.hasBeenSentToBookkeeping && expense.items.every((item) => item.signedAt)}
       <Button
         onclick={async () => {
           const result = await sendToBookkeeping(expense.id);
@@ -171,7 +171,7 @@
                   ).value}
                 </Select.Trigger>
                 <Select.Content>
-                  {#each costCenters as costCenter (costCenter.value)}
+                  {#each costCentres as costCenter (costCenter.value)}
                     <Select.Item value={costCenter.value}
                       >{costCenter.label}</Select.Item
                     >

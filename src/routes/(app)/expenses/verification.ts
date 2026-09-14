@@ -1,5 +1,5 @@
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import { COST_CENTERS } from "./config";
+import { COST_CENTRES } from "./config";
 
 /**
  * Verifies that the hard coded data in expenses config (cost centers) is correct and exists in the database.
@@ -8,7 +8,7 @@ import { COST_CENTERS } from "./config";
 export const verifyCostCenterData = async () => {
   const prisma = authorizedPrismaClient;
   const results = await Promise.allSettled(
-    COST_CENTERS.map(async (center) => {
+    COST_CENTRES.map(async (center) => {
       await prisma.committee
         .findFirstOrThrow({
           where: {

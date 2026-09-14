@@ -5,7 +5,7 @@ import { fileHandler } from "$lib/files";
 import { getFileUrl } from "$lib/files/client";
 import { uploadFile } from "$lib/files/uploadFiles";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { fail, message, superValidate, withFiles } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -17,7 +17,7 @@ const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 export const load = async ({ locals }) => {
   const { user } = locals;
 
-  authorize(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE, user);
+  authorise(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE, user);
 
   // access is checked in the fileHandler
   const files = await fileHandler

@@ -1,6 +1,6 @@
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-import { COST_CENTERS } from "./config";
+import { COST_CENTRES } from "./config";
 
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 1 week
 const CACHED_SIGNERS: Record<
@@ -15,7 +15,7 @@ const PRESIDENT = "dsek.ordf";
 export const updateSignersCacheIfNecessary = async () => {
   if (CACHE_UPDATED_AT + CACHE_TTL >= Date.now()) return;
   const allSigners = new Set([
-    ...COST_CENTERS.map((center) => center.signer),
+    ...COST_CENTRES.map((center) => center.signer),
     TREASURER,
     PRESIDENT,
   ]);
@@ -54,7 +54,7 @@ export const getSigner = (signer: string) => {
 };
 
 /**
- * In our policy we have a logic which desides how to handle edge cases where the signer is vacant, or the signer is also the user creating the expense.
+ * In our policy we have a logic which decides how to handle edge cases where the signer is vacant, or the signer is also the user creating the expense.
  * This method resolves said logic (or throws if impossible, which would be really rare).
  * Policy: https://www.dsek.se/api/pdf/styrdokument/releases/download/latest/policy_for_ekonomi.pdf
  */

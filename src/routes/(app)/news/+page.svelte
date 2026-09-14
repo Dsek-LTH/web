@@ -6,7 +6,7 @@
   import { Button } from "$lib/components/ui/button";
   import Pagination from "$lib/components/Pagination.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import dayjs from "dayjs";
 
@@ -30,7 +30,7 @@
   <div class="flex-1 gap-2 md:flex-row md:items-end">
     <NewsSearch />
   </div>
-  {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
+  {#if isAuthorised(apiNames.NEWS.CREATE, data.user)}
     <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
   {/if}
 </div>

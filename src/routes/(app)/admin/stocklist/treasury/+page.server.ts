@@ -3,7 +3,7 @@ import { z } from "zod";
 import { fail, message, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import dayjs from "dayjs";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { redirect } from "@sveltejs/kit";
 
@@ -64,7 +64,7 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
   updateEntry: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.UPDATE, user);
+    authorise(apiNames.DRINKITEMBATCH.UPDATE, user);
     const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
 
@@ -123,7 +123,7 @@ export const actions: Actions = {
 
   deleteEntry: async (event) => {
     const { prisma, user } = event.locals;
-    authorize(apiNames.DRINKITEMBATCH.DELETE, user);
+    authorise(apiNames.DRINKITEMBATCH.DELETE, user);
     const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
 

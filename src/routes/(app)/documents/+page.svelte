@@ -5,7 +5,7 @@
   import Meeting from "./Meeting.svelte";
   import type { PageData } from "./$types";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-  import { isAuthorized } from "$lib/utils/authorization";
+  import { isAuthorised } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
 
   import * as m from "$paraglide/messages";
@@ -43,13 +43,13 @@
   );
 
   let canCreate = $derived(
-    isAuthorized(
+    isAuthorised(
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
       data.user,
     ),
   );
   let canEdit = $derived(
-    isAuthorized(
+    isAuthorised(
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
       data.user,
     ),

@@ -4,12 +4,12 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.ACCESS_POLICY.CREATE, user);
+  authorise(apiNames.ACCESS_POLICY.CREATE, user);
 
   const accessPolicies = await prisma.accessPolicy.findMany().then((policies) =>
     policies

@@ -33,19 +33,19 @@ const BATCH_SIZE = 1000;
  * function. It will then fetch all relevant data from the
  * database and dump it into Meilisearch.
  */
-let meiliInitialized = false;
+let meiliInitialised = false;
 const sync = async () => {
   const currentTime = Date.now();
   console.log("Meilisearch: Syncing data");
-  if (!meiliInitialized) {
-    console.log("Meilisearch: Initializing");
+  if (!meiliInitialised) {
+    console.log("Meilisearch: Initialising");
     for (const index of availableSearchIndexes) {
       await waitForTask(
         () => getMeilisearch().createIndex(index),
         `Creating index ${index}`,
       );
     }
-    meiliInitialized = true;
+    meiliInitialised = true;
   }
 
   await syncMembers();

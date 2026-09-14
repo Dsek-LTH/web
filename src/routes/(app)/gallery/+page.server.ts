@@ -5,7 +5,7 @@ import {
   getNollningStart,
   isNollningPeriod,
 } from "$lib/utils/adminSettings/nollning";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 
@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const nollningPeriod = await isNollningPeriod();
   const nollningStart = await getNollningStart();
 
-  if (nollningPeriod && !isAuthorized(apiNames.MEMBER.SEE_STABEN, user)) {
+  if (nollningPeriod && !isAuthorised(apiNames.MEMBER.SEE_STABEN, user)) {
     albumEntries = albumEntries.filter(
       (a) =>
         Date.parse(a[0].split(" ")[0]!) >

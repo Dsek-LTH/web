@@ -1177,5 +1177,6 @@
   "applying_studentlund": "Studentlund",
   "applying_studentlund_desc": "The student life in Lund offers a multitude of opportunities, even outside the D-guild. On the Studentlund website, you can read more about the nations, the Academic Society (AF), and other associations.",
   "nav_home": "Home",
-  "nav_account": "Account"
+  "nav_account": "Account",
+  "events_create_not_logged_in": "You must be logged in to create events."
 }

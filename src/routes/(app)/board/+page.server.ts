@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import { compareBoardPositions } from "$lib/utils/committee-ordering/sort";
 
 import type { PageServerLoad } from "./$types";
@@ -101,7 +101,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   mergedBoardPositions.sort((a, b) =>
     compareBoardPositions(a.position.id, b.position.id),
   );
-  if (!isAuthorized(apiNames.MEMBER.SEE_STABEN, user)) {
+  if (!isAuthorised(apiNames.MEMBER.SEE_STABEN, user)) {
     return {
       boardPositions: mergedBoardPositions.filter(
         (bp) => !bp.position.id.startsWith("dsek.noll"),

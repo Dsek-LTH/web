@@ -1,6 +1,6 @@
 import { command, form, getRequestEvent, query } from "$app/server";
 import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
+import { isAuthorised } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import z from "zod";
 import {
@@ -92,7 +92,7 @@ export const getMyExpenses = query(async () => {
   const myExpenses = allExpenses.filter((e) => e.memberId === member.id);
 
   if (
-    !isAuthorized(apiNames.EXPENSES.BOOKKEEPING, user) &&
+    !isAuthorised(apiNames.EXPENSES.BOOKKEEPING, user) &&
     expensesToSign.length === 0 &&
     myExpenses.length === 0
   ) {

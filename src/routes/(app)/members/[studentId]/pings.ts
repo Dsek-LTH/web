@@ -20,7 +20,7 @@ type MemberIdentification =
 type SendPingProps = {
   link: string; // link to the page where the ping is sent from
   fromMemberId: MemberIdentification; // the member that sends the ping
-  toMemberId: MemberIdentification; // the member that should recieve the ping
+  toMemberId: MemberIdentification; // the member that should receive the ping
 };
 
 export const sendPing = async (

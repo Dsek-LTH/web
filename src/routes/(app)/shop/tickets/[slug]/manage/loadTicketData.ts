@@ -1,7 +1,7 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { phadderMandateFilter } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { error } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 
@@ -37,7 +37,7 @@ export const loadTicketData = async (
   if (!ticket) throw error(404, "Ticket not found");
   if (ticket.shoppable.authorId !== user.memberId) {
     // author can always manage
-    authorize(apiNames.WEBSHOP.MANAGE, user);
+    authorise(apiNames.WEBSHOP.MANAGE, user);
   }
   const ticketYear = ticket.event.startDatetime.getFullYear();
   const memberWithPhadderGroups = await prisma.member.findMany({

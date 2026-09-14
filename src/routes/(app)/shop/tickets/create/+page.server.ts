@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import { redirect } from "sveltekit-flash-message/server";
 import { fail } from "@sveltejs/kit";
 import dayjs from "dayjs";
@@ -10,7 +10,7 @@ import { ticketSchema } from "$lib/utils/shop/types";
 
 export const load = async ({ locals }) => {
   const { user } = locals;
-  authorize(apiNames.WEBSHOP.CREATE, user);
+  authorise(apiNames.WEBSHOP.CREATE, user);
 
   return {
     form: await superValidate(
@@ -37,7 +37,7 @@ export const actions = {
     const { prisma, user, member } = locals;
     const form = await superValidate(request, zod4(ticketSchema));
     if (!form.valid) return fail(400, { form });
-    authorize(apiNames.WEBSHOP.CREATE, user);
+    authorise(apiNames.WEBSHOP.CREATE, user);
     if (!member) {
       // this should be handled by the authorization call above
       return message(form, {

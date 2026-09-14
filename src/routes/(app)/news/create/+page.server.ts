@@ -2,7 +2,7 @@ import { getArticleAuthorOptions } from "$lib/news/getArticles";
 import { createSchema } from "$lib/news/schema";
 import { createArticle } from "$lib/news/server/actions";
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorise } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -12,7 +12,7 @@ import { getAllTags } from "$lib/news/tags";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.NEWS.CREATE, user);
+  authorise(apiNames.NEWS.CREATE, user);
 
   const [allTags, currentMemberWithMandates, committees] = await Promise.all([
     getAllTags(prisma, true),
