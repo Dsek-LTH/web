@@ -27,46 +27,29 @@
 
 {#if $toasts.length > 0}
   <div
-    class="toast absolute z-10 {toastLocationClasses}"
+    class="toast fixed z-10 rounded-md {toastLocationClasses}"
     style={page.data.isApp
       ? `top: ${64 + (page.data.appInfo?.insets.top ?? 0)}px;`
       : ""}
   >
     {#each $toasts as t (t.id)}
-      <div class="blop">
+      <div
+        class="{t.removing
+          ? 'animate-out fade-out'
+          : 'fade-in slide-in-from-top-8 animate-in'} rounded-md shadow-md duration-300"
+      >
         <Alert.Root class="mt-5" variant={t.type}>
-          <Alert.Title class="text-xl"
+          <Alert.Title class="text-lg"
             ><span class="flex items-center gap-2"
               >{@render icon(t.type)}{t.type.charAt(0).toUpperCase() +
                 t.type.slice(1)}</span
             ></Alert.Title
           >
-          <Alert.Description class="text-lg">{t.message}</Alert.Description>
+          <Alert.Description class="text-muted-foreground"
+            >{t.message}</Alert.Description
+          >
         </Alert.Root>
       </div>
     {/each}
   </div>
 {/if}
-
-<style>
-  @keyframes blop {
-    0% {
-      transform: scale(0);
-      opacity: 0;
-    }
-    60% {
-      transform: scale(1.12);
-      opacity: 1;
-    }
-    80% {
-      transform: scale(0.95);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  .blop {
-    animation: blop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-</style>

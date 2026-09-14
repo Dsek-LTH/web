@@ -4,7 +4,9 @@
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import * as Card from "$lib/components/ui/card/index";
-  import { BookOpen, UsersRound } from "@lucide/svelte";
+  import BookOpen from "@lucide/svelte/icons/book-open";
+  import Coffee from "@lucide/svelte/icons/coffee";
+  import UsersRound from "@lucide/svelte/icons/users-round";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
@@ -56,6 +58,16 @@
             <BookOpen class="shrink-0" />{m.home_contactSRD()}
           </Button>
         </div>
+        <Button
+          variant="outline"
+          size="lg"
+          class="mt-2"
+          href="/committees/cafe"
+        >
+          <Coffee class="text-rosa-500" />
+          {m.home_cafeOpenHours()}:
+          <span class="font-bold">{data.cafeOpen?.markdown}</span>
+        </Button>
       </div>
     </div>
     <div>
