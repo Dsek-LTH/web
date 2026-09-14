@@ -1396,5 +1396,7 @@
   "shop_tickets_anonymousUser": "Anonymous user",
   "shop_tickets_doesNotExist": "Does not exist",
   "shop_tickets_unknown": "Unknown",
-  "footer_quote": "&ast;<i>Speaks Swedish</i>&ast;"
+  "footer_quote": "&ast;<i>Speaks Swedish</i>&ast;",
+  "shop_customerDescription": "D-guild customer: {id}",
+  "show_unknownId": "unknown ID"
 }

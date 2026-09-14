@@ -23,7 +23,9 @@ export const GET = async ({ locals, url }) => {
     }),
   );
 
-  const csv: string = [messages.medals_csvHeader(), ...recipientLines].join("\n");
+  const csv: string = [messages.medals_csvHeader(), ...recipientLines].join(
+    "\n",
+  );
 
   // return csv as file
   const res = new Response(csv, {

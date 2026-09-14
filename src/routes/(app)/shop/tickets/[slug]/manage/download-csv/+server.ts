@@ -48,10 +48,13 @@ const generateCSV = (
     const name = member
       ? `${member.firstName} ${member.lastName}`.replace(",", " ")
       : messages.shop_tickets_anonymousUser();
-    const stiLId = member ? member.studentId : messages.shop_tickets_anonymousUser();
+    const stiLId = member
+      ? member.studentId
+      : messages.shop_tickets_anonymousUser();
     const email = member
       ? messages.shop_tickets_doesNotExist()
-      : (consumable.externalCustomerEmail?.replace(",", " ") ?? messages.shop_tickets_doesNotExist());
+      : (consumable.externalCustomerEmail?.replace(",", " ") ??
+        messages.shop_tickets_doesNotExist());
     const paidAmount = consumable.priceAtPurchase
       ? priceFormatter
           .format(consumable.priceAtPurchase / 100)

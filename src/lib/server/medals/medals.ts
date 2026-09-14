@@ -120,9 +120,9 @@ const committeeMedalSemester = (
 ): Semester | undefined => committeeSemesters.toSorted()[5];
 
 /**
- * Calculate after which semester a volunteer should have been awarded *Gammal
- * && Äcklig* from the semesters they have volunteered and the semesters they
- * have been on the board.
+ * Calculate after which semester a volunteer should have been awarded
+ * *Gammal && Äcklig* from the semesters they have volunteered and the
+ * semesters they have been on the board.
  *
  * @param boardSemesters - The semesters that the volunteer been on the board.
  * @param volunteerSemesters - The semesters that the volunteer has volunteered

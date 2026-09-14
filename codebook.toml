@@ -37,10 +37,13 @@ ignore_patterns = [
     'github\.com/Dsek-LTH',
     '[A-Za-z0-9+/]{40,}', # Base64 data of 40+ characters.
     'MMM', # dayjs format fragment
+    'M{3,4}', # dayjs format fragment
+    'd{3,4}', # dayjs format fragment
     'DSEK',
     'bit.ly/trivselkontakt',
     'mailmaster.blossom.dsek.se',
     'stiL',
+    'Dsek-LTH', # The guild's GitHub name.
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -61,6 +64,8 @@ ignore_patterns = [
     'källar',
     'medaljelele',
     'näru',
+    'aktu|AKTU',
+    'infu|INFU',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
@@ -145,6 +150,7 @@ words = [
     'Kämnärsrätten',
     'LTH',
     'Lund',
+    'Taube',
     'Maja',
     'Måns',
     'Québec',
@@ -167,6 +173,7 @@ words = [
     'Clementin',
 
     # Tools
+    'lucide',
     'authentik',
     'cjs',
     'clsx',
@@ -179,6 +186,7 @@ words = [
     'inlang',
     'Klarna',
     'Meili',
+    'snaplet',
     'Meilisearch',
     'MinIO',
     'multer',
@@ -403,9 +411,10 @@ extra_ignore_patterns = [
     'h-dvh',
     'scroll-behavior',
     'w-dvw',
-    'lucide-[a-z-]+?',
+    'lucide-[a-z-]+',
     '--tw-[a-z-]+',
     'transition-colors',
+    'srgb',
 ]
 
 [[overrides]] # SVG
@@ -427,6 +436,7 @@ paths = [ '**/Dockerfile' ]
 extra_ignore_patterns = [
     'gcr\.io/distroless',
     'USER nonroot:nonroot',
+    '.npmrc',
 ]
 
 [[overrides]]
@@ -583,3 +593,74 @@ extra_ignore_patterns = [
 [[overrides]]
 paths = [ 'src/routes/(app)/documents/upload/helpers.ts' ]
 extra_ignore_patterns = [ 'public/kravprofiler/' ] # MinIO path
+
+[[overrides]]
+paths = [ 'src/routes/(app)/documents/Meeting.svelte' ]
+extra_words = [
+    'Kallelse',
+    'Föredragningslista',
+    'Foredragningslista',
+    'Protokoll',
+]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/documents/+page.server.ts' ]
+extra_words = [ 'Möte' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/committees/LinksDialog.svelte' ]
+extra_words = [ 'Rubrik' ]
+
+[[overrides]]
+paths = [ 'src/lib/search/syncDocuments.ts' ]
+extra_ignore_patterns = [ 'sektionögalud' ]
+extra_words = [
+    'styrdokument',
+    'policys',
+    'reglemente',
+    'stadgar',
+    'riktlinjer',
+]
+
+[[overrides]]
+paths = [ 'src/lib/utils/committee.ts' ]
+extra_words = [
+    'utskottet',
+    'kommittén',
+    'mästeriet',
+    'rådet',
+]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/documents/upload/+page.svelte' ]
+extra_words = [ 'Möte' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/contact/+page.svelte' ]
+extra_words = [ 'utskottet' ]
+
+[[overrides]]
+paths = [ 'src/lib/utils/slugify.test.ts' ]
+extra_words = [ 'strasse' ]
+
+[[overrides]]
+paths = [ 'src/lib/server/wiki/wiki.ts' ]
+extra_ignore_patterns = [
+    'pageid',
+    'revid',
+    'parsedcomment',
+    'rccontinue',
+    'lgname',
+    'lgpassword',
+    'lgtoken',
+    'lgtoken',
+    'rcprop',
+    'rcnamespace',
+    'rclimit',
+    'recentchanges',
+    'exlimit',
+    'exintro',
+    'exchars',
+    'pageids',
+    'explaintext',
+]

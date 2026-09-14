@@ -47,23 +47,19 @@
           searchParams.set("year", e.currentTarget.value);
           return `?${searchParams.toString()}`;
         }}
-        class="h-[inherit]! w-full py-2!"
-        >{programs[program]}</Select.Trigger
+        class="h-[inherit]! w-full py-2!">{programs[program]}</Select.Trigger
       >
       <Select.Content>
         {#each Object.entries(programs) as classProgram (classProgram[0])}
           <a href={getProgramLink(classProgram[0])}
-            ><Select.Item value={classProgram[0]}
-              >{classProgram[1]}</Select.Item
+            ><Select.Item value={classProgram[0]}>{classProgram[1]}</Select.Item
             ></a
           >
         {/each}
       </Select.Content>
     </Select.Root>
 
-    <YearSelector
-      min={new Date().getFullYear() - programYears[program] + 1}
-    />
+    <YearSelector min={new Date().getFullYear() - programYears[program] + 1} />
   </div>
 
   <div class="my-4 flex items-center gap-4">

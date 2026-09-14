@@ -1396,5 +1396,7 @@
   "shop_tickets_anonymousUser": "Anonym användare",
   "shop_tickets_doesNotExist": "Finns inte",
   "shop_tickets_unknown": "Okänt",
-  "footer_quote": "Er linje,<br class=\"hidden md:inline\" /> Er färg!"
+  "footer_quote": "Er linje,<br class=\"hidden md:inline\" /> Er färg!",
+  "shop_customerDescription": "D-sek kund: {id}",
+  "show_unknownId": "okänt ID"
 }

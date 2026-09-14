@@ -130,9 +130,7 @@
               >
               <Select.Content>
                 {#each programs as program (program.id)}
-                  <Select.Item value={program.id}
-                    >{program.name}</Select.Item
-                  >
+                  <Select.Item value={program.id}>{program.name}</Select.Item>
                 {/each}
               </Select.Content>
             </Select.Root>
