@@ -14,7 +14,7 @@ export const inventoryLoadFunction = async ({
 
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) {
-    error(401, m.inventory_errors_unauthorised());
+    error(401, m.inventory_errors_unauthorized());
   }
   depends("consumables");
 
@@ -49,7 +49,7 @@ export const inventoryLoadFunction = async ({
     },
   });
   if (!memberId && consumables) {
-    throw error(403, m.inventory_errors_unauthorised());
+    throw error(403, m.inventory_errors_unauthorized());
   }
   authorize(apiNames.WEBSHOP.PURCHASE, user);
   const consumablesWithMoreInfo: ConsumableWithMoreInfo[] = consumables.map(
@@ -81,7 +81,7 @@ export const inventoryItemLoadFunction = async ({
 
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) {
-    error(401, m.inventory_errors_unauthorised());
+    error(401, m.inventory_errors_unauthorized());
   }
   const userId = dbIdentification(
     memberId

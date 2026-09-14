@@ -32,7 +32,7 @@ const generateCSV = (
   consumables: ConsumableRowData[],
 ): string => {
   let output = "";
-  let headers = messages.shop_tickets_csvHeader();
+  let headers: string = messages.shop_tickets_csvHeader();
   for (const question of ticket.shoppable.questions) {
     headers += `,${question.title.replace(",", " ")}`;
   }

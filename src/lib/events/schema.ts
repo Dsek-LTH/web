@@ -30,7 +30,7 @@ export const eventSchema = z
       .nullable()
       .optional()
       .refine((file) => !file || isFileImage(file), {
-        message: m.events_must_be_an_image(),
+        message: m.file_upload_must_be_an_image(),
       }),
 
     tags: z
