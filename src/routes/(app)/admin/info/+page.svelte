@@ -30,7 +30,7 @@
 
 <div class="mx-auto w-full max-w-4xl px-4 py-8">
   <Card class="border-border shadow-xl">
-    <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
+    <CardHeader class="border-border border-b-[1px] pb-6">
       <CardTitle class="text-3xl font-bold"
         >{m.admin_info_createNewInfoPage()}</CardTitle
       >
