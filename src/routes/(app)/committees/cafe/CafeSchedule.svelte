@@ -13,6 +13,8 @@
   import dayjs from "dayjs";
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
+  import isoWeeksInYear from "dayjs/plugin/isoWeeksInYear";
+  import isLeapYear from "dayjs/plugin/isLeapYear";
 
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
@@ -34,6 +36,8 @@
   import { getLocale } from "$paraglide/runtime";
 
   dayjs.extend(weekOfYear);
+  dayjs.extend(isoWeeksInYear);
+  dayjs.extend(isLeapYear);
   dayjs.extend(weekYear);
 
   const getWeekdayName = (weekday: number): string => {
@@ -131,7 +135,7 @@
 
   const now = dayjs();
   const year = now.year();
-  const weeksInYear = dayjs(`${year}-12-31`).week();
+  const weeksInYear = dayjs().isoWeeksInYear();
   const isDayManager = $derived(isAuthorized(apiNames.CAFE.DAY_MANAGER, user));
   const canEditWorkers = $derived(
     isAuthorized(apiNames.CAFE.EDIT_WORKERS, user),
