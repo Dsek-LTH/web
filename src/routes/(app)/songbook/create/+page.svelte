@@ -8,13 +8,14 @@
     CardDescription,
   } from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import { Textarea } from "$lib/components/ui/textarea/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import * as m from "$paraglide/messages.js";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import Plus from "@lucide/svelte/icons/plus";
   import { Spinner } from "$lib/components/ui/spinner";
+
+  import SongSearch from "../SongSearch.svelte";
 
   let { data } = $props();
 
@@ -33,9 +34,10 @@
   <Card class="border-border shadow-xl">
     <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
       <CardTitle class="text-3xl font-bold"
-        >{m.songbook_createNewSong()}</CardTitle
+        >{m.songbook_addSongToSongbook()}</CardTitle
       >
-      <CardDescription>{m.songbook_hereYoullFind()}</CardDescription>
+      <CardDescription>{m.songbook_addSongToSongbookMoreInfo()}</CardDescription
+      >
     </CardHeader>
     <CardContent class="pt-6">
       <form
@@ -45,121 +47,63 @@
         class="flex flex-col gap-6"
       >
         <div class="flex flex-col gap-2">
-          <Label for="title" class="text-base font-medium"
-            >{m.songbook_title()}</Label
-          >
-          <Input
-            id="title"
-            name="title"
-            bind:value={$form.title}
-            placeholder={m.songbook_title()}
-            required
-            class={{
-              "border-destructive focus-visible:ring-destructive":
-                $errors.title,
-            }}
-          />
-          {#if $errors.title}
-            <p class="text-destructive text-sm font-medium">{$errors.title}</p>
+          <Label for="songId" class="text-base font-medium">
+            {m.songbook_addSongToSongbookReferencedSong()}
+          </Label>
+
+          <input type="hidden" name="songId" bind:value={$form.songId} />
+
+          <SongSearch bind:songId={$form.songId} />
+
+          {#if $errors.songId}
+            <p class="text-destructive text-sm font-medium">
+              {$errors.songId}
+            </p>
           {/if}
         </div>
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div class="flex flex-col gap-2">
-            <Label for="category" class="text-base font-medium"
-              >{m.songbook_category()}</Label
+            <Label for="page" class="text-base font-medium"
+              >{m.songbook_page()}</Label
             >
             <Input
-              id="category"
-              name="category"
-              list="category-options"
-              bind:value={$form.category}
-              placeholder={m.songbook_categoryExplanation()}
+              id="page"
+              name="page"
+              bind:value={$form.page}
+              placeholder={m.songbook_page_placeholder()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
-                  $errors.category,
+                  $errors.page,
               }}
             />
-            <datalist id="category-options">
-              {#each data.existingCategories as category (category)}
-                <option value={category}></option>
-              {/each}
-            </datalist>
-            {#if $errors.category}
+            {#if $errors.page}
               <p class="text-destructive text-sm font-medium">
-                {$errors.category}
+                {$errors.page}
               </p>
             {/if}
           </div>
 
           <div class="flex flex-col gap-2">
-            <Label for="melody" class="text-base font-medium"
-              >{m.songbook_melody()}</Label
+            <Label for="numberOnPage" class="text-base font-medium"
+              >{m.songbook_numberOnPage()}</Label
             >
             <Input
-              id="melody"
-              name="melody"
-              list="melody-options"
-              bind:value={$form.melody}
-              placeholder={m.songbook_melodyExplanation()}
+              id="numberOnPage"
+              name="numberOnPage"
+              bind:value={$form.numberOnPage}
+              placeholder={m.songbook_numberOnPagePlaceholder()}
               class={{
                 "border-destructive focus-visible:ring-destructive":
-                  $errors.melody,
+                  $errors.numberOnPage,
               }}
             />
-            <datalist id="melody-options">
-              {#each data.existingMelodies as melody (melody)}
-                <option value={melody}></option>
-              {/each}
-            </datalist>
-            {#if $errors.melody}
+            {#if $errors.numberOnPage}
               <p class="text-destructive text-sm font-medium">
-                {$errors.melody}
+                {$errors.numberOnPage}
               </p>
             {/if}
           </div>
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <Label for="video" class="text-base font-medium"
-            >{m.songbook_videoUrlLabel()}</Label
-          >
-          <Input
-            id="video"
-            name="video"
-            type="url"
-            bind:value={$form.video}
-            placeholder={m.songbook_videoPlaceholder()}
-            class={{
-              "border-destructive focus-visible:ring-destructive":
-                $errors.video,
-            }}
-          />
-          {#if $errors.video}
-            <p class="text-destructive text-sm font-medium">{$errors.video}</p>
-          {/if}
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <Label for="lyrics" class="text-base font-medium"
-            >{m.songbook_lyrics()}</Label
-          >
-          <Textarea
-            id="lyrics"
-            name="lyrics"
-            rows={12}
-            bind:value={$form.lyrics}
-            placeholder={m.songbook_lyrics()}
-            required
-            class={[
-              "font-serif text-base leading-relaxed",
-              $errors.lyrics &&
-                "border-destructive focus-visible:ring-destructive",
-            ]}
-          />
-          {#if $errors.lyrics}
-            <p class="text-destructive text-sm font-medium">{$errors.lyrics}</p>
-          {/if}
         </div>
 
         <div class="mt-4 flex items-center justify-end gap-4">
