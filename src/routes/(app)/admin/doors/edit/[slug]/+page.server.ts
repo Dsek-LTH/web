@@ -6,6 +6,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { error, fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { programmes } from "$lib/utils/programmes";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -83,13 +84,15 @@ const createSchema = z
           where: { studentId: data.subject },
         });
       } else {
-        // check if role exists
-        return (
-          data.subject === "*" ||
-          (await authorizedPrismaClient.position.findFirst({
-            where: { id: { startsWith: `${data.subject}%` } },
-          }))
-        );
+        // check if role exists: either a virtual role not backed by any
+        // Position (everyone/signed-in/nolla/board, or a programme+year
+        // combo), or a real Position id (or dot-prefix of one)
+        const virtualRoles = ["*", "_", "nolla", "dsek.styr"];
+        if (virtualRoles.includes(data.subject)) return true;
+        if (programmes.some((p) => data.subject.startsWith(p.id))) return true;
+        return await authorizedPrismaClient.position.findFirst({
+          where: { id: { startsWith: data.subject } },
+        });
       }
     },
     { message: m.admin_doors_memberOrRoleNotFound(), path: ["subject"] },

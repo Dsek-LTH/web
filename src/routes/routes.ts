@@ -148,6 +148,13 @@ export const getRoutes = (): Route[] =>
           path: "/documents/governing",
           icon: ScrollText,
         },
+        {
+          title: m.documents_requirementProfiles(),
+          description: m.documents_requirementProfilesBlurb(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/requirements",
+        },
       ],
     },
     {
@@ -183,13 +190,6 @@ export const getRoutes = (): Route[] =>
       list: true,
       children: [
         {
-          title: m.tickets(),
-          accessRequired: null,
-          appBehaviour: "none",
-          description: m.nav_tickets_desc(),
-          path: "/shop/tickets",
-        },
-        {
           title: m.nav_booking(),
           accessRequired: null,
           appBehaviour: "none",
@@ -204,13 +204,6 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
-        },
-        {
-          title: m.stocklist(),
-          accessRequired: "drinkitem:read",
-          appBehaviour: "none",
-          description: m.nav_stocklist_desc(),
-          path: "/admin/stocklist",
         },
       ],
     },
@@ -268,12 +261,6 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           icon: Info,
-        },
-        {
-          title: m.qr_code(),
-          path: "/admin/qr",
-          accessRequired: null,
-          appBehaviour: "none",
         },
       ],
     },
