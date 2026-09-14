@@ -23,10 +23,8 @@
   <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
 
   {#if data.isApp}
-    {#await data.notificationsPromise then notifications}
-      <AppUnreadNotificationHandler
-        notificationCount={notifications?.filter((n) => !n.readAt).length}
-      />
+    {#await data.unreadCountPromise then unreadCount}
+      <AppUnreadNotificationHandler notificationCount={unreadCount} />
     {/await}
     <AppNotificationTokenHandler />
   {/if}
