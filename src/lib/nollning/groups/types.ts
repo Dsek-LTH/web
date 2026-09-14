@@ -28,9 +28,9 @@ export const phadderMandateFilter = (
     },
   ],
   startDate: {
-    lte: new Date(year, 9, 1), // 1st of october is kind of end of nollning each year
+    lte: new Date(year, 9, 1), // 1st of october is kind of end of the n0llning each year
   },
   endDate: {
-    gte: new Date(year, 7, 1), // 1st of august is a bit before the nollning but I would say that works
+    gte: new Date(year, 7, 1), // 1st of august is a bit before the n0llning but I would say that works
   },
 });

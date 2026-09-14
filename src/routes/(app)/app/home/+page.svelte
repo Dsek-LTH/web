@@ -46,7 +46,9 @@
         </div>{:else}
         <div class="flex flex-col gap-4">
           <h2>
-            Välkommen till &shy;<span class="break-keep">D-sektionen!</span>
+            {m.home_welcome_to()} &shy;<span class="break-keep"
+              >{m.the_d_guild()}!</span
+            >
           </h2>
           <Button
             aria-label="sign in"

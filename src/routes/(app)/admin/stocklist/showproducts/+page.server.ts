@@ -5,6 +5,7 @@ import { fail, message, superValidate } from "sveltekit-superforms";
 import { DrinkGroup } from "@prisma/client";
 import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import * as messages from "$paraglide/messages";
 
 const zDrinkGroup = z.nativeEnum(DrinkGroup);
 
@@ -46,10 +47,14 @@ export const actions: Actions = {
         where: { id: form.data.id },
       });
     } catch {
-      return message(form, { message: `Produkt finns i lager` });
+      return message(form, {
+        message: messages.admin_stocklist_product_in_stock(),
+      });
     }
 
-    return message(form, { message: `Produkt borttagen` });
+    return message(form, {
+      message: messages.admin_stocklist_product_removed(),
+    });
   },
 
   updateEntry: async (event) => {
@@ -69,6 +74,8 @@ export const actions: Actions = {
         bottleFullWeight: form.data.bottleFullWeight,
       },
     });
-    return message(form, { message: `Produkt uppdaterad` });
+    return message(form, {
+      message: messages.admin_stocklist_product_updated(),
+    });
   },
 };

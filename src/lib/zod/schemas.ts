@@ -3,6 +3,7 @@ import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import { QuestionType } from "$lib/utils/shop/types";
 import dayjs from "dayjs";
+import * as messages from "$paraglide/messages";
 
 export const emptySchema = z.object({}); // for forms without a body
 export type EmptySchema = Infer<typeof emptySchema>;
@@ -25,7 +26,7 @@ export const memberSchema = z.object({
     .string()
     .nullable()
     .refine((p) => p == null || programmes.some((c) => c.id === p), {
-      message: "Ogiltigt program",
+      message: messages.invalid_programme(),
     }),
   graduationYear: z.number().min(1962).nullable().default(null),
   foodPreference: z.string().nullable().default(null),

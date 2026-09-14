@@ -6,6 +6,7 @@ import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { authorise } from "$lib/utils/authorization";
 import dayjs from "dayjs";
+import * as messages from "$paraglide/messages";
 
 export const load: PageServerLoad = async (event) => {
   const { prisma } = event.locals;
@@ -46,7 +47,9 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
 
     if (form.data.quantityDelta === 0) {
-      return message(form, { message: "Får inte vara 0" });
+      return message(form, {
+        message: messages.admin_stocklist_may_not_be_zero(),
+      });
     }
 
     await prisma.drinkItemBatch.create({
@@ -70,7 +73,7 @@ export const actions: Actions = {
         },
       },
     });
-    return message(form, { message: "Antal inskrivet" });
+    return message(form, { message: messages.admin_stocklist_booked_in() });
   },
 
   createOutBatch: async (event) => {
@@ -80,7 +83,9 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
 
     if (form.data.quantityDelta === 0) {
-      return message(form, { message: "Får inte vara 0" });
+      return message(form, {
+        message: messages.admin_stocklist_may_not_be_zero(),
+      });
     }
 
     const result = await prisma.drinkItem.updateMany({
@@ -99,7 +104,9 @@ export const actions: Actions = {
     });
 
     if (result.count === 0) {
-      return message(form, { message: "Finns inte tillräckligt i lager" });
+      return message(form, {
+        message: messages.admin_stocklist_not_enough_in_stock(),
+      });
     }
 
     await prisma.drinkItemBatch.create({
@@ -112,6 +119,6 @@ export const actions: Actions = {
       },
     });
 
-    return message(form, { message: "Antal utskrivet" });
+    return message(form, { message: messages.admin_stocklist_booked_out() });
   },
 };

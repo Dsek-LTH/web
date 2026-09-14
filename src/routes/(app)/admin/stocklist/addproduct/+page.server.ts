@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { authorise } from "$lib/utils/authorization";
+import * as messages from "$paraglide/messages";
 
 const zDrinkGroup = z.nativeEnum(DrinkGroup);
 const zDrinkQuantityType = z.nativeEnum(DrinkQuantityType);
@@ -46,6 +47,8 @@ export const actions: Actions = {
       },
     });
 
-    return message(form, { message: "Produkt tillagd" });
+    return message(form, {
+      message: messages.admin_stocklist_product_created(),
+    });
   },
 };

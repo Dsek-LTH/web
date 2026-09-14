@@ -1,376 +1,351 @@
+import * as messages from "$paraglide/messages";
+
 export const COST_CENTRES = [
   {
     name: "AKTU01",
-    description: "Funktionärer",
-    example: "Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_aktu_volunteer_description(),
+    example: messages.cost_centre_aktu_volunteer_example(),
     signer: "dsek.aktu.mastare",
     committee: "aktu",
   },
   {
     name: "AKTU03",
-    description: "UtEDischot",
-    example:
-      "Inköp av varor från Sverige, Arrangemangskostnader, Trycksaker, Övriga externa tjänster, Vakter, Tillståndsavgifter, Tack, Mötesdricka, Vinstdelning",
+    description: messages.cost_centre_aktu_utedischot_description(),
+    example: messages.cost_centre_aktu_utedischot_example(),
     signer: "dsek.aktu.mastare",
     committee: "aktu",
   },
   {
     name: "AKTU04",
-    description: "Externa evenemang",
-    example: "Inköp av varor från Sverige, Arrangemangskostnader",
+    description: messages.cost_centre_aktu_external_events_description(),
+    example: messages.cost_centre_aktu_external_events_example(),
     signer: "dsek.aktu.mastare",
     committee: "aktu",
   },
   {
     name: "AKTU07",
-    description: "Evenemang",
-    example:
-      "Arrangemangskostnader, Kostnader för frilufts- och idrottsarrangemang, Subventioner",
+    description: messages.cost_centre_aktu_events_description(),
+    example: messages.cost_centre_aktu_events_example(),
     signer: "dsek.aktu.mastare",
     committee: "aktu",
   },
   {
     name: "AKTU08",
-    description: "Inventarie",
-    example: "Förbrukningsinventarie",
+    description: messages.cost_centre_aktu_inventory_description(),
+    example: messages.cost_centre_aktu_inventory_example(),
     signer: "dsek.aktu.mastare",
     committee: "aktu",
   },
   {
     name: "CAFE01",
-    description: "Funktionärer",
-    example: "Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_cafe_volunteer_description(),
+    example: messages.cost_centre_cafe_volunteer_example(),
     signer: "dsek.cafe.mastare",
     committee: "cafe",
   },
   {
     name: "CAFE02",
-    description: "D-café",
-    example: "Livsmedel till försäljning",
+    description: messages.cost_centre_cafe_description(),
+    example: messages.cost_centre_cafe_example(),
     signer: "dsek.cafe.mastare",
     committee: "cafe",
   },
   {
     name: "CAFE04",
-    description: "Övriga evenemang",
-    example: "Arrangemangskostnader",
+    description: messages.cost_centre_cafe_events_description(),
+    example: messages.cost_centre_cafe_events_example(),
     signer: "dsek.cafe.mastare",
     committee: "cafe",
   },
   {
     name: "CPU01",
-    description: "Allmänt",
-    example:
-      "Mötesfika/Jobbarmat, Arrangemangskostnader, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_cpu_description(),
+    example: messages.cost_centre_cpu_example(),
     signer: "dsek.cpu.mastare",
     committee: "cpu",
   },
   {
     name: "FRA01",
-    description: "Allmänt",
-    example:
-      "Mötesfika/Jobbarmat, Arrangemangskostnader, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_framtid_description(),
+    example: messages.cost_centre_framtid_example(),
     signer: "dsek.fram.ordf",
     committee: "fram",
   },
   {
     name: "INFU01",
-    description: "Allmänt",
-    example:
-      "Jobbarmat/Mötesfika, Programvaror, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_infu_description(),
+    example: messages.cost_centre_infu_example(),
     signer: "dsek.infu.mastare",
     committee: "infu",
   },
   {
     name: "INFU03",
-    description: "D-shopen",
-    example: "Inköp av varor från Sverige, Programvaror",
+    description: messages.cost_centre_shop_description(),
+    example: messages.cost_centre_shop_example(),
     signer: "dsek.infu.mastare",
     committee: "infu",
   },
   {
     name: "KAL01",
-    description: "Funktionärer",
-    example:
-      "Jobbarmat/Mötesfika, Arrangemangskostnader, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_källar_volunteers_description(),
+    example: messages.cost_centre_källar_volunteers_example(),
     signer: "dsek.km.mastare",
     committee: "km",
   },
 
   {
     name: "KAL02",
-    description: "rootmästeriet (kommer nog flyttas)",
-    example:
-      "Jobbarmat/Mötesfika, Arrangemangskostnader, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_root_description(),
+    example: messages.cost_centre_root_example(),
     signer: "dsek.km.mastare",
     committee: "km",
   },
 
   {
     name: "KAL04",
-    description: "Inventarie",
-    example: "Inköp av varor från Sverige",
+    description: messages.cost_centre_källar_inventory_description(),
+    example: messages.cost_centre_källar_inventory_example(),
     signer: "dsek.km.mastare",
     committee: "km",
   },
   {
     name: "MED01",
-    description: "Allmänt",
-    example:
-      "Inköp av varor från Sverige, Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_medaljelele_description(),
+    example: messages.cost_centre_medaljelele_example(),
     signer: "dsek.overmarskalk",
     committee: "medalj",
   },
   {
     name: "NARU01",
-    description: "Funktionärer",
-    example:
-      "Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial, Redovisningstjänster, Tack",
+    description: messages.cost_centre_näru_volunteers_description(),
+    example: messages.cost_centre_näru_volunteers_example(),
     signer: "dsek.nari.mastare",
     committee: "naru",
   },
   {
     name: "NARU02",
-    description: "Spons",
-    example:
-      "Arrangemangskostnader, Sponsmaterial, Erhållna rabatter, Lokalhyra",
+    description: messages.cost_centre_näru_sponsorship_description(),
+    example: messages.cost_centre_näru_sponsorship_example(),
     signer: "dsek.nari.mastare",
     committee: "naru",
   },
   {
     name: "NARU03",
-    description: "Alumnigruppen",
-    example: "Jobbarmat/Mötesfika, Arrangemangskostnader",
+    description: messages.cost_centre_alumni_group_description(),
+    example: messages.cost_centre_alumni_group_example(),
     signer: "dsek.nari.mastare",
     committee: "naru",
   },
   {
     name: "NOLL01",
-    description: "Funktionärer",
-    example:
-      "Jobbarmat/Mötesfika, Arrangemangskostnader, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_n0llu_volunteers_description(),
+    example: messages.cost_centre_n0llu_volunteers_example(),
     signer: "dsek.noll.stab.oph",
     committee: "nollu",
   },
   {
     name: "NOLL02",
-    description: "Material",
-    example:
-      "Uppdragsmaterial, Sponsmaterial, Arbetskläder och skyddsmaterial, Trycksaker",
+    description: messages.cost_centre_n0llu_materials_description(),
+    example: messages.cost_centre_n0llu_materials_example(),
     signer: "dsek.noll.stab.oph",
     committee: "nollu",
   },
   {
     name: "NOLL03",
-    description: "Pepparna",
-    example: "Arbetskläder och skyddsmaterial, Arrangemangskostnader",
+    description: messages.cost_centre_peppare_description(),
+    example: messages.cost_centre_peppare_example(),
     signer: "dsek.noll.stab.oph",
     committee: "nollu",
   },
   {
     name: "NOLL04",
-    description: "Evenemang",
-    example: "Arrangemangskostnader, Erhållna rabatter, Biljetter",
+    description: messages.cost_centre_n0llu_events_description(),
+    example: messages.cost_centre_n0llu_events_example(),
     signer: "dsek.noll.stab.oph",
     committee: "nollu",
   },
   {
     name: "SEKT01",
-    description: "Funktionärer",
-    example:
-      "Utlottningar och tävlingar, Reklam och PR, Utbildning, Rekrytering, Subventionering",
+    description: messages.cost_centre_guild_volunteers_description(),
+    example: messages.cost_centre_guild_volunteers_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "SEKT02",
-    description: "Sektionsmöte",
-    example:
-      "Inköp av varor från Sverige, Bolagsstämma/års- eller föreningsstämma",
+    description: messages.cost_centre_guild_meetings_description(),
+    example: messages.cost_centre_guild_meetings_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "SEKT03",
-    description: "Tack",
-    example:
-      "Utlottningar och tävlingar, Reklam och PR, Utbildning, Rekrytering, Subventionering",
+    description: messages.cost_centre_guild_thanksgiving_description(),
+    example: messages.cost_centre_guild_thanksgiving_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "SEKT05",
-    description: "Gemensamma kostnader",
-    example:
-      "Förbrukningsmaterial, Underhåll och tvätt av arbetskläder, Drivmedel för personbilar, Försäkring och skatt för personbilar, Övriga personbilskostnader, Representation, Trycksaker",
+    description: messages.cost_centre_guild_common_description(),
+    example: messages.cost_centre_guild_common_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "SEKT06",
-    description: "Administration",
-    example: "Myndighetsavgifter",
+    description: messages.cost_centre_guild_administration_description(),
+    example: messages.cost_centre_guild_administration_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "SEKT07",
-    description: "Jobbardricka",
-    example: "Kaffe, te, mjölk och choklad, Mötesdricka",
+    description: messages.cost_centre_guild_beverage_description(),
+    example: messages.cost_centre_guild_beverage_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "SEKT08",
-    description: "Fonder",
-    example: "Avsättning t. fonder",
+    description: messages.cost_centre_guild_funds_description(),
+    example: messages.cost_centre_guild_funds_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "ALKO",
-    description: "Alkoholinköp",
-    example: "Alkohol till försäljning, ej till tack (glöm inte s1-s4)",
+    description: messages.cost_centre_alcohol_description(),
+    example: messages.cost_centre_alcohol_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX01",
-    description: "Funktionärer",
-    example: "Mötesmat, arbetskläder, tack",
+    description: messages.cost_centre_sexet_volunteer_description(),
+    example: messages.cost_centre_sexet_volunteer_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX02",
-    description: "Sittningar",
-    example: "Mat, dekorationer, alkoholfria ingredienser",
+    description: messages.cost_centre_sexet_sittings_description(),
+    example: messages.cost_centre_sexet_sittings_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX03",
-    description: "Pubar",
-    example:
-      "Livsmedel till försäljning, arrangemangskostnader, myndighetsavgifter",
+    description: messages.cost_centre_sexet_pubs_description(),
+    example: messages.cost_centre_sexet_pubs_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX04",
-    description: "N0llegasque",
-    example:
-      "Livsmedel till försäljning, arrangemangskostnader, myndighetsavgifter, övriga externa tjänster",
+    description: messages.cost_centre_sexet_n0llegasque_description(),
+    example: messages.cost_centre_sexet_n0llegasque_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX05",
-    description: "Skiphtesgasque",
-    example:
-      "Livsmedel till försäljning, arrangemangskostnader, myndighetsavgifter",
+    description: messages.cost_centre_sexet_skiphtesgasque_description(),
+    example: messages.cost_centre_sexet_skiphtesgasque_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX06",
-    description: "Företagsevenemang",
-    example:
-      "Livsmedel till försäljning, arrangemangskostnader, myndighetsavgifter",
+    description: messages.cost_centre_sexet_company_events_description(),
+    example: messages.cost_centre_sexet_company_events_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SEX09",
-    description: "UtEDischot",
-    example: "Livsmedel till försäljning, vinstdelning",
+    description: messages.cost_centre_sexet_utedischot_description(),
+    example: messages.cost_centre_sexet_utedischot_example(),
     signer: "dsek.sex.mastare",
     committee: "sexm",
   },
   {
     name: "SKT01",
-    description: "Funktionärer",
-    example: "Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_skatt_volunteers_description(),
+    example: messages.cost_centre_skatt_volunteers_example(),
     signer: "dsek.skattm.mastare",
     committee: "skattm",
   },
   {
     name: "SKT02",
-    description: "Avgifter",
-    example:
-      "Övriga kostnader, Post, IT-tjänster, Bankkostnader, Redovisningstjänster, Dröjsmålsräntor för leverantörsskulder",
+    description: messages.cost_centre_skatt_other_description(),
+    example: messages.cost_centre_skatt_other_example(),
     signer: "dsek.skattm.mastare",
     committee: "skattm",
   },
   {
     name: "SRD01",
-    description: "Funktionärer",
-    example:
-      "Jobbarmat/Mötesfika, Utlottningar och tävlingar, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_srd_volunteers_description(),
+    example: messages.cost_centre_srd_volunteers_example(),
     signer: "dsek.srd.ordf",
     committee: "srd",
   },
   {
     name: "SRD02",
-    description: "Aktiviteter",
-    example: "Arrangemangskostnader, Utlottningar, priser och tävlingar",
+    description: messages.cost_centre_srd_events_description(),
+    example: messages.cost_centre_srd_events_example(),
     signer: "dsek.srd.ordf",
     committee: "srd",
   },
   {
     name: "STYR01",
-    description: "Funktionärer",
-    example:
-      "Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial , Representation, Tack",
+    description: messages.cost_centre_board_volunteers_description(),
+    example: messages.cost_centre_board_volunteers_example(),
     signer: "dsek.skattm.mastare",
     committee: "other",
   },
   {
     name: "TACK01",
-    description: "Sommar",
-    example:
-      "Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial, Tack, Förenat tack",
+    description: messages.cost_centre_thanksgiving_summer_description(),
+    example: messages.cost_centre_thanksgiving_summer_example(),
     signer: "dsek.tackm.mastare",
     committee: "tackm",
   },
   {
     name: "TACK02",
-    description: "Vinter",
-    example:
-      "Jobbarmat/Mötesfika, Arbetskläder och skyddsmaterial, Tack, Förenat tack",
+    description: messages.cost_centre_thanksgiving_winter_description(),
+    example: messages.cost_centre_thanksgiving_winter_example(),
     signer: "dsek.tackm.mastare",
     committee: "tackm",
   },
   {
     name: "TEK01",
-    description: "Funktionärer",
-    example: "Inköp av varor från Sverige, Mötesfika/Jobbarmat",
+    description: messages.cost_centre_delta_volunteers_description(),
+    example: messages.cost_centre_delta_volunteers_example(),
     // signer: "dsek.teknik.projgr.ansv", // we need to fix such that only Teknikfokusansvarig at the D-guild can sign
     signer: "dsek.nari.mastare",
     committee: "naru",
   },
   {
     name: "TEK02",
-    description: "Evenemang",
-    example:
-      "Inköp av varor från Sverige, Mötesfika/Jobbarmat, Arrangemangskostnader",
+    description: messages.cost_centre_delta_events_description(),
+    example: messages.cost_centre_delta_events_example(),
     // signer: "dsek.teknik.projgr.ansv", // we need to fix such that only Teknikfokusansvarig at the D-guild can sign
     signer: "dsek.nari.mastare",
     committee: "naru",
   },
   {
     name: "TEK03",
-    description: "Marknadsföring",
-    example:
-      "Saker till funktionärer, Utlottningar och tävlingar, Reklam och PR",
+    description: messages.cost_centre_delta_marketing_description(),
+    example: messages.cost_centre_delta_marketing_example(),
     // signer: "dsek.teknik.projgr.ansv", // we need to fix such that only Teknikfokusansvarig at the D-guild can sign
     signer: "dsek.nari.mastare",
     committee: "naru",
   },
   {
     name: "TEK04",
-    description: "Logistik",
-    example: "Arrangemangskostnader",
+    description: messages.cost_centre_delta_logistics_description(),
+    example: messages.cost_centre_delta_logistics_example(),
     // signer: "dsek.teknik.projgr.ansv", // we need to fix such that only Teknikfokusansvarig at the D-guild can sign
     signer: "dsek.nari.mastare",
     committee: "naru",
@@ -378,8 +353,8 @@ export const COST_CENTRES = [
 
   {
     name: "TEK05",
-    description: "Försäljning",
-    example: "Erhållna rabatter, Hyra av inventarier och verktyg, Vinstdelning",
+    description: messages.cost_centre_delta_sales_description(),
+    example: messages.cost_centre_delta_sales_example(),
     // signer: "dsek.teknik.projgr.ansv", // we need to fix such that only Teknikfokusansvarig at the D-guild can sign
     signer: "dsek.nari.mastare",
     committee: "naru",
@@ -387,9 +362,8 @@ export const COST_CENTRES = [
 
   {
     name: "TEK06",
-    description: "Höst",
-    example:
-      "Saker till funktionärer, Mötesfika/Jobbarmat, Arrangemangskostnader, Programvaror, Arbetskläder och skyddsmaterial, Reklam och PR, Redovisningstjänster, Tack, Mötesdricka",
+    description: messages.cost_centre_delta_autumn_description(),
+    example: messages.cost_centre_delta_autumn_example(),
     // signer: "dsek.teknik.projgr.ansv", // we need to fix such that only Teknikfokusansvarig at the D-guild can sign
     signer: "dsek.nari.mastare",
     committee: "naru",
@@ -397,16 +371,15 @@ export const COST_CENTRES = [
 
   {
     name: "TRI01",
-    description: "Allmänt",
-    example:
-      "Mötesfika/Jobbarmat, Arrangemangskostnader, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_well_being_description(),
+    example: messages.cost_centre_well_being_example(),
     signer: "dsek.triv.mastare",
     committee: "trivsel",
   },
   {
     name: "VAL01",
-    description: "Allmänt",
-    example: "Mötesfika/Jobbarmat, Arbetskläder och skyddsmaterial, Tack",
+    description: messages.cost_centre_valleb_description(),
+    example: messages.cost_centre_valleb_example(),
     signer: "dsek.val.ordf",
     committee: "valb",
   },
@@ -428,12 +401,12 @@ export const isValidCostCenter = (costCenterName: string) => {
 
 export const getCostCenter = (costCenterName: string) => {
   const center = COST_CENTER_MAP[costCenterName as CostCenterName];
-  if (!center) throw new Error("Cost center not found");
+  if (!center) throw new Error(messages.expenses_cost_centre_not_found());
   return center;
 };
 
 export const costCentres = [
-  { label: "Välj kostnadsställe", value: "" },
+  { label: messages.expenses_choose_cost_centre(), value: "" },
   ...COST_CENTRES.map((center) => ({
     label: `${center.name} - ${center.description} (${center.example})`,
     value: center.name,

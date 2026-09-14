@@ -26,6 +26,7 @@ ignore_patterns = [
     'YouTube',
     'getmeili',
     'StiL',
+    'UtEDischot',
 
     # Technical
     '&shy;', # Soft-hyphen
@@ -35,6 +36,7 @@ ignore_patterns = [
     '[A-Za-z0-9+/]{40,}', # Base64 data of 40+ characters.
     'MMM', # dayjs format fragment
     'DSEK',
+    'bit.ly/trivselkontakt',
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -48,9 +50,17 @@ ignore_patterns = [
     'dsekweb',
     'idet',
     'pdfs',
+    'aktu',
+    'utedischot',
+    'framtid',
+    'infu',
+    'källar',
+    'medaljelele',
+    'näru',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
+    '[Nn]0llu',
     '[Nn]0llegasque',
     '[Nn]0llegeneral',
     '[Nn]0llning',
@@ -75,6 +85,7 @@ words = [
     'decrypts',
     'durations',
     'enforceability',
+    'fika',
     'fulfill',
     'funsies',
     'gyckle',
@@ -113,6 +124,9 @@ words = [
     'wikia',
     'woggle',
     'öre',
+    'åäö',
+    'sponsorships',
+    'skiphtesgasque',
 
     # Names
     'Agardh', # Head Processor 2026
@@ -211,6 +225,9 @@ words = [
     'yrka',
     'yrkande',
     'Øverpeppare',
+    'Aktivitetsansvarig',
+    'skatt',
+    'valleb',
 ]
 
 [[overrides]] # Swedish
@@ -228,12 +245,14 @@ extra_ignore_patterns = [
     '[Nn]0llningens',
     '[Nn]0llningsevent',
     '[Nn]0llningsnyheter',
+    '[Nn]0llningsperiod',
     '[Nn]0llningspolicy',
     '[Nn]0llorna',
     'enl\.',
 
     # Names
     'StiL',
+    'UtEDischot',
 
     # Bugs in codebook.
     '\\nön',
@@ -247,17 +266,23 @@ words = [
     'datan',
     'filsökväg',
     'ickefungerande',
+    'inventarie', # Should this be "inventarium"?
+    'förbrukningsinventarie',
     'issue', # 'Issue' as in 'GitHub issue' is well established terminology.
     'jättestängd',
     'LAN',
     'länkförkortare',
     'mejlalias',
     'mejlaliaset',
+    "mötesfika",
     'mötesår',
     'notistext',
     'nyhetstaggar',
     'onajs',
     'ping',
+    'policykod',
+    'spons',
+    'sponsmaterial',
     'skojsigt',
     'spegatklädd',
     'spärrningsregler',
@@ -282,6 +307,7 @@ words = [
     'Stocklist',
 
     # Guild-specific words
+    'Alumnigruppen',
     'Cheps',
     'Delphivrål',
     'Gasque',
@@ -293,6 +319,7 @@ words = [
     'Ouvve',
     'ouvven',
     'peppare',
+    'pepparna',
     'Pepparnas',
     'phadder',
     'phaddergrupp',
@@ -300,9 +327,10 @@ words = [
     'phaddergrupper',
     'phaddrar',
     'phaddrarna',
-    'policykod',
+    'Rootmästeriet',
     'Råsa',
     'Sjungbok',
+    'Skiphtesgasque',
     'Slasque',
     'slasquen',
     'SRD',
@@ -531,3 +559,7 @@ paths = [ 'src/lib/server/shop/payments/**' ]
 extra_ignore_patterns = [
     'pi_[a-zA-Z0-9]+'
 ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/documents/upload/helpers.ts' ]
+extra_ignore_patterns = [ 'public/kravprofiler/' ] # MinIO path

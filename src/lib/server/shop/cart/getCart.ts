@@ -23,6 +23,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { purchaseForm } from "./types";
 import authorisedPrismaClient from "$lib/server/authorizedPrisma";
+import * as messages from "$paraglide/messages";
 
 export const getCart = async (
   prisma: ExtendedPrisma,
@@ -152,7 +153,7 @@ export const cartLoadFunction = async ({
 }: ServerLoadEvent) => {
   const { user, prisma } = locals;
   if (!user?.memberId && !user?.externalCode) {
-    throw error(401, "Du har ingen kundvagn.");
+    throw error(401, messages.shop_no_cart());
   }
   depends("cart");
   authorise(apiNames.WEBSHOP.PURCHASE, user);

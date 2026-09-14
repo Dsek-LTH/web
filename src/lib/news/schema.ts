@@ -2,6 +2,7 @@ import { isFileImage } from "$lib/files/utils";
 import { authorSchema, tagSchema } from "$lib/zod/schemas";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
+import * as messages from "$paraglide/messages";
 
 export const articleSchema = z.object({
   slug: z.string(),
@@ -23,9 +24,9 @@ export const articleSchema = z.object({
   publishTime: z.date().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z
-    .instanceof(File, { message: "Please upload a file." })
+    .instanceof(File, { message: messages.file_upload_please() })
     .refine((file) => !file || isFileImage(file), {
-      message: "Måste vara en bild",
+      message: messages.file_upload_must_be_an_image(),
     })
     .array()
     .default([]),

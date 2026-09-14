@@ -65,7 +65,9 @@ export const sendPing = async (
 
   await sendNotification({
     title: "PING!",
-    message: `${getFullName(sendingMember)} har pingat dig!`,
+    message: m.notifications_person_has_pinged_you({
+      person: getFullName(sendingMember),
+    }),
     type: NotificationType.PING,
     link: link,
     memberIds: [receivingMember.id],

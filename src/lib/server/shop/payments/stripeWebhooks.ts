@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import authorisedPrismaClient from "$lib/server/authorizedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
+import * as messages from "$paraglide/messages";
 
 export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
   const purchasedConsumables = await authorisedPrismaClient.$transaction(
@@ -59,11 +60,18 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
     await sendNotification({
       title:
         purchasedConsumables.length === 1
-          ? `${purchasedConsumables[0]?.shoppable.titleSv} har köpts`
-          : `${purchasedConsumables.length} produkter har köpts`,
-      message: `Ditt köp på ${intent.amount / 100} ${
-        intent.currency?.toUpperCase() ?? "SEK"
-      } har gått igenom`,
+          ? messages.shop_has_been_bought({
+              shoppable:
+                purchasedConsumables[0]?.shoppable.title ??
+                messages.shop_product(),
+            })
+          : messages.shop_products_have_been_bought({
+              count: purchasedConsumables.length,
+            }),
+      message: messages.shop_you_payment_has_gone_through({
+        amount: intent.amount / 100,
+        currency: intent.currency?.toUpperCase() ?? "SEK",
+      }),
       type: NotificationType.PAYMENT_STATUS,
       link: "/shop/inventory",
       // From a pure type perspective, there is a risk of this array being multiple memberIds, meaning they might both get "you have purchased 2 items" but only purchased one each
@@ -152,10 +160,13 @@ export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
 
   try {
     await sendNotification({
-      title: "Ditt köp har misslyckats",
-      message: `Ditt köp på ${intent.amount / 100} ${
-        intent.currency?.toUpperCase() ?? "SEK"
-      } har misslyckats. Anledning: ${intent.last_payment_error?.message}`,
+      title: messages.shop_your_transaction_has_failed(),
+      message: messages.shop_your_transaction_has_failed_detailed({
+        amount: intent.amount / 100,
+        currency: intent.currency?.toUpperCase() ?? "SEK",
+        reason:
+          intent.last_payment_error?.message ?? messages.shop_unknown_error(),
+      }),
       type: NotificationType.PAYMENT_STATUS,
       link: "/shop/cart",
       // From a pure type perspective, there is a risk of this array being multiple memberIds, meaning they might both get "you have purchased 2 items" but only purchased one each

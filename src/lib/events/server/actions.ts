@@ -164,7 +164,7 @@ export const createEvent: Action = async (event) => {
     redirect(
       `/events/${slugWithCount(slug, slugCount - events.length)}`, // first one created
       {
-        message: "Evenemang skapat",
+        message: m.events_created(),
         type: "success",
       },
       event,
@@ -188,7 +188,7 @@ export const createEvent: Action = async (event) => {
     throw redirect(
       `/events/${result.slug}`,
       {
-        message: "Evenemang skapat",
+        message: m.events_created(),
         type: "success",
       },
       event,

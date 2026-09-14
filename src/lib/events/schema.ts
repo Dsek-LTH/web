@@ -26,11 +26,11 @@ export const eventSchema = z
     imageUrl: z.string().optional().nullable(),
     // only for uploading files
     image: z
-      .instanceof(File, { message: "Please upload a file" })
+      .instanceof(File, { message: m.file_upload_please() })
       .nullable()
       .optional()
       .refine((file) => !file || isFileImage(file), {
-        message: "Måste vara en bild",
+        message: m.events_must_be_an_image(),
       }),
 
     tags: z

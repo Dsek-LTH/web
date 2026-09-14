@@ -37,19 +37,20 @@
           href="https://files.dsek.se/documents/public/2025/HTM2/Verksamhetsplan_2026.pdf"
           target="_blank"
           size="sm"
-          variant="rosa"><Pen /> Läs verksamhetsplanen <ArrowRight /></Button
+          variant="rosa"
+          ><Pen /> {m.board_read_plan_of_operations()} <ArrowRight /></Button
         >
         <Button
           href="https://files.dsek.se/documents/public/2026/S11/Likabehandlingsplan_styrelsen.pdf"
           target="_blank"
           size="sm"
           variant="lila"
-          ><Pen /> Styrelsens likabehandlingsplan <ArrowRight /></Button
+          ><Pen /> {m.board_equal_treatment_plan()} <ArrowRight /></Button
         >
       </div>
     </div>
   </div>
-  <h2 class="mt-12 mb-4">Styrelsemedlemmar</h2>
+  <h2 class="mt-12 mb-4">{m.board_members()}</h2>
   <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
     {#each data.boardPositions as boardMember (boardMember.position.id)}
       <div

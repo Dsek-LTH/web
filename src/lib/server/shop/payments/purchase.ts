@@ -73,10 +73,11 @@ const clearOutConsumablesAfterSellingOut = async (
         .filter(Boolean) as string[];
       return [
         {
-          title: "😢 Slutsålt:(",
-          message: `${
-            soldOutReservations[0]?.shoppable?.titleSv ?? "Biljett"
-          } har blivit slutsåld`,
+          title: m.shop_sold_out(),
+          message: m.shop_is_sold_out({
+            shoppable:
+              soldOutReservations[0]?.shoppable?.titleSv ?? m.shop_ticket(),
+          }),
           memberIds,
           type: NotificationType.PURCHASE_SOLD_OUT,
           link: "/shop/cart",

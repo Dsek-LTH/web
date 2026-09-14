@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import { authorise } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { redirect } from "@sveltejs/kit";
+import * as messages from "$paraglide/messages";
 
 const deleteSchema = z.object({
   id: z.string(),
@@ -95,7 +96,7 @@ export const actions: Actions = {
             : 0;
 
         if (newQuantity < 0 || newNrBottles < 0) {
-          throw new Error("Totalt antal blir negativt");
+          throw new Error(messages.admin_stocklist_treasury_negative_total());
         }
 
         await tx.drinkItemBatch.update({
@@ -115,10 +116,14 @@ export const actions: Actions = {
         });
       });
     } catch {
-      return message(form, { message: "Totalt antal blir negativt" });
+      return message(form, {
+        message: messages.admin_stocklist_treasury_negative_total(),
+      });
     }
 
-    return message(form, { message: `Logg uppdaterad` });
+    return message(form, {
+      message: messages.admin_stocklist_treasury_log_updated(),
+    });
   },
 
   deleteEntry: async (event) => {
@@ -145,7 +150,7 @@ export const actions: Actions = {
             : 0;
 
         if (newQuantity < 0 || newNrBottles < 0) {
-          throw new Error("Totalt antal blir negativt");
+          throw new Error(messages.admin_stocklist_treasury_negative_total());
         }
 
         await tx.drinkItem.update({
@@ -161,9 +166,13 @@ export const actions: Actions = {
         });
       });
     } catch {
-      return message(form, { message: "Totalt antal blir negativt" });
+      return message(form, {
+        message: messages.admin_stocklist_treasury_negative_total(),
+      });
     }
-    return message(form, { message: `Logg borttagen` });
+    return message(form, {
+      message: messages.admin_stocklist_treasury_log_removed(),
+    });
   },
 
   redirectDate: async (event) => {

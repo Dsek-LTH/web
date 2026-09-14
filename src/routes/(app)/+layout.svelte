@@ -5,9 +5,14 @@
   import Footer from "./Footer.svelte";
   import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
+  import * as messages from "$paraglide/messages";
 
   const { data, children } = $props();
 </script>
+
+<svelte:head>
+  <meta name="description" content={messages.meta_description()} />
+</svelte:head>
 
 <div
   class="flex min-h-screen flex-col"

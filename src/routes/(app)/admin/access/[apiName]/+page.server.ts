@@ -10,6 +10,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorise } from "$lib/utils/authorization";
+import * as messages from "$paraglide/messages";
 
 const createSchema = z
   .object({
@@ -63,7 +64,11 @@ export const actions: Actions = {
         where: { studentId: form.data.studentId },
       })) === 0
     ) {
-      return setError(form, "studentId", "Medlem hittades inte");
+      return setError(
+        form,
+        "studentId",
+        messages.admin_access_member_not_found(),
+      );
     }
     await prisma.accessPolicy.create({
       data: {
@@ -73,7 +78,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Access policy skapad",
+      message: messages.admin_access_policy_created(),
       type: "success",
     });
   },
@@ -87,7 +92,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Policy borttagen",
+      message: messages.admin_access_policy_deleted(),
       type: "success",
     });
   },
