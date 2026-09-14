@@ -25,6 +25,7 @@
   import type { ShlinkShortUrl } from "@shlinkio/shlink-js-sdk/api-contract";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
   import { debounce } from "$lib/utils/debounce";
 
   let { data } = $props();
@@ -36,16 +37,10 @@
     { value: "visits", label: m.admin_links_filter_sort_visits },
   ] as const;
 
-  // svelte-ignore state_referenced_locally
   let searchValue = $state(page.url.searchParams.get("search") ?? "");
-  // svelte-ignore state_referenced_locally
   let selectedTags = $state<string[]>(page.url.searchParams.getAll("tags"));
-  // svelte-ignore state_referenced_locally
   let orderBy = $state(page.url.searchParams.get("orderBy") ?? "dateCreated");
-  // svelte-ignore state_referenced_locally
-  let dir = $state(
-    page.url.searchParams.get("dir") === "ASC" ? "ASC" : "DESC",
-  );
+  let dir = $state(page.url.searchParams.get("dir") === "ASC" ? "ASC" : "DESC");
 
   let orderByLabel = $derived(
     ORDER_BY_OPTIONS.find((o) => o.value === orderBy)?.label() ?? orderBy,
@@ -57,7 +52,7 @@
     orderBy?: string;
     dir?: string;
   }) {
-    const params = new URLSearchParams(page.url.searchParams);
+    const params = new SvelteURLSearchParams(page.url.searchParams);
     params.delete("page");
     if (overrides.search !== undefined) {
       if (overrides.search) params.set("search", overrides.search);
@@ -67,8 +62,10 @@
       params.delete("tags");
       overrides.tags.forEach((tag) => params.append("tags", tag));
     }
-    if (overrides.orderBy !== undefined) params.set("orderBy", overrides.orderBy);
+    if (overrides.orderBy !== undefined)
+      params.set("orderBy", overrides.orderBy);
     if (overrides.dir !== undefined) params.set("dir", overrides.dir);
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
     goto(`?${params.toString()}`, { keepFocus: true, noScroll: true });
   }
 

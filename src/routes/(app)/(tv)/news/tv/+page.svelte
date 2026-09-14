@@ -31,7 +31,9 @@
       {/if}
     {/each}
     {#if data.articles.length > 1}
-      <div class="fixed bottom-8 left-1/2 flex w-full max-w-3xl -translate-x-1/2 gap-2 px-8">
+      <div
+        class="fixed bottom-8 left-1/2 flex w-full max-w-3xl -translate-x-1/2 gap-2 px-8"
+      >
         {#each data.articles as article, index (article.id)}
           <div class="bg-muted h-1 flex-1 overflow-hidden rounded-full">
             {#if index < current}
