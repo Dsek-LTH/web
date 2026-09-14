@@ -167,7 +167,7 @@
 
   let weeks = $derived(
     canSeeAllWeeks
-      ? Array.from(Array(weeksInYear).keys())
+      ? Array.from(Array(weeksInYear).keys()).map((n) => n + 1)
       : [week.week() - 1, week.week(), week.week() + 1],
   );
 
@@ -453,6 +453,7 @@
   <div class="inline-flex items-center gap-1">
     <Button
       variant="outline"
+      disabled={!weeks.includes(week.week() - 1)}
       size="icon"
       onclick={() => handleWeekChange((week.week() - 1).toString())}
       class="size-9 shrink-0"
@@ -486,6 +487,7 @@
     <Button
       variant="outline"
       size="icon"
+      disabled={!weeks.includes(week.week() + 1)}
       class="size-9 shrink-0"
       onclick={() => handleWeekChange((week.week() + 1).toString())}
     >

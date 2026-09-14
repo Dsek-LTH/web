@@ -18,7 +18,7 @@
   dayjs.extend(LocaleData);
 </script>
 
-<Card.Root>
+<Card.Root class="h-fit">
   <Card.Content>
     <h3 class="flex flex-row justify-between">
       {m.committees_cafe_openinghours()}
