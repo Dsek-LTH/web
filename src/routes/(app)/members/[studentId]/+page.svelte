@@ -7,7 +7,7 @@
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import PositionCard from "$lib/components/PositionCard.svelte";
-  import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
+  import ProgramBadge from "$lib/components/member/ProgramBadge.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
@@ -117,10 +117,10 @@
         <h3>{member.firstName} {member.lastName}</h3>
         <a
           href={member.classYear && member.classProgramme
-            ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
+            ? `/members?year=${member.classYear}&program=${member.classProgramme}`
             : "/members"}
         >
-          <ProgrammeBadge {member} />
+          <ProgramBadge {member} />
         </a>
       </div>
       {#if member.nickname}<p class="text-rosa-500 mt-0">
@@ -299,16 +299,15 @@
   </aside>
 
   <main class="bg-background border-r-[1px] pb-4 md:w-9/12">
-    <!-- <h4>Riddare</h4> -->
     <div class="border-b-[1px] pr-4 pl-8">
       <div class="flex flex-row items-end gap-1 pt-7">
         <h1>{member.firstName} {member.lastName}</h1>
         <a
           href={member.classYear && member.classProgramme
-            ? `/members?year=${member.classYear}&programme=${member.classProgramme}`
+            ? `/members?year=${member.classYear}&program=${member.classProgramme}`
             : "/members"}
         >
-          <ProgrammeBadge {member} class="mb-2 ml-1" size="lg" />
+          <ProgramBadge {member} class="mb-2 ml-1" size="lg" />
         </a>
         {#if canEdit}
           <Dialog.Root>

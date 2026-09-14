@@ -6,6 +6,7 @@ import { NotificationType } from "$lib/utils/notifications/types";
 import { fail, type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
+import * as messages from "$paraglide/messages";
 
 export const interestedAction =
   (isInterested: boolean, isGoing: boolean): Action =>
@@ -44,7 +45,9 @@ export const interestedAction =
       if (isGoing) {
         await sendNotification({
           title: `${event.title}`,
-          message: `${getFullName(member)} kommer på ditt event.`,
+          message: messages.events_is_interested_in_your_event({
+            name: getFullName(member),
+          }),
           type: NotificationType.EVENT_GOING,
           link: eventLink(event),
           memberIds: [event.author.id],
@@ -53,7 +56,9 @@ export const interestedAction =
       } else if (isInterested) {
         await sendNotification({
           title: `${event.title}`,
-          message: `${getFullName(member)} är intresserad av ditt event.`,
+          message: messages.events_is_interested_in_your_event({
+            name: getFullName(member),
+          }),
           type: NotificationType.EVENT_INTERESTED,
           link: eventLink(event),
           memberIds: [event.author.id],
@@ -64,10 +69,10 @@ export const interestedAction =
     return message(form, {
       message: `${
         isInterested
-          ? "intresserad av"
+          ? messages.events_is_interested_in()
           : isGoing
-            ? "kommer på"
-            : "kommer inte/är inte intresserad av"
+            ? messages.events_is_coming_to()
+            : messages.events_is_not_coming_to_nor_interested_in()
       } event`,
       type: "hidden",
     });

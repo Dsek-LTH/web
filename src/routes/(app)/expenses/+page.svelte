@@ -14,12 +14,11 @@
 <div
   class="bg-muted-background m-3 ml-0 flex flex-col gap-1 rounded-md border-[1px] p-3"
 >
-  <h4>Nytt utläggssystem</h4>
+  <h4>{m.expenses_new_system()}</h4>
   <span>
-    Utläggssystemet har flyttat till <a
-      class="link"
-      href="https://ekonomi.dsek.se">ekonomi.dsek.se</a
-    >.<br />Denna sida finns kvar för arkivering av gamla utlägg.
+    {m.expenses_system_has_moved_to()}
+    <a class="link" href="https://ekonomi.dsek.se">ekonomi.dsek.se</a>.<br
+    />{m.expenses_exists_for_archival()}
   </span>
 </div>
 

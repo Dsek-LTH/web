@@ -141,7 +141,7 @@ export const actions: Actions = {
     if (!cafeShift) {
       if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
         return message(form, {
-          message: m.cafe_error_only_daymanagers(),
+          message: m.cafe_error_only_day_managers(),
           type: "error",
         });
       }

@@ -1,8 +1,9 @@
-import { programmes } from "$lib/utils/programmes";
+import { programs } from "$lib/utils/programs";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import { QuestionType } from "$lib/utils/shop/types";
 import dayjs from "dayjs";
+import * as messages from "$paraglide/messages";
 
 export const emptySchema = z.object({}); // for forms without a body
 export type EmptySchema = Infer<typeof emptySchema>;
@@ -24,8 +25,8 @@ export const memberSchema = z.object({
   classProgramme: z
     .string()
     .nullable()
-    .refine((p) => p == null || programmes.some((c) => c.id === p), {
-      message: "Ogiltigt program",
+    .refine((p) => p == null || programs.some((c) => c.id === p), {
+      message: messages.invalid_program(),
     }),
   graduationYear: z.number().min(1962).nullable().default(null),
   foodPreference: z.string().nullable().default(null),
@@ -101,7 +102,7 @@ export const ticketSchema = z
           titleEn: z.string().nullable().optional(),
           description: z.string().default(""),
           descriptionEn: z.string().nullable().optional(),
-          // type can be any of "multple-choice" or "text"
+          // type can be any of "multiple-choice" or "text"
           type: z.nativeEnum(QuestionType).default(QuestionType.Text),
           forExternalsOnly: z.boolean().default(false),
           options: z

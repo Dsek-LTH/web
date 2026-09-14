@@ -54,8 +54,8 @@ export const getRoutes = (): Route[] =>
         getFileUrl("minio/files/public/photos/staben26_mobile.webp") ?? "",
       path: null,
       accessRequired: null,
-      pictureTitle: m.nollning_nav_picture_title(),
-      pictureDescription: m.nollning_nav_picture_subtitle(),
+      pictureTitle: m.n0llning_nav_picture_title(),
+      pictureDescription: m.n0llning_nav_picture_subtitle(),
       picturePath: "/nollning",
       appBehaviour: "none",
       children: [
@@ -68,8 +68,8 @@ export const getRoutes = (): Route[] =>
           icon: Send,
         },
         {
-          title: m.nav_nollning(),
-          description: m.nav_nollning_description(),
+          title: m.nav_n0llning(),
+          description: m.nav_n0llning_description(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/nolla",
@@ -288,7 +288,7 @@ export const getFooterRoutes = (): Route[] =>
       appBehaviour: "none",
       children: [
         {
-          title: m.nav_footer_nollning(),
+          title: m.nav_footer_n0llning(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/nollning",
@@ -306,7 +306,7 @@ export const getFooterRoutes = (): Route[] =>
           path: "https://lth.se",
         },
         {
-          title: m.nav_footer_lunduni(),
+          title: m.nav_footer_lund_university(),
           accessRequired: null,
           appBehaviour: "none",
           path: "https://lu.se",
@@ -325,20 +325,6 @@ export const getFooterRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/about",
         },
-        /* Here, an act of cowardice has been performed: I did not dare remove these completely in the event that someone wants to make these pages.
-        {
-          title: m.nav_trivia(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/trivia",
-        },
-        {
-          title: m.nav_studybank(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/study-bank",
-        },
-        */
         {
           title: m.nav_songbook(),
           accessRequired: null,
@@ -404,7 +390,7 @@ export const getFooterRoutes = (): Route[] =>
 export const appBottomNavRoutes = (routes: Route[]): Route[] =>
   [
     {
-      title: "Hem",
+      title: m.nav_home(),
       icon: "dsek-icon",
       path: "/app/home",
       accessRequired: null,
@@ -422,7 +408,7 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
     )
     .concat([
       {
-        title: "Konto",
+        title: m.nav_account(),
         // icon: "i-mdi-account-circle",
         path: "/app/account",
         accessRequired: null,

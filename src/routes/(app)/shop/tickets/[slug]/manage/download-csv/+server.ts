@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { loadTicketData } from "../loadTicketData";
 import type { ConsumableRowData } from "../types";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import * as messages from "$paraglide/messages";
 
 export const GET = async ({ locals, params }) => {
   const { user, prisma } = locals;
@@ -31,8 +32,7 @@ const generateCSV = (
   consumables: ConsumableRowData[],
 ): string => {
   let output = "";
-  let headers =
-    "Namn,StilID,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum,Payment Intent id";
+  let headers = messages.shop_tickets_csvHeader();
   for (const question of ticket.shoppable.questions) {
     headers += `,${question.title.replace(",", " ")}`;
   }
@@ -47,23 +47,23 @@ const generateCSV = (
     const member = consumable.member;
     const name = member
       ? `${member.firstName} ${member.lastName}`.replace(",", " ")
-      : "Anonym användare";
-    const stilId = member ? member.studentId : "Anonym användare";
+      : messages.shop_tickets_anonymousUser();
+    const stiLId = member ? member.studentId : messages.shop_tickets_anonymousUser();
     const email = member
-      ? "Finns inte"
-      : (consumable.externalCustomerEmail?.replace(",", " ") ?? "Finns inte");
+      ? messages.shop_tickets_doesNotExist()
+      : (consumable.externalCustomerEmail?.replace(",", " ") ?? messages.shop_tickets_doesNotExist());
     const paidAmount = consumable.priceAtPurchase
       ? priceFormatter
           .format(consumable.priceAtPurchase / 100)
           .replace(",", ".")
-      : "Okänt";
+      : messages.shop_tickets_unknown();
     const foodPreference = member
       ? (member?.foodPreference?.replace(",", " ") ?? "")
-      : "Anonym användare";
+      : messages.shop_tickets_anonymousUser();
     const phadderGroup = member
       ? (member?.phadderGroup?.name.replace(",", " ") ?? "")
-      : "Anonym användare";
-    let row = `${name},${stilId},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
+      : messages.shop_tickets_anonymousUser();
+    let row = `${name},${stiLId},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
       consumable.purchasedAt,
     ).format("YYYY-MM-DD HH:mm:ss")},${
       consumable.stripeIntentId?.replace(",", " ") ?? "N/A"

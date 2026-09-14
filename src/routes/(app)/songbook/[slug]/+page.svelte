@@ -24,7 +24,7 @@
   );
   const canWatchVideo = $derived(song.video && mayWatchVideos(data.user));
 
-  function getYoutubeEmbedUrl(url: string): string | null {
+  function getYouTubeEmbedUrl(url: string): string | null {
     if (!url) return null;
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -36,7 +36,7 @@
   }
 
   const youtubeEmbedUrl = $derived(
-    song.video ? getYoutubeEmbedUrl(song.video) : null,
+    song.video ? getYouTubeEmbedUrl(song.video) : null,
   );
 </script>
 
@@ -120,7 +120,7 @@
             {#if youtubeEmbedUrl}
               <div class="aspect-video w-full">
                 <iframe
-                  title="Youtube Video Player"
+                  title="YouTube Video Player"
                   src={youtubeEmbedUrl}
                   frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

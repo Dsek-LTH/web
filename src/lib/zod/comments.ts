@@ -5,6 +5,7 @@ import {
   type Infer,
 } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
+import * as messages from "$paraglide/messages";
 
 import { z } from "zod";
 import DOMPurify from "isomorphic-dompurify";
@@ -50,19 +51,10 @@ export const commentAction =
         await prisma.event.update(args);
         break;
       default:
-        return message(
-          form,
-          {
-            message: 'Kommentar skickades inte. "Invalid comment entity type"',
-            type: "error",
-          },
-          {
-            status: 400,
-          },
-        );
+        entityType satisfies never;
     }
     return message(form, {
-      message: "Kommentar skickad",
+      message: messages.comments_sent(),
       type: "hidden",
     });
   };
@@ -91,20 +83,10 @@ export const removeCommentAction =
         await prisma.event.update(args);
         break;
       default:
-        return message(
-          form,
-          {
-            message:
-              'Kommentar kunde inte tas bort. "Invalid comment entity type"',
-            type: "error",
-          },
-          {
-            status: 400,
-          },
-        );
+        entityType satisfies never;
     }
     return message(form, {
-      message: "Kommentar borttagen",
+      message: messages.comments_removed(),
       type: "success",
     });
   };

@@ -15,7 +15,7 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { languages } from "$lib/utils/languages";
   import * as Select from "$lib/components/ui/select";
-  import { programmes } from "$lib/utils/programmes";
+  import { programs } from "$lib/utils/programs";
 
   import * as Dialog from "$lib/components/ui/dialog";
   import type { PageData } from "./$types";
@@ -35,7 +35,7 @@
     en: m.language_english(),
   };
 
-  let phaddergroups = $derived(
+  let phadderGroups = $derived(
     data.phadderGroups
       .filter(
         (group) => group.year === ($form.classYear ?? new Date().getFullYear),
@@ -44,7 +44,7 @@
   );
 </script>
 
-<main class="overflow-y-scoll flex flex-col items-center gap-2">
+<main class="flex flex-col items-center gap-2 overflow-x-scroll">
   <PictureSelector {data} />
   <form
     id="member"
@@ -123,11 +123,11 @@
       </div>
       <div class="flex w-full flex-row gap-1">
         <div class="flex w-full flex-col gap-1.5">
-          <Label for="classProgramme">{m.members_programme()}</Label>
+          <Label for="classProgram">{m.members_program()}</Label>
           <Select.Root
             type="single"
             bind:value={$form.classProgramme as string | undefined}
-            name="classProgramme"
+            name="classProgram"
           >
             <Select.Trigger class="w-full"
               ><span class="flex flex-row items-center gap-1.5"
@@ -135,8 +135,8 @@
               ></Select.Trigger
             >
             <Select.Content>
-              {#each programmes as programme (programme.id)}
-                <Select.Item value={programme.id}>{programme.name}</Select.Item>
+              {#each programs as program (program.id)}
+                <Select.Item value={program.id}>{program.name}</Select.Item>
               {/each}
             </Select.Content>
           </Select.Root>
@@ -166,11 +166,11 @@
         >
           <Select.Trigger class="w-full"
             ><Users />{$form.nollningGroupId
-              ? phaddergroups.find((g) => g.id == $form.nollningGroupId)!.name
+              ? phadderGroups.find((g) => g.id == $form.nollningGroupId)!.name
               : ""}</Select.Trigger
           >
           <Select.Content>
-            {#each phaddergroups as group (group.id)}
+            {#each phadderGroups as group (group.id)}
               <Select.Item value={group.id}>{group.name}</Select.Item>
             {/each}
           </Select.Content>

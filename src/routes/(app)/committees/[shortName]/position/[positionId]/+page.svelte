@@ -26,13 +26,13 @@
 
   let groupedByYear = $derived(
     data.mandates.reduce<Record<string, MandateWithMember[]>>(
-      (acc, mandate) => {
+      (accumulator, mandate) => {
         let year = mandate.startDate.getFullYear().toString();
         if (mandate.endDate.getFullYear() !== mandate.startDate.getFullYear())
           year += `-${mandate.endDate.getFullYear()}`;
-        if (!acc[year]) acc[year] = [];
-        acc[year]!.push(mandate);
-        return acc;
+        if (!accumulator[year]) accumulator[year] = [];
+        accumulator[year]!.push(mandate);
+        return accumulator;
       },
       {},
     ),

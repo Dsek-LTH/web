@@ -92,10 +92,11 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       }),
     ]);
   if (memberResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchMember());
+    throw error(500, m.members_errors_couldNotFetchMember());
   if (publishedArticlesResult.status === "rejected")
-    throw error(500, m.members_errors_couldntFetchArticles());
-  if (!memberResult.value) throw error(404, m.members_errors_memberNotFound());
+    throw error(500, m.members_errors_couldNotFetchArticles());
+  if (!memberResult.value)
+    throw error(404, m.members_errors_memberNotFound());
   if (phadderGroupsResult.status === "rejected")
     throw error(505, phadderGroupsResult.reason);
 
@@ -153,7 +154,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       deleteForm: await superValidate(zod4(deletePictureSchema)),
     };
   } catch {
-    throw error(500, m.members_errors_couldntFetchPings());
+    throw error(500, m.members_errors_couldNotFetchPings());
   }
 };
 
@@ -227,7 +228,7 @@ export const actions: Actions = {
         return message(
           form,
           {
-            message: `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+            message: `${m.members_errors_couldNotUploadFile()}: ${await res.text()}`,
             type: "error",
           },
           { status: 500 },
@@ -238,7 +239,7 @@ export const actions: Actions = {
       return message(
         form,
         {
-          message: `${m.members_errors_couldntUploadFile()}: ${errMsg}`,
+          message: `${m.members_errors_couldNotUploadFile()}: ${errMsg}`,
           type: "error",
         },
         { status: 500 },

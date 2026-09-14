@@ -2,19 +2,22 @@ import { isFileImage, isFilePDF } from "$lib/files/utils";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import { isValidCostCenter } from "./config";
+import * as messages from "$paraglide/messages";
 
 const itemSchema = z.object({
   costCenter: z
-    .string({ message: "Välj kostnadsställe" })
-    .refine(isValidCostCenter, { message: "Ogiltigt kostnadscenter" }),
+    .string({ message: messages.expenses_choose_cost_centre() })
+    .refine(isValidCostCenter, {
+      message: messages.expenses_invalid_cost_centre(),
+    }),
   amount: z.number(),
   comment: z.string().optional(),
 });
 const receiptSchema = z.object({
   image: z
-    .instanceof(File, { message: "Please upload a file" })
+    .instanceof(File, { message: messages.file_upload_please() })
     .refine((file) => isFilePDF(file) || isFileImage(file), {
-      message: "Måste vara en PDF eller bild",
+      message: messages.file_upload_must_be_an_image_or_pdf(),
     }),
   rows: z.array(itemSchema).nonempty(),
 });

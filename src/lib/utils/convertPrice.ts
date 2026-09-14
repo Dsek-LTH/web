@@ -1,6 +1,6 @@
 /**
  * @param price in kr
- * @returns price in ören
+ * @returns price in öre
  *
  * @example
  * convertPriceToCents(123.45) => 12345
