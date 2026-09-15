@@ -11,6 +11,7 @@
   import type { DeleteSchema } from "./+page.server";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
+  import { cn } from "$lib/utils";
 
   let {
     deleteForm,
@@ -91,9 +92,12 @@
         <div class="flex items-center gap-0">
           {#if file.thumbnailUrl}
             <FileLink
-              class={isEditing
-                ? "rounded-full! rounded-r-none! border-[1px] border-r-0"
-                : ""}
+              class={cn(
+                isEditing
+                  ? "rounded-full! rounded-r-none! border-[1px] border-r-0"
+                  : "",
+                "shrink-0",
+              )}
               name={file.name}
               url={file.thumbnailUrl}
               full
