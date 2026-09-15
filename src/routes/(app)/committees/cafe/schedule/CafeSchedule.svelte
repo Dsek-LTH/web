@@ -30,7 +30,7 @@
   import * as Tooltip from "$lib/components/ui/tooltip";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
 
-  import { TimeSlot, type Ciabatta, type ShiftWithWorker } from "./types";
+  import { TimeSlot, type Ciabatta, type ShiftWithWorker } from "../types";
 
   import * as m from "$paraglide/messages";
   import { getLocale } from "$paraglide/runtime";
@@ -161,14 +161,12 @@
     memberMap = newMap;
   });
 
-  let ciabattaString = $derived(
-    ciabattaOfTheWeek?.name ?? m.errors_notImplemented(),
-  );
+  let ciabattaString = $derived(ciabattaOfTheWeek?.name ?? "");
 
   let weeks = $derived(
     canSeeAllWeeks
       ? Array.from(Array(weeksInYear).keys()).map((n) => n + 1)
-      : [week.week() - 1, week.week(), week.week() + 1],
+      : [week.week(), week.week() + 1, week.week() + 2],
   );
 
   function handleWeekChange(value: string) {

@@ -58,10 +58,10 @@
         <Button
           variant="outline"
           size="lg"
-          class="mt-2"
+          class="col-span-2 mt-2 sm:col-span-1"
           href="/committees/cafe"
         >
-          <Coffee class="text-rosa-500" />
+          <Coffee class="text-primary" />
           {m.home_cafeOpenHours()}:
           <span class="font-bold">{data.cafeOpen?.markdown}</span>
         </Button>
