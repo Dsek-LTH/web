@@ -92,7 +92,7 @@
     </div>
 
     <Button variant="outline" size="lg" href="/committees/cafe">
-      <Coffee class="text-rosa-500" />
+      <Coffee class="text-primary" />
       {m.home_cafeOpenHours()}:
       <span class=" font-bold">{data.cafeOpen?.markdown}</span>
     </Button>

@@ -61,7 +61,7 @@
           class="mt-2"
           href="/committees/cafe"
         >
-          <Coffee class="text-rosa-500" />
+          <Coffee class="text-primary" />
           {m.home_cafeOpenHours()}:
           <span class="font-bold">{data.cafeOpen?.markdown}</span>
         </Button>
