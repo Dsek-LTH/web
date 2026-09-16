@@ -252,12 +252,14 @@
             />{#if getName(day, timeSlot)}
               <Tooltip.Root>
                 <Tooltip.Trigger
-                  type="submit"
+                  type={disabled ? "button" : "submit"}
                   class={cn(
                     buttonVariants({ variant: "outline" }),
                     "block w-full overflow-hidden overflow-ellipsis",
+                    disabled ? "hover:bg-unset pointer-events-auto!" : "",
                   )}
-                  {disabled}>{getName(day, timeSlot)}</Tooltip.Trigger
+                  aria-disabled={disabled}
+                  disabled={false}>{getName(day, timeSlot)}</Tooltip.Trigger
                 >
                 <Tooltip.Content>
                   {getName(day, timeSlot)}
