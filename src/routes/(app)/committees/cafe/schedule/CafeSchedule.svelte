@@ -15,6 +15,7 @@
   import weekOfYear from "dayjs/plugin/weekOfYear";
   import isoWeeksInYear from "dayjs/plugin/isoWeeksInYear";
   import isLeapYear from "dayjs/plugin/isLeapYear";
+  import localeData from "dayjs/plugin/localeData";
 
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
@@ -33,35 +34,14 @@
   import { TimeSlot, type Ciabatta, type ShiftWithWorker } from "../types";
 
   import * as m from "$paraglide/messages";
-  import { getLocale } from "$paraglide/runtime";
 
   dayjs.extend(weekOfYear);
   dayjs.extend(isoWeeksInYear);
   dayjs.extend(isLeapYear);
   dayjs.extend(weekYear);
+  dayjs.extend(localeData);
 
-  const getWeekdayName = (weekday: number): string => {
-    let locale: string;
-    switch (getLocale()) {
-      case "sv": {
-        locale = "sv-SE";
-        break;
-      }
-      case "en": {
-        locale = "en-GB";
-        break;
-      }
-      default: {
-        locale = "sv-SE";
-        break;
-      }
-    }
-    if (weekday < 0 || weekday > 6) return "";
-
-    // Reference Monday: Jan 5, 1970 was a Monday
-    const referenceMonday = new Date(Date.UTC(1970, 0, 5 + weekday));
-    return referenceMonday.toLocaleDateString(locale, { weekday: "long" });
-  };
+  const weekdays = dayjs.weekdays();
 
   let {
     week = $bindable(),
@@ -166,7 +146,7 @@
   let weeks = $derived(
     canSeeAllWeeks
       ? Array.from(Array(weeksInYear).keys()).map((n) => n + 1)
-      : [week.week(), week.week() + 1, week.week() + 2],
+      : [now.week(), now.week() + 1, now.week() + 2],
   );
 
   function handleWeekChange(value: string) {
@@ -305,7 +285,7 @@
 
         <div class="grid w-full gap-1">
           <h6 class="text-primary text-center">
-            {getWeekdayName(dayIndex)}
+            {weekdays[dayIndex + 1]}
           </h6>
 
           <p class="gap-1 text-center font-bold">{m.cafe_day_manager()}</p>
@@ -417,7 +397,7 @@
 
           <div class="grid w-full gap-1 border-r-[1px] px-2 last:border-r-0!">
             <h6 class="text-primary text-center">
-              {getWeekdayName(dayIndex)}
+              {weekdays[dayIndex + 1]}
             </h6>
 
             <p class="gap-1 text-center font-bold">{m.cafe_day_manager()}</p>
