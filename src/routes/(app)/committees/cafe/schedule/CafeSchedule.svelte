@@ -321,7 +321,7 @@
     <Dialog.Trigger class={buttonVariants({ variant: "rosa" })}
       ><Pen /> {m.cafe_edit_schedule()}</Dialog.Trigger
     >
-    <Dialog.Content class="z-51 max-w-[80vw]!">
+    <Dialog.Content class="z-51 max-w-[98vw]! xl:max-w-[80vw]!">
       <Dialog.Header>
         <h4 class="flex flex-row items-center gap-2">
           {m.cafe_editing_schedule()}
