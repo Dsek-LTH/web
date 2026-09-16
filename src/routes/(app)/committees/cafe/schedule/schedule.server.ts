@@ -1,10 +1,10 @@
 import type { Actions, PageServerLoadEvent } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import { committeeLoad } from "../committee.server";
+import { committeeLoad } from "../../committee.server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
-import { TimeSlot } from "./types";
+import { TimeSlot } from "../types";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
 
@@ -14,7 +14,7 @@ import weekYear from "dayjs/plugin/weekYear";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { AuthUser } from "@zenstackhq/runtime";
-import { editWeeklyCiabattaSchema, scheduleForm } from "./types";
+import { editWeeklyCiabattaSchema, scheduleForm } from "../types";
 
 dayjs.extend(weekOfYear);
 dayjs.extend(weekYear);
@@ -249,3 +249,5 @@ export const scheduleActions = (): Actions => ({
     });
   },
 });
+
+export type ScheduleLoadData = Awaited<ReturnType<typeof scheduleLoad>>;

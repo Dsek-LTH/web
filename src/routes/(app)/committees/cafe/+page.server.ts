@@ -1,6 +1,5 @@
 import type { PageServerLoad, Actions } from "./$types";
 import { committeeActions } from "../committee.server";
-import { scheduleActions, scheduleLoad } from "./schedule.server";
 
 export const load: PageServerLoad = async (event) => {
   const { locals } = event;
@@ -17,10 +16,9 @@ export const load: PageServerLoad = async (event) => {
     },
   });
 
-  return { ...(await scheduleLoad(event)), openingHours };
+  return { openingHours };
 };
 
 export const actions: Actions = {
   ...committeeActions("cafe"),
-  ...scheduleActions(),
 };
