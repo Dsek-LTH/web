@@ -20,6 +20,7 @@ import ScrollText from "@lucide/svelte/icons/scroll-text";
 import Send from "@lucide/svelte/icons/send";
 import Settings from "@lucide/svelte/icons/settings";
 import ShieldUser from "@lucide/svelte/icons/shield-user";
+import Ticket from "@lucide/svelte/icons/ticket";
 import UserPlus from "@lucide/svelte/icons/user-plus";
 import Users from "@lucide/svelte/icons/users";
 import Vote from "@lucide/svelte/icons/vote";
@@ -189,6 +190,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_tickets_desc(),
           path: "/shop/tickets",
+          icon: Ticket,
         },
         {
           title: m.nav_booking(),
