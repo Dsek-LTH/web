@@ -155,14 +155,37 @@ const { handle: authHandle } = SvelteKitAuth({
   },
 });
 
+/**
+ * Prototype-only bearer-token auth for non-browser clients (mobile app,
+ * third parties): a single static token, seeded to a single member, read
+ * from env vars. Real token issuance/lookup with per-token scopes would
+ * replace this — this only needs to prove that `event.locals` ends up
+ * identical regardless of which credential resolved it.
+ */
+function resolveBearerStudentId(
+  event: Parameters<Handle>[0]["event"],
+): string | undefined {
+  const authHeader = event.request.headers.get("authorization");
+  const token = authHeader?.match(/^Bearer (.+)$/)?.[1];
+  if (!token || !env.API_STATIC_TOKEN || token !== env.API_STATIC_TOKEN) {
+    return undefined;
+  }
+  if (!env.API_STATIC_TOKEN_STUDENT_ID) {
+    // A valid token with no identity configured to resolve it to is a
+    // server misconfiguration, not "no credentials" — fail loudly instead
+    // of silently falling back to the anonymous branch.
+    error(500, "API_STATIC_TOKEN is set but API_STATIC_TOKEN_STUDENT_ID is not");
+  }
+  return env.API_STATIC_TOKEN_STUDENT_ID;
+}
+
 const databaseHandle: Handle = async ({ event, resolve }) => {
   const session = await event.locals.auth();
+  const bearerStudentId = session?.user ? undefined : resolveBearerStudentId(event);
+  const studentId = session?.user?.student_id ?? bearerStudentId;
 
-  if (!session?.user) {
-    const prisma = getExtendedPrismaClient(
-      getLocale(),
-      session?.user.student_id,
-    );
+  if (!studentId) {
+    const prisma = getExtendedPrismaClient(getLocale(), session?.user?.student_id);
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
     if (!externalCode) {
       // Generate a new externalCode if it doesn't exist
@@ -188,39 +211,55 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
     event.locals.user = user;
   } else {
     const existingMember = await authorizedPrismaClient.member.findUnique({
-      where: { studentId: session.user.student_id },
+      where: { studentId },
     });
 
-    const prisma = getExtendedPrismaClient(
-      getLocale(),
-      session?.user.student_id,
-    );
+    const prisma = getExtendedPrismaClient(getLocale(), studentId);
+
+    if (!existingMember && !session?.user) {
+      // Bearer token resolved to a student ID with no matching seeded member.
+      error(401, "Unknown API identity");
+    }
+
     const member =
       existingMember ||
       (await createMember(prisma, {
-        studentId: session.user.student_id,
-        firstName: session.user.given_name,
-        lastName: session.user.family_name,
-        email: session.user.email,
+        studentId,
+        firstName: session!.user.given_name,
+        lastName: session!.user.family_name,
+        email: session!.user.email,
       }));
 
     if (
+      session?.user &&
       event.url.pathname != "/onboarding" &&
       (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
       redirect(302, "/onboarding");
     }
 
-    const roles = getDerivedRoles(
-      session.user.group_list,
-      !!session.user.student_id,
-      member.classYear ?? undefined,
-      member.classProgramme ?? undefined,
-    );
+    // Bearer-token identities don't carry an Authentik group list, so
+    // role-based access-policy grants won't apply to them — only grants
+    // keyed directly to this studentId, or class/programme-derived roles.
+    // Fine for the prototype; real token issuance would need to carry (or
+    // look up) the same groups a browser session gets from Authentik.
+    const roles = session?.user
+      ? getDerivedRoles(
+          session.user.group_list,
+          true,
+          member.classYear ?? undefined,
+          member.classProgramme ?? undefined,
+        )
+      : getDerivedRoles(
+          undefined,
+          true,
+          member.classYear ?? undefined,
+          member.classProgramme ?? undefined,
+        );
     const user = {
-      studentId: session.user.student_id,
+      studentId,
       memberId: member!.id,
-      policies: await getAccessPolicies(prisma, roles, session.user.student_id),
+      policies: await getAccessPolicies(prisma, roles, studentId),
       roles,
     };
 

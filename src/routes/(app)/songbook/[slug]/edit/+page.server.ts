@@ -1,13 +1,14 @@
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
-import DOMPurify from "isomorphic-dompurify";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import { updateSongSchema } from "../../schema";
 import type { Actions, PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
+import * as songs from "$lib/server/songs/service";
+import { handleServiceError } from "$lib/server/api/errors";
 
 export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.SONG.UPDATE, locals.user);
@@ -17,9 +18,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
   update: async (event) => {
-    const { request, locals } = event;
-    authorize(apiNames.SONG.UPDATE, locals.user);
-    const { prisma } = locals;
+    const { request, locals, params } = event;
     const formData = await request.formData();
     const form = await superValidate(formData, zod4(updateSongSchema));
     if (!form.valid) return fail(400, { form });
@@ -36,19 +35,16 @@ export const actions: Actions = {
     if (data.melody == null) {
       return setError(form, "melody", m.songbook_missingMelody());
     }
-    const updatedSong = await prisma.song.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        title: DOMPurify.sanitize(data.title.trim()),
-        lyrics: DOMPurify.sanitize(data.lyrics.trim()),
-        melody: data.melody.trim(),
-        category: data.category.trim(),
-        video: data.video?.trim() || null,
-        updatedAt: new Date(),
-      },
-    });
+    const updatedSong = await songs
+      .update(locals, {
+        slug: params.slug,
+        title: data.title,
+        lyrics: data.lyrics,
+        melody: data.melody,
+        category: data.category,
+        video: data.video,
+      })
+      .catch(handleServiceError);
     throw redirect(
       encodeURI(`/songbook/${updatedSong.slug}`),
       {
