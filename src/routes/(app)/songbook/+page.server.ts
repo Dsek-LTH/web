@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       where,
       take,
       skip,
-      orderBy: { title: "asc" },
+      orderBy: { createdAt: "desc" },
     }),
     prismaClient.song.count({ where }),
     getExistingCategories(prismaClient, accessPolicies, showDeleted),
