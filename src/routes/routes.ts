@@ -14,6 +14,7 @@ import HousePlus from "@lucide/svelte/icons/house-plus";
 import Info from "@lucide/svelte/icons/info";
 import Link from "@lucide/svelte/icons/link";
 import Megaphone from "@lucide/svelte/icons/megaphone";
+import Music from "@lucide/svelte/icons/music";
 import Newspaper from "@lucide/svelte/icons/newspaper";
 import ScrollText from "@lucide/svelte/icons/scroll-text";
 import Send from "@lucide/svelte/icons/send";
@@ -204,6 +205,14 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
+        },
+        {
+          title: m.nav_songbook(),
+          accessRequired: null,
+          appBehaviour: "none",
+          description: m.nav_songbook_desc(),
+          path: "/songbook",
+          icon: Music,
         },
         {
           title: m.stocklist(),
