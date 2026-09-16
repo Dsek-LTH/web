@@ -14,11 +14,13 @@ import HousePlus from "@lucide/svelte/icons/house-plus";
 import Info from "@lucide/svelte/icons/info";
 import Link from "@lucide/svelte/icons/link";
 import Megaphone from "@lucide/svelte/icons/megaphone";
+import Music from "@lucide/svelte/icons/music";
 import Newspaper from "@lucide/svelte/icons/newspaper";
 import ScrollText from "@lucide/svelte/icons/scroll-text";
 import Send from "@lucide/svelte/icons/send";
 import Settings from "@lucide/svelte/icons/settings";
 import ShieldUser from "@lucide/svelte/icons/shield-user";
+import Ticket from "@lucide/svelte/icons/ticket";
 import UserPlus from "@lucide/svelte/icons/user-plus";
 import Users from "@lucide/svelte/icons/users";
 import Vote from "@lucide/svelte/icons/vote";
@@ -188,6 +190,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           description: m.nav_tickets_desc(),
           path: "/shop/tickets",
+          icon: Ticket,
         },
         {
           title: m.nav_booking(),
@@ -204,6 +207,14 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
+        },
+        {
+          title: m.nav_songbook(),
+          accessRequired: null,
+          appBehaviour: "none",
+          description: m.nav_songbook_desc(),
+          path: "/songbook",
+          icon: Music,
         },
         {
           title: m.stocklist(),
