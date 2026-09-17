@@ -57,10 +57,10 @@
             ? 'md:col-start-2'
             : 'md:col-start-1 md:text-right'}"
         >
-          <h5 class="text-primary text-xs font-bold tracking-wider uppercase">
+          <h5 class="text-primary text-sm font-bold tracking-wider uppercase">
             {entry.label}
           </h5>
-          <p class="text-muted-foreground text-sm leading-relaxed">
+          <p class="text-muted-foreground text-base leading-relaxed">
             {entry.desc}
           </p>
         </div>

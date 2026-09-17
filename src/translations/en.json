@@ -1358,7 +1358,7 @@
   "volunteer_apply_meeting_step9": "The guild makes its decision while you wait outside.",
   "volunteer_apply_meeting_footer": "Note: if you do not attend the interview with the nomination committee, you cannot counter-candidate. The exception is roles where the nomination committee does not present a proposal — then floor candidacy is allowed (anyone can go up and speak at the meeting).",
   "volunteer_apply_meeting_note": "Nomination committee representative elected at HTM-1 is not interviewed — only floor candidacy. [HIGHLY RECOMMENDED FOR FRESHMEN]",
-  "volunteer_apply_board_title": "Elections of Nomination Committees",
+  "volunteer_apply_board_title": "Elections of Committee positions",
   "volunteer_apply_board_desc": "Most elections are carried out by committee nomination boards. They consist of the committee chair, usually their vice, a nomination committee representative, and someone active in the committee in previous years. They prepare, announce, and manage the election — examples: Hovmästare, Brunchmästare, Sports Official, Photographer, DWWW Coordinator, Peppare.",
   "volunteer_apply_interview_title": "Interview-based election",
   "volunteer_apply_interview_step1": "Wait for the election to be announced.",
@@ -1398,7 +1398,7 @@
   "volunteer_roles_htmval_vice": "Vice Committee Chairs: Vice Information Coordinator, Vice Treasurer, Vice Café Coordinator, Vice Sexmästare, Vice Student Council Chair, Vice Corporate Relations Coordinator, Vice Källarmästare, Vice Processmästare, Vice Activities Coordinator.",
   "volunteer_roles_htmval_other": "Other positions: Auditor (2 positions — not recommended for freshmen), Future Committee Chair, Election Representative TLTH, Alumni Relations Coordinator, UtEDischo Coordinator (1–2), Chief Marshal, Speaker, Treasury Official (1–3), Tackmästare.",
   "volunteer_roles_htm2_desc1": "HTM-2: Under normal circumstances no positions are elected, but if any position remained vacant after the HTM Elections they are usually elected here.",
-  "volunteer_roles_htm2_desc2": "VTM: Teknikfokus Coordinator, Tackmästare.",
+  "volunteer_roles_htm2_desc2": "VTM: Deltageneral, Tackmästare.",
   "volunteer_roles_comm_title": "Committee elections",
   "volunteer_roles_comm_desc": "Unless otherwise specified, the election is usually after the HTM Elections, around late November. Some positions are elected with interview, some with form — see the announcement when it approaches.",
   "volunteer_roles_comm_cafe": "Café: Brunchmästare, Inventory Coordinator, Cook.",
@@ -1496,5 +1496,7 @@
   "volunteer_weekly_place_outside": "Outside the E-building",
   "volunteer_day_sun": "Sunday",
   "volunteer_weekly_dick_title": "DICK",
-  "volunteer_weekly_dick_desc": "DICK meets every Sunday at Smörlyckan. Join in through the Messenger chat."
+  "volunteer_weekly_dick_desc": "DICK meets every Sunday at Smörlyckan. Join in through the Messenger chat.",
+  "volunteer_month_aug_oct": "August–October",
+  "volunteer_timeline_nollning": "Nollningen — the introduction period for all new students, with phadder groups and events almost every week."
 }

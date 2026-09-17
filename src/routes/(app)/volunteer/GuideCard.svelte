@@ -64,7 +64,7 @@
     </Card.Header>
 
     <Card.Content
-      class="text-muted-foreground flex flex-1 flex-col gap-3 text-sm leading-relaxed"
+      class="text-muted-foreground flex flex-1 flex-col gap-3 text-base leading-relaxed"
     >
       {#if description}
         <p>{description}</p>

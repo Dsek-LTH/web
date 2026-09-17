@@ -121,7 +121,7 @@
 <div class="flex flex-col gap-10">
   <header class="flex flex-col gap-2">
     <h1>{m.volunteer_apply_title()}</h1>
-    <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
+    <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
       {m.volunteer_apply_subtitle()}
     </p>
   </header>
@@ -129,7 +129,7 @@
   <!-- How elections work overall -->
   <section class="flex flex-col gap-2">
     <h2>{m.volunteer_apply_process_title()}</h2>
-    <p class="text-muted-foreground max-w-4xl leading-relaxed">
+    <p class="text-muted-foreground max-w-4xl text-base leading-relaxed">
       {m.volunteer_apply_process_desc()}
     </p>
   </section>
@@ -142,9 +142,9 @@
 
     <ol class="flex flex-col gap-3">
       {#each meetingSteps as step, i (i)}
-        <li class="text-muted-foreground flex gap-3 text-sm leading-relaxed">
+        <li class="text-muted-foreground flex gap-3 text-base leading-relaxed">
           <span
-            class="bg-primary/15 text-primary mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+            class="bg-primary/15 text-primary mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-bold"
           >
             {i + 1}
           </span>
@@ -156,10 +156,10 @@
     <div
       class="border-border/80 bg-muted-background flex flex-col gap-2 rounded-xl border p-5"
     >
-      <p class="text-muted-foreground text-sm leading-relaxed">
+      <p class="text-muted-foreground text-base leading-relaxed">
         {m.volunteer_apply_meeting_footer()}
       </p>
-      <p class="text-primary text-sm leading-relaxed font-semibold">
+      <p class="text-primary text-base leading-relaxed font-semibold">
         {m.volunteer_apply_meeting_note()}
       </p>
     </div>
@@ -171,21 +171,21 @@
   <section class="flex flex-col gap-5">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_apply_board_title()}</h2>
-      <p class="text-muted-foreground max-w-4xl leading-relaxed">
+      <p class="text-muted-foreground max-w-4xl text-base leading-relaxed">
         {m.volunteer_apply_board_desc()}
       </p>
     </div>
 
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
-        <h3 class="flex items-center gap-2 text-base font-semibold">
+        <h3 class="flex items-center gap-2 text-lg font-semibold">
           <Users class="text-primary size-4" />
           <span>{m.volunteer_apply_interview_title()}</span>
         </h3>
         <ol class="flex flex-col gap-2.5">
           {#each interviewSteps as step, i (i)}
             <li
-              class="text-muted-foreground flex gap-2.5 text-sm leading-relaxed"
+              class="text-muted-foreground flex gap-2.5 text-base leading-relaxed"
             >
               <span class="text-primary shrink-0 font-bold">{i + 1}.</span>
               <span>{step()}</span>
@@ -195,14 +195,14 @@
       </Card.Root>
 
       <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
-        <h3 class="flex items-center gap-2 text-base font-semibold">
+        <h3 class="flex items-center gap-2 text-lg font-semibold">
           <FileText class="text-primary size-4" />
           <span>{m.volunteer_apply_form_title()}</span>
         </h3>
         <ol class="flex flex-col gap-2.5">
           {#each formSteps as step, i (i)}
             <li
-              class="text-muted-foreground flex gap-2.5 text-sm leading-relaxed"
+              class="text-muted-foreground flex gap-2.5 text-base leading-relaxed"
             >
               <span class="text-primary shrink-0 font-bold">{i + 1}.</span>
               <span>{step()}</span>
@@ -224,7 +224,7 @@
       <div class="bg-primary/10 text-primary shrink-0 rounded-2xl p-4">
         <Video class="size-8" />
       </div>
-      <p class="text-muted-foreground flex-1 text-sm leading-relaxed">
+      <p class="text-muted-foreground flex-1 text-base leading-relaxed">
         {m.volunteer_apply_howto_desc()}
       </p>
       <Button
@@ -245,34 +245,34 @@
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_roles_title()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.volunteer_roles_subtitle()}
       </p>
     </div>
 
     <Tabs.Root value="always" class="w-full">
       <Tabs.List class="grid h-auto w-full grid-cols-2 gap-1 lg:grid-cols-4">
-        <Tabs.Trigger value="always" class="py-2.5 text-xs">
+        <Tabs.Trigger value="always" class="py-2.5 text-sm">
           {m.volunteer_roles_always_title()}
         </Tabs.Trigger>
-        <Tabs.Trigger value="htm1" class="py-2.5 text-xs">HTM-1</Tabs.Trigger>
-        <Tabs.Trigger value="htmval" class="py-2.5 text-xs"
+        <Tabs.Trigger value="htm1" class="py-2.5 text-sm">HTM-1</Tabs.Trigger>
+        <Tabs.Trigger value="htmval" class="py-2.5 text-sm"
           >HTM-Val</Tabs.Trigger
         >
-        <Tabs.Trigger value="committee" class="py-2.5 text-xs">
+        <Tabs.Trigger value="committee" class="py-2.5 text-sm">
           {m.volunteer_roles_tab_committee()}
         </Tabs.Trigger>
       </Tabs.List>
 
       <Tabs.Content value="always" class="mt-4">
         <Card.Root class="bg-card border-border/80 flex flex-col gap-3 p-6">
-          <h3 class="text-base font-bold">
+          <h3 class="text-lg font-bold">
             {m.volunteer_roles_always_title()}
           </h3>
-          <p class="text-muted-foreground text-sm leading-relaxed">
+          <p class="text-muted-foreground text-base leading-relaxed">
             {m.volunteer_roles_always_desc()}
           </p>
-          <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-sm">
+          <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-base">
             {#each alwaysItems as item, i (i)}
               <li>{item()}</li>
             {/each}
@@ -282,8 +282,8 @@
 
       <Tabs.Content value="htm1" class="mt-4">
         <Card.Root class="bg-card border-border/80 flex flex-col gap-3 p-6">
-          <h3 class="text-base font-bold">{m.volunteer_roles_htm1_title()}</h3>
-          <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-sm">
+          <h3 class="text-lg font-bold">{m.volunteer_roles_htm1_title()}</h3>
+          <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-base">
             {#each htm1Items as item, i (i)}
               <li>{item()}</li>
             {/each}
@@ -294,32 +294,32 @@
       <Tabs.Content value="htmval" class="mt-4">
         <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
           <div class="flex flex-col gap-2">
-            <h3 class="text-base font-bold">
+            <h3 class="text-lg font-bold">
               {m.volunteer_roles_htmval_heading()}
             </h3>
-            <p class="text-muted-foreground text-sm leading-relaxed">
+            <p class="text-muted-foreground text-base leading-relaxed">
               {m.volunteer_roles_htmval_desc()}
             </p>
           </div>
           {#each htmvalGroups as group (group.label)}
             <div class="flex flex-col gap-1.5">
-              <h4 class="text-primary text-sm font-semibold">
+              <h4 class="text-primary text-base font-semibold">
                 {group.label()}
               </h4>
-              <p class="text-muted-foreground text-sm leading-relaxed">
+              <p class="text-muted-foreground text-base leading-relaxed">
                 {group.desc()}
               </p>
             </div>
           {/each}
           <Separator class="my-1" />
           <div class="flex flex-col gap-1.5">
-            <h4 class="text-primary text-sm font-semibold">
+            <h4 class="text-primary text-base font-semibold">
               {m.volunteer_roles_htm2_label()}
             </h4>
-            <p class="text-muted-foreground text-sm leading-relaxed">
+            <p class="text-muted-foreground text-base leading-relaxed">
               {m.volunteer_roles_htm2_desc1()}
             </p>
-            <p class="text-muted-foreground text-sm leading-relaxed">
+            <p class="text-muted-foreground text-base leading-relaxed">
               {m.volunteer_roles_htm2_desc2()}
             </p>
           </div>
@@ -329,18 +329,20 @@
       <Tabs.Content value="committee" class="mt-4">
         <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
           <div class="flex flex-col gap-2">
-            <h3 class="text-base font-bold">
+            <h3 class="text-lg font-bold">
               {m.volunteer_roles_comm_title()}
             </h3>
-            <p class="text-muted-foreground text-sm leading-relaxed">
+            <p class="text-muted-foreground text-base leading-relaxed">
               {m.volunteer_roles_comm_desc()}
             </p>
           </div>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {#each committeeRoles as role (role.name)}
               <div class="flex flex-col gap-1.5">
-                <h4 class="text-primary text-sm font-semibold">{role.name}</h4>
-                <p class="text-muted-foreground text-sm leading-relaxed">
+                <h4 class="text-primary text-base font-semibold">
+                  {role.name}
+                </h4>
+                <p class="text-muted-foreground text-base leading-relaxed">
                   {role.desc()}
                 </p>
               </div>
@@ -357,7 +359,7 @@
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
       <h2>{m.openElections()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.elections_description()}
       </p>
     </div>
@@ -370,7 +372,7 @@
       </div>
     {:else}
       <p
-        class="text-muted-foreground rounded-xl border-2 border-dashed p-8 text-center text-sm"
+        class="text-muted-foreground rounded-xl border-2 border-dashed p-8 text-center text-base"
       >
         {m.volunteer_elections_empty()}
       </p>
@@ -392,7 +394,7 @@
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_benefits_title()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.volunteer_benefits_subtitle()}
       </p>
     </div>

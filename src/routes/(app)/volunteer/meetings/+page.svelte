@@ -100,7 +100,7 @@
 <div class="flex flex-col gap-10">
   <header class="flex flex-col gap-2">
     <h1>{m.volunteer_meetings_title()}</h1>
-    <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
+    <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
       {m.volunteer_meetings_subtitle()}
     </p>
   </header>
@@ -109,7 +109,7 @@
   <section class="flex flex-col gap-5">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_meetings_section_title()}</h2>
-      <p class="text-muted-foreground max-w-4xl leading-relaxed">
+      <p class="text-muted-foreground max-w-4xl text-base leading-relaxed">
         {m.volunteer_meetings_section_desc()}
       </p>
     </div>
@@ -121,7 +121,7 @@
           style="animation-delay:{index * 50}ms"
         >
           <h3 class="text-primary text-lg font-bold">{meeting.name()}</h3>
-          <p class="text-muted-foreground flex-1 text-sm leading-relaxed">
+          <p class="text-muted-foreground flex-1 text-base leading-relaxed">
             {meeting.desc()}
           </p>
         </Card.Root>
@@ -141,7 +141,7 @@
         <h2>{m.volunteer_motions_title()}</h2>
       </div>
       <div
-        class="text-muted-foreground max-w-4xl space-y-4 text-sm leading-relaxed"
+        class="text-muted-foreground max-w-4xl space-y-4 text-base leading-relaxed"
       >
         <p>{m.volunteer_motions_desc1()}</p>
         <p>{m.volunteer_motions_desc2()}</p>
@@ -158,7 +158,7 @@
         <h3 class="text-lg font-bold">
           {m.volunteer_motions_tips_header()}
         </h3>
-        <p class="text-muted-foreground text-xs italic">
+        <p class="text-muted-foreground text-sm italic">
           {m.volunteer_motions_tips_subheader()}
         </p>
       </div>
@@ -167,8 +167,8 @@
         <!-- eslint-disable svelte/no-at-html-tags -- translated strings contain links -->
         {#each writingTips as tip (tip.title)}
           <div class="flex flex-col gap-2">
-            <h4 class="text-primary text-sm font-semibold">{tip.title()}</h4>
-            <p class="text-muted-foreground text-sm leading-relaxed">
+            <h4 class="text-primary text-base font-semibold">{tip.title()}</h4>
+            <p class="text-muted-foreground text-base leading-relaxed">
               {@html tip.desc()}
             </p>
           </div>
@@ -177,16 +177,16 @@
       </div>
 
       <div class="border-border/60 mt-2 border-t pt-4">
-        <h4 class="mb-2 flex items-center gap-2 text-sm font-semibold">
+        <h4 class="mb-2 flex items-center gap-2 text-base font-semibold">
           <HelpCircle class="text-primary size-4" />
           <span>{m.volunteer_motions_general_tips_header()}</span>
         </h4>
-        <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-sm">
+        <ul class="text-muted-foreground list-disc space-y-2 pl-5 text-base">
           {#each generalTips as tip, i (i)}
             <li>{tip()}</li>
           {/each}
         </ul>
-        <p class="text-muted-foreground mt-4 text-sm">
+        <p class="text-muted-foreground mt-4 text-base">
           <!-- eslint-disable-next-line svelte/no-at-html-tags -- translated string, no user input -->
           {@html m.volunteer_motions_general_footer_html()}
         </p>
@@ -200,7 +200,7 @@
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_documents_title()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.volunteer_documents_subtitle()}
       </p>
     </div>
@@ -237,7 +237,7 @@
           class="bg-card border-border/80 animate-in fade-in slide-in-from-bottom-[0.5rem] fill-mode-backwards p-5 duration-300"
           style="animation-delay:{i * 50}ms"
         >
-          <p class="text-muted-foreground text-sm leading-relaxed">
+          <p class="text-muted-foreground text-base leading-relaxed">
             {tip()}
           </p>
         </Card.Root>

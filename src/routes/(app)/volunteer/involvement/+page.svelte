@@ -133,6 +133,10 @@
     {
       term: m.volunteer_timeline_ht(),
       months: [
+        {
+          name: m.volunteer_month_aug_oct(),
+          desc: m.volunteer_timeline_nollning(),
+        },
         { name: m.volunteer_month_oct(), desc: m.volunteer_timeline_oct() },
         { name: m.volunteer_month_nov(), desc: m.volunteer_timeline_nov() },
         { name: m.volunteer_month_dec(), desc: m.volunteer_timeline_dec() },
@@ -166,7 +170,7 @@
 <div class="flex flex-col gap-10">
   <header class="flex flex-col gap-2">
     <h1>{m.volunteer_involvement_title()}</h1>
-    <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
+    <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
       {m.volunteer_involvement_subtitle()}
     </p>
   </header>
@@ -189,7 +193,7 @@
   <section class="flex flex-col gap-8">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_timeline_title()}</h2>
-      <p class="text-muted-foreground">
+      <p class="text-muted-foreground text-base">
         {m.volunteer_timeline_monthly_subtitle()}
       </p>
     </div>
@@ -205,21 +209,19 @@
         {#each weeklySchedule as item (item.title)}
           <div class="grid grid-cols-1 gap-4 p-6 md:grid-cols-[140px_1fr]">
             <div>
-              <div class="text-primary text-sm font-bold">{item.day()}</div>
-              <div class="text-muted-foreground text-xs">{item.time}</div>
+              <div class="text-primary text-base font-bold">{item.day()}</div>
+              <div class="text-muted-foreground text-sm">{item.time}</div>
             </div>
             <div class="flex flex-col gap-1.5">
               <div class="flex items-center gap-2">
-                <h4 class="text-sm leading-none font-semibold">
+                <h4 class="text-base leading-none font-semibold">
                   {item.title()}
                 </h4>
-                <Badge
-                  variant="outline"
-                  class="px-2 py-0.5 text-[10px] font-medium"
+                <Badge variant="outline" class="px-2 py-0.5 text-xs font-medium"
                   >{item.place}</Badge
                 >
               </div>
-              <p class="text-muted-foreground text-xs leading-relaxed">
+              <p class="text-muted-foreground text-base leading-relaxed">
                 {item.desc()}
               </p>
             </div>
@@ -243,7 +245,7 @@
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_bigevents_title()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.volunteer_bigevents_subtitle()}
       </p>
     </div>

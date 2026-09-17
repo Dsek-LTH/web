@@ -68,7 +68,7 @@
 <div class="flex flex-col gap-10">
   <header class="flex flex-col gap-2">
     <h1>{m.volunteer_informed_title()}</h1>
-    <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
+    <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
       {m.volunteer_informed_subtitle()}
     </p>
   </header>
@@ -186,7 +186,7 @@
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-3">
       <h2>{m.volunteer_notifications_title()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.volunteer_notifications_subtitle()}
       </p>
       <Button href={resolve("/(app)/settings")} class="w-fit gap-2">

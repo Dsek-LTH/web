@@ -1358,7 +1358,7 @@
   "volunteer_apply_meeting_step9": "Sektionen gör sitt beslut medan du väntar utanför.",
   "volunteer_apply_meeting_footer": "Notera: om du inte går på intervjun med valberedningen får du inte heller motkandidera. Undantaget är roller där valberedningen inte lägger fram ett förslag — då tillåts golvkandidatur (vem som helst går upp och håller tal på mötet).",
   "volunteer_apply_meeting_note": "Valberedningsrepresentant som väljs på HTM-1 intervjuas inte — enbart golvkandidatur. [REKOMMENDERAS STARKT FÖR 1or]",
-  "volunteer_apply_board_title": "Val av valberedningar",
+  "volunteer_apply_board_title": "Val av poster inom ett utskott",
   "volunteer_apply_board_desc": "De flesta val görs av utskottsvalberedningar. De består av utskottsordförande, oftast deras vice, en valberedningsrepresentant och någon som varit i utskottet tidigare år. De förbereder, utlyser och håller i valet — exempel: Hovmästare, Brunchmästare, Idrottsförman, Fotograf, DWWW-ansvarig, Peppare.",
   "volunteer_apply_interview_title": "Intervjuval",
   "volunteer_apply_interview_step1": "Vänta på att valet utlyses.",
@@ -1398,7 +1398,7 @@
   "volunteer_roles_htmval_vice": "Vice utskottsordförande: Vice Informationsansvarig, Vice Skattmästare, Vice Cafémästare, Vice Sexmästare, Vice Studierådsordförande, Vice Näringslivsansvarig, Vice Källarmästare, Vice Processmästare, Vice Aktivitetsansvarig.",
   "volunteer_roles_htmval_other": "Övriga poster: Revisor (2 st — rekommenderas inte för 1or), Framtidsordförande, Valnämndsrepresentant TLTH, Alumniansvarig, Utedischoansvarig (1–2), Övermarskalk, Talman, Skattförman (1–3), Tackmästare.",
   "volunteer_roles_htm2_desc1": "HTM-2: Här väljs i ordinarie fall inga poster, men om någon post blev vakant (ingen fick den) på HTM-Val brukar de väljas här.",
-  "volunteer_roles_htm2_desc2": "VTM: Teknikfokusansvarig, Tackmästare.",
+  "volunteer_roles_htm2_desc2": "VTM: Deltageneraler, Tackmästare.",
   "volunteer_roles_comm_title": "Valberedningsval (Utskottsval)",
   "volunteer_roles_comm_desc": "Om inget annat står är valet oftast efter HTM-Val, runt slutet på november. Vissa poster väljs med intervju, vissa med formulär — se utlysningen när det närmar sig.",
   "volunteer_roles_comm_cafe": "Café: Brunchmästare, Inventarieansvarig, Stekare.",
@@ -1496,5 +1496,7 @@
   "volunteer_weekly_place_outside": "Utanför E-huset",
   "volunteer_day_sun": "Söndag",
   "volunteer_weekly_dick_title": "DICK",
-  "volunteer_weekly_dick_desc": "DICK ses varje söndag på Smörlyckan. Häng med genom att gå med i Messenger-chatten."
+  "volunteer_weekly_dick_desc": "DICK ses varje söndag på Smörlyckan. Häng med genom att gå med i Messenger-chatten.",
+  "volunteer_month_aug_oct": "Augusti–Oktober",
+  "volunteer_timeline_nollning": "Nollningen — mottagningen för alla nya studenter, med phaddergrupper och event nästan varje vecka."
 }
