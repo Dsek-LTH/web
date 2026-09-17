@@ -42,7 +42,7 @@
 
 <div class="mx-auto max-w-3xl px-4 py-8">
   <div class="mb-6 flex items-center justify-between">
-    <Button variant="ghost" href="/songbook" class="flex items-center gap-2">
+    <Button variant="ghost" href="/songarchive" class="flex items-center gap-2">
       <ArrowLeft class="h-4 w-4" />
       {m.back()}
     </Button>
