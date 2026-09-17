@@ -4,24 +4,15 @@ import { setError, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { createSongBookEntrySchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
-import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
-import DOMPurify from "isomorphic-dompurify";
 import { redirect } from "sveltekit-flash-message/server";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma, user } = locals;
+export const load: PageServerLoad = async ({ locals: { user } }) => {
   authorize(apiNames.SONG.CREATE, user);
 
-  const [existingCategories, existingMelodies] = await Promise.all([
-    getExistingCategories(prisma),
-    getExistingMelodies(prisma),
-  ]);
   return {
     form: await superValidate(zod4(createSongBookEntrySchema)),
-    existingCategories,
-    existingMelodies,
   };
 };
 
@@ -51,7 +42,7 @@ export const actions: Actions = {
 
     const result = await prisma.songBookEntry.create({
       data: {
-        songId: DOMPurify.sanitize(songId),
+        songId,
         page,
         numberOnPage,
       },

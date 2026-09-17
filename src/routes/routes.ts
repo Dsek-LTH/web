@@ -128,7 +128,7 @@ export const getRoutes = (): Route[] =>
           title: m.nav_about_guild(),
           description: m.nav_about_guild_desc(),
           accessRequired: null,
-          appBehaviour: "home-link",
+          appBehaviour: "none",
           path: "/about",
           icon: DsekLogo,
           hideOnDesktop: true,
@@ -358,10 +358,16 @@ export const getFooterRoutes = (): Route[] =>
         },
         */
         {
-          title: m.nav_songbook(),
+          title: m.nav_songbook_actual(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/songbook",
+        },
+        {
+          title: m.nav_songbook(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/songarchive",
         },
         {
           title: m.nav_documents(),

@@ -64,7 +64,7 @@ export const actions: Actions = {
       data,
     });
     throw redirect(
-      encodeURI(`/songbook/${updatedSong.page}/${updatedSong.numberOnPage}`),
+      `/songbook/${updatedSong.page}/${updatedSong.numberOnPage}`,
       {
         message: m.songbook_songUpdated(),
         type: "success",
@@ -88,7 +88,7 @@ export const actions: Actions = {
     });
 
     throw redirect(
-      encodeURI(`/songbook`),
+      "/songbook",
       {
         message: m.songbook_songRemoved(),
         type: "success",
