@@ -44,6 +44,8 @@ ignore_patterns = [
     'mailmaster.blossom.dsek.se',
     'stiL',
     'Dsek-LTH', # The guild's GitHub name.
+    'uneval',
+    'klass', # TODO
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -664,3 +666,24 @@ extra_ignore_patterns = [
     'pageids',
     'explaintext',
 ]
+
+[[overrides]]
+paths = [ 'src/app.html' ]
+extra_ignore_patterns = [
+    '<title>D-sektionen</title>', # "title can have significant implications for search engine optimization"
+]
+
+[[overrides]]
+paths = [
+    'patches/devalue@5.5.0.patch',
+    'patches/devalue@5.8.1.patch',
+    'patches/devalue@5.6.2.patch',
+]
+extra_ignore_patterns = [
+    'POJO', # "Plain Old Java Object"
+    'POJOs',
+]
+
+[[overrides]]
+paths = [ 'src/hooks.server.ts' ]
+extra_ignore_patterns = [ 'splitname' ]
