@@ -45,15 +45,15 @@
       style="animation-delay:{index * 80}ms"
     >
       <div
-        class="border-border/80 bg-card flex h-full flex-col gap-2 rounded-xl border p-5 shadow-xs"
+        class="border-border/80 bg-card flex h-full flex-col gap-3 rounded-xl border p-6 shadow-xs"
       >
-        <div class="flex items-center gap-2.5">
-          <div class="bg-primary/10 text-primary shrink-0 rounded-lg p-2">
-            <level.icon class="size-4" />
+        <div class="flex items-center gap-3">
+          <div class="bg-primary/10 text-primary shrink-0 rounded-lg p-2.5">
+            <level.icon class="size-5" />
           </div>
-          <h4 class="text-sm leading-tight font-semibold">{level.title()}</h4>
+          <h4 class="text-base leading-tight font-semibold">{level.title()}</h4>
         </div>
-        <p class="text-muted-foreground text-xs leading-relaxed">
+        <p class="text-muted-foreground text-base leading-relaxed">
           {level.desc()}
         </p>
       </div>
@@ -64,10 +64,10 @@
         class="text-primary flex shrink-0 items-center justify-center gap-1.5 xl:w-24 xl:flex-col xl:gap-1"
         aria-hidden="true"
       >
-        <ChevronDown class="size-4 xl:hidden" />
-        <ChevronRight class="hidden size-4 xl:block" />
+        <ChevronDown class="size-5 xl:hidden" />
+        <ChevronRight class="hidden size-5 xl:block" />
         <span
-          class="text-[11px] font-semibold tracking-wide uppercase xl:text-center"
+          class="text-xs font-semibold tracking-wide uppercase xl:text-center"
         >
           {level.edge()}
         </span>

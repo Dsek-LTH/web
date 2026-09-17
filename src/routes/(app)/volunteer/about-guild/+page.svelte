@@ -130,13 +130,13 @@
           href={item.link}
           target="_blank"
           rel="noreferrer"
-          class="border-border text-muted-foreground hover:text-primary hover:border-primary/50 bg-card rounded-full border px-4 py-1.5 text-xs shadow-xs transition-colors"
+          class="border-border text-muted-foreground hover:text-primary hover:border-primary/50 bg-card rounded-full border px-4 py-1.5 text-sm shadow-xs transition-colors"
         >
           {item.name}
         </a>
       {:else}
         <span
-          class="border-border text-muted-foreground bg-muted-background rounded-full border px-4 py-1.5 text-xs select-none"
+          class="border-border text-muted-foreground bg-muted-background rounded-full border px-4 py-1.5 text-sm select-none"
         >
           {item.name}
         </span>
@@ -148,7 +148,7 @@
 <div class="flex flex-col gap-10">
   <header class="flex flex-col gap-2">
     <h1>{m.volunteer_about_title()}</h1>
-    <p class="text-muted-foreground text-md max-w-3xl leading-relaxed">
+    <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
       {m.volunteer_about_subtitle()}
     </p>
   </header>
@@ -171,7 +171,7 @@
   <section class="flex flex-col gap-5">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_about_map_title()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.volunteer_about_map_desc()}
       </p>
     </div>
@@ -184,7 +184,7 @@
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_about_outside_title()}</h2>
-      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+      <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
         {m.volunteer_about_outside_subtitle()}
       </p>
     </div>
@@ -204,17 +204,17 @@
     </div>
 
     <div class="mt-4 flex flex-col gap-3">
-      <h3 class="text-base font-semibold">
+      <h3 class="text-lg font-semibold">
         {m.volunteer_about_nations_list()}
       </h3>
       {@render pills(nations)}
-      <p class="text-muted-foreground mt-1 text-[11px] italic">
+      <p class="text-muted-foreground mt-1 text-sm italic">
         {m.volunteer_about_nations_footnote()}
       </p>
     </div>
 
     <div class="mt-4 flex flex-col gap-3">
-      <h3 class="text-base font-semibold">{m.volunteer_about_spex_list()}</h3>
+      <h3 class="text-lg font-semibold">{m.volunteer_about_spex_list()}</h3>
       {@render pills(spex)}
     </div>
   </section>

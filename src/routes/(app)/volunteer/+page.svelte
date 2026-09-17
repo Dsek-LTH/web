@@ -61,7 +61,7 @@
     >
       {m.volunteer_header_title()}
     </h1>
-    <p class="text-muted-foreground max-w-3xl text-lg leading-relaxed">
+    <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
       {m.volunteer_header_desc()}
     </p>
   </header>
@@ -91,12 +91,12 @@
             </div>
           </Card.Header>
           <Card.Content>
-            <p class="text-muted-foreground text-sm leading-relaxed">
+            <p class="text-muted-foreground text-base leading-relaxed">
               {card.desc()}
             </p>
           </Card.Content>
           <Card.Footer
-            class="text-primary flex items-center gap-1 text-xs font-semibold"
+            class="text-primary flex items-center gap-1 text-sm font-semibold"
           >
             <span>{m.volunteer_btn_get_started()}</span>
             <ArrowRight
@@ -113,10 +113,10 @@
     class="border-border/80 bg-muted-background relative overflow-hidden rounded-2xl border p-8"
   >
     <div class="relative z-10 flex max-w-3xl flex-col gap-6">
-      <h2 class="font-sans text-2xl font-bold">
+      <h2>
         {m.volunteer_landing_ready_title()}
       </h2>
-      <p class="text-muted-foreground leading-relaxed">
+      <p class="text-muted-foreground text-base leading-relaxed">
         {m.volunteer_landing_ready_desc()}
       </p>
       <div class="flex flex-wrap gap-4">
