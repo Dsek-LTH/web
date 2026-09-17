@@ -1,4 +1,3 @@
-
 ## What is this folder?
 
 This is an [unpacked (git-friendly)](https://inlang.com/docs/unpacked-project) inlang project.
@@ -6,19 +5,23 @@ This is an [unpacked (git-friendly)](https://inlang.com/docs/unpacked-project) i
 ## At a glance
 
 Purpose:
+
 - This folder is the Git-friendly representation of an `.inlang` project.
 - The canonical `.inlang` format is a portable snapshot; this directory is the unpacked version for Git.
 - This folder stores project configuration and plugin cache data.
 - Translation files live outside this folder and are referenced from `settings.json`.
 
 Safe to edit:
+
 - `settings.json`
 
 Do not edit:
+
 - `cache/`
 - `.gitignore`
 
 Key files:
+
 - `settings.json` — locales, plugins, file patterns
 - `cache/` — plugin caches (safe to delete)
 - `.gitignore` — generated
