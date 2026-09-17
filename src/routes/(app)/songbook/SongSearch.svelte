@@ -73,7 +73,7 @@
           {#if selectedLabel}
             {selectedLabel}
           {:else}
-            <i class="opacity-50"> Search for a song </i>
+            <i class="opacity-50"> {m.songbook_searchAfterSong()} </i>
           {/if}
         </span>
         <ChevronsUpDownIcon class="h-4 w-4 shrink-0 opacity-50" />

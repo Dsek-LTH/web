@@ -108,24 +108,13 @@
         class="block h-full transition-transform"
       >
         <Card
-          class={[
-            "hover:bg-muted/50 animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] h-full cursor-pointer duration-300",
-            song.deletedAt &&
-              "border-destructive bg-destructive/5 hover:bg-destructive/10",
-          ]}
+          class="hover:bg-muted/50 animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] h-full cursor-pointer duration-300"
           style="animation-delay:{index * 50}ms"
         >
           <CardHeader>
             <div class="flex items-start justify-between gap-4">
               <CardTitle class="flex flex-col gap-1">
                 <span>{song.title}</span>
-                {#if song.deletedAt}
-                  <span
-                    class="text-destructive text-xs font-semibold tracking-wider uppercase"
-                  >
-                    {m.songbook_deleted()}
-                  </span>
-                {/if}
               </CardTitle>
               <Badge variant="outline" class="shrink-0"
                 >{m.songbook_page()} {page}</Badge

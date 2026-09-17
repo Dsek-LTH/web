@@ -8,7 +8,7 @@ export const searchSongTitles = query(z.string(), async (titleFilter) => {
   const {
     locals: { user, prisma },
   } = getRequestEvent();
-  authorize(apiNames.SONG.CREATE, user);
+  authorize(apiNames.SONG.READ, user);
 
   if (!titleFilter || titleFilter.length < 2) {
     return [];
