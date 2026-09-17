@@ -9655,9 +9655,9 @@
       "tableName": "song_book_entries",
       "fields": [
         {
-          "id": "public.song_book_entries.songId",
-          "name": "songId",
-          "columnName": "songId",
+          "id": "public.song_book_entries.song_id",
+          "name": "song_id",
+          "columnName": "song_id",
           "type": "uuid",
           "isRequired": true,
           "kind": "scalar",
@@ -9683,9 +9683,9 @@
           "maxLength": null
         },
         {
-          "id": "public.song_book_entries.numberOnPage",
-          "name": "numberOnPage",
-          "columnName": "numberOnPage",
+          "id": "public.song_book_entries.number_on_page",
+          "name": "number_on_page",
+          "columnName": "number_on_page",
           "type": "int4",
           "isRequired": true,
           "kind": "scalar",
@@ -9731,7 +9731,7 @@
           "kind": "object",
           "relationName": "song_book_entriesTosongs",
           "relationFromFields": [
-            "songId"
+            "song_id"
           ],
           "relationToFields": [
             "id"
@@ -9747,15 +9747,15 @@
         {
           "name": "song_book_entries_pkey",
           "fields": [
-            "numberOnPage",
+            "number_on_page",
             "page"
           ],
           "nullNotDistinct": false
         },
         {
-          "name": "song_book_entries_songId_key",
+          "name": "song_book_entries_song_id_key",
           "fields": [
-            "songId"
+            "song_id"
           ],
           "nullNotDistinct": false
         }

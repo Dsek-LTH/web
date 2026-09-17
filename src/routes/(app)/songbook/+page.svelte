@@ -19,6 +19,7 @@
   import { resolve } from "$app/paths";
   import apiNames from "$lib/utils/apiNames";
   import { debounce } from "$lib/utils/debounce";
+  import { getFileUrl } from "$lib/files/client.js";
 
   let { data } = $props();
 
@@ -72,7 +73,11 @@
     </div>
     <div class="hidden w-3/12 rounded-lg md:block">
       <div class="rounded-lg border-[1px] shadow-xl">
-        <img class="rounded-lg" src="/songbook/latest.png" alt="" />
+        <img
+          class="rounded-lg"
+          src={getFileUrl("minio/files/public/photos/songbook.png")}
+          alt=""
+        />
       </div>
     </div>
   </div>

@@ -118,7 +118,7 @@ export const getRoutes = (): Route[] =>
       title: m.nav_guild(),
       accessRequired: null,
       appBehaviour: "none",
-      pictureUrl: getFileUrl("minio/files/public/photos/stock3.webp") ?? "",
+      pictureUrl: getFileUrl("minio/files/public/photos/guild.jpg") ?? "",
       pictureTitle: m.nav_about_guild(),
       pictureDescription: m.nav_about_guild_desc(),
       picturePath: "/about",

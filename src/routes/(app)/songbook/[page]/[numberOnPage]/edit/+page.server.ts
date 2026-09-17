@@ -25,22 +25,18 @@ export const actions: Actions = {
     const formData = await request.formData();
     const form = await superValidate(formData, zod4(updateSongBookEntrySchema));
     if (!form.valid) return fail(400, { form });
+
     const data = form.data;
-    if (data.songId == null) {
-      return setError(form, "songId", m.songbook_missingTitle());
-    }
-    if (data.page == null) {
-      return setError(form, "page", m.songbook_missingLyrics());
-    }
-    if (data.numberOnPage == null) {
-      return setError(form, "numberOnPage", m.songbook_missingCategory());
-    }
     const originalPage = Number(params.page);
     const originalNumber = Number(params.numberOnPage);
 
     if (
       (await prisma.songBookEntry.count({
-        where: { page: data.page, numberOnPage: data.numberOnPage },
+        where: {
+          page: data.page,
+          numberOnPage: data.numberOnPage,
+          NOT: { page: originalPage, numberOnPage: originalNumber },
+        },
       })) > 0
     ) {
       return setError(
@@ -48,6 +44,17 @@ export const actions: Actions = {
         "numberOnPage",
         m.songbook_compositeKeyDuplicateError(),
       );
+    }
+
+    if (
+      (await prisma.songBookEntry.count({
+        where: {
+          songId: data.songId,
+          NOT: { page: originalPage, numberOnPage: originalNumber },
+        },
+      })) > 0
+    ) {
+      return setError(form, "songId", m.songbook_songIdDuplicateError());
     }
 
     const updatedSong = await prisma.songBookEntry.update({

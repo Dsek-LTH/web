@@ -45,6 +45,10 @@ export const actions: Actions = {
       );
     }
 
+    if ((await prisma.songBookEntry.count({ where: { songId } })) > 0) {
+      return setError(form, "songId", m.songbook_songIdDuplicateError());
+    }
+
     const result = await prisma.songBookEntry.create({
       data: {
         songId: DOMPurify.sanitize(songId),

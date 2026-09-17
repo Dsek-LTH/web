@@ -10,7 +10,7 @@ export const searchSongTitles = query(z.string(), async (titleFilter) => {
   } = getRequestEvent();
   authorize(apiNames.SONG.CREATE, user);
 
-  if (!query || query.length < 2) {
+  if (!titleFilter || titleFilter.length < 2) {
     return [];
   }
 

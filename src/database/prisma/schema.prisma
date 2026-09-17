@@ -764,10 +764,10 @@ model Song {
 }
 
 model SongBookEntry {
-  songId       String   @unique() @db.Uuid()
+  songId       String   @unique() @map("song_id") @db.Uuid()
   song         Song     @relation(fields: [songId], references: [id])
   page         Int
-  numberOnPage Int
+  numberOnPage Int      @map("number_on_page")
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt() @map("updated_at") @db.Timestamptz(6)
 

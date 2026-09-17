@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as m from "$paraglide/messages.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import * as Command from "$lib/components/ui/command/index.js";
   import { CheckIcon, ChevronsUpDownIcon } from "@lucide/svelte";
@@ -83,20 +84,18 @@
   <Popover.Content class="w-[400px] p-0">
     <Command.Root shouldFilter={false}>
       <Command.Input
-        placeholder="Search for a song..."
+        placeholder={m.songbook_searchAfterSong()}
         bind:value={searchQuery}
       />
       <Command.List>
         {#if isFetching}
           <div class="text-muted-foreground py-6 text-center text-sm">
-            Searching...
+            {m.songbook_searching()}
           </div>
         {:else if searchQuery.length < 2}
-          <Command.Empty
-            >Search must be longer than two characters</Command.Empty
-          >
+          <Command.Empty>{m.songbook_moreThatTwoChar()}</Command.Empty>
         {:else if searchResults.length === 0}
-          <Command.Empty>No songs found.</Command.Empty>
+          <Command.Empty>{m.songbook_noSongsFound()}</Command.Empty>
         {:else if searchResults.length > 0}
           <Command.Group>
             {#each searchResults as song (song.id)}
