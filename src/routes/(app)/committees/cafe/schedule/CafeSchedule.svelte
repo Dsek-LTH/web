@@ -13,6 +13,7 @@
   import dayjs from "dayjs";
   import weekYear from "dayjs/plugin/weekYear";
   import weekOfYear from "dayjs/plugin/weekOfYear";
+  import isoWeek from "dayjs/plugin/isoWeek";
   import isoWeeksInYear from "dayjs/plugin/isoWeeksInYear";
   import isLeapYear from "dayjs/plugin/isLeapYear";
   import localeData from "dayjs/plugin/localeData";
@@ -36,6 +37,7 @@
   import * as m from "$paraglide/messages";
 
   dayjs.extend(weekOfYear);
+  dayjs.extend(isoWeek);
   dayjs.extend(isoWeeksInYear);
   dayjs.extend(isLeapYear);
   dayjs.extend(weekYear);
@@ -230,7 +232,7 @@
     </div>
     <div class=" grid grid-cols-1 gap-2 md:grid-cols-5">
       {#each { length: 5 }, dayIndex}
-        {@const day = week.startOf("week").add(dayIndex, "day")}
+        {@const day = week.startOf("isoWeek").add(dayIndex, "day")}
         {@const dayHasManager: boolean = shifts.find((s) => dayjs(s.date).isSame(day, "day") && s.timeSlot === "DAYMANAGER") != undefined}
         {#snippet DayForm(timeSlot: TimeSlot, disabled: boolean)}
           <form
@@ -252,12 +254,14 @@
             />{#if getName(day, timeSlot)}
               <Tooltip.Root>
                 <Tooltip.Trigger
-                  type="submit"
+                  type={disabled ? "button" : "submit"}
                   class={cn(
                     buttonVariants({ variant: "outline" }),
                     "block w-full overflow-hidden overflow-ellipsis",
+                    disabled ? "hover:bg-unset pointer-events-auto!" : "",
                   )}
-                  {disabled}>{getName(day, timeSlot)}</Tooltip.Trigger
+                  aria-disabled={disabled}
+                  disabled={false}>{getName(day, timeSlot)}</Tooltip.Trigger
                 >
                 <Tooltip.Content>
                   {getName(day, timeSlot)}
@@ -267,8 +271,11 @@
               <Button
                 variant="outline"
                 type="submit"
-                class="text-muted-foreground flex w-full overflow-hidden border-dashed overflow-ellipsis"
-                {disabled}><UserPlus /> Ledigt</Button
+                class="text-muted-foreground flex w-full overflow-hidden {disabled
+                  ? 'border-[1px]'
+                  : 'border-dashed'} overflow-ellipsis"
+                {disabled}
+                >{#if !disabled}<UserPlus /> {m.cafe_signup()}{/if}</Button
               >
             {/if}
           </form>
