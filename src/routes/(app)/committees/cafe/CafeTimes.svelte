@@ -39,7 +39,7 @@
         {@const isToday = dayjs().day() - 1 === i}
         <li
           class="odd:bg-background flex flex-row items-center justify-between gap-10 rounded-sm p-2 {isToday
-            ? 'bg-rosa-50 border-rosa-500 border-[1px]'
+            ? 'bg-rosa-50 dark:bg-rosa-900 border-rosa-500 border-[1px]'
             : ''}"
         >
           <p class="capitalize">{weekday}</p>
