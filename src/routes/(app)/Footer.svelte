@@ -64,7 +64,12 @@
 </footer>
 
 {#snippet socialIcons(klass: string)}
-  <div class={cn("text-muted-foreground mt-5 flex flex-row *:mx-3", klass)}>
+  <div
+    class={cn(
+      "text-muted-foreground [&_svg]:hover:fill-foreground mt-5 flex flex-row *:mx-3 [&_svg]:transition-colors",
+      klass,
+    )}
+  >
     {#if page.data.member}
       <a href="https://discord.com/invite/wxHQcvZ38p"
         ><svg
@@ -207,7 +212,7 @@
         {#each route.children as child (child.title)}
           <a
             href={child.path}
-            class="text-muted-foreground my-[1px] no-underline"
+            class="text-muted-foreground hover:text-foreground my-[1px] no-underline transition-colors"
           >
             {child.title}{#if child.path?.startsWith("https://")}
               <ExternalLink class="mb-[4px] inline h-[0.8lh]" />

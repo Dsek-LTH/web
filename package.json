@@ -21,6 +21,7 @@
     "generate": "zenstack generate && prisma generate",
     "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
     "migrate:deploy": "prisma migrate deploy",
+    "migrate:seed": "prisma migrate deploy && prisma db seed",
     "seed": "prisma db seed",
     "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",

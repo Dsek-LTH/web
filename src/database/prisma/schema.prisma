@@ -372,6 +372,8 @@ model RecurringEvent {
   endDatetime     DateTime      @map("end_datetime") @db.Timestamptz(6)
   events          Event[]
   author          Member        @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
+
+  @@map("recurring_event")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{

@@ -416,6 +416,7 @@ model RecurringEvent {
     @@allow("read", has(auth().policies, "event:read"))
     @@allow("update", has(auth().policies, "event:update"))
     @@allow("delete", has(auth().policies, "event:delete"))
+    @@map("recurring_event")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Events{
