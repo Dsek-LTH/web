@@ -15,20 +15,25 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     ? getExtendedPrismaClient(locals.language, user?.studentId)
     : prisma;
 
-  const songBookEntry = await client.songBookEntry.findUnique({
-    where: {
-      page_numberOnPage: {
-        page: Number(params.page),
-        numberOnPage: Number(params.numberOnPage),
+  let songBookEntry;
+  try {
+    songBookEntry = await client.songBookEntry.findUnique({
+      where: {
+        page_numberOnPage: {
+          page: Number(params.page),
+          numberOnPage: Number(params.numberOnPage),
+        },
       },
-    },
-    include: {
-      song: true,
-    },
-  });
+      include: {
+        song: true,
+      },
+    });
+  } catch (e) {
+    console.error(`Error fetching song: ${e}`);
+  }
 
   if (songBookEntry == null) {
-    throw error(404, {
+    error(404, {
       message: m.songbook_errors_songNotFound(),
     });
   }

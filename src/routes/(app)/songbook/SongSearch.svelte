@@ -19,18 +19,11 @@
   let searchResults = $state<Array<{ id: string; title: string }>>([]);
   let debounceTimer: ReturnType<typeof setTimeout>;
 
-  let [lastId, lastTitle] = [structuredClone(songId), title];
-  // Display the title of the selected song on the trigger button
   const selectedLabel = $derived.by(() => {
     const foundInSearch = searchResults.find((s) => s.id === songId);
-    if (foundInSearch) {
-      lastId = songId;
-      lastTitle = foundInSearch.title;
-      return foundInSearch.title;
-    }
-    if (songId === lastId) return lastTitle;
+    if (foundInSearch) return foundInSearch.title;
 
-    return "Unknown Song";
+    return title || "";
   });
 
   // Debounced search effect
@@ -111,6 +104,7 @@
                 value={song.id}
                 onSelect={() => {
                   songId = song.id;
+                  title = song.title;
                   closeAndFocusTrigger();
                 }}
               >

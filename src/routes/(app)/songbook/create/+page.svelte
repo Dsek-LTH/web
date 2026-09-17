@@ -33,10 +33,13 @@
 
   <Card class="border-border shadow-xl">
     <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
-      <CardTitle class="text-3xl font-bold"
-        >{m.songbook_addSongToSongbook()}</CardTitle
-      >
-      <CardDescription>{m.songbook_addSongToSongbookMoreInfo()}</CardDescription
+      <CardTitle class="text-3xl font-bold">
+        {m.songbook_addSongToSongbook()}
+      </CardTitle>
+      <CardDescription
+        >{m.songbook_addSongToSongbookMoreInfo()}.
+        <a class="text-primary" href="/songarchive">{m.songBook()}↗</a
+        ></CardDescription
       >
     </CardHeader>
     <CardContent class="pt-6">
@@ -64,9 +67,9 @@
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div class="flex flex-col gap-2">
-            <Label for="page" class="text-base font-medium"
-              >{m.songbook_page()}</Label
-            >
+            <Label for="page" class="text-base font-medium">
+              {m.songbook_page()}
+            </Label>
             <Input
               id="page"
               name="page"

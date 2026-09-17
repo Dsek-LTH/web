@@ -14,7 +14,6 @@
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import Save from "@lucide/svelte/icons/save";
   import Trash from "@lucide/svelte/icons/trash";
-  import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
   import { Spinner } from "$lib/components/ui/spinner";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
   import apiNames from "$lib/utils/apiNames";
@@ -129,57 +128,45 @@
       >
         <div>
           {#if canDelete}
-            {#if song.deletedAt}
-              <form method="POST" action="?/restore" class="inline-block">
-                <input type="hidden" name="id" value={song.id} />
-                <Button
-                  type="submit"
-                  variant="outline"
-                  class="flex items-center gap-2"
-                >
-                  <RotateCcw class="h-4 w-4" />
-                  {m.songbook_restoreFromGarbageCan()}
-                </Button>
-              </form>
-            {:else}
-              <AlertDialog.Root>
-                <AlertDialog.Trigger
-                  class={buttonVariants({ variant: "destructive" })}
-                >
-                  <Trash class="h-4 w-4" />
-                  {m.songbook_removeSong()}
-                </AlertDialog.Trigger>
-                <AlertDialog.Content>
-                  <AlertDialog.Header>
-                    <AlertDialog.Title
-                      >{m.songbook_removeSong()}</AlertDialog.Title
+            <AlertDialog.Root>
+              <AlertDialog.Trigger
+                class={buttonVariants({ variant: "destructive" })}
+              >
+                <Trash class="h-4 w-4" />
+                {m.songbook_removesongbookentry()}
+              </AlertDialog.Trigger>
+              <AlertDialog.Content>
+                <AlertDialog.Header>
+                  <AlertDialog.Title
+                    >{m.songbook_removeSong()}</AlertDialog.Title
+                  >
+                  <AlertDialog.Description>
+                    {m.songbook_areYouSure()} "{song.title}"?
+                  </AlertDialog.Description>
+                </AlertDialog.Header>
+                <AlertDialog.Footer>
+                  <AlertDialog.Cancel>{m.songbook_cancel()}</AlertDialog.Cancel>
+                  <form action="?/delete" method="POST">
+                    <input type="hidden" name="id" value={song.id} />
+                    <AlertDialog.Action
+                      type="submit"
+                      class={buttonVariants({ variant: "destructive" })}
                     >
-                    <AlertDialog.Description>
-                      {m.songbook_areYouSure()} "{song.title}"?
-                    </AlertDialog.Description>
-                  </AlertDialog.Header>
-                  <AlertDialog.Footer>
-                    <AlertDialog.Cancel
-                      >{m.songbook_cancel()}</AlertDialog.Cancel
-                    >
-                    <form action="?/delete" method="POST">
-                      <input type="hidden" name="id" value={song.id} />
-                      <AlertDialog.Action
-                        type="submit"
-                        class={buttonVariants({ variant: "destructive" })}
-                      >
-                        {m.songbook_removeSong()}
-                      </AlertDialog.Action>
-                    </form>
-                  </AlertDialog.Footer>
-                </AlertDialog.Content>
-              </AlertDialog.Root>
-            {/if}
+                      {m.songbook_removesongbookentry()}
+                    </AlertDialog.Action>
+                  </form>
+                </AlertDialog.Footer>
+              </AlertDialog.Content>
+            </AlertDialog.Root>
           {/if}
         </div>
 
         <div class="flex items-center justify-end gap-4">
-          <Button variant="outline" href="/songbook/{song.slug}">
+          <Button
+            variant="outline"
+            href="/songbook/{data.songBookEntry.page}/{data.songBookEntry
+              .numberOnPage}"
+          >
             {m.songbook_cancel()}
           </Button>
           <Button

@@ -10,7 +10,6 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import Pen from "@lucide/svelte/icons/pen";
-  import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
   import * as m from "$paraglide/messages.js";
   import apiNames from "$lib/utils/apiNames";
   import { mayWatchVideos } from "../../helpers";
@@ -58,31 +57,6 @@
       </Button>
     {/if}
   </div>
-
-  {#if song.deletedAt}
-    <div
-      class="bg-destructive/10 text-destructive border-destructive/20 mb-6 flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div>
-        <h3 class="text-lg font-bold">{m.songbook_deleted()}</h3>
-        <p class="text-sm opacity-90">{m.songbook_deletedExplanation()}</p>
-      </div>
-      {#if data.user?.policies?.includes(apiNames.SONG.DELETE)}
-        <form method="POST" action="/songbook/{song.slug}/edit?/restore">
-          <input type="hidden" name="id" value={song.id} />
-          <Button
-            type="submit"
-            variant="outline"
-            size="sm"
-            class="flex items-center gap-2"
-          >
-            <RotateCcw class="h-4 w-4" />
-            {m.songbook_restoreFromGarbageCan()}
-          </Button>
-        </form>
-      {/if}
-    </div>
-  {/if}
 
   <Card class="border-border shadow-xl">
     <CardHeader class="border-border border-b-[1px] pb-6">

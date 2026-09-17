@@ -86,15 +86,12 @@ export const getRoutes = (): Route[] =>
       title: m.nav_guild(),
       accessRequired: null,
       appBehaviour: "none",
+      pictureUrl: getFileUrl("minio/files/public/photos/stock3.webp") ?? "",
+      pictureTitle: m.nav_about_guild(),
+      pictureDescription: m.nav_about_guild_desc(),
+      picturePath: "/about",
       path: null,
       children: [
-        {
-          title: m.nav_about_guild(),
-          description: m.nav_about_guild_desc(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/about",
-        },
         {
           title: m.nav_board(),
           description: m.nav_board_desc(),
@@ -115,6 +112,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/documents/governing",
+        },
+        {
+          title: m.nav_songbook(),
+          description: m.songbook_explanation(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/songbook",
         },
       ],
     },
