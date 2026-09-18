@@ -36,7 +36,7 @@
 <div class="mx-auto max-w-2xl px-4 py-8">
   <Button
     variant="ghost"
-    href="/songbook/{song.slug}"
+    href="/songarchive/{song.slug}"
     class="mb-6 flex items-center gap-2"
   >
     <ArrowLeft class="h-4 w-4" />
@@ -243,7 +243,7 @@
         </div>
 
         <div class="flex items-center justify-end gap-4">
-          <Button variant="outline" href="/songbook/{song.slug}">
+          <Button variant="outline" href="/songarchive/{song.slug}">
             {m.songbook_cancel()}
           </Button>
           <Button

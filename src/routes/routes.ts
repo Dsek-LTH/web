@@ -46,6 +46,8 @@ export type Route = {
   children?: Route[];
   list?: boolean;
   icon?: Component;
+  /** Only display in mobile view. Default `false` */
+  hideOnDesktop?: boolean;
   isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
@@ -116,6 +118,10 @@ export const getRoutes = (): Route[] =>
       title: m.nav_guild(),
       accessRequired: null,
       appBehaviour: "none",
+      pictureUrl: getFileUrl("minio/files/public/photos/guild.jpg") ?? "",
+      pictureTitle: m.nav_about_guild(),
+      pictureDescription: m.nav_about_guild_desc(),
+      picturePath: "/about",
       path: null,
       children: [
         {
@@ -125,6 +131,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/about",
           icon: DsekLogo,
+          hideOnDesktop: true,
         },
         {
           title: m.nav_board(),
@@ -149,6 +156,14 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/documents/governing",
           icon: ScrollText,
+        },
+        {
+          title: m.songbook_header(),
+          description: m.songbook_explanation(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/songbook",
+          icon: Music,
         },
       ],
     },
@@ -207,14 +222,6 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
-        },
-        {
-          title: m.nav_songbook(),
-          accessRequired: null,
-          appBehaviour: "none",
-          description: m.nav_songbook_desc(),
-          path: "/songbook",
-          icon: Music,
         },
         {
           title: m.stocklist(),
@@ -351,10 +358,16 @@ export const getFooterRoutes = (): Route[] =>
         },
         */
         {
-          title: m.nav_songbook(),
+          title: m.nav_songbook_actual(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/songbook",
+        },
+        {
+          title: m.nav_songbook(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/songarchive",
         },
         {
           title: m.nav_documents(),

@@ -332,7 +332,7 @@
               : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[1fr_1fr]"}
           >
             {#if route.pictureUrl}
-              <li class="row-span-3">
+              <li class="row-span-4">
                 <NavigationMenu.Link
                   class="flex h-full w-full flex-col justify-end rounded-md bg-cover bg-center p-6 no-underline outline-hidden select-none focus:shadow-md"
                   style="background-image: linear-gradient(to top,rgba(0,0,0,1),rgba(0,0,0,0)),url('{route.pictureUrl}');"
@@ -347,7 +347,7 @@
                 </NavigationMenu.Link>
               </li>
             {/if}
-            {#each route.children as child (child.title)}
+            {#each route.children.filter((c) => !c.hideOnDesktop) as child (child.title)}
               <NavigationMenu.Link
                 class="text-foreground font-medium"
                 href={child.path}

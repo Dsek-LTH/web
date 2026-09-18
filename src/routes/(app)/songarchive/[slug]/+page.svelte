@@ -42,13 +42,16 @@
 
 <div class="mx-auto max-w-3xl px-4 py-8">
   <div class="mb-6 flex items-center justify-between">
-    <Button variant="ghost" href="/songbook" class="flex items-center gap-2">
+    <Button variant="ghost" href="/songarchive" class="flex items-center gap-2">
       <ArrowLeft class="h-4 w-4" />
       {m.back()}
     </Button>
 
     {#if canUpdate}
-      <Button href="/songbook/{song.slug}/edit" class="flex items-center gap-2">
+      <Button
+        href="/songarchive/{song.slug}/edit"
+        class="flex items-center gap-2"
+      >
         <Pen class="h-4 w-4" />
         {m.songbook_edit()}
       </Button>
@@ -64,7 +67,7 @@
         <p class="text-sm opacity-90">{m.songbook_deletedExplanation()}</p>
       </div>
       {#if data.user?.policies?.includes(apiNames.SONG.DELETE)}
-        <form method="POST" action="/songbook/{song.slug}/edit?/restore">
+        <form method="POST" action="/songarchive/{song.slug}/edit?/restore">
           <input type="hidden" name="id" value={song.id} />
           <Button
             type="submit"
