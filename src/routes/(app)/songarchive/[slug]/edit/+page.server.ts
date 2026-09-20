@@ -9,13 +9,8 @@ import type { Actions, PageServerLoad } from "./$types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 
-export const load: PageServerLoad = async ({ locals, parent }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.SONG.UPDATE, locals.user);
-  const form = await superValidate(
-    (await parent()).song,
-    zod4(updateSongSchema),
-  );
-  return { form };
 };
 
 export const actions: Actions = {
