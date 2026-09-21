@@ -114,7 +114,10 @@
     },
     { name: "Jesperspexet", link: null },
     { name: "Kalmarspexet", link: "https://www.kalmarnation.nu/spex" },
-    { name: "Krischanstaspääxet", link: "https://www.krnation.se/spaeaex" },
+    {
+      name: "Krischanstaspääxet",
+      link: "https://krnation.se/krischanstaspaaxet/",
+    },
     { name: "Lundaspexarna", link: "http://www.lundaspexarna.se/" },
     { name: "Lunds studentteater", link: "http://www.lundsstudentteater.se/" },
     { name: "Toddyspexarna", link: "http://toddyspexarna.se/" },
