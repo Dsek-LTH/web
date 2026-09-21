@@ -25,3 +25,6 @@ DROP TABLE "expense_items";
 
 -- DropTable
 DROP TABLE "expenses";
+
+DELETE FROM "notifications" WHERE "type" = 'EXPENSES';
+DELETE FROM "subscription_settings" WHERE "type" = 'EXPENSES';
