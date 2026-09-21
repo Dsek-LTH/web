@@ -29,7 +29,6 @@
 
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { cn } from "$lib/utils";
-  import type { NotificationGroup } from "$lib/utils/notifications/group";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
   import { CircleUserRound, UserRoundPlus } from "@lucide/svelte";
@@ -37,10 +36,9 @@
   import { getFileUrl } from "$lib/files/client";
 
   const {
-    notificationsPromise,
+    unreadCountPromise,
     isApp,
-  }: { notificationsPromise?: Promise<NotificationGroup[]>; isApp: boolean } =
-    $props();
+  }: { unreadCountPromise?: Promise<number>; isApp: boolean } = $props();
 
   const canAccess = (accessRequired: string | null) =>
     accessRequired === null || isAuthorized(accessRequired, page.data.user);
@@ -139,7 +137,7 @@
         class="p-1.5"><Languages /></Button
       >
       {#if page.data.member}
-        <NotificationBell {notificationsPromise} />
+        <NotificationBell {unreadCountPromise} />
         <HoverCard.Root bind:open={memberOpen} openDelay={0} closeDelay={125}>
           <HoverCard.Trigger onclick={() => (memberOpen = !memberOpen)}>
             <MemberAvatar
@@ -334,7 +332,7 @@
               : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[1fr_1fr]"}
           >
             {#if route.pictureUrl}
-              <li class="row-span-3">
+              <li class="row-span-4">
                 <NavigationMenu.Link
                   class="flex h-full w-full flex-col justify-end rounded-md bg-cover bg-center p-6 no-underline outline-hidden select-none focus:shadow-md"
                   style="background-image: linear-gradient(to top,rgba(0,0,0,1),rgba(0,0,0,0)),url('{route.pictureUrl}');"
@@ -349,13 +347,17 @@
                 </NavigationMenu.Link>
               </li>
             {/if}
-            {#each route.children as child (child.title)}
+            {#each route.children.filter((c) => !c.hideOnDesktop) as child (child.title)}
               <NavigationMenu.Link
                 class="text-foreground font-medium"
                 href={child.path}
               >
                 {#if route.list}
-                  {child.title}
+                  {@const Icon = child.icon}
+                  <div class="flex flex-row items-center gap-1">
+                    <Icon size="24" class="text-rosa-400" />
+                    {child.title}
+                  </div>
                   <span class="text-muted-foreground text-xs"
                     >{child.description}</span
                   >
@@ -363,6 +365,7 @@
                   <NavigationMenu.ContentItem
                     title={child.title}
                     description={child.description ?? ""}
+                    icon={child.icon}
                   />
                 {/if}
               </NavigationMenu.Link>
@@ -401,10 +404,12 @@
           <div>
             <ul class="list-none border-l-[1px]">
               {#each route.children as child (child.title)}
+                {@const Icon = child.icon}
                 <a
-                  class="hover:bg-secondary-hover text-foreground ml-[6px] block rounded-sm py-[6px] pr-[12px] pl-[6px] transition-all"
+                  class="hover:bg-secondary-hover text-foreground ml-[6px] flex flex-row items-center gap-1.5 rounded-sm py-[6px] pr-[12px] pl-[6px] transition-all"
                   href={child.path}
                 >
+                  <Icon size="16" class="text-rosa-400 max-w-4" />
                   {child.title}
                 </a>
               {/each}

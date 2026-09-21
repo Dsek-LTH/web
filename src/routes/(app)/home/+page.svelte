@@ -4,7 +4,9 @@
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import * as Card from "$lib/components/ui/card/index";
-  import { BookOpen, UsersRound } from "@lucide/svelte";
+  import BookOpen from "@lucide/svelte/icons/book-open";
+  import Coffee from "@lucide/svelte/icons/coffee";
+  import UsersRound from "@lucide/svelte/icons/users-round";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
@@ -25,13 +27,10 @@
           <h1 class="font-sans whitespace-nowrap">
             {m.home_greeting({ name: data.member?.firstName ?? "" })}
           </h1>
-          {#await data.notificationsPromise}
+          {#await data.unreadCountPromise}
             {m.home_notificationCount({ count: 0 })}
-          {:then notifications}
-            {m.home_notificationCount({
-              count:
-                notifications?.filter((n) => n.readAt === null).length ?? 0,
-            })}
+          {:then count}
+            {m.home_notificationCount({ count: count ?? 0 })}
           {/await}
         </div>
       </div>
@@ -56,6 +55,16 @@
             <BookOpen class="shrink-0" />{m.home_contactSRD()}
           </Button>
         </div>
+        <Button
+          variant="outline"
+          size="lg"
+          class="col-span-2 mt-2 w-fit sm:col-span-1"
+          href="/committees/cafe"
+        >
+          <Coffee class="text-primary" />
+          {m.home_cafeOpenHours()}:
+          <span class="font-bold">{data.cafeOpen?.markdown}</span>
+        </Button>
       </div>
     </div>
     <div>

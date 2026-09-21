@@ -20,13 +20,11 @@
     ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
     : 0) + "px"}
 >
-  <Header notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
+  <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
 
   {#if data.isApp}
-    {#await data.notificationsPromise then notifications}
-      <AppUnreadNotificationHandler
-        notificationCount={notifications?.filter((n) => !n.readAt).length}
-      />
+    {#await data.unreadCountPromise then unreadCount}
+      <AppUnreadNotificationHandler notificationCount={unreadCount} />
     {/await}
     <AppNotificationTokenHandler />
   {/if}

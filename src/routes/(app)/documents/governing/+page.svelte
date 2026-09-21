@@ -38,7 +38,12 @@
     {#each documents as doc (doc.id)}
       <li class="flex items-center justify-between gap-4">
         <div class="min-w-0 flex-1">
-          <FileLink name={doc.title} url={doc.url} host={true} />
+          <FileLink
+            class="shrink-0"
+            name={doc.title}
+            url={doc.url}
+            host={true}
+          />
         </div>
         {#if isEditing}
           <div class="flex shrink-0 items-center gap-2">

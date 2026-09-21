@@ -7,7 +7,11 @@
   import { deleteNotification } from "./data.remote";
   import { enhanceWithToast } from "$lib/stores/toast";
 
-  const { notification }: { notification: NotificationGroup } = $props();
+  const {
+    notification,
+    onDismissed,
+  }: { notification: NotificationGroup; onDismissed?: (id: number) => void } =
+    $props();
 </script>
 
 <div
@@ -29,7 +33,14 @@
       </span>
     </div>
   </a>
-  <form {...enhanceWithToast(deleteNotification.for(notification.id))}>
+  <form
+    {...enhanceWithToast(
+      deleteNotification.for(notification.id),
+      async (helpers) => {
+        if (await helpers.submit()) onDismissed?.(notification.id);
+      },
+    )}
+  >
     {#if notification.individualIds.length > 1}
       <input
         type="hidden"
