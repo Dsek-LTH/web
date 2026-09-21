@@ -387,13 +387,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_engage_yourself(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/volunteer#engage",
-        },
-        {
-          title: m.nav_volunteer_benefits(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/volunteer#benefits",
+          path: "/volunteer",
         },
         {
           title: m.nav_committees(),
