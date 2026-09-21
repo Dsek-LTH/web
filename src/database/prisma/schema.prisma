@@ -27,19 +27,6 @@ enum recurringType {
   YEARLY
 }
 
-enum DrinkQuantityType {
-  NONE
-  WEIGHT
-  COUNTS
-}
-
-enum DrinkGroup {
-  S1
-  S2
-  S3
-  S4
-}
-
 enum DocumentType {
   POLICY
   GUIDELINE
@@ -475,42 +462,6 @@ model Markdown {
   markdownEn String? @map("markdown_en")
 
   @@map("markdowns")
-}
-
-model DrinkItem {
-  id                String            @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  quantityType      DrinkQuantityType @map("quantity_type")
-  name              String
-  price             Int
-  group             DrinkGroup
-  systembolagetID   Int               @map("systembolaget_id")
-  bottleEmptyWeight Int?              @map("bottle_empty_weight")
-  bottleFullWeight  Int?              @map("bottle_full_weight")
-  quantityAvailable Int?              @default(0) @map("quantity_available")
-  nrBottles         Int?              @default(0) @map("nr_bottles")
-  stockLists        DrinkItemBatch[]
-
-  @@map("drinkitem")
-}
-
-model DrinkItemBatch {
-  id             String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  drinkItemId    String    @map("drink_item_id") @db.Uuid()
-  item           DrinkItem @relation(fields: [drinkItemId], references: [id])
-  quantityDelta  Int       @map("quantity_delta")
-  user           String
-  date           DateTime
-  nrBottlesDelta Int?      @map("nr_bottles_delta")
-
-  @@map("drinkitembatch")
-}
-
-model SexetInventoryValueLog {
-  id    String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  date  DateTime
-  value Int
-
-  @@map("sexetinventoryvaluelog")
 }
 
 model Meeting {
