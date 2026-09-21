@@ -28,12 +28,12 @@
 <SetPageTitle title={m.yrka_title()} />
 
 <div class="mx-auto w-full max-w-4xl px-4 py-8">
-  <Card class="border-border shadow-xl">
-    <CardHeader class="border-border border-b-[1px] pb-6">
+  <Card class="border-border overflow-hidden p-0 shadow-xl">
+    <CardHeader class="bg-muted/50 border-border border-b-[1px] pt-6 pb-6">
       <CardTitle class="text-3xl font-bold">{m.yrka_title()}</CardTitle>
       <CardDescription>{m.yrka_description()}</CardDescription>
     </CardHeader>
-    <CardContent class="pt-6">
+    <CardContent class="pt-6 pb-6">
       <form method="POST" use:enhance class="flex flex-col gap-6">
         <div class="flex flex-col gap-2">
           <Label for="title" class="text-base font-medium"

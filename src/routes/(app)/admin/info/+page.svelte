@@ -29,13 +29,13 @@
 <SetPageTitle title={m.admin_info_createNewInfoPage()} />
 
 <div class="mx-auto w-full max-w-4xl px-4 py-8">
-  <Card class="border-border shadow-xl">
-    <CardHeader class="border-border border-b-[1px] pb-6">
+  <Card class="border-border overflow-hidden p-0 shadow-xl">
+    <CardHeader class="bg-muted/50 border-border border-b-[1px] pt-6 pb-6">
       <CardTitle class="text-3xl font-bold"
         >{m.admin_info_createNewInfoPage()}</CardTitle
       >
     </CardHeader>
-    <CardContent class="flex flex-col gap-6 pt-6">
+    <CardContent class="flex flex-col gap-6 pt-6 pb-6">
       <div class="flex flex-col gap-2">
         <Label for="name">{m.admin_info_name()}</Label>
         <Input
