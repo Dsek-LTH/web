@@ -42,7 +42,7 @@ export type SendNotificationProps = BaseSendNotificationProps &
         fromMemberId: string;
       }
     | {
-        // Send as system (e.g. D-sek)
+        // Send as system (e.g. the guild)
         fromAuthor?: never;
         fromMemberId?: never;
       }

@@ -687,3 +687,7 @@ extra_ignore_patterns = [
 [[overrides]]
 paths = [ 'src/hooks.server.ts' ]
 extra_ignore_patterns = [ 'splitname' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/members/[[]studentId[]]/+page.svelte' ]
+extra_ignore_patterns = [ 'datateknik' ] # These are in the paths of the graphics repo.
