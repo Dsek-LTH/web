@@ -19,7 +19,6 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.PURCHASE_IN_QUEUE,
   NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
   NotificationType.PAYMENT_STATUS,
-  NotificationType.EXPENSES,
 ];
 
 type BaseSendNotificationProps = {

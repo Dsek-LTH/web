@@ -255,21 +255,20 @@ model CartItem {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Committees{
 model Committee {
-  id                String        @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  nameSv            String        @map("name_sv") @db.VarChar(255)
-  nameEn            String?       @map("name_en") @db.VarChar(255)
-  shortName         String?       @unique() @map("short_name") @db.VarChar(255)
+  id                String     @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  nameSv            String     @map("name_sv") @db.VarChar(255)
+  nameEn            String?    @map("name_en") @db.VarChar(255)
+  shortName         String?    @unique() @map("short_name") @db.VarChar(255)
   positions         Position[]
-  darkImageUrl      String?       @map("dark_image_url") @db.Text()
-  lightImageUrl     String?       @map("light_image_url") @db.Text()
-  monoImageUrl      String?       @map("mono_image_url") @db.Text()
-  symbolUrl         String?       @map("symbol_url") @db.Text()
-  descriptionSv     String?       @map("description_sv") @db.VarChar(255)
-  descriptionEn     String?       @map("description_en") @db.VarChar(255)
-  expenseItems      ExpenseItem[]
-  bannerUrl         String?       @map("banner_url") @db.Text()
-  previewUrl        String?       @map("preview_url") @db.Text()
-  isBannerTextLight Boolean       @default(false) @map("is_banner_text_light")
+  darkImageUrl      String?    @map("dark_image_url") @db.Text()
+  lightImageUrl     String?    @map("light_image_url") @db.Text()
+  monoImageUrl      String?    @map("mono_image_url") @db.Text()
+  symbolUrl         String?    @map("symbol_url") @db.Text()
+  descriptionSv     String?    @map("description_sv") @db.VarChar(255)
+  descriptionEn     String?    @map("description_en") @db.VarChar(255)
+  bannerUrl         String?    @map("banner_url") @db.Text()
+  previewUrl        String?    @map("preview_url") @db.Text()
+  isBannerTextLight Boolean    @default(false) @map("is_banner_text_light")
   election          Election[]
   article           Article[]
 
@@ -515,9 +514,6 @@ model Member {
   bookingRequests         BookingRequest[]
   recurringEvent          RecurringEvent[]
   tokens                  ExpoToken[]
-  expenses                Expense[]
-  expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
-  signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
   closedAlerts            Alert[]                 @relation("alerts_closed_by")
   cafeShifts              CafeShift[]
 
@@ -891,40 +887,6 @@ model ShoppableAccessPolicy {
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("shoppable_access_policies")
-}
-
-model Expense {
-  id                       Int           @id() @default(autoincrement())
-  date                     DateTime      @default(now()) @map("date") @db.Timestamptz(6)
-  createdAt                DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  description              String
-  isGuildCard              Boolean
-  hasBeenSentToBookkeeping Boolean       @default(false)
-  memberId                 String        @db.Uuid()
-  member                   Member        @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
-  items                    ExpenseItem[]
-  removedAt                DateTime?
-
-  @@map("expenses")
-}
-
-model ExpenseItem {
-  id                 String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  expenseId          Int       @map("expense_id")
-  expense            Expense   @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
-  committeeShortName String
-  commitee           Committee @relation(fields: [committeeShortName], references: [shortName])
-  amount             Int
-  costCenter         String
-  comment            String?
-  receiptUrl         String?
-  signerMemberId     String    @db.Uuid()
-  signer             Member    @relation(name: "expense_item_signer", fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
-  signedByMemberId   String?   @db.Uuid()
-  signedBy           Member?   @relation(name: "expense_item_signed_by", fields: [signedByMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signed_by_member_id_foreign")
-  signedAt           DateTime?
-
-  @@map("expense_items")
 }
 
 model Readme {
