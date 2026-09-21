@@ -5,17 +5,18 @@ import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import type { RequestHandler } from "@sveltejs/kit";
 
 export const POST: RequestHandler = async ({ request }) => {
+  const secret = request.headers.get("X-Scheduler-Secret");
+  if (!secret || secret !== env.SCHEDULER_PASSWORD) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const body: ExtendedPrismaModel<"Article"> & {
     tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
     author: ExtendedPrismaModel<"Author">;
-    password: string;
     notificationText: string;
   } = await request.json();
 
-  const { password, notificationText } = body;
-  if (!password || password !== env.SCHEDULER_PASSWORD) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  const { notificationText } = body;
 
   await Promise.allSettled([
     await sendNewArticleNotification(body, notificationText),

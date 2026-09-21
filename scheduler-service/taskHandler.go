@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -90,20 +89,7 @@ func rescheduleTaskExecution(ctx context.Context, taskID uint) {
 func executeTask(ctx context.Context, task scheduledTask) {
 	log.Printf("Executing task ID: %d to %s", task.ID, task.EndpointURL)
 
-	var bodyMap map[string]any
-	if err := json.Unmarshal([]byte(task.Body), &bodyMap); err != nil {
-		log.Printf("Error unmarshalling body for task ID %d: %v", task.ID, err)
-
-		return
-	}
-	bodyMap["password"] = os.Getenv("PASSWORD")
-	bodyBytes, err := json.Marshal(bodyMap)
-	if err != nil {
-		log.Printf("Error marshalling body for task ID %d: %v", task.ID, err)
-
-		return
-	}
-	req, err := http.NewRequest(http.MethodPost, task.EndpointURL, bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequest(http.MethodPost, task.EndpointURL, bytes.NewBufferString(task.Body))
 	if err != nil {
 		log.Printf("Error creating request for task ID %d: %v", task.ID, err)
 
@@ -111,6 +97,7 @@ func executeTask(ctx context.Context, task scheduledTask) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(sharedSecretHeader, os.Getenv("PASSWORD"))
 
 	client := &http.Client{
 		Timeout: 30 * time.Second,

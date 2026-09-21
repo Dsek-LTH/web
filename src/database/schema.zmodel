@@ -448,6 +448,7 @@ model Event {
     author               Member          @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
     tags                 Tag[]           @relation("event_tags")
     tickets              Ticket[]
+    ticketReleases       TicketRelease[]
     recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
 
 
@@ -1054,6 +1055,52 @@ model Ticket {
     @@allow("delete", has(auth().policies, "webshop:manage"))
 
     @@map("ticket")
+}
+
+// The two models below belong to the standalone ticket-service Go
+// microservice (free-ticket releases with a grace-window lottery + FIFO
+// waitlist), unrelated to the Ticket/Shoppable models above. Prisma only
+// owns their schema/migrations here; all reads and writes happen through
+// ticket-service's own pgx/sqlc layer, never through this Prisma client -
+// hence no @@allow policies, matching Cart/Order/Payment above.
+model TicketRelease {
+    id                 String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    eventId            String             @map("event_id") @db.Uuid
+    event              Event              @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    title              String
+    description        String             @default("")
+    location           String             @default("")
+    quantity           Int
+    opensAt            DateTime           @map("opens_at") @db.Timestamptz(6)
+    closesAt           DateTime           @map("closes_at") @db.Timestamptz(6)
+    // Copied from the linked event's endDatetime at creation time - once
+    // this passes, the release is excluded from the public listing and
+    // members' "my tickets" view. Rows are never purged; old releases stay
+    // reachable directly (e.g. for an admin reviewing past attendees).
+    expiresAt          DateTime           @map("expires_at") @db.Timestamptz(6)
+    graceWindowSeconds Int                @default(60) @map("grace_window_seconds")
+    offerWindowSeconds Int                @default(300) @map("offer_window_seconds")
+    status             String             @default("scheduled")
+    createdBy          String             @map("created_by")
+    createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+    entries            TicketQueueEntry[]
+
+    @@map("ticket_release")
+}
+
+model TicketQueueEntry {
+    id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    releaseId      String        @map("release_id") @db.Uuid
+    release        TicketRelease @relation(fields: [releaseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+    memberId       String        @map("member_id")
+    status         String        @default("pending")
+    queuePosition  Int?          @map("queue_position")
+    offerExpiresAt DateTime?     @map("offer_expires_at") @db.Timestamptz(6)
+    requestedAt    DateTime      @default(now()) @map("requested_at") @db.Timestamptz(6)
+    updatedAt      DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+    @@unique([releaseId, memberId])
+    @@map("ticket_queue_entry")
 }
 
 model ItemQuestion {
