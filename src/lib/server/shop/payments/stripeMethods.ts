@@ -25,7 +25,7 @@ export const createPaymentIntent = ({ idempotencyKey, ...params }: Props) => {
       automatic_payment_methods: {
         enabled: true,
       },
-      description: "D-sek webshop purchase",
+      description: m.shop_purchaseDescription(),
       ...params,
     },
     {
@@ -40,7 +40,7 @@ export const updatePaymentIntent = (
 ) => {
   return getStripe().paymentIntents.update(id, {
     currency: "SEK",
-    description: "D-sek webshop purchase",
+    description: m.shop_purchaseDescription(),
     ...params,
   });
 };

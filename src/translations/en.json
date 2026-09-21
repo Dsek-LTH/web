@@ -1405,5 +1405,6 @@
   "programs_electricalEngineering": "Electrical Engineering",
   "programs_BME": "Biomedical Engineering",
   "programs_phD": "PhD student",
-  "programs_other": "Other"
+  "programs_other": "Other",
+  "shop_purchaseDescription": "D-guild webshop purchase"
 }
