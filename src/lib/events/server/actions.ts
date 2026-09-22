@@ -13,16 +13,11 @@ import { slugify, slugWithCount } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { error, type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
+import { generateOccurrences, retimeOccurrence } from "$lib/events/recurrence";
+import type dayjs from "dayjs";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
-
-// Extend dayjs with timezone support to handle DST correctly
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
@@ -99,47 +94,12 @@ export const createEvent: Action = async (event) => {
     });
 
     const incrementType: dayjs.ManipulateType = getIncrementType(recurType);
-    const events: Array<{ start: Date; end: Date }> = [];
-
-    // Parse dates in correct timezone to handle DST correctly
-    const dayjsEndDate = dayjs.tz(
+    const events = generateOccurrences(
+      { start: form.data.startDatetime, end: form.data.endDatetime },
       form.data.recurringEndDatetime,
-      "Europe/Stockholm",
+      form.data.separationCount + 1,
+      incrementType,
     );
-    const startDateTz = dayjs.tz(form.data.startDatetime, "Europe/Stockholm");
-    const endDateTz = dayjs.tz(form.data.endDatetime, "Europe/Stockholm");
-
-    // Extract time components from the original event to preserve wall clock time
-    const startHour = startDateTz.hour();
-    const startMinute = startDateTz.minute();
-    const endHour = endDateTz.hour();
-    const endMinute = endDateTz.minute();
-
-    let currentDate = startDateTz;
-
-    while (
-      currentDate.isBefore(dayjsEndDate, "day") ||
-      currentDate.isSame(dayjsEndDate, "day")
-    ) {
-      // Reconstruct the time in Europe/Stockholm timezone to maintain wall clock time across DST
-      const eventStart = dayjs
-        .tz(currentDate.format("YYYY-MM-DD"), "Europe/Stockholm")
-        .hour(startHour)
-        .minute(startMinute)
-        .toDate();
-
-      const eventEnd = dayjs
-        .tz(currentDate.format("YYYY-MM-DD"), "Europe/Stockholm")
-        .hour(endHour)
-        .minute(endMinute)
-        .toDate();
-
-      events.push({ start: eventStart, end: eventEnd });
-      currentDate = currentDate.add(
-        form.data.separationCount + 1,
-        incrementType,
-      );
-    }
 
     await prisma.$transaction(async (tx) => {
       for (const event of events) {
@@ -271,21 +231,10 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       },
     });
 
-    // Parse dates in Europe/Stockholm timezone to handle DST correctly
-    const newStartTz = dayjs.tz(eventData.startDatetime, "Europe/Stockholm");
-    const newEndTz = dayjs.tz(eventData.endDatetime, "Europe/Stockholm");
-
-    // Extract new time components to preserve wall clock time across DST
-    const newStartHour = newStartTz.hour();
-    const newStartMinute = newStartTz.minute();
-    const newEndHour = newEndTz.hour();
-    const newEndMinute = newEndTz.minute();
-
     await Promise.all(
       eventsToBeUpdated.map((e) => {
         const {
           startDatetime,
-          endDatetime,
           id,
           /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
            * To avoid lint complaining about unused vars
@@ -302,21 +251,12 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
           ...oldData
         } = e;
 
-        // If times are being changed, reconstruct with new time components to preserve wall clock time
-        const eventStartTz = dayjs.tz(startDatetime, "Europe/Stockholm");
-        const eventEndTz = dayjs.tz(endDatetime, "Europe/Stockholm");
-
-        const newStartDatetime = dayjs
-          .tz(eventStartTz.format("YYYY-MM-DD"), "Europe/Stockholm")
-          .hour(newStartHour)
-          .minute(newStartMinute)
-          .format();
-
-        const newEndDatetime = dayjs
-          .tz(eventEndTz.format("YYYY-MM-DD"), "Europe/Stockholm")
-          .hour(newEndHour)
-          .minute(newEndMinute)
-          .format();
+        // Keep each occurrence on its own date, but move it to the new wall-clock times
+        const { start: newStartDatetime, end: newEndDatetime } =
+          retimeOccurrence(
+            { start: startDatetime },
+            { start: eventData.startDatetime, end: eventData.endDatetime },
+          );
 
         const newData = {
           ...oldData,
