@@ -223,13 +223,6 @@ export const getRoutes = (): Route[] =>
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
         },
-        {
-          title: m.stocklist(),
-          accessRequired: "drinkitem:read",
-          appBehaviour: "none",
-          description: m.nav_stocklist_desc(),
-          path: "/admin/stocklist",
-        },
       ],
     },
     {
