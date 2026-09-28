@@ -21,12 +21,6 @@ const apiNames = {
   TAGS: {
     ...crud("tags"),
   },
-  DRINKITEM: {
-    ...crud("drinkitem"),
-  },
-  DRINKITEMBATCH: {
-    ...crud("drinkitembatch"),
-  },
   EVENT: {
     ...crud("event"),
     COMMENT: "event:comment",
@@ -97,11 +91,6 @@ const apiNames = {
   },
   NOLLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
-  },
-  EXPENSES: {
-    CREATE: "expenses:create", // who can create expenses, probably all volunteers or logged in
-    CERTIFICATION: "expenses:certification", // who can ALWAYS certify/sign expenses. As of writing this is treasurer and president.
-    BOOKKEEPING: "expenses:bookkeeping", // who can manage expenses for bookkeeping
   },
   CAFE: {
     EDIT_WORKERS: "cafe:edit_workers",

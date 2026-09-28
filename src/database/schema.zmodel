@@ -287,7 +287,6 @@ model Committee {
     symbolUrl         String?       @map("symbol_url") @db.Text
     descriptionSv     String?       @map("description_sv") @db.VarChar(255)
     descriptionEn     String?       @map("description_en") @db.VarChar(255)
-    expenseItems      ExpenseItem[] // all expenses for this committee
     bannerUrl         String?       @map("banner_url") @db.Text
     previewUrl        String?       @map("preview_url") @db.Text
     isBannerTextLight Boolean       @map("is_banner_text_light") @default(false)
@@ -549,69 +548,6 @@ model Markdown {
     @@map("markdowns")
 }
 
-
-model DrinkItem {
-    id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    quantityType      DrinkQuantityType @map("quantity_type")
-    name              String
-    price             Int
-    group             DrinkGroup
-    systembolagetID   Int               @map("systembolaget_id")
-    bottleEmptyWeight Int?              @map("bottle_empty_weight")
-    bottleFullWeight  Int?              @map("bottle_full_weight")
-    quantityAvailable Int?              @map("quantity_available") @default(0)
-    nrBottles         Int?              @map("nr_bottles") @default(0)
-
-    stockLists        DrinkItemBatch[]
-
-    @@allow("read", true)
-    @@allow("create", has(auth().policies, "drinkitem:create"))
-    @@allow("update", has(auth().policies, "drinkitem:update"))
-    @@allow("delete", has(auth().policies, "drinkitem:delete"))
-    @@map("drinkitem")
-}
-
-model DrinkItemBatch {
-    id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    drinkItemId    String    @map("drink_item_id") @db.Uuid
-    item           DrinkItem @relation(fields: [drinkItemId], references: [id])
-    quantityDelta  Int       @map("quantity_delta")
-    user           String
-    date           DateTime
-    nrBottlesDelta Int?      @map("nr_bottles_delta")
-
-    @@allow("read", true)
-    @@allow("create", has(auth().policies, "drinkitembatch:create"))
-    @@allow("update", has(auth().policies, "drinkitembatch:update"))
-    @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
-    @@map("drinkitembatch")
-}
-
-model SexetInventoryValueLog {
-    id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    date  DateTime
-    value Int
-
-    @@allow("read", true)
-    @@allow("create", has(auth().policies, "drinkitembatch:create"))
-    @@allow("update", has(auth().policies, "drinkitembatch:update"))
-    @@allow("delete", has(auth().policies, "drinkitembatch:delete"))
-    @@map("sexetinventoryvaluelog")
-}
-
-enum DrinkQuantityType {
-    NONE
-    WEIGHT
-    COUNTS
-}
-
-enum DrinkGroup {
-    S1
-    S2
-    S3
-    S4
-}
-
 model Meeting {
     id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     title String   @db.VarChar(255)
@@ -669,9 +605,6 @@ model Member {
     bookingRequests         BookingRequest[]
     recurringEvent          RecurringEvent[]
     tokens                  ExpoToken[]
-    expenses                Expense[]
-    expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
-    signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
     closedAlerts            Alert[]                 @relation("alerts_closed_by")
     cafeShifts              CafeShift[]
 
@@ -1226,78 +1159,6 @@ model ShoppableAccessPolicy {
     // only managers can delete (should very rarely be done)
     @@allow("delete", auth().memberId == shoppable.authorId || has(auth().policies, "webshop:manage"))
     @@map("shoppable_access_policies")
-}
-
-model Expense {
-    id                       Int           @id @default(autoincrement())
-    date                     DateTime      @default(now()) @map("date") @db.Timestamptz(6)
-    createdAt                DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-    description              String
-    isGuildCard              Boolean
-    hasBeenSentToBookkeeping Boolean       @default(false) @deny("update", !has(auth().policies, "expenses:bookkeeping"))
-    memberId                 String        @db.Uuid
-    member                   Member        @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_member_id_foreign")
-    items                    ExpenseItem[]
-    removedAt                DateTime?
-
-
-    @@allow("create", has(auth().policies, "expenses:create"))
-    @@allow("read", (
-    memberId == auth().memberId // my expenses
-    || items?[signerMemberId == auth().memberId] // expenses I should sign
-    || has(auth().policies, "expenses:bookkeeping") // I can do bookkeeping
-  ))
-    @@allow("update", hasBeenSentToBookkeeping == false && (
-    (memberId == auth().memberId)
-    || items?[signerMemberId == auth().memberId]
-    || has(auth().policies, "expenses:bookkeeping")
-    || items?[signerMemberId == auth().memberId]
-    || has(auth().policies, "expenses:bookkeeping")
-  ))
-    @@allow("delete" , false)
-
-    @@map("expenses")
-}
-
-model ExpenseItem {
-    id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    expenseId          Int       @map("expense_id")
-    expense            Expense   @relation(fields: [expenseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "expense_item_expense_id_foreign")
-    committeeShortName String
-    commitee           Committee @relation(fields: [committeeShortName], references: [shortName])
-    amount             Int     // in SEK, "öre"
-    costCenter         String // SEX01, for example
-    comment            String?
-    receiptUrl         String?
-    signerMemberId     String    @db.Uuid
-    signer             Member    @relation(name: "expense_item_signer", fields: [signerMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signer_id_foreign")
-
-    signedByMemberId   String?   @db.Uuid @deny("update", auth().memberId != signerMemberId && !has(auth().policies, "expenses:certification"))
-    signedBy           Member?   @relation(name: "expense_item_signed_by", fields: [signedByMemberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expense_item_signed_by_member_id_foreign")
-    signedAt           DateTime?
-
-    @@allow("create", has(auth().policies, "expenses:create") /* && signerMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ && signedByMemberId == null && signedAt == null)
-    // copy auth from Expense
-    @@allow("read", (
-    expense.memberId == auth().memberId
-    || expense.items?[signerMemberId == auth().memberId]
-    || has(auth().policies, "expenses:bookkeeping")
-  ))
-    @@allow("update", expense.hasBeenSentToBookkeeping == false && (
-    (expense.memberId == auth().memberId)
-    || expense.items?[signerMemberId == auth().memberId]
-    || has(auth().policies, "expenses:bookkeeping")
-  ) && (
-    (future().signedByMemberId == null && future().signedAt == null)  // signedByMemberId and signedAt should both be null or not null
-    || (
-      future().signedByMemberId == auth().memberId  // can only set yourself to the one who signed
-    /* && future().signedByMemberId != expense.memberId (TODO: Uncomment this when we upgrade to zenstack v2) */ // can never sign your own expense
-      && future().signedAt != null
-    )
-  ))
-    @@allow("delete", false)
-
-    @@map("expense_items")
 }
 
 model Readme {
