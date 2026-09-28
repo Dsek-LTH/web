@@ -9,12 +9,17 @@ import { z } from "zod";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, member } = locals;
-  const allTags = await getAllTags(prisma, true);
   if (!member) error(401, "Du måste vara inloggad för att skapa evenemang.");
+  const [allTags, committees] = await Promise.all([
+    getAllTags(prisma, true),
+    prisma.committee.findMany({
+      select: { id: true, name: true, shortName: true, symbolUrl: true },
+    }),
+  ]);
   return {
     allTags,
+    committees,
     form: await superValidate(
-      { organizer: `${member.firstName} ${member.lastName}` },
       zod4(eventSchema.and(z.object({ editType: actionType }))),
     ),
   };

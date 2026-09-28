@@ -17,7 +17,7 @@ import {
   removeEventSchema,
 } from "$lib/events/server/removeEventAction";
 import * as m from "$paraglide/messages";
-import { interestedGoingSchema } from "$lib/events/schema";
+import { interestedAction } from "$lib/events/server/interestedGoing";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -42,7 +42,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     commentForm: await superValidate(zod4(commentSchema)),
     removeCommentForm: await superValidate(zod4(removeCommentSchema)),
     removeEventForm: await superValidate(zod4(removeEventSchema)),
-    interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
   };
 };
 
@@ -50,4 +49,7 @@ export const actions: Actions = {
   comment: commentAction("EVENT"),
   removeComment: removeCommentAction("EVENT"),
   removeEvent: removeEventAction,
+  interested: interestedAction(true, false),
+  going: interestedAction(false, true),
+  none: interestedAction(false, false),
 };
