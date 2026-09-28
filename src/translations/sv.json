@@ -483,6 +483,7 @@
   "events_link": "Länk",
   "events_startTime": "Börjar",
   "events_endTime": "Slutar",
+  "events_dateTime": "Datum och tid",
   "events_recurringEvent": "Återkommande evenemang",
   "events_tags": "Taggar",
   "events_coming": "Kommande",

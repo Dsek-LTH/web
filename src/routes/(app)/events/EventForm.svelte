@@ -1,6 +1,15 @@
 <script lang="ts">
   import type { SuperForm } from "sveltekit-superforms";
+  import {
+    CalendarDateTime,
+    fromDate,
+    getLocalTimeZone,
+    parseDate,
+    toCalendarDate,
+  } from "@internationalized/date";
 
+  import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
+  import DateTimeSelector from "$lib/components/datetime-selector/DateTimeSelector.svelte";
   import Editor from "$lib/components/Editor.svelte";
   import FileUpload from "$lib/components/FileUpload.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
@@ -24,7 +33,6 @@
   import Users from "@lucide/svelte/icons/users";
   import X from "@lucide/svelte/icons/x";
 
-  import DateTimeField from "./DateTimeField.svelte";
   import type { EventCommittee } from "./Event.svelte";
 
   let {
@@ -54,6 +62,39 @@
   if (!$form.editType) $form.editType = "THIS";
 
   const formId = "event-form";
+
+  // `startDatetime`/`endDatetime`/`recurringEndDatetime` are plain `Date`s in
+  // the schema, but the date/time pickers work with wall-clock
+  // `CalendarDateTime`s.
+  const tz = getLocalTimeZone();
+  const dateToCalendarDateTime = (date: Date) => {
+    const zoned = fromDate(date, tz);
+    return new CalendarDateTime(
+      zoned.year,
+      zoned.month,
+      zoned.day,
+      zoned.hour,
+      zoned.minute,
+    );
+  };
+
+  // These are immutable objects that are only re-assigned, so $state.raw
+  // avoids proxying overhead. `DateTimeSelector` owns its own from/to sync
+  // internally and expects a plain bindable it can reassign directly (not a
+  // getter/setter pair recomputed from `$form` on every read, which its
+  // internal effects don't handle) — so, same as ArticleForm.svelte does for
+  // its publish time, these are initialized once from the form and pushed
+  // back into it via `onTimeChange`.
+  let fromDateTime = $state.raw(dateToCalendarDateTime($form.startDatetime));
+  let toDateTime = $state.raw(dateToCalendarDateTime($form.endDatetime));
+
+  const onDateTimeChange = (time: {
+    fromCalendarDateTime: CalendarDateTime;
+    toCalendarDateTime: CalendarDateTime;
+  }) => {
+    $form.startDatetime = time.fromCalendarDateTime.toDate(tz);
+    $form.endDatetime = time.toCalendarDateTime.toDate(tz);
+  };
 
   // `Select` needs a value for the "no committee" option.
   const NO_COMMITTEE = "none";
@@ -233,14 +274,11 @@
   </div>
 
   <div class="flex flex-col gap-1.5">
-    <Label>{m.events_startTime()}</Label>
-    <DateTimeField bind:value={$form.startDatetime} />
-  </div>
-  <div class="flex flex-col gap-1.5">
-    <Label>{m.events_endTime()}</Label>
-    <DateTimeField
-      bind:value={$form.endDatetime}
-      invalid={!!$errors.endDatetime}
+    <Label>{m.events_dateTime()}</Label>
+    <DateTimeSelector
+      bind:fromDateTime
+      bind:toDateTime
+      onTimeChange={onDateTimeChange}
     />
     {#if $errors.endDatetime}
       <p class="text-destructive text-sm">{$errors.endDatetime.at(0)}</p>
@@ -343,10 +381,23 @@
       <div class="flex flex-col gap-1.5">
         <Label>{m.events_create_lastDate()}</Label>
         {#if creating}
-          <DateTimeField
-            dateOnly
-            bind:value={$form.recurringEndDatetime}
-            invalid={!!$errors.recurringEndDatetime}
+          <DatePicker
+            error={!!$errors.recurringEndDatetime}
+            bind:value={() =>
+              toCalendarDate(
+                fromDate($form.recurringEndDatetime, tz),
+              ).toString(),
+            (newDate) => {
+              const parsed = parseDate(newDate);
+              // Keep the whole last day included in the recurring range.
+              $form.recurringEndDatetime = new CalendarDateTime(
+                parsed.year,
+                parsed.month,
+                parsed.day,
+                23,
+                59,
+              ).toDate(tz);
+            }}
           />
           {#if $errors.recurringEndDatetime}
             <p class="text-destructive text-sm">

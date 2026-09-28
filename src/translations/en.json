@@ -483,6 +483,7 @@
   "events_link": "Link",
   "events_startTime": "Starts",
   "events_endTime": "Ends",
+  "events_dateTime": "Date and time",
   "events_recurringEvent": "Reccuring event",
   "events_tags": "Tags",
   "events_coming": "Coming",
