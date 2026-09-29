@@ -285,7 +285,6 @@ model Committee {
   isBannerTextLight Boolean       @default(false) @map("is_banner_text_light")
   election          Election[]
   article           Article[]
-  events            Event[]
 
   @@map("committees")
 }
@@ -390,7 +389,6 @@ model Event {
   link                 String?         @db.VarChar(255)
   location             String?         @db.VarChar(255)
   organizer            String          @db.VarChar(255)
-  committeeId          String?         @map("committee_id") @db.Uuid()
   authorId             String          @map("author_id") @db.Uuid()
   shortDescriptionSv   String?         @map("short_description_sv") @db.VarChar(255)
   shortDescriptionEn   String?         @map("short_description_en") @db.VarChar(255)
@@ -408,7 +406,6 @@ model Event {
   tags                 Tag[]           @relation("event_tags")
   tickets              Ticket[]
   recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
-  committee            Committee?      @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_committee_id_foreign")
 
   @@map("events")
 }
