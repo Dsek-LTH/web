@@ -64,6 +64,7 @@
         notificationText: null,
         scheduledId: null,
         shouldSendNotification: false,
+        committeeId: null,
       }}
     >
       <AuthorSignature
