@@ -93,17 +93,17 @@
     },
     {
       day: m.volunteer_day_wed,
-      time: "17.30–18.00",
-      title: m.volunteer_weekly_wed_run_title,
-      place: m.volunteer_weekly_place_outside(),
-      desc: m.volunteer_weekly_wed_run_desc,
-    },
-    {
-      day: m.volunteer_day_wed,
       time: "12.15–13.00",
       title: m.volunteer_weekly_wed_title,
       place: "E:1123",
       desc: m.volunteer_weekly_wed_desc,
+    },
+    {
+      day: m.volunteer_day_wed,
+      time: "17.30–18.00",
+      title: m.volunteer_weekly_wed_run_title,
+      place: m.volunteer_weekly_place_outside(),
+      desc: m.volunteer_weekly_wed_run_desc,
     },
     {
       day: m.volunteer_day_thu,
