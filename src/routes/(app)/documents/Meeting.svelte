@@ -62,7 +62,7 @@
           disabled={!notice}
           variant="outline"
           class="cursor-pointer rounded-sm"
-          ><FileText class="text-rosa-background" />
+          ><FileText class="text-rosa-background shrink-0" />
           {m.documents_notice()}</Button
         ></a
       >
@@ -71,7 +71,7 @@
           variant="outline"
           disabled={!agenda}
           class="cursor-pointer rounded-sm"
-          ><FileText class="text-rosa-background" />
+          ><FileText class="text-rosa-background shrink-0" />
           {m.documents_agenda()}</Button
         ></a
       >
@@ -80,7 +80,7 @@
           variant="outline"
           disabled={!minutes}
           class="cursor-pointer rounded-sm"
-          ><FileText class="text-rosa-background" />
+          ><FileText class="text-rosa-background shrink-0" />
           {m.documents_minutes()}</Button
         ></a
       >
@@ -96,7 +96,7 @@
                 isEditing
                   ? "rounded-full! rounded-r-none! border-[1px] border-r-0"
                   : "",
-                "shrink-0",
+                "*:shrink-0",
               )}
               name={file.name}
               url={file.thumbnailUrl}
