@@ -64,7 +64,7 @@
           disabled={!notice}
           variant="outline"
           class="cursor-pointer rounded-sm"
-          ><FileText class="text-rosa-background shrink-0" />
+          ><FileText class="text-rosa-background" />
           {m.documents_notice()}</Button
         ></a
       >
@@ -73,7 +73,7 @@
           variant="outline"
           disabled={!agenda}
           class="cursor-pointer rounded-sm"
-          ><FileText class="text-rosa-background shrink-0" />
+          ><FileText class="text-rosa-background" />
           {m.documents_agenda()}</Button
         ></a
       >
@@ -82,7 +82,7 @@
           variant="outline"
           disabled={!minutes}
           class="cursor-pointer rounded-sm"
-          ><FileText class="text-rosa-background shrink-0" />
+          ><FileText class="text-rosa-background" />
           {m.documents_minutes()}</Button
         ></a
       >
