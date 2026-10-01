@@ -120,10 +120,7 @@
         {m.volunteer_landing_ready_desc()}
       </p>
       <div class="flex flex-wrap gap-4">
-        <Button
-          href={resolve("/(app)/about#committees")}
-          class="bg-primary hover:bg-rosa-hover flex items-center gap-2 text-white"
-        >
+        <Button href={resolve("/(app)/about#committees")}>
           <span>{m.volunteer_landing_explore_committees()}</span>
           <ArrowRight class="size-4" />
         </Button>

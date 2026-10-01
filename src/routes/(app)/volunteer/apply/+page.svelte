@@ -231,7 +231,7 @@
         href="https://www.youtube.com/watch?v=7bB-VnYGuBw"
         target="_blank"
         rel="noreferrer"
-        class="bg-primary hover:bg-rosa-hover flex shrink-0 items-center gap-2 text-white shadow-sm"
+        class="shadow-sm"
       >
         <span>{m.volunteer_apply_howto_btn()}</span>
         <ExternalLink class="size-4" />
