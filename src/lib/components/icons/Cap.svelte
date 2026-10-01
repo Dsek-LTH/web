@@ -4,7 +4,8 @@
 
 <svg
   fill="currentColor"
-  stroke="currentColor"
+  width="100%"
+  height="100%"
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 1134.3395 786.7908"
   class={klass}
