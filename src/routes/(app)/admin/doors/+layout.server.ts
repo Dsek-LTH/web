@@ -4,7 +4,7 @@ import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.DOOR.READ, user);
+  authorize(apiNames.DOOR.UPDATE, user);
 
   const doors = await prisma.door.findMany();
   return {
