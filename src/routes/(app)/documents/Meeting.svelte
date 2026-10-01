@@ -28,7 +28,7 @@
   const findFile = (names: string[]) =>
     files
       .filter((f) =>
-        names.some((s) => f.name.toLowerCase().includes(s.toLowerCase())),
+        names.some((s) => f.name.toLowerCase().startsWith(s.toLowerCase())),
       )
       .sort(
         (f1, f2) => (f1.modDate?.getTime() ?? 0) - (f2.modDate?.getTime() ?? 0),
@@ -39,7 +39,9 @@
   let agenda = $derived(
     findFile(["Föredragningslista", "Foredragningslista", "Agenda"]),
   );
-  let minutes = $derived(findFile(["Protokoll", "Minutes, Minute"]));
+  let minutes = $derived(
+    findFile(["Protokoll", "Mötesprotokoll", "Minutes", "Minute"]),
+  );
 
   let filteredFiles = $derived(
     files.filter((f) => {
