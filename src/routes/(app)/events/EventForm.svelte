@@ -331,14 +331,6 @@
   <div class="flex flex-col gap-3">
     <div class="flex flex-row items-center gap-2">
       <Checkbox
-        id="alarmActive"
-        bind:checked={() => !!$form.alarmActive,
-        (checked) => ($form.alarmActive = checked)}
-      />
-      <Label for="alarmActive">{m.events_create_alarmActive()}</Label>
-    </div>
-    <div class="flex flex-row items-center gap-2">
-      <Checkbox
         id="isCancelled"
         bind:checked={() => !!$form.isCancelled,
         (checked) => ($form.isCancelled = checked)}
