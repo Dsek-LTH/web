@@ -2,6 +2,7 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { actionType, eventSchema } from "$lib/events/schema";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import {
   getIncrementType,
   isRecurringType,
@@ -35,6 +36,24 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   return imageUrl;
 };
 
+/**
+ * Looks up the organizing committee. Its Swedish name is also what gets stored
+ * in `organizer`, so that everything that only knows about the text (the ICS
+ * feed, the API, ...) keeps working.
+ */
+const resolveCommittee = async (
+  prisma: ExtendedPrisma,
+  committeeId: string | null,
+) => {
+  if (!committeeId) return null;
+  const committee = await prisma.committee.findUnique({
+    where: { id: committeeId },
+    select: { id: true, nameSv: true },
+  });
+  if (!committee) throw error(400, m.events_errors_committeeNotFound());
+  return committee;
+};
+
 export const createEvent: Action = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;
@@ -47,8 +66,11 @@ export const createEvent: Action = async (event) => {
     separationCount,
     isRecurring,
     recurringEndDatetime,
+    committeeId,
     ...eventData
   } = form.data;
+  const committee = await resolveCommittee(prisma, committeeId);
+  if (committee) eventData.organizer = committee.nameSv;
   const slug = slugify(form.data.titleSv);
   // has to be authorized to count all slugs
   let slugCount = await authorizedPrismaClient.event.count({
@@ -107,6 +129,7 @@ export const createEvent: Action = async (event) => {
           data: {
             ...eventData,
             recurringParentId: recurringEventParent.id,
+            committeeId: committee?.id ?? null,
             startDatetime: event.start,
             isDetatched: false,
             authorId: user?.memberId ?? error(500, "No user"),
@@ -139,6 +162,7 @@ export const createEvent: Action = async (event) => {
             studentId: user?.studentId,
           },
         },
+        committee: committee ? { connect: { id: committee.id } } : undefined,
         tags: {
           connect: tagIds,
         },
@@ -183,6 +207,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     tags,
     image,
     editType,
+    committeeId,
     ...eventData
   } = recurringEventData;
 
@@ -190,6 +215,8 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)
     : eventData.descriptionEn;
+  const committee = await resolveCommittee(prisma, committeeId);
+  if (committee) eventData.organizer = committee.nameSv;
   const existingEvent = await prisma.event.findUnique({
     where: {
       slug: slug,
@@ -215,6 +242,9 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       data: {
         ...eventData,
         author: undefined,
+        committee: committee
+          ? { connect: { id: committee.id } }
+          : { disconnect: true },
         tags: {
           set: tags.map(({ id }) => ({ id })),
         },
@@ -261,6 +291,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
         const newData = {
           ...oldData,
           ...eventData,
+          committeeId: committee?.id ?? null,
           startDatetime: newStartDatetime,
           endDatetime: newEndDatetime,
           author: undefined,

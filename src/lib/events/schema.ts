@@ -16,7 +16,13 @@ export const eventSchema = z
 
     link: z.string().nullable().default(null),
     location: z.string().nullable().default(null),
+    /**
+     * The organizing committee. `organizer` is kept as text: it is set to the
+     * committee's name whenever one is chosen, and is otherwise the old free
+     * text organizer of the event.
+     */
     organizer: z.string().default(""),
+    committeeId: z.string().nullable().default(null),
 
     startDatetime: z.date().default(() => new Date()),
     endDatetime: z
@@ -71,5 +77,9 @@ export const interestedGoingSchema = z.object({
   eventId: z.string(),
 });
 export const actionType = z.enum(["THIS", "FUTURE", "ALL"]);
+
+export type ActionType = z.infer<typeof actionType>;
+/** The event form as used by the create/edit pages, which also ask how a recurring event should be edited. */
+export type EventFormSchema = EventSchema & { editType?: ActionType };
 
 export type InterestedGoingSchema = Infer<typeof interestedGoingSchema>;

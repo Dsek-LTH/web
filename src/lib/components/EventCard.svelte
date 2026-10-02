@@ -1,8 +1,10 @@
 <script lang="ts">
   import dayjs from "dayjs";
-  import AuthorCard from "./AuthorCard.svelte";
   import type { EventWithIncludes } from "$lib/events/getEvents";
+  import CommitteeSymbol from "./images/CommitteeSymbol.svelte";
   import TagChip from "./TagChip.svelte";
+  import * as m from "$paraglide/messages";
+  import Users from "@lucide/svelte/icons/users";
 
   let {
     event,
@@ -43,12 +45,27 @@
     </div></a
   >
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
-    <AuthorCard
-      member={event.author}
-      customAuthor={null}
-      position={undefined}
-    />
-    <span class="text-muted-foreground" class:line-through={event.isCancelled}>
+    {#if event.committee}
+      <span
+        class="flex min-w-0 flex-row items-center gap-2 pl-2 font-medium"
+        title={m.events_organizer()}
+      >
+        <CommitteeSymbol committee={event.committee} size="sm" />
+        <span class="truncate">{event.committee.name}</span>
+      </span>
+    {:else if event.organizer}
+      <span
+        class="flex min-w-0 flex-row items-center gap-2 pl-2 font-medium"
+        title={m.events_organizer()}
+      >
+        <Users class="text-muted-foreground size-4 shrink-0" />
+        <span class="truncate">{event.organizer}</span>
+      </span>
+    {/if}
+    <span
+      class="text-muted-foreground ml-auto pl-2"
+      class:line-through={event.isCancelled}
+    >
       {dayjs(event.startDatetime).format("YYYY-MM-DD")}
       {#if event.startDatetime.getDate() !== event.endDatetime.getDate()}
         <br />

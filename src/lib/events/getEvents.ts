@@ -22,7 +22,7 @@ export type EventSpan =
     };
 
 const include = {
-  author: true,
+  committee: true,
   comments: {
     include: {
       member: true,
