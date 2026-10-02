@@ -7,6 +7,7 @@
   import BookOpen from "@lucide/svelte/icons/book-open";
   import Coffee from "@lucide/svelte/icons/coffee";
   import UsersRound from "@lucide/svelte/icons/users-round";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
@@ -68,7 +69,11 @@
       </div>
     </div>
     <div>
-      <h3>{m.openElections()}</h3>
+      <h3>
+        <a href="/elections" class="hover:text-muted-foreground"
+          >{m.openElections()}</a
+        >
+      </h3>
       <div class="mt-2 grid grid-cols-2 gap-4 sm:flex sm:flex-row">
         {#each data.elections as election, i (election.id)}
           <Card.Root
@@ -103,24 +108,17 @@
   </div>
 
   <div>
-    <h2>{m.events()}</h2>
-    <HomeCalendar
-      events={data.events.map((e) => ({
-        startDate: e.startDatetime,
-        endDate: e.endDatetime,
-        slug: e.slug ?? "",
-        title: e.title,
-      }))}
-    />
-  </div>
-  <div>
-    <h2>{m.news()}</h2>
+    <h2>
+      <a class="hover:text-muted-foreground transition-colors" href="/news"
+        >{m.news()}</a
+      >
+    </h2>
     <div class="mt-4 flex flex-col gap-4 lg:flex-row">
       {#each data.news as newsArticle, i (newsArticle.id)}
         <a
           href="/news/{newsArticle.slug}"
           class={[
-            "relative aspect-2/1 w-full overflow-hidden rounded-xl hover:underline lg:w-1/3",
+            "relative aspect-2/1 w-full overflow-hidden rounded-xl border-[1px] transition-all hover:opacity-75 lg:w-1/3",
             i >= 2 && "hidden lg:block",
           ]}
         >
@@ -150,9 +148,9 @@
               newsArticle.imageUrl && "text-white",
             ]}
           >
-            <h2 class="line-clamp-2 overflow-hidden">
+            <h3 class="line-clamp-2 overflow-hidden">
               {newsArticle.header}
-            </h2>
+            </h3>
             <span class="text-right font-light">
               {dayjs(newsArticle.publishedAt).format("YYYY-MM-DD")}
             </span>
@@ -166,5 +164,26 @@
         </div>
       {/each}
     </div>
+    <div class="mt-2 flex justify-end">
+      <Button variant="outline" size="sm" class="" href="/news"
+        >Fler nyheter <ArrowRight /></Button
+      >
+    </div>
+  </div>
+
+  <div>
+    <h2>
+      <a class="hover:text-muted-foreground transition-colors" href="/events"
+        >{m.events()}</a
+      >
+    </h2>
+    <HomeCalendar
+      events={data.events.map((e) => ({
+        startDate: e.startDatetime,
+        endDate: e.endDatetime,
+        slug: e.slug ?? "",
+        title: e.title,
+      }))}
+    />
   </div>
 </div>
