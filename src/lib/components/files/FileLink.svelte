@@ -27,8 +27,8 @@
 <a
   href={host ? getPdfApiUrl(url) : url}
   class={cn(
-    klass,
     "flex flex-row items-center gap-1 rounded-sm px-4 py-2 transition-all hover:underline",
+    klass,
   )}
   class:w-full={full}
   target="_blank"
