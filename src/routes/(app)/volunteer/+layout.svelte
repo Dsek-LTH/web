@@ -49,7 +49,7 @@
           variant={isActive ? "rosa" : "ghost"}
           aria-current={isActive ? "page" : undefined}
           class="shrink-0 justify-start text-left md:w-full {isActive
-            ? 'bg-primary font-semibold text-white shadow-md'
+            ? 'font-semibold shadow-md'
             : 'text-muted-foreground hover:text-foreground'}"
         >
           {step.label()}
@@ -85,7 +85,7 @@
             <Button
               href={resolve(nextStep.path)}
               variant="rosa"
-              class="bg-primary hover:bg-rosa-hover flex items-center gap-2 text-white shadow-md"
+              class="shadow-md"
             >
               <span>{nextStep.label()}</span>
               <ChevronRight class="size-4" />

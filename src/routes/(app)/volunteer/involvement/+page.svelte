@@ -92,18 +92,18 @@
       desc: m.volunteer_weekly_tue_infu_desc,
     },
     {
-      day: m.volunteer_day_tue,
-      time: "17.30–18.00",
-      title: m.volunteer_weekly_tue_run_title,
-      place: m.volunteer_weekly_place_outside(),
-      desc: m.volunteer_weekly_tue_run_desc,
-    },
-    {
       day: m.volunteer_day_wed,
       time: "12.15–13.00",
       title: m.volunteer_weekly_wed_title,
       place: "E:1123",
       desc: m.volunteer_weekly_wed_desc,
+    },
+    {
+      day: m.volunteer_day_wed,
+      time: "17.30–18.00",
+      title: m.volunteer_weekly_wed_run_title,
+      place: m.volunteer_weekly_place_outside(),
+      desc: m.volunteer_weekly_wed_run_desc,
     },
     {
       day: m.volunteer_day_thu,
@@ -146,6 +146,7 @@
       term: m.volunteer_timeline_vt(),
       months: [
         { name: m.volunteer_month_jan(), desc: m.volunteer_timeline_jan() },
+        { name: m.volunteer_month_feb(), desc: m.volunteer_timeline_feb() },
         { name: m.volunteer_month_mar(), desc: m.volunteer_timeline_mar() },
         { name: m.volunteer_month_apr(), desc: m.volunteer_timeline_apr() },
         { name: m.volunteer_month_may(), desc: m.volunteer_timeline_may() },

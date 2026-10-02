@@ -15,9 +15,7 @@
   <h1>{m.contact_contact()}</h1>
 
   <div class="flex flex-col">
-    <div
-      class="md-nav:grid md-nav:grid-cols-3 mx-16 flex flex-col flex-wrap items-center justify-around gap-4 *:justify-self-center sm:flex-row sm:gap-8 md:gap-16"
-    >
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
       {@render positionCard(vordf, m.contact_vice_president())}
       {@render positionCard(ordf, m.contact_president())}
       {@render positionCard(nara, m.contact_business())}
@@ -47,10 +45,8 @@
     >
   </div>
 
-  <div
-    class="mx-16 flex flex-row flex-wrap items-start justify-center gap-4 lg:justify-between"
-  >
-    <div class=" flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
+  <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+    <div class=" flex flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
         <h3>{data.trivsel?.name}</h3>
         <CommitteeIcon class="w-12 self-baseline" committee={data.trivsel} />
@@ -62,14 +58,15 @@
       >
     </div>
 
-    <div class="flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
+    <div class="flex flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
-        <h3>
+        <h3 class="block sm:hidden lg:block">
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html data.cpu?.name.includes("utskottet")
             ? `${data.cpu?.name.split("utskottet")[0]}&shy;utskottet`
             : data.cpu?.name}
         </h3>
+        <h3 class="hidden sm:block lg:hidden">CPU</h3>
         <CommitteeIcon class="w-12 self-baseline" committee={data.cpu} />
       </div>
 
@@ -99,7 +96,7 @@
         >
       </div>
     </div>
-    <div class="flex w-78 flex-col gap-4 rounded-md border-[1px] p-4">
+    <div class="flex flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
         <h3>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->

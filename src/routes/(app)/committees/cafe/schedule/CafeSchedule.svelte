@@ -328,7 +328,9 @@
     <Dialog.Trigger class={buttonVariants({ variant: "rosa" })}
       ><Pen /> {m.cafe_edit_schedule()}</Dialog.Trigger
     >
-    <Dialog.Content class="z-51 max-w-[98vw]! xl:max-w-[80vw]!">
+    <Dialog.Content
+      class="top-[47vh] z-51 flex max-h-[90vh] max-w-[98vw]! flex-col xl:max-w-[80vw]!"
+    >
       <Dialog.Header>
         <h4 class="flex flex-row items-center gap-2">
           {m.cafe_editing_schedule()}
@@ -336,7 +338,9 @@
         </h4>
       </Dialog.Header>
 
-      <div class="grid grid-cols-1 px-4 md:grid-cols-5">
+      <div
+        class="grid h-full min-h-0 grid-cols-1 overflow-y-auto px-4 md:grid-cols-5"
+      >
         {#each { length: 5 }, dayIndex}
           {@const day = week.startOf("week").add(dayIndex, "day")}
           {#snippet DayForm(timeSlot: TimeSlot)}
