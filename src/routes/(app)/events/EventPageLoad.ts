@@ -27,7 +27,7 @@ const eventPageLoad =
     let spanFilter: EventSpan;
 
     if (display === "week") {
-      spanFilter = { weekStartingAt: dayjs().startOf("week").toDate() };
+      spanFilter = { weekStartingAt: dayjs().startOf("day").toDate() };
     } else if (display === "month") {
       spanFilter = { monthStartingAt: dayjs().startOf("month").toDate() };
     } else {
