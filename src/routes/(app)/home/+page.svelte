@@ -151,4 +151,6 @@
       }))}
     />
   </div>
+
+  <Documents files={data.files} />
 </div>
