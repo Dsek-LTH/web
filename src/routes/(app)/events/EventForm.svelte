@@ -235,7 +235,7 @@
       >
         <Select.Trigger id="committee" class="w-full">
           <Users />
-          {organizerLabel}
+          <div class="overflow-hidden text-ellipsis">{organizerLabel}</div>
         </Select.Trigger>
         <Select.Content>
           <Select.Item value={NO_COMMITTEE}
