@@ -15,7 +15,7 @@ dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
-  authorize(apiNames.DOOR.UPDATE, user);
+  authorize(apiNames.DOOR.READ, user);
 
   const { doors } = await parent();
   const door = doors.find((door) => door.name === params.slug);
