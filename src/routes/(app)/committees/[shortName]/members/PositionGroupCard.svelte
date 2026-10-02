@@ -33,8 +33,11 @@
 >
   <a
     href={getPositionLink(position.id)}
-    class="hover:text-muted-foreground transition-all"
-    ><h4>{position.name}</h4></a
+    class="hover:text-muted-foreground flex flex-row items-baseline gap-1 transition-all"
+    ><h4>{position.name}</h4>
+    {#if mandates.length > 1}<span class="font-medium"
+        >({mandates.length}&nbsp;st)</span
+      >{/if}</a
   >
   <a
     class="text-muted-foreground transition-all hover:opacity-80"
