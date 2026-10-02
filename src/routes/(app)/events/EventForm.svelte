@@ -420,22 +420,27 @@
         >
         <AlertDialog.Content>
           <AlertDialog.Header>
-            <AlertDialog.Title>{m.events_thisIsRecurring()}</AlertDialog.Title>
+            <AlertDialog.Title class="text-lg"
+              >{m.events_thisIsRecurring()}</AlertDialog.Title
+            >
           </AlertDialog.Header>
-          <RadioGroup.Root
-            bind:value={() => $form.editType ?? "THIS",
-            (value) => ($form.editType = value as ActionType)}
-          >
-            {#each editTypes as { value, label } (value)}
-              <div class="flex flex-row items-center gap-2">
-                <RadioGroup.Item {value} id="editType-{value}" />
-                <Label for="editType-{value}">
-                  <!-- eslint-disable-next-line svelte/no-at-html-tags -- static, trusted translation -->
-                  {@html label}
-                </Label>
-              </div>
-            {/each}
-          </RadioGroup.Root>
+          <AlertDialog.Description>
+            <RadioGroup.Root
+              bind:value={() => $form.editType ?? "THIS",
+              (value) => ($form.editType = value as ActionType)}
+              class="px-6"
+            >
+              {#each editTypes as { value, label } (value)}
+                <div class="flex flex-row items-center gap-2">
+                  <RadioGroup.Item {value} id="editType-{value}" />
+                  <Label for="editType-{value}">
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -- static, trusted translation -->
+                    {@html label}
+                  </Label>
+                </div>
+              {/each}
+            </RadioGroup.Root>
+          </AlertDialog.Description>
           <AlertDialog.Footer>
             <AlertDialog.Cancel type="button">{m.cancel()}</AlertDialog.Cancel>
             <!-- The dialog is portalled outside of the form -->
