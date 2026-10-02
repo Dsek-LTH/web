@@ -60,12 +60,13 @@
 
     <div class="flex flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
-        <h3>
+        <h3 class="block sm:hidden lg:block">
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html data.cpu?.name.includes("utskottet")
             ? `${data.cpu?.name.split("utskottet")[0]}&shy;utskottet`
             : data.cpu?.name}
         </h3>
+        <h3 class="hidden sm:block lg:hidden">CPU</h3>
         <CommitteeIcon class="w-12 self-baseline" committee={data.cpu} />
       </div>
 
