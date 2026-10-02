@@ -87,6 +87,9 @@ export const loadHomeData = async ({
         { endDatetime: { gt: startDate } },
       ],
     },
+    orderBy: {
+      startDatetime: "asc",
+    },
   });
 
   // MEETINGS
