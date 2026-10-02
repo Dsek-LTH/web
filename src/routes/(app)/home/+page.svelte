@@ -14,6 +14,8 @@
   import { m } from "$paraglide/messages";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
+
+  import Documents from "./Documents.svelte";
   dayjs.extend(utc);
   dayjs.extend(timezone);
   const { data } = $props();
@@ -186,4 +188,6 @@
       }))}
     />
   </div>
+
+  <Documents files={data.files} />
 </div>
