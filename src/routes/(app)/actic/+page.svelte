@@ -10,13 +10,26 @@
   import * as m from "$paraglide/messages";
   import Download from "@lucide/svelte/icons/download";
 
+  /**
+   * The Typst SVG ships its own `<style>`. An inline SVG's stylesheet is
+   * document-wide, and it contains `svg { fill: none }` — which, being
+   * unlayered, overrides Tailwind's layered `fill-*` utilities on *every* SVG
+   * on the page (it blanks out the header logo). Rendering the preview inside a
+   * shadow root isolates those styles, so they can only affect the preview.
+   * The page's own styles also can't reach in, so the sizing/paper background
+   * live here instead.
+   */
+  const PREVIEW_CSS =
+    "svg{display:block;width:100%;height:auto;background:#fff}";
+
   let source = $state(defaultTemplate);
-  let previewSvg = $state("");
   let error = $state("");
   let compiling = $state(false);
   let downloading = $state(false);
+  let rendered = $state(false);
 
   let scrollBox: HTMLElement | undefined = $state();
+  let previewHost: HTMLElement | undefined = $state();
 
   // Live-preview scheduler (kept non-reactive so it never re-triggers the
   // effect): while a compile is running we remember only the newest source, so
@@ -38,9 +51,18 @@
     compiling = true;
     const scrollTop = scrollBox?.scrollTop ?? 0;
     try {
-      previewSvg = await renderTypstToSvg(current);
+      const svg = await renderTypstToSvg(current);
+      if (previewHost) {
+        const root =
+          previewHost.shadowRoot ?? previewHost.attachShadow({ mode: "open" });
+        const style = document.createElement("style");
+        style.textContent = PREVIEW_CSS;
+        root.innerHTML = svg;
+        root.prepend(style);
+      }
       error = "";
-      // Replacing the SVG resets scroll, so put the reader back where they were.
+      rendered = true;
+      // Replacing the document resets scroll, so put the reader back.
       await tick();
       if (scrollBox) scrollBox.scrollTop = scrollTop;
     } catch (e) {
@@ -123,7 +145,7 @@
       </div>
       <div
         bind:this={scrollBox}
-        class="actic-preview bg-muted border-border min-h-[28rem] overflow-auto rounded-md border p-4"
+        class="bg-muted border-border min-h-[28rem] overflow-auto rounded-md border p-4"
       >
         {#if error}
           <p
@@ -132,24 +154,11 @@
             {error}
           </p>
         {/if}
-        {#if previewSvg}
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -- SVG is produced by the Typst compiler -->
-          <div class={error ? "opacity-50" : ""}>{@html previewSvg}</div>
-        {:else if !error}
+        <div bind:this={previewHost} class:opacity-50={!!error}></div>
+        {#if !rendered && !error}
           <p class="text-muted-foreground text-sm">{m.actic_preview_empty()}</p>
         {/if}
       </div>
     </div>
   </div>
 </div>
-
-<style>
-  .actic-preview :global(svg) {
-    display: block;
-    width: 100%;
-    height: auto;
-    /* Typst emits no page background, so paint the paper ourselves — otherwise
-       the document is transparent and unreadable in dark mode. */
-    background: white;
-  }
-</style>
