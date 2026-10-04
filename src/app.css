@@ -287,3 +287,14 @@ details summary::-webkit-details-marker {
 body[data-vaul-drawer-wrapper] {
   touch-action: none;
 }
+
+/*
+ * dnd-kit promotes the dragged element to a popover (top layer) while dragging.
+ * Because our sortable lists reorder through Svelte's `{#each}` (the Svelte
+ * adapter disables dnd-kit's DOM-optimistic sorting), moving the element closes
+ * the popover, and the browser then applies `[popover]:not(:popover-open) {
+ * display: none }` — making the item vanish mid-drag. Keep it rendered.
+ */
+[data-dnd-dragging] {
+  display: block !important;
+}

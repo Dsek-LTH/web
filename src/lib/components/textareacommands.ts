@@ -1,4 +1,4 @@
-function insertText(textarea: HTMLTextAreaElement, text: string) {
+export function insertText(textarea: HTMLTextAreaElement, text: string) {
   textarea.focus();
   // the only way to preserve edit history is to use these deprecated methods
   if (
@@ -15,7 +15,7 @@ function insertText(textarea: HTMLTextAreaElement, text: string) {
     textarea.value.substring(textarea.selectionEnd);
 }
 
-function toggleWrap(
+export function toggleWrap(
   textarea: HTMLTextAreaElement | null,
   before: string,
   after: string,
@@ -40,17 +40,17 @@ function toggleWrap(
   textarea.setSelectionRange(start + before.length, end + before.length);
 }
 
-function getLineStart(text: string, index: number) {
+export function getLineStart(text: string, index: number) {
   return text.substring(0, index).lastIndexOf("\n") + 1;
 }
 
-function getLineEnd(text: string, index: number) {
+export function getLineEnd(text: string, index: number) {
   const lineEndOffset = text.substring(index).indexOf("\n");
 
   return lineEndOffset == -1 ? text.length : index + lineEndOffset;
 }
 
-function toggleForEachLine(
+export function toggleForEachLine(
   textarea: HTMLTextAreaElement | null,
   rule: RegExp,
   prefix: string,

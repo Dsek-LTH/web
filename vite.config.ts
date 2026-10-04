@@ -23,6 +23,11 @@ export default defineConfig({
   define: {
     SUPERFORMS_LEGACY: true, // due to breaking changes in superforms v2
   },
+  // The Typst compiler runs in a Web Worker; it uses dynamic imports, which
+  // need ES module output (Vite's default "iife" can't code-split).
+  worker: {
+    format: "es",
+  },
   test: {
     include: ["src/**/*.test.{js,ts}"],
   },
