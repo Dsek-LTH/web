@@ -91,6 +91,9 @@
               bind:value={searchValue}
               bind:this={autocompleteEl}
               bind:ref={inputRef}
+              onclick={() => {
+                if (inputRef) inputRef.focus();
+              }}
             />
           </div>
         </div>
@@ -111,7 +114,7 @@
         <ul
           tabindex={0}
           role="listbox"
-          class="z-10 flex max-h-80 w-full flex-col flex-nowrap overflow-y-auto rounded-md shadow lg:max-w-[20rem]"
+          class="z-10 ml-0 flex max-h-80 w-full flex-col flex-nowrap overflow-y-auto rounded-md pr-6 shadow lg:max-w-[24rem]"
           id="tags-panel"
         >
           {#each filteredTags as tag (tag.id)}
