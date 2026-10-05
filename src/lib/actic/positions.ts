@@ -409,8 +409,8 @@ export const POSITION_GROUPS: PositionGroup[] = [
   },
   {
     key: "otherpos",
-    label: "otherpos",
-    labelEn: "otherpos",
+    label: "Övriga",
+    labelEn: "Other",
     positions: [
       { key: "inspektor", label: "Inspektor", labelEn: "Inspector" },
       { key: "revisor", label: "Revisor", labelEn: "Auditor" },
@@ -435,11 +435,13 @@ export const ALL_POSITIONS: Array<{
   label: string;
   labelEn: string;
   group: string;
+  groupEn: string;
 }> = POSITION_GROUPS.flatMap((g) =>
   g.positions.map((p) => ({
     path: `${g.key}.${p.key}`,
     label: p.label,
     labelEn: p.labelEn,
     group: g.label,
+    groupEn: g.labelEn,
   })),
 );

@@ -1,8 +1,10 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input/index.js";
+  import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { ALL_POSITIONS } from "$lib/actic/positions";
   import { groupLogoUrls } from "$lib/actic/committeeLogos";
   import type { AuthorInput } from "$lib/actic/dsek";
+  import { getLocale } from "$paraglide/runtime";
 
   function hideImg(event: Event) {
     if (event.currentTarget instanceof HTMLImageElement) {
@@ -23,10 +25,19 @@
   let focused = $state(false);
   let open = $state(false);
 
+  const english = $derived(getLocale() === "en");
+  function labelOf(p: (typeof ALL_POSITIONS)[number]): string {
+    return english ? p.labelEn : p.label;
+  }
+  function groupOf(p: (typeof ALL_POSITIONS)[number]): string {
+    return english ? p.groupEn : p.group;
+  }
+
   function positionText(pos: AuthorInput["position"]): string {
     if (!pos) return "";
     if (pos.kind === "text") return pos.value;
-    return ALL_POSITIONS.find((p) => p.path === pos.path)?.label ?? pos.path;
+    const match = ALL_POSITIONS.find((p) => p.path === pos.path);
+    return match ? labelOf(match) : pos.path;
   }
 
   let input = $state(positionText(position));
@@ -41,7 +52,7 @@
   let matches = $derived(
     input.trim()
       ? ALL_POSITIONS.filter((p) =>
-          p.label.toLowerCase().includes(input.trim().toLowerCase()),
+          labelOf(p).toLowerCase().includes(input.trim().toLowerCase()),
         ).slice(0, 8)
       : [],
   );
@@ -53,7 +64,7 @@
       return;
     }
     const match = ALL_POSITIONS.find(
-      (p) => p.label.toLowerCase() === trimmed.toLowerCase(),
+      (p) => labelOf(p).toLowerCase() === trimmed.toLowerCase(),
     );
     position = match
       ? { kind: "key", path: match.path }
@@ -71,6 +82,7 @@
   <Input
     {id}
     {placeholder}
+    class={FIELD_BG}
     value={input}
     autocomplete="off"
     oninput={(e) => {
@@ -101,7 +113,7 @@
             class="hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
             onmousedown={(e) => {
               e.preventDefault();
-              pick(match.label);
+              pick(labelOf(match));
             }}
           >
             {#if urls}
@@ -119,9 +131,9 @@
               />
             {/if}
             <span class="flex min-w-0 flex-col">
-              <span class="break-words">{match.label}</span>
+              <span class="break-words">{labelOf(match)}</span>
               <span class="text-muted-foreground text-xs break-words"
-                >{match.group}</span
+                >{groupOf(match)}</span
               >
             </span>
           </button>

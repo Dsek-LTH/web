@@ -35,6 +35,11 @@ const ORDER = [
 
 const clean = (s) => s.replace(/-\?/g, "").replace(/\s+/g, " ").trim();
 
+// Groups without a `name` entry in strings.typ need a display label.
+const GROUP_LABELS = {
+  otherpos: { sv: "Övriga", en: "Other" },
+};
+
 const groups = {};
 const groupRe = /#let ([\w-]+) = \(\n([\s\S]*?)\n\)/g;
 let m;
@@ -72,10 +77,15 @@ for (const gname of ORDER) {
   if (!entries) continue;
   const name = entries.find((x) => x.key === "name");
   const positions = entries.filter((x) => x.key !== "name");
+  const fallback = GROUP_LABELS[gname];
   lines.push("  {");
   lines.push(`    key: ${JSON.stringify(gname)},`);
-  lines.push(`    label: ${JSON.stringify(name?.sv ?? gname)},`);
-  lines.push(`    labelEn: ${JSON.stringify(name?.en ?? gname)},`);
+  lines.push(
+    `    label: ${JSON.stringify(name?.sv ?? fallback?.sv ?? gname)},`,
+  );
+  lines.push(
+    `    labelEn: ${JSON.stringify(name?.en ?? fallback?.en ?? gname)},`,
+  );
   lines.push("    positions: [");
   for (const p of positions) {
     lines.push(
@@ -94,12 +104,14 @@ lines.push("  path: string;");
 lines.push("  label: string;");
 lines.push("  labelEn: string;");
 lines.push("  group: string;");
+lines.push("  groupEn: string;");
 lines.push("}> = POSITION_GROUPS.flatMap((g) =>");
 lines.push("  g.positions.map((p) => ({");
 lines.push("    path: `${g.key}.${p.key}`,");
 lines.push("    label: p.label,");
 lines.push("    labelEn: p.labelEn,");
 lines.push("    group: g.label,");
+lines.push("    groupEn: g.labelEn,");
 lines.push("  })),");
 lines.push(");");
 lines.push("");

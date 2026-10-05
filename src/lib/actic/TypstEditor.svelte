@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Textarea } from "$lib/components/ui/textarea";
+  import { FIELD_BG } from "$lib/actic/fieldStyles";
   import Heading from "@lucide/svelte/icons/heading";
   import Bold from "@lucide/svelte/icons/bold";
   import Italic from "@lucide/svelte/icons/italic";
@@ -18,6 +19,8 @@
   import type { Snippet } from "svelte";
   import {
     cycleHeading,
+    dedent,
+    indent,
     insertLine,
     insertLink,
     insertTable,
@@ -75,6 +78,35 @@
     command(textarea);
     refresh();
   }
+
+  function onKeydown(event: KeyboardEvent) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      run(event.shiftKey ? dedent : indent);
+      return;
+    }
+    if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+    const key = event.key.toLowerCase();
+    if (event.shiftKey) {
+      if (key === "x") {
+        event.preventDefault();
+        run(toggleStrike);
+      }
+      return;
+    }
+    const shortcuts: Record<string, (el: HTMLTextAreaElement | null) => void> =
+      {
+        b: toggleBold,
+        i: toggleItalic,
+        e: toggleInlineCode,
+        k: insertLink,
+      };
+    const command = shortcuts[key];
+    if (command) {
+      event.preventDefault();
+      run(command);
+    }
+  }
 </script>
 
 <div class="border-border flex w-full flex-col rounded-lg border">
@@ -119,7 +151,7 @@
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.bold}
       aria-label={m.actic_tool_bold()}
-      title={m.actic_tool_bold()}
+      title={`${m.actic_tool_bold()} (Ctrl+B)`}
       onclick={() => run(toggleBold)}
     >
       <Bold class="size-4" />
@@ -129,7 +161,7 @@
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.italic}
       aria-label={m.actic_tool_italic()}
-      title={m.actic_tool_italic()}
+      title={`${m.actic_tool_italic()} (Ctrl+I)`}
       onclick={() => run(toggleItalic)}
     >
       <Italic class="size-4" />
@@ -139,7 +171,7 @@
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.strike}
       aria-label={m.actic_tool_strike()}
-      title={m.actic_tool_strike()}
+      title={`${m.actic_tool_strike()} (Ctrl+Shift+X)`}
       onclick={() => run(toggleStrike)}
     >
       <Strikethrough class="size-4" />
@@ -149,7 +181,7 @@
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.code}
       aria-label={m.actic_tool_code()}
-      title={m.actic_tool_code()}
+      title={`${m.actic_tool_code()} (Ctrl+E)`}
       onclick={() => run(toggleInlineCode)}
     >
       <Code class="size-4" />
@@ -170,7 +202,7 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       aria-label={m.actic_tool_link()}
-      title={m.actic_tool_link()}
+      title={`${m.actic_tool_link()} (Ctrl+K)`}
       onclick={() => run(insertLink)}
     >
       <Link class="size-4" />
@@ -200,10 +232,11 @@
   </div>
 
   <Textarea
-    class="focus-visible:border-border min-h-[16rem] resize-y rounded-none border-0 text-sm focus-visible:ring-0"
+    class="{FIELD_BG} focus-visible:border-border min-h-[16rem] resize-y rounded-none border-0 text-sm focus-visible:ring-0"
     {placeholder}
     bind:value
     bind:ref={textarea}
+    onkeydown={onKeydown}
     onkeyup={refresh}
     onselect={refresh}
     onclick={refresh}
