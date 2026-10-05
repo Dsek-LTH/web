@@ -27,7 +27,7 @@
         <h6>&nbsp;- {m.home_meetingNext()}</h6>
       </div>
       <div class="flex flex-col">
-        {#each files.next as file}
+        {#each files.next as file (file.thumbnailUrl)}
           <FileLink
             class="px-2 *:shrink-0"
             name={file.name}
@@ -53,7 +53,7 @@
         <h6>&nbsp;- {m.home_meetingPrev()}</h6>
       </div>
       <div class="flex flex-col">
-        {#each files.last as file}
+        {#each files.last as file (file.thumbnailUrl)}
           <FileLink
             class="px-2 *:shrink-0"
             name={file.name}
