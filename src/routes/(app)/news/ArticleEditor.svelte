@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { SuperForm, SuperValidated } from "sveltekit-superforms";
-  import Article from "./Article.svelte";
   import ArticleForm from "./ArticleForm.svelte";
   import type { ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
-  import AuthorCard from "$lib/components/AuthorCard.svelte";
   import type { AuthorOption } from "$lib/news/getArticles";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
+  import * as m from "$paraglide/messages";
 
   let {
     data,
@@ -27,11 +27,21 @@
   const { form } = $derived(superform);
   let activeTab: "sv" | "en" = $state("sv");
 
-  let tagIds = $form.tags
-    .values()
-    .toArray()
-    .flat()
-    .map((t) => t.id);
+  const images = $derived($form.images);
+  let uploadedImageUrl: string | null = $state(null);
+  $effect(() => {
+    const image = images?.[0];
+    
+    if (!image) {
+      uploadedImageUrl = null;
+      return;
+    }
+
+    const url = URL.createObjectURL(image);
+    uploadedImageUrl = url;
+
+    return () => URL.revokeObjectURL(url);
+  });
 </script>
 
 <div class="flex flex-col gap-4 sm:flex-row sm:*:w-1/2">
@@ -43,41 +53,20 @@
     {committees}
     action={formAction}
   />
-  <Article
-    article={{
-      id: "",
-      slug: "",
-      header:
-        activeTab === "en" && $form.headerEn ? $form.headerEn : $form.headerSv,
-      headerSv: $form.headerSv,
-      headerEn: $form.headerEn,
-      body: activeTab === "en" && $form.bodyEn ? $form.bodyEn : $form.bodySv,
-      bodySv: $form.bodySv,
-      bodyEn: $form.bodyEn,
-      authorId: $form.author.id,
-      publishedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      removedAt: null,
-      status: "draft",
-      imageUrls: $form.imageUrls ?? [],
-      imageUrl: $form.imageUrl ?? null,
-      youtubeUrl: $form.youtubeUrl ?? null,
-      tags: allTags.filter((t) => tagIds.includes(t.id)),
-      committeeId: $form.committeeId == undefined ? null : $form.committeeId,
-      notificationText: null,
-      scheduledId: null,
-      shouldSendNotification: false,
-    }}
-    canEdit={false}
-    canDelete={false}
-  >
-    <AuthorCard
-      links={false}
-      member={$form.author.member}
-      position={$form.author.mandate?.position}
-      customAuthor={$form.author.customAuthor}
-      type={$form.author.type}
-    /></Article
-  >
+  <section class="flex flex-col gap-2">
+    <span class="text-muted-foreground italic">{m.events_create_preview()}</span
+    >
+    <ArticleSmallCard
+      article={{
+        slug: "",
+        header:
+          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.headerSv,
+        publishedAt: new Date(),
+        imageUrl: uploadedImageUrl ?? $form.imageUrls?.[0] ?? null,
+        committee: null
+      }}
+      isPreview={true}
+      index={0}
+    />
+  </section>
 </div>

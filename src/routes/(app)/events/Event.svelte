@@ -68,7 +68,7 @@
     <img
       src={event.imageUrl}
       alt=""
-      class="border-border max-h-96 w-full rounded-xl border object-cover"
+      class="aspect-[2/1] border-border w-full rounded-xl border object-cover"
     />
   {/if}
 
