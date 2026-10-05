@@ -10,7 +10,9 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  authorize(apiNames.GALLERY.CREATE, locals.user);
+
   const form = await superValidate(zod4(uploadSchema));
   return { form };
 };
@@ -59,12 +61,18 @@ export const actions: Actions = {
       );
     }
 
-    console.log("Preparing photographer coonnections for database insertion: ", photographers);
+    console.log(
+      "Preparing photographer coonnections for database insertion: ",
+      photographers,
+    );
     const photographerConnect = photographers
       .filter((p) => p?.studentId != null)
       .map((p) => ({ studentId: p.studentId! }));
     console.log("Photographer connections prepared: ", photographerConnect);
-    console.log("Preparing editor connections for database insertion: ", editors);
+    console.log(
+      "Preparing editor connections for database insertion: ",
+      editors,
+    );
     const editorConnect = editors
       .filter((e) => e?.studentId != null)
       .map((e) => ({ studentId: e.studentId! }));
@@ -74,7 +82,10 @@ export const actions: Actions = {
     let validPhotographers: Array<{ studentId: string }> = [];
     let validEditors: Array<{ studentId: string }> = [];
 
-    console.log("Verifying photographers exist in database: ", photographerConnect);
+    console.log(
+      "Verifying photographers exist in database: ",
+      photographerConnect,
+    );
     if (photographerConnect.length > 0) {
       const existingPhotographers = await locals.prisma.member.findMany({
         where: {
@@ -82,13 +93,14 @@ export const actions: Actions = {
         },
         select: { studentId: true },
       });
-      const existingIds = new Set(existingPhotographers.map((p) => p.studentId));
+      const existingIds = new Set(
+        existingPhotographers.map((p) => p.studentId),
+      );
       validPhotographers = photographerConnect.filter((p) =>
         existingIds.has(p.studentId),
       );
     }
     console.log("Valid photographers after verification: ", validPhotographers);
-
 
     console.log("Verifying editors exist in database: ", editorConnect);
     if (editorConnect.length > 0) {
@@ -102,7 +114,6 @@ export const actions: Actions = {
       validEditors = editorConnect.filter((e) => existingIds.has(e.studentId));
     }
     console.log("Valid editors after verification: ", validEditors);
-
 
     let result: { id: string };
     try {
@@ -119,7 +130,8 @@ export const actions: Actions = {
             validPhotographers.length > 0
               ? { connect: validPhotographers }
               : undefined,
-          editors: validEditors.length > 0 ? { connect: validEditors } : undefined,
+          editors:
+            validEditors.length > 0 ? { connect: validEditors } : undefined,
         },
         select: { id: true },
       });

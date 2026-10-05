@@ -45,10 +45,10 @@
   }
 </script>
 
-<SetPageTitle title={m.gallery_uploadAlbum()} />
+<SetPageTitle title={m.gallery_upload_album()} />
 <div class="layout-container">
   <a href="/gallery" class="btn btn-outline btn-sm my-2">{m.gallery_back()}</a>
-  <h1 class="text-2xl font-bold">{m.gallery_uploadAlbum()}</h1>
+  <h1 class="text-2xl font-bold">{m.gallery_upload_album()}</h1>
   <form
     id="upload-album"
     class="form-control flex flex-col items-stretch gap-4"
@@ -58,7 +58,7 @@
   >
     <div class="flex flex-col gap-1.5">
       <Label class="mb-1 text-lg font-medium" for="date"
-        >{m.gallery_upload_date()}</Label
+        >{m.gallery_date()}</Label
       >
 
       <Input
@@ -76,7 +76,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label class="mb-1 text-lg font-medium" for="title"
-        >{m.gallery_upload_name()}</Label
+        >{m.gallery_name()}</Label
       >
       <Input
         id="title"
@@ -91,7 +91,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label class="mb-1 text-lg font-medium" for="photographers"
-        >{m.gallery_upload_photographers()}</Label
+        >{m.gallery_photographers()}</Label
       >
       <MemberSelector
         name="photographers"
@@ -104,7 +104,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label class="mb-1 text-lg font-medium" for="editors"
-        >{m.gallery_upload_editors()}</Label
+        >{m.gallery_editors()}</Label
       >
       <MemberSelector
         name="editors"
@@ -117,7 +117,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label class="mb-1 text-lg font-medium" for="description"
-        >Beskrivning</Label
+        >{m.gallery_description()}</Label
       >
       <Textarea
         id="description"
@@ -130,7 +130,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label class="mb-1 text-lg font-medium" for="files">
-        {m.gallery_upload_cover()}
+        {m.gallery_cover()}
       </Label>
       <FileUpload
         multiple={false}
@@ -142,7 +142,7 @@
 
     <div class="flex flex-col gap-1.5">
       <Label class="mb-1 text-lg font-medium" for="files">
-        {m.gallery_upload_files()}
+        {m.gallery_files()}
       </Label>
       <FileUpload
         multiple
@@ -153,16 +153,13 @@
     </div>
 
     {#if !uploading}
-      <Button
-        class="btn btn-primary"
-        type="submit"
-      >
-        {m.gallery_upload_upload()}
+      <Button class="btn btn-primary" type="submit">
+        {m.gallery_upload()}
       </Button>
     {:else}
       <Button class="btn btn-primary" disabled>
         <Spinner />
-        {m.gallery_upload_uploading()}
+        {m.gallery_uploading()}
       </Button>
     {/if}
   </form>

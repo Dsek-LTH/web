@@ -80,9 +80,9 @@
       }
     }
     if (selectedMembers) {
-      selectedMembersIds = selectedMembers
-        .filter((m) => !m.id?.includes("-"))
-        .map((m) => new TextDecoder().decode(base64ToBytes(m.id!)));
+      selectedMembersIds = selectedMembers.map((m) =>
+        new TextDecoder().decode(base64ToBytes(m.id!)),
+      );
     }
   });
 
