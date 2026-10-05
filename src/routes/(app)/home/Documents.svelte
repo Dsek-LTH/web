@@ -2,7 +2,6 @@
   import type { FileData } from "$lib/files/fileHandler";
   import * as m from "$paraglide/messages";
   import FileLink from "$lib/components/files/FileLink.svelte";
-  import Separator from "$lib/components/ui/separator/separator.svelte";
 
   let { files }: { files: { next: FileData[]; last: FileData[] } } = $props();
 </script>
