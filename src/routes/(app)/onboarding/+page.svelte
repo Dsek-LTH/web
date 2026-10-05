@@ -96,9 +96,10 @@
           >
         </div>
         <div class="grid w-full items-center gap-1.5">
-          <Label for="pref">{m.onboarding_foodPreference()}</Label>
+          <Label for="foodPreference">{m.onboarding_foodPreference()}</Label>
           <Input
-            name="pref"
+            id="foodPreference"
+            name="foodPreference"
             bind:value={$form.foodPreference}
             {...$constraints.foodPreference}
             placeholder={m.onboarding_foodPreferencePlaceholder()}
