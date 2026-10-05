@@ -3,6 +3,7 @@ export const positionToCommitteeMap = {
   aktu: "aktu",
   cafe: "cafe",
   cpu: "cpu",
+  delta: "naru",
   fram: "fram",
   infu: "infu",
   km: "km",
@@ -40,7 +41,12 @@ export const positionPrefixes = ["dsek", "esek", "fsek", "dchip"];
 
 export const getPositionLink = (positionId: string) => {
   const parts = positionId.split(".");
-  if (
+  if (parts[1] == "delta") {
+    const position = parts
+      .slice(1, parts.length)
+      .reduce((sum, item) => sum + "." + item);
+    return `/committees/naru/position/${position}`;
+  } else if (
     parts.length > 2 &&
     parts[0] == "dsek" &&
     Object.keys(positionToCommitteeMap).includes(parts[1]!)
