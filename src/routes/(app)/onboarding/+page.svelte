@@ -91,14 +91,8 @@
         </div>
         <div class="grid w-full items-center gap-1.5">
           <Label for="email">{m.onboarding_email()}</Label>
-          <Input
-            name="email"
-            required
-            disabled
-            readonly
-            bind:value={$form.email}
-            {...$constraints.email}
-            aria-errormessage={$errors.email?.at(0)}><Mail /></Input
+          <Input id="email" disabled readonly value={data.member.email}
+            ><Mail /></Input
           >
         </div>
         <div class="grid w-full items-center gap-1.5">
