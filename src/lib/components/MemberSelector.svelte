@@ -58,8 +58,8 @@
       );
     }
     if (selectedMembers) {
-      selectedMembersIds = selectedMembers.map((m) =>
-        new TextDecoder().decode(base64ToBytes(m.id!)),
+      selectedMembersIds = selectedMembers.flatMap((member) =>
+        member.id ? [new TextDecoder().decode(base64ToBytes(member.id))] : [],
       );
     }
   });

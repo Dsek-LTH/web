@@ -42,6 +42,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       });
   }
 
+  console.log("Loaded album data for slug:", params.slug);
+
   return {
     album: album,
     pictures: pictures,

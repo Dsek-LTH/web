@@ -6,51 +6,33 @@
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import { type SmallMemberSchema, type UploadSchema } from "./types";
   import Input from "$lib/components/ui/input/input.svelte";
   import Label from "$lib/components/ui/label/label.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import FileUpload from "$lib/components/FileUpload.svelte";
   import { Textarea } from "$lib/components/ui/textarea";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
-  import SuperDebug from "sveltekit-superforms";
-  import { Spinner } from "$lib/components/ui/spinner";
+  import type { SmallMemberSchema, EditSchema } from "../types";
 
-  let { data }: { data: { form: SuperValidated<UploadSchema> } } = $props();
+  let { data }: { data: { slug: string; form: SuperValidated<EditSchema> } } =
+    $props();
 
   let { form, constraints, errors, enhance } = $derived(
     superForm(data.form, {
       resetForm: false,
       dataType: "json",
-      onSubmit: () => {
-        uploading = true;
-      },
-      onResult: () => {
-        uploading = false;
-      },
-    }) as SuperForm<UploadSchema>,
+    }) as SuperForm<EditSchema>,
   );
-
-  let coverFiles: FileList | undefined = $state();
-  let albumFiles: FileList | undefined = $state();
-  let uploading = $state(false);
-
-  function onCoverFileUpload() {
-    $form.coverFile = coverFiles ? coverFiles[0] : undefined;
-  }
-
-  function onAlbumFileUpload() {
-    // @ts-expect-error -- expected
-    $form.albumFiles = [...albumFiles];
-  }
 </script>
 
-<SetPageTitle title={m.gallery_upload_album()} />
+<SetPageTitle title={m.gallery_edit_album()} />
+
 <div class="layout-container">
-  <a href="/gallery" class="btn btn-outline btn-sm my-2">{m.gallery_back()}</a>
-  <h1 class="text-2xl font-bold">{m.gallery_upload_album()}</h1>
+  <a href={`/gallery/album/${data.slug}`} class="btn btn-outline btn-sm my-2"
+    >{m.gallery_back()}</a
+  >
+  <h1 class="text-2xl font-bold">{m.gallery_edit_album()}</h1>
   <form
-    id="upload-album"
+    id="edit-album"
     class="form-control flex flex-col items-stretch gap-4"
     method="POST"
     enctype="multipart/form-data"
@@ -60,7 +42,6 @@
       <Label class="mb-1 text-lg font-medium" for="date"
         >{m.gallery_date()}</Label
       >
-
       <Input
         id="date"
         name="date"
@@ -85,6 +66,8 @@
         bind:value={$form.title}
         type="text"
         placeholder="Nollefredagen"
+        aria-invalid={$errors.title ? true : false}
+        aria-errormessage={$errors.title?.at(0)}
         {...$constraints.title}
       />
     </div>
@@ -125,44 +108,14 @@
         class="input input-bordered"
         bind:value={$form.description}
         placeholder="En kort beskrivning av albumet"
+        aria-invalid={$errors.description ? true : false}
+        aria-errormessage={$errors.description?.at(0)}
+        {...$constraints.description}
       />
     </div>
 
-    <div class="flex flex-col gap-1.5">
-      <Label class="mb-1 text-lg font-medium" for="files">
-        {m.gallery_cover()}
-      </Label>
-      <FileUpload
-        multiple={false}
-        name="coverFile"
-        onchange={() => onCoverFileUpload()}
-        bind:files={() => coverFiles, (f) => (coverFiles = f)}
-      />
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <Label class="mb-1 text-lg font-medium" for="files">
-        {m.gallery_files()}
-      </Label>
-      <FileUpload
-        multiple
-        name="albumFiles"
-        onchange={() => onAlbumFileUpload()}
-        bind:files={() => albumFiles, (f) => (albumFiles = f)}
-      />
-    </div>
-
-    {#if !uploading}
-      <Button class="btn btn-primary" type="submit">
-        {m.gallery_upload()}
-      </Button>
-    {:else}
-      <Button class="btn btn-primary" disabled>
-        <Spinner />
-        {m.gallery_uploading()}
-      </Button>
-    {/if}
+    <Button class="btn btn-primary" type="submit">
+      {m.gallery_save_edit()}
+    </Button>
   </form>
 </div>
-
-<SuperDebug data={$form} />

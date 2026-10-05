@@ -17,19 +17,13 @@ const smallMemberSchema = memberSchema
     fullName: z.string().optional().default(""),
   });
 
-export const uploadSchema = z.object({
+export const editSchema = z.object({
   title: z.string().default(""),
   date: z.date({ message: m.gallery_errors_invalidDate() }).default(new Date()),
   description: z.string().optional(),
-  coverFile: z
-    .instanceof(File, { message: m.documents_errors_erroneousFile() })
-    .optional(),
-  albumFiles: z.array(
-    z.instanceof(File, { message: m.documents_errors_erroneousFile() }),
-  ),
   photographers: z.array(smallMemberSchema),
   editors: z.array(smallMemberSchema),
 });
 
 export type SmallMemberSchema = Infer<typeof smallMemberSchema>;
-export type UploadSchema = Infer<typeof uploadSchema>;
+export type EditSchema = Infer<typeof editSchema>;
