@@ -35,8 +35,13 @@
     type AuthorInput,
     type DocumentTypeId,
   } from "$lib/actic/dsek";
-  import { signatureFiles } from "$lib/actic/signatures";
+  import {
+    restoreSignature,
+    signatureDataUrl,
+    signatureFiles,
+  } from "$lib/actic/signatures";
   import { getDraft, saveDraft } from "$lib/actic/drafts";
+  import { FIELD_BG } from "$lib/actic/fieldStyles";
   import {
     createPreview,
     renderTypstToPdf,
@@ -64,9 +69,9 @@
     return { id: nextRowId(), clause: "", description: "" };
   }
 
-  // The document type is a per-draft field. The URL only carries the family
-  // (`?type=deliberation`); the concrete type is handed off from the landing
-  // page through sessionStorage and read once below.
+  // The document type is a per-draft field. The URL carries the document
+  // *family* (`?type=deliberation`); the concrete type is handed off from the
+  // landing page through sessionStorage (or taken from the draft) and read once.
   let documentType = $state<DocumentTypeId>("motion");
   let title = $state("");
   let meeting = $state("");
@@ -89,23 +94,32 @@
     draftLoaded = true;
     const draft = getDraft(draftId);
     if (!draft) return;
-    documentType = draft.type;
-    title = draft.title;
-    meeting = draft.meeting;
-    authors = draft.authors.length
-      ? draft.authors.map((author) => ({ ...author, id: nextRowId() }))
-      : [emptyAuthor()];
-    lang = draft.lang;
-    dateIso = draft.dateIso;
-    body = draft.body;
-    leadIn = draft.leadIn;
-    yrkanden = draft.yrkanden.length
-      ? draft.yrkanden.map((y) => ({ ...y, id: nextRowId() }))
-      : [emptyYrkande()];
+    void (async () => {
+      // Restore signature images before assigning the authors so the preview
+      // (which reads them synchronously) picks them up on the first render.
+      await Promise.all(
+        (draft.signatures ?? []).map((s) =>
+          restoreSignature(s.path, s.dataUrl),
+        ),
+      );
+      documentType = draft.type;
+      title = draft.title;
+      meeting = draft.meeting;
+      authors = draft.authors.length
+        ? draft.authors.map((author) => ({ ...author, id: nextRowId() }))
+        : [emptyAuthor()];
+      lang = draft.lang;
+      dateIso = draft.dateIso;
+      body = draft.body;
+      leadIn = draft.leadIn;
+      yrkanden = draft.yrkanden.length
+        ? draft.yrkanden.map((y) => ({ ...y, id: nextRowId() }))
+        : [emptyYrkande()];
+    })();
   });
 
   // The landing page's "create" cards stash the chosen type in sessionStorage
-  // (the URL is shared across types), so pick it up once on the client. Opening
+  // (the URL only carries the family), so pick it up once on the client. Opening
   // an existing draft (`?draft=`) takes precedence.
   $effect(() => {
     if (draftId) return;
@@ -182,11 +196,18 @@
   }
 
   let previewPromise: Promise<Preview> | null = null;
+  let previewRoot: ShadowRoot | null = null;
   function getPreview(): Promise<Preview> {
     if (!previewHost) return Promise.reject(new Error("no preview host"));
     const root =
       previewHost.shadowRoot ?? previewHost.attachShadow({ mode: "open" });
-    previewPromise ??= createPreview(root, PREVIEW_CSS);
+    // The host element is torn down while required fields are missing (the
+    // checklist replaces it), so a cached preview can point at a detached
+    // shadow root — recreate it whenever the host changes.
+    if (!previewPromise || previewRoot !== root) {
+      previewRoot = root;
+      previewPromise = createPreview(root, PREVIEW_CSS);
+    }
     return previewPromise;
   }
 
@@ -296,13 +317,19 @@
       type: documentType,
       title,
       meeting,
-      // Signatures are ephemeral and are not persisted.
-      authors: authors.map((author) => ({ ...author, signature: undefined })),
+      authors: authors.map((author) => ({ ...author })),
       lang,
       dateIso,
       body,
       leadIn,
       yrkanden: yrkanden.map((y) => ({ ...y })),
+      // Signature bytes are kept alongside the draft (localStorage), so they
+      // survive a reload; `author.signature.path` references the restored image.
+      signatures: authors
+        .map((author) => author.signature?.path)
+        .filter((path): path is string => !!path)
+        .map((path) => ({ path, dataUrl: signatureDataUrl(path) }))
+        .filter((s): s is { path: string; dataUrl: string } => !!s.dataUrl),
     });
     dirty = false;
     toast(m.actic_draft_saved(), "success");
@@ -420,7 +447,7 @@
             bind:value={manualSource}
             oninput={() => (forked = true)}
             spellcheck={false}
-            class="min-h-[32rem] font-mono text-sm"
+            class="{FIELD_BG} min-h-[32rem] font-mono text-sm"
           />
         </div>
       {:else}
@@ -432,6 +459,7 @@
             >
             <Input
               id="title"
+              class={FIELD_BG}
               bind:value={title}
               placeholder={m.actic_field_title_placeholder()}
               aria-invalid={!!titleError}
@@ -446,6 +474,7 @@
             >
             <Input
               id="meeting"
+              class={FIELD_BG}
               bind:value={meeting}
               placeholder={m.actic_field_meeting_placeholder()}
               aria-invalid={!!meetingError}
@@ -528,8 +557,12 @@
               >
               <Input
                 id="leadIn"
+                class={FIELD_BG}
                 bind:value={leadIn}
-                placeholder={m.actic_yrkanden_leadIn_placeholder()}
+                placeholder={m.actic_yrkanden_leadIn_placeholder(
+                  {},
+                  { locale: lang },
+                )}
               />
             </div>
             <DragDropProvider
@@ -554,18 +587,24 @@
                         {i + 1}
                       </span>
                       <span class="text-muted-foreground pt-2 text-sm"
-                        >{m.actic_yrkanden_att()}</span
+                        >{m.actic_yrkanden_att({}, { locale: lang })}</span
                       >
                       <div class="flex flex-1 flex-col gap-1.5">
                         <Textarea
                           bind:value={yrkande.clause}
-                          placeholder={m.actic_yrkanden_clause_placeholder()}
-                          class="min-h-9 resize-none"
+                          placeholder={m.actic_yrkanden_clause_placeholder(
+                            {},
+                            { locale: lang },
+                          )}
+                          class="{FIELD_BG} min-h-9 resize-none"
                         />
                         <Textarea
                           bind:value={yrkande.description}
-                          placeholder={m.actic_yrkanden_desc_placeholder()}
-                          class="min-h-9 resize-none"
+                          placeholder={m.actic_yrkanden_desc_placeholder(
+                            {},
+                            { locale: lang },
+                          )}
+                          class="{FIELD_BG} min-h-9 resize-none"
                         />
                       </div>
                       <Button

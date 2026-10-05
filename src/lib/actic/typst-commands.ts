@@ -88,6 +88,44 @@ export function insertLine(textarea: HTMLTextAreaElement | null) {
   insertText(textarea, "\n#line(width: 100%)\n");
 }
 
+/** One indentation level (Typst nests lists with 2 spaces). */
+const INDENT = "  ";
+
+/** Tab: indent the selected lines, or insert an indent at the caret. */
+export function indent(textarea: HTMLTextAreaElement | null) {
+  if (textarea === null) return;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  // No selection: just insert an indent at the caret.
+  if (start === end) {
+    insertText(textarea, INDENT);
+    return;
+  }
+
+  const lineStart = getLineStart(textarea.value, start);
+  const lineEnd = getLineEnd(textarea.value, end);
+  textarea.setSelectionRange(lineStart, lineEnd);
+  const lines = textarea.value.substring(lineStart, lineEnd).split("\n");
+  const indented = lines.map((line) => INDENT + line).join("\n");
+  insertText(textarea, indented);
+  textarea.setSelectionRange(lineStart, lineStart + indented.length);
+}
+
+/** Shift+Tab: remove one indentation level from the selected lines. */
+export function dedent(textarea: HTMLTextAreaElement | null) {
+  if (textarea === null) return;
+  const lineStart = getLineStart(textarea.value, textarea.selectionStart);
+  const lineEnd = getLineEnd(textarea.value, textarea.selectionEnd);
+  textarea.setSelectionRange(lineStart, lineEnd);
+  const lines = textarea.value.substring(lineStart, lineEnd).split("\n");
+  const dedented = lines
+    .map((line) => line.replace(/^ {1,2}/, "").replace(/^\t/, ""))
+    .join("\n");
+  insertText(textarea, dedented);
+  textarea.setSelectionRange(lineStart, lineStart + dedented.length);
+}
+
 // --- active-state detection (for toggle buttons) ---------------------------
 
 export function isWrapped(

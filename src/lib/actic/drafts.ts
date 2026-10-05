@@ -1,6 +1,6 @@
 import type { AuthorInput, DocumentTypeId } from "./dsek";
 
-/** A saved draft. Signature images are deliberately not persisted. */
+/** A saved draft. Signature images are persisted as data URLs. */
 export type Draft = {
   id: string;
   updatedAt: number;
@@ -13,6 +13,7 @@ export type Draft = {
   body: string;
   leadIn: string;
   yrkanden: Array<{ clause: string; description: string }>;
+  signatures?: Array<{ path: string; dataUrl: string }>;
 };
 
 const KEY = "actic.drafts";

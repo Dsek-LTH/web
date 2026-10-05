@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input/index.js";
+  import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import MemberNameInput from "$lib/actic/MemberNameInput.svelte";
@@ -94,6 +95,7 @@
     >
     <Input
       id={`author-message-${index}`}
+      class={FIELD_BG}
       bind:value={author.message}
       placeholder={m.actic_author_message_placeholder()}
     />

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input/index.js";
+  import { FIELD_BG } from "$lib/actic/fieldStyles";
   import {
     Avatar,
     AvatarFallback,
@@ -78,6 +79,7 @@
   <Input
     {id}
     {placeholder}
+    class={FIELD_BG}
     bind:value
     autocomplete="off"
     aria-invalid={invalid}

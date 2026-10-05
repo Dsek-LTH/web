@@ -88,6 +88,24 @@ function q(value: string): string {
   return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
+// Characters with meaning in Typst markup, plus leading list/heading markers.
+const CONTENT_SPECIAL = "\\#$*_`<>@~[]";
+
+/**
+ * Render a plain-text value as Typst content (`[...]`). The package's `title`
+ * and `meeting` parameters are `content`, so the values are emitted as content
+ * rather than strings; markup characters are escaped so arbitrary user input
+ * cannot change the document's formatting.
+ */
+function content(value: string): string {
+  let out = "";
+  for (const ch of value) {
+    out += CONTENT_SPECIAL.includes(ch) ? `\\${ch}` : ch;
+  }
+  if (/^[-+/=]/.test(out)) out = `\\${out}`;
+  return `[${out}]`;
+}
+
 function authorSource(author: AuthorInput): string {
   const parts = [`name: ${q(author.name)}`];
   if (author.position) {
@@ -106,14 +124,20 @@ function authorSource(author: AuthorInput): string {
   return `(\n      ${parts.join(",\n      ")},\n    )`;
 }
 
-function yrkandenSource(yrkanden: DocumentInput["yrkanden"]): string {
+function yrkandenSource(
+  yrkanden: DocumentInput["yrkanden"],
+  lang: DocumentInput["lang"],
+): string {
   if (!yrkanden) return "";
   const items = yrkanden.items.filter((i) => i.clause.trim());
   if (items.length === 0) return "";
   const lead = yrkanden.leadIn.trim();
+  // The package's resolution formatter recognises "att" (sv) / "to" (en); the
+  // list is only styled as resolutions when every item starts with that term.
+  const term = lang === "en" ? "to" : "att";
   const list = items
     .map((i) => {
-      const head = `- att ${i.clause.trim()}`;
+      const head = `- ${term} ${i.clause.trim()}`;
       const desc = i.description?.trim();
       return desc ? `${head}\n  + ${desc}` : head;
     })
@@ -130,8 +154,8 @@ export function buildDocumentSource(input: DocumentInput): string {
   const authors = input.authors.filter((a) => a.name.trim());
 
   const showArgs = [
-    `  title: ${q(input.title)}`,
-    `  meeting: ${q(input.meeting)}`,
+    `  title: ${content(input.title)}`,
+    `  meeting: ${content(input.meeting)}`,
     `  authors: (\n    ${authors.map(authorSource).join(",\n    ")},\n  )`,
   ];
   // `lang` defaults to "sv" in the package, so only emit it for English.
@@ -143,9 +167,10 @@ export function buildDocumentSource(input: DocumentInput): string {
     );
   }
 
-  const bodyParts = [input.body.trim(), yrkandenSource(input.yrkanden)].filter(
-    Boolean,
-  );
+  const bodyParts = [
+    input.body.trim(),
+    yrkandenSource(input.yrkanden, input.lang),
+  ].filter(Boolean);
 
   return [
     `#import "${DSEK_PACKAGE}": *`,
