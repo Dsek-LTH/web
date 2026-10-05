@@ -1,7 +1,6 @@
 import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
 import fileHandler from "$lib/files/fileHandler";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-import { get } from "http";
 import type { AlbumSchema } from "./schema";
 import type { AuthUser } from "@zenstackhq/runtime";
 
