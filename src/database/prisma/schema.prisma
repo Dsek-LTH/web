@@ -285,6 +285,7 @@ model Committee {
   isBannerTextLight Boolean       @default(false) @map("is_banner_text_light")
   election          Election[]
   article           Article[]
+  events            Event[]
 
   @@map("committees")
 }
@@ -389,6 +390,7 @@ model Event {
   link                 String?         @db.VarChar(255)
   location             String?         @db.VarChar(255)
   organizer            String          @db.VarChar(255)
+  committeeId          String?         @map("committee_id") @db.Uuid()
   authorId             String          @map("author_id") @db.Uuid()
   shortDescriptionSv   String?         @map("short_description_sv") @db.VarChar(255)
   shortDescriptionEn   String?         @map("short_description_en") @db.VarChar(255)
@@ -406,6 +408,7 @@ model Event {
   tags                 Tag[]           @relation("event_tags")
   tickets              Ticket[]
   recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
+  committee            Committee?      @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_committee_id_foreign")
 
   @@map("events")
 }
@@ -746,20 +749,33 @@ model ProductInventory {
   @@map("product_inventory")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Songs{
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Song {
-  id        String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  title     String    @db.VarChar(255)
-  lyrics    String
-  slug      String    @unique(map: "songs_slug_unique") @db.VarChar(255)
-  melody    String?   @db.VarChar(255)
-  category  String?   @db.VarChar(255)
-  createdAt DateTime? @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  video     String?
+  id            String         @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  title         String         @db.VarChar(255)
+  lyrics        String
+  slug          String         @unique(map: "songs_slug_unique") @db.VarChar(255)
+  melody        String?        @db.VarChar(255)
+  category      String?        @db.VarChar(255)
+  createdAt     DateTime?      @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime?      @map("updated_at") @db.Timestamptz(6)
+  deletedAt     DateTime?      @map("deleted_at") @db.Timestamptz(6)
+  video         String?
+  songBookEntry SongBookEntry?
 
   @@map("songs")
+}
+
+model SongBookEntry {
+  songId       String   @unique() @map("song_id") @db.Uuid()
+  song         Song     @relation(fields: [songId], references: [id])
+  page         Int
+  numberOnPage Int      @map("number_on_page")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt() @map("updated_at") @db.Timestamptz(6)
+
+  @@id([page, numberOnPage])
+  @@map("song_book_entries")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

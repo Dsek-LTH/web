@@ -187,7 +187,7 @@ export const committeeLoad = async (
 
 export const committeeActions = (
   shortName?: string,
-): Actions<{ shortName: string }> => ({
+): Actions<{ shortName?: string }> => ({
   updateCommitteeMarkdown: async ({ request, locals }) => {
     const { user, prisma } = locals;
     const form = await superValidate(request, zod4(updateCommitteeBody));

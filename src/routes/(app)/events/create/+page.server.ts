@@ -10,12 +10,17 @@ import * as messages from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, member } = locals;
-  const allTags = await getAllTags(prisma, true);
   if (!member) error(401, messages.events_create_not_logged_in());
+  const [allTags, committees] = await Promise.all([
+    getAllTags(prisma, true),
+    prisma.committee.findMany({
+      select: { id: true, name: true, shortName: true, symbolUrl: true },
+    }),
+  ]);
   return {
     allTags,
+    committees,
     form: await superValidate(
-      { organizer: `${member.firstName} ${member.lastName}` },
       zod4(eventSchema.and(z.object({ editType: actionType }))),
     ),
   };

@@ -51,7 +51,7 @@
       <DropdownMenu.Trigger class="w-full">
         <div
           class={cn(
-            "flex overflow-x-scroll overflow-y-hidden",
+            "flex overflow-x-auto overflow-y-hidden",
             "selection:bg-primary dark:bg-input/30 selection:text-primary-foreground placeholder:text-muted-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent text-sm font-medium shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
             "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
             "aria-invalid:border-destructive dark:aria-invalid:bg-destructive/10 aria-invalid:bg-destructive/10 aria-invalid:text-destructive aria-invalid:border-[1px]",

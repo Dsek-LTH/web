@@ -10,10 +10,9 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import Pen from "@lucide/svelte/icons/pen";
-  import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
   import * as m from "$paraglide/messages.js";
   import apiNames from "$lib/utils/apiNames";
-  import { mayWatchVideos } from "../helpers";
+  import { mayWatchVideos } from "../../helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
 
   let { data } = $props();
@@ -24,7 +23,7 @@
   );
   const canWatchVideo = $derived(song.video && mayWatchVideos(data.user));
 
-  function getYouTubeEmbedUrl(url: string): string | null {
+  function getYoutubeEmbedUrl(url: string): string | null {
     if (!url) return null;
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -36,7 +35,7 @@
   }
 
   const youtubeEmbedUrl = $derived(
-    song.video ? getYouTubeEmbedUrl(song.video) : null,
+    song.video ? getYoutubeEmbedUrl(song.video) : null,
   );
 </script>
 
@@ -48,37 +47,16 @@
     </Button>
 
     {#if canUpdate}
-      <Button href="/songbook/{song.slug}/edit" class="flex items-center gap-2">
+      <Button
+        href="/songbook/{data.songBookEntry.page}/{data.songBookEntry
+          .numberOnPage}/edit"
+        class="flex items-center gap-2"
+      >
         <Pen class="h-4 w-4" />
         {m.songbook_edit()}
       </Button>
     {/if}
   </div>
-
-  {#if song.deletedAt}
-    <div
-      class="bg-destructive/10 text-destructive border-destructive/20 mb-6 flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div>
-        <h3 class="text-lg font-bold">{m.songbook_deleted()}</h3>
-        <p class="text-sm opacity-90">{m.songbook_deletedExplanation()}</p>
-      </div>
-      {#if data.user?.policies?.includes(apiNames.SONG.DELETE)}
-        <form method="POST" action="/songbook/{song.slug}/edit?/restore">
-          <input type="hidden" name="id" value={song.id} />
-          <Button
-            type="submit"
-            variant="outline"
-            size="sm"
-            class="flex items-center gap-2"
-          >
-            <RotateCcw class="h-4 w-4" />
-            {m.songbook_restoreFromGarbageCan()}
-          </Button>
-        </form>
-      {/if}
-    </div>
-  {/if}
 
   <Card class="border-border shadow-xl">
     <CardHeader class="border-border border-b-[1px] pb-6">
@@ -120,7 +98,7 @@
             {#if youtubeEmbedUrl}
               <div class="aspect-video w-full">
                 <iframe
-                  title="YouTube Video Player"
+                  title="Youtube Video Player"
                   src={youtubeEmbedUrl}
                   frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

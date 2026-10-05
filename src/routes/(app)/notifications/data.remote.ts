@@ -1,6 +1,18 @@
-import { form, getRequestEvent } from "$app/server";
+import { form, getRequestEvent, query } from "$app/server";
 import { m } from "$paraglide/messages";
 import z from "zod";
+import { getMyGroupedNotificationsPage } from "$lib/utils/notifications/myNotifications";
+
+export const getNotifications = query(
+  z.object({ take: z.number().int().positive() }),
+  async ({ take }) => {
+    const { user, prisma } = getRequestEvent().locals;
+
+    if (!user?.memberId) return { notifications: [], hasMore: false };
+
+    return getMyGroupedNotificationsPage(user, prisma, take);
+  },
+);
 
 export const readAllNotifications = form(z.object({}), async () => {
   const { user, prisma } = getRequestEvent().locals;

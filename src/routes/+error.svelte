@@ -11,7 +11,7 @@
   const { data } = $props();
 </script>
 
-<Navbar notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
+<Navbar unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
 <main class="layout-container inline-flex flex-col gap-4 text-center">
   <div>
     <h1>{page.status}</h1>

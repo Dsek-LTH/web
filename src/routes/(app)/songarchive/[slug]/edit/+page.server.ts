@@ -11,8 +11,6 @@ import { authorize } from "$lib/utils/authorization";
 
 export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.SONG.UPDATE, locals.user);
-  const form = await superValidate(zod4(updateSongSchema));
-  return { form };
 };
 
 export const actions: Actions = {
@@ -50,7 +48,7 @@ export const actions: Actions = {
       },
     });
     throw redirect(
-      encodeURI(`/songbook/${updatedSong.slug}`),
+      encodeURI(`/songarchive/${updatedSong.slug}`),
       {
         message: m.songbook_songUpdated(),
         type: "success",
@@ -85,7 +83,7 @@ export const actions: Actions = {
     });
 
     throw redirect(
-      encodeURI(`/songbook/${song.slug}`),
+      encodeURI(`/songarchive/${song.slug}`),
       {
         message: m.songbook_songRemoved(),
         type: "success",
@@ -119,7 +117,7 @@ export const actions: Actions = {
       },
     });
     throw redirect(
-      encodeURI(`/songbook/${song.slug}`),
+      encodeURI(`/songarchive/${song.slug}`),
       {
         message: m.songbook_songRestored(),
         type: "success",

@@ -13,7 +13,12 @@ import { z } from "zod";
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
 
-  const allTags = await getAllTags(prisma, true);
+  const [allTags, committees] = await Promise.all([
+    getAllTags(prisma, true),
+    prisma.committee.findMany({
+      select: { id: true, name: true, shortName: true, symbolUrl: true },
+    }),
+  ]);
   const event = await prisma.event.findUnique({
     where: {
       slug: params.slug,
@@ -46,6 +51,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   };
   return {
     allTags,
+    committees,
     event,
     recurringParentId: event?.recurringParentId,
     form: await superValidate(

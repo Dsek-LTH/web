@@ -3,34 +3,66 @@
   import * as HoverCard from "$lib/components/ui/hover-card";
   import Bell from "@lucide/svelte/icons/bell";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
-  import { readAllNotifications } from "./data.remote";
+  import { getNotifications, readAllNotifications } from "./data.remote";
   import NotificationList from "./NotificationList.svelte";
   import { enhanceWithToast } from "$lib/stores/toast";
 
-  const {
-    notificationsPromise,
-  }: { notificationsPromise?: Promise<NotificationGroup[]> } = $props();
+  const PAGE_SIZE = 20;
+
+  const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
+    $props();
 
   let open = $state(false);
 
-  // Locally mark notifications as read to optimistically hide the badge
-  let locallyMarkedRead = $state(false);
-  let resolvedNotifications: NotificationGroup[] = $state([]);
-  let unreadCount = $derived(
-    locallyMarkedRead
-      ? 0
-      : resolvedNotifications.filter((n) => n.readAt === null).length,
-  );
-
+  let serverUnreadCount = $state(0);
   $effect(() => {
-    if (!notificationsPromise) {
-      resolvedNotifications = [];
+    if (!unreadCountPromise) {
+      serverUnreadCount = 0;
       return;
     }
-    notificationsPromise.then((list) => {
-      resolvedNotifications = list ?? [];
+    unreadCountPromise.then((count) => {
+      serverUnreadCount = count ?? 0;
     });
   });
+
+  // Locally mark notifications as read to optimistically hide the badge
+  let locallyMarkedRead = $state(false);
+  let unreadCount = $derived(locallyMarkedRead ? 0 : serverUnreadCount);
+
+  let notifications: NotificationGroup[] = $state([]);
+  let hasMore = $state(false);
+  let listLoaded = $state(false);
+  let initialLoading = $state(false);
+  let loadingMore = $state(false);
+  let take = PAGE_SIZE;
+
+  async function loadNotifications(newTake: number) {
+    if (newTake === PAGE_SIZE) initialLoading = true;
+    else loadingMore = true;
+    try {
+      const result = await getNotifications({ take: newTake });
+      notifications = result.notifications;
+      hasMore = result.hasMore;
+      take = newTake;
+      listLoaded = true;
+    } finally {
+      initialLoading = false;
+      loadingMore = false;
+    }
+  }
+
+  function loadMore() {
+    void loadNotifications(take + PAGE_SIZE);
+  }
+
+  function handleDismissed(id: number) {
+    notifications = notifications.filter((n) => n.id !== id);
+  }
+
+  function handleClearedAll() {
+    notifications = [];
+    hasMore = false;
+  }
 
   let readForm: HTMLFormElement | null = $state(null);
 
@@ -42,7 +74,9 @@
   }
 
   $effect(() => {
-    if (open) markAllAsRead();
+    if (!open) return;
+    markAllAsRead();
+    if (!listLoaded) void loadNotifications(take);
   });
 </script>
 
@@ -79,6 +113,15 @@
     class="z-150 flex w-[min(450px,calc(100vw-2rem))] flex-col p-0"
     align="end"
   >
-    <NotificationList {notificationsPromise} listClass="max-h-[60vh]" />
+    <NotificationList
+      {notifications}
+      {initialLoading}
+      {loadingMore}
+      {hasMore}
+      listClass="max-h-[60vh]"
+      onLoadMore={loadMore}
+      onDismissed={handleDismissed}
+      onClearedAll={handleClearedAll}
+    />
   </HoverCard.Content>
 </HoverCard.Root>

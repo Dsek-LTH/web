@@ -66,7 +66,7 @@
   >
     <div
       style=""
-      class="bg-muted-background *:text-muted-foreground after:to-[rgba(0, 0, 0, 1)] after:from-accent flex h-12 flex-row overflow-scroll rounded-t-lg after:sticky after:right-0 after:bg-linear-to-l after:pl-10"
+      class="bg-muted-background *:text-muted-foreground after:to-[rgba(0, 0, 0, 1)] after:from-accent flex h-12 flex-row overflow-auto rounded-t-lg after:sticky after:right-0 after:bg-linear-to-l after:pl-10"
     >
       <div
         class="border-border flex flex-row items-center justify-between border-r-[1px] *:mx-[12px] *:size-4 *:cursor-pointer"
