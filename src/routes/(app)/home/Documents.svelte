@@ -7,13 +7,13 @@
   let { files }: { files: { next: FileData[]; last: FileData[] } } = $props();
 </script>
 
-<div>
+<div class="max-w-1/2">
   <h2 class="mb-2">
     <a href="/documents" class="hover:text-muted-foreground transition-colors"
       >{m.documents_boardMeetings()}</a
     >
   </h2>
-  <div class="flex flex-row gap-4">
+  <div class="grid grid-cols-2 gap-4">
     <div class="flex flex-col rounded-md border-[1px] p-4">
       <div class="flex flex-row items-baseline">
         <h4>
@@ -38,7 +38,7 @@
       </div>
     </div>
 
-    <Separator orientation="vertical" />
+    <!--<Separator orientation="vertical" />-->
 
     <div class="flex flex-col rounded-md border-[1px] p-4">
       <div class="flex flex-row items-baseline">
