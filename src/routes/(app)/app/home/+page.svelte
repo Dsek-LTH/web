@@ -106,7 +106,7 @@
               header: newsArticle.header,
               publishedAt: newsArticle.publishedAt,
               committee: newsArticle.committee,
-              imageUrl: newsArticle.imageUrl
+              imageUrl: newsArticle.imageUrl,
             }}
             isPreview={false}
             index={i}

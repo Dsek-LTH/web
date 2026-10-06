@@ -7,20 +7,17 @@
   let {
     article,
     isPreview,
-    index
+    index,
   }: {
     article: Pick<
       Article,
-      | "slug"
-      | "imageUrl"
-      | "header"
-      | "publishedAt"
-      | "committee"
+      "slug" | "imageUrl" | "header" | "publishedAt" | "committee"
     >;
     isPreview: boolean;
     index: number;
   } = $props();
 </script>
+
 <svelte:element
   this={isPreview ? "div" : "a"}
   href={isPreview ? undefined : `/news/${article.slug}`}
