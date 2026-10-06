@@ -22,7 +22,7 @@
   this={isPreview ? "div" : "a"}
   href={isPreview ? undefined : `/news/${article.slug}`}
   class={[
-    "relative aspect-2/1 w-full overflow-hidden rounded-xl hover:underline",
+    "relative aspect-2/1 w-full overflow-hidden rounded-xl border-[1px] transition-all hover:opacity-85",
     !isPreview && "lg:w-1/3",
     index >= 2 && "hidden lg:block",
   ]}
@@ -33,10 +33,7 @@
       style="background-image: url({article.imageUrl});"
     ></div>
     <div class="absolute top-2 right-2 size-14 p-3">
-      <CommitteeSymbol
-        committee={article.committee ?? undefined}
-        class="size-8"
-      />
+      <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
     <div
       class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent"

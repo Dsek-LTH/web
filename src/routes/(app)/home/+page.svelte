@@ -132,7 +132,7 @@
     </div>
     <div class="mt-2 flex justify-end">
       <Button variant="outline" size="sm" class="" href="/news"
-        >Fler nyheter <ArrowRight /></Button
+        >{m.home_more_news()} <ArrowRight /></Button
       >
     </div>
   </div>

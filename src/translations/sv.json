@@ -64,6 +64,7 @@
   "home_greeting": "Hej, {name}!",
   "home_notificationCount": "Du har {count} notifikationer",
   "home_calendarEmpty": "Här händer inte mycket.",
+  "home_more_news": "Fler nyheter",
   "landing_forStudents": "För studenter",
   "landing_introductionDesc": "Mer info om nollningen",
   "landing_getInvolved": "Engagera dig",
