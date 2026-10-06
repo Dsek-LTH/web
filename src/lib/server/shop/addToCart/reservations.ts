@@ -1,7 +1,3 @@
-import {
-  ensurePaymentIntentState,
-  removePaymentIntent,
-} from "$lib/server/shop/payments/stripeMethods";
 import sendNotification, {
   type SendNotificationProps,
 } from "$lib/utils/notifications";
@@ -62,34 +58,6 @@ export const removeExpiredConsumables = async (
   modifiedTickets: string[] | undefined;
   queuedNotifications: SendNotificationProps[];
 }> => {
-  const expiredWithIntent = await prisma.consumable.findMany({
-    where: {
-      expiresAt: {
-        not: null,
-        lte: now,
-      },
-      purchasedAt: null,
-      stripeIntentId: {
-        not: null,
-      },
-    },
-  });
-  if (expiredWithIntent.length > 0) {
-    const intentIds = new Set(expiredWithIntent.map((e) => e.stripeIntentId));
-    for (const intentId of intentIds) {
-      try {
-        const [, canTryAgain] = await ensurePaymentIntentState(intentId!);
-        if (canTryAgain) {
-          // payment not completed
-          await removePaymentIntent(intentId!);
-        } else {
-          // success, canceled, or unknown. Do nothing
-        }
-      } catch {
-        // do not expire it. Either processing, or something else failed
-      }
-    }
-  }
   const toBeRemoved = await prisma.consumable.findMany({
     where: {
       expiresAt: {
@@ -97,7 +65,6 @@ export const removeExpiredConsumables = async (
         lte: now,
       },
       purchasedAt: null,
-      stripeIntentId: null,
     },
   });
   let queuedNotifications: SendNotificationProps[] = [];
@@ -119,7 +86,6 @@ export const removeExpiredConsumables = async (
           lte: now,
         },
         purchasedAt: null,
-        stripeIntentId: null,
       },
     });
   }

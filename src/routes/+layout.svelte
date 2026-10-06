@@ -3,8 +3,6 @@
   import "../app.css";
   import { ModeWatcher } from "mode-watcher";
   import { getFlash } from "sveltekit-flash-message";
-  /* Recommended for fraud detection */
-  import "@stripe/stripe-js";
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
   import { getLocale } from "$paraglide/runtime";

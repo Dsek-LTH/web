@@ -40,7 +40,6 @@ export const load = async ({ locals, cookies }) => {
     mutateNotificationForm: await superValidate(zod4(notificationSchema)),
     paths: {
       cart: `${POST_REVEAL_PREFIX}/shop/cart`,
-      purchaseRedirect: `${POST_REVEAL_PREFIX}/shop/success`,
     },
     phadderGroup,
     theme: (revealTheme ? "nollningPostReveal" : "light") as Theme,

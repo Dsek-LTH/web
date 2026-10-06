@@ -3,9 +3,7 @@ import type { QuestionForm } from "$lib/utils/shop/types";
 import type { Infer, SuperValidated } from "sveltekit-superforms";
 import z from "zod";
 
-export const purchaseForm = z.object({
-  idempotencyKey: z.string(),
-});
+export const purchaseForm = z.object({});
 export type PurchaseForm = Infer<typeof purchaseForm>;
 
 type ItemMetadata = {

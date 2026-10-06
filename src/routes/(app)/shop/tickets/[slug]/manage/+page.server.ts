@@ -1,10 +1,8 @@
-import { env } from "$env/dynamic/public";
 import {
   moveQueueToCart,
   withHandledNotificationQueue,
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import { refundConsumable } from "$lib/server/shop/payments/stripeMethods";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
@@ -50,16 +48,11 @@ export const load = async ({ locals, params }) => {
   };
   delete mergedTicket.shoppable;
 
-  const isStripeTestEnvironment = env.PUBLIC_STRIPE_KEY.startsWith("pk_test");
-  const stripeIntentBaseUrl = isStripeTestEnvironment
-    ? "https://dashboard.stripe.com/test/payments"
-    : "https://dashboard.stripe.com/payments";
   return {
     ticket: mergedTicket as ManagedTicket,
     purchasedConsumables,
     consumablesInCart,
     reservations,
-    stripeIntentBaseUrl, // referenced directly in ConsumableRow.svelte
   };
 };
 
@@ -110,7 +103,7 @@ export const actions = {
       type: "success",
     });
   },
-  refund: async ({ locals, request, params }) => {
+  remove: async ({ locals, request, params }) => {
     const { prisma } = locals;
     const form = await superValidate(
       request,
@@ -123,21 +116,12 @@ export const actions = {
           id: form.data.consumableId,
           shoppableId: params.slug,
         },
-        include: {
-          shoppable: true,
-        },
       });
       if (!consumable) {
         return message(form, {
           message: "Biljetten hittades inte.",
           type: "error",
         });
-      }
-      if (consumable.stripeIntentId) {
-        await refundConsumable(
-          consumable.stripeIntentId,
-          consumable.priceAtPurchase ?? consumable.shoppable.price, // to ensure correct refund amount if shoppable price has changed
-        );
       }
       await authorizedPrismaClient.consumable.delete({
         where: {
@@ -154,7 +138,7 @@ export const actions = {
       );
 
       return message(form, {
-        message: "Biljetten har återbetalats.",
+        message: "Biljetten har tagits bort.",
         type: "success",
       });
     } catch (e) {
@@ -164,7 +148,7 @@ export const actions = {
           type: "error",
         });
       return message(form, {
-        message: "Kunde inte återbetala biljetten.",
+        message: "Kunde inte ta bort biljetten.",
         type: "error",
       });
     }

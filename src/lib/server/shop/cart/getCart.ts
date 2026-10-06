@@ -3,7 +3,7 @@ import {
   removeExpiredConsumables,
   withHandledNotificationQueue,
 } from "$lib/server/shop/addToCart/reservations";
-import { calculateCartPrice } from "$lib/server/shop/payments/purchase";
+import { calculateCartPrice } from "$lib/server/shop/cart/purchase";
 import {
   dbIdentification,
   GRACE_PERIOD_WINDOW,
@@ -11,11 +11,6 @@ import {
 } from "$lib/server/shop/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import {
-  passOnTransactionFee,
-  priceWithTransactionFee,
-  transactionFee,
-} from "$lib/utils/payments/transactionFee";
 import { questionForm } from "$lib/utils/shop/types";
 import { ShoppableType } from "@prisma/client";
 import { error, type ServerLoadEvent } from "@sveltejs/kit";
@@ -102,10 +97,7 @@ export const getCartWithExtras = async (
 ) => {
   const { inCart, reservations } = await getCart(prisma, identification);
 
-  const cartPrice = calculateCartPrice(inCart);
-  const totalPrice = passOnTransactionFee
-    ? priceWithTransactionFee(cartPrice)
-    : cartPrice;
+  const totalPrice = calculateCartPrice(inCart);
   const inCartWithQuestionForms = await Promise.all(
     inCart.map(async (item) => {
       const questions = item.shoppable.questions;
@@ -142,7 +134,6 @@ export const getCartWithExtras = async (
     reservations,
     purchaseForm: await superValidate(zod4(purchaseForm)),
     totalPrice: totalPrice,
-    transactionFee: passOnTransactionFee ? transactionFee(totalPrice) : 0,
   };
 };
 

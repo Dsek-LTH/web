@@ -9,6 +9,5 @@ export const OVERRIDEN_POST_REVEAL_ROUTES = [
   { from: "/shop/tickets", to: `${POST_REVEAL_PREFIX}/events` },
   { from: "/shop/cart" },
   { from: "/shop/inventory" },
-  { from: "/shop/success" },
   { from: "/settings" },
 ];

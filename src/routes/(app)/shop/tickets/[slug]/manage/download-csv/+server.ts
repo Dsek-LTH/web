@@ -32,7 +32,7 @@ const generateCSV = (
 ): string => {
   let output = "";
   let headers =
-    "Namn,StilID,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum,Payment Intent id";
+    "Namn,StilID,Email,Matpreferens,Phaddergrupp,Betalad mängd,Köpdatum";
   for (const question of ticket.shoppable.questions) {
     headers += `,${question.title.replace(",", " ")}`;
   }
@@ -65,9 +65,7 @@ const generateCSV = (
       : "Anonym användare";
     let row = `${name},${stilId},${email},${foodPreference},${phadderGroup},${paidAmount},${dayjs(
       consumable.purchasedAt,
-    ).format("YYYY-MM-DD HH:mm:ss")},${
-      consumable.stripeIntentId?.replace(",", " ") ?? "N/A"
-    }`;
+    ).format("YYYY-MM-DD HH:mm:ss")}`;
     for (const question of ticket.shoppable.questions) {
       const response = consumable.questionResponses.find(
         (r) => r.questionId === question.id,

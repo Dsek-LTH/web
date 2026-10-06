@@ -5,7 +5,7 @@ import {
 } from "$lib/server/shop/addToCart/reservations";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { purchaseForm } from "$lib/server/shop/cart/types";
-import purchaseCart from "$lib/server/shop/payments/purchase";
+import purchaseCart from "$lib/server/shop/cart/purchase";
 import { answerQuestion } from "$lib/server/shop/questions";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
@@ -157,7 +157,6 @@ const cartActions: Actions = {
           : {
               externalCode: user.externalCode!,
             },
-        form.data.idempotencyKey,
       );
       redirectUrl = redirect;
       data = rest;
