@@ -14,6 +14,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { mayWatchVideos } from "../../helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
 
   let { data } = $props();
   let song = $derived(data.song);
@@ -80,11 +81,10 @@
       </div>
     </CardHeader>
     <CardContent class="pt-8">
-      <div
+      <MarkdownBody
         class="text-foreground/90 font-serif text-lg leading-loose tracking-wide whitespace-pre-wrap"
-      >
-        {song.lyrics}
-      </div>
+        body={song.lyrics}
+      />
 
       {#if canWatchVideo && song.video}
         <Separator class="my-8" />
