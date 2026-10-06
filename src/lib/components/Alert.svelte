@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invalidate } from "$app/navigation";
   import { Button } from "$lib/components/ui/button";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import { cn } from "$lib/utils";
 
   import { type IconProps } from "@lucide/svelte";
@@ -70,7 +71,10 @@
 >
   <Icon size={24} class="shrink-0" strokeWidth={3} />
 
-  <span class="text-lg font-bold">{message}</span>
+  <MarkdownBody
+    class="prose-p:my-0 prose-a:text-current prose-a:underline prose-strong:text-current max-w-none text-lg font-bold text-current"
+    body={message}
+  />
 
   <Button class={foreground} variant="ghost" onclick={closeAlert}>
     <X strokeWidth={5} />

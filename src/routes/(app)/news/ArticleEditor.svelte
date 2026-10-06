@@ -31,7 +31,7 @@
   let uploadedImageUrl: string | null = $state(null);
   $effect(() => {
     const image = images?.[0];
-    
+
     if (!image) {
       uploadedImageUrl = null;
       return;
@@ -60,10 +60,12 @@
       article={{
         slug: "",
         header:
-          activeTab === "en" && $form.headerEn ? $form.headerEn : $form.headerSv,
+          activeTab === "en" && $form.headerEn
+            ? $form.headerEn
+            : $form.headerSv,
         publishedAt: new Date(),
         imageUrl: uploadedImageUrl ?? $form.imageUrls?.[0] ?? null,
-        committee: null
+        committee: null,
       }}
       isPreview={true}
       index={0}

@@ -12,8 +12,6 @@
   import timezone from "dayjs/plugin/timezone";
   import { m } from "$paraglide/messages";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
-  import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
-  import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
   import { ArrowRight } from "@lucide/svelte";
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -125,7 +123,7 @@
             header: newsArticle.header,
             publishedAt: newsArticle.publishedAt,
             committee: newsArticle.committee,
-            imageUrl: newsArticle.imageUrl
+            imageUrl: newsArticle.imageUrl,
           }}
           isPreview={false}
           index={i}
