@@ -104,7 +104,7 @@
                 ) {
                   selectedTags = [...selectedTags, filteredTags[0]!];
                   internalOnChange();
-                } else if (e.key == "Backspace") {
+                } else if (searchValue == "" && e.key == "Backspace") {
                   selectedTags = selectedTags.slice(0, -1);
                   internalOnChange();
                 }
