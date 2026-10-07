@@ -437,6 +437,8 @@
   "news_threeOrMore": "{name1}, {name2} and {others} others",
   "news_likedArticle": "Liked article",
   "news_stoppedLikingArticle": "Stopped liking article",
+  "news_like": "Like",
+  "news_likes": "Likes",
   "news_create": "Create",
   "news_articleDeleted": "Article deleted",
   "news_editArticle": "Edit news article",
