@@ -97,7 +97,11 @@
     </Button>
 
     <div>
-      <h2>{m.news()}</h2>
+      <h2>
+        <a class="hover:text-muted-foreground transition-colors" href="/news"
+          >{m.news()}</a
+        >
+      </h2>
       <div class="mt-4 flex flex-col gap-4 lg:flex-row">
         {#each data.news as newsArticle, i (newsArticle.id)}
           <ArticleSmallCard
@@ -122,7 +126,11 @@
     </div>
 
     <div>
-      <h2>{m.events()}</h2>
+      <h2>
+        <a class="hover:text-muted-foreground transition-colors" href="/events"
+          >{m.events()}</a
+        >
+      </h2>
       <HomeCalendar
         events={data.events.map((e) => ({
           startDate: e.startDatetime,
