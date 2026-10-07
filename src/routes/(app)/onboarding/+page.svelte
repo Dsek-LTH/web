@@ -91,20 +91,15 @@
         </div>
         <div class="grid w-full items-center gap-1.5">
           <Label for="email">{m.onboarding_email()}</Label>
-          <Input
-            name="email"
-            required
-            disabled
-            readonly
-            bind:value={$form.email}
-            {...$constraints.email}
-            aria-errormessage={$errors.email?.at(0)}><Mail /></Input
+          <Input id="email" disabled readonly value={data.member.email}
+            ><Mail /></Input
           >
         </div>
         <div class="grid w-full items-center gap-1.5">
-          <Label for="pref">{m.onboarding_foodPreference()}</Label>
+          <Label for="foodPreference">{m.onboarding_foodPreference()}</Label>
           <Input
-            name="pref"
+            id="foodPreference"
+            name="foodPreference"
             bind:value={$form.foodPreference}
             {...$constraints.foodPreference}
             placeholder={m.onboarding_foodPreferencePlaceholder()}
