@@ -9,6 +9,7 @@
   import Tags from "@lucide/svelte/icons/tags";
   import type { Props as InputProps } from "$lib/components/ui/input/input.svelte";
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
+  import { Button } from "$lib/components/ui/button";
 
   let {
     onChange = () => (searchValue = ""),
@@ -29,7 +30,15 @@
   const internalOnChange: () => void = () => {
     onChange();
     searchValue = "";
-    autocompleteEl?.["focus"]();
+    focusInput();
+  };
+
+  const focusInput: () => void = () => {
+    if (inputRef) {
+      setTimeout(() => {
+        inputRef?.focus();
+      }, 100);
+    }
   };
 
   let searchValue = $state("");
@@ -45,8 +54,9 @@
   let inputRef: HTMLInputElement | null = $state(null);
 </script>
 
+<Button onclick={focusInput}>knapp</Button>
 <div class="flex flex-col gap-1">
-  <DropdownMenu.Root onOpenChangeComplete={() => inputRef?.focus()}>
+  <DropdownMenu.Root onOpenChangeComplete={focusInput}>
     <div class="relative flex w-full flex-row">
       <DropdownMenu.Trigger class="w-full">
         <div
@@ -109,7 +119,15 @@
         >
       {/if}
     </div>
-    <DropdownMenu.Content side="bottom" align="start" avoidCollisions={false}>
+    <DropdownMenu.Content
+      side="bottom"
+      align="start"
+      onOpenAutoFocus={(e) => {
+        e.preventDefault();
+        focusInput();
+      }}
+      avoidCollisions={false}
+    >
       <DropdownMenu.Group>
         <ul
           tabindex={0}
