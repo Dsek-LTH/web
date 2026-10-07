@@ -3,13 +3,10 @@
   import { cn } from "$lib/utils";
   import TagChip from "./TagChip.svelte";
   import { Input } from "./ui/input";
-  import type { SvelteComponent } from "svelte";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
-
   import Tags from "@lucide/svelte/icons/tags";
   import type { Props as InputProps } from "$lib/components/ui/input/input.svelte";
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
-  import { Button } from "$lib/components/ui/button";
 
   let {
     onChange = () => (searchValue = ""),
@@ -50,13 +47,12 @@
     ),
   );
 
-  let autocompleteEl: SvelteComponent;
   let inputRef: HTMLInputElement | null = $state(null);
+  let dropdownOpen = $state(false);
 </script>
 
-<Button onclick={focusInput}>knapp</Button>
 <div class="flex flex-col gap-1">
-  <DropdownMenu.Root onOpenChangeComplete={focusInput}>
+  <DropdownMenu.Root onOpenChangeComplete={focusInput} bind:open={dropdownOpen}>
     <div class="relative flex w-full flex-row">
       <DropdownMenu.Trigger class="w-full">
         <div
@@ -99,8 +95,20 @@
               autocapitalize="off"
               class="w-full border-0 bg-transparent py-0 focus-visible:ring-0"
               bind:value={searchValue}
-              bind:this={autocompleteEl}
               bind:ref={inputRef}
+              onkeydown={(e) => {
+                if (
+                  dropdownOpen &&
+                  e.key == "Enter" &&
+                  filteredTags.length > 0
+                ) {
+                  selectedTags = [...selectedTags, filteredTags[0]!];
+                  internalOnChange();
+                } else if (e.key == "Backspace") {
+                  selectedTags = selectedTags.slice(0, -1);
+                  internalOnChange();
+                }
+              }}
               onclick={() => {
                 if (inputRef) inputRef.focus();
               }}
@@ -128,40 +136,36 @@
       }}
       avoidCollisions={false}
     >
-      <DropdownMenu.Group>
-        <ul
-          tabindex={0}
-          role="listbox"
-          class="z-10 ml-0 flex max-h-80 w-full flex-col flex-nowrap overflow-y-auto rounded-md pr-6 shadow lg:max-w-[24rem]"
-          id="tags-panel"
-        >
-          {#each filteredTags as tag (tag.id)}
-            <li>
-              <button
-                type="button"
-                class="m-2 {selectedTags.includes(tag)
-                  ? 'bg-primary hover:bg-primary-content hover:text-primary'
-                  : ''}"
-                onclick={() => {
-                  if (selectedTags.includes(tag)) {
-                    selectedTags = selectedTags.filter((o) => o.id !== tag.id);
-                  } else {
-                    selectedTags = [...selectedTags, tag];
-                  }
-                  internalOnChange();
-                }}
-              >
-                <TagChip {tag} />
-              </button>
-            </li>
-          {/each}
-          {#if filteredTags.length === 0}
-            <li class="border-b-base-content/10 w-full border-b">
-              <button type="button" disabled class="disabled">No tags</button>
-            </li>
-          {/if}
-        </ul>
-      </DropdownMenu.Group>
+      <ul
+        class="z-10 ml-0 flex w-full flex-col flex-nowrap rounded-md pr-6 lg:max-w-[24rem]"
+        id="tags-panel"
+      >
+        {#each filteredTags as tag (tag.id)}
+          <li>
+            <button
+              type="button"
+              class="m-2 {selectedTags.includes(tag)
+                ? 'bg-primary hover:bg-primary-content hover:text-primary'
+                : ''}"
+              onclick={() => {
+                if (selectedTags.includes(tag)) {
+                  selectedTags = selectedTags.filter((o) => o.id !== tag.id);
+                } else {
+                  selectedTags = [...selectedTags, tag];
+                }
+                internalOnChange();
+              }}
+            >
+              <TagChip {tag} />
+            </button>
+          </li>
+        {/each}
+        {#if filteredTags.length === 0}
+          <li class="border-b-base-content/10 w-full border-b">
+            <button type="button" disabled class="disabled">No tags</button>
+          </li>
+        {/if}
+      </ul>
     </DropdownMenu.Content>
   </DropdownMenu.Root>
   {#if restProps["aria-errormessage"]}
