@@ -110,7 +110,7 @@
       >
     </h2>
     <div class="mt-4 flex flex-col gap-4 lg:flex-row">
-      {#each data.news as newsArticle, i (newsArticle.id)}
+      {#each data.news as newsArticle (newsArticle.id)}
         <ArticleSmallCard
           article={{
             slug: newsArticle.slug,
@@ -120,7 +120,6 @@
             imageUrl: newsArticle.imageUrl,
           }}
           isPreview={false}
-          index={i}
         />
       {:else}
         <div

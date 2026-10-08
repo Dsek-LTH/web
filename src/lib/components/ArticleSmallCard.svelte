@@ -7,14 +7,12 @@
   let {
     article,
     isPreview,
-    index,
   }: {
     article: Pick<
       Article,
       "slug" | "imageUrl" | "header" | "publishedAt" | "committee"
     >;
     isPreview: boolean;
-    index: number;
   } = $props();
 </script>
 
@@ -24,7 +22,6 @@
   class={[
     "relative aspect-2/1 w-full overflow-hidden rounded-xl border-[1px] transition-all hover:opacity-85",
     !isPreview && "lg:w-1/3",
-    index >= 2 && "hidden lg:block",
   ]}
 >
   {#if article.imageUrl}
