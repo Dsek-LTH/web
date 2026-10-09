@@ -6,7 +6,7 @@
   import type { FileData } from "$lib/files/fileHandler";
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "./DeleteFileForm.svelte";
-  import FileLink from "./FileLink.svelte";
+  import FileLink from "$lib/components/files/FileLink.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { DeleteSchema } from "./+page.server";
   import { isAuthorized } from "$lib/utils/authorization";

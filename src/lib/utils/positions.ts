@@ -40,7 +40,9 @@ export const positionPrefixes = ["dsek", "esek", "fsek", "dchip"];
 
 export const getPositionLink = (positionId: string) => {
   const parts = positionId.split(".");
-  if (
+  if (parts[1] == "delta") {
+    return `/committees/naru/position/${positionId}`;
+  } else if (
     parts.length > 2 &&
     parts[0] == "dsek" &&
     Object.keys(positionToCommitteeMap).includes(parts[1]!)

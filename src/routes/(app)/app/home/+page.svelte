@@ -17,6 +17,7 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { page } from "$app/state";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -97,9 +98,13 @@
     </Button>
 
     <div>
-      <h2>{m.news()}</h2>
+      <h2>
+        <a class="hover:text-muted-foreground transition-colors" href="/news"
+          >{m.news()}</a
+        >
+      </h2>
       <div class="mt-4 flex flex-col gap-4 lg:flex-row">
-        {#each data.news as newsArticle, i (newsArticle.id)}
+        {#each data.news.slice(0, 3) as newsArticle (newsArticle.id)}
           <ArticleSmallCard
             article={{
               slug: newsArticle.slug,
@@ -109,7 +114,6 @@
               imageUrl: newsArticle.imageUrl,
             }}
             isPreview={false}
-            index={i}
           />
         {:else}
           <div
@@ -119,10 +123,19 @@
           </div>
         {/each}
       </div>
+      <div class="mt-2 flex">
+        <Button variant="outline" class="w-full" href="/news"
+          >{m.home_more_news()} <ArrowRight /></Button
+        >
+      </div>
     </div>
 
     <div>
-      <h2>{m.events()}</h2>
+      <h2>
+        <a class="hover:text-muted-foreground transition-colors" href="/events"
+          >{m.events()}</a
+        >
+      </h2>
       <HomeCalendar
         events={data.events.map((e) => ({
           startDate: e.startDatetime,
