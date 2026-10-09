@@ -13,7 +13,6 @@
   import timezone from "dayjs/plugin/timezone";
   import { m } from "$paraglide/messages";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
-  import Documents from "./Documents.svelte";
   dayjs.extend(utc);
   dayjs.extend(timezone);
   const { data } = $props();
