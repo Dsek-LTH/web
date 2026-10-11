@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navigating } from "$app/stores";
 
-  const threshhold = 100;
+  const threshold = 100;
   let isLoadDelayed = false;
   let timeout: ReturnType<typeof setTimeout>;
   $: {
@@ -9,7 +9,7 @@
       timeout = setTimeout(() => {
         // eslint-disable-next-line svelte/infinite-reactive-loop -- `isLoadDelayed` is write-only
         isLoadDelayed = $navigating !== null;
-      }, threshhold);
+      }, threshold);
     } else {
       if (timeout) clearTimeout(timeout);
       isLoadDelayed = false;

@@ -10,6 +10,7 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import * as messages from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -58,7 +59,7 @@ export const actions = {
       create: { key: form.data.key, value: form.data.value },
     });
     return message(form, {
-      message: `Inställning ${form.data.key} uppdaterad`,
+      message: messages.admin_settings_updated({ setting: form.data.key }),
       type: "success",
     });
   },
@@ -68,7 +69,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     await prisma.adminSetting.delete({ where: { key: form.data.key } });
     return message(form, {
-      message: `Inställning ${form.data.key} raderad`,
+      message: messages.admin_settings_deleted({ setting: form.data.key }),
       type: "success",
     });
   },
@@ -78,7 +79,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     await updateNollningPeriod(prisma, form.data.start, form.data.end);
     return message(form, {
-      message: `Nollningsperiod uppdaterad`,
+      message: messages.admin_settings_n0llning_period_updated(),
       type: "success",
     });
   },

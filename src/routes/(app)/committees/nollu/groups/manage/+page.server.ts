@@ -9,6 +9,7 @@ import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import * as messages from "$paraglide/messages";
 
 const getPhadderMandates = async (
   prisma: ExtendedPrisma,
@@ -22,7 +23,7 @@ const getPhadderMandates = async (
     },
     orderBy: [
       {
-        positionId: "asc", // regular phadder comes before uppdrag
+        positionId: "asc", // regular phadder comes before mission
       },
       {
         startDate: "asc",
@@ -84,7 +85,7 @@ export const actions = {
       data: form.data,
     });
     return message(form, {
-      message: "Phaddergruppen skapades",
+      message: messages.phadder_group_created(),
       type: "success",
     });
   },
@@ -103,7 +104,7 @@ export const actions = {
     });
     console.log(res);
     return message(form, {
-      message: "Phaddergruppen uppdaterad",
+      message: messages.n0llu_phadder_group_updated(),
       type: "success",
     });
   },
@@ -117,7 +118,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: "Phaddergruppen borttagen",
+      message: messages.n0llu_phadder_group_removed(),
       type: "success",
     });
   },
@@ -138,7 +139,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: "Nolla tillagd",
+      message: messages.n0llu_n0lla_added(),
       type: "success",
     });
   },
@@ -159,7 +160,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: "Nolla borttagen",
+      message: messages.n0llu_n0lla_added(),
       type: "success",
     });
   },
@@ -183,7 +184,7 @@ export const actions = {
       return setError(
         form,
         "memberId",
-        "Personen hittas inte som phadder det året",
+        messages.n0llu_not_found_as_phadder_that_year(),
       );
     await prisma.phadderGroup.update({
       where: {
@@ -198,7 +199,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: "Phadder tillagd",
+      message: messages.n0llu_phadder_added(),
       type: "success",
     });
   },
@@ -221,7 +222,7 @@ export const actions = {
       return setError(
         form,
         "memberId",
-        "Personen hittas inte som phadder det året",
+        messages.n0llu_not_found_as_phadder_that_year(),
       );
     await prisma.phadderGroup.update({
       where: {
@@ -236,7 +237,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: "Phadder borttagen",
+      message: messages.n0llu_phadder_removed(),
       type: "success",
     });
   },

@@ -37,9 +37,9 @@
 
 ## About
 
-This project is the main web page for the D-guild within TLTH, a non-profit organization for students and alumni of the Computer Science and Engineering; Information and Communication Engineering; or Master in VR/AR programmes in Lund, Sweden. It is maintained by [CPU (the Central Processing Unit)](https://www.dsek.se/committees/cpu).
+This project is the main web page for the D-guild within TLTH, a non-profit organisation for students and alumni of the Computer Science and Engineering; Information and Communication Engineering; or Master in VR/AR programmes in Lund, Sweden. It is maintained by [CPU (the Central Processing Unit)](https://www.dsek.se/committees/cpu).
 
-![builtwith][builtwith]
+![built-with][built-with]
 [![svelte][svelte]][svelte-url]
 [![typescript][typescript]][typescript-url]
 [![prisma][prisma]][prisma-url]
@@ -114,7 +114,7 @@ https://www.dsek.se/en/info/contact
 
 <!-- Badge icons: https://simpleicons.org/ -->
 
-[builtwith]: https://img.shields.io/badge/built%20with-f280a1?style=for-the-badge
+[built-with]: https://img.shields.io/badge/built%20with-f280a1?style=for-the-badge
 [using]: https://img.shields.io/badge/using-f280a1?style=for-the-badge
 [typescript]: https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
 [typescript-url]: https://www.typescriptlang.org/

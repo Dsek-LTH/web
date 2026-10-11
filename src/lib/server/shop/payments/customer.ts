@@ -2,6 +2,7 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { getStripe } from "./stripe";
 import { getFullName } from "$lib/utils/client/member";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import * as messages from "$paraglide/messages";
 
 const createStripeCustomer = async ({
   member,
@@ -12,7 +13,9 @@ const createStripeCustomer = async ({
   try {
     const customer = await getStripe().customers.create({
       name: getFullName({ ...member, nickname: null }),
-      description: `D-sek member: ${studentId}`,
+      description: messages.shop_customerDescription({
+        id: studentId ?? messages.show_unknownId(),
+      }),
       metadata: {
         member: id,
       },

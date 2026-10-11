@@ -225,7 +225,7 @@ export const createExpense = form(expenseSchema, async (data) => {
     await sendNotificationToSigner(member, expense, [...signerMemberIds]);
   } catch (e) {
     // we don't want it to fail for the user
-    console.warn("Failed to send notificaiton to expenses signers", e);
+    console.warn("Failed to send notification to expenses signers", e);
   }
 
   throw redirect(

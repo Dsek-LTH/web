@@ -23,7 +23,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import X from "@lucide/svelte/icons/x";
   import * as Select from "$lib/components/ui/select";
-  import { costCenters } from "./config";
+  import { costCenters as costCenters } from "./config";
   import { PiggyBank } from "@lucide/svelte";
   import { enhanceWithToast, toast } from "$lib/stores/toast";
   import { goto } from "$app/navigation";

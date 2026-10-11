@@ -4,6 +4,7 @@ import {
   NotificationType,
   SHOULD_MERGE_NOTIFICATIONS,
 } from "$lib/utils/notifications/types";
+import * as messages from "$paraglide/messages";
 
 // A notification as it is returned from prisma query
 export type ExpandedNotification = ExtendedPrismaModel<"Notification"> & {
@@ -41,80 +42,102 @@ export type NotificationGroup = Omit<
 function groupAuthorNames(group: NotificationGroup) {
   const authors = group.authors; // unique
   const authorCount = authors.length;
-  if (authorCount == 0) return "Någon"; // Edge case, all notification authors are undefined
+  if (authorCount == 0) return messages.notifications_someone(); // Edge case, all notification authors are undefined
   const firstAuthor = authors[0];
-  if (!firstAuthor) return `${authorCount} personer`; // Edge case, all notification authors are undefined
+  if (!firstAuthor)
+    return messages.notifications_n_people({ count: authorCount }); // Edge case, all notification authors are undefined
   const firstAuthorName = getAuthorName(firstAuthor);
   if (authorCount === 1) return getAuthorName(firstAuthor);
 
   const secondAuthor = authors[1];
-  if (!secondAuthor) return `${firstAuthorName} och ${authorCount - 1} andra`;
+  if (!secondAuthor)
+    return messages.notifications_first_and_n_others({
+      name: firstAuthorName,
+      others: authorCount - 1,
+    });
   const secondAuthorName = getAuthorName(secondAuthor);
-
-  if (authorCount === 2) return `${firstAuthorName} och ${secondAuthorName}`;
+  if (authorCount === 2)
+    return messages.notifications_first_and_second({
+      first: firstAuthorName,
+      second: secondAuthorName,
+    });
   if (authorCount > 3)
-    return `${firstAuthorName}, ${secondAuthorName} och ${
-      authorCount - 2
-    } andra`;
+    return messages.notifications_first_second_and_n_others({
+      first: firstAuthorName,
+      second: secondAuthorName,
+      others: authorCount - 2,
+    });
 
   // exactly 3 authors
   const thirdAuthor = authors[2];
   if (!thirdAuthor)
-    return `${firstAuthorName}, ${secondAuthorName} och ${
-      authorCount - 2
-    } andra`;
+    return messages.notifications_first_second_and_n_others({
+      first: firstAuthorName,
+      second: secondAuthorName,
+      others: authorCount - 2,
+    });
   const thirdAuthorName = getAuthorName(secondAuthor);
-  return `${firstAuthorName}, ${secondAuthorName} och ${thirdAuthorName}`;
+  return messages.notifications_first_second_and_third({
+    first: firstAuthorName,
+    second: secondAuthorName,
+    third: thirdAuthorName,
+  });
 }
 
 type NotificationTexts = Pick<ExpandedNotification, "title" | "message">;
 const getGroupTexts = (group: NotificationGroup): NotificationTexts => {
   const type = group.type;
-  switch (type) {
+  const people = groupAuthorNames(group);
+
+  switch (group.type) {
     case NotificationType.NEWS_LIKE:
       return {
         title: group.title, // is the article header
-        message: `${groupAuthorNames(group)} har gillat din nyhet`,
+        message: messages.notifications_people_have_liked_your_news_item({
+          people,
+        }),
       };
     case NotificationType.EVENT_LIKE: // THIS IS NOT USED, yet...
       return {
         title: group.title, // is the event title
-        message: `${groupAuthorNames(group)} har gillat ditt evenemang`,
+        message: messages.notifications_people_have_liked_your_event({
+          people,
+        }),
       };
     case NotificationType.COMMENT:
       return {
         title: group.title, // is the article header
-        message: `${groupAuthorNames(group)} har kommentaret`,
+        message: messages.notifications_people_have_commented({ people }),
       };
     case NotificationType.EVENT_COMMENT:
       return {
         title: group.title, // is the event title
-        message: `${groupAuthorNames(group)} har kommentaret`,
+        message: messages.notifications_people_have_commented({ people }),
       };
     case NotificationType.MENTION:
       return {
-        title: `${groupAuthorNames(group)} har nämnt dig i kommentarer`,
+        title: messages.notifications_people_have_mentioned_you_in_comments({
+          people,
+        }),
         message: group.message, // is the content of the last comment
       };
     case NotificationType.EVENT_GOING:
       return {
         title: group.title, // title of the event
-        message: `${groupAuthorNames(group)} kommer`,
+        message: messages.notifications_people_are_coming({ people }),
       };
     case NotificationType.EVENT_INTERESTED:
       return {
         title: group.title, // title of the event
-        message: `${groupAuthorNames(group)} är intresserade`,
+        message: messages.notifications_people_are_interested({ people }),
       };
     case NotificationType.PING:
       return {
         title: group.title, // says PING!
-        message: `${groupAuthorNames(group)} har pingat dig`,
+        message: messages.notifications_people_have_pinged_you({ people }),
       };
     default:
-      throw new Error(
-        `Tried to group notification type which has no group handler "${type}"`,
-      );
+      throw new Error(messages.notifications_no_group_handler({ type }));
   }
 };
 const convertSingleToGroup = (

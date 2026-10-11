@@ -1,4 +1,5 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
+import * as messages from "$paraglide/messages";
 
 export const consumeConsumable = async (
   prisma: ExtendedPrisma,
@@ -20,12 +21,12 @@ export const consumeConsumable = async (
         type: "error",
       };
     return {
-      message: "Kunde inte konsumera biljetten.",
+      message: messages.shop_could_not_consume_ticket(),
       type: "error",
     };
   }
   return {
-    message: "Biljetten har konsumerats.",
+    message: messages.shop_ticket_consumed(),
     type: "success",
   };
 };

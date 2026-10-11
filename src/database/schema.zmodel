@@ -1177,7 +1177,7 @@ model Consumable {
     @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
     // read: anyone can read. Necessary for purchase checks
     @@allow("read", true)
-    // no one can update (except overriden fields)
+    // no one can update (except overridden fields)
     @@deny("update", true)
     // customer can delete non-purchased
     @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
@@ -1205,7 +1205,7 @@ model ConsumableReservation {
     @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
     // read: anyone can read. Necessary for purchase checks
     @@allow("read", true)
-    // no one can update (except overriden fields)
+    // no one can update (except overridden fields)
     @@deny("update", true)
     // customer can delete
     @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))

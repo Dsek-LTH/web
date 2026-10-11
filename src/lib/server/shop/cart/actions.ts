@@ -132,7 +132,7 @@ const cartActions: Actions = {
     }
 
     return message(form, {
-      message: "Svaret har sparats.",
+      message: m.shop_answer_is_saved(),
       type: "hidden",
     });
   },

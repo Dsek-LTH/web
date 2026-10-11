@@ -73,10 +73,11 @@ const clearOutConsumablesAfterSellingOut = async (
         .filter(Boolean) as string[];
       return [
         {
-          title: "😢 Slutsålt:(",
-          message: `${
-            soldOutReservations[0]?.shoppable?.titleSv ?? "Biljett"
-          } har blivit slutsåld`,
+          title: m.shop_sold_out(),
+          message: m.shop_is_sold_out({
+            shoppable:
+              soldOutReservations[0]?.shoppable?.titleSv ?? m.shop_ticket(),
+          }),
           memberIds,
           type: NotificationType.PURCHASE_SOLD_OUT,
           link: "/shop/cart",
@@ -267,7 +268,7 @@ const purchaseCart = async (
     });
   }
   try {
-    // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. COuld lead to an intent not connected to a consumable.
+    // there is a race condition error here. If two calls to this method are done simultaneously, both will succeed, but one will be overwritten by another. Could lead to an intent not connected to a consumable.
     await authorizedPrismaClient.$transaction(async (tx): Promise<void> => {
       // ensure all of the consumables are still without a stripeIntentId, and not removed
       const consumables = await tx.consumable.findMany({
@@ -332,8 +333,8 @@ export const calculateConsumablePrice = (
 
 export const calculateCartPrice = (consumables: ConsumableFieldsForPrice[]) =>
   consumables.reduce(
-    (acc, consumable) =>
-      acc +
+    (accumulator, consumable) =>
+      accumulator +
       calculateConsumablePrice({
         shoppable: consumable.shoppable,
         questionResponses: consumable.questionResponses,

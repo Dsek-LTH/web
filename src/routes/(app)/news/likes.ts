@@ -45,7 +45,9 @@ export const likesAction =
     if (member && shouldLike) {
       await sendNotification({
         title: `${article.header}`,
-        message: `${getFullName(member)} har gillat din nyhet`,
+        message: m.notifications_person_has_liked_your_news_item({
+          person: getFullName(member),
+        }),
         type: NotificationType.NEWS_LIKE,
         link: `/news/${article.slug}`,
         memberIds: [article.author.memberId],

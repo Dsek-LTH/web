@@ -1,6 +1,7 @@
 import { inventoryValue, readCSV } from "$lib/utils/stocklistUtils";
 import { fail } from "sveltekit-superforms";
 import type { Actions, PageServerLoad } from "./$types";
+import * as messages from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -41,7 +42,7 @@ export const actions: Actions = {
     }
     return {
       success: true,
-      message: `Produkter skapade`,
+      message: messages.admin_stocklist_products_created(),
     };
   },
 };

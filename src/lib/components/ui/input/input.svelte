@@ -48,7 +48,7 @@
           className,
           childProps ? "indent-6" : "",
         )}
-        ><CloudUpload class="h-[16px] w-[16px]" />{m.fileupload_choose()}<input
+        ><CloudUpload class="h-[16px] w-[16px]" />{m.file_upload_choose()}<input
           bind:this={ref}
           data-slot={dataSlot}
           type="file"

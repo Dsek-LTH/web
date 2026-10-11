@@ -17,14 +17,14 @@ import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 /*
 NOTE ON NOTIFICATION QUEUE SYSTEM:
-So a lof of these method below perform actions which should send notifications afterwards. Like someone's item expiring, winning the lottery etc.
+So a lot of these method below perform actions which should send notifications afterwards. Like someone's item expiring, winning the lottery etc.
 All of these methods are built to be run in a transaction as well, but this creates a problem. Because the transaction can fail later and be reverted, but at that point a notification would have already been sent.
 To fix this, notifications are instead "queued" and returned as a list. A method which calls one of this methods MUST keep track of the returned notification and either send them, or pass onto the caller.
-For the method which starts the original transaction, make sure to send the notifications after the transaction suceeds, or wrap it in the `withHandledNotificationQueue` decorator function.
+For the method which starts the original transaction, make sure to send the notifications after the transaction succeeds, or wrap it in the `withHandledNotificationQueue` decorator function.
 */
 
 /**
- * Ensures the reservation state of the given shoppable. It will ensure the state at the timepoint "now".
+ * Ensures the reservation state of the given shoppable. It will ensure the state at the instant "now".
  * It removes all consumables which have expired at "now". It also performs the reservation lottery if "now" is after the grace period window.
  * IMPORTANT! This method returns some notifications it wants the caller to send afterwards, remember to do this. This can be turned off with one of the properties
  * @returns an array of ticket ids that were modified, if any, as well as the queued notifications
@@ -83,7 +83,7 @@ export const removeExpiredConsumables = async (
           // payment not completed
           await removePaymentIntent(intentId!);
         } else {
-          // success, canceled, or unknown. Do nothing
+          // success, cancelled, or unknown. Do nothing
         }
       } catch {
         // do not expire it. Either processing, or something else failed
@@ -104,8 +104,8 @@ export const removeExpiredConsumables = async (
   if (toBeRemoved.length > 0) {
     // Notify users of expired consumables
     queuedNotifications.push({
-      title: "Produkt i kundvagnen har löpt ut",
-      message: `Den reserverade tiden du hade för att skaffa produkten har löpt ut, om det finns lager kvar kan du försöka skaffa den igen här.`,
+      title: m.shop_item_in_cart_has_expired(),
+      message: m.shop_reservation_has_expired(),
       link: "/shop/tickets",
       memberIds: toBeRemoved
         .map((item) => item.memberId)
@@ -181,7 +181,7 @@ const updateAllNecessaryQueues = async (
           some: {}, // 'some' ensures that there is at least one reservation
           every: {
             order: {
-              not: null, // if there is a null order, lotter should have been performed or should be performed
+              not: null, // if there is a null order, lottery should have been performed or should be performed
             },
           },
         },
@@ -256,10 +256,11 @@ const updateQueue = async (
     // queue notification to notify users in queue that the ticket sold out
     return [
       {
-        title: "😢 Slutsålt:(",
-        message: `${
-          soldOutReservations[0]?.shoppable?.title ?? "Biljett"
-        } har blivit slutsåld`,
+        title: m.shop_sold_out(),
+        message: m.shop_is_sold_out({
+          shoppable:
+            soldOutReservations[0]?.shoppable?.title ?? m.shop_ticket(),
+        }),
         memberIds: soldOutReservations
           .map((res) => res.memberId)
           .filter(Boolean) as string[],
@@ -304,7 +305,7 @@ const updateQueueGivenStock = async (
     };
   }
   if (inCartOrPurchased >= stock) {
-    return { moved: 0, spaceLeft: 0, queuedNotifications: [] }; // no space left, don't move anyhing
+    return { moved: 0, spaceLeft: 0, queuedNotifications: [] }; // no space left, don't move anything
   }
   // there is space left for new items space left
   const toMove = Math.min(stock - inCartOrPurchased, reservations.length);
@@ -421,10 +422,16 @@ const moveReservationsToCart = async (
     // Queue notification to tell people that they can now purchase their item
     return [
       {
-        title: "🎉 Din tur!",
-        message: `Det är nu din tur att få ${
-          (reservationsToMove[0]?.shoppable.price ?? 1) > 0 ? "köpa" : "skaffa"
-        } ${reservationsToMove[0]?.shoppable?.title ?? "det du köade till"}`,
+        title: m.shop_your_turn(),
+        message: m.shop_now_you_may({
+          verb:
+            (reservationsToMove[0]?.shoppable.price ?? 1) > 0
+              ? m.shop_buy()
+              : m.shop_acquire(),
+          shoppable:
+            reservationsToMove[0]?.shoppable?.title ??
+            m.shop_what_you_queued_for(),
+        }),
         memberIds: reservationsToMove
           .map((res) => res.memberId)
           .filter(Boolean) as string[],
@@ -501,10 +508,15 @@ const performReservationLottery = async (
     // Queue notification that users can purchase their item
     return [
       {
-        title: "🎉 Du vann lotteriet!",
-        message: `Det är dags att ${
-          (reservations[0]?.shoppable.price ?? 1) > 0 ? "köpa" : "skaffa"
-        } ${reservations[0]?.shoppable?.title ?? "det du reserverade"}`,
+        title: m.shop_you_won_the_lottery(),
+        message: m.shop_it_is_time_to({
+          verb:
+            (reservations[0]?.shoppable.price ?? 1) > 0
+              ? m.shop_buy()
+              : m.shop_acquire(),
+          shoppable:
+            reservations[0]?.shoppable?.title ?? m.shop_what_you_reserved(),
+        }),
         memberIds: reservations
           .map((res) => res.memberId)
           .filter(Boolean) as string[],
@@ -533,19 +545,21 @@ const performReservationLottery = async (
   // Queue notifications to winners of lottery, and to losers, telling them what happened
   const queuedNotifications: SendNotificationProps[] = [
     {
-      title: "🎉🍀 Du vann lotteriet!",
-      message: `Det är dags att ${
-        (reservations[0]?.shoppable.price ?? 1) > 0 ? "köpa" : "skaffa"
-      } ${reservations[0]?.shoppable?.title ?? "det du reserverade"}`,
+      title: m.shop_you_won_the_lottery(),
+      message:
+        (reservations[0]?.shoppable.price ?? 1) > 0
+          ? m.shop_time_to_buy_reservation()
+          : m.shop_time_to_acquire_reservation(),
       memberIds: winners.map((res) => res.memberId).filter(Boolean) as string[],
       type: NotificationType.PURCHASE_TIME_TO_BUY,
       link: "/shop/cart",
     },
     {
-      title: "😕 Du hamnade tyvärr i kö",
-      message: `Många reserverade samma sak som du och du hamnade i kö för ${
-        reservations[0]?.shoppable?.title ?? "det du reserverade"
-      }. Du kan se din köplats här.`,
+      title: m.shop_you_are_placed_in_queue(),
+      message: m.shop_placed_in_queue({
+        shoppable:
+          reservations[0]?.shoppable?.title ?? m.shop_what_you_reserved(),
+      }),
       memberIds: losers.map((res) => res.memberId).filter(Boolean) as string[],
       type: NotificationType.PURCHASE_IN_QUEUE,
       link: "/shop/cart",

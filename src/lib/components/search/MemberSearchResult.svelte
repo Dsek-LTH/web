@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Command from "$lib/components/ui/command/index.js";
-  import { getBadgeVariantFromProgramme } from "$lib/components/ui/badge/badge.svelte";
+  import { getBadgeVariantFromProgram } from "$lib/components/ui/badge/badge.svelte";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
@@ -21,7 +21,7 @@
       </span>
     </div>
   </div>
-  <Badge variant={getBadgeVariantFromProgramme(data.classProgramme)}
+  <Badge variant={getBadgeVariantFromProgram(data.classProgramme)}
     >{`${data.classProgramme}${data.classYear?.toString().slice(2)}`}</Badge
   >
 </Command.LinkItem>

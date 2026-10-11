@@ -24,7 +24,7 @@ Sektionen i sin helhet.
 
 Policyn är antagen på styrelsemöte S24 2018. Uppdaterad enl. Policy för
 Policyer på HTM2 2021. Uppdaterad enl. Policy för styrdokument på
-VTM-extra 2023. Policyn updaterades VTM-extra 2023 av Rafael Holgersson.
+VTM-extra 2023. Policyn uppdaterades VTM-extra 2023 av Rafael Holgersson.
 Policyn uppdaterades HTM1 2025 av Isak Kallini och Felix Ohrgren.
 
 # Insamling av personuppgifter
@@ -56,10 +56,9 @@ delar information samtycker denne till att informationen sparas och
 tillgängliggörs för allmänheten.
 
 Utöver ovan nämnd data samlas teknisk information in vid besök på och
-användande av Dsektionens digitala tjänster. Detta inkluderar IP-adress
+användande av D-sektionens digitala tjänster. Detta inkluderar IP-adress
 och webbläsarinformation.
 
-## Hur samlas datan in?
 
 Majoriteten av den data D-sektionen samlar in lämnas direkt av personen
 i fråga. Vi samlar in och behandlar data när en person:
@@ -80,7 +79,7 @@ Exempel på evenemang kan vara:
 
 - Sittning eller annat event
 
-- Lunchföreläsning, Casekväll eller liknande
+- Lunchföreläsning, Case-kväll eller liknande
 
 - Idrottsevenemang
 
@@ -131,7 +130,7 @@ avseende på deltagarantal, biljetter, insläpp och matpreferenser.
 Data som samlas in genom vår hemsida lagras första hand säkert på
 D-sektionens servrar som finns i våra lokaler. Namn, StiL-id och
 e-postadresser lagras även i Google för att möjliggöra hantering av och
-tillgång till mailsystem och fildelning. All internettrafik på vår
+tillgång till mejlsystem och fildelning. All internettrafik på vår
 hemsida är krypterad och ett system för åtkomstkontroll finns för att
 hålla din data säker på våra servrar.
 
@@ -253,7 +252,7 @@ medföra att viss funktionalitet på hemsidan blir otillgänglig.
 
 D-sektionens hemsida innehåller länkar till andra hemsidor. Vår policy
 för hantering av personuppgifter gäller endast för vår hemsida. Vid
-besök på andra hemsidor som länkas från Dsektionens hemsida bör
+besök på andra hemsidor som länkas från D-sektionens hemsida bör
 användaren försäkra sig om den externa sidans rutiner kring hantering av
 personuppgifter före besöket.
 
