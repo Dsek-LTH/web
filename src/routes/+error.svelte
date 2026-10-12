@@ -15,7 +15,7 @@
 {#if data.isApp}
   <AppNavigation />
 {:else}
-  <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
+  <Header unreadCountPromise={data.unreadCountPromise} />
 {/if}
 <main class="layout-container inline-flex flex-col gap-4 text-center">
   <div>
