@@ -18,7 +18,7 @@
 
 <div class="flex w-full justify-center">
   <nav
-    class="bg-muted-background fixed bottom-0 z-500 mb-2 flex h-16 w-[95%] flex-row items-center justify-around rounded-lg border-[1px] px-4 shadow-lg *:size-full"
+    class="bg-muted-background fixed bottom-0 z-500 mb-4 flex h-16 w-[95%] flex-row items-center justify-around rounded-lg border-[1px] px-4 shadow-lg *:size-full"
   >
     {#each PAGES as item (item.title)}
       {@const Icon = item.icon}
