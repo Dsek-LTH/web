@@ -27,6 +27,7 @@
   import DocumentSearchResult from "./DocumentSearchResult.svelte";
   import { resolve } from "$app/paths";
   import { debounce } from "$lib/utils/debounce";
+  import { page } from "$app/state";
 
   let { open = $bindable(false) } = $props();
 
@@ -191,7 +192,11 @@
   export { open };
 </script>
 
-<Command.Dialog bind:open shouldFilter={false}>
+<Command.Dialog
+  inset={page.data?.appInfo?.insets?.top ?? 0}
+  bind:open
+  shouldFilter={false}
+>
   <form
     method="POST"
     action="/search"
