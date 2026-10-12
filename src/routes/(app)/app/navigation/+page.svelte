@@ -30,7 +30,7 @@
   );
 </script>
 
-<div class="layout-container flex flex-col justify-center gap-4 pt-2">
+<div class="layout-container flex flex-col justify-center gap-4">
   <div class="flex flex-row justify-between">
     <div class="flex flex-row items-center gap-2">
       {#if page.data.member}

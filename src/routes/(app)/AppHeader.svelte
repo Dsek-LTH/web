@@ -4,24 +4,37 @@
   import Search from "@lucide/svelte/icons/search";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
+  import { onMount } from "svelte";
 
   const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
     $props();
 
   let commandDialogOpen = $state(false);
 
-  let inset = $derived(page.data.appInfo?.insets?.top ?? 0);
+  // IOS creates insets that has the height of the notch, making it safe to place content below it
+  // Android places its insets inside of the already safe space, therefore we ignore it
+  let user = $state("");
+  let os = $derived(
+    user.startsWith("DSEK-APP") ? user.substring(10).split(")")[0] : undefined,
+  );
+
+  let heightInset = $derived(os == "ios" ? page.data.appInfo?.insets?.top : 0);
+
+  onMount(() => {
+    user = navigator.userAgent;
+  });
 </script>
 
 <div class="flex w-full justify-center">
   <nav
-    style:padding-top={inset + "px"}
-    style:height={inset + 12 * 4 + "px"}
+    style:padding-top={heightInset + "px"}
+    style:height={(heightInset ?? 0) + 12 * 4 + "px"}
     class="bg-muted-background border-rosa-background fixed top-0 z-500 mb-2 flex w-full flex-row items-center justify-between border-b-[1px] px-4 shadow-sm"
   >
     {#if page.data.member}
       <NotificationBell {unreadCountPromise} />
     {/if}
+
     <Button
       aria-label="search (Ctrl+K)"
       size="icon-lg"
