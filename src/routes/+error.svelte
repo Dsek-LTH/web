@@ -9,15 +9,20 @@
   import Mail from "@lucide/svelte/icons/mail";
   import AppNavigation from "./(app)/AppNavigation.svelte";
   import Header from "./(app)/Header.svelte";
+  import AppHeader from "./(app)/AppHeader.svelte";
   const { data } = $props();
 </script>
 
 {#if data.isApp}
+  <AppHeader />
   <AppNavigation />
 {:else}
   <Header unreadCountPromise={data.unreadCountPromise} />
 {/if}
-<main class="layout-container inline-flex flex-col gap-4 text-center">
+<main
+  style:padding-top={data.isApp ? "64px" : "0px"}
+  class="layout-container inline-flex flex-col gap-4 text-center"
+>
   <div>
     <h1>{page.status}</h1>
 
