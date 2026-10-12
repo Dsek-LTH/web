@@ -8,8 +8,9 @@
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
   import { signIn, signOut } from "$lib/utils/auth";
+  import type { PageData } from "../../../$types";
 
-  let { data } = $props();
+  let { data }: { data: PageData } = $props();
 
   const canAccess = (accessRequired: string | null) =>
     accessRequired === null || isAuthorized(accessRequired, page.data.user);
