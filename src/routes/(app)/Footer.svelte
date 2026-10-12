@@ -28,6 +28,7 @@
         <blockquote
           class="text-foreground text-3xl leading-9 font-medium tracking-tight md:text-5xl md:leading-[56px]"
         >
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           <p>{@html m.footer_quote()}</p>
         </blockquote>
         <p class="m-0 md:mt-2">– Evert Taube</p>

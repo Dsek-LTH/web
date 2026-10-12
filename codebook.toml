@@ -93,6 +93,7 @@ ignore_patterns = [
     'Toddyspexarna',
     'Var GladSpexarna',
     'AktU',
+    'Intl',
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -315,6 +316,7 @@ extra_ignore_patterns = [
     '[Nn]0llningsperiod',
     '[Nn]0llningspolicy',
     '[Nn]0llorna',
+    'N0llningsutskottet',
     'enl\.',
 
     # Names
@@ -331,6 +333,7 @@ extra_ignore_patterns = [
     'UtEDischoansvarig',
     'Messenger',
     'Källar',
+    'Källarmästeriet',
 
     # Bugs in codebook.
     '\\nön',
