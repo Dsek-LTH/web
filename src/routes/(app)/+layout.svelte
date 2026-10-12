@@ -16,7 +16,7 @@
 <div
   class="flex min-h-screen flex-col"
   style:padding-top={(data.isApp
-    ? (page.data.appInfo?.insets?.top ?? 0) + 32
+    ? (page.data.appInfo?.insets?.top ?? 0) + 48
     : 0) + "px"}
   style:padding-bottom={(data.isApp
     ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
