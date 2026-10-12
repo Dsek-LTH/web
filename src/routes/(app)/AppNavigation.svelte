@@ -2,7 +2,10 @@
   import { page } from "$app/state";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
   import { cn } from "$lib/utils";
-  import { Calendar, FileText, Menu, Newspaper } from "@lucide/svelte";
+  import Calendar from "@lucide/svelte/icons/calendar";
+  import FileText from "@lucide/svelte/icons/file-text";
+  import Menu from "@lucide/svelte/icons/menu";
+  import Newspaper from "@lucide/svelte/icons/newspaper";
 
   const PAGES = [
     { title: "Home", icon: DsekLogo, link: "/app/home" },

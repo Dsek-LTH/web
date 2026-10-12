@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { Button } from "$lib/components/ui/button";
-  import { Search } from "@lucide/svelte";
+  import Search from "@lucide/svelte/icons/search";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
 
