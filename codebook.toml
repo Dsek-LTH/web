@@ -46,6 +46,27 @@ ignore_patterns = [
     'Dsek-LTH', # The guild's GitHub name.
     'uneval',
     'klass', # TODO
+    '/songarchive',
+    'ORBI',
+    'ARKAD',
+    'Sångarstriden',
+    'Lundakarnevalen',
+    'Lundagård',
+    'link.dsek.se/jobbacafe',
+    'Lophtet',
+    'DÖMD',
+    'Linköping',
+    'Valborg',
+    'Geekend',
+    'Beat Saber',
+    'Snickerboa',
+    'Haggren', # Guild President 2024
+    'ICA',
+    'SÅS',
+    "Maître D'guild",
+    'UtEDischo',
+    'GerDa',
+    'gerda.dsek.se',
 
     # Abbreviations (only allowed in lower case)
     'dchip',
@@ -97,8 +118,10 @@ words = [
     'durations',
     'enforceability',
     'fika',
+    'shitpost',
     'fulfill',
     'funsies',
+    'floorball',
     'gyckle',
     'hostnames',
     'inflight',
@@ -138,6 +161,7 @@ words = [
     'åäö',
     'sponsorships',
     'skiphtesgasque',
+    'portalled',
 
     # Names
     'Agardh', # Head Processor 2026
@@ -269,17 +293,46 @@ extra_ignore_patterns = [
     # Names
     'StiL',
     'UtEDischot',
+    'D-Chip',
+    'InfU',
+    'Cafémästeriet',
+    'escape room',
+    'How to Intervju',
+    'cafe-allmänt',
+    'okt',
+    'nov',
+    'UtEDischoansvarig',
+    'Messenger',
 
     # Bugs in codebook.
     '\\nön',
 ]
 words = [
+    'rave',
+    'ølmil',
+    'vintertack',
+    'phadderval',
+    'sommartack',
+    'gamerhäng',
+    'notisinställningar',
+    'eftersexa',
+    'Øverphøs',
+    'cafémackor',
+    'gulmarkera',
+    'shitpost',
+    'tombolabodar',
     'admininställningar',
     'aliaset',
     'avkonsumera',
     'avkonsumerats',
     'dagsansvarig',
     'datan',
+    'memer',
+    'formulärsval',
+    'Alumniansvarig',
+    'sportare',
+    'Tandemgeneral',
+    'Shopaholic',
     'filsökväg',
     'ickefungerande',
     'inventarie', # Should this be "inventarium"?
@@ -287,6 +340,8 @@ words = [
     'issue', # 'Issue' as in 'GitHub issue' is well established terminology.
     'jättestängd',
     'LAN',
+    'sjungboken',
+    'Discord',
     'länkförkortare',
     'mejlalias',
     'mejlaliaset',

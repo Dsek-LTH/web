@@ -21,7 +21,7 @@
 <Card.Root class="h-fit">
   <Card.Content>
     <h3 class="flex flex-row justify-between">
-      {m.committees_cafe_openinghours()}
+      {m.committees_cafe_openingHours()}
       <Button
         onclick={() => {
           isEditing = !isEditing;
@@ -31,7 +31,7 @@
         >{#if isEditing}<X />{:else}<Pen />{/if}</Button
       >
     </h3>
-    <span class="text-muted-foreground">{m.committees_cafe_thecafe()}</span>
+    <span class="text-muted-foreground">{m.committees_cafe_theCafe()}</span>
     <ol class="ml-0 list-none">
       {#each openingHours as openingHour, i (openingHour)}
         {@const weekday = dayjs.weekdays()[i + 1]}
