@@ -9,6 +9,8 @@ ignore_paths = [
     'scheduler-service/go.sum',
     'src/database/prisma/migrations/**',
     'src/database/prisma/schema.prisma',
+    # TODO: Remove this when `/expenses` is removed.
+    'src/routes/(app)/expenses/**',
 ]
 
 ignore_patterns = [
@@ -29,6 +31,9 @@ ignore_patterns = [
     'getmeili',
     'StiL',
     'UtEDischot',
+
+    # TODO: Remove this when `/expenses` is removed.
+    'TRI01',
 
     # Technical
     '&shy;', # Soft-hyphen
@@ -95,6 +100,13 @@ ignore_patterns = [
     'AktU',
     'Intl',
 
+    # TODO: Remove these when the committee names are updated.
+    'naru',
+    'nari',
+    'nollu',
+    'fram',
+    'triv',
+
     # Post IDs
     "dchip.ekonomi",
     "dchip.event",
@@ -150,6 +162,7 @@ ignore_patterns = [
     "dsek.infu.journalist",
     "dsek.infu.markv",
     "dsek.infu.mastare",
+    "dsek.infu.mdlm",
     "dsek.infu.redaktor",
     "dsek.infu.shopaholic",
     "dsek.infu.skald",
@@ -219,6 +232,7 @@ ignore_patterns = [
     "dsek.srd.progledrep",
     "dsek.srd.srdsekreterare",
     "dsek.srd.vice_ordf",
+    "dsek.styr",
     "dsek.tackm.mastare",
     "dsek.tackm.mdlm",
     "dsek.talman",
@@ -256,6 +270,8 @@ ignore_patterns = [
     "old.dsek.vdredaktor",
     "old.dsek.viceindustrikontakt",
 
+    '(\strivsel:\s)|("trivsel")',
+
     # Abbreviations (only allowed in lower case)
     'dchip',
     'dguild',
@@ -281,6 +297,7 @@ ignore_patterns = [
     'sexm',
     'tackm',
     'DWWW',
+    'nära',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
@@ -298,6 +315,8 @@ words = [
     'bindable',
     'blop',
     'influencer',
+    'retimed',
+    'retime',
     'bookables',
     'breakpoint',
     'café',
@@ -514,6 +533,7 @@ words = [
     'notisinställningar',
     'eftersexa',
     'Øverphøs',
+    'Influencer',
     'cafémackor',
     'gulmarkera',
     'shitpost',
@@ -945,3 +965,7 @@ extra_ignore_patterns = [ 'datateknik' ] # These are in the paths of the graphic
 [[overrides]]
 paths = [ 'src/routes/(app)/documents/Meeting.svelte' ]
 extra_words = [ 'Mötesprotokoll' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/songarchive/helpers.ts' ]
+extra_words = [ 'Fria', 'Nollningen' ]
