@@ -67,31 +67,30 @@
     m.volunteer_roles_htm1_item3,
   ];
 
-  const htmvalGroups = [
+  const htmValGroups = [
     {
-      label: m.volunteer_roles_htmval_board_label,
-      desc: m.volunteer_roles_htmval_board,
+      label: m.volunteer_roles_htmVal_board_label,
+      desc: m.volunteer_roles_htmVal_board,
     },
     {
-      label: m.volunteer_roles_htmval_vice_label,
-      desc: m.volunteer_roles_htmval_vice,
+      label: m.volunteer_roles_htmVal_vice_label,
+      desc: m.volunteer_roles_htmVal_vice,
     },
     {
-      label: m.volunteer_roles_htmval_other_label,
-      desc: m.volunteer_roles_htmval_other,
+      label: m.volunteer_roles_htmVal_other_label,
+      desc: m.volunteer_roles_htmVal_other,
     },
   ] as const;
 
-  // Committee names are proper nouns and identical in both locales.
   const committeeRoles = [
-    { name: "Café", desc: m.volunteer_roles_comm_cafe },
-    { name: "Källar", desc: m.volunteer_roles_comm_kallar },
-    { name: "AktU", desc: m.volunteer_roles_comm_aktu },
-    { name: "InfU", desc: m.volunteer_roles_comm_infu },
-    { name: "Sexet", desc: m.volunteer_roles_comm_sexet },
-    { name: "NollU", desc: m.volunteer_roles_comm_nollu },
-    { name: "Framtid", desc: m.volunteer_roles_comm_future },
-    { name: "CPU", desc: m.volunteer_roles_comm_cpu },
+    { name: m.committees_café(), desc: m.volunteer_roles_comm_cafe },
+    { name: m.committees_källar(), desc: m.volunteer_roles_comm_kallar },
+    { name: m.committees_aktu(), desc: m.volunteer_roles_comm_aktu },
+    { name: m.committees_infu(), desc: m.volunteer_roles_comm_infu },
+    { name: m.committees_sexet(), desc: m.volunteer_roles_comm_sexet },
+    { name: m.committees_n0llu(), desc: m.volunteer_roles_comm_n0llu },
+    { name: m.committees_strategic(), desc: m.volunteer_roles_comm_strategic },
+    { name: m.committees_cpu(), desc: m.volunteer_roles_comm_cpu },
   ] as const;
 
   const benefits = [
@@ -256,7 +255,7 @@
           {m.volunteer_roles_always_title()}
         </Tabs.Trigger>
         <Tabs.Trigger value="htm1" class="py-2.5 text-sm">HTM-1</Tabs.Trigger>
-        <Tabs.Trigger value="htmval" class="py-2.5 text-sm"
+        <Tabs.Trigger value="htmVal" class="py-2.5 text-sm"
           >HTM-Val</Tabs.Trigger
         >
         <Tabs.Trigger value="committee" class="py-2.5 text-sm">
@@ -291,17 +290,17 @@
         </Card.Root>
       </Tabs.Content>
 
-      <Tabs.Content value="htmval" class="mt-4">
+      <Tabs.Content value="htmVal" class="mt-4">
         <Card.Root class="bg-card border-border/80 flex flex-col gap-4 p-6">
           <div class="flex flex-col gap-2">
             <h3 class="text-lg font-bold">
-              {m.volunteer_roles_htmval_heading()}
+              {m.volunteer_roles_htmVal_heading()}
             </h3>
             <p class="text-muted-foreground text-base leading-relaxed">
-              {m.volunteer_roles_htmval_desc()}
+              {m.volunteer_roles_htmVal_desc()}
             </p>
           </div>
-          {#each htmvalGroups as group (group.label)}
+          {#each htmValGroups as group (group.label)}
             <div class="flex flex-col gap-1.5">
               <h4 class="text-primary text-base font-semibold">
                 {group.label()}
