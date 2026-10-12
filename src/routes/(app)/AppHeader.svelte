@@ -9,12 +9,15 @@
     $props();
 
   let commandDialogOpen = $state(false);
+
+  let inset = $derived(page.data.appInfo?.insets?.top ?? 0);
 </script>
 
 <div class="flex w-full justify-center">
   <nav
-    style:margin-top={(page.data.appInfo?.insets?.top ?? 0) + "px"}
-    class="bg-muted-background border-rosa-background fixed top-0 z-500 mb-2 flex h-12 w-full flex-row items-center justify-between border-b-[1px] px-4 shadow-sm"
+    style:padding-top={inset + "px"}
+    style:height={inset + 12 * 4 + "px"}
+    class="bg-muted-background border-rosa-background fixed top-0 z-500 mb-2 flex w-full flex-row items-center justify-between border-b-[1px] px-4 shadow-sm"
   >
     {#if page.data.member}
       <NotificationBell {unreadCountPromise} />
