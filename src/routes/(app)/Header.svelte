@@ -35,10 +35,8 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { getFileUrl } from "$lib/files/client";
 
-  const {
-    unreadCountPromise,
-    isApp,
-  }: { unreadCountPromise?: Promise<number>; isApp: boolean } = $props();
+  const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
+    $props();
 
   const canAccess = (accessRequired: string | null) =>
     accessRequired === null || isAuthorized(accessRequired, page.data.user);
@@ -268,19 +266,15 @@
                       class="text-muted-foreground size-9"><LogOut /></Button
                     >
                   {:else}
-                    {#if !isApp}
-                      <a
-                        href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
-                      >
-                        <Button
-                          onclick={signIn}
-                          aria-label="sign in"
-                          variant="outline"
-                          class="text-muted-foreground h-9"
-                          ><User /> {m.navbar_register()}
-                        </Button>
-                      </a>
-                    {/if}
+                    <a href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F">
+                      <Button
+                        onclick={signIn}
+                        aria-label="sign in"
+                        variant="outline"
+                        class="text-muted-foreground h-9"
+                        ><User /> {m.navbar_register()}
+                      </Button>
+                    </a>
                     <Button
                       onclick={signIn}
                       aria-label="sign in"
