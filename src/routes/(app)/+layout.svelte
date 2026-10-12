@@ -26,7 +26,7 @@
     <AppHeader unreadCountPromise={data.unreadCountPromise} />
     <AppNavigation />
   {:else}
-    <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
+    <Header unreadCountPromise={data.unreadCountPromise} />
   {/if}
 
   {#if data.isApp}
