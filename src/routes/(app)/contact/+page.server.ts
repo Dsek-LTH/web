@@ -1,6 +1,6 @@
 export const load = async ({ locals }) => {
   const { prisma } = locals;
-  const [vordf, ordf, nara, pm, root, trivsel, cpu] = await Promise.all([
+  const [vice_president, president, nära, pm, root, trivsel, cpu] = await Promise.all([
     prisma.mandate.findFirst({
       where: {
         AND: [
@@ -94,5 +94,5 @@ export const load = async ({ locals }) => {
     }),
   ]);
 
-  return { vordf, ordf, nara, pm, root, trivsel, cpu };
+  return { vordf: vice_president, ordf: president, nara: nära, pm, root, trivsel, cpu };
 };
