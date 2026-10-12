@@ -106,6 +106,8 @@ ignore_patterns = [
     'nollu',
     'fram',
     'triv',
+    'valb',
+    'medalj',
 
     # Post IDs
     "dchip.ekonomi",
@@ -785,6 +787,7 @@ extra_words = [
 [[overrides]]
 paths = [ 'shell.nix' ]
 extra_words = [
+    'nixos',
     'nixpkgs',
     'pkgs',
 ]
