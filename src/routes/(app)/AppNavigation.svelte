@@ -21,9 +21,10 @@
       {@const Icon = item.icon}
       <a
         href={item.link}
+        aria-label={item.title}
         class={cn(
           "flex h-16 items-center justify-center py-4 *:size-[85%]",
-          page.url.pathname == item.link
+          page.url.pathname.startsWith(item.link)
             ? "text-rosa-background border-rosa-background border-b-4 pt-4 pb-3"
             : "text-muted-foreground",
         )}

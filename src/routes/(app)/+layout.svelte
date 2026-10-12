@@ -8,6 +8,7 @@
   import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
   import AppNavigation from "./AppNavigation.svelte";
+  import AppHeader from "./AppHeader.svelte";
 
   const { data, children } = $props();
 </script>
@@ -15,13 +16,16 @@
 <div
   class="flex min-h-screen flex-col"
   style:padding-top={(data.isApp
-    ? (page.data.appInfo?.insets?.top ?? 0) + 8
+    ? (page.data.appInfo?.insets?.top ?? 0) + 32
     : 0) + "px"}
   style:padding-bottom={(data.isApp
     ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
     : 0) + "px"}
 >
-  {#if data.isApp}<AppNavigation />{:else}
+  {#if data.isApp}
+    <AppHeader unreadCountPromise={data.unreadCountPromise} />
+    <AppNavigation />
+  {:else}
     <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
   {/if}
 

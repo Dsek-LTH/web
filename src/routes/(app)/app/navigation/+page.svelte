@@ -20,7 +20,7 @@
   const visibleRoutes = $derived(
     getRoutes()
       .filter((route) => canAccess(route.accessRequired))
-      .filter((route) => disallowedTitles.some((e) => e != route.title))
+      .filter((route) => !disallowedTitles.includes(route.title))
       .map((route) => ({
         ...route,
         children: route.children?.filter((child) =>
