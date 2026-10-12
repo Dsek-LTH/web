@@ -5,13 +5,18 @@
   import * as m from "$paraglide/messages";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import Footer from "./(app)/Footer.svelte";
-  import Navbar from "./(app)/Header.svelte";
   import Bug from "@lucide/svelte/icons/bug";
   import Mail from "@lucide/svelte/icons/mail";
+  import AppNavigation from "./(app)/AppNavigation.svelte";
+  import Header from "./(app)/Header.svelte";
   const { data } = $props();
 </script>
 
-<Navbar unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
+{#if data.isApp}
+  <AppNavigation />
+{:else}
+  <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
+{/if}
 <main class="layout-container inline-flex flex-col gap-4 text-center">
   <div>
     <h1>{page.status}</h1>

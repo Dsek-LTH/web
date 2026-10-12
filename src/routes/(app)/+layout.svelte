@@ -7,6 +7,7 @@
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
+  import AppNavigation from "./AppNavigation.svelte";
 
   const { data, children } = $props();
 </script>
@@ -20,7 +21,9 @@
     ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
     : 0) + "px"}
 >
-  <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
+  {#if data.isApp}<AppNavigation />{:else}
+    <Header unreadCountPromise={data.unreadCountPromise} isApp={data.isApp} />
+  {/if}
 
   {#if data.isApp}
     {#await data.unreadCountPromise then unreadCount}
