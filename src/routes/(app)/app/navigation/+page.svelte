@@ -104,6 +104,7 @@
             <ArrowRight />
           </Button>
         {/each}
-      </div>{/each}
+      </div>
+    {/each}
   </div>
 </div>
