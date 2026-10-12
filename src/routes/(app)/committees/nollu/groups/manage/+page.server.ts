@@ -33,7 +33,7 @@ const getPhadderMandates = async (
 
 export const load = async ({ locals }) => {
   const { user, prisma } = locals;
-  authorize(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, user);
+  authorize(apiNames.N0LLNING.MANAGE_PHADDER_GROUPS, user);
 
   const phadderGroups = await prisma.phadderGroup.findMany({
     include: {

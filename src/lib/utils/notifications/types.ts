@@ -142,10 +142,10 @@ export const DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
     type: NotificationSettingType.PURCHASES,
     pushNotification: true,
   },
-  // PURCHASES, NEW_ARTICLE ([NOLLNING] tag), MENTION, maybe PING (non-push)
+  // PURCHASES, NEW_ARTICLE ([N0LLNING] tag), MENTION, maybe PING (non-push)
 ];
 
-export const NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
+export const N0LLA_DEFAULT_SUBSCRIPTION_SETTINGS: Array<{
   type: NotificationSettingType;
   pushNotification: boolean;
 }> = [

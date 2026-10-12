@@ -10,11 +10,12 @@
   import { getLocale } from "$paraglide/runtime";
   import { toast } from "$lib/stores/toast";
   import { page } from "$app/state";
+  import * as messages from "$paraglide/messages";
 
   const { children, data } = $props();
 
   dayjs.locale(getLocale());
-  let pageTitle = writable("D-sektionen");
+  let pageTitle = writable(messages.the_d_guild());
   setContext("pageTitle", pageTitle);
   const flash = getFlash(page);
   $effect(() => {

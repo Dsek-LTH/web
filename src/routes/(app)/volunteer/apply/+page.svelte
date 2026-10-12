@@ -83,8 +83,8 @@
   ] as const;
 
   const committeeRoles = [
-    { name: m.committees_café(), desc: m.volunteer_roles_comm_cafe },
-    { name: m.committees_källar(), desc: m.volunteer_roles_comm_kallar },
+    { name: m.committees_café(), desc: m.volunteer_roles_comm_café },
+    { name: m.committees_källar(), desc: m.volunteer_roles_comm_källar },
     { name: m.committees_aktu(), desc: m.volunteer_roles_comm_aktu },
     { name: m.committees_infu(), desc: m.volunteer_roles_comm_infu },
     { name: m.committees_sexet(), desc: m.volunteer_roles_comm_sexet },

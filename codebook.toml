@@ -34,6 +34,7 @@ ignore_patterns = [
 
     # TODO: Remove this when `/expenses` is removed.
     'TRI01',
+    'drinkitem',
 
     # Technical
     '&shy;', # Soft-hyphen
@@ -99,6 +100,7 @@ ignore_patterns = [
     'Var GladSpexarna',
     'AktU',
     'Intl',
+    'D-sektionen_events.ics',
 
     # TODO: Remove these when the committee names are updated.
     'naru',
@@ -108,6 +110,7 @@ ignore_patterns = [
     'triv',
     'valb',
     'medalj',
+    'noll',
 
     # Post IDs
     "dchip.ekonomi",
@@ -191,6 +194,7 @@ ignore_patterns = [
     "dsek.nari.mastare",
     "dsek.nari.mentorsansv",
     "dsek.nari.vice_mastare",
+    "dsek.noll",
     "dsek.noll.funk",
     "dsek.noll.pepp.op",
     "dsek.noll.pepp.p",
@@ -308,6 +312,8 @@ ignore_patterns = [
     '[Nn]0llegeneral',
     '[Nn]0llning',
     '[Nn]0llor', # This looks better than the English or null plural-form.
+    'N0LLA',
+    'N0LLNING',
 ]
 
 words = [
@@ -972,3 +978,7 @@ extra_words = [ 'Mötesprotokoll' ]
 [[overrides]]
 paths = [ 'src/routes/(app)/songarchive/helpers.ts' ]
 extra_words = [ 'Fria', 'Nollningen' ]
+
+[[overrides]]
+paths = [ 'src/lib/seo/SEO.svelte' ]
+extra_ignore_patterns = [ 'D-sektionen' ]

@@ -10,7 +10,7 @@ import {
 } from "$lib/utils/url.server";
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
-import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+import { N0LLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { prisma, member, user } = locals;
@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
           tags: {
             none: {
               nameSv: {
-                startsWith: NOLLNING_TAG_PREFIX,
+                startsWith: N0LLNING_TAG_PREFIX,
               },
             },
           },
@@ -91,7 +91,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
           tags: {
             some: {
               nameSv: {
-                startsWith: NOLLNING_TAG_PREFIX,
+                startsWith: N0LLNING_TAG_PREFIX,
               },
             },
           },

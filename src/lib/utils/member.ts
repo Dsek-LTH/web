@@ -1,11 +1,11 @@
 import {
   DEFAULT_SUBSCRIPTION_SETTINGS,
-  NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS,
+  N0LLA_DEFAULT_SUBSCRIPTION_SETTINGS,
 } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 import { getDerivedRoles } from "./authorization";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
-import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+import { isN0llningPeriod } from "$lib/utils/adminSettings/nollning";
+import { N0LLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
 export const getCustomAuthorOptions = async (
@@ -189,11 +189,11 @@ export const createMember = async (
     email: string | null | undefined;
   },
 ) => {
-  if (await isNollningPeriod()) {
+  if (await isN0llningPeriod()) {
     const defaultTag = await prisma.tag.findFirst({
       where: {
         nameSv: {
-          startsWith: NOLLNING_TAG_PREFIX,
+          startsWith: N0LLNING_TAG_PREFIX,
         },
       },
     });
@@ -203,7 +203,7 @@ export const createMember = async (
         classYear: new Date().getFullYear(),
         subscriptionSettings: {
           createMany: {
-            data: NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS,
+            data: N0LLA_DEFAULT_SUBSCRIPTION_SETTINGS,
           },
         },
         subscribedTags: {
