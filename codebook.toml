@@ -1,10 +1,11 @@
 use_global = false
 
 # Since svelte uses this funky spelling, we have chosen to use if for all code to have cohesion.
-# For any user facing content, such as translations, European english ('en_gb') should be used.
+# For any user facing content, such as translations, British english ('en_gb') should be used.
 dictionaries = [ 'en_us' ]
 
 ignore_paths = [
+    # Auto generated files.
     '**/pnpm-lock.yaml',
     'scheduler-service/go.sum',
     'src/database/prisma/migrations/**',
@@ -26,93 +27,57 @@ ignore_patterns = [
     'IBM Plex',
     'iDét',
     'RåsenbaD',
-    'SEK',
     'YouTube',
     'getmeili',
     'StiL',
-    'UtEDischot',
+    'iCal',
+    'Beat Saber',
+    "Maître D'guild",
+    'GerDa',
+    'Lunds Nation',
+    'UtEDischo',
+    'Var GladSpexarna',
 
     # TODO: Remove this when `/expenses` is removed.
     'TRI01',
     'drinkitem',
 
+    # URIs
+    'bit.ly/trivselkontakt',
+    'mailmaster.blossom.dsek.se',
+    '/songarchive',
+    'link.dsek.se/jobbacafe',
+    'gerda.dsek.se',
+
     # Technical
     '&shy;', # Soft-hyphen
     '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', # Email
-    'iCal',
-    'github\.com/Dsek-LTH',
     '[A-Za-z0-9+/]{40,}', # Base64 data of 40+ characters.
     'MMM', # dayjs format fragment
     'M{3,4}', # dayjs format fragment
     'd{3,4}', # dayjs format fragment
-    'DSEK',
-    'bit.ly/trivselkontakt',
-    'mailmaster.blossom.dsek.se',
     'stiL',
     'Dsek-LTH', # The guild's GitHub name.
     'uneval',
-    'klass', # TODO
-    '/songarchive',
-    'ORBI',
-    'ARKAD',
-    'Sångarstriden',
-    'Lundakarnevalen',
-    'Lundagård',
-    'link.dsek.se/jobbacafe',
-    'Lophtet',
-    'DÖMD',
-    'Linköping',
-    'Valborg',
-    'Geekend',
-    'Beat Saber',
-    'Snickerboa',
-    'Haggren', # Guild President 2024
-    'ICA',
-    'SÅS',
-    "Maître D'guild",
-    'UtEDischo',
-    'GerDa',
-    'gerda.dsek.se',
+    'klass', # Svelte uses "klass" as a misspelling of "class".
+
     'academic year \(läsår\)',
-    'Östgöta Nation',
-    'Västgöta Nation',
-    'Lunds Nation',
-    'Malmö Nation',
-    'Helsingkrona Nation',
-    'Sydskånska Nationen',
-    'Kristianstads Nation',
-    'Blekingska Nationen',
-    'Göteborgs Nation',
-    'Hallands Nation',
-    'Kalmar Nation',
-    'Wermlands Nation',
-    'Smålands Nation',
-    'Boelspexarna',
-    'Dolusspexarna',
-    'Hallandsspexet',
-    'Helsingkronaspexet',
-    'Jesperspexet',
-    'Kalmarspexet',
-    'Krischanstaspääxet',
-    'Lundaspexarna',
-    'Lunds studentteater',
-    'Toddyspexarna',
-    'Var GladSpexarna',
+
     'AktU',
     'Intl',
     'D-sektionen_events.ics',
 
     # TODO: Remove these when the committee names are updated.
-    'naru',
-    'nari',
-    'nollu',
-    'fram',
-    'triv',
-    'valb',
-    'medalj',
-    'noll',
+    'naru', # Should be "näru".
+    'nari', # Should be "näru".
+    'nollu', # Should be "n0llu".
+    'fram', # Should be "framtid".
+    'triv', # Should be "trivsel".
+    'valb', # Should be "valleb".
+    'medalj', # Should maybe be "medaljelele".
+    'noll', # Should be "n0llu".
 
-    # Post IDs
+    # Position IDs
     "dchip.ekonomi",
     "dchip.event",
     "dchip.funk",
@@ -276,12 +241,21 @@ ignore_patterns = [
     "old.dsek.vdredaktor",
     "old.dsek.viceindustrikontakt",
 
+    # Committee Name Abbreviations
     '(\strivsel:\s)|("trivsel")',
+    'näru',
+    'infu',
+    'framtid',
+    'aktu|AKTU',
+    'medaljelele',
+    'infu|INFU',
+    'skattm',
+    'källar',
+    'sexm',
+    'tackm',
 
-    # Abbreviations (only allowed in lower case)
+    # Other Abbreviations
     'dchip',
-    'dguild',
-    'dsek',
     'gammalOchÄcklig',
     'esek',
     'fsek',
@@ -290,20 +264,10 @@ ignore_patterns = [
     'dsekweb',
     'idet',
     'pdfs',
-    'aktu',
     'utedischot',
-    'framtid',
-    'infu',
-    'källar',
-    'medaljelele',
-    'näru',
-    'aktu|AKTU',
-    'infu|INFU',
-    'skattm',
-    'sexm',
-    'tackm',
+    'SEK',
     'DWWW',
-    'nära',
+    'dsek|DSEK',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
@@ -314,6 +278,9 @@ ignore_patterns = [
     '[Nn]0llor', # This looks better than the English or null plural-form.
     'N0LLA',
     'N0LLNING',
+
+    # Swedish words to look over
+    'nära',
 ]
 
 words = [
@@ -418,6 +385,42 @@ words = [
     'Pantern',
     'Oddput',
     'Clementin',
+    'Östgöta',
+    'Västgöta',
+    'ORBI',
+    'ARKAD',
+    'Sångarstriden',
+    'Lundakarnevalen',
+    'Lundagård',
+    'Lophtet',
+    'DÖMD',
+    'Linköping',
+    'Valborg',
+    'Geekend',
+    'Snickerboa',
+    'Haggren', # Guild President 2024
+    'ICA',
+    'SÅS',
+    'Malmö',
+    'Helsingkrona',
+    'Sydskånska Nationen',
+    'Kristianstads Nation',
+    'Blekingska Nationen',
+    'Göteborgs Nation',
+    'Hallands Nation',
+    'Kalmar',
+    'Wermlands Nation',
+    'Smålands',
+    'Boelspexarna',
+    'Dolusspexarna',
+    'Hallandsspexet',
+    'Helsingkronaspexet',
+    'Jesperspexet',
+    'Kalmarspexet',
+    'Krischanstaspääxet',
+    'Lundaspexarna',
+    'Lunds studentteater',
+    'Toddyspexarna',
 
     # Tools
     'lucide',
@@ -474,21 +477,25 @@ words = [
     # Swedish words sanctioned for code use.
     "sexet",
     "sexet's",
-    'Källarmästare',
-    'Ordförande',
-    'Peppare',
+    'källarmästare',
+    'peppare',
     'phadder',
     'phadders',
     'Processmästare',
-    'Revisor',
-    'Skattmästare',
     'Stab',
     'yrka',
     'yrkande',
     'Øverpeppare',
+
+    # Swedish words to look over
+    'ordförande',
+    'Revisor',
+    'Skattmästare',
     'Aktivitetsansvarig',
-    'skatt',
-    'valleb',
+]
+
+flag_words = [
+    'clazz', # Svelte uses "klass".
 ]
 
 [[overrides]] # Swedish
@@ -528,7 +535,7 @@ extra_ignore_patterns = [
     'Källar',
     'Källarmästeriet',
 
-    # Bugs in codebook.
+    # Bug in codebook.
     '\\nön',
 ]
 words = [
@@ -560,7 +567,7 @@ words = [
     'Shopaholic',
     'filsökväg',
     'ickefungerande',
-    'inventarie', # Should this be "inventarium"?
+    'inventarie', # TODO: Should this be "inventarium"?
     'förbrukningsinventarie',
     'issue', # 'Issue' as in 'GitHub issue' is well established terminology.
     'jättestängd',

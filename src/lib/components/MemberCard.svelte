@@ -9,7 +9,7 @@
   import type { Snippet } from "svelte";
 
   let {
-    class: clazz,
+    class: klass,
     member,
     links = true,
     nickname = true,
@@ -40,7 +40,7 @@
 <div
   class={cn(
     "flex h-fit w-fit min-w-0 flex-row items-center gap-2 rounded-md border-[1px] p-1 px-2",
-    clazz,
+    klass,
   )}
 >
   <a
