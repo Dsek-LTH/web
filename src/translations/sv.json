@@ -1433,8 +1433,6 @@
   "shop_tickets_doesNotExist": "Finns inte",
   "shop_tickets_unknown": "Okänt",
   "footer_quote": "Er linje,<br class=\"hidden md:inline\" /> Er färg!",
-  "shop_customerDescription": "D-sek kund: {id}",
-  "show_unknownId": "okänt ID",
   "programs_computerScience": "Datateknik",
   "programs_infoCom": "InfoCom",
   "programs_vrAr": "Masterprogram inom VR/AR",
