@@ -1,6 +1,6 @@
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
+import sendNotification, { notificationLocale } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import * as messages from "$paraglide/messages";
 
@@ -11,13 +11,16 @@ export const sendNotificationToSigner = async (
 ) => {
   try {
     await sendNotification({
-      title: messages.expenses_new_expense(),
-      message: messages.expenses_has_filed_new_expense({
-        name: getFullName(member, {
-          hideNickname: true,
-        }),
-        expense: expense.description,
-      }),
+      title: messages.expenses_new_expense({}, { locale: notificationLocale }),
+      message: messages.expenses_has_filed_new_expense(
+        {
+          name: getFullName(member, {
+            hideNickname: true,
+          }),
+          expense: expense.description,
+        },
+        { locale: notificationLocale },
+      ),
       link: `/expenses`,
       type: NotificationType.EXPENSES,
       memberIds: memberIds,

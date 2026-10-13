@@ -1,5 +1,5 @@
 import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
+import sendNotification, { notificationLocale } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
@@ -65,9 +65,12 @@ export const sendPing = async (
 
   await sendNotification({
     title: "PING!",
-    message: m.notifications_person_has_pinged_you({
-      person: getFullName(sendingMember),
-    }),
+    message: m.notifications_person_has_pinged_you(
+      {
+        person: getFullName(sendingMember),
+      },
+      { locale: notificationLocale },
+    ),
     type: NotificationType.PING,
     link: link,
     memberIds: [receivingMember.id],

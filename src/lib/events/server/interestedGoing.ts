@@ -1,7 +1,7 @@
 import { eventLink } from "$lib/events/events";
 import { interestedGoingSchema } from "$lib/events/schema";
 import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
+import sendNotification, { notificationLocale } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { fail, type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -45,9 +45,12 @@ export const interestedAction =
       if (isGoing) {
         await sendNotification({
           title: `${event.title}`,
-          message: messages.events_is_coming_to_your_event({
-            name: getFullName(member),
-          }),
+          message: messages.events_is_coming_to_your_event(
+            {
+              name: getFullName(member),
+            },
+            { locale: notificationLocale },
+          ),
           type: NotificationType.EVENT_GOING,
           link: eventLink(event),
           memberIds: [event.author.id],
@@ -56,9 +59,12 @@ export const interestedAction =
       } else if (isInterested) {
         await sendNotification({
           title: `${event.title}`,
-          message: messages.events_is_interested_in_your_event({
-            name: getFullName(member),
-          }),
+          message: messages.events_is_interested_in_your_event(
+            {
+              name: getFullName(member),
+            },
+            { locale: notificationLocale },
+          ),
           type: NotificationType.EVENT_INTERESTED,
           link: eventLink(event),
           memberIds: [event.author.id],

@@ -24,6 +24,7 @@ import {
   removePaymentIntent,
   updatePaymentIntent,
 } from "./stripeMethods";
+import { notificationLocale } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 
 const clearOutConsumablesAfterSellingOut = async (
@@ -73,11 +74,15 @@ const clearOutConsumablesAfterSellingOut = async (
         .filter(Boolean) as string[];
       return [
         {
-          title: m.shop_sold_out(),
-          message: m.shop_is_sold_out({
-            shoppable:
-              soldOutReservations[0]?.shoppable?.title ?? m.shop_ticket(),
-          }),
+          title: m.shop_sold_out({}, { locale: notificationLocale }),
+          message: m.shop_is_sold_out(
+            {
+              shoppable:
+                soldOutReservations[0]?.shoppable?.title ??
+                m.shop_ticket({}, { locale: notificationLocale }),
+            },
+            { locale: notificationLocale },
+          ),
           memberIds,
           type: NotificationType.PURCHASE_SOLD_OUT,
           link: "/shop/cart",
