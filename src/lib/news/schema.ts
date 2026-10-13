@@ -24,9 +24,9 @@ export const articleSchema = z.object({
   publishTime: z.date().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z
-    .instanceof(File, { message: messages.file_upload_please() })
+    .instanceof(File, { error: () => messages.file_upload_please() })
     .refine((file) => !file || isFileImage(file), {
-      message: messages.file_upload_must_be_an_image(),
+      error: () => messages.file_upload_must_be_an_image(),
     })
     .array()
     .default([]),

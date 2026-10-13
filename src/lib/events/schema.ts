@@ -32,11 +32,11 @@ export const eventSchema = z
     imageUrl: z.string().optional().nullable(),
     // only for uploading files
     image: z
-      .instanceof(File, { message: m.file_upload_please() })
+      .instanceof(File, { error: () => m.file_upload_please() })
       .nullable()
       .optional()
       .refine((file) => !file || isFileImage(file), {
-        message: m.file_upload_must_be_an_image(),
+        error: () => m.file_upload_must_be_an_image(),
       }),
 
     tags: z
@@ -60,14 +60,14 @@ export const eventSchema = z
       .default(() => new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)), // one week later
   })
   .refine((data) => data.startDatetime < data.endDatetime, {
-    message: m.events_errors_endAfterStart(),
+    error: () => m.events_errors_endAfterStart(),
     path: ["endDatetime"],
   })
   .refine(
     (data) =>
       !data.isRecurring || data.startDatetime < data.recurringEndDatetime,
     {
-      message: m.events_errors_endAfterStart(),
+      error: () => m.events_errors_endAfterStart(),
       path: ["recurringEndDatetime"],
     },
   );

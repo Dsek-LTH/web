@@ -26,7 +26,7 @@ export const memberSchema = z.object({
     .string()
     .nullable()
     .refine((p) => p == null || programs.some((c) => c.id === p), {
-      message: messages.invalid_program(),
+      error: () => messages.invalid_program(),
     }),
   graduationYear: z.number().min(1962).nullable().default(null),
   foodPreference: z.string().nullable().default(null),
