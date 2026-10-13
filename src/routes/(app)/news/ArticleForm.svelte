@@ -37,6 +37,7 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import Users from "@lucide/svelte/icons/users";
+  import Play from "@lucide/svelte/icons/play";
 
   let {
     allTags,
@@ -305,7 +306,7 @@
       type="text"
       id="youtubeUrl"
       name="youtubeUrl"
-      placeholder="https://youtube.com/v/..."><Pen /></Input
+      placeholder="https://youtube.com/v/..."><Play /></Input
     >
   </div>
   <div class="flex w-full flex-row justify-between gap-1.5">

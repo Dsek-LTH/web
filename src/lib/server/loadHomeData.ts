@@ -69,7 +69,7 @@ export const loadHomeData = async ({
     orderBy: {
       createdAt: "desc",
     },
-    take: 3,
+    take: 4,
     include: {
       committee: true,
     },

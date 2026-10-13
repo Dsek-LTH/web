@@ -68,7 +68,6 @@
         committee: null,
       }}
       isPreview={true}
-      index={0}
     />
   </section>
 </div>

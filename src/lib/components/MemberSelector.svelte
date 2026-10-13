@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
   import * as m from "$paraglide/messages";
   import type {
     MemberSearchReturnAttributes,
@@ -48,11 +49,18 @@
   let componentElement: HTMLElement | null = $state(null);
   let inputElement: HTMLInputElement | null = $state(null);
   let selectedItemsElement: HTMLElement | null = $state(null);
-  let searchResultElement: HTMLElement | null = $state(null);
+  let popoverContentElement: HTMLElement | null = $state(null);
   let addedItems: HTMLElement[] = $state([]);
   let triggerElement: HTMLElement | null = $state(null);
   let addedItemsIndex = $state(-1);
   let isSearching = $state(false);
+
+  // Make sure the popover gets the correct z-index.
+  let inDialog = $derived(
+    !!(componentElement as HTMLElement | null)?.closest(
+      '[data-slot="dialog-content"]',
+    ),
+  );
 
   $effect(() => {
     if (selectedMember?.id) {
@@ -225,12 +233,20 @@
   function handleComponentFocusOut(event: FocusEvent) {
     const next = event.relatedTarget as Node | null;
 
-    // Still inside the component -> keep results open
-    if (next && componentElement?.contains(next)) return;
+    // Still inside the component (or its portaled results) -> keep results open
+    if (
+      next &&
+      (componentElement?.contains(next) ||
+        popoverContentElement?.contains(next))
+    )
+      return;
 
     // Wait one tick so activeElement is updated (mouse/tab)
     setTimeout(() => {
-      if (!componentElement?.contains(document.activeElement)) {
+      if (
+        !componentElement?.contains(document.activeElement) &&
+        !popoverContentElement?.contains(document.activeElement)
+      ) {
         results = [];
       }
     }, 0);
@@ -315,44 +331,58 @@
             autocomplete="off"
             {onchange}
           />
-          {#if input && isFocused()}
-            <Command.List
-              class="bg-popover absolute top-full z-250! mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
-              style="
-                  max-width: calc(100vw - 2rem);
-                  margin-left:
-                    min(
-                      -0.5rem,
-                      calc(100vw - {searchResultElement?.getBoundingClientRect()
-                .width ?? 0}px - {inputElement?.getBoundingClientRect().left ??
-                0}px - 1rem)
-                  );
-                "
-              bind:ref={searchResultElement}
+          <!-- Portaled to <body> so ancestor overflow/stacking can't clip it -->
+          <Popover.Root
+            bind:open={() => !!input && isFocused(), () => undefined}
+          >
+            <Popover.Content
+              bind:ref={popoverContentElement}
+              customAnchor={triggerElement}
+              align="start"
+              sideOffset={8}
+              trapFocus={false}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              onInteractOutside={(e) => {
+                // Clicking the input/chips is not "outside"
+                if (
+                  e.target instanceof Node &&
+                  componentElement?.contains(e.target)
+                ) {
+                  e.preventDefault();
+                }
+              }}
+              onmousedown={(e) => e.preventDefault()}
+              class={cn(
+                "w-max max-w-[calc(100vw-2rem)] p-0",
+                inDialog ? "z-250" : "z-10",
+              )}
             >
-              <Command.Empty class="p-4 pb-2 text-center text-sm">
-                {isSearching ? m.search_searching() : m.search_noResults()}
-              </Command.Empty>
-              <Command.Group class="w-full p-2 pb-0">
-                {#each filteredResults as result (result.studentId)}
-                  <Command.Item
-                    data-search-result
-                    onclick={() => addMember(result)}
-                    class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
-                  >
-                    <MemberCard
-                      member={result}
-                      links={false}
-                      nickname={showNickname}
-                      {showId}
-                      {showClass}
-                      class="w-full rounded-full p-1 pr-2  "
-                    />
-                  </Command.Item>
-                {/each}
-              </Command.Group>
-            </Command.List>
-          {/if}
+              <Command.List class="max-h-64 overflow-auto">
+                <Command.Empty class="p-4 pb-2 text-center text-sm">
+                  {isSearching ? m.search_searching() : m.search_noResults()}
+                </Command.Empty>
+                <Command.Group class="w-full p-2 pb-0">
+                  {#each filteredResults as result (result.studentId)}
+                    <Command.Item
+                      data-search-result
+                      onclick={() => addMember(result)}
+                      class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
+                    >
+                      <MemberCard
+                        member={result}
+                        links={false}
+                        nickname={showNickname}
+                        {showId}
+                        {showClass}
+                        class="w-full rounded-full p-1 pr-2  "
+                      />
+                    </Command.Item>
+                  {/each}
+                </Command.Group>
+              </Command.List>
+            </Popover.Content>
+          </Popover.Root>
         </li>
       {/if}
     </ul>

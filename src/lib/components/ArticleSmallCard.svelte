@@ -7,14 +7,12 @@
   let {
     article,
     isPreview,
-    index,
   }: {
     article: Pick<
       Article,
       "slug" | "imageUrl" | "header" | "publishedAt" | "committee"
     >;
     isPreview: boolean;
-    index: number;
   } = $props();
 </script>
 
@@ -22,9 +20,8 @@
   this={isPreview ? "div" : "a"}
   href={isPreview ? undefined : `/news/${article.slug}`}
   class={[
-    "relative aspect-2/1 w-full overflow-hidden rounded-xl hover:underline",
+    "relative aspect-2/1 w-full overflow-hidden rounded-xl border-[1px] transition-all hover:opacity-85",
     !isPreview && "lg:w-1/3",
-    index >= 2 && "hidden lg:block",
   ]}
 >
   {#if article.imageUrl}
@@ -33,10 +30,7 @@
       style="background-image: url({article.imageUrl});"
     ></div>
     <div class="absolute top-2 right-2 size-14 p-3">
-      <CommitteeSymbol
-        committee={article.committee ?? undefined}
-        class="size-8"
-      />
+      <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
     <div
       class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent"
@@ -53,7 +47,9 @@
       article.imageUrl && "text-white",
     ]}
   >
-    <h2 class="line-clamp-2 overflow-hidden">
+    <h2
+      class="line-clamp-2 overflow-hidden text-3xl leading-6 lg:text-xl 2xl:text-3xl 2xl:leading-8"
+    >
       {article.header}
     </h2>
     <span class="text-right font-light">

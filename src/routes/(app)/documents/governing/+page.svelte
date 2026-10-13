@@ -1,6 +1,6 @@
 <script lang="ts">
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
-  import FileLink from "../FileLink.svelte";
+  import FileLink from "$lib/components/files/FileLink.svelte";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import YearSelector from "$lib/components/YearSelector.svelte";
   import { Button } from "$lib/components/ui/button";

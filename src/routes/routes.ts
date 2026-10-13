@@ -404,32 +404,3 @@ export const getFooterRoutes = (): Route[] =>
       ],
     },
   ] as const;
-
-export const appBottomNavRoutes = (routes: Route[]): Route[] =>
-  [
-    {
-      title: m.nav_home(),
-      icon: "dsek-icon",
-      path: "/app/home",
-      accessRequired: null,
-      appBehaviour: "bottom-nav",
-    } as unknown as Route,
-  ]
-    .concat(
-      routes
-        .flatMap((route) =>
-          route.children ? [route, ...route.children] : route,
-        )
-        .filter((route) => {
-          return route.appBehaviour === "bottom-nav";
-        }),
-    )
-    .concat([
-      {
-        title: m.nav_account(),
-        // icon: "i-mdi-account-circle",
-        path: "/app/account",
-        accessRequired: null,
-        appBehaviour: "bottom-nav",
-      },
-    ]);

@@ -35,10 +35,8 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { getFileUrl } from "$lib/files/client";
 
-  const {
-    unreadCountPromise,
-    isApp,
-  }: { unreadCountPromise?: Promise<number>; isApp: boolean } = $props();
+  const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
+    $props();
 
   const canAccess = (accessRequired: string | null) =>
     accessRequired === null || isAuthorized(accessRequired, page.data.user);
@@ -97,7 +95,7 @@
 
 <header
   class:visible={visible || navOpen}
-  class="nav-mobile bg-muted-background md-nav:top-0 md-nav:bottom-[unset] md-nav:h-[unset]! md-nav:sticky md-nav:z-20 fixed bottom-0 z-100 h-[64px] w-full max-w-screen flex-row justify-center border-t-[1px] border-b-[1px] font-[1.25rem]"
+  class="nav-mobile bg-muted-background md-nav:top-0 md-nav:bottom-[unset] md-nav:h-[unset]! md-nav:sticky md-nav:z-20 md-nav:border-b-[1px] md-nav:border-t-[0px] fixed bottom-0 z-100 h-[64px] w-full max-w-screen flex-row justify-center border-t-[1px] font-[1.25rem]"
 >
   <nav
     class="md-nav:py-4 container mx-auto flex shrink flex-row items-center justify-between px-8 py-3 xl:px-32"
@@ -268,19 +266,15 @@
                       class="text-muted-foreground size-9"><LogOut /></Button
                     >
                   {:else}
-                    {#if !isApp}
-                      <a
-                        href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F"
-                      >
-                        <Button
-                          onclick={signIn}
-                          aria-label="sign in"
-                          variant="outline"
-                          class="text-muted-foreground h-9"
-                          ><User /> {m.navbar_register()}
-                        </Button>
-                      </a>
-                    {/if}
+                    <a href="https://auth.dsek.se/if/flow/lu-signup/?next=%2F">
+                      <Button
+                        onclick={signIn}
+                        aria-label="sign in"
+                        variant="outline"
+                        class="text-muted-foreground h-9"
+                        ><User /> {m.navbar_register()}
+                      </Button>
+                    </a>
                     <Button
                       onclick={signIn}
                       aria-label="sign in"

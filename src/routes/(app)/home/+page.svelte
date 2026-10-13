@@ -7,12 +7,13 @@
   import BookOpen from "@lucide/svelte/icons/book-open";
   import Coffee from "@lucide/svelte/icons/coffee";
   import UsersRound from "@lucide/svelte/icons/users-round";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
   import { m } from "$paraglide/messages";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
-  import { ArrowRight } from "@lucide/svelte";
+  import Documents from "./Documents.svelte";
   dayjs.extend(utc);
   dayjs.extend(timezone);
   const { data } = $props();
@@ -103,20 +104,13 @@
   </div>
 
   <div>
-    <h2>{m.events()}</h2>
-    <HomeCalendar
-      events={data.events.map((e) => ({
-        startDate: e.startDatetime,
-        endDate: e.endDatetime,
-        slug: e.slug ?? "",
-        title: e.title,
-      }))}
-    />
-  </div>
-  <div>
-    <h2>{m.news()}</h2>
+    <h2>
+      <a class="hover:text-muted-foreground transition-colors" href="/news"
+        >{m.news()}</a
+      >
+    </h2>
     <div class="mt-4 flex flex-col gap-4 lg:flex-row">
-      {#each data.news as newsArticle, i (newsArticle.id)}
+      {#each data.news as newsArticle (newsArticle.id)}
         <ArticleSmallCard
           article={{
             slug: newsArticle.slug,
@@ -126,7 +120,6 @@
             imageUrl: newsArticle.imageUrl,
           }}
           isPreview={false}
-          index={i}
         />
       {:else}
         <div
@@ -136,5 +129,28 @@
         </div>
       {/each}
     </div>
+    <div class="mt-2 flex justify-end">
+      <Button variant="outline" size="sm" class="" href="/news"
+        >{m.home_more_news()} <ArrowRight /></Button
+      >
+    </div>
   </div>
+
+  <div>
+    <h2>
+      <a class="hover:text-muted-foreground transition-colors" href="/events"
+        >{m.events()}</a
+      >
+    </h2>
+    <HomeCalendar
+      events={data.events.map((e) => ({
+        startDate: e.startDatetime,
+        endDate: e.endDatetime,
+        slug: e.slug ?? "",
+        title: e.title,
+      }))}
+    />
+  </div>
+
+  <Documents files={data.files} />
 </div>

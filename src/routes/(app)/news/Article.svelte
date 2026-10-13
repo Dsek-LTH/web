@@ -11,19 +11,27 @@
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Snippet } from "svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import LikeButton from "./LikeButton.svelte";
+  import type { SuperValidated } from "sveltekit-superforms";
+  import type { LikeSchema } from "./likes";
+  import LikersList from "./LikersList.svelte";
+  import Separator from "$lib/components/ui/separator/separator.svelte";
 
   let {
     article,
     canEdit,
     canDelete,
     children,
+    likeForm,
   }: {
     article: ExtendedPrismaModel<"Article"> & {
       tags: Array<ExtendedPrismaModel<"Tag">>;
+      likers: Array<ExtendedPrismaModel<"Member">>;
     };
     canEdit: boolean;
     canDelete: boolean;
     children?: Snippet;
+    likeForm: SuperValidated<LikeSchema>;
   } = $props();
 </script>
 
@@ -57,6 +65,9 @@
   {#if article.imageUrls}
     <ImageList images={article.imageUrls} />
   {/if}
+  <Separator class="mt-8" orientation="horizontal" />
+  <LikeButton likers={article.likers} {likeForm} articleId={article.id} />
+  <LikersList likers={article.likers} />
 </main>
 
 {#snippet removeArticle()}
