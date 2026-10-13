@@ -45,7 +45,7 @@ export const interestedAction =
       if (isGoing) {
         await sendNotification({
           title: `${event.title}`,
-          message: messages.events_is_interested_in_your_event({
+          message: messages.events_is_coming_to_your_event({
             name: getFullName(member),
           }),
           type: NotificationType.EVENT_GOING,
@@ -72,7 +72,7 @@ export const interestedAction =
           ? messages.events_is_interested_in()
           : isGoing
             ? messages.events_is_coming_to()
-            : messages.events_is_not_coming_to_nor_interested_in()
+            : messages.events_is_neither_coming_to_nor_interested_in()
       } event`,
       type: "hidden",
     });

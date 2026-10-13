@@ -48,7 +48,7 @@
   <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
     <div class=" flex flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
-        <h3>{data.well_being}</h3>
+        <h3>{data.well_being?.name}</h3>
         <CommitteeIcon class="w-12 self-baseline" committee={data.well_being} />
       </div>
 
