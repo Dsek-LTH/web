@@ -76,7 +76,7 @@ function groupAuthorNames(group: NotificationGroup) {
       second: secondAuthorName,
       others: authorCount - 2,
     });
-  const thirdAuthorName = getAuthorName(secondAuthor);
+  const thirdAuthorName = getAuthorName(thirdAuthor);
   return messages.notifications_first_second_and_third({
     first: firstAuthorName,
     second: secondAuthorName,

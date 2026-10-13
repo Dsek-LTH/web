@@ -547,8 +547,12 @@ const performReservationLottery = async (
     {
       title: m.shop_you_won_the_lottery(),
       message: m.shop_it_is_time_to({
-        verb: (reservations[0]?.shoppable.price ?? 1) > 0 ? m.shop_buy() : m.shop_acquire(),
-        shoppable: reservations[0]?.shoppable?.title ?? m.shop_what_you_reserved()
+        verb:
+          (reservations[0]?.shoppable.price ?? 1) > 0
+            ? m.shop_buy()
+            : m.shop_acquire(),
+        shoppable:
+          reservations[0]?.shoppable?.title ?? m.shop_what_you_reserved(),
       }),
       memberIds: winners.map((res) => res.memberId).filter(Boolean) as string[],
       type: NotificationType.PURCHASE_TIME_TO_BUY,

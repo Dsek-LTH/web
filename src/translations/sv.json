@@ -1245,8 +1245,6 @@
   "shop_item_in_cart_has_expired": "Produkt i kundvagnen har löpt ut",
   "shop_reservation_has_expired": "Den reserverade tiden du hade för att skaffa produkten har löpt ut; om det finns lager kvar kan du försöka skaffa den igen här.",
   "shop_is_sold_out": "{shoppable} har blivit slutsåld",
-  "shop_time_to_buy_reservation": "Det är dags att köpa det du reserverade",
-  "shop_time_to_acquire_reservation": "Det är dags att skaffa det du reserverade",
   "shop_time_to_buy_queued": "Det är nu din tur att få köpa det du köade till",
   "shop_time_to_acquire_queued": "Det är nu din tur att få skaffa det du köade till",
   "shop_placed_in_queue": "Många reserverade samma sak som du och du hamnade i kö för {shoppable}. Du kan se din köplats här.",
