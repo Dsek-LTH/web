@@ -1743,5 +1743,6 @@
   "committees_sexet": "Sexmästeriet",
   "committees_n0llu": "N0llningsutskottet",
   "committees_strategic": "Framtidsutskottet",
-  "committees_cpu": "Centralprocessutskottet"
+  "committees_cpu": "Centralprocessutskottet",
+  "admin_debug_isN0llning": "Är N0llning"
 }

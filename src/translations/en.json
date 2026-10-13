@@ -1743,5 +1743,6 @@
   "committees_sexet": "The Festivities Committee",
   "committees_n0llu": "The Introductions Committee",
   "committees_strategic": "The Strategic Committee",
-  "committees_cpu": "The Central Processing Unit"
+  "committees_cpu": "The Central Processing Unit",
+  "admin_debug_isN0llning": "Is N0llning"
 }
