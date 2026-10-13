@@ -30,6 +30,8 @@
   {#if data.isApp}
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />
   {/if}
+
+  <meta name="description" content={messages.meta_description()} />
 </svelte:head>
 
 {@render children?.()}
