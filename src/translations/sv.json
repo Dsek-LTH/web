@@ -560,7 +560,7 @@
   "events_owner": "Ägare",
   "events_unknown_owner": "Okänd",
   "events_responses": "Svar",
-  "events_event": "evenemang",
+  "events_yourEvent": "ditt evenemang",
   "events_date": "Datum",
   "events_no_description_available": "Ingen beskrivning tillgänglig",
   "events_open_qr_scanner": "Öppna QR-skanner",
