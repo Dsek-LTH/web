@@ -73,7 +73,7 @@ export const interestedAction =
           : isGoing
             ? messages.events_is_coming_to()
             : messages.events_is_neither_coming_to_nor_interested_in()
-      } event`,
+      } ${messages.events_event()}`,
       type: "hidden",
     });
   };
