@@ -1,7 +1,7 @@
 import { resetConsumablesForIntent } from "$lib/server/shop/payments/stripeMethods";
 import Stripe from "stripe";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import sendNotification from "$lib/utils/notifications";
+import sendNotification, { notificationLocale } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import * as messages from "$paraglide/messages";
 
@@ -60,18 +60,27 @@ export const onPaymentSuccess = async (intent: Stripe.PaymentIntent) => {
     await sendNotification({
       title:
         purchasedConsumables.length === 1
-          ? messages.shop_has_been_bought({
-              shoppable:
-                purchasedConsumables[0]?.shoppable.title ??
-                messages.shop_product(),
-            })
-          : messages.shop_products_have_been_bought({
-              count: purchasedConsumables.length,
-            }),
-      message: messages.shop_you_payment_has_gone_through({
-        amount: intent.amount / 100,
-        currency: intent.currency?.toUpperCase() ?? "SEK",
-      }),
+          ? messages.shop_has_been_bought(
+              {
+                shoppable:
+                  purchasedConsumables[0]?.shoppable.title ??
+                  messages.shop_product({}, { locale: notificationLocale }),
+              },
+              { locale: notificationLocale },
+            )
+          : messages.shop_products_have_been_bought(
+              {
+                count: purchasedConsumables.length,
+              },
+              { locale: notificationLocale },
+            ),
+      message: messages.shop_you_payment_has_gone_through(
+        {
+          amount: intent.amount / 100,
+          currency: intent.currency?.toUpperCase() ?? "SEK",
+        },
+        { locale: notificationLocale },
+      ),
       type: NotificationType.PAYMENT_STATUS,
       link: "/shop/inventory",
       // From a pure type perspective, there is a risk of this array being multiple memberIds, meaning they might both get "you have purchased 2 items" but only purchased one each
@@ -160,13 +169,20 @@ export const onPaymentFailure = async (intent: Stripe.PaymentIntent) => {
 
   try {
     await sendNotification({
-      title: messages.shop_your_transaction_has_failed(),
-      message: messages.shop_your_transaction_has_failed_detailed({
-        amount: intent.amount / 100,
-        currency: intent.currency?.toUpperCase() ?? "SEK",
-        reason:
-          intent.last_payment_error?.message ?? messages.shop_unknown_error(),
-      }),
+      title: messages.shop_your_transaction_has_failed(
+        {},
+        { locale: notificationLocale },
+      ),
+      message: messages.shop_your_transaction_has_failed_detailed(
+        {
+          amount: intent.amount / 100,
+          currency: intent.currency?.toUpperCase() ?? "SEK",
+          reason:
+            intent.last_payment_error?.message ??
+            messages.shop_unknown_error({}, { locale: notificationLocale }),
+        },
+        { locale: notificationLocale },
+      ),
       type: NotificationType.PAYMENT_STATUS,
       link: "/shop/cart",
       // From a pure type perspective, there is a risk of this array being multiple memberIds, meaning they might both get "you have purchased 2 items" but only purchased one each

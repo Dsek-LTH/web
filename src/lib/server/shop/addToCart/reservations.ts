@@ -3,6 +3,7 @@ import {
   removePaymentIntent,
 } from "$lib/server/shop/payments/stripeMethods";
 import sendNotification, {
+  notificationLocale,
   type SendNotificationProps,
 } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
@@ -104,8 +105,14 @@ export const removeExpiredConsumables = async (
   if (toBeRemoved.length > 0) {
     // Notify users of expired consumables
     queuedNotifications.push({
-      title: m.shop_item_in_cart_has_expired(),
-      message: m.shop_reservation_has_expired(),
+      title: m.shop_item_in_cart_has_expired(
+        {},
+        { locale: notificationLocale },
+      ),
+      message: m.shop_reservation_has_expired(
+        {},
+        { locale: notificationLocale },
+      ),
       link: "/shop/tickets",
       memberIds: toBeRemoved
         .map((item) => item.memberId)
@@ -256,11 +263,15 @@ const updateQueue = async (
     // queue notification to notify users in queue that the ticket sold out
     return [
       {
-        title: m.shop_sold_out(),
-        message: m.shop_is_sold_out({
-          shoppable:
-            soldOutReservations[0]?.shoppable?.title ?? m.shop_ticket(),
-        }),
+        title: m.shop_sold_out({}, { locale: notificationLocale }),
+        message: m.shop_is_sold_out(
+          {
+            shoppable:
+              soldOutReservations[0]?.shoppable?.title ??
+              m.shop_ticket({}, { locale: notificationLocale }),
+          },
+          { locale: notificationLocale },
+        ),
         memberIds: soldOutReservations
           .map((res) => res.memberId)
           .filter(Boolean) as string[],
@@ -422,16 +433,19 @@ const moveReservationsToCart = async (
     // Queue notification to tell people that they can now purchase their item
     return [
       {
-        title: m.shop_your_turn(),
-        message: m.shop_now_you_may({
-          verb:
-            (reservationsToMove[0]?.shoppable.price ?? 1) > 0
-              ? m.shop_buy()
-              : m.shop_acquire(),
-          shoppable:
-            reservationsToMove[0]?.shoppable?.title ??
-            m.shop_what_you_queued_for(),
-        }),
+        title: m.shop_your_turn({}, { locale: notificationLocale }),
+        message: m.shop_now_you_may(
+          {
+            verb:
+              (reservationsToMove[0]?.shoppable.price ?? 1) > 0
+                ? m.shop_buy({}, { locale: notificationLocale })
+                : m.shop_acquire({}, { locale: notificationLocale }),
+            shoppable:
+              reservationsToMove[0]?.shoppable?.title ??
+              m.shop_what_you_queued_for({}, { locale: notificationLocale }),
+          },
+          { locale: notificationLocale },
+        ),
         memberIds: reservationsToMove
           .map((res) => res.memberId)
           .filter(Boolean) as string[],
@@ -508,15 +522,19 @@ const performReservationLottery = async (
     // Queue notification that users can purchase their item
     return [
       {
-        title: m.shop_you_won_the_lottery(),
-        message: m.shop_it_is_time_to({
-          verb:
-            (reservations[0]?.shoppable.price ?? 1) > 0
-              ? m.shop_buy()
-              : m.shop_acquire(),
-          shoppable:
-            reservations[0]?.shoppable?.title ?? m.shop_what_you_reserved(),
-        }),
+        title: m.shop_you_won_the_lottery({}, { locale: notificationLocale }),
+        message: m.shop_it_is_time_to(
+          {
+            verb:
+              (reservations[0]?.shoppable.price ?? 1) > 0
+                ? m.shop_buy({}, { locale: notificationLocale })
+                : m.shop_acquire({}, { locale: notificationLocale }),
+            shoppable:
+              reservations[0]?.shoppable?.title ??
+              m.shop_what_you_reserved({}, { locale: notificationLocale }),
+          },
+          { locale: notificationLocale },
+        ),
         memberIds: reservations
           .map((res) => res.memberId)
           .filter(Boolean) as string[],
@@ -545,25 +563,33 @@ const performReservationLottery = async (
   // Queue notifications to winners of lottery, and to losers, telling them what happened
   const queuedNotifications: SendNotificationProps[] = [
     {
-      title: m.shop_you_won_the_lottery(),
-      message: m.shop_it_is_time_to({
-        verb:
-          (reservations[0]?.shoppable.price ?? 1) > 0
-            ? m.shop_buy()
-            : m.shop_acquire(),
-        shoppable:
-          reservations[0]?.shoppable?.title ?? m.shop_what_you_reserved(),
-      }),
+      title: m.shop_you_won_the_lottery({}, { locale: notificationLocale }),
+      message: m.shop_it_is_time_to(
+        {
+          verb:
+            (reservations[0]?.shoppable.price ?? 1) > 0
+              ? m.shop_buy({}, { locale: notificationLocale })
+              : m.shop_acquire({}, { locale: notificationLocale }),
+          shoppable:
+            reservations[0]?.shoppable?.title ??
+            m.shop_what_you_reserved({}, { locale: notificationLocale }),
+        },
+        { locale: notificationLocale },
+      ),
       memberIds: winners.map((res) => res.memberId).filter(Boolean) as string[],
       type: NotificationType.PURCHASE_TIME_TO_BUY,
       link: "/shop/cart",
     },
     {
-      title: m.shop_you_are_placed_in_queue(),
-      message: m.shop_placed_in_queue({
-        shoppable:
-          reservations[0]?.shoppable?.title ?? m.shop_what_you_reserved(),
-      }),
+      title: m.shop_you_are_placed_in_queue({}, { locale: notificationLocale }),
+      message: m.shop_placed_in_queue(
+        {
+          shoppable:
+            reservations[0]?.shoppable?.title ??
+            m.shop_what_you_reserved({}, { locale: notificationLocale }),
+        },
+        { locale: notificationLocale },
+      ),
       memberIds: losers.map((res) => res.memberId).filter(Boolean) as string[],
       type: NotificationType.PURCHASE_IN_QUEUE,
       link: "/shop/cart",
