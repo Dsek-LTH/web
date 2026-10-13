@@ -7,271 +7,117 @@ dictionaries = [ 'en_us' ]
 ignore_paths = [
     # Auto generated files.
     '**/pnpm-lock.yaml',
+    'project.inlang/README.md',
     'scheduler-service/go.sum',
     'src/database/prisma/migrations/**',
     'src/database/prisma/schema.prisma',
+    'src/database/seed/.snaplet/dataModel.json',
+
     # TODO: Remove this when `/expenses` is removed.
     'src/routes/(app)/expenses/**',
 ]
 
 ignore_patterns = [
-    # Names
-    'AF Bostäder',
-    'AF-borgen',
-    'BoPoolen',
-    'D-Chip',
+    # Positions
+    "Maître D'guild",
+
+    # Committee Name Abbreviations
+    'AktU',
+    'aktu|AKTU',
+    'framtid',
+    'infu|INFU',
+    'källar',
+    'medaljelele',
+    'näru',
+    'sexm',
+    'skattm',
+    'srd|Srd|SRD',
+    'tackm',
+    '(\strivsel:\s)|("trivsel")',
+
+    # Guilds
     'D-sektionen inom TLTH',
     'Dokt',
-    'Fr\*nch',
-    'Gammal && Äcklig',
-    'IBM Plex',
-    'iDét',
-    'RåsenbaD',
-    'YouTube',
-    'getmeili',
-    'StiL',
-    'iCal',
-    'Beat Saber',
-    "Maître D'guild",
-    'GerDa',
+    'dsek|DSEK',
+    'esek',
+    'fsek',
+
+    # Organizations
+    'AF Bostäder',
+    'BoPoolen',
+    'D-Chip',
+
+    # Nations
+    'Blekingska Nationen',
+    'Göteborgs Nation',
+    'Hallands Nation',
+    'Helsingkrona Nation',
+    'Kristianstads Nation',
     'Lunds Nation',
-    'UtEDischo',
+    'Smålands Nation',
+    'Sydskånska Nationen',
+    'Västgöta Nation',
+    'Wermlands Nation',
+    'Östgöta Nation',
+
+    # Spex
+    'Lunds studentteater',
     'Var GladSpexarna',
 
-    # TODO: Remove this when `/expenses` is removed.
-    'TRI01',
-    'drinkitem',
+    # Places
+    'AF-borgen',
+    'iDét',
+    'RåsenbaD',
+
+    # Events
+    'DELTΔ',
+    'UtEDischo',
+
+    # Tools
+    'getmeili',
+    'IBM Plex',
+    'iCal',
+    'StiL',
+    'YouTube',
+
+    # Guild-specific words
+    'Gammal && Äcklig',
 
     # URIs
-    'bit.ly/trivselkontakt',
-    'mailmaster.blossom.dsek.se',
+    '#kladkod',
     '/songarchive',
-    'link.dsek.se/jobbacafe',
+    '/wordlist',
+    'bit.ly/trivselkontakt',
     'gerda.dsek.se',
+    'link.dsek.se/jobbacafe',
+    'mailmaster.blossom.dsek.se',
 
     # Technical
     '&shy;', # Soft-hyphen
     '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', # Email
     '[A-Za-z0-9+/]{40,}', # Base64 data of 40+ characters.
-    'MMM', # dayjs format fragment
-    'M{3,4}', # dayjs format fragment
     'd{3,4}', # dayjs format fragment
-    'stiL',
-    'Dsek-LTH', # The guild's GitHub name.
-    'uneval',
-    'klass', # Svelte uses "klass" as a misspelling of "class".
-
-    'academic year \(läsår\)',
-
-    'AktU',
-    'Intl',
     'D-sektionen_events.ics',
-
-    # TODO: Remove these when the committee names are updated.
-    'naru', # Should be "näru".
-    'nari', # Should be "näru".
-    'nollu', # Should be "n0llu".
-    'fram', # Should be "framtid".
-    'triv', # Should be "trivsel".
-    'valb', # Should be "valleb".
-    'medalj', # Should maybe be "medaljelele".
-    'noll', # Should be "n0llu".
-
-    # Position IDs
-    "dchip.ekonomi",
-    "dchip.event",
-    "dchip.funk",
-    "dchip.infoansv",
-    "dchip.nara",
-    "dchip.ordf",
-    "dchip.revisor",
-    "dchip.sekr",
-    "dchip.styrelse",
-    "dchip.valb",
-    "dchip.vice_ordf",
-    "dsek.aktu.dischoansv",
-    "dsek.aktu.dsportare",
-    "dsek.aktu.funk",
-    "dsek.aktu.idrottsfm",
-    "dsek.aktu.karnevalsansv",
-    "dsek.aktu.lanpartyansv",
-    "dsek.aktu.markv",
-    "dsek.aktu.mastare",
-    "dsek.aktu.sangstfm",
-    "dsek.aktu.semester",
-    "dsek.aktu.smmstr",
-    "dsek.aktu.tandemgen",
-    "dsek.aktu.vice_mastare",
-    "dsek.aktu.vrdansansv",
-    "dsek.cafe.brunchansv",
-    "dsek.cafe.dagsansv",
-    "dsek.cafe.funk",
-    "dsek.cafe.inventarieansv",
-    "dsek.cafe.mastare",
-    "dsek.cafe.stekare",
-    "dsek.cafe.vice_mastare",
-    "dsek.cpu.dwwwansv",
-    "dsek.cpu.funk",
-    "dsek.cpu.mastare",
-    "dsek.cpu.root",
-    "dsek.cpu.utvecklare",
-    "dsek.cpu.vice_mastare",
-    "dsek.delta.projgr.general",
-    "dsek.delta.projgr.mdlm",
-    "dsek.delta.vard",
-    "dsek.fram.ledamot",
-    "dsek.fram.ordf",
-    "dsek.infu.arkivarie",
-    "dsek.infu.artist",
-    "dsek.infu.dwww.mastare",
-    "dsek.infu.dwww.mdlm",
-    "dsek.infu.filmare",
-    "dsek.infu.fotograf",
-    "dsek.infu.funk",
-    "dsek.infu.influencer",
-    "dsek.infu.journalist",
-    "dsek.infu.markv",
-    "dsek.infu.mastare",
-    "dsek.infu.mdlm",
-    "dsek.infu.redaktor",
-    "dsek.infu.shopaholic",
-    "dsek.infu.skald",
-    "dsek.infu.vice_mastare",
-    "dsek.infu.webmaster",
-    "dsek.inspektor",
-    "dsek.juble.gen",
-    "dsek.juble.mastare",
-    "dsek.km.bilansv",
-    "dsek.km.funk",
-    "dsek.km.ljudoljus",
-    "dsek.km.mastare",
-    "dsek.km.rootm.root",
-    "dsek.km.rootm.sparky",
-    "dsek.km.rootm.sudo",
-    "dsek.km.rootm.vice_root",
-    "dsek.km.tradgmstr",
-    "dsek.km.vice_mastare",
-    "dsek.medalj.funk",
-    "dsek.medalj.mdlm",
-    "dsek.nari.alu.ansv",
-    "dsek.nari.alu.mdlm",
-    "dsek.nari.funk",
-    "dsek.nari.mastare",
-    "dsek.nari.mentorsansv",
-    "dsek.nari.vice_mastare",
-    "dsek.noll",
-    "dsek.noll.funk",
-    "dsek.noll.pepp.op",
-    "dsek.noll.pepp.p",
-    "dsek.noll.phadder",
-    "dsek.noll.pluggphadder",
-    "dsek.noll.stab.mdlm",
-    "dsek.noll.stab.oph",
-    "dsek.noll.uppdrag",
-    "dsek.ordf",
-    "dsek.overmarskalk",
-    "dsek.revisor",
-    "dsek.sex.bar.mstr",
-    "dsek.sex.bar.vice_mstr",
-    "dsek.sex.funk",
-    "dsek.sex.hov.mstr",
-    "dsek.sex.hov.sangfm",
-    "dsek.sex.kok.mstr",
-    "dsek.sex.kok.prefmstr",
-    "dsek.sex.kok.vice_mstr",
-    "dsek.sex.mastare",
-    "dsek.sex.olfm",
-    "dsek.sex.pub.mastare",
-    "dsek.sex.pub.vice_mastare",
-    "dsek.sex.sektkock",
-    "dsek.sex.vice_mastare",
-    "dsek.sex.vinfm",
-    "dsek.skattm.fm",
-    "dsek.skattm.funk",
-    "dsek.skattm.mastare",
-    "dsek.skattm.vice_mastare",
-    "dsek.srd.arskursrep.c1",
-    "dsek.srd.arskursrep.c2",
-    "dsek.srd.arskursrep.c3",
-    "dsek.srd.arskursrep.d1",
-    "dsek.srd.arskursrep.d2",
-    "dsek.srd.arskursrep.d3",
-    "dsek.srd.funk",
-    "dsek.srd.husrepresentant",
-    "dsek.srd.instledrep",
-    "dsek.srd.ordf",
-    "dsek.srd.progledrep",
-    "dsek.srd.srdsekreterare",
-    "dsek.srd.vice_ordf",
-    "dsek.styr",
-    "dsek.tackm.mastare",
-    "dsek.tackm.mdlm",
-    "dsek.talman",
-    "dsek.teknik.projgr.ansv",
-    "dsek.teknik.projgr.mdlm",
-    "dsek.tlthvalnrep",
-    "dsek.triv.htf",
-    "dsek.triv.likbehombud",
-    "dsek.triv.mastare",
-    "dsek.triv.skyddsombud",
-    "dsek.triv.varldsmstr",
-    "dsek.val.ordf",
-    "dsek.val.rep",
-    "dsek.vice_ordf",
-    "old.dsek.infu.chefredaktör",
-    "old.dsek.infu.ddu",
-    "old.dsek.infu.fotografdammig",
-    "old.dsek.infu.readmeredaktos",
-    "old.dsek.infu.redaktör",
-    "old.dsek.infu.wdredaktör",
-    "old.dsek.km.rootm.root",
-    "old.dsek.km.sektionslivskvalitetsforhöjare",
-    "old.dsek.km.utflippadvicemastare",
-    "old.dsek.nari.industrikontaktman",
-    "old.dsek.noll.stab.oph",
-    "old.dsek.nollu.staben",
-    "old.dsek.sex.bartenders",
-    "old.dsek.srd.arskursrepresentant",
-    "old.dsek.srd.infotlth",
-    "old.dsek.srd.kinaansvarig",
-    "old.dsek.srd.kurskommissarie",
-    "old.dsek.srd.kursombudsansvarig",
-    "old.dsek.srd.skyddskommitterepresentant",
-    "old.dsek.srd.vicekurskommissarie",
-    "old.dsek.vdredaktor",
-    "old.dsek.viceindustrikontakt",
-
-    # Committee Name Abbreviations
-    '(\strivsel:\s)|("trivsel")',
-    'näru',
-    'infu',
-    'framtid',
-    'aktu|AKTU',
-    'medaljelele',
-    'infu|INFU',
-    'skattm',
-    'källar',
-    'sexm',
-    'tackm',
+    'Dsek-LTH', # The guild's GitHub name.
+    'Intl', # Some JS shit
+    'klass', # Svelte uses "klass" as a misspelling of "class".
+    'M{3,4}', # dayjs format fragment
+    'stiL',
+    'uneval',
 
     # Other Abbreviations
     'dchip',
-    'gammalOchÄcklig',
-    'esek',
-    'fsek',
-    'infocom',
-    'vscode',
     'dsekweb',
-    'idet',
-    'pdfs',
-    'utedischot',
-    'SEK',
     'DWWW',
-    'dsek|DSEK',
+    'gammalOchÄcklig',
+    'idet',
+    'infocom',
+    'pdfs',
+    'SEK',
+    'vscode',
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
-    '[Nn]0llu',
     '[Nn]0llegasque',
     '[Nn]0llegeneral',
     '[Nn]0llning',
@@ -281,149 +127,311 @@ ignore_patterns = [
 
     # Swedish words to look over
     'nära',
+
+    # Other
+    'academic year \(läsår\)',
+    'Beat Saber',
+    'Fr\*nch',
+
+    # TODO: Remove these when the committee names are updated.
+    'fram', # Should be "framtid".
+    'medalj', # Should maybe be "medaljelele".
+    'nari', # Should be "näru".
+    'naru', # Should be "näru".
+    'noll', # Should be "n0llu".
+    'nollu', # Should be "n0llu".
+    'triv', # Should be "trivsel".
+    'valb', # Should be "valleb".
+
+    # TODO: Remove these when `/expenses` is removed.
+    'D-sektionen Expense Report',
+    'drinkitem',
+    'TRI01',
+
+    # Position IDs
+    'dchip.ekonomi',
+    'dchip.event',
+    'dchip.funk',
+    'dchip.infoansv',
+    'dchip.nara',
+    'dchip.ordf',
+    'dchip.revisor',
+    'dchip.sekr',
+    'dchip.styrelse',
+    'dchip.valb',
+    'dchip.vice_ordf',
+    'dsek.aktu.dischoansv',
+    'dsek.aktu.dsportare',
+    'dsek.aktu.funk',
+    'dsek.aktu.idrottsfm',
+    'dsek.aktu.karnevalsansv',
+    'dsek.aktu.lanpartyansv',
+    'dsek.aktu.markv',
+    'dsek.aktu.mastare',
+    'dsek.aktu.sangstfm',
+    'dsek.aktu.semester',
+    'dsek.aktu.smmstr',
+    'dsek.aktu.tandemgen',
+    'dsek.aktu.vice_mastare',
+    'dsek.aktu.vrdansansv',
+    'dsek.cafe.brunchansv',
+    'dsek.cafe.dagsansv',
+    'dsek.cafe.funk',
+    'dsek.cafe.inventarieansv',
+    'dsek.cafe.mastare',
+    'dsek.cafe.stekare',
+    'dsek.cafe.vice_mastare',
+    'dsek.cpu.dwwwansv',
+    'dsek.cpu.funk',
+    'dsek.cpu.mastare',
+    'dsek.cpu.root',
+    'dsek.cpu.utvecklare',
+    'dsek.cpu.vice_mastare',
+    'dsek.delta.projgr.general',
+    'dsek.delta.projgr.mdlm',
+    'dsek.delta.vard',
+    'dsek.fram.ledamot',
+    'dsek.fram.ordf',
+    'dsek.infu.arkivarie',
+    'dsek.infu.artist',
+    'dsek.infu.dwww.mastare',
+    'dsek.infu.dwww.mdlm',
+    'dsek.infu.filmare',
+    'dsek.infu.fotograf',
+    'dsek.infu.funk',
+    'dsek.infu.influencer',
+    'dsek.infu.journalist',
+    'dsek.infu.markv',
+    'dsek.infu.mastare',
+    'dsek.infu.mdlm',
+    'dsek.infu.redaktor',
+    'dsek.infu.shopaholic',
+    'dsek.infu.skald',
+    'dsek.infu.vice_mastare',
+    'dsek.infu.webmaster',
+    'dsek.inspektor',
+    'dsek.juble.gen',
+    'dsek.juble.mastare',
+    'dsek.km.bilansv',
+    'dsek.km.funk',
+    'dsek.km.ljudoljus',
+    'dsek.km.mastare',
+    'dsek.km.rootm.root',
+    'dsek.km.rootm.sparky',
+    'dsek.km.rootm.sudo',
+    'dsek.km.rootm.vice_root',
+    'dsek.km.tradgmstr',
+    'dsek.km.vice_mastare',
+    'dsek.medalj.funk',
+    'dsek.medalj.mdlm',
+    'dsek.nari.alu.ansv',
+    'dsek.nari.alu.mdlm',
+    'dsek.nari.funk',
+    'dsek.nari.mastare',
+    'dsek.nari.mentorsansv',
+    'dsek.nari.vice_mastare',
+    'dsek.noll',
+    'dsek.noll.funk',
+    'dsek.noll.pepp.op',
+    'dsek.noll.pepp.p',
+    'dsek.noll.phadder',
+    'dsek.noll.pluggphadder',
+    'dsek.noll.stab.mdlm',
+    'dsek.noll.stab.oph',
+    'dsek.noll.uppdrag',
+    'dsek.ordf',
+    'dsek.overmarskalk',
+    'dsek.revisor',
+    'dsek.sex.bar.mstr',
+    'dsek.sex.bar.vice_mstr',
+    'dsek.sex.funk',
+    'dsek.sex.hov.mstr',
+    'dsek.sex.hov.sangfm',
+    'dsek.sex.kok.mstr',
+    'dsek.sex.kok.prefmstr',
+    'dsek.sex.kok.vice_mstr',
+    'dsek.sex.mastare',
+    'dsek.sex.olfm',
+    'dsek.sex.pub.mastare',
+    'dsek.sex.pub.vice_mastare',
+    'dsek.sex.sektkock',
+    'dsek.sex.vice_mastare',
+    'dsek.sex.vinfm',
+    'dsek.skattm.fm',
+    'dsek.skattm.funk',
+    'dsek.skattm.mastare',
+    'dsek.skattm.vice_mastare',
+    'dsek.srd.arskursrep.c1',
+    'dsek.srd.arskursrep.c2',
+    'dsek.srd.arskursrep.c3',
+    'dsek.srd.arskursrep.d1',
+    'dsek.srd.arskursrep.d2',
+    'dsek.srd.arskursrep.d3',
+    'dsek.srd.funk',
+    'dsek.srd.husrepresentant',
+    'dsek.srd.instledrep',
+    'dsek.srd.ordf',
+    'dsek.srd.progledrep',
+    'dsek.srd.srdsekreterare',
+    'dsek.srd.vice_ordf',
+    'dsek.styr',
+    'dsek.tackm.mastare',
+    'dsek.tackm.mdlm',
+    'dsek.talman',
+    'dsek.teknik.projgr.ansv',
+    'dsek.teknik.projgr.mdlm',
+    'dsek.tlthvalnrep',
+    'dsek.triv.htf',
+    'dsek.triv.likbehombud',
+    'dsek.triv.mastare',
+    'dsek.triv.skyddsombud',
+    'dsek.triv.varldsmstr',
+    'dsek.val.ordf',
+    'dsek.val.rep',
+    'dsek.vice_ordf',
+    'old.dsek.infu.chefredaktör',
+    'old.dsek.infu.ddu',
+    'old.dsek.infu.fotografdammig',
+    'old.dsek.infu.readmeredaktos',
+    'old.dsek.infu.redaktör',
+    'old.dsek.infu.wdredaktör',
+    'old.dsek.km.rootm.root',
+    'old.dsek.km.sektionslivskvalitetsforhöjare',
+    'old.dsek.km.utflippadvicemastare',
+    'old.dsek.nari.industrikontaktman',
+    'old.dsek.noll.stab.oph',
+    'old.dsek.nollu.staben',
+    'old.dsek.sex.bartenders',
+    'old.dsek.srd.arskursrepresentant',
+    'old.dsek.srd.infotlth',
+    'old.dsek.srd.kinaansvarig',
+    'old.dsek.srd.kurskommissarie',
+    'old.dsek.srd.kursombudsansvarig',
+    'old.dsek.srd.skyddskommitterepresentant',
+    'old.dsek.srd.vicekurskommissarie',
+    'old.dsek.vdredaktor',
+    'old.dsek.viceindustrikontakt',
 ]
 
 words = [
-    'accelerometer',
-    'adapters',
+    # English words
     'approvements',
     'bindable',
-    'blop',
-    'influencer',
-    'retimed',
-    'retime',
     'bookables',
     'breakpoint',
     'café',
     'capturable',
-    'Smörlyckan',
     'checkboxes',
     'cli',
     'contentful',
     'cta', # Call To Action
-    'decrypted',
-    'decrypts',
-    'durations',
     'enforceability',
     'fika',
-    'shitpost',
-    'fulfill',
-    'funsies',
     'floorball',
-    'gyckle',
+    'funsies',
     'hostnames',
-    'inflight',
+    'influencer',
     'infos',
     'instrumentations',
     'licensor',
     'likers',
     'lmao',
-    'luminance',
-    'namings',
     'noninfringement',
-    'Oklch',
+    'oklch',
+    'portalled',
     'presigned',
     'purchasables',
-    'replacer',
-    'satisfiable',
-    'selectable',
+    'retime',
+    'retimed',
+    'shitpost',
     'shoppable',
     'shoppables',
     'shortener',
-    'sortable',
+    'sms',
+    'sponsorships',
     'strikethrough', # Noun
     'sublicensable',
     'sublicense',
     'subprocessor',
+    'tls',
     'umami',
     'unapprove',
-    'unapproving',
-    'unbooked',
     'unconsume',
     'unported',
+    'wcag',
     'webhooks',
     'webshop',
     'wikia',
     'woggle',
     'öre',
-    'åäö',
-    'sponsorships',
-    'skiphtesgasque',
-    'portalled',
 
-    # Names
-    'Agardh', # Head Processor 2026
-    'CSN',
-    'Datagården',
-    'DELTΔ',
-    'Frazer',
-    'Gehlsdorf', # Treasurer 2026
-    'Helander', # Head of Facilities 2026
-    'Hemberg', # Auditor 2026
-    'Kiosken',
-    'Kämnärsrätten',
-    'LTH',
-    'Lund',
-    'Taube',
-    'Maja',
-    'Måns',
-    'Québec',
-    'Repobeats',
-    'Rilde', # Auditor 2026
-    'Råsa',
-    'Råsenbad',
-    'Sjøn',
-    'SMS',
-    'SRD',
-    'Studentlund',
-    'Svensson', # Guild President 2026
-    'Systembolaget',
-    'Teknologkåren',
-    'TLS',
-    'TLTH',
-    'WCAG',
-    'Pantern',
-    'Oddput',
-    'Clementin',
-    'Östgöta',
-    'Västgöta',
-    'ORBI',
-    'ARKAD',
-    'Sångarstriden',
-    'Lundakarnevalen',
-    'Lundagård',
-    'Lophtet',
-    'DÖMD',
-    'Linköping',
-    'Valborg',
-    'Geekend',
-    'Snickerboa',
-    'Haggren', # Guild President 2024
-    'ICA',
-    'SÅS',
-    'Malmö',
-    'Helsingkrona',
-    'Sydskånska Nationen',
-    'Kristianstads Nation',
-    'Blekingska Nationen',
-    'Göteborgs Nation',
-    'Hallands Nation',
-    'Kalmar',
-    'Wermlands Nation',
-    'Smålands',
-    'Boelspexarna',
-    'Dolusspexarna',
-    'Hallandsspexet',
-    'Helsingkronaspexet',
-    'Jesperspexet',
-    'Kalmarspexet',
-    'Krischanstaspääxet',
-    'Lundaspexarna',
-    'Lunds studentteater',
-    'Toddyspexarna',
+    # People
+    'agardh', # Head Processor 2026
+    'clementin',
+    'gehlsdorf', # Treasurer 2026
+    'haggren', # Guild President 2024
+    'helander', # Head of Facilities 2026
+    'hemberg', # Auditor 2026
+    'maja',
+    'måns',
+    'oddput',
+    'pantern',
+    'rilde', # Auditor 2026
+    'svensson', # Guild President 2026
+    'taube',
+
+    # Organizations
+    'arkad',
+    'csn',
+    'ica',
+    'lth',
+    'studentlund',
+    'systembolaget',
+    'teknologkåren',
+    'tlth',
+
+    # Spex
+    'boelspexarna',
+    'dolusspexarna',
+    'hallandsspexet',
+    'helsingkronaspexet',
+    'jesperspexet',
+    'kalmarspexet',
+    'krischanstaspääxet',
+    'lundaspexarna',
+    'toddyspexarna',
+
+    # Places
+    'datagården',
+    'kiosken',
+    'kämnärsrätten',
+    'linköping',
+    'lophtet',
+    'lund',
+    'lundagård',
+    'québec',
+    'råsenbad',
+    'shäraton',
+    'sjøn',
+    'smörlyckan',
+
+    # Events
+    'dömd',
+    'gasque',
+    'geekend',
+    'lundakarnevalen',
+    'skiphtesgasque',
+    'slasque',
+    'snickerboa',
+    'sångarstriden',
+    'sås',
+    'valborg',
+    'vtm',
+
+    # Programs
+    'bme',
 
     # Tools
-    'lucide',
     'authentik',
     'cjs',
     'clsx',
@@ -431,24 +439,28 @@ words = [
     'daygrid',
     'dayjs',
     'dompurify',
-    'Dynmap',
+    'dynmap',
     'embla',
+    'figma',
     'inlang',
-    'Klarna',
-    'Meili',
-    'snaplet',
-    'Meilisearch',
-    'MinIO',
+    'klarna',
+    'lucide',
+    'meili',
+    'meilisearch',
+    'minio',
     'multer',
     'nodemailer',
+    'orbi',
     'paraglide',
     'pnpm',
-    'Poppler',
+    'poppler',
     'postcss',
     'prisma',
-    'Salto',
-    'Shlink',
-    'Stocklist',
+    'repobeats',
+    'salto',
+    'shlink',
+    'snaplet',
+    'stocklist',
     'superform',
     'superforms',
     'tiptap',
@@ -459,39 +471,35 @@ words = [
     'zod',
 
     # Guild-specific words
-    'BME',
-    'Cheps',
-    'Figma',
-    'Gasque',
+    'cheps',
     'gyckle',
     'gyckles',
-    'Ouveralle',
-    'Ouvve',
-    'Shäraton',
-    'Singbook',
-    'Slasque',
+    'ouveralle',
+    'ouvve',
+    'råsa',
+    'singbook',
     'spex',
-    'VTM',
-    'Øverphøs',
 
     # Swedish words sanctioned for code use.
-    "sexet",
-    "sexet's",
     'källarmästare',
     'peppare',
     'phadder',
     'phadders',
-    'Processmästare',
-    'Stab',
+    'processmästare',
+    'sexet',
+    "sexet's",
     'yrka',
     'yrkande',
-    'Øverpeppare',
+    'yrkanden',
+    'åäö',
+    'øverpeppare',
+    'øverphøs',
 
     # Swedish words to look over
+    'aktivitetsansvarig',
     'ordförande',
-    'Revisor',
-    'Skattmästare',
-    'Aktivitetsansvarig',
+    'revisor',
+    'skattmästare',
 ]
 
 flag_words = [
@@ -500,169 +508,190 @@ flag_words = [
 
 [[overrides]] # Swedish
 paths = [
-    'src/translations/sv.json',
     'src/routes/(app)/privacy-policy/+page.svelte',
+    'src/translations/sv.json',
 ]
 dictionaries = [ 'sv' ]
 extra_ignore_patterns = [
+    # Positions
+    'UtEDischoansvarig',
+
+    # Committees
+    'Cafémästeriet',
+    'InfU',
+    'Källar',
+    'Källarmästeriet',
+
+    # Tools
+    'cafe-allmänt', # Discord channel
+    'Messenger',
+
+    # Videos
+    'How to Intervju',
+
+    # N0llning words
     '[Nn]0llades',
     '[Nn]0llan',
-    '[Nn]0llans',
     '[Nn]0llepolicy',
     '[Nn]0llningen',
-    '[Nn]0llningens',
     '[Nn]0llningsevent',
     '[Nn]0llningsnyheter',
     '[Nn]0llningsperiod',
     '[Nn]0llningspolicy',
-    '[Nn]0llorna',
     'N0llningsutskottet',
-    'enl\.',
+    '[Nn]0llorna',
 
-    # Names
-    'StiL',
-    'UtEDischot',
-    'D-Chip',
-    'InfU',
-    'Cafémästeriet',
-    'escape room',
-    'How to Intervju',
-    'cafe-allmänt',
-    'okt',
+    # Abbreviations
+    'enl\.',
     'nov',
-    'UtEDischoansvarig',
-    'Messenger',
-    'Källar',
-    'Källarmästeriet',
+    'okt',
+
+    # English words
+    'escape room',
 
     # Bug in codebook.
     '\\nön',
 ]
 words = [
-    'rave',
-    'ølmil',
-    'vintertack',
-    'phadderval',
-    'sommartack',
-    'gamerhäng',
-    'notisinställningar',
-    'eftersexa',
-    'Øverphøs',
-    'Influencer',
-    'cafémackor',
-    'gulmarkera',
-    'shitpost',
-    'tombolabodar',
+    # Swedish words
     'admininställningar',
     'aliaset',
     'avkonsumera',
     'avkonsumerats',
-    'dagsansvarig',
+    'cafémackor',
+    'dagsvis',
     'datan',
-    'memer',
-    'formulärsval',
-    'Alumniansvarig',
-    'sportare',
-    'Tandemgeneral',
-    'Shopaholic',
+    'eftersexa',
     'filsökväg',
+    'formulärsval',
+    'förbrukningsinventarie',
+    'gamerhäng',
+    'gulmarkera',
     'ickefungerande',
     'inventarie', # TODO: Should this be "inventarium"?
-    'förbrukningsinventarie',
     'issue', # 'Issue' as in 'GitHub issue' is well established terminology.
     'jättestängd',
-    'LAN',
-    'sjungboken',
-    'Discord',
+    'lan',
     'länkförkortare',
     'mejlalias',
     'mejlaliaset',
-    "mötesfika",
+    'memer',
+    'mötesfika',
     'mötesår',
+    'notisinställningar',
     'notistext',
     'nyhetstaggar',
     'onajs',
+    'phadderval',
     'ping',
     'policykod',
+    'rave',
+    'shitpost',
+    'sjungboken',
+    'skojsigt',
+    'sommartack',
+    'spegatklädd',
     'spons',
     'sponsmaterial',
-    'skojsigt',
-    'spegatklädd',
     'spärrningsregler',
     'taggnamn',
+    'tombolabodar',
+    'trivselråd',
+    'trivselrådet',
+    'vintertack',
     'wikia',
+    'ølmil',
 
-    # Names
-    'Dagisar',
-    'Delphi',
-    'Kallini', # Subprocessor 2026
-    'Ohrgren', # Head of Frontend 2026
-    'Råsenbad',
-    'Shäraton',
-    'Sjøn',
-    'Studentlund',
+    # People
+    'haggren', # Guild President 2024
+    'kallini', # Subprocessor 2026
+    'ohrgren', # Head of Frontend 2026
+
+    # Positions
+    'alumniansvarig',
+    'dagisar',
+    'dagsansvarig',
+    'influencer',
+    'peppare',
+    'pepparna',
+    'pepparnas',
+    'phadder',
+    'phaddrar',
+    'phaddrarna',
+    'shopaholic',
+    'sportare',
+    'tandemgeneral',
+    'øverpeppare',
+    'øverphøs',
+
+    # Sub-committees
+    'alumnigruppen',
+    'rootmästeriet',
+
+    # Organizations
+    'studentlund',
+    'studentlunds',
     'tlth',
+
+    # Places
+    'delphi',
+    'lophtet',
+    'råsenbad',
+    'shäraton',
+    'sjøn',
+
+    # Events
+    'gasque',
+    'geekend',
+    'skiphtesgasque',
+    'slasque',
+    'slasquen',
+    'snickerboa',
+    'vtm',
 
     # Tools
     'authentik',
-    'Dynmap',
-    'Orbi',
-    'Stocklist',
+    'discord',
+    'dynmap',
+    'orbi',
+    'stocklist',
 
     # Guild-specific words
-    'Alumnigruppen',
-    'Cheps',
-    'Delphivrål',
-    'Gasque',
+    'cheps',
+    'delphivrål',
     'gyckle',
     'matpref',
-    'Nollegasque',
-    'Nollegeneral',
-    'Ouveralle',
-    'Ouvve',
+    'ouveralle',
+    'ouvve',
     'ouvven',
-    'peppare',
-    'pepparna',
-    'Pepparnas',
-    'phadder',
     'phaddergrupp',
     'phaddergruppen',
     'phaddergrupper',
-    'phaddrar',
-    'phaddrarna',
-    'Rootmästeriet',
-    'Råsa',
-    'Sjungbok',
-    'Skiphtesgasque',
-    'Slasque',
-    'slasquen',
-    'SRD',
-    'Studentlunds',
-    'trivselråd',
-    'trivselrådet',
+    'råsa',
+    'sjungbok',
     'träningsphasen',
-    'Øverpeppare',
-    'VTM',
 ]
-
 flag_words = [
-    'gyckel'
+    'gyckel',
 ]
 
 [[overrides]] # User-facing English
 paths = [
-    'LICENSE',
     '**/*.md',
+    'LICENSE',
     'src/translations/en.json',
 ]
 dictionaries = [ 'en_gb' ]
 
 [[overrides]] # Commands
 paths = [
+    '**/.dockerignore',
+    '**/.env',
+    '**/Dockerfile',
+    '.github/workflows/*',
     'dev/README.md',
     'dev/setup.ts',
     'dev/setup_db.sh',
-    '**/Dockerfile',
     'podman-dev.yaml',
     'poppler-server/poppler.js',
     'poppler-server/README.md',
@@ -683,7 +712,6 @@ extra_words = [
     'mkdir',
     'openssl',
     'pdftotext',
-    'pnpm',
     'pnpx',
     'podman',
 ]
@@ -698,12 +726,9 @@ extra_ignore_patterns = [
     'fc-scrollgrid',
     'font-extrabold',
     'h-dvh',
-    'scroll-behavior',
-    'w-dvw',
     'lucide-[a-z-]+',
-    '--tw-[a-z-]+',
-    'transition-colors',
     'srgb',
+    'w-dvw',
 ]
 
 [[overrides]] # SVG
@@ -714,18 +739,73 @@ extra_words = [
     'xlink',
 ]
 
+# Configs for file types.
+
+[[overrides]]
+paths = [
+    '**/.dockerignore',
+    '**/Dockerfile',
+]
+extra_ignore_patterns = [
+    '.npmrc',
+    'gcr\.io/distroless',
+    'USER nonroot:nonroot',
+]
+extra_words = [ 'dockerignore' ]
+
+[[overrides]]
+paths = [ '**/.env' ]
+extra_ignore_patterns = [ 'whsec_' ] # Stripe webhook secret prefix
+extra_words = [ 'supersecretpassword' ]
+
+[[overrides]] # Bugs in codebook :(
+paths = [ '**/*.svelte' ]
+extra_ignore_patterns = [ '  on[a-z]+?=' ]
+
+[[overrides]] # Prisma
+paths = [ '**/*.ts' ]
+extra_ignore_patterns = [ 'lte:' ]
+
+[[overrides]]
+paths = [ '**/*.zmodel' ]
+extra_ignore_patterns = [
+    'dbgenerated',
+]
+
 # Configs for specific files.
+
+[[overrides]]
+paths = [ '.github/workflows/*' ]
+extra_words = [
+    # Tools
+    'buildx',
+    'cron',
+    'imagerepo',
+    'opencode',
+
+    # Tool Authors
+    'anomalyco',
+    'toshimaru',
+]
+
+[[overrides]]
+paths = [ '.vscode/*' ]
+extra_words = [
+    # Extension Authors
+    'bradlc',
+    'esbenp',
+]
 
 [[overrides]]
 paths = [ 'AGENTS.md' ]
 extra_words = [ 'mcp' ]
 
 [[overrides]]
-paths = [ '**/Dockerfile' ]
+paths = [ 'codebook.toml' ]
 extra_ignore_patterns = [
-    'gcr\.io/distroless',
-    'USER nonroot:nonroot',
-    '.npmrc',
+    # This monstrosity matches toml strings.
+    # We only want to lint the comments in this file.
+    "\"\"\"(?:\\\\.|[^\\\\])*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'[^'\\n]*'"
 ]
 
 [[overrides]]
@@ -741,21 +821,33 @@ extra_words = [
 ]
 
 [[overrides]]
-paths = [ '**/Makefile' ]
+paths = [
+    'patches/devalue@5.5.0.patch',
+    'patches/devalue@5.6.2.patch',
+    'patches/devalue@5.8.1.patch',
+]
 extra_ignore_patterns = [
-    'PHONY', # Case sensitive
+    'POJO', # "Plain Old Java Object"
 ]
 
 [[overrides]]
 paths = [ 'README.md' ]
 extra_words = [
-    'EUPL',
+    'eupl', # EU Public License
+]
+
+[[overrides]]
+paths = [ 'scheduler-service/databaseHandler.go' ]
+extra_words = [
+    'dbname', # Part of the source name
+    'dsn', # Database Source Name
+    'sslmode', # Part of the source name
 ]
 
 [[overrides]]
 paths = [
-    "scheduler-service/go.mod",
-    "scheduler-service/Makefile",
+    'scheduler-service/go.mod',
+    'scheduler-service/Makefile',
 ]
 extra_words = [
     # Tools
@@ -771,30 +863,22 @@ extra_words = [
     'xhit',
 
     # Tools with Authors
-    'golines', 'golangci',
-    'fastjson', 'valyala',
-    'structtags', 'ldez',
-    'pgpassfile', 'jackc',
-    'pgservicefile',
-    'pgx',
-    'dcrd', 'decred',
-    'dcrec',
-    'godotenv', 'joho',
-    'gofumpt', 'mvdan',
     'blackmagic', 'lestrrat',
     'dsig',
     'httpcc',
     'httprc',
     'jwx',
     'secp',
-]
-
-[[overrides]]
-paths = [ 'scheduler-service/databaseHandler.go' ]
-extra_words = [
-    'DSN', # Database Source Name
-    'dbname', # Part of the source name
-    'sslmode', # Part of the source name
+    'dcrd', 'decred',
+    'dcrec',
+    'fastjson', 'valyala',
+    'godotenv', 'joho',
+    'gofumpt', 'mvdan',
+    'golines', 'golangci',
+    'pgpassfile', 'jackc',
+    'pgservicefile',
+    'pgx',
+    'structtags', 'ldez',
 ]
 
 [[overrides]]
@@ -805,12 +889,123 @@ extra_words = [
     'pkgs',
 ]
 
-# TODO: Remove this.
 [[overrides]]
-paths = [ 'src/translations/en.json' ]
+paths = [ 'src/app.html' ]
 extra_ignore_patterns = [
-    'href=\\".*?\\"',
+    '<title>D-sektionen</title>', # "title can have significant implications for search engine optimization"
 ]
+
+[[overrides]] # Test/Seed data
+paths = [
+    'src/database/seed/data.ts',
+    'src/lib/server/shop/payments/purchase.test.ts',
+    'src/lib/utils/slugify.test.ts',
+]
+# We just ignore all string, kind of a cop-out but this data is not important.
+extra_ignore_patterns = [
+    '".*?"',
+    '`.*?`',
+]
+
+[[overrides]]
+paths = [ 'src/hooks.server.ts' ]
+extra_ignore_patterns = [ 'splitname' ]
+
+[[overrides]]
+paths = [ 'src/lib/search/syncDocuments.ts' ]
+extra_ignore_patterns = [ 'sektionögalud' ]
+extra_words = [
+    'policys',
+    'reglemente',
+    'riktlinjer',
+    'stadgar',
+    'styrdokument',
+]
+
+[[overrides]]
+paths = [ 'src/lib/seo/SEO.svelte' ]
+extra_ignore_patterns = [ 'D-sektionen' ]
+
+[[overrides]]
+paths = [ 'src/lib/server/shop/payments/**' ]
+extra_ignore_patterns = [
+    'pi_[a-zA-Z0-9]+', # Payment IDs
+]
+
+[[overrides]]
+paths = [ 'src/lib/server/wiki/wiki.ts' ]
+extra_ignore_patterns = [
+    'exchars',
+    'exintro',
+    'exlimit',
+    'explaintext',
+    'lgname',
+    'lgpassword',
+    'lgtoken',
+    'pageid',
+    'pageids',
+    'parsedcomment',
+    'rccontinue',
+    'rclimit',
+    'rcnamespace',
+    'rcprop',
+    'recentchanges',
+    'revid',
+]
+
+[[overrides]]
+paths = [ 'src/lib/utils/committee.ts' ]
+extra_words = [
+    'kommittén',
+    'mästeriet',
+    'rådet',
+    'utskottet',
+]
+
+[[overrides]]
+paths = [ 'src/lib/utils/slugify.test.ts' ]
+extra_words = [ 'strasse' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/committees/LinksDialog.svelte' ]
+extra_words = [ 'rubrik' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/contact/+page.svelte' ]
+extra_words = [ 'utskottet' ]
+
+[[overrides]]
+paths = [
+    'src/routes/(app)/documents/+page.server.ts',
+    'src/routes/(app)/documents/upload/+page.svelte',
+]
+extra_words = [ 'möte' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/documents/Meeting.svelte' ]
+extra_words = [
+    'foredragningslista',
+    'föredragningslista',
+    'kallelse',
+    'mötesprotokoll',
+    'protokoll',
+]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/documents/upload/helpers.ts' ]
+extra_ignore_patterns = [ 'public/kravprofiler/' ] # MinIO path
+
+[[overrides]]
+paths = [ 'src/routes/(app)/members/[[]studentId[]]/+page.svelte' ]
+extra_ignore_patterns = [ 'datateknik' ] # These are in the paths of the graphics repo.
+
+[[overrides]]
+paths = [ 'src/routes/(app)/songarchive/helpers.ts' ]
+extra_words = [ 'fria', 'nollningen' ]
+
+[[overrides]]
+paths = [ 'src/routes/(app)/songbook/helpers.ts' ]
+extra_ignore_patterns = [ 'e\.g\. ".*?"' ] # Song category examples.
 
 [[overrides]]
 paths = [ 'src/translations/*.json' ]
@@ -829,163 +1024,9 @@ extra_ignore_patterns = [
 ]
 
 [[overrides]]
-paths = [ 'codebook.toml' ]
-extra_ignore_patterns = [
-    # This monstrosity matches toml strings.
-    # We only want to lint the comments in this file.
-    "\"\"\"(?:\\\\.|[^\\\\])*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'[^'\\n]*'"
-]
-
-[[overrides]] # Test/Seed data
-paths = [
-    'src/database/seed/data.ts',
-    'src/lib/server/shop/payments/purchase.test.ts',
-    'src/lib/utils/slugify.test.ts',
-]
-# We just ignore all string, kind of a cop-out but this data is not important.
-extra_ignore_patterns = [
-    '".*?"',
-    '`.*?`',
-]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/songbook/helpers.ts' ]
-extra_ignore_patterns = [ 'e\.g\. ".*?"' ] # Song category examples.
-
-[[overrides]]
-paths = [ 'src/routes/(app)/salto/[door]/constants.ts' ]
-# This file contains names and positions in Swedish.
+paths = [ 'static/.well-known/apple-app-site-association' ]
+extra_ignore_patterns = [ 'J77J9HFNJC' ] # Apple team ID
 extra_words = [
-    'Processmästare',
+    'applinks',
+    'webcredentials',
 ]
-
-[[overrides]]
-paths = [ '**/*.zmodel' ]
-extra_ignore_patterns = [
-    'dbgenerated',
-]
-
-[[overrides]] # Bugs in codebook :(
-paths = [ '**/*.svelte' ]
-extra_ignore_patterns = [ '  on[a-z]+?=' ]
-
-[[overrides]] # Prisma
-paths = [ '**/*.ts' ]
-extra_ignore_patterns = [ 'lte:' ]
-
-[[overrides]]
-paths = [ 'src/lib/server/shop/payments/**' ]
-extra_ignore_patterns = [
-    'pi_[a-zA-Z0-9]+'
-]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/documents/upload/helpers.ts' ]
-extra_ignore_patterns = [ 'public/kravprofiler/' ] # MinIO path
-
-[[overrides]]
-paths = [ 'src/routes/(app)/documents/Meeting.svelte' ]
-extra_words = [
-    'Kallelse',
-    'Föredragningslista',
-    'Foredragningslista',
-    'Protokoll',
-]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/documents/+page.server.ts' ]
-extra_words = [ 'Möte' ]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/committees/LinksDialog.svelte' ]
-extra_words = [ 'Rubrik' ]
-
-[[overrides]]
-paths = [ 'src/lib/search/syncDocuments.ts' ]
-extra_ignore_patterns = [ 'sektionögalud' ]
-extra_words = [
-    'styrdokument',
-    'policys',
-    'reglemente',
-    'stadgar',
-    'riktlinjer',
-]
-
-[[overrides]]
-paths = [ 'src/lib/utils/committee.ts' ]
-extra_words = [
-    'utskottet',
-    'kommittén',
-    'mästeriet',
-    'rådet',
-]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/documents/upload/+page.svelte' ]
-extra_words = [ 'Möte' ]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/contact/+page.svelte' ]
-extra_words = [ 'utskottet' ]
-
-[[overrides]]
-paths = [ 'src/lib/utils/slugify.test.ts' ]
-extra_words = [ 'strasse' ]
-
-[[overrides]]
-paths = [ 'src/lib/server/wiki/wiki.ts' ]
-extra_ignore_patterns = [
-    'pageid',
-    'revid',
-    'parsedcomment',
-    'rccontinue',
-    'lgname',
-    'lgpassword',
-    'lgtoken',
-    'rcprop',
-    'rcnamespace',
-    'rclimit',
-    'recentchanges',
-    'exlimit',
-    'exintro',
-    'exchars',
-    'pageids',
-    'explaintext',
-]
-
-[[overrides]]
-paths = [ 'src/app.html' ]
-extra_ignore_patterns = [
-    '<title>D-sektionen</title>', # "title can have significant implications for search engine optimization"
-]
-
-[[overrides]]
-paths = [
-    'patches/devalue@5.5.0.patch',
-    'patches/devalue@5.8.1.patch',
-    'patches/devalue@5.6.2.patch',
-]
-extra_ignore_patterns = [
-    'POJO', # "Plain Old Java Object"
-    'POJOs',
-]
-
-[[overrides]]
-paths = [ 'src/hooks.server.ts' ]
-extra_ignore_patterns = [ 'splitname' ]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/members/[[]studentId[]]/+page.svelte' ]
-extra_ignore_patterns = [ 'datateknik' ] # These are in the paths of the graphics repo.
-
-[[overrides]]
-paths = [ 'src/routes/(app)/documents/Meeting.svelte' ]
-extra_words = [ 'Mötesprotokoll' ]
-
-[[overrides]]
-paths = [ 'src/routes/(app)/songarchive/helpers.ts' ]
-extra_words = [ 'Fria', 'Nollningen' ]
-
-[[overrides]]
-paths = [ 'src/lib/seo/SEO.svelte' ]
-extra_ignore_patterns = [ 'D-sektionen' ]

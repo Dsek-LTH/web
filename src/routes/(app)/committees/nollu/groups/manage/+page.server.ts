@@ -122,7 +122,7 @@ export const actions = {
       type: "success",
     });
   },
-  addNolla: async ({ locals, request }) => {
+  addN0lla: async ({ locals, request }) => {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
@@ -143,7 +143,7 @@ export const actions = {
       type: "success",
     });
   },
-  removeNolla: async ({ locals, request }) => {
+  removeN0lla: async ({ locals, request }) => {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
