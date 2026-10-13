@@ -143,9 +143,26 @@ ignore_patterns = [
     'triv', # Should be "trivsel".
     'valb', # Should be "valleb".
 
+    # TODO: Fix these in the DB.
+    'class_?[Pp]rogramme', # Should be "class_program".
+    'commitee', # Should be "committee".
+    'DAYMANAGER', # Should be "DAY_MANAGER".
+    'is_?[Dd]etatched', # Should be "is_detached".
+    '"nolla"', # Should be "n0lla".
+    'nollaIn', # Should be "n0llaIn".
+    'nollning(_group_id|GroupId|_start|_end|:phaddrar)', # Should be "n0llning".
+    '\[NOLLNING\]', # Should be "[N0LLNING]".
+    'nollor:', # Should be "n0llor". The schema is configured separately.
+    'phaddrar', # Should be "phadders".
+    'see_staben',
+    'Tomembers',
+
     # TODO: Remove these when `/expenses` is removed.
     'D-sektionen Expense Report',
     'drinkitem',
+    'DRINKITEM(BATCH)?',
+    'drinkitembatch',
+    'sexetinventoryvaluelog',
     'TRI01',
 
     # Position IDs
@@ -769,7 +786,15 @@ extra_ignore_patterns = [ 'lte:' ]
 [[overrides]]
 paths = [ '**/*.zmodel' ]
 extra_ignore_patterns = [
+    'D-sektionen API',
     'dbgenerated',
+
+    # TODO: Fix these in the DB.
+    'nollor', # Should be "n0llor".
+]
+extra_words = [
+    'autoincrement',
+    'datasource',
 ]
 
 # Configs for specific files.
