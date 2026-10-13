@@ -160,7 +160,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: messages.n0llu_n0lla_added(),
+      message: messages.n0llu_n0lla_removed(),
       type: "success",
     });
   },

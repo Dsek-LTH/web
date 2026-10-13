@@ -44,7 +44,7 @@
   );
 </script>
 
-<main class="flex flex-col items-center gap-2 overflow-x-scroll">
+<main class="flex flex-col items-center gap-2 overflow-y-scroll">
   <PictureSelector {data} />
   <form
     id="member"

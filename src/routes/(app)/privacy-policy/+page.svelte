@@ -59,6 +59,7 @@ Utöver ovan nämnd data samlas teknisk information in vid besök på och
 användande av D-sektionens digitala tjänster. Detta inkluderar IP-adress
 och webbläsarinformation.
 
+## Hur samlas datan in?
 
 Majoriteten av den data D-sektionen samlar in lämnas direkt av personen
 i fråga. Vi samlar in och behandlar data när en person:

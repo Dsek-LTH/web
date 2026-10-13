@@ -76,7 +76,7 @@ const clearOutConsumablesAfterSellingOut = async (
           title: m.shop_sold_out(),
           message: m.shop_is_sold_out({
             shoppable:
-              soldOutReservations[0]?.shoppable?.titleSv ?? m.shop_ticket(),
+              soldOutReservations[0]?.shoppable?.title ?? m.shop_ticket(),
           }),
           memberIds,
           type: NotificationType.PURCHASE_SOLD_OUT,
