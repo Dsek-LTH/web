@@ -4,7 +4,6 @@
   import Search from "@lucide/svelte/icons/search";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
-  import { onMount } from "svelte";
 
   const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
     $props();
