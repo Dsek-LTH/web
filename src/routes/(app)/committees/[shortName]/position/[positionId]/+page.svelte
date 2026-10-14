@@ -140,7 +140,8 @@
     </div>
 
     {#if data.position.description}
-      <p>{data.position.description}</p>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      <p>{@html data.position.description}</p>
     {/if}
 
     {#if data.position.email}
