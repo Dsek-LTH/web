@@ -1,26 +1,31 @@
-import { error, type NumericRange } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
+import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
+import minio from "$lib/files/minio";
 import * as m from "$paraglide/messages";
+import { error } from "@sveltejs/kit";
+import { S3Error } from "minio";
+import { buffer } from "node:stream/consumers";
+import type { RequestHandler } from "./$types";
 
-const DCOMPASSEN_URL =
-  "https://files.dsek.se/files/public/miscellaneous/Dcompassen2026.html";
+const DCOMPASSEN_PATH = "public/miscellaneous/Dcompassen2026.html";
 
 export const GET: RequestHandler = async ({ locals }) => {
   if (!locals.user?.memberId) {
     error(401, m.members_errors_notLoggedIn());
   }
 
-  // Use the global fetch, since SvelteKit's fetch would forward the user's
-  // cookies to files.dsek.se
-  const fetchResponse = await fetch(DCOMPASSEN_URL);
-  if (!fetchResponse.ok) {
-    throw error(
-      fetchResponse.status as NumericRange<400, 599>,
-      fetchResponse.statusText,
+  let html: Buffer;
+  try {
+    html = await buffer(
+      await minio.getObject(PUBLIC_BUCKETS_FILES, DCOMPASSEN_PATH),
     );
+  } catch (e) {
+    if (e instanceof S3Error && e.code === "NoSuchKey") {
+      error(404, "Not Found");
+    }
+    throw e;
   }
 
-  return new Response(fetchResponse.body, {
+  return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "private, no-store",
