@@ -365,7 +365,6 @@
                 <Command.Group class="w-full p-2 pb-0">
                   {#each filteredResults as result (result.studentId)}
                     <Command.Item
-                      data-search-result
                       onclick={() => addMember(result)}
                       class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
                     >
