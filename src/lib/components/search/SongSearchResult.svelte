@@ -8,7 +8,6 @@
 <Command.LinkItem
   class="flex flex-row justify-between"
   href={`/songarchive/${data.slug}`}
-  data-search-result
 >
   <div class="flex flex-row items-center gap-2">
     <Music2 />
