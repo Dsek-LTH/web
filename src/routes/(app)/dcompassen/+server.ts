@@ -28,10 +28,11 @@ export const GET: RequestHandler = async ({ locals }) => {
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "private, no-store",
+      // Only behind login, so keep it out of shared caches
+      "Cache-Control": "private, max-age=3600",
       // The HTML comes from a file bucket, so give it an opaque origin to keep
       // its scripts from acting as the signed-in user on our domain
-      "Content-Security-Policy": "sandbox allow-scripts allow-popups",
+      "Content-Security-Policy": "sandbox allow-scripts",
     },
   });
 };
