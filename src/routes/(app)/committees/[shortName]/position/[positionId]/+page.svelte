@@ -6,6 +6,7 @@
   import AddMandateForm from "./AddMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
   import Mandate from "./Mandate.svelte";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
 
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import type { PageData } from "./$types";
@@ -140,8 +141,7 @@
     </div>
 
     {#if data.position.description}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      <p>{@html data.position.description}</p>
+      <MarkdownBody body={data.position.description} />
     {/if}
 
     {#if data.position.email}
