@@ -1,7 +1,6 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import minio from "$lib/files/minio";
-import * as m from "$paraglide/messages";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { S3Error } from "minio";
 import { buffer } from "node:stream/consumers";
 import type { RequestHandler } from "./$types";
@@ -9,8 +8,9 @@ import type { RequestHandler } from "./$types";
 const DCOMPASSEN_PATH = "public/miscellaneous/Dcompassen2026.html";
 
 export const GET: RequestHandler = async ({ locals }) => {
+  // Endpoint errors don't render +error.svelte, so let /dcompassen show the 401
   if (!locals.user?.memberId) {
-    error(401, m.members_errors_notLoggedIn());
+    redirect(302, "/dcompassen");
   }
 
   let html: Buffer;
