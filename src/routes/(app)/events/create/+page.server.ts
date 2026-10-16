@@ -6,10 +6,11 @@ import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllTags } from "$lib/news/tags";
 import { z } from "zod";
+import * as messages from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, member } = locals;
-  if (!member) error(401, "Du måste vara inloggad för att skapa evenemang.");
+  if (!member) error(401, messages.events_create_not_logged_in());
   const [allTags, committees] = await Promise.all([
     getAllTags(prisma, true),
     prisma.committee.findMany({

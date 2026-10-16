@@ -13,7 +13,7 @@
     class?: string;
   } = $props();
 
-  const programmeColors: Record<
+  const programColors: Record<
     string,
     "rosa" | "lila" | "pistachio" | "outline"
   > = {
@@ -30,7 +30,7 @@
 <Badge
   class={klass}
   {size}
-  variant={programmeColors[member.classProgramme ?? "?"] ?? "rosa"}
+  variant={programColors[member.classProgramme ?? "?"] ?? "rosa"}
   >{(member.classProgramme ?? "?") +
     (member.classYear?.toString().slice(-2) ?? "??")}</Badge
 >

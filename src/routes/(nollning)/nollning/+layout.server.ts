@@ -3,18 +3,18 @@ import {
   POST_REVEAL_PREFIX,
   REVEAL_LAUNCH_DATE,
 } from "$lib/components/postReveal/types";
-import { getNollaGroupedNotifications } from "$lib/utils/notifications/nollaNotifications";
+import { getN0llaGroupedNotifications } from "$lib/utils/notifications/nollaNotifications";
 import type { Theme } from "$lib/utils/themes";
 import { notificationSchema } from "$lib/zod/schemas";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 
-const afterNollning = new Date("2025-10-06");
+const afterN0llning = new Date("2025-10-06");
 export const load = async ({ locals, cookies }) => {
   const { prisma, user, member } = locals;
 
   const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
-  const notificationsPromise = getNollaGroupedNotifications(user, prisma);
+  const notificationsPromise = getN0llaGroupedNotifications(user, prisma);
   const phadderGroup =
     member?.classYear == new Date().getFullYear() &&
     member.nollningGroupId !== null
@@ -29,9 +29,9 @@ export const load = async ({ locals, cookies }) => {
       : null;
 
   if (locals.isApp)
-    cookies.set(APP_PREFERRED_PAGE_COOKIE, "nollning", {
+    cookies.set(APP_PREFERRED_PAGE_COOKIE, "n0llning", {
       path: "/",
-      expires: afterNollning,
+      expires: afterN0llning,
     });
 
   return {
@@ -43,7 +43,7 @@ export const load = async ({ locals, cookies }) => {
       purchaseRedirect: `${POST_REVEAL_PREFIX}/shop/success`,
     },
     phadderGroup,
-    theme: (revealTheme ? "nollningPostReveal" : "light") as Theme,
+    theme: (revealTheme ? "n0llningPostReveal" : "light") as Theme,
   };
 };
 

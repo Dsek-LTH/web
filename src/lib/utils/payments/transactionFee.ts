@@ -16,7 +16,7 @@ const STRIPE_PERCENTAGE_FEE_MODIFIER = 1 / (1 - STRIPE_PERCENTAGE_FEE); // 1/(1-
  */
 export const transactionFee = (price: number) => swishTransactionFee(price);
 
-export const cardTranscationFee = (price: number) =>
+export const cardTransactionFee = (price: number) =>
   price === 0 ? 0 : Math.floor(price * 0.015 + 180);
 export const swishTransactionFee = (price: number) =>
   price === 0 ? 0 : Math.min(Math.floor(price * 0.01 + 300), 700);

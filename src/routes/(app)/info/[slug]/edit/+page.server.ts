@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 import DOMPurify from "isomorphic-dompurify";
+import * as messages from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -66,7 +67,7 @@ export const actions: Actions = {
     throw redirect(
       `/info/${name}`,
       {
-        message: `"${name}"-sida uppdaterad`,
+        message: messages.info_page_updated({ name }),
         type: "success",
       },
       event,
@@ -83,7 +84,7 @@ export const actions: Actions = {
     throw redirect(
       `/info/${name}`,
       {
-        message: `"${name}"-sida uppdaterad`,
+        message: messages.info_page_updated({ name }),
         type: "success",
       },
       event,

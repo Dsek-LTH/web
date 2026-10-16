@@ -51,5 +51,12 @@ jobs:
       - run: pnpm run test
       - run: pnpm run check --fail-on-warnings
       - run: pnpm run check-translations
+      - name: Cache codebook
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/codebook
+          # The version and checksums live in this file, so upgrading invalidates the cache.
+          key: codebook-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('dev/codebook.ts') }}
+      - run: pnpm run spell
       - run: pnpm run build
       # When adding a step to the list above, please consider adding it to the `ci-check` script in `package.json`.

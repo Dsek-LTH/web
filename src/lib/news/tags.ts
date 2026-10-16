@@ -1,18 +1,18 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
-import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+import { N0LLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 
 export const getAllTags = (
   prisma: ExtendedPrisma,
-  includeNollningTag = false,
+  includeN0llningTag = false,
 ) =>
   prisma.tag.findMany({
     orderBy: { nameSv: "asc" },
-    where: includeNollningTag
+    where: includeN0llningTag
       ? undefined
       : {
           NOT: {
             nameSv: {
-              startsWith: NOLLNING_TAG_PREFIX,
+              startsWith: N0LLNING_TAG_PREFIX,
             },
           },
         },

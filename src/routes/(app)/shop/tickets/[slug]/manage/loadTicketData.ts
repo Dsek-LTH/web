@@ -66,14 +66,14 @@ export const loadTicketData = async (
   const consumables = ticket.shoppable.consumables.map((c) => {
     const member = memberWithPhadderGroups.find((m) => m.id === c.member?.id);
     const phadderIn = member?.mandates[0]?.phadderIn ?? null;
-    const nollaIn =
+    const n0llaIn =
       member?.nollaIn?.year === ticketYear ? member.nollaIn : null;
     return {
       ...c,
       member: c.member
         ? {
             ...c.member,
-            phadderGroup: phadderIn ?? nollaIn,
+            phadderGroup: phadderIn ?? n0llaIn,
           }
         : c.member,
     };

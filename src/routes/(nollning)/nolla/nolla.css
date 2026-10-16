@@ -20,9 +20,9 @@
   @apply rounded-2xl border-4 border-black;
 }
 
-@utility nolla-pre-reveal {
-  & .nolla-page-title {
-    @apply font-nolla-mono mb-8 text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
+@utility n0lla-pre-reveal {
+  & .n0lla-page-title {
+    @apply font-n0lla-mono mb-8 text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
   }
 
   & .neo-brutal-btn {
@@ -41,59 +41,59 @@
     @apply neo-brutal-border box-shadow-black-lg;
   }
 
-  & .nolla-prose {
+  & .n0lla-prose {
     @apply max-w-prose leading-relaxed;
   }
 
-  & * ~ .nolla-prose {
+  & * ~ .n0lla-prose {
     @apply mt-4;
   }
 
-  & .nolla-prose ~ * {
+  & .n0lla-prose ~ * {
     @apply mt-4;
   }
 }
 
-@utility nolla-page-title {
-  .nolla-pre-reveal & {
-    @apply font-nolla-mono mb-8 text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
+@utility n0lla-page-title {
+  .n0lla-pre-reveal & {
+    @apply font-n0lla-mono mb-8 text-5xl font-bold sm:mb-16 sm:text-6xl md:text-8xl;
   }
 }
 
 @utility neo-brutal-btn {
-  .nolla-pre-reveal & {
+  .n0lla-pre-reveal & {
     @apply box-shadow-black hover:box-shadow-black-lg neo-brutal-border-sm bg-primary flex items-center p-4 font-semibold transition hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-none;
   }
 }
 
 @utility neo-brutal-btn-flat {
-  .nolla-pre-reveal & {
+  .n0lla-pre-reveal & {
     @apply neo-brutal-border-sm bg-primary flex items-center p-5 text-center text-xl font-semibold hover:bg-[#0D1B1E] hover:text-white;
   }
 }
 
 @utility neo-brutal-box {
-  .nolla-pre-reveal & {
+  .n0lla-pre-reveal & {
     @apply neo-brutal-border box-shadow-black-lg px-8 py-12 sm:px-10 sm:py-16;
   }
 }
 
 @utility neo-brutal-image {
-  .nolla-pre-reveal & {
+  .n0lla-pre-reveal & {
     @apply neo-brutal-border box-shadow-black-lg;
   }
 }
 
-@utility nolla-prose {
-  .nolla-pre-reveal & {
+@utility n0lla-prose {
+  .n0lla-pre-reveal & {
     @apply max-w-prose leading-relaxed;
   }
 
-  .nolla-pre-reveal * ~ & {
+  .n0lla-pre-reveal * ~ & {
     @apply mt-4;
   }
 
-  .nolla-pre-reveal & ~ * {
+  .n0lla-pre-reveal & ~ * {
     @apply mt-4;
   }
 }
@@ -109,6 +109,6 @@ html {
   scroll-behavior: smooth;
 }
 
-[data-theme="nollningPreReveal"] {
+[data-theme="n0llningPreReveal"] {
   color-scheme: light;
 }

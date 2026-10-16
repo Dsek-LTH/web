@@ -219,7 +219,7 @@ export const getEventsWithTickets = async (
   prisma: ExtendedPrisma,
   user: AuthUser,
   filters: Prisma.EventWhereInput = {},
-  nollningMode: boolean | null = false,
+  n0llningMode: boolean | null = false,
 ) => {
   const { memberId, externalCode } = user ?? {};
   if (!memberId && !externalCode) throw error(401);
@@ -234,7 +234,7 @@ export const getEventsWithTickets = async (
 
   const events = await prisma.event.findMany({
     where: {
-      ...BASIC_EVENT_FILTER(nollningMode),
+      ...BASIC_EVENT_FILTER(n0llningMode),
       ...filters,
     },
     orderBy: {

@@ -188,7 +188,7 @@ model Author {
     @@unique([memberId, mandateId, customId], map: "authors_member_id_mandate_id_custom_id_unique")
     @@map("authors")
 
-    // Hide author if the member behind it is currently stab, or if it was posted as a "stab" mandate, AND user does not "see staben"
+    // Hide author if the member behind it is currently stab, or if it was posted as a "stab" mandate, AND user does not have "member:see_staben"
     // There is one exception: If the author is of type "Custom Author" then it is fine to show, as the person behind it is not shown
     @@deny("read", type != "Custom" && (
                   startsWith(mandate.positionId, "dsek.noll.stab.")
@@ -534,7 +534,7 @@ model Mandate {
     @@allow("read", has(auth().policies, "core:mandate:read"))
     @@allow("update", has(auth().policies, "core:mandate:update"))
     @@allow("delete", has(auth().policies, "core:mandate:delete"))
-    // Hide all stab mandates during the nollning
+    // Hide all stab mandates during the n0llning
     @@deny("read", (positionId == "dsek.noll.stab.mdlm" || positionId == "dsek.noll.stab.oph") && !has(auth().policies, "member:see_staben") && auth().memberId != memberId)
     @@map("mandates")
 }
@@ -812,7 +812,7 @@ model Position {
     @@allow("update", has(auth().policies, "core:position:update"))
     @@allow("delete", has(auth().policies, "core:position:delete"))
     @@deny("read", active == false && !has(auth().policies, "core:position:inactive:read"))
-    // Leaving this here so future developers know. We choose to NOT hide the position "staben" to make things less confusing for new students.@@allow
+    // Leaving this here so future developers know. We choose to NOT hide the positions "dsek.noll.stab.mdlm" and "dsek.noll.stab.oph" to make things less confusing for new students.@@allow
     // All mandates will still be hidden. "Øverphøs" is also not shown to be part of the board.
     // @@deny("read", (id == "dsek.noll.stab.mdlm" || id == "dsek.noll.stab.oph") && !has(auth().policies, "member:see_staben"))
     @@map("positions")
@@ -1177,7 +1177,7 @@ model Consumable {
     @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
     // read: anyone can read. Necessary for purchase checks
     @@allow("read", true)
-    // no one can update (except overriden fields)
+    // no one can update (except overridden fields)
     @@deny("update", true)
     // customer can delete non-purchased
     @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
@@ -1205,7 +1205,7 @@ model ConsumableReservation {
     @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
     // read: anyone can read. Necessary for purchase checks
     @@allow("read", true)
-    // no one can update (except overriden fields)
+    // no one can update (except overridden fields)
     @@deny("update", true)
     // customer can delete
     @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))

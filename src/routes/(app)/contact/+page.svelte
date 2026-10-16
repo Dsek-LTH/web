@@ -8,7 +8,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  let { vordf, ordf, nara } = $derived(data);
+  let { vice_president, president, nära } = $derived(data);
 </script>
 
 <div class="layout-container flex flex-col gap-8">
@@ -16,9 +16,9 @@
 
   <div class="flex flex-col">
     <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-      {@render positionCard(vordf, m.contact_vice_president())}
-      {@render positionCard(ordf, m.contact_president())}
-      {@render positionCard(nara, m.contact_business())}
+      {@render positionCard(vice_president, m.contact_vice_president())}
+      {@render positionCard(president, m.contact_president())}
+      {@render positionCard(nära, m.contact_business())}
     </div>
   </div>
 
@@ -48,11 +48,11 @@
   <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
     <div class=" flex flex-col gap-4 rounded-md border-[1px] p-4">
       <div class="flex flex-row items-center justify-between">
-        <h3>{data.trivsel?.name}</h3>
-        <CommitteeIcon class="w-12 self-baseline" committee={data.trivsel} />
+        <h3>{data.well_being?.name}</h3>
+        <CommitteeIcon class="w-12 self-baseline" committee={data.well_being} />
       </div>
 
-      <span>{m.contact_wellbeing()} </span>
+      <span>{m.contact_well_being()} </span>
       <a class="link" href="https://bit.ly/trivselkontakt"
         >bit.ly/trivselkontakt</a
       >

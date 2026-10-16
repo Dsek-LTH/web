@@ -7,6 +7,7 @@
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
   import * as Tooltip from "$lib/components/ui/tooltip/";
   import { Badge } from "$lib/components/ui/badge";
+  import * as messages from "$paraglide/messages";
 
   let { data }: { data: PageData } = $props();
   let user = $derived(data.user);
@@ -18,7 +19,7 @@
       <h3>Actions</h3>
       <form action="?/meilisearchSync" method="post">
         <Button type="submit">Sync Meilisearch</Button>
-        <p>This will update Meilisearch's sync index.</p>
+        <p>This will update the sync index for Meilisearch.</p>
       </form>
     </section>
   {/if}
@@ -60,7 +61,7 @@
         Prisma log level:
         <pre class="inline">{data.prismaLogLevel}</pre>
       </li>
-      <li>Is nollning: {data.isNollning}</li>
+      <li>{messages.admin_debug_isN0llning()}: {data.isN0llning}</li>
       <li>
         Is app: {data.isApp}
       </li>

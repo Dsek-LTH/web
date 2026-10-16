@@ -42,7 +42,7 @@ export const getDerivedRoles = (
   groupList?: string[],
   signedIn = false,
   classYear: number | undefined = undefined,
-  classProgramme: string | undefined = undefined,
+  classProgram: string | undefined = undefined,
 ) => {
   const splitGroups = new Set<string>();
   groupList?.forEach((group) =>
@@ -56,10 +56,10 @@ export const getDerivedRoles = (
     splitGroups.add("nolla");
   if (classYear !== undefined) {
     const shortYear = String(classYear % 100);
-    splitGroups.add(classProgramme + shortYear);
+    splitGroups.add(classProgram + shortYear);
   }
-  if (classProgramme !== undefined) {
-    splitGroups.add(classProgramme);
+  if (classProgram !== undefined) {
+    splitGroups.add(classProgram);
   }
 
   return [...splitGroups];

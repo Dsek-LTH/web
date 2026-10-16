@@ -14,7 +14,7 @@ import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
  * @param prisma a prisma client with correct authorization for the user
  * @returns a list of notifications
  */
-const getNollaNotifications = (user: AuthUser, prisma: ExtendedPrisma) => {
+const getN0llaNotifications = (user: AuthUser, prisma: ExtendedPrisma) => {
   return prisma.notification.findMany({
     where: {
       createdAt: {
@@ -56,10 +56,10 @@ const getNollaNotifications = (user: AuthUser, prisma: ExtendedPrisma) => {
   });
 };
 
-export const getNollaGroupedNotifications = async (
+export const getN0llaGroupedNotifications = async (
   user: AuthUser,
   prisma: ExtendedPrisma,
 ) => {
-  const myNotifications = await getNollaNotifications(user, prisma);
+  const myNotifications = await getN0llaNotifications(user, prisma);
   return groupNotifications(myNotifications);
 };

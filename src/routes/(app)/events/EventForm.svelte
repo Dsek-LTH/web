@@ -361,11 +361,11 @@
           bind:value={$form.recurringType}
         >
           <Select.Trigger class="w-full">
-            {recurringTypes[$form.recurringType as RecurringType]}
+            {recurringTypes[$form.recurringType as RecurringType]()}
           </Select.Trigger>
           <Select.Content>
             {#each Object.entries(recurringTypes) as [value, label] (value)}
-              <Select.Item {value}>{label}</Select.Item>
+              <Select.Item {value}>{label()}</Select.Item>
             {/each}
           </Select.Content>
         </Select.Root>

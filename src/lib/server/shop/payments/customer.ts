@@ -12,7 +12,8 @@ const createStripeCustomer = async ({
   try {
     const customer = await getStripe().customers.create({
       name: getFullName({ ...member, nickname: null }),
-      description: `D-sek member: ${studentId}`,
+      // Only shown in the Stripe dashboard, so it is not translated.
+      description: `D-guild member: ${studentId ?? "unknown ID"}`,
       metadata: {
         member: id,
       },

@@ -15,7 +15,7 @@
   <Dialog.Header>
     <Dialog.Title
       >{expense.isGuildCard
-        ? m.expense_guildcard()
+        ? m.expense_guild_card()
         : m.expense_private_expense()}
       {#if expense.removedAt}
         <Badge class="bg-red-500 text-white"

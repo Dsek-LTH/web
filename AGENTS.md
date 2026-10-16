@@ -10,11 +10,11 @@ When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start o
 ### 2. get-documentation
 
 Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
+After calling the list-sections tool, you MUST analyse the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
 
 ### 3. svelte-autofixer
 
-Analyzes Svelte code and returns issues and suggestions.
+Analyses Svelte code and returns issues and suggestions.
 You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
 
 ### 4. playground-link
