@@ -1,4 +1,5 @@
 <script lang="ts">
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
@@ -43,7 +44,9 @@
     class="text-muted-foreground transition-all hover:opacity-80"
     href="mailto:{position.email}">{position.email}</a
   >
-  <p class="mt-1">{position.description}</p>
+  {#if position.description}
+    <MarkdownBody class="mt-1" body={position.description} />
+  {/if}
   <div class="mt-2 flex flex-col gap-1">
     {#each mandates as mandate (mandate.id)}
       <a
