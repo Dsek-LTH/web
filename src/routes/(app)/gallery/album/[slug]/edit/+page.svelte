@@ -12,6 +12,14 @@
   import { Textarea } from "$lib/components/ui/textarea";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import type { SmallMemberSchema, EditSchema } from "../types";
+  import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
+  import {
+    CalendarDateTime,
+    fromDate,
+    getLocalTimeZone,
+    parseDate,
+    toCalendarDate,
+  } from "@internationalized/date";
 
   let { data }: { data: { slug: string; form: SuperValidated<EditSchema> } } =
     $props();
@@ -22,6 +30,24 @@
       dataType: "json",
     }) as SuperForm<EditSchema>,
   );
+
+  const tz = getLocalTimeZone();
+
+  // These are immutable objects that are only re-assigned,
+  // so using $state.raw avoids overhead.
+  let date = $state.raw<string | undefined>(
+    $form.date
+      ? toCalendarDate(fromDate($form.date, tz)).toString()
+      : toCalendarDate(fromDate(new Date(), tz)).toString(),
+  );
+
+  function updateDate() {
+    if (date) {
+      const parsed = parseDate(date);
+      const dt = new CalendarDateTime(parsed.year, parsed.month, parsed.day);
+      $form.date = dt.toDate(tz);
+    }
+  }
 </script>
 
 <SetPageTitle title={m.gallery_edit_album()} />
@@ -42,13 +68,13 @@
       <Label class="mb-1 text-lg font-medium" for="date"
         >{m.gallery_date()}</Label
       >
-      <Input
-        id="date"
+      <DatePicker
         name="date"
-        class="input input-bordered"
-        bind:value={$form.date}
-        type="text"
-        placeholder="2025-01-01"
+        bind:value={() => date,
+        (value) => {
+          date = value;
+          updateDate();
+        }}
         aria-invalid={$errors.date ? true : false}
         aria-errormessage={$errors.date?.at(0)}
         {...$constraints.date}
