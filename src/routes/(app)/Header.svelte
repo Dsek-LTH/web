@@ -1,6 +1,6 @@
 <script lang="ts">
-  import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import DesktopNav from "./DesktopNav.svelte";
   import { Button } from "$lib/components/ui/button";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import Search from "@lucide/svelte/icons/search";
@@ -16,7 +16,6 @@
   import { getRoutes } from "../routes";
   import { isAuthorized } from "$lib/utils/authorization";
   import { page } from "$app/state";
-  import { navigationMenuTriggerStyle } from "$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte";
   import { getLocale, setLocale } from "$paraglide/runtime";
   import { setLanguage } from "$lib/utils/languages.remote";
   import * as m from "$paraglide/messages";
@@ -97,25 +96,19 @@
 
 <header
   class:visible={visible || navOpen}
-  class="nav-mobile bg-muted-background md-nav:top-0 md-nav:bottom-[unset] md-nav:h-[unset]! md-nav:sticky md-nav:z-20 fixed bottom-0 z-100 h-[64px] w-full max-w-screen flex-row justify-center border-t-[1px] border-b-[1px] font-[1.25rem]"
+  class="nav-mobile bg-muted-background md-nav:top-0 md-nav:bottom-[unset] md-nav:h-[unset]! md-nav:sticky md-nav:z-20 fixed bottom-0 z-100 h-[64px] w-full max-w-screen flex-row justify-center border-t-[1px] border-b-[1px]"
 >
   <nav
     class="md-nav:py-4 container mx-auto flex shrink flex-row items-center justify-between px-8 py-3 xl:px-32"
   >
     <div class="flex flex-row items-center">
-      <NavigationMenu.Root viewport={false}>
-        <NavigationMenu.List>
-          <NavigationMenu.Item class="mr-4">
-            <a href="/">
-              <DsekLogo
-                variant="letter"
-                class="hover:fill-rosa-400 fill-rosa-400 size-6"
-              />
-            </a>
-          </NavigationMenu.Item>
-          {@render desktopLinks()}
-        </NavigationMenu.List>
-      </NavigationMenu.Root>
+      <a href="/" class="mr-4">
+        <DsekLogo
+          variant="letter"
+          class="hover:fill-rosa-400 fill-rosa-400 size-6"
+        />
+      </a>
+      <DesktopNav routes={visibleRoutes} />
     </div>
     <div class="z-150 flex flex-row items-center gap-2">
       <Button
@@ -318,71 +311,6 @@
     </div>
   </nav>
 </header>
-
-{#snippet desktopLinks()}
-  {#each visibleRoutes as route (route.title)}
-    <NavigationMenu.Item class="md-nav:block hidden">
-      {#if route.children}
-        <NavigationMenu.Trigger>{route.title}</NavigationMenu.Trigger>
-
-        <NavigationMenu.Content>
-          <ul
-            class={route.list
-              ? "ml-0 grid w-[200px] gap-4 p-2"
-              : "ml-0 grid list-none gap-2 p-2 md:w-[400px] lg:w-[472px] lg:grid-cols-[1fr_1fr]"}
-          >
-            {#if route.pictureUrl}
-              <li class="row-span-4">
-                <NavigationMenu.Link
-                  class="flex h-full w-full flex-col justify-end rounded-md bg-cover bg-center p-6 no-underline outline-hidden select-none focus:shadow-md"
-                  style="background-image: linear-gradient(to top,rgba(0,0,0,1),rgba(0,0,0,0)),url('{route.pictureUrl}');"
-                  href={route.picturePath}
-                >
-                  <div class="mt-4 text-xl font-semibold text-[#ffffff]">
-                    {route.pictureTitle}
-                  </div>
-                  <p class="mt-1 text-sm leading-tight text-[#ffffff]">
-                    {route.pictureDescription}
-                  </p>
-                </NavigationMenu.Link>
-              </li>
-            {/if}
-            {#each route.children.filter((c) => !c.hideOnDesktop) as child (child.title)}
-              <NavigationMenu.Link
-                class="text-foreground font-medium"
-                href={child.path}
-              >
-                {#if route.list}
-                  {@const Icon = child.icon}
-                  <div class="flex flex-row items-center gap-1">
-                    <Icon size="24" class="text-rosa-400" />
-                    {child.title}
-                  </div>
-                  <span class="text-muted-foreground text-xs"
-                    >{child.description}</span
-                  >
-                {:else}
-                  <NavigationMenu.ContentItem
-                    title={child.title}
-                    description={child.description ?? ""}
-                    icon={child.icon}
-                  />
-                {/if}
-              </NavigationMenu.Link>
-            {/each}
-          </ul>
-        </NavigationMenu.Content>
-      {:else}
-        <NavigationMenu.Link
-          href={route.path}
-          class={navigationMenuTriggerStyle()}
-        >
-          {route.title}
-        </NavigationMenu.Link>
-      {/if}
-    </NavigationMenu.Item>
-  {/each}
-{/snippet}
 
 {#snippet mobileLinks()}
   <div class="">

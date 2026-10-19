@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
-  import * as HoverCard from "$lib/components/ui/hover-card";
+  import * as Popover from "$lib/components/ui/popover";
   import Bell from "@lucide/svelte/icons/bell";
   import type { NotificationGroup } from "$lib/utils/notifications/group";
   import { getNotifications, readAllNotifications } from "./data.remote";
@@ -87,8 +87,8 @@
   aria-hidden="true"
 ></form>
 
-<HoverCard.Root bind:open openDelay={0} closeDelay={125}>
-  <HoverCard.Trigger onclick={() => (open = !open)}>
+<Popover.Root bind:open>
+  <Popover.Trigger>
     {#snippet child({ props })}
       <Button
         {...props}
@@ -108,8 +108,8 @@
         {/if}
       </Button>
     {/snippet}
-  </HoverCard.Trigger>
-  <HoverCard.Content
+  </Popover.Trigger>
+  <Popover.Content
     class="z-150 flex w-[min(450px,calc(100vw-2rem))] flex-col p-0"
     align="end"
   >
@@ -123,5 +123,5 @@
       onDismissed={handleDismissed}
       onClearedAll={handleClearedAll}
     />
-  </HoverCard.Content>
-</HoverCard.Root>
+  </Popover.Content>
+</Popover.Root>
