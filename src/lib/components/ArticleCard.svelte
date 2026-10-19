@@ -4,7 +4,7 @@
   import AuthorCard from "./AuthorCard.svelte";
   import { Marked } from "marked";
   import type { Tokens } from "marked";
-  import { getFileUrl } from "$lib/files/client";
+  import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
 
   let {
     article,
@@ -12,7 +12,13 @@
   }: {
     article: Pick<
       Article,
-      "author" | "slug" | "imageUrl" | "header" | "body" | "createdAt"
+      | "author"
+      | "slug"
+      | "imageUrl"
+      | "header"
+      | "body"
+      | "createdAt"
+      | "committee"
     >;
     index: number;
   } = $props();
@@ -53,12 +59,10 @@
         class="aspect-[2/1] w-full shrink-0 rounded-md bg-[#eee] bg-cover bg-center"
       ></div>
     {:else}
-      <div
-        style:background-image={`url(${getFileUrl(
-          "minio/files/public/photos/backgrounds/dsek-bg.png",
-        )})`}
-        class="border-rosa-300 aspect-[2/1] w-full shrink-0 rounded-md border-[1px] bg-[#eee] bg-size-[100%]"
-      ></div>
+      <CommitteePlaceholder
+        committee={article.committee}
+        class="aspect-[2/1] w-full shrink-0 rounded-md"
+      />
     {/if}
     <h3 class="mt-2 px-2">
       {article.header}

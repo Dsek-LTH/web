@@ -6,6 +6,7 @@
   let {
     committee,
     class: klass,
+    imageOverride,
     children,
   }: {
     committee: Pick<
@@ -13,6 +14,8 @@
       "shortName" | "symbolUrl" | "name"
     > | null;
     class?: string;
+    /** An image url to use instead of a committee*/
+    imageOverride?: string;
     /** Optional content rendered on top of the pattern (e.g. an overlay). */
     children?: Snippet;
   } = $props();
@@ -25,22 +28,26 @@
   // `lightImageUrl` is the icon for light theme, `darkImageUrl` for dark theme
   // — mirrors the behaviour of CommitteeIcon.
   let dark = $derived(
-    (other
-      ? FALLBACK
-      : committee?.symbolUrl?.endsWith("light.svg")
-        ? committee.symbolUrl.slice(0, -9) + "dark.svg"
-        : committee?.symbolUrl) ?? FALLBACK,
+    imageOverride ??
+      (other
+        ? FALLBACK
+        : committee?.symbolUrl?.endsWith("light.svg")
+          ? committee.symbolUrl.slice(0, -9) + "dark.svg"
+          : committee?.symbolUrl) ??
+      FALLBACK,
   );
   let light = $derived(
-    (other
-      ? FALLBACK
-      : committee?.symbolUrl?.endsWith("dark.svg")
-        ? committee.symbolUrl.slice(0, -8) + "light.svg"
-        : committee?.symbolUrl) ?? FALLBACK,
+    imageOverride ??
+      (other
+        ? FALLBACK
+        : committee?.symbolUrl?.endsWith("dark.svg")
+          ? committee.symbolUrl.slice(0, -8) + "light.svg"
+          : committee?.symbolUrl) ??
+      FALLBACK,
   );
 
-  const TILE = 104;
-  const ICON = 46;
+  const TILE = 146;
+  const ICON = 70;
   const ROTATION = -16;
   const a = TILE * 0.25 - ICON / 2;
   const b = TILE * 0.75 - ICON / 2;

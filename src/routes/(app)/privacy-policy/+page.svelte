@@ -281,4 +281,6 @@ Integritetsskyddsmyndigheten kontaktas på följande e-postadress:
 `;
 </script>
 
-<MarkdownBody class="max-w-full" body={policy} />
+<div class="layout-container">
+  <MarkdownBody class="max-w-full" body={policy} />
+</div>

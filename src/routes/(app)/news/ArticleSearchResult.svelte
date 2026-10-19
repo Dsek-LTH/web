@@ -2,6 +2,7 @@
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
+  import { getFullName } from "$lib/utils/client/member";
   import { getLocale } from "$paraglide/runtime";
   const { data }: { data: ArticleSearchReturnAttributes } = $props();
   import dayjs from "dayjs";
@@ -10,7 +11,6 @@
 <a href={`/news/${data.slug}`}>
   <div
     class="flex w-full flex-row justify-between border-t-[1px] border-b-[1px] p-4"
-    data-search-result
   >
     <div class="flex w-full flex-col">
       <div class="flex w-full flex-row justify-between">
@@ -26,7 +26,7 @@
         <MemberAvatar member={data.author} class="size-4" />
 
         <span class="text-muted-foreground line-clamp-1"
-          >{`${data.author.firstName} "${data.author.nickname}" ${data.author.lastName}`}</span
+          >{getFullName(data.author)}</span
         >
       </div>
     </div>

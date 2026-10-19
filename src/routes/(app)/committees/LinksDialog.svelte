@@ -68,6 +68,7 @@
           <Editor
             placeholder="**Heading**
 [link](/committees/committee/page)"
+            name="markdownEn"
             bind:value={$form.markdownEn as string | undefined}
             aria-invalid={!!$errors.markdownEn}
           />
@@ -83,7 +84,9 @@
       </div>
 
       <Dialog.Footer>
-        <Dialog.Close class={buttonVariants({ variant: "outline" })}
+        <Dialog.Close
+          type="button"
+          class={buttonVariants({ variant: "outline" })}
           >{m.cancel()}</Dialog.Close
         >
         <Dialog.Close class={buttonVariants({ variant: "rosa" })} type="submit"

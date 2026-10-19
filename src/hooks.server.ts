@@ -1,3 +1,4 @@
+import "temporal-polyfill/global";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
 import { createMember } from "$lib/utils/member";
@@ -12,6 +13,11 @@ import Authentik, {
   type AuthentikProfile,
 } from "@auth/core/providers/authentik";
 import { SvelteKitAuth } from "@auth/sveltekit";
+import {
+  isTokenValid,
+  fetchNewToken,
+  decodeAccessToken,
+} from "$lib/utils/auth";
 import {
   error,
   redirect,
@@ -29,9 +35,7 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
-import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
-import { dev } from "$app/environment";
 import { paraglideMiddleware } from "$paraglide/server";
 import { getRequestEvent } from "$app/server";
 import {
@@ -39,9 +43,6 @@ import {
   httpRequestDurationMs,
   inflightRequests,
 } from "$lib/server/metrics";
-
-// TODO: This function should perhaps only be called during dev? Build? I'm not sure
-if (dev) verifyCostCenterData();
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -80,55 +81,37 @@ const { handle: authHandle } = SvelteKitAuth({
         token.refresh_token = account.refresh_token;
         token.id_token = account.id_token;
         token.expires_at = account.expires_at;
-      } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
         return token;
-      } else {
-        if (!token.refresh_token) throw new Error("Missing refresh_token");
-
-        try {
-          const response = await fetch(
-            envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
-            {
-              method: "POST",
-              body: new URLSearchParams({
-                client_id: env.AUTH_AUTHENTIK_CLIENT_ID,
-                client_secret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-                grant_type: "refresh_token",
-                refresh_token: token.refresh_token,
-              }),
-            },
-          );
-
-          const tokensOrError = await response.json();
-
-          if (!response.ok) throw tokensOrError;
-
-          const accessToken = tokensOrError.access_token as string;
-          const [, payload] = accessToken.split(".");
-
-          if (!payload) throw new Error("Invalid JWT format");
-
-          const decodedAccessTokenData = JSON.parse(
-            Buffer.from(payload, "base64").toString("utf-8"),
-          );
-          token.access_token = accessToken;
-          token.group_list = decodedAccessTokenData.groups ?? [];
-          token.id_token = tokensOrError.id_token;
-          token.expires_at =
-            Math.floor(Date.now() / 1000) + tokensOrError.expires_in;
-          token.refresh_token =
-            tokensOrError.refresh_token ?? token.refresh_token;
-
-          return token;
-        } catch (error) {
-          console.error("Error refreshing Authentik access_token:", error);
-          token.error = "RefreshTokenError";
-
-          return token;
-        }
       }
 
-      return token;
+      if (isTokenValid(token)) {
+        return token;
+      }
+
+      try {
+        const newToken = await fetchNewToken(token, {
+          clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
+          clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
+          tokenEndpoint: envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
+        });
+
+        const accessToken = newToken.access_token as string;
+        const decodedToken = decodeAccessToken(accessToken);
+
+        token.access_token = accessToken;
+        token.group_list = (decodedToken["groups"] as string[]) ?? [];
+        token.id_token = newToken.id_token;
+        token.expires_at = Math.floor(Date.now() / 1000) + newToken.expires_in;
+        token.refresh_token = newToken.refresh_token ?? token.refresh_token;
+        delete token.error;
+
+        return token;
+      } catch (error) {
+        console.error("Error refreshing Authentik access_token:", error);
+        token.error = "RefreshTokenError";
+
+        return token;
+      }
     },
     session({ session, token }) {
       if (token) {
@@ -262,6 +245,7 @@ const appHandle: Handle = async ({ event, resolve }) => {
     const insetsJson = APP_INSETS_REGEX.exec(userAgent ?? "")?.[1];
     const insets = JSON.parse(insetsJson ?? "{}");
     event.locals.appInfo = {
+      os: userAgent?.substring(10).split(")")[0] ?? undefined,
       insets: {
         top: insets?.top ? Number(insets.top) : 0,
         bottom: insets?.bottom ? Number(insets.bottom) : 0,

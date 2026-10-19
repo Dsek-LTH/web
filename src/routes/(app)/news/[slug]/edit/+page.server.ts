@@ -1,7 +1,8 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
+import { redirect } from "sveltekit-flash-message/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { getArticleAuthorOptions } from "$lib/news/getArticles";
@@ -75,14 +76,56 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     memberWithMandtes,
   );
 
+  const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
+
   return {
     allTags,
     authorOptions,
-    form: await superValidate(article, zod4(updateSchema)),
+    form: await superValidate(
+      {
+        ...article,
+        publishTime: article.publishedAt,
+        sendNotification: article.shouldSendNotification ?? false,
+      },
+      zod4(updateSchema),
+    ),
     committees,
+    canDelete,
+    slug: article.slug,
   };
 };
 
 export const actions: Actions = {
-  default: updateArticle,
+  update: updateArticle,
+  removeArticle: async (event) => {
+    const { locals, params } = event;
+    const { prisma, user } = locals;
+    authorize(apiNames.NEWS.DELETE, user);
+
+    const existingArticle = await prisma.article.findUnique({
+      where: {
+        slug: params.slug,
+      },
+    });
+
+    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
+
+    await prisma.article.update({
+      where: {
+        slug: params.slug,
+      },
+      data: {
+        removedAt: new Date(),
+      },
+    });
+
+    throw redirect(
+      "/news",
+      {
+        message: m.news_articleDeleted(),
+        type: "success",
+      },
+      event,
+    );
+  },
 };

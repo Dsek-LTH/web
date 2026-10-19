@@ -30,6 +30,8 @@ export const articleSchema = z.object({
     .array()
     .default([]),
   committeeId: z.uuid().nullable(),
+  notificationText: z.string().max(255).optional().nullable(),
+  sendNotification: z.boolean(),
 });
 export type ArticleSchema = Infer<typeof articleSchema>;
 
@@ -37,23 +39,17 @@ export const createSchema = articleSchema
   .omit({
     slug: true,
   })
-  .extend({
-    notificationText: z.string().max(255).optional().nullable(),
-    sendNotification: z.boolean(),
-  })
   .refine((data) => data.sendNotification === false || data.tags.length > 0, {
     message:
       "Tags cannot be empty if you want to send a notification. No notifications will be sent",
     path: ["tags"],
   });
 
-export const updateSchema = articleSchema
-  .extend({
-    notificationText: z.string().max(255).optional().nullable(),
-    sendNotification: z.boolean(),
-  })
-  .refine((data) => data.sendNotification === false || data.tags.length > 0, {
+export const updateSchema = articleSchema.refine(
+  (data) => data.sendNotification === false || data.tags.length > 0,
+  {
     message:
       "Tags cannot be empty if you want to send a notification. No notifications will be sent",
     path: ["tags"],
-  });
+  },
+);

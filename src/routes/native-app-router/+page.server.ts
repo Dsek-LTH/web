@@ -9,11 +9,8 @@ export const load = async ({ locals, cookies }) => {
     redirect(302, "/");
   }
   if (cookies.get(APP_PREFERRED_PAGE_COOKIE) === "nollning") {
-    return {
-      redirect: "/nollning",
-    } as const;
-  } else
-    return {
-      redirect: "/app/home",
-    } as const;
+    redirect(302, "/nollning");
+  } else {
+    redirect(302, "/app/home");
+  }
 };

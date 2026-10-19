@@ -9,8 +9,7 @@
 
 <Command.LinkItem
   class="flex flex-row justify-between"
-  href={`/comittees/${data.shortName}`}
-  data-search-result
+  href={`/committees/${data.shortName}`}
 >
   <div class="flex flex-row items-center gap-2">
     <Avatar.Root>

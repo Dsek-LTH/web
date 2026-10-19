@@ -6,6 +6,7 @@
   import AddMandateForm from "./AddMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
   import Mandate from "./Mandate.svelte";
+  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
 
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import type { PageData } from "./$types";
@@ -92,7 +93,7 @@
 <SetPageTitle title={data.position.name} />
 <a
   class="mb-2 flex flex-row items-center gap-1 font-medium"
-  href="/committees/{data.position.committee?.shortName}/members"
+  href="/committees/{data.position.committee?.shortName ?? 'other'}/members"
   ><ArrowLeft class="size-4" />{m.committees_members()}</a
 >
 <div
@@ -140,7 +141,7 @@
     </div>
 
     {#if data.position.description}
-      <p>{data.position.description}</p>
+      <MarkdownBody body={data.position.description} />
     {/if}
 
     {#if data.position.email}

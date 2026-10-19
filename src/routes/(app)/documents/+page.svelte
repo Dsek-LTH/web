@@ -11,24 +11,36 @@
   import * as m from "$paraglide/messages";
   import { Button } from "$lib/components/ui/button";
   import YearSelector from "$lib/components/YearSelector.svelte";
+  import ArrowUpRight from "@lucide/svelte/icons/arrow-up-right";
 
   let { data }: { data: PageData } = $props();
 
   let isEditing = $state(false);
 
-  const generateLink = $derived((value: string) => {
+  function generateLink(value: string) {
     const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-    searchParams.set("type", value.toString());
+    searchParams.set("type", value);
     return `?${searchParams.toString()}`;
-  });
+  }
+
+  let type = $derived(page.url.searchParams.get("type"));
 
   let meetings = $derived(
-    Object.keys(data.meetings).sort((a, b) =>
-      page.url.searchParams.get("type") === "board-meeting" ||
-      page.url.searchParams.get("type") === "SRD-meeting"
-        ? b.localeCompare(a, "sv")
-        : a.localeCompare(b, "sv"),
-    ),
+    Object.keys(data.meetings).sort((a, b) => {
+      if (type === "board-meeting" || type === null) {
+        return b.localeCompare(a, "sv");
+      } else if (type === "SRD-meeting" && a.startsWith("SRD")) {
+        return (
+          // Current format
+          Number.parseInt(b.split("SRD")[1] ?? "0") -
+          Number.parseInt(a.split("SRD")[1] ?? "0")
+        );
+      } else if (type === "SRD-meeting") {
+        return ("T" + a).localeCompare(b, "sv"); // Sort other SRD meetings below current format
+      } else {
+        return a.localeCompare(b, "sv");
+      }
+    }),
   );
 
   let canCreate = $derived(
@@ -46,7 +58,9 @@
 </script>
 
 <div class="layout-container">
-  <div class="flex flex-row justify-between gap-8 *:w-full">
+  <div
+    class="flex flex-col justify-between gap-4 *:w-full md:flex-row md:gap-8"
+  >
     <div class="flex flex-col gap-2 rounded-md border-[1px] p-4">
       <h3>{m.documents_guildMeetings()}</h3>
       <p class="mt-0">{m.documents_guildMeetings_prose()}</p>
@@ -63,26 +77,38 @@
     </div>
   </div>
 
-  <div class="mt-4 flex flex-row gap-8">
-    <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
-      <Tabs.List>
-        <a href={generateLink("guild-meeting")}>
-          <Tabs.Trigger value="guild-meeting"
-            >{m.documents_guildMeetings()}</Tabs.Trigger
-          ></a
-        >
-        <a href={generateLink("board-meeting")}
-          ><Tabs.Trigger value="board-meeting"
-            >{m.documents_boardMeetings()}</Tabs.Trigger
-          ></a
-        >
-        <a href={generateLink("SRD-meeting")}
-          ><Tabs.Trigger value="SRD-meeting"
-            >{m.documents_srdMeetings()}</Tabs.Trigger
-          ></a
-        >
-      </Tabs.List>
-    </Tabs.Root>
+  <div
+    class="mt-4 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between md:gap-8"
+  >
+    <div
+      class="flex flex-col items-start gap-4 md:flex-row md:items-stretch md:gap-2"
+    >
+      <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
+        <Tabs.List class="flex-col px-4 sm:flex-row sm:px-1">
+          <a href={generateLink("guild-meeting")}>
+            <Tabs.Trigger value="guild-meeting"
+              >{m.documents_guildMeetings()}</Tabs.Trigger
+            ></a
+          >
+          <a href={generateLink("board-meeting")}
+            ><Tabs.Trigger value="board-meeting"
+              >{m.documents_boardMeetings()}</Tabs.Trigger
+            ></a
+          >
+          <a href={generateLink("SRD-meeting")}
+            ><Tabs.Trigger value="SRD-meeting"
+              >{m.documents_srdMeetings()}</Tabs.Trigger
+            ></a
+          >
+        </Tabs.List>
+      </Tabs.Root>
+      <a href="/documents/governing" class="md:flex md:[&>button]:h-full">
+        <Button variant="outline">
+          {m.documents_governing()}
+          <ArrowUpRight />
+        </Button>
+      </a>
+    </div>
 
     <YearSelector />
   </div>

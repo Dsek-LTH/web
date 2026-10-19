@@ -1,5 +1,5 @@
 import type { RequestHandler } from "@sveltejs/kit";
-import { meilisearch } from "$lib/search/meilisearch";
+import { getMeilisearch } from "$lib/search/meilisearch";
 import {
   getFederatedWeight,
   getSearchableAttributes,
@@ -52,7 +52,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
   const offset = Number.parseInt(url.searchParams.get("offset") ?? "0");
 
-  const response: SearchDataWithType[] = await meilisearch
+  const response: SearchDataWithType[] = await getMeilisearch()
     .multiSearch({
       queries: indexes.map((index) => ({
         indexUid: index,

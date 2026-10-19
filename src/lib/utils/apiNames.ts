@@ -68,6 +68,7 @@ const apiNames = {
     SEE_STABEN: "member:see_staben",
     SEE_EMAIL: "member:see_email",
     PING: "core:member:ping",
+    USER: "member:user",
   },
   GOVERNING_DOCUMENT: {
     CREATE: "governing_document:write",
@@ -111,3 +112,17 @@ const apiNames = {
 } as const;
 
 export default apiNames;
+
+/**
+ * Flattens the apiNames registry into every concrete apiName string it
+ * declares. Entries that are functions (e.g. `FILES.BUCKET(name)`,
+ * `MARKDOWNS.PAGE(name)`) require a runtime parameter and can't be
+ * enumerated, so they're skipped.
+ */
+export const flattenApiNames = (obj: unknown): string[] => {
+  if (typeof obj === "string") return [obj];
+  if (typeof obj === "object" && obj !== null) {
+    return Object.values(obj).flatMap(flattenApiNames);
+  }
+  return [];
+};

@@ -1,6 +1,5 @@
 import { env } from "$env/dynamic/public";
-import { countUserShopItems } from "$lib/server/shop/countUserShopItems";
-import { getMyGroupedNotifications } from "$lib/utils/notifications/myNotifications";
+import { getUnreadNotificationCount } from "$lib/utils/notifications/myNotifications";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -17,15 +16,12 @@ const alertsCache: {
 };
 
 export const load = loadFlash(async ({ locals, depends }) => {
-  depends("/api/notifications/my");
-  depends("cart");
   depends("alerts");
 
-  const { user, prisma } = locals;
-  const notificationsPromise = user?.memberId
-    ? getMyGroupedNotifications(user, prisma)
+  const { prisma, user } = locals;
+  const unreadCountPromise = user?.memberId
+    ? getUnreadNotificationCount(user, prisma)
     : undefined;
-  const shopItemCounts = countUserShopItems(prisma, user);
 
   alertsCache.alerts = await prisma.alert.findMany({
     where: {
@@ -39,10 +35,9 @@ export const load = loadFlash(async ({ locals, depends }) => {
 
   return {
     alerts: alertsCache.alerts,
-    notificationsPromise,
+    unreadCountPromise,
     mutateNotificationForm: await superValidate(zod4(notificationSchema)),
     readNotificationForm: await superValidate(zod4(emptySchema)),
-    shopItemCounts,
   };
 });
 

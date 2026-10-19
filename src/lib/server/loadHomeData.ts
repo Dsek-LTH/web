@@ -1,7 +1,5 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_MINECRAFT_URL,
-} from "$env/static/public";
+import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import { env } from "$env/dynamic/private";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
@@ -71,7 +69,7 @@ export const loadHomeData = async ({
     orderBy: {
       createdAt: "desc",
     },
-    take: 3,
+    take: 4,
     include: {
       committee: true,
     },
@@ -83,20 +81,10 @@ export const loadHomeData = async ({
   // EVENTS
   const eventsPromise = prisma.event.findMany({
     where: {
-      ...BASIC_EVENT_FILTER(),
-      OR: [
-        {
-          startDatetime: {
-            gt: startDate,
-            lt: endDate,
-          },
-        },
-        {
-          endDatetime: {
-            gt: startDate,
-            lt: endDate,
-          },
-        },
+      AND: [
+        BASIC_EVENT_FILTER(),
+        { startDatetime: { lt: endDate } },
+        { endDatetime: { gt: startDate } },
       ],
     },
     orderBy: {
@@ -236,7 +224,7 @@ export const loadHomeData = async ({
 
   const minecraftStatus = async () => {
     try {
-      return await pingUri(PUBLIC_MINECRAFT_URL, { timeout: 2000 });
+      return await pingUri(env.MINECRAFT_URL, { timeout: 2000 });
     } catch {
       console.log("Error, minecraft timed out");
       return null;
