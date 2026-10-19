@@ -20,7 +20,6 @@ import ScrollText from "@lucide/svelte/icons/scroll-text";
 import Send from "@lucide/svelte/icons/send";
 import Settings from "@lucide/svelte/icons/settings";
 import ShieldUser from "@lucide/svelte/icons/shield-user";
-import Ticket from "@lucide/svelte/icons/ticket";
 import UserPlus from "@lucide/svelte/icons/user-plus";
 import Users from "@lucide/svelte/icons/users";
 import Vote from "@lucide/svelte/icons/vote";
@@ -190,6 +189,14 @@ export const getRoutes = (): Route[] =>
           path: "/elections",
           icon: Vote,
         },
+        {
+          title: m.documents_requirementProfiles(),
+          description: m.documents_requirementProfilesBlurb(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/requirements",
+          icon: FileText,
+        },
       ],
     },
     {
@@ -199,14 +206,6 @@ export const getRoutes = (): Route[] =>
       path: null,
       list: true,
       children: [
-        {
-          title: m.tickets(),
-          accessRequired: null,
-          appBehaviour: "none",
-          description: m.nav_tickets_desc(),
-          path: "/shop/tickets",
-          icon: Ticket,
-        },
         {
           title: m.nav_booking(),
           accessRequired: null,
@@ -222,13 +221,6 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
-        },
-        {
-          title: m.stocklist(),
-          accessRequired: "drinkitem:read",
-          appBehaviour: "none",
-          description: m.nav_stocklist_desc(),
-          path: "/admin/stocklist",
         },
       ],
     },
@@ -286,12 +278,6 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           icon: Info,
-        },
-        {
-          title: m.qr_code(),
-          path: "/admin/qr",
-          accessRequired: null,
-          appBehaviour: "none",
         },
       ],
     },

@@ -25,6 +25,7 @@
     showClass = true,
     showNickname = true,
     limit = 0,
+    name = undefined,
     class: klass = "",
     inputClass = "",
     onchange = $bindable(),
@@ -40,6 +41,12 @@
     showClass: boolean;
     showNickname?: boolean;
     limit?: number;
+    /**
+     * When set, renders hidden input(s) carrying the selected member's
+     * studentId (one per selected member when `multiple`), so this
+     * component can be used inside a plain <form> and submit without JS.
+     */
+    name?: string;
     class?: string;
     inputClass?: string;
     onchange?: () => void;
@@ -280,7 +287,7 @@
   onfocusin={handleFocusIn}
   shouldFilter={false}
   loop
-  class={cn(klass, "relative w-fit overflow-visible p-0")}
+  class={cn(klass, "relative w-full overflow-visible p-0")}
   {...restProps}
 >
   <Button
@@ -295,9 +302,18 @@
     }}
   >
     <ul
-      class="m-0 flex w-fit list-none flex-row flex-wrap gap-2"
+      class="m-0 flex w-full list-none flex-row flex-wrap gap-2"
       bind:this={selectedItemsElement}
     >
+      {#if name}
+        {#if multiple}
+          {#each selectedMembers as member (member.studentId)}
+            <input type="hidden" {name} value={member.studentId} />
+          {/each}
+        {:else}
+          <input type="hidden" {name} value={selectedMember?.studentId ?? ""} />
+        {/if}
+      {/if}
       {#each selectedMembers as member (member.studentId)}
         <li class="relative m-0 list-none">
           <Button
@@ -317,11 +333,11 @@
         </li>
       {/each}
       {#if (multiple && (limit == 0 || selectedMembers.length < limit)) || selectedMembers.length === 0}
-        <li class="relative m-0 flex max-w-full list-none p-0">
+        <li class="relative m-0 flex min-w-24 flex-1 list-none p-0">
           <Input
             name="input"
             type="none"
-            class="mx-0 h-full w-fit border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+            class="mx-0 h-full w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
             placeholder={multiple
               ? m.select_members().concat(limit > 0 ? ` (max ${limit})` : "")
               : m.select_member()}

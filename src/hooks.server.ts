@@ -34,9 +34,7 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
-import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
-import { dev } from "$app/environment";
 import { paraglideMiddleware } from "$paraglide/server";
 import { getRequestEvent } from "$app/server";
 import {
@@ -44,9 +42,6 @@ import {
   httpRequestDurationMs,
   inflightRequests,
 } from "$lib/server/metrics";
-
-// TODO: This function should perhaps only be called during dev? Build? I'm not sure
-if (dev) verifyCostCenterData();
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
