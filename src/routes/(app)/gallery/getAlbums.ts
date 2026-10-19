@@ -18,12 +18,12 @@ export const getAlbums = async (
     },
   });
 
-  function getCoverURL(slug: string): Promise<string> {
+  function getCoverURL(albumId: string): Promise<string> {
     return fileHandler
       .getInBucket(
         user,
         PUBLIC_BUCKETS_ALBUMS,
-        "public/" + slug + "/cover",
+        "public/" + albumId + "/cover",
         true,
       )
       .then((files) => files[0]?.thumbnailUrl || "")
@@ -40,7 +40,7 @@ export const getAlbums = async (
       date: album.date.toISOString(),
       slug: album.slug,
       imageCount: album.imageCount,
-      coverURL: await getCoverURL(album.slug),
+      coverURL: await getCoverURL(album.id),
       photographers: album.photographers.map(
         ({ id, visible, stripeCustomerId, ...rest }) => rest,
       ),

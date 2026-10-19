@@ -1348,9 +1348,9 @@
           "maxLength": null
         },
         {
-          "id": "public.albums.photos_directory",
-          "name": "photos_directory",
-          "columnName": "photos_directory",
+          "id": "public.albums.slug",
+          "name": "slug",
+          "columnName": "slug",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",

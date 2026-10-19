@@ -3,6 +3,7 @@ import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
+import { findAvailableSlug, slugifyWithYear } from "$lib/utils/slugify";
 import { error, fail, redirect } from "@sveltejs/kit";
 import * as m from "$paraglide/messages";
 import { redirect as flashRedirect } from "sveltekit-flash-message/server";
@@ -27,6 +28,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   }
 
   return {
+    id: album.id,
     slug: params.slug,
     form: await superValidate(
       {
@@ -65,6 +67,15 @@ export const actions: Actions = {
       error(404, "Album not found");
     }
 
+    const baseSlug = slugifyWithYear(title, new Date(date).getFullYear());
+    const newSlug = await findAvailableSlug(baseSlug, async (candidate) =>
+      Boolean(
+        await locals.prisma.album.findFirst({
+          where: { slug: candidate, id: { not: album.id } },
+        }),
+      ),
+    );
+
     const photographerStudentIds = photographers.flatMap((member) =>
       member.studentId ? [member.studentId] : [],
     );
@@ -91,6 +102,7 @@ export const actions: Actions = {
       where: { id: album.id },
       data: {
         title,
+        slug: newSlug,
         description,
         date: new Date(date),
         updatedAt: new Date(date),
@@ -103,7 +115,7 @@ export const actions: Actions = {
       },
     });
 
-    throw redirect(303, `/gallery/album/${params.slug}`);
+    throw redirect(303, `/gallery/album/${newSlug}`);
   },
 
   delete: async (event) => {
@@ -112,7 +124,7 @@ export const actions: Actions = {
 
     const album = await locals.prisma.album.findFirst({
       where: { slug: params.slug },
-      select: { id: true, slug: true },
+      select: { id: true },
     });
 
     if (!album) {
@@ -122,8 +134,8 @@ export const actions: Actions = {
     // Remove files from MinIO before deleting the album record
     // to avoid orphaned objects if the deletion fails
     await removeFilesWithoutAccessCheck(locals.user, PUBLIC_BUCKETS_ALBUMS, [
-      `public/${album.slug}/album/`,
-      `public/${album.slug}/cover/`,
+      `public/${album.id}/album/`,
+      `public/${album.id}/cover/`,
     ]);
 
     await authorizedPrismaClient.album.delete({

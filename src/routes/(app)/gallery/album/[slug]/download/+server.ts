@@ -22,7 +22,7 @@ const listObjects = async (bucket: string, prefix: string) => {
 export const GET: RequestHandler = async ({ params, locals }) => {
   const album = await locals.prisma.album.findFirst({
     where: { slug: params.slug },
-    select: { slug: true },
+    select: { id: true, slug: true },
   });
 
   if (!album) {
@@ -30,8 +30,8 @@ export const GET: RequestHandler = async ({ params, locals }) => {
   }
 
   const bucket = PUBLIC_BUCKETS_ALBUMS;
-  const albumPrefix = `public/${album.slug}/album/`;
-  const coverPrefix = `public/${album.slug}/cover/`;
+  const albumPrefix = `public/${album.id}/album/`;
+  const coverPrefix = `public/${album.id}/cover/`;
 
   const [albumObjects, coverObjects] = await Promise.all([
     listObjects(bucket, albumPrefix),

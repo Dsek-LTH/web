@@ -6,9 +6,9 @@ import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
 export const uploadAlbumFiles = async (
   user: AuthUser,
   data: UploadSchema,
-  slug: string,
+  albumId: string,
 ) => {
-  const prefix = "public/" + slug + "/album";
+  const prefix = "public/" + albumId + "/album";
   const bucket = PUBLIC_BUCKETS_ALBUMS;
 
   const tasks: Array<Promise<string>> = [];
@@ -21,9 +21,9 @@ export const uploadAlbumFiles = async (
 export const uploadCoverFile = async (
   user: AuthUser,
   data: UploadSchema,
-  slug: string,
+  albumId: string,
 ) => {
-  const prefix = "public/" + slug + "/cover";
+  const prefix = "public/" + albumId + "/cover";
   const bucket = PUBLIC_BUCKETS_ALBUMS;
   const file = data.coverFile ? data.coverFile : data.albumFiles[0];
   if (!file) {
