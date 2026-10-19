@@ -1,7 +1,7 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { Badge } from "$lib/components/ui/badge";
-  import { getBadgeVariantFromProgram as getBadgeVariantFromProgram } from "$lib/components/ui/badge/badge.svelte";
+  import { getBadgeVariantFromProgram } from "$lib/components/ui/badge/badge.svelte";
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
