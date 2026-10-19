@@ -10,8 +10,8 @@
   import { X } from "@lucide/svelte/icons";
   import MemberCard from "$lib/components/MemberCard.svelte";
   import type { InputProps } from "$lib/components/ui/input";
-  import { Button } from "$lib/components/ui/button";
-  import { onMount } from "svelte";
+  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import { onMount, tick } from "svelte";
   import { cn } from "$lib/utils";
   import { debounce } from "$lib/utils/debounce";
 
@@ -61,6 +61,7 @@
   let triggerElement: HTMLElement | null = $state(null);
   let addedItemsIndex = $state(-1);
   let isSearching = $state(false);
+  let activeResultIndex = $state(-1);
 
   // Make sure the popover gets the correct z-index.
   let inDialog = $derived(
@@ -71,20 +72,24 @@
 
   $effect(() => {
     if (selectedMember?.id) {
-      if (selectedMember.id.includes("-")) {
-        selectedMemberId = selectedMember.id;
-      } else {
-        selectedMemberId = new TextDecoder().decode(
-          base64ToBytes(selectedMember?.id),
-        );
-      }
+      selectedMemberId = memberIdFromId(selectedMember.id) ?? null;
     }
     if (selectedMembers) {
-      selectedMembersIds = selectedMembers.map((m) =>
-        new TextDecoder().decode(base64ToBytes(m.id!)),
-      );
+      selectedMembersIds = selectedMembers.flatMap((member) => {
+        const id = memberIdFromId(member.id);
+        return id ? [id] : [];
+      });
     }
   });
+
+  /**
+   * Member ids coming from search results are base64-encoded (see
+   * prismaIdToMeiliId), while ids from the database are plain UUIDs.
+   */
+  const memberIdFromId = (id: string | undefined) => {
+    if (!id) return undefined;
+    return id.includes("-") ? id : new TextDecoder().decode(base64ToBytes(id));
+  };
 
   const base64ToBytes = (input: string) =>
     Uint8Array.from(atob(input), (c) => c.charCodeAt(0)).buffer;
@@ -110,6 +115,25 @@
         : [data];
     }),
   );
+
+  // The results are rendered in a portal (outside of Command.Root), so
+  // bits-ui's built-in keyboard navigation cannot find the items.
+  // Highlight and navigate them ourselves instead.
+  $effect(() => {
+    const hasResults = filteredResults.length > 0;
+    activeResultIndex = hasResults ? 0 : -1;
+    if (hasResults) {
+      void scrollActiveResultIntoView();
+    }
+  });
+
+  async function scrollActiveResultIntoView() {
+    await tick();
+    const items = popoverContentElement?.querySelectorAll(
+      '[data-slot="command-item"]',
+    );
+    items?.[activeResultIndex]?.scrollIntoView({ block: "nearest" });
+  }
 
   const debouncedSearch = debounce(async (searchQuery: string) => {
     const url = new URL("/api/search", window.location.origin);
@@ -169,6 +193,41 @@
     ) {
       isSearching = true;
       inputElement?.focus();
+      return;
+    }
+
+    // Navigate the search results (they live in a portal, so the
+    // keyboard handling has to be done here instead of in Command)
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (!input || filteredResults.length === 0) return;
+      const change = event.key === "ArrowDown" ? 1 : -1;
+      activeResultIndex =
+        (activeResultIndex + change + filteredResults.length) %
+        filteredResults.length;
+      void scrollActiveResultIntoView();
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key === "Home" || event.key === "End") {
+      if (!input || filteredResults.length === 0) return;
+      activeResultIndex = event.key === "Home" ? 0 : filteredResults.length - 1;
+      void scrollActiveResultIntoView();
+      event.preventDefault();
+      return;
+    }
+
+    if (
+      event.key === "Enter" &&
+      input &&
+      activeResultIndex >= 0 &&
+      filteredResults.length > 0
+    ) {
+      const member = filteredResults[activeResultIndex];
+      if (member) {
+        addMember(member);
+      }
+      event.preventDefault();
       return;
     }
 
@@ -290,11 +349,13 @@
   class={cn(klass, "relative w-full overflow-visible p-0")}
   {...restProps}
 >
-  <Button
-    bind:ref={triggerElement}
+  <div
+    bind:this={triggerElement}
+    role="button"
     tabindex={-1}
-    variant="outline"
+    data-name={name}
     class={cn(
+      buttonVariants({ variant: "outline" }),
       "align-center bg-background h-fit w-full cursor-text justify-start p-1 px-2 transition-all ",
       "focus-within:border-muted-foreground focus-within:ring-muted-foreground/20 hover:bg-background focus-within:ring-[3px]",
       inputClass,
@@ -302,9 +363,12 @@
     onclick={() => {
       inputElement?.focus();
     }}
+    onkeydown={(e) => {
+      if (e.key === "Enter" || e.key === " ") inputElement?.focus();
+    }}
   >
     <ul
-      class="m-0 flex w-full list-none flex-row flex-wrap gap-2"
+      class="m-0 flex w-full list-none flex-row flex-wrap items-center gap-2"
       bind:this={selectedItemsElement}
     >
       {#if name}
@@ -381,10 +445,11 @@
                   {isSearching ? m.search_searching() : m.search_noResults()}
                 </Command.Empty>
                 <Command.Group class="w-full p-2 pb-0">
-                  {#each filteredResults as result (result.studentId)}
+                  {#each filteredResults as result, index (result.studentId)}
                     <Command.Item
                       onclick={() => addMember(result)}
-                      class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
+                      data-active={index === activeResultIndex}
+                      class="data-[active=true]:bg-secondary-hover mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-[active=true]:opacity-100"
                     >
                       <MemberCard
                         member={result}
@@ -403,5 +468,5 @@
         </li>
       {/if}
     </ul>
-  </Button>
+  </div>
 </Command.Root>
