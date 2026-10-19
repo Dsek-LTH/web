@@ -55,6 +55,7 @@ export type ReleaseSummary = {
   location: string;
   opensAt: string;
   closesAt: string;
+  lotteryAt: string;
   status: string;
   quantity: number;
   claimed: number;

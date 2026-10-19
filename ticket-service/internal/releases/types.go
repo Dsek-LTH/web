@@ -43,6 +43,11 @@ type Release struct {
 	CreatedAt          time.Time
 }
 
+// LotteryAt is when the grace window ends and the lottery runs.
+func (r Release) LotteryAt() time.Time {
+	return r.OpensAt.Add(time.Duration(r.GraceWindowSeconds) * time.Second)
+}
+
 type QueueEntry struct {
 	ID             string
 	ReleaseID      string

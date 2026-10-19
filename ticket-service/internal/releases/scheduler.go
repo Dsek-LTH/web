@@ -31,8 +31,7 @@ const lotteryRetryDelay = 30 * time.Second
 // run is retried every lotteryRetryDelay until it succeeds (RunLottery is a
 // no-op once the lottery has run, so a retry can never run it twice).
 func (s *Scheduler) ArmLottery(release Release) {
-	fireAt := release.OpensAt.Add(time.Duration(release.GraceWindowSeconds) * time.Second)
-	s.armLotteryAfter(release.ID, time.Until(fireAt))
+	s.armLotteryAfter(release.ID, time.Until(release.LotteryAt()))
 }
 
 func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {

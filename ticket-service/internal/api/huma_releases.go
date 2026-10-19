@@ -60,6 +60,7 @@ type ReleaseSummary struct {
 	Location    string    `json:"location"`
 	OpensAt     time.Time `json:"opensAt"`
 	ClosesAt    time.Time `json:"closesAt"`
+	LotteryAt   time.Time `json:"lotteryAt"`
 	Status      string    `json:"status"`
 	Quantity    int       `json:"quantity"`
 	Claimed     int       `json:"claimed"`
@@ -82,6 +83,7 @@ func newReleaseSummary(r releases.Release, counts releases.Counts) ReleaseSummar
 		Location:    r.Location,
 		OpensAt:     r.OpensAt,
 		ClosesAt:    r.ClosesAt,
+		LotteryAt:   r.LotteryAt(),
 		Status:      r.Status,
 		Quantity:    counts.Quantity,
 		Claimed:     counts.Claimed,

@@ -17,6 +17,7 @@
     releaseStatusLabel,
     releaseStatusBadgeVariant,
     formatTicketDate,
+    isSoldOut,
   } from "$lib/utils/ticketRelease";
 
   let { data } = $props();
@@ -55,9 +56,13 @@
             <CardHeader>
               <div class="flex items-center justify-between gap-4">
                 <CardTitle class="text-xl">{release.title}</CardTitle>
-                <Badge variant={releaseStatusBadgeVariant(release.status)}>
-                  {releaseStatusLabel(release.status)}
-                </Badge>
+                {#if isSoldOut(release)}
+                  <Badge variant="rosa">{m.ticketRelease_soldOut()}</Badge>
+                {:else}
+                  <Badge variant={releaseStatusBadgeVariant(release.status)}>
+                    {releaseStatusLabel(release.status)}
+                  </Badge>
+                {/if}
               </div>
               {#if release.location}
                 <p

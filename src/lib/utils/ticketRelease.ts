@@ -2,7 +2,10 @@ import { z } from "zod";
 import type { Infer } from "sveltekit-superforms";
 import * as m from "$paraglide/messages";
 import type { BadgeVariant } from "$lib/components/ui/badge/index.js";
-import type { TicketQueueEntry } from "$lib/server/ticketService";
+import type {
+  ReleaseSummary,
+  TicketQueueEntry,
+} from "$lib/server/ticketService";
 
 // opensAt/closesAt are local ISO datetime strings (no timezone), matching
 // what a `datetime-local` input actually produces/accepts - binding those
@@ -103,3 +106,9 @@ export const releaseStatusBadgeVariant = (status: string): BadgeVariant => {
       return "outline";
   }
 };
+
+// Granted offers can still expire or be cancelled, so a sold-out release can
+// free up again - new requests just go to the waitlist in the meantime.
+export const isSoldOut = (
+  release: Pick<ReleaseSummary, "claimed" | "quantity">,
+) => release.claimed >= release.quantity;

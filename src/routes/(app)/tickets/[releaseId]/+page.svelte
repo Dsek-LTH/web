@@ -19,6 +19,7 @@
     ticketStatusLabel,
     ticketStatusBadgeVariant,
     formatTicketDate,
+    isSoldOut,
   } from "$lib/utils/ticketRelease";
   import TicketIcon from "@lucide/svelte/icons/ticket";
   import Users from "@lucide/svelte/icons/users";
@@ -83,11 +84,10 @@
     msUntilOpen <= POLL_INTERVAL_MS && (!releaseIsClosed || hasLiveEntry),
   );
 
-  // Live countdown for the last day before opening, so there's no reason to
-  // keep reloading the page - the request button appears on its own.
-  const opensInCountdown = $derived.by(() => {
-    if (releaseIsOpen || msUntilOpen > 24 * 60 * 60 * 1000) return null;
-    const totalSeconds = Math.ceil(msUntilOpen / 1000);
+  const soldOut = $derived(isSoldOut(data.release));
+
+  const formatCountdown = (ms: number) => {
+    const totalSeconds = Math.ceil(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
@@ -95,7 +95,27 @@
     return hours > 0
       ? `${hours}:${pad(minutes)}:${pad(seconds)}`
       : `${minutes}:${pad(seconds)}`;
-  });
+  };
+
+  // Live countdown for the last day before opening, so there's no reason to
+  // keep reloading the page - the request button appears on its own.
+  const opensInCountdown = $derived(
+    releaseIsOpen || msUntilOpen > 24 * 60 * 60 * 1000
+      ? null
+      : formatCountdown(msUntilOpen),
+  );
+
+  // Once open, everyone who signs up within the grace window is pooled and
+  // the lottery runs when it ends. Hidden once it's due - the poll picks up
+  // the "lottery_done" status shortly after.
+  const msUntilLottery = $derived(
+    new Date(data.release.lotteryAt).getTime() - serverNowMs,
+  );
+  const lotteryCountdown = $derived(
+    releaseIsOpen && data.release.status === "scheduled" && msUntilLottery > 0
+      ? formatCountdown(msUntilLottery)
+      : null,
+  );
 
   const submitAction = () => {
     submitting = true;
@@ -148,11 +168,14 @@
         <div
           class="text-muted-foreground flex items-center justify-between text-sm"
         >
-          <span>
+          <span class="flex items-center gap-2">
             {m.ticketRelease_detail_claimed({
               claimed: data.release.claimed,
               quantity: data.release.quantity,
             })}
+            {#if soldOut}
+              <Badge variant="rosa">{m.ticketRelease_soldOut()}</Badge>
+            {/if}
           </span>
           {#if data.release.waitlisted > 0}
             <span class="flex items-center gap-1">
@@ -164,6 +187,17 @@
           {/if}
         </div>
       </div>
+
+      {#if lotteryCountdown}
+        <div class="flex flex-col gap-1">
+          <p class="text-2xl font-semibold tabular-nums">
+            {m.ticketRelease_detail_lotteryIn({ countdown: lotteryCountdown })}
+          </p>
+          <p class="text-muted-foreground text-sm">
+            {m.ticketRelease_detail_lotteryExplanation()}
+          </p>
+        </div>
+      {/if}
 
       {#if form?.message}
         <p class="text-destructive text-sm font-medium">
@@ -200,16 +234,24 @@
             {m.ticketRelease_detail_closed()}
           </p>
         {:else}
-          <form method="POST" action="?/request" use:enhance={submitAction}>
-            <Button type="submit" disabled={submitting} class="gap-2">
-              {#if submitting}
-                <Spinner class="h-4 w-4" />
-              {:else}
-                <TicketIcon class="h-4 w-4" />
-                {m.ticketRelease_detail_request()}
-              {/if}
-            </Button>
-          </form>
+          <div class="flex flex-col items-start gap-3">
+            {#if soldOut}
+              <p>{m.ticketRelease_detail_soldOut()}</p>
+            {/if}
+            <form method="POST" action="?/request" use:enhance={submitAction}>
+              <Button type="submit" disabled={submitting} class="gap-2">
+                {#if submitting}
+                  <Spinner class="h-4 w-4" />
+                {:else if soldOut}
+                  <Users class="h-4 w-4" />
+                  {m.ticketRelease_detail_joinWaitlist()}
+                {:else}
+                  <TicketIcon class="h-4 w-4" />
+                  {m.ticketRelease_detail_request()}
+                {/if}
+              </Button>
+            </form>
+          </div>
         {/if}
       {:else}
         <div class="flex flex-col gap-4">
