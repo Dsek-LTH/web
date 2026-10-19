@@ -21,6 +21,7 @@
     formatTicketDate,
     isSoldOut,
   } from "$lib/utils/ticketRelease";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import TicketIcon from "@lucide/svelte/icons/ticket";
   import Users from "@lucide/svelte/icons/users";
   import Hourglass from "@lucide/svelte/icons/hourglass";
@@ -130,6 +131,11 @@
 </script>
 
 <div class="mx-auto w-full max-w-2xl px-4 py-8">
+  <Button variant="ghost" href="/tickets" class="mb-6 flex items-center gap-2">
+    <ArrowLeft class="h-4 w-4" />
+    {m.ticketRelease_back()}
+  </Button>
+
   <Card class="border-border overflow-hidden p-0 shadow-xl">
     <CardHeader class="bg-muted/50 border-border border-b-[1px] pt-6 pb-6">
       <div class="flex items-start justify-between gap-4">
