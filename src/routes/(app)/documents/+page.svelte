@@ -80,7 +80,9 @@
   <div
     class="mt-4 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between md:gap-8"
   >
-    <div class="flex flex-col items-start gap-4 md:flex-row md:items-stretch md:gap-2">
+    <div
+      class="flex flex-col items-start gap-4 md:flex-row md:items-stretch md:gap-2"
+    >
       <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
         <Tabs.List class="flex-col px-4 sm:flex-row sm:px-1">
           <a href={generateLink("guild-meeting")}>
