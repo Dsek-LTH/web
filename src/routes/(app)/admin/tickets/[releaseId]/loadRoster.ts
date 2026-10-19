@@ -1,9 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import {
-  getTicketRelease,
-  listTicketEntries,
-} from "$lib/server/ticketService";
+import { getTicketRelease, listTicketEntries } from "$lib/server/ticketService";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { AuthUser } from "@zenstackhq/runtime";
 

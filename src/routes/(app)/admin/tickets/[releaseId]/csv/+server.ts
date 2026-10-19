@@ -2,7 +2,8 @@ import { loadRoster } from "../loadRoster";
 import { getFullName } from "$lib/utils/client/member";
 import dayjs from "dayjs";
 
-const csvField = (value: string) => value.replaceAll(",", " ").replaceAll("\n", " ");
+const csvField = (value: string) =>
+  value.replaceAll(",", " ").replaceAll("\n", " ");
 
 export const GET = async ({ params, locals, request }) => {
   const { user, prisma } = locals;

@@ -87,8 +87,7 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <Label for="description">{m.ticketRelease_field_description()}</Label
-          >
+          <Label for="description">{m.ticketRelease_field_description()}</Label>
           <Textarea
             id="description"
             name="description"
