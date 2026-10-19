@@ -10,7 +10,7 @@
   const isPending = $derived(data.booking.status === "PENDING");
 </script>
 
-<div class="layout-container mt-6 w-3/5">
+<div class="layout-container mt-6 lg:w-3/5">
   {#if !(data.isAdmin || isPending)}
     <Alert.Root variant="warning" class="mb-8">
       <TriangleAlertIcon />

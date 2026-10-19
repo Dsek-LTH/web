@@ -10,7 +10,7 @@
   let { data }: { data: PageData } = $props();
 </script>
 
-<div class="layout-container mt-6 w-3/5 space-y-6">
+<div class="layout-container mt-6 space-y-6 lg:w-3/5">
   <div class="flex items-center justify-between gap-4">
     <h1 class="text-2xl font-semibold uppercase">
       {m.booking_reviewBooking()}

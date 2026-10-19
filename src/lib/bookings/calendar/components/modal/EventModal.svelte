@@ -92,7 +92,7 @@
     const end = temporalToArray(booking.end, true);
 
     const event = {
-      title: booking.title ?? "Booking",
+      title: booking.title ?? m.booking_booking(),
       description: booking.description,
       start,
       end,

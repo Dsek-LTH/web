@@ -33,6 +33,10 @@
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
+  import {
+    getStickyBottomOffset,
+    stickyBottomClass,
+  } from "$lib/bookings/stickyBottom";
   import * as m from "$paraglide/messages";
 
   const {
@@ -89,6 +93,12 @@
 
   const id = $props.id();
   const readOnly = $derived(mode === "review");
+  const stickyBottom = $derived(getStickyBottomOffset());
+
+  const sectionClass =
+    "gap-3 border-none px-0.5 py-5 *:px-4 md:pt-8 md:pb-9 md:*:px-6";
+  const toggleItemClass =
+    "group data-[state=on]:bg-primary/10 data-[state=on]:text-primary bg-muted hover:bg-primary/10 hover:text-primary h-auto justify-start rounded-md border-none px-3 py-4 text-sm font-medium whitespace-normal transition-all duration-100 ease-out hover:-translate-y-0.5 active:scale-95 sm:px-4 sm:py-8 sm:text-base";
 
   const splitDateTime = (value: string | undefined) => {
     if (!value) return { date: undefined, time: "" };
@@ -142,17 +152,17 @@
   });
 </script>
 
-<div class="layout-container w-3/5">
-  <form class="space-y-8" method="POST" use:enhance>
+<div class="layout-container lg:w-3/5">
+  <form class="space-y-2 md:space-y-8" method="POST" use:enhance>
     {#if booking}
       <input hidden name="id" type="text" value={booking.id} />
     {/if}
 
-    <div class="flex w-full gap-6">
+    <div class="flex w-full flex-col gap-2 md:flex-row md:gap-6">
       <Form.Field {form} name="start" class="w-full space-y-0">
         <Form.Control>
           {#snippet children({ props: test })}
-            <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+            <Card.Root class={sectionClass}>
               <Card.Header>
                 <Card.Title
                   class="text-primary flex items-center gap-2 text-xl font-semibold"
@@ -229,7 +239,7 @@
       <Form.Field {form} name="end" class="w-full space-y-0">
         <Form.Control>
           {#snippet children({ props: test })}
-            <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+            <Card.Root class={sectionClass}>
               <Card.Header>
                 <Card.Title
                   class="text-primary flex items-center gap-2 text-xl font-semibold"
@@ -312,7 +322,7 @@
         {value}
         disabled={readOnly}
         aria-label={label}
-        class="group data-[state=on]:bg-primary/10 data-[state=on]:text-primary bg-muted hover:bg-primary/10 hover:text-primary h-auto justify-start rounded-md border-none px-4 py-8 text-base font-medium whitespace-normal transition-all duration-100 ease-out hover:-translate-y-0.5 active:scale-95"
+        class={toggleItemClass}
       >
         <div class="flex w-full items-center justify-between gap-3">
           {label}
@@ -330,7 +340,7 @@
         />
       </ToggleGroup.Item>
     {/snippet}
-    <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+    <Card.Root class={sectionClass}>
       <Card.Header>
         <Card.Title
           class="text-primary flex items-center gap-2 text-xl font-semibold"
@@ -367,7 +377,7 @@
         {...props}
         {value}
         aria-label={label}
-        class="group data-[state=on]:bg-primary/10 data-[state=on]:text-primary bg-muted hover:bg-primary/10 hover:text-primary h-auto justify-start rounded-md border-none px-4 py-8 text-base font-medium whitespace-normal transition-all duration-100 ease-out hover:-translate-y-0.5 active:scale-95"
+        class={toggleItemClass}
       >
         <div class="flex w-full items-center justify-between gap-3">
           {label}
@@ -384,7 +394,7 @@
         />
       </ToggleGroup.Item>
     {/snippet}
-    <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+    <Card.Root class={sectionClass}>
       <Card.Header>
         <Card.Title
           class="text-primary flex items-center gap-2 text-xl font-semibold"
@@ -415,7 +425,7 @@
       </Card.Content>
     </Card.Root>
 
-    <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+    <Card.Root class={sectionClass}>
       <Card.Header>
         <Card.Title
           class="text-primary flex items-center gap-2 text-xl font-semibold"
@@ -444,7 +454,7 @@
       <Form.Field {form} name="name">
         <Form.Control>
           {#snippet children({ props })}
-            <Card.Root class="gap-3 border-none px-0.5 pt-8 pb-9">
+            <Card.Root class={sectionClass}>
               <Card.Header>
                 <Card.Title
                   class="text-primary flex items-center gap-2 text-lg font-medium"
@@ -459,7 +469,7 @@
                   bind:value={$formData.name}
                   disabled={readOnly}
                   class="bg-muted border-none"
-                  placeholder="T.ex: CPU-kväll, Styrelsemöte, etc."
+                  placeholder={m.booking_eventPlaceholder()}
                 />
               </Card.Content>
             </Card.Root>
@@ -470,12 +480,15 @@
     </div>
 
     {#if mode === "review" && booking}
-      <div class="flex gap-4 *:flex-1">
+      <div
+        class="{stickyBottomClass} bg-background sticky z-10 -mx-4 flex gap-3 px-4 py-3 *:flex-1 md:static md:mx-0 md:gap-4 md:p-0"
+        style:bottom={stickyBottom}
+      >
         <Form.Button
           formaction="?/reject"
           variant="outline"
           size="lg"
-          class="border-destructive text-destructive hover:bg-destructive/10 flex items-center justify-center gap-3 py-7 text-base font-bold"
+          class="border-destructive text-destructive hover:bg-destructive/10 flex items-center justify-center gap-3 py-6 text-base font-bold md:py-7"
           disabled={booking.status === "DENIED"}
         >
           <XIcon class="size-5" />
@@ -484,7 +497,7 @@
         <Form.Button
           formaction="?/accept"
           size="lg"
-          class="flex items-center justify-center gap-3 py-7 text-base font-bold"
+          class="flex items-center justify-center gap-3 py-6 text-base font-bold md:py-7"
           disabled={booking.status === "ACCEPTED"}
         >
           <CheckIcon class="size-5" />
@@ -492,18 +505,21 @@
         </Form.Button>
       </div>
     {:else}
-      <div class="flex justify-end gap-3">
+      <div
+        class="{stickyBottomClass} bg-background sticky z-10 -mx-4 flex gap-3 px-4 py-3 *:flex-1 md:static md:mx-0 md:justify-end md:p-0 md:*:flex-none"
+        style:bottom={stickyBottom}
+      >
         <Button
           variant="outline"
           size="lg"
-          class="py-7 text-base font-bold"
+          class="py-6 text-base font-bold md:py-7"
           href={backHref}
         >
           {m.booking_goBack()}
         </Button>
         <Form.Button
           size="lg"
-          class="flex items-center justify-center gap-3 py-7 text-base font-bold has-[>svg]:px-10"
+          class="flex items-center justify-center gap-3 py-6 text-base font-bold md:py-7 md:has-[>svg]:px-10"
         >
           {mode === "edit" ? m.save() : m.booking_sendRequest()}
           <SendHorizontalIcon class="size-5" />

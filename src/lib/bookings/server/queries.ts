@@ -41,6 +41,47 @@ export async function getUpcomingBookingRequests(prisma: ExtendedPrisma) {
   });
 }
 
+/**
+ * Pending booking requests that haven't ended yet, each paired with the
+ * accepted/pending bookings that overlap it in time and share a bookable.
+ */
+export async function getBookingReviewQueue(prisma: ExtendedPrisma) {
+  const now = new Date();
+  const [pending, active] = await Promise.all([
+    prisma.bookingRequest.findMany({
+      where: { status: "PENDING", start: { not: null }, end: { gte: now } },
+      orderBy: [{ start: "asc" }, { end: "asc" }],
+      include: {
+        bookables: true,
+        booker: true,
+        accessDoors: true,
+        accessMembers: true,
+      },
+    }),
+    prisma.bookingRequest.findMany({
+      where: { status: { in: ["ACCEPTED", "PENDING"] }, end: { gte: now } },
+      include: { bookables: true },
+    }),
+  ]);
+
+  return pending.map((booking) => ({
+    ...booking,
+    conflicts: active.filter(
+      (other) =>
+        other.id !== booking.id &&
+        !!booking.start &&
+        !!booking.end &&
+        !!other.start &&
+        !!other.end &&
+        other.start < booking.end &&
+        booking.start < other.end &&
+        other.bookables.some((bookable) =>
+          booking.bookables.some(({ id }) => id === bookable.id),
+        ),
+    ),
+  }));
+}
+
 export async function getBookingRequestOrThrow(
   prisma: ExtendedPrisma,
   id: string,

@@ -1,3 +1,4 @@
+import * as m from "$paraglide/messages";
 import { createBookingEvent } from "./createBookingEvent";
 import type { BookingCalendarEvent, BookingStatus } from "./eventTypes";
 
@@ -30,7 +31,7 @@ export const getBookerName = (booking: BookingSource): string => {
     .filter(Boolean)
     .join(" ")
     .trim();
-  return fullName || "Unknown";
+  return fullName || m.booking_unknown();
 };
 
 export const getBookerInitials = (booking: BookingSource): string => {
@@ -44,7 +45,7 @@ export const getBookingLocation = (booking: BookingSource): string =>
   booking.bookables[0]?.name ??
   booking.bookables[0]?.nameSv ??
   booking.bookables[0]?.nameEn ??
-  "Unknown";
+  m.booking_unknown();
 
 export const mapBookingToCalendarEvent = (
   booking: BookingSource,
@@ -53,7 +54,7 @@ export const mapBookingToCalendarEvent = (
 
   return createBookingEvent({
     id: booking.id,
-    title: booking.event ?? "Booking",
+    title: booking.event ?? m.booking_booking(),
     start: toStockholmTime(booking.start),
     end: toStockholmTime(booking.end),
     calendarId: booking.status,

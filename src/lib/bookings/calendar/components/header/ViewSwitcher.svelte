@@ -22,7 +22,7 @@
     class="data-[selected]:text-primary data-[highlighted]:text-primary text-xs"
     value={item.name}
   >
-    {item.label} view
+    {item.label}
   </Select.Item>
 {/snippet}
 
@@ -31,7 +31,7 @@
     <span
       class="text-primary -mr-1 text-xs font-medium tracking-wider uppercase"
     >
-      {viewTriggerContent} view
+      {viewTriggerContent}
     </span>
   </Select.Trigger>
 

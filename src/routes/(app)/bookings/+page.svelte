@@ -10,11 +10,10 @@
     isMineFilterActive,
   } from "$lib/bookings/filters";
   import { createEventsServicePlugin } from "@schedule-x/events-service";
-  import { BellRing, Info, KeyRound, SettingsIcon } from "@lucide/svelte";
+  import { ListChecksIcon, Plus, SettingsIcon } from "@lucide/svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import StatusItem from "$lib/bookings/components/StatusItem.svelte";
   import Filter from "$lib/bookings/components/Filter.svelte";
-  import InfoItem from "$lib/bookings/components/InfoItem.svelte";
   import type {
     CalendarApp,
     CalendarEventExternal,
@@ -31,6 +30,13 @@
 
   const isAdmin = $derived(
     isAuthorized(apiNames.BOOKINGS.UPDATE, page.data.user),
+  );
+
+  const reviewQueueCount = $derived(
+    data.bookings.filter(
+      ({ status, end }) =>
+        status === "PENDING" && !!end && new Date(end) >= new Date(),
+    ).length,
   );
 
   let calendarApp: CalendarApp | undefined = $state();
@@ -109,31 +115,61 @@
 <div
   class="sx-calendar:gap-6 sx-calendar:mt-10 mx-auto mt-6 mb-6 flex w-[var(--sx-calendar-width)] max-w-[var(--sx-calendar-max-width)] flex-col gap-5"
 >
-  <div class="flex w-full items-end justify-between">
+  <div
+    class="sx-calendar:flex-row sx-calendar:items-end sx-calendar:justify-between flex w-full flex-col gap-4"
+  >
     <div class="sx-calendar:gap-3 flex flex-col gap-2.5">
       <span
-        class="text-foreground sx-calendar:text-6xl sx-calendar:-ml-1 sx-calendar:tracking-tighter -ml-0.5 text-5xl leading-none font-semibold tracking-tight uppercase"
+        class="text-foreground sx-calendar:text-5xl -ml-0.5 text-4xl leading-none font-semibold tracking-tight"
       >
-        Bookings
-        <span class="text-primary italic">Dashboard</span>
+        {m.booking_title()}
       </span>
       <span
         class="text-muted-foreground sx-calendar:text-lg max-w-lg text-base leading-tight font-light"
       >
-        Någon kort introducerande text om bokningar etc. etc. etc. etc. etc.
-        etc. etc. etc. etc. etc. etc. etc. etc. etc. etc.
+        {m.booking_subtitle()}
       </span>
     </div>
 
-    <div class="flex flex-col items-end gap-3">
+    <!-- MOBILE -->
+    <div class="sx-calendar:hidden flex flex-col gap-2">
+      <Button size="lg" class="h-12 w-full" href="/bookings/create">
+        <Plus class="size-4" />
+        <span class="font-semibold uppercase">{m.booking_newBooking()}</span>
+      </Button>
       {#if isAdmin}
-        <Button variant="outline" size="sm" href="/bookings/admin">
-          <SettingsIcon class="size-4" />
-          {m.booking_manageBookings()}
-        </Button>
+        <div class="flex gap-2 *:flex-1">
+          {#if reviewQueueCount > 0}
+            <Button variant="outline" href="/bookings/admin/review">
+              <ListChecksIcon class="size-4" />
+              {m.booking_reviewPending({ count: reviewQueueCount })}
+            </Button>
+          {/if}
+          <Button variant="outline" href="/bookings/admin">
+            <SettingsIcon class="size-4" />
+            {m.booking_manageBookings()}
+          </Button>
+        </div>
+      {/if}
+    </div>
+
+    <div class="sx-calendar:flex hidden flex-col items-end gap-3">
+      {#if isAdmin}
+        <div class="flex gap-2">
+          {#if reviewQueueCount > 0}
+            <Button variant="outline" size="sm" href="/bookings/admin/review">
+              <ListChecksIcon class="size-4" />
+              {m.booking_reviewPending({ count: reviewQueueCount })}
+            </Button>
+          {/if}
+          <Button variant="outline" size="sm" href="/bookings/admin">
+            <SettingsIcon class="size-4" />
+            {m.booking_manageBookings()}
+          </Button>
+        </div>
       {/if}
 
-      <div class="sx-calendar:flex hidden gap-3.5">
+      <div class="flex gap-3.5">
         <StatusItem mode="desktop" variant="ACCEPTED" count={acceptedCount} />
         <StatusItem mode="desktop" variant="PENDING" count={pendingCount} />
         <StatusItem mode="desktop" variant="DENIED" count={deniedCount} />
@@ -154,22 +190,4 @@
     plugins={[eventsServicePlugin]}
     {bookings}
   />
-
-  <div class="not-sx-calendar:flex-col flex w-full justify-between gap-4">
-    <InfoItem
-      Icon={Info}
-      title="Viktig allmän info kanske?"
-      description="hjskjfh akfhjkas hfjkah fjkhakfh ksafk ha afdjhasf kajkfh has fkhaksjf hf kahs fkjhajs"
-    />
-    <InfoItem
-      Icon={KeyRound}
-      title="Info om nycklar?"
-      description="hjskjfh akfhjkas hfjkah fjkhakfh ksafk ha hakjfhkja fas jfhask fjkash fjkahf jkahf kjhakjf hakjf hajkfh kajhfs jkhfask"
-    />
-    <InfoItem
-      Icon={BellRing}
-      title="Info om svar på bokningar?"
-      description="hjskjfh akfhjkas hfjkah fjkhakfh ksafk ha afag fhag"
-    />
-  </div>
 </div>

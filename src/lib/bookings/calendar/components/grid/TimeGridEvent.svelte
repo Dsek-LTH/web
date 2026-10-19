@@ -4,6 +4,7 @@
   import type { CalendarEventExternal } from "@schedule-x/calendar";
   import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
   import { formatBookingTime } from "$lib/bookings/calendar/dateUtils";
+  import * as m from "$paraglide/messages";
   import {
     calendarStatusCategoriesTailwind,
     type CalendarStatusCategory,
@@ -73,7 +74,7 @@
         <Avatar.Image
           class="border-0"
           src={bookingEvent.bookerAvatarUrl ?? ""}
-          alt={bookingEvent.bookerName ?? "Booker avatar"}
+          alt={bookingEvent.bookerName ?? m.booking_bookerAvatar()}
         />
         <Avatar.Fallback class="text-[0.4rem]">
           {bookingEvent.bookerInitials ?? "NN"}

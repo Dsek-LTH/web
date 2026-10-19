@@ -106,7 +106,7 @@ async function updateBookingStatus(
   const formData = await request.formData();
   const id = formData.get("id");
   if (!id || typeof id !== "string") {
-    return fail(422, { message: "Invalid booking request id" });
+    return fail(422, { message: m.booking_errors_invalidId() });
   }
 
   let accessDoors: string[] | undefined;
@@ -114,7 +114,7 @@ async function updateBookingStatus(
   if (updateAccessRequest) {
     const accessForm = await superValidate(formData, zod4(reviewAccessSchema));
     if (!accessForm.valid) {
-      return fail(400, { message: "Invalid access request" });
+      return fail(400, { message: m.booking_errors_invalidAccessRequest() });
     }
     ({ accessDoors, accessMemberIds } = accessForm.data);
   }
@@ -162,7 +162,7 @@ export async function deleteBookingRequest(event: RequestEvent) {
   const formData = await request.formData();
   const id = formData.get("id");
   if (!id || typeof id !== "string") {
-    return fail(422, { message: "Invalid booking request id" });
+    return fail(422, { message: m.booking_errors_invalidId() });
   }
 
   const bookingRequest = await prisma.bookingRequest.findUnique({

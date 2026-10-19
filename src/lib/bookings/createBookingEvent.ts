@@ -1,3 +1,4 @@
+import * as m from "$paraglide/messages";
 import type { BookingCalendarEvent, CreateBookingOptions } from "./eventTypes";
 
 export const createBookingEvent = (
@@ -38,7 +39,7 @@ export const createBookingEvent = (
     calendarId,
     description,
     location,
-    bookerName: bookerName ?? "Unknown",
+    bookerName: bookerName ?? m.booking_unknown(),
     bookerStudentId: bookerStudentId ?? "Unknown",
     bookerAvatarUrl: bookerAvatarUrl ?? "",
     bookerInitials: bookerInitials ?? "NN",

@@ -25,6 +25,12 @@
   const currentMonth = $derived(bookingMonthLabels[currentDate.month - 1]);
   const currentYear = $derived(currentDate.year);
 
+  const viewLabels: Record<string, string> = {
+    day: m.booking_dayView(),
+    week: m.booking_weekView(),
+    list: m.booking_listView(),
+  };
+
   let currentView = $derived(calendarControls.getView());
   const views = $derived(
     calendarControls
@@ -32,7 +38,7 @@
       .filter((view) => view.hasSmallScreenCompat)
       .map((view) => ({
         name: view.name,
-        label: view.label,
+        label: viewLabels[view.name] ?? view.label,
       })),
   );
   const viewListName = createViewList().name;

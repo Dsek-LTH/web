@@ -15,6 +15,7 @@
     Trash2Icon,
     ArrowLeftIcon,
     ClipboardCheckIcon,
+    ListChecksIcon,
   } from "@lucide/svelte";
   import type { PageData } from "./$types";
 
@@ -31,20 +32,154 @@
     PENDING: m.booking_pending(),
     DENIED: m.booking_denied(),
   } as const;
+
+  const pendingCount = $derived(
+    data.bookingRequests.filter(
+      ({ status, end }) =>
+        status === "PENDING" && !!end && new Date(end) >= new Date(),
+    ).length,
+  );
+
+  const formatDateTime = (date: Date | null) =>
+    date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "";
 </script>
 
+{#snippet deleteDialog(
+  bookingRequest: PageData["bookingRequests"][number],
+  size: "icon-sm" | "icon",
+)}
+  <AlertDialog.Root>
+    <AlertDialog.Trigger
+      type="button"
+      class={cn(
+        buttonVariants({ variant: "outline", size }),
+        "border-destructive text-destructive hover:bg-destructive/10",
+      )}
+      aria-label={m.booking_delete()}
+    >
+      <Trash2Icon class="size-4" />
+    </AlertDialog.Trigger>
+    <AlertDialog.Content>
+      <form method="POST" action="?/delete" use:enhance>
+        <input hidden name="id" type="text" value={bookingRequest.id} />
+        <AlertDialog.Header>
+          <AlertDialog.Title>{m.booking_deleteTitle()}</AlertDialog.Title>
+          <AlertDialog.Description>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html m.booking_deleteAreYouSure({
+              name: bookingRequest.booker?.firstName ?? "",
+              bookables: bookingRequest.bookables
+                .map(({ name }) => name)
+                .join(", "),
+            })}
+          </AlertDialog.Description>
+        </AlertDialog.Header>
+        <AlertDialog.Footer>
+          <AlertDialog.Cancel type="button">
+            {m.cancel()}
+          </AlertDialog.Cancel>
+          <AlertDialog.Action type="submit">
+            {m.booking_delete()}
+          </AlertDialog.Action>
+        </AlertDialog.Footer>
+      </form>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
+{/snippet}
+
 <div class="layout-container">
-  <div class="mb-8 flex items-center justify-between gap-4">
-    <h1 class="text-3xl font-semibold uppercase">
+  <div
+    class="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <h1 class="text-2xl font-semibold uppercase sm:text-3xl">
       {m.booking_manageBookings()}
     </h1>
-    <Button variant="outline" href="/bookings">
-      <ArrowLeftIcon class="size-4" />
-      {m.booking_goBack()}
-    </Button>
+    <div class="flex gap-2 *:flex-1 sm:*:flex-none">
+      <Button variant="outline" href="/bookings">
+        <ArrowLeftIcon class="size-4" />
+        {m.booking_goBack()}
+      </Button>
+      {#if pendingCount > 0}
+        <Button href="/bookings/admin/review">
+          <ListChecksIcon class="size-4" />
+          {m.booking_reviewPending({ count: pendingCount })}
+        </Button>
+      {/if}
+    </div>
   </div>
 
-  <div class="rounded-md border">
+  <!-- MOBILE -->
+  <ul class="ml-0 list-none space-y-3 md:hidden">
+    {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
+      <li class="bg-muted-background space-y-2 rounded-lg p-4">
+        <div class="flex items-start justify-between gap-3">
+          <a
+            href="/bookings/admin/{bookingRequest.id}"
+            class="min-w-0 font-semibold break-words hover:underline"
+          >
+            {bookingRequest.event}
+          </a>
+          <span
+            class={`shrink-0 text-xs font-semibold uppercase ${statusClass[bookingRequest.status]}`}
+          >
+            {statusLabel[bookingRequest.status]}
+          </span>
+        </div>
+        <p class="text-sm">
+          {bookingRequest.bookables.map(({ name }) => name).join(", ")}
+        </p>
+        <p class="text-muted-foreground text-sm tabular-nums">
+          {formatDateTime(bookingRequest.start)} – {formatDateTime(
+            bookingRequest.end,
+          )}
+        </p>
+        <div class="flex items-center justify-between gap-2 pt-1">
+          {#if bookingRequest.booker}
+            <a
+              href="/members/{bookingRequest.booker.studentId}"
+              class="flex min-w-0 items-center gap-2 text-sm hover:underline"
+            >
+              <MemberAvatar
+                member={bookingRequest.booker}
+                class="size-5 flex-shrink-0"
+              />
+              <span class="truncate">
+                {getFullName(bookingRequest.booker, { hideNickname: true })}
+              </span>
+            </a>
+          {:else}
+            <span></span>
+          {/if}
+          <div class="flex shrink-0 items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              href="/bookings/admin/{bookingRequest.id}"
+              aria-label={m.booking_reviewBooking()}
+            >
+              <ClipboardCheckIcon class="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              href="/bookings/{bookingRequest.id}/edit"
+              aria-label={m.booking_edit()}
+            >
+              <PencilIcon class="size-4" />
+            </Button>
+            {@render deleteDialog(bookingRequest, "icon")}
+          </div>
+        </div>
+      </li>
+    {:else}
+      <li class="text-muted-foreground py-12 text-center">
+        {m.booking_noBookings()}
+      </li>
+    {/each}
+  </ul>
+
+  <!-- DESKTOP -->
+  <div class="hidden rounded-md border md:block">
     <Table.Root class="table-fixed">
       <Table.Header>
         <Table.Row>
@@ -66,10 +201,10 @@
               {/each}
             </Table.Cell>
             <Table.Cell>
-              {dayjs(bookingRequest.start).format("YYYY-MM-DD HH:mm")}
+              {formatDateTime(bookingRequest.start)}
             </Table.Cell>
             <Table.Cell>
-              {dayjs(bookingRequest.end).format("YYYY-MM-DD HH:mm")}
+              {formatDateTime(bookingRequest.end)}
             </Table.Cell>
             <Table.Cell
               class="max-w-0 truncate"
@@ -127,50 +262,7 @@
                   <PencilIcon class="size-4" />
                 </Button>
 
-                <AlertDialog.Root>
-                  <AlertDialog.Trigger
-                    type="button"
-                    class={cn(
-                      buttonVariants({ variant: "outline", size: "icon-sm" }),
-                      "border-destructive text-destructive hover:bg-destructive/10",
-                    )}
-                    aria-label={m.booking_delete()}
-                  >
-                    <Trash2Icon class="size-4" />
-                  </AlertDialog.Trigger>
-                  <AlertDialog.Content>
-                    <form method="POST" action="?/delete" use:enhance>
-                      <input
-                        hidden
-                        name="id"
-                        type="text"
-                        value={bookingRequest.id}
-                      />
-                      <AlertDialog.Header>
-                        <AlertDialog.Title
-                          >{m.booking_deleteTitle()}</AlertDialog.Title
-                        >
-                        <AlertDialog.Description>
-                          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                          {@html m.booking_deleteAreYouSure({
-                            name: bookingRequest.booker?.firstName ?? "",
-                            bookables: bookingRequest.bookables
-                              .map(({ name }) => name)
-                              .join(", "),
-                          })}
-                        </AlertDialog.Description>
-                      </AlertDialog.Header>
-                      <AlertDialog.Footer>
-                        <AlertDialog.Cancel type="button">
-                          {m.cancel()}
-                        </AlertDialog.Cancel>
-                        <AlertDialog.Action type="submit">
-                          {m.booking_delete()}
-                        </AlertDialog.Action>
-                      </AlertDialog.Footer>
-                    </form>
-                  </AlertDialog.Content>
-                </AlertDialog.Root>
+                {@render deleteDialog(bookingRequest, "icon-sm")}
               </div>
             </Table.Cell>
           </Table.Row>
