@@ -3,19 +3,10 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import CafeTimes from "./CafeTimes.svelte";
   import type { LayoutData, PageData } from "./$types";
-  import CafeSchedule from "./CafeSchedule.svelte";
-  import dayjs from "dayjs";
 
   let { data }: { data: PageData & LayoutData } = $props();
 
   let openingHours = $derived(data.openingHours);
-  let shifts = $derived(data.shifts);
-
-  let week = $derived(
-    dayjs()
-      .startOf("year")
-      .add(data.week - 1, "week"),
-  );
 </script>
 
 <BodyContent {data} />
@@ -27,9 +18,3 @@
   />
   <CafeTimes {openingHours} />
 </div>
-<CafeSchedule
-  bind:week
-  {shifts}
-  user={data.user}
-  ciabattaOfTheWeek={data.ciabattaOfTheWeek}
-/>

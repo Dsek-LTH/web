@@ -14,6 +14,7 @@ import HousePlus from "@lucide/svelte/icons/house-plus";
 import Info from "@lucide/svelte/icons/info";
 import Link from "@lucide/svelte/icons/link";
 import Megaphone from "@lucide/svelte/icons/megaphone";
+import Music from "@lucide/svelte/icons/music";
 import Newspaper from "@lucide/svelte/icons/newspaper";
 import ScrollText from "@lucide/svelte/icons/scroll-text";
 import Send from "@lucide/svelte/icons/send";
@@ -45,6 +46,8 @@ export type Route = {
   children?: Route[];
   list?: boolean;
   icon?: Component;
+  /** Only display in mobile view. Default `false` */
+  hideOnDesktop?: boolean;
   isCurrentRoute?: (currentPathname: string) => boolean;
 };
 export const getRoutes = (): Route[] =>
@@ -115,6 +118,10 @@ export const getRoutes = (): Route[] =>
       title: m.nav_guild(),
       accessRequired: null,
       appBehaviour: "none",
+      pictureUrl: getFileUrl("minio/files/public/photos/guild.jpg") ?? "",
+      pictureTitle: m.nav_about_guild(),
+      pictureDescription: m.nav_about_guild_desc(),
+      picturePath: "/about",
       path: null,
       children: [
         {
@@ -124,6 +131,7 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/about",
           icon: DsekLogo,
+          hideOnDesktop: true,
         },
         {
           title: m.nav_board(),
@@ -148,6 +156,14 @@ export const getRoutes = (): Route[] =>
           appBehaviour: "none",
           path: "/documents/governing",
           icon: ScrollText,
+        },
+        {
+          title: m.songbook_header(),
+          description: m.songbook_explanation(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/songbook",
+          icon: Music,
         },
       ],
     },
@@ -174,6 +190,14 @@ export const getRoutes = (): Route[] =>
           path: "/elections",
           icon: Vote,
         },
+        {
+          title: m.documents_requirementProfiles(),
+          description: m.documents_requirementProfilesBlurb(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/requirements",
+          icon: FileText,
+        },
       ],
     },
     {
@@ -183,13 +207,6 @@ export const getRoutes = (): Route[] =>
       path: null,
       list: true,
       children: [
-        {
-          title: m.tickets(),
-          accessRequired: null,
-          appBehaviour: "none",
-          description: m.nav_tickets_desc(),
-          path: "/shop/tickets",
-        },
         {
           title: m.nav_ticketReleases(),
           accessRequired: null,
@@ -213,13 +230,6 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
-        },
-        {
-          title: m.stocklist(),
-          accessRequired: "drinkitem:read",
-          appBehaviour: "none",
-          description: m.nav_stocklist_desc(),
-          path: "/admin/stocklist",
         },
       ],
     },
@@ -277,12 +287,6 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           icon: Info,
-        },
-        {
-          title: m.qr_code(),
-          path: "/admin/qr",
-          accessRequired: null,
-          appBehaviour: "none",
         },
         {
           title: m.nav_admin_ticketReleases(),
@@ -356,10 +360,16 @@ export const getFooterRoutes = (): Route[] =>
         },
         */
         {
-          title: m.nav_songbook(),
+          title: m.nav_songbook_actual(),
           accessRequired: null,
           appBehaviour: "none",
           path: "/songbook",
+        },
+        {
+          title: m.nav_songbook(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/songarchive",
         },
         {
           title: m.nav_documents(),
@@ -379,13 +389,7 @@ export const getFooterRoutes = (): Route[] =>
           title: m.nav_engage_yourself(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/volunteer#engage",
-        },
-        {
-          title: m.nav_volunteer_benefits(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/volunteer#benefits",
+          path: "/volunteer",
         },
         {
           title: m.nav_committees(),
@@ -416,32 +420,3 @@ export const getFooterRoutes = (): Route[] =>
       ],
     },
   ] as const;
-
-export const appBottomNavRoutes = (routes: Route[]): Route[] =>
-  [
-    {
-      title: "Hem",
-      icon: "dsek-icon",
-      path: "/app/home",
-      accessRequired: null,
-      appBehaviour: "bottom-nav",
-    } as unknown as Route,
-  ]
-    .concat(
-      routes
-        .flatMap((route) =>
-          route.children ? [route, ...route.children] : route,
-        )
-        .filter((route) => {
-          return route.appBehaviour === "bottom-nav";
-        }),
-    )
-    .concat([
-      {
-        title: "Konto",
-        // icon: "i-mdi-account-circle",
-        path: "/app/account",
-        accessRequired: null,
-        appBehaviour: "bottom-nav",
-      },
-    ]);

@@ -69,7 +69,7 @@ export const loadHomeData = async ({
     orderBy: {
       createdAt: "desc",
     },
-    take: 3,
+    take: 4,
     include: {
       committee: true,
     },
@@ -81,20 +81,10 @@ export const loadHomeData = async ({
   // EVENTS
   const eventsPromise = prisma.event.findMany({
     where: {
-      ...BASIC_EVENT_FILTER(),
-      OR: [
-        {
-          startDatetime: {
-            gt: startDate,
-            lt: endDate,
-          },
-        },
-        {
-          endDatetime: {
-            gt: startDate,
-            lt: endDate,
-          },
-        },
+      AND: [
+        BASIC_EVENT_FILTER(),
+        { startDatetime: { lt: endDate } },
+        { endDatetime: { gt: startDate } },
       ],
     },
     orderBy: {

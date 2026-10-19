@@ -5,7 +5,8 @@ import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url.server";
-import type { ServerLoadEvent } from "@sveltejs/kit";
+import * as m from "$paraglide/messages";
+import { error, type ServerLoadEvent } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
@@ -18,7 +19,6 @@ const eventPageLoad =
   (adminMode = false) =>
   async ({ locals, url }: ServerLoadEvent) => {
     const { prisma } = locals;
-    const eventCount = await prisma.event.count();
 
     const display = displaySchema.parse(
       url.searchParams.get("display") ?? "week",
@@ -27,14 +27,14 @@ const eventPageLoad =
     let spanFilter: EventSpan;
 
     if (display === "week") {
-      spanFilter = { weekStartingAt: dayjs().startOf("week").toDate() };
+      spanFilter = { weekStartingAt: dayjs().startOf("day").toDate() };
     } else if (display === "month") {
       spanFilter = { monthStartingAt: dayjs().startOf("month").toDate() };
     } else {
       const pageSize = getPageSizeOrThrowSvelteError(url);
-      const page = getPageOrThrowSvelteError(url, {
-        upperBound: Math.ceil(eventCount / pageSize),
-      });
+      // The upper bound depends on the search/tag filters, so it is checked
+      // against the filtered page count once the events have been fetched.
+      const page = getPageOrThrowSvelteError(url);
 
       spanFilter = {
         span: display,
@@ -55,6 +55,10 @@ const eventPageLoad =
       ),
       getAllTags(prisma, adminMode),
     ]);
+
+    if ("page" in spanFilter && spanFilter.page > Math.max(pageCount, 1)) {
+      error(400, m.events_errors_invalidPage());
+    }
 
     return {
       events,

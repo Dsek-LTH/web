@@ -47,11 +47,12 @@ export const load: PageServerLoad = async ({ locals }) => {
   };
 };
 
+// Only include fields that are submitted by the form. Missing fields are
+// parsed as null and would overwrite existing data, e.g. the email address
+// which is set from Authentik when the member is created.
 const updateSchema = memberSchema.pick({
-  email: true,
   firstName: true,
   lastName: true,
-  nickname: true,
   foodPreference: true,
   classProgramme: true,
   classYear: true,

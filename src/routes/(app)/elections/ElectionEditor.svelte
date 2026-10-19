@@ -8,7 +8,7 @@
   import * as Select from "$lib/components/ui/select";
   import { Button } from "$lib/components/ui/button";
   import { Spinner } from "$lib/components/ui/spinner";
-  import ElectionCard from "./ElectionCard.svelte";
+  import ElectionCard from "$lib/components/ElectionCard.svelte";
   import dayjs from "dayjs";
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";

@@ -6,9 +6,9 @@
     toCalendarDateTime,
     parseDate,
   } from "@internationalized/date";
+  import type { Time } from "@internationalized/date";
   import DatePicker from "./DatePicker.svelte";
   import TimePicker from "./TimePicker.svelte";
-  import { untrack } from "svelte";
   import * as m from "$paraglide/messages";
 
   const now = new Date();
@@ -39,51 +39,28 @@
     ) => void;
   } = $props();
 
-  let fromDate = $state(toCalendarDate(fromDateTime)),
-    fromTime = $state(toTimeConv(fromDateTime)),
-    toDate = $state(toCalendarDate(toDateTime)),
-    toTime = $state(toTimeConv(toDateTime));
+  // The date and time pickers each edit one part of `fromDateTime`/
+  // `toDateTime`; these are read-only views of that same value, and each
+  // picker's own setter (below) reconstructs the full `CalendarDateTime` and
+  // writes it back, rather than this component keeping separate state that
+  // would need to be kept in sync with the props in both directions.
+  const fromDate = $derived(toCalendarDate(fromDateTime));
+  const fromTime = $derived(toTimeConv(fromDateTime));
+  const toDate = $derived(toCalendarDate(toDateTime));
+  const toTime = $derived(toTimeConv(toDateTime));
 
-  $effect(() => {
-    let oldDate = toCalendarDate(untrack(() => fromDateTime));
-    if (oldDate != fromDate) {
-      fromDateTime = toCalendarDateTime(fromDate, fromTime);
-    }
-  });
-
-  $effect(() => {
-    let oldDate = toTimeConv(untrack(() => fromDateTime));
-    if (oldDate != fromTime) {
-      fromDateTime = toCalendarDateTime(fromDate, fromTime);
-    }
-  });
-
-  $effect(() => {
-    let oldDate = toCalendarDate(untrack(() => toDateTime));
-    if (oldDate != toDate) {
-      toDateTime = toCalendarDateTime(toDate, toTime);
-    }
-  });
-
-  $effect(() => {
-    let oldDate = toTimeConv(untrack(() => toDateTime));
-    if (oldDate != toTime) {
-      toDateTime = toCalendarDateTime(toDate, toTime);
-    }
-  });
-
-  $effect(() => {
-    fromDate.set(toCalendarDate(fromDateTime));
-  });
-  $effect(() => {
-    fromTime.set(toTimeConv(fromDateTime));
-  });
-  $effect(() => {
-    toDate.set(toCalendarDate(fromDateTime));
-  });
-  $effect(() => {
-    toTime.set(toTimeConv(fromDateTime));
-  });
+  const setFromDate = (newDate: string) => {
+    fromDateTime = toCalendarDateTime(parseDate(newDate), fromTime);
+  };
+  const setFromTime = (newTime: Time) => {
+    fromDateTime = toCalendarDateTime(fromDate, newTime);
+  };
+  const setToDate = (newDate: string) => {
+    toDateTime = toCalendarDateTime(parseDate(newDate), toTime);
+  };
+  const setToTime = (newTime: Time) => {
+    toDateTime = toCalendarDateTime(toDate, newTime);
+  };
 
   let err = $derived(fromDateTime.compare(toDateTime) > 0);
 
@@ -98,18 +75,16 @@
 </script>
 
 <div class="flex w-min min-w-[16rem] flex-col gap-2">
-  <DatePicker
-    bind:value={fromDate.toString, (d) => (fromDate = parseDate(d))}
-    class="w-full"
+  <DatePicker bind:value={() => fromDate.toString(), setFromDate} class="w-full"
   ></DatePicker>
   <div class="flex items-center gap-2">
-    <TimePicker bind:value={fromTime}></TimePicker>
+    <TimePicker bind:value={() => fromTime, setFromTime}></TimePicker>
     <div class="bg-border h-px flex-1"></div>
-    <TimePicker bind:value={toTime}></TimePicker>
+    <TimePicker bind:value={() => toTime, setToTime}></TimePicker>
   </div>
   <DatePicker
     error={err}
-    bind:value={toDate.toString, (d) => (toDate = parseDate(d))}
+    bind:value={() => toDate.toString(), setToDate}
     class="w-full"
   ></DatePicker>
   {#if err}<p class="text-rosa-background">

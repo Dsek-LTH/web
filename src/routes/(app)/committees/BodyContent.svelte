@@ -43,7 +43,7 @@
 {/if}
 
 <a
-  class="transition-all hover:opacity-85"
+  class="transition-all"
   href="/committees/{data.committee?.shortName}/members"
 >
   <div
@@ -51,7 +51,7 @@
   >
     {#each previewPositions as position (position.id)}
       <div
-        class="bg-muted-background inline-flex shrink-0 grow-0 flex-row items-center gap-2 rounded-md border-[1px] p-3"
+        class="bg-muted-background inline-flex shrink-0 grow-0 flex-row items-center gap-2 rounded-md border-[1px] p-3 hover:opacity-85"
       >
         <MemberAvatar member={position.mandates[0]!.member} />
         <div class="flex flex-col">
@@ -146,7 +146,9 @@
           </div>
 
           <Dialog.Footer>
-            <Dialog.Close class={buttonVariants({ variant: "outline" })}
+            <Dialog.Close
+              type="button"
+              class={buttonVariants({ variant: "outline" })}
               >{m.cancel()}</Dialog.Close
             >
             <Dialog.Close
