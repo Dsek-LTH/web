@@ -19,15 +19,6 @@
     if (route.list) return 200;
     return 472;
   }
-  // The panel's own width is intentionally animated (part of the morph between tabs), but if the
-  // content inside tracked that live, animating width directly (e.g. via width: 100%), its text
-  // would rewrap on every frame of the transition. Instead the inner content gets a fixed target
-  // width up front (panel width minus its own padding/border) so wrapping is decided once and
-  // stays put; `overflow: hidden` on the panel reveals/clips it as the outer box resizes instead.
-  function panelInnerWidthFor(route: Route): number {
-    return panelWidthFor(route) - 22; // 2 * (0.6rem padding + 1px border), rounded up a touch
-  }
-
   let navEl: HTMLElement | null = $state(null);
   let panelEl: HTMLDivElement | null = $state(null);
   let panelTop = $state(0);
@@ -62,6 +53,9 @@
     if (openRoute) lastRoute = openRoute;
   });
   const displayRoute = $derived(openRoute ?? lastRoute);
+  const visibleChildren = $derived(
+    displayRoute?.children?.filter((c) => !c.hideOnDesktop) ?? [],
+  );
 
   // Position is computed synchronously at the moment we decide to open/switch -- not reactively
   // in an $effect after render, which would paint one frame at the wrong spot and then visibly
@@ -74,7 +68,8 @@
     const route = routes.find((r) => r.title === value);
     const trigger = triggerEls[value];
     const header = navEl?.closest("header");
-    if (!route || !trigger || !header) return { left: panelLeft, top: panelTop };
+    if (!route || !trigger || !header)
+      return { left: panelLeft, top: panelTop };
     const headerRect = header.getBoundingClientRect();
     const triggerRect = trigger.getBoundingClientRect();
     const width = panelWidthFor(route);
@@ -138,6 +133,57 @@
     setOpen(value);
   }
 
+  // Keyboard support (disclosure pattern). The panel is rendered after every trigger, so DOM tab
+  // order alone would skip from the open trigger straight to the next one -- these handlers route
+  // focus trigger -> panel links -> next trigger instead, plus arrow keys within the panel.
+  function panelLinks(): HTMLAnchorElement[] {
+    return panelEl ? Array.from(panelEl.querySelectorAll("a")) : [];
+  }
+  async function openAndFocusFirst(value: string) {
+    cancelOpenTimer();
+    cancelClose();
+    if (openValue !== value) await setOpen(value);
+    // wait for the panel to drop `inert` and render the new route's links
+    await tick();
+    panelLinks()[0]?.focus();
+  }
+  function handleTriggerKeydown(e: KeyboardEvent, value: string) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      openAndFocusFirst(value);
+    } else if (
+      e.key === "Tab" &&
+      !e.shiftKey &&
+      openValue === value &&
+      panelLinks().length
+    ) {
+      e.preventDefault();
+      panelLinks()[0]?.focus();
+    }
+  }
+  function handlePanelKeydown(e: KeyboardEvent) {
+    const links = panelLinks();
+    const index = links.indexOf(document.activeElement as HTMLAnchorElement);
+    if (index === -1) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      links[(index + step + links.length) % links.length]?.focus();
+    } else if (e.key === "Tab" && e.shiftKey && index === 0) {
+      e.preventDefault();
+      triggerEls[openValue]?.focus();
+    } else if (e.key === "Tab" && !e.shiftKey && index === links.length - 1) {
+      const nextTitle =
+        routes[routes.findIndex((r) => r.title === openValue) + 1]?.title;
+      const next = nextTitle ? triggerEls[nextTitle] : null;
+      if (next) {
+        e.preventDefault();
+        next.focus();
+      }
+      close();
+    }
+  }
+
   // Safety net for the one case position genuinely can't be known up front: the viewport
   // resizing while a panel is already open.
   $effect(() => {
@@ -160,10 +206,18 @@
 
 <svelte:window
   onkeydown={(e) => {
-    if (e.key === "Escape" && openValue) {
+    if (!openValue) return;
+    if (e.key === "Escape") {
       triggerEls[openValue]?.focus();
       close();
+    } else if (panelEl?.contains(e.target as Node)) {
+      handlePanelKeydown(e);
     }
+  }}
+  onfocusout={(e) => {
+    // close when keyboard focus leaves the nav entirely (e.g. tabbing past the last trigger)
+    if (!openValue || !navEl?.contains(e.target as Node)) return;
+    if (!navEl.contains(e.relatedTarget as Node | null)) close();
   }}
   onpointerdown={(e) => {
     if (!openValue) return;
@@ -172,7 +226,7 @@
   }}
 />
 
-<nav bind:this={navEl} class="desktop-nav hidden md-nav:flex" aria-label="Main">
+<nav bind:this={navEl} class="desktop-nav md-nav:flex hidden" aria-label="Main">
   {#each routes as route (route.title)}
     <div class="nav-item">
       <button
@@ -182,10 +236,11 @@
         data-active={isRouteActive(route)}
         data-open={openValue === route.title}
         aria-expanded={openValue === route.title}
-        aria-haspopup={!!route.children}
+        aria-controls="desktop-nav-panel"
         onpointerenter={() => handleEnter(route.title)}
         onpointerleave={() => handleLeave(route.title)}
         onclick={() => handleClick(route.title)}
+        onkeydown={(e) => handleTriggerKeydown(e, route.title)}
       >
         {route.title}
         {#if route.children}
@@ -202,27 +257,27 @@
     </div>
   {/each}
 
+  <!-- `inert` while closed: the panel stays mounted for its fade-out, but its links must not
+       stay in the tab order or the accessibility tree once it's no longer visible. -->
   <div
     bind:this={panelEl}
+    id="desktop-nav-panel"
     class="nav-panel"
     class:no-position-transition={suppressPositionTransition}
     data-open={!!openRoute}
-    style="left: {panelLeft}px; top: {panelTop}px; width: {displayRoute
+    inert={!openRoute}
+    role="group"
+    aria-label={displayRoute?.title}
+    style="left: {panelLeft}px; top: {panelTop}px; --panel-width: {displayRoute
       ? panelWidthFor(displayRoute)
       : 0}px;"
-    role="menu"
-    tabindex="-1"
-    aria-label={displayRoute?.title}
     onpointerenter={cancelClose}
     onpointerleave={scheduleClose}
   >
     {#if displayRoute}
       {@const route = displayRoute}
       {#key route.title}
-        <div
-          class="panel-inner"
-          style="width: {panelInnerWidthFor(route)}px;"
-        >
+        <div class="panel-inner">
           {#if route.pictureUrl}
             <div class="picture-row">
               <a
@@ -234,61 +289,21 @@
                 <span class="pt-desc">{route.pictureDescription}</span>
               </a>
               <div class="picture-list">
-                {#each route.children?.filter((c) => !c.hideOnDesktop) ?? [] as child, i (child.title)}
-                  {@const Icon = child.icon}
-                  <a
-                    href={child.path}
-                    role="menuitem"
-                    class="child-row"
-                    style="--i: {i}"
-                  >
-                    <span class="t"
-                      >{#if Icon}<Icon size={18} class="icon" />{/if}{child.title}</span
-                    >
-                    {#if child.description}
-                      <span class="d">{child.description}</span>
-                    {/if}
-                  </a>
+                {#each visibleChildren as child, i (child.title)}
+                  {@render childLink(child, i, false)}
                 {/each}
               </div>
             </div>
           {:else if route.list}
             <div class="list-col">
-              {#each route.children?.filter((c) => !c.hideOnDesktop) ?? [] as child, i (child.title)}
-                {@const Icon = child.icon}
-                <a
-                  href={child.path}
-                  role="menuitem"
-                  class="child-row"
-                  style="--i: {i}"
-                >
-                  <span class="t"
-                    >{#if Icon}<Icon size={18} class="icon" />{/if}{child.title}</span
-                  >
-                  {#if child.description}
-                    <span class="d">{child.description}</span>
-                  {/if}
-                </a>
+              {#each visibleChildren as child, i (child.title)}
+                {@render childLink(child, i, false)}
               {/each}
             </div>
           {:else}
             <div class="grid-col">
-              {#each route.children?.filter((c) => !c.hideOnDesktop) ?? [] as child, i (child.title)}
-                {@const Icon = child.icon}
-                <a
-                  href={child.path}
-                  role="menuitem"
-                  class="child-row row"
-                  style="--i: {i}"
-                >
-                  {#if Icon}<Icon size={18} class="icon" />{/if}
-                  <span class="col">
-                    <span class="t">{child.title}</span>
-                    {#if child.description}
-                      <span class="d">{child.description}</span>
-                    {/if}
-                  </span>
-                </a>
+              {#each visibleChildren as child, i (child.title)}
+                {@render childLink(child, i, true)}
               {/each}
             </div>
           {/if}
@@ -297,6 +312,35 @@
     {/if}
   </div>
 </nav>
+
+<!-- `iconBeside`: grid layout puts the icon in its own column next to title + description;
+     the stacked layouts put it inline before the title. -->
+{#snippet childLink(child: Route, i: number, iconBeside: boolean)}
+  {@const Icon = child.icon}
+  <a
+    href={child.path}
+    class="child-row"
+    class:row={iconBeside}
+    style="--i: {i}"
+  >
+    {#if iconBeside}
+      {#if Icon}<Icon size={18} class="icon" />{/if}
+      <span class="col">
+        <span class="t">{child.title}</span>
+        {#if child.description}
+          <span class="d">{child.description}</span>
+        {/if}
+      </span>
+    {:else}
+      <span class="t"
+        >{#if Icon}<Icon size={18} class="icon" />{/if}{child.title}</span
+      >
+      {#if child.description}
+        <span class="d">{child.description}</span>
+      {/if}
+    {/if}
+  </a>
+{/snippet}
 
 <style>
   .desktop-nav {
@@ -370,15 +414,18 @@
        pinned to the header's own bottom edge rather than this row's shorter box. Position is set
        via plain `left`/`top`, never `transform`, so it never collides with the tilt/scale
        transform below -- an inline `transform` would win over these rules outright. */
+    --panel-padding: 0.6rem;
+    --panel-border: 1px;
     position: fixed;
+    width: var(--panel-width);
     opacity: 0;
     transform: perspective(900px) rotateX(-6deg) translateY(-6px) scale(0.98);
     transform-origin: top left;
     background: var(--background);
-    border: 1px solid var(--border);
+    border: var(--panel-border) solid var(--border);
     border-radius: var(--radius-md);
     box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.18);
-    padding: 0.6rem;
+    padding: var(--panel-padding);
     overflow: hidden;
     pointer-events: none;
     z-index: 50;
@@ -401,6 +448,17 @@
     transition:
       opacity 0.2s ease,
       transform 0.36s var(--ease-spring);
+  }
+
+  /* The panel's own width is intentionally animated (part of the morph between tabs), but if the
+     content inside tracked that live (e.g. via width: 100%), its text would rewrap on every frame
+     of the transition. Instead the inner content gets the fixed *target* width up front (panel
+     width minus its own padding/border) so wrapping is decided once and stays put; `overflow:
+     hidden` on the panel reveals/clips it as the outer box resizes instead. */
+  .panel-inner {
+    width: calc(
+      var(--panel-width) - 2 * (var(--panel-padding) + var(--panel-border))
+    );
   }
 
   .picture-row {
