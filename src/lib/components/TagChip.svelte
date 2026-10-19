@@ -18,6 +18,7 @@
       "relative cursor-pointer overflow-hidden border-[var(--tag-color)] bg-[var(--tag-color)] text-xs whitespace-nowrap before:absolute before:inset-0 before:opacity-10 before:content-['']",
       klass,
     )}
+    color={tag.color ?? undefined}
     style="--tag-color: {tag.color || 'var(--bc)'}"
   >
     {tag.name}

@@ -114,6 +114,7 @@
     size = "default",
     color,
     children,
+    style,
     ...restProps
   }: WithElementRef<HTMLAnchorAttributes> & {
     variant?: BadgeVariant;
@@ -127,7 +128,7 @@
   const customStyle = $derived(
     color
       ? `background-color: ${color}; color: ${textColor}; border-color: transparent;`
-      : undefined,
+      : style,
   );
 </script>
 

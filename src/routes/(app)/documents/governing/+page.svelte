@@ -1,6 +1,6 @@
 <script lang="ts">
   import PageHeader from "$lib/components/nav/PageHeader.svelte";
-  import FileLink from "../FileLink.svelte";
+  import FileLink from "$lib/components/files/FileLink.svelte";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import YearSelector from "$lib/components/YearSelector.svelte";
   import { Button } from "$lib/components/ui/button";
@@ -38,7 +38,12 @@
     {#each documents as doc (doc.id)}
       <li class="flex items-center justify-between gap-4">
         <div class="min-w-0 flex-1">
-          <FileLink name={doc.title} url={doc.url} host={true} />
+          <FileLink
+            class="shrink-0"
+            name={doc.title}
+            url={doc.url}
+            host={true}
+          />
         </div>
         {#if isEditing}
           <div class="flex shrink-0 items-center gap-2">

@@ -3,8 +3,12 @@
   import Alert from "$lib/components/Alert.svelte";
   import Header from "./Header.svelte";
   import Footer from "./Footer.svelte";
+  import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
+  import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
   import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
+  import AppNavigation from "./AppNavigation.svelte";
+  import AppHeader from "./AppHeader.svelte";
 
   const { data, children } = $props();
 </script>
@@ -12,13 +16,25 @@
 <div
   class="flex min-h-screen flex-col"
   style:padding-top={(data.isApp
-    ? (page.data.appInfo?.insets?.top ?? 0) + 8
+    ? (page.data.appInfo?.os == "ios" ? page.data.appInfo?.insets?.top : 0) + 48
     : 0) + "px"}
   style:padding-bottom={(data.isApp
     ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
     : 0) + "px"}
 >
-  <Header notificationsPromise={data.notificationsPromise} isApp={data.isApp} />
+  {#if data.isApp}
+    <AppHeader unreadCountPromise={data.unreadCountPromise} />
+    <AppNavigation />
+  {:else}
+    <Header unreadCountPromise={data.unreadCountPromise} />
+  {/if}
+
+  {#if data.isApp}
+    {#await data.unreadCountPromise then unreadCount}
+      <AppUnreadNotificationHandler notificationCount={unreadCount} />
+    {/await}
+    <AppNotificationTokenHandler />
+  {/if}
 
   <main class="flex min-h-0 flex-1 flex-col">
     {#each data.alerts as alert (alert.id)}

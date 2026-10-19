@@ -1,70 +1,48 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { Prisma } from "@prisma/client";
 import type { PageServerLoad } from "./$types";
-import {
-  canAccessDeletedSongs,
-  getExistingCategories,
-  groupCategories,
-} from "./helpers";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const { user } = locals;
-  const accessPolicies = user?.policies ?? [];
-  const showDeleted =
-    canAccessDeletedSongs(accessPolicies) &&
-    url.searchParams.get("show-deleted") === "true";
-  const prismaClient = showDeleted ? authorizedPrismaClient : locals.prisma;
-
+  const prismaClient = locals.prisma;
   const search = url.searchParams.get("search") || "";
-  const categoryFilter = url.searchParams.getAll("category");
+  const pageSearch = parseInt(search);
   const page = parseInt(url.searchParams.get("page") || "1", 10);
   const take = 20;
   const skip = (page - 1) * take;
 
-  const where = {
-    ...(showDeleted ? { deletedAt: { not: null } } : { deletedAt: null }),
-    ...(search
-      ? {
-          OR: [
-            { title: { contains: search, mode: "insensitive" as const } },
-            { lyrics: { contains: search, mode: "insensitive" as const } },
-            { melody: { contains: search, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
-    ...(categoryFilter.length > 0
-      ? {
-          OR: categoryFilter.map((category) => ({
-            category: {
-              contains: category,
-              mode: "insensitive" as const,
+  const where: Prisma.SongBookEntryWhereInput = {
+    // Search by page instead of title if search query is a number
+    ...(pageSearch > 0
+      ? { page: { equals: pageSearch } }
+      : {
+          song: {
+            title: {
+              contains: search,
+              mode: "insensitive",
             },
-          })),
-        }
-      : {}),
+          },
+        }),
   };
 
-  const [songs, totalCount, rawCategories] = await Promise.all([
-    prismaClient.song.findMany({
+  const [songs, totalCount] = await Promise.all([
+    prismaClient.songBookEntry.findMany({
       where,
       take,
       skip,
-      orderBy: { title: "asc" },
+      //TODO: sort by best match
+      orderBy: [{ page: "asc" }, { numberOnPage: "asc" }],
+      include: {
+        song: true,
+      },
     }),
-    prismaClient.song.count({ where }),
-    getExistingCategories(prismaClient, accessPolicies, showDeleted),
+    prismaClient.songBookEntry.count({
+      where,
+    }),
   ]);
-
-  const categoryMap = groupCategories(rawCategories);
-  const categories = Object.keys(categoryMap);
 
   return {
     songs,
     pageCount: Math.ceil(totalCount / take),
-    categories,
-    categoryMap,
     currentPage: page,
     search,
-    categoryFilter,
-    showDeleted,
   };
 };

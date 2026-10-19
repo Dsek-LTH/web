@@ -7,7 +7,7 @@
   } from "$lib/components/ui/card/index.js";
   import YearSelector from "$lib/components/YearSelector.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import FileLink from "../FileLink.svelte";
+  import FileLink from "$lib/components/files/FileLink.svelte";
   import DeleteFileForm from "../DeleteFileForm.svelte";
   import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import apiNames from "$lib/utils/apiNames";

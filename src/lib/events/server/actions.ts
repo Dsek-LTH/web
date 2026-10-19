@@ -2,6 +2,7 @@ import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { actionType, eventSchema } from "$lib/events/schema";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import {
   getIncrementType,
   isRecurringType,
@@ -13,16 +14,11 @@ import { slugify, slugWithCount } from "$lib/utils/slugify";
 import * as m from "$paraglide/messages";
 import { error, type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
+import { generateOccurrences, retimeOccurrence } from "$lib/events/recurrence";
+import type dayjs from "dayjs";
 import DOMPurify from "isomorphic-dompurify";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
-
-// Extend dayjs with timezone support to handle DST correctly
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const imageUrl = await uploadFile(
@@ -40,6 +36,24 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   return imageUrl;
 };
 
+/**
+ * Looks up the organizing committee. Its Swedish name is also what gets stored
+ * in `organizer`, so that everything that only knows about the text (the ICS
+ * feed, the API, ...) keeps working.
+ */
+const resolveCommittee = async (
+  prisma: ExtendedPrisma,
+  committeeId: string | null,
+) => {
+  if (!committeeId) return null;
+  const committee = await prisma.committee.findUnique({
+    where: { id: committeeId },
+    select: { id: true, nameSv: true },
+  });
+  if (!committee) throw error(400, m.events_errors_committeeNotFound());
+  return committee;
+};
+
 export const createEvent: Action = async (event) => {
   const { request, locals } = event;
   const { prisma, user } = locals;
@@ -52,8 +66,11 @@ export const createEvent: Action = async (event) => {
     separationCount,
     isRecurring,
     recurringEndDatetime,
+    committeeId,
     ...eventData
   } = form.data;
+  const committee = await resolveCommittee(prisma, committeeId);
+  if (committee) eventData.organizer = committee.nameSv;
   const slug = slugify(form.data.titleSv);
   // has to be authorized to count all slugs
   let slugCount = await authorizedPrismaClient.event.count({
@@ -99,47 +116,12 @@ export const createEvent: Action = async (event) => {
     });
 
     const incrementType: dayjs.ManipulateType = getIncrementType(recurType);
-    const events: Array<{ start: Date; end: Date }> = [];
-
-    // Parse dates in correct timezone to handle DST correctly
-    const dayjsEndDate = dayjs.tz(
+    const events = generateOccurrences(
+      { start: form.data.startDatetime, end: form.data.endDatetime },
       form.data.recurringEndDatetime,
-      "Europe/Stockholm",
+      form.data.separationCount + 1,
+      incrementType,
     );
-    const startDateTz = dayjs.tz(form.data.startDatetime, "Europe/Stockholm");
-    const endDateTz = dayjs.tz(form.data.endDatetime, "Europe/Stockholm");
-
-    // Extract time components from the original event to preserve wall clock time
-    const startHour = startDateTz.hour();
-    const startMinute = startDateTz.minute();
-    const endHour = endDateTz.hour();
-    const endMinute = endDateTz.minute();
-
-    let currentDate = startDateTz;
-
-    while (
-      currentDate.isBefore(dayjsEndDate, "day") ||
-      currentDate.isSame(dayjsEndDate, "day")
-    ) {
-      // Reconstruct the time in Europe/Stockholm timezone to maintain wall clock time across DST
-      const eventStart = dayjs
-        .tz(currentDate.format("YYYY-MM-DD"), "Europe/Stockholm")
-        .hour(startHour)
-        .minute(startMinute)
-        .toDate();
-
-      const eventEnd = dayjs
-        .tz(currentDate.format("YYYY-MM-DD"), "Europe/Stockholm")
-        .hour(endHour)
-        .minute(endMinute)
-        .toDate();
-
-      events.push({ start: eventStart, end: eventEnd });
-      currentDate = currentDate.add(
-        form.data.separationCount + 1,
-        incrementType,
-      );
-    }
 
     await prisma.$transaction(async (tx) => {
       for (const event of events) {
@@ -147,6 +129,7 @@ export const createEvent: Action = async (event) => {
           data: {
             ...eventData,
             recurringParentId: recurringEventParent.id,
+            committeeId: committee?.id ?? null,
             startDatetime: event.start,
             isDetatched: false,
             authorId: user?.memberId ?? error(500, "No user"),
@@ -179,6 +162,7 @@ export const createEvent: Action = async (event) => {
             studentId: user?.studentId,
           },
         },
+        committee: committee ? { connect: { id: committee.id } } : undefined,
         tags: {
           connect: tagIds,
         },
@@ -223,6 +207,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     tags,
     image,
     editType,
+    committeeId,
     ...eventData
   } = recurringEventData;
 
@@ -230,6 +215,8 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   eventData.descriptionEn = eventData.descriptionEn
     ? DOMPurify.sanitize(eventData.descriptionEn)
     : eventData.descriptionEn;
+  const committee = await resolveCommittee(prisma, committeeId);
+  if (committee) eventData.organizer = committee.nameSv;
   const existingEvent = await prisma.event.findUnique({
     where: {
       slug: slug,
@@ -255,6 +242,9 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       data: {
         ...eventData,
         author: undefined,
+        committee: committee
+          ? { connect: { id: committee.id } }
+          : { disconnect: true },
         tags: {
           set: tags.map(({ id }) => ({ id })),
         },
@@ -271,21 +261,10 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
       },
     });
 
-    // Parse dates in Europe/Stockholm timezone to handle DST correctly
-    const newStartTz = dayjs.tz(eventData.startDatetime, "Europe/Stockholm");
-    const newEndTz = dayjs.tz(eventData.endDatetime, "Europe/Stockholm");
-
-    // Extract new time components to preserve wall clock time across DST
-    const newStartHour = newStartTz.hour();
-    const newStartMinute = newStartTz.minute();
-    const newEndHour = newEndTz.hour();
-    const newEndMinute = newEndTz.minute();
-
     await Promise.all(
       eventsToBeUpdated.map((e) => {
         const {
           startDatetime,
-          endDatetime,
           id,
           /* eslint-disable-next-line @typescript-eslint/no-unused-vars --
            * To avoid lint complaining about unused vars
@@ -302,25 +281,17 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
           ...oldData
         } = e;
 
-        // If times are being changed, reconstruct with new time components to preserve wall clock time
-        const eventStartTz = dayjs.tz(startDatetime, "Europe/Stockholm");
-        const eventEndTz = dayjs.tz(endDatetime, "Europe/Stockholm");
-
-        const newStartDatetime = dayjs
-          .tz(eventStartTz.format("YYYY-MM-DD"), "Europe/Stockholm")
-          .hour(newStartHour)
-          .minute(newStartMinute)
-          .format();
-
-        const newEndDatetime = dayjs
-          .tz(eventEndTz.format("YYYY-MM-DD"), "Europe/Stockholm")
-          .hour(newEndHour)
-          .minute(newEndMinute)
-          .format();
+        // Keep each occurrence on its own date, but move it to the new wall-clock times
+        const { start: newStartDatetime, end: newEndDatetime } =
+          retimeOccurrence(
+            { start: startDatetime },
+            { start: eventData.startDatetime, end: eventData.endDatetime },
+          );
 
         const newData = {
           ...oldData,
           ...eventData,
+          committeeId: committee?.id ?? null,
           startDatetime: newStartDatetime,
           endDatetime: newEndDatetime,
           author: undefined,

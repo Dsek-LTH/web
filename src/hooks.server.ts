@@ -244,6 +244,7 @@ const appHandle: Handle = async ({ event, resolve }) => {
     const insetsJson = APP_INSETS_REGEX.exec(userAgent ?? "")?.[1];
     const insets = JSON.parse(insetsJson ?? "{}");
     event.locals.appInfo = {
+      os: userAgent?.substring(10).split(")")[0] ?? undefined,
       insets: {
         top: insets?.top ? Number(insets.top) : 0,
         bottom: insets?.bottom ? Number(insets.bottom) : 0,

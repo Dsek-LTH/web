@@ -29,7 +29,12 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
 
   if (!existingEvent) return error(404, m.events_errors_eventNotFound());
 
-  if (form.data.removeType === "ALL") {
+  // Without a recurring parent, "ALL"/"FUTURE" would match every event that
+  // has no parent, so only a recurring event may remove more than itself.
+  const removeType =
+    existingEvent.recurringParentId === null ? "THIS" : form.data.removeType;
+
+  if (removeType === "ALL") {
     await prisma.event.updateMany({
       where: {
         recurringParentId: existingEvent.recurringParentId,
@@ -46,7 +51,7 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
       },
       event,
     );
-  } else if (form.data.removeType === "FUTURE") {
+  } else if (removeType === "FUTURE") {
     await prisma.event.updateMany({
       where: {
         recurringParentId: existingEvent.recurringParentId,
@@ -58,6 +63,14 @@ export const removeEventAction: Action<{ slug: string }> = async (event) => {
         removedAt: new Date(),
       },
     });
+    throw redirect(
+      "/events",
+      {
+        message: m.events_eventsDeleted(),
+        type: "success",
+      },
+      event,
+    );
   } else {
     await prisma.event.update({
       where: {
