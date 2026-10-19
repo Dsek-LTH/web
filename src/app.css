@@ -114,6 +114,7 @@
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-xl: 28px;
+  --ease-spring: cubic-bezier(0.28, 1.22, 0.38, 1);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

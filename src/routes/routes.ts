@@ -121,7 +121,7 @@ export const getRoutes = (): Route[] =>
       pictureUrl: getFileUrl("minio/files/public/photos/guild.jpg") ?? "",
       pictureTitle: m.nav_about_guild(),
       pictureDescription: m.nav_about_guild_desc(),
-      picturePath: "/about",
+      picturePath: "/about#committees",
       path: null,
       children: [
         {
@@ -129,7 +129,7 @@ export const getRoutes = (): Route[] =>
           description: m.nav_about_guild_desc(),
           accessRequired: null,
           appBehaviour: "none",
-          path: "/about",
+          path: "/about#committees",
           icon: DsekLogo,
           hideOnDesktop: true,
         },
