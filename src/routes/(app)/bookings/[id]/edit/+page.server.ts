@@ -85,15 +85,11 @@ export const actions: Actions = {
         // Require new approval of the booking after edit, unless an admin made the change
         ...(!isAdmin && { status: "PENDING" }),
       },
-      include: {
-        accessDoors: true,
-        accessMembers: { select: { studentId: true } },
-      },
     });
 
     // Access granted for the previous version of the booking is no longer valid.
     if (isAdmin && updatedBooking.status === "ACCEPTED") {
-      await grantBookingDoorAccess(updatedBooking);
+      await grantBookingDoorAccess(updatedBooking.id);
     } else {
       await clearBookingDoorAccess(updatedBooking.id);
     }

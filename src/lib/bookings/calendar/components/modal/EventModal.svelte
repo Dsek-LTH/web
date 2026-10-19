@@ -7,7 +7,17 @@
   // re-syncs following an accept/reject) with a stale snapshot of the event.
   // Component-local $state doesn't survive that remount, so the optimistic
   // status is kept here instead, at module scope, keyed by booking id.
-  const optimisticStatusOverrides = new SvelteMap<string, BookingStatus>();
+  // Each override remembers the status it replaced and only applies while the
+  // event data still shows that status, so fresher server data always wins.
+  const optimisticStatusOverrides = new SvelteMap<
+    string,
+    { status: BookingStatus; replaced: BookingStatus }
+  >();
+
+  /** Drops all overrides, e.g. when leaving the calendar page. */
+  export function clearOptimisticStatusOverrides() {
+    optimisticStatusOverrides.clear();
+  }
 </script>
 
 <script lang="ts">
@@ -39,6 +49,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { cn } from "$lib/utils";
+  import { escapeHtml } from "$lib/utils/escapeHtml";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
   const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
@@ -55,18 +66,25 @@
   const canManage = $derived(isAdmin || isOwner);
 
   const eventId = $derived(String(calendarEvent.id));
-  const status = $derived(
-    optimisticStatusOverrides.get(eventId) ?? bookingEvent.calendarId,
-  );
+  const status = $derived.by(() => {
+    const override = optimisticStatusOverrides.get(eventId);
+    return override?.replaced === bookingEvent.calendarId
+      ? override.status
+      : bookingEvent.calendarId;
+  });
 
   const handleStatusChange: SubmitFunction = ({ action }) => {
     const nextStatus = action.searchParams.has("/accept")
       ? "ACCEPTED"
       : "DENIED";
+    const replaced = bookingEvent.calendarId;
 
     return async ({ result, update }) => {
       if (result.type === "success") {
-        optimisticStatusOverrides.set(eventId, nextStatus);
+        optimisticStatusOverrides.set(eventId, {
+          status: nextStatus,
+          replaced,
+        });
       }
       await update();
     };
@@ -211,11 +229,11 @@
                     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                     {@html isOwner && !isAdmin
                       ? m.booking_deleteMyAreYouSure({
-                          bookables: calendarEvent.location ?? "",
+                          bookables: escapeHtml(calendarEvent.location ?? ""),
                         })
                       : m.booking_deleteAreYouSure({
-                          name: bookingEvent.bookerName ?? "",
-                          bookables: calendarEvent.location ?? "",
+                          name: escapeHtml(bookingEvent.bookerName ?? ""),
+                          bookables: escapeHtml(calendarEvent.location ?? ""),
                         })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>

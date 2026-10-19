@@ -18,7 +18,8 @@
     CalendarApp,
     CalendarEventExternal,
   } from "@schedule-x/calendar";
-  import { onMount, untrack } from "svelte";
+  import { onDestroy, onMount, untrack } from "svelte";
+  import { clearOptimisticStatusOverrides } from "$lib/bookings/calendar/components/modal/EventModal.svelte";
   import { SvelteSet } from "svelte/reactivity";
   import { page } from "$app/state";
   import type { PageData } from "./$types";
@@ -49,6 +50,7 @@
   onMount(() => {
     sessionStorage.setItem("bookings", JSON.stringify(bookings));
   });
+  onDestroy(clearOptimisticStatusOverrides);
 
   const defaultCategory = {
     value: "all categories",

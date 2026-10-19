@@ -131,14 +131,10 @@ async function updateBookingStatus(
           accessMembers: { set: accessMemberIds.map((id) => ({ id })) },
         }),
     },
-    include: {
-      accessDoors: true,
-      accessMembers: { select: { studentId: true } },
-    },
   });
 
   if (status === "ACCEPTED") {
-    await grantBookingDoorAccess(bookingRequest);
+    await grantBookingDoorAccess(bookingRequest.id);
   } else {
     await clearBookingDoorAccess(bookingRequest.id);
   }

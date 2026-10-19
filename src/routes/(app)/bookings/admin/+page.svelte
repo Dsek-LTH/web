@@ -10,6 +10,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import { enhance } from "$app/forms";
   import { cn } from "$lib/utils";
+  import { escapeHtml } from "$lib/utils/escapeHtml";
   import {
     PencilIcon,
     Trash2Icon,
@@ -67,10 +68,10 @@
           <AlertDialog.Description>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html m.booking_deleteAreYouSure({
-              name: bookingRequest.booker?.firstName ?? "",
-              bookables: bookingRequest.bookables
-                .map(({ name }) => name)
-                .join(", "),
+              name: escapeHtml(bookingRequest.booker?.firstName ?? ""),
+              bookables: escapeHtml(
+                bookingRequest.bookables.map(({ name }) => name).join(", "),
+              ),
             })}
           </AlertDialog.Description>
         </AlertDialog.Header>

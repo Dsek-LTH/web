@@ -38,6 +38,7 @@
     stickyBottomClass,
   } from "$lib/bookings/stickyBottom";
   import * as m from "$paraglide/messages";
+  import { untrack } from "svelte";
 
   const {
     data,
@@ -80,15 +81,30 @@
       : (data.initialAccessMembers ?? []),
   );
 
+  // The bookable's own door should be obviously included among the
+  // selectable doors once it's booked, without overriding manual edits. Only
+  // newly selected bookables add their door, so unticking it again sticks.
+  let previousBookables: string[] = untrack(
+    () => data.form.data.bookables ?? [],
+  );
   $effect(() => {
-    // The bookable's own door should be obviously included among the
-    // selectable doors once it's booked, without overriding manual edits.
-    for (const bookableId of $formData.bookables) {
-      const doorName = bookables.find((b) => b.id === bookableId)?.doorName;
-      if (doorName && !$formData.accessDoors.includes(doorName)) {
-        $formData.accessDoors = [...$formData.accessDoors, doorName];
+    const selected = $formData.bookables;
+    const added = selected.filter((id) => !previousBookables.includes(id));
+    previousBookables = [...selected];
+
+    untrack(() => {
+      const doorsToAdd = added
+        .map((id) => bookables.find((b) => b.id === id)?.doorName)
+        .filter(
+          (doorName): doorName is string =>
+            !!doorName && !$formData.accessDoors.includes(doorName),
+        );
+      if (doorsToAdd.length > 0) {
+        $formData.accessDoors = [
+          ...new Set([...$formData.accessDoors, ...doorsToAdd]),
+        ];
       }
-    }
+    });
   });
 
   const id = $props.id();

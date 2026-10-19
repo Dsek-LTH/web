@@ -15,15 +15,23 @@ export async function clearBookingDoorAccess(bookingRequestId: string) {
  * for the booking's time window plus a buffer before and after.
  * Replaces any previously granted access for the same booking.
  */
-export async function grantBookingDoorAccess(booking: {
-  id: string;
-  start: Date | null;
-  end: Date | null;
-  event: string | null;
-  accessDoors: { name: string }[];
-  accessMembers: { studentId: string | null }[];
-}) {
-  await clearBookingDoorAccess(booking.id);
+export async function grantBookingDoorAccess(bookingRequestId: string) {
+  await clearBookingDoorAccess(bookingRequestId);
+
+  // Doors are only readable with core:access:door:read, which the reviewing
+  // admin may not have, so the requested doors are read without policies.
+  const booking = await authorizedPrismaClient.bookingRequest.findUnique({
+    where: { id: bookingRequestId },
+    select: {
+      id: true,
+      start: true,
+      end: true,
+      event: true,
+      accessDoors: { select: { name: true } },
+      accessMembers: { select: { studentId: true } },
+    },
+  });
+  if (!booking) return;
 
   const studentIds = booking.accessMembers
     .map((member) => member.studentId)
