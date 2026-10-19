@@ -9,39 +9,68 @@
   import { enhanceWithToast } from "$lib/stores/toast";
 
   const {
-    notificationsPromise,
+    notifications,
+    initialLoading = false,
+    loadingMore = false,
+    hasMore = false,
     listClass = "max-h-[60vh]",
+    onLoadMore,
+    onDismissed,
+    onClearedAll,
   }: {
-    notificationsPromise?: Promise<NotificationGroup[]>;
+    notifications: NotificationGroup[];
+    initialLoading?: boolean;
+    loadingMore?: boolean;
+    hasMore?: boolean;
     listClass?: string;
+    onLoadMore?: () => void;
+    onDismissed?: (id: number) => void;
+    onClearedAll?: () => void;
   } = $props();
 </script>
 
-{#await notificationsPromise}
+{#if initialLoading}
   <div class="p-4"><Spinner /></div>
-{:then notifications}
-  {@const list = notifications ?? []}
+{:else}
   <div class="flex flex-col gap-2 overflow-y-auto p-2 {listClass}">
-    {#each list as notification (notification.id)}
-      <NotificationItem {notification} />
+    {#each notifications as notification (notification.id)}
+      <NotificationItem {notification} {onDismissed} />
     {/each}
-    {#if list.length === 0}
+    {#if notifications.length === 0}
       <p class="text-muted-foreground py-4 text-center text-sm">
         {m.navbar_bell_noNotifications()}
       </p>
+    {:else if hasMore}
+      <Button
+        aria-label={m.navbar_bell_loadMore()}
+        variant="ghost"
+        class="text-muted-foreground w-full"
+        disabled={loadingMore}
+        onclick={onLoadMore}
+      >
+        {#if loadingMore}
+          <Spinner class="size-4" />
+        {:else}
+          {m.navbar_bell_loadMore()}
+        {/if}
+      </Button>
     {/if}
   </div>
   <div class="border-t p-2">
-    <form {...enhanceWithToast(deleteAllNotifications)}>
+    <form
+      {...enhanceWithToast(deleteAllNotifications, async (helpers) => {
+        if (await helpers.submit()) onClearedAll?.();
+      })}
+    >
       <Button
         aria-label={m.navbar_bell_deleteAll()}
         variant="ghost"
         class="text-muted-foreground w-full"
         type="submit"
-        disabled={list.length === 0}
+        disabled={notifications.length === 0}
         ><Trash class="size-4" />
         {m.navbar_bell_deleteAll()}</Button
       >
     </form>
   </div>
-{/await}
+{/if}

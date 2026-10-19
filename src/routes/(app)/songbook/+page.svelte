@@ -1,5 +1,158 @@
-<script>
-  import NotImplemented from "$lib/components/NotImplemented.svelte";
+<script lang="ts">
+  import * as m from "$paraglide/messages.js";
+  import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+  } from "$lib/components/ui/card/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Badge } from "$lib/components/ui/badge/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
+  import Pagination from "$lib/components/Pagination.svelte";
+  import SearchIcon from "@lucide/svelte/icons/search";
+  import MusicIcon from "@lucide/svelte/icons/music";
+  import Plus from "@lucide/svelte/icons/plus";
+  import { resolve } from "$app/paths";
+  import apiNames from "$lib/utils/apiNames";
+  import { debounce } from "$lib/utils/debounce";
+  import { getFileUrl } from "$lib/files/client.js";
+
+  let { data } = $props();
+
+  const canCreate = $derived(
+    data.user?.policies?.includes(apiNames.SONG.CREATE),
+  );
+
+  const debouncedSearch = debounce((value: string) => {
+    const searchParams = new SvelteURLSearchParams(page.url.searchParams);
+    if (value) {
+      searchParams.set("search", value);
+    } else {
+      searchParams.delete("search");
+    }
+    searchParams.set("page", "1");
+
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
+    goto(`?${searchParams.toString()}`, {
+      keepFocus: true,
+      noScroll: true,
+      replaceState: true,
+    });
+  }, 300);
+
+  function handleSearch(e: Event) {
+    const value = (e.target as HTMLInputElement).value;
+    debouncedSearch(value);
+  }
+
+  // Having two rows of pagination buttons looks weird with few results.
+  const showBottomPagination = $derived(data.songs.length > 2);
 </script>
 
-<NotImplemented />
+<div class="flex flex-col gap-0">
+  <div class="mb-8 flex flex-row items-center justify-between">
+    <div class="md:w-7/12">
+      <div class="mb-4 flex flex-wrap items-center gap-4">
+        <h1 class="mb-0">{m.songbook_header()}</h1>
+        {#if canCreate}
+          <Button
+            href="/songbook/create"
+            size="sm"
+            class="flex items-center gap-2"
+          >
+            <Plus class="h-4 w-4" />
+            {m.songbook_createNewSongbookEntry()}
+          </Button>
+        {/if}
+      </div>
+      <p>{m.songbook_explanation()}</p>
+    </div>
+    <div class="hidden w-3/12 rounded-lg md:block">
+      <div class="rounded-lg border-[1px] shadow-xl">
+        <img
+          class="rounded-lg"
+          src={getFileUrl("minio/files/public/photos/songbook.png")}
+          alt=""
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center">
+      <div class="flex-1">
+        <Input
+          type="text"
+          placeholder={m.songbook_searchPlaceholder()}
+          value={data.search}
+          oninput={handleSearch}
+        >
+          <SearchIcon />
+        </Input>
+      </div>
+    </div>
+  </div>
+
+  {#if data.songs.length > 0}
+    <Pagination pageCount={data.pageCount} class="pb-2" />
+  {/if}
+
+  <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {#each data.songs as { song, page, numberOnPage }, index (song.id)}
+      <a
+        href={resolve(`/songbook/${page}/${numberOnPage}`)}
+        class="block h-full transition-transform"
+      >
+        <Card
+          class="hover:bg-muted/50 animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] h-full cursor-pointer duration-300"
+          style="animation-delay:{index * 50}ms"
+        >
+          <CardHeader>
+            <div class="flex items-start justify-between gap-4">
+              <CardTitle class="flex flex-col gap-1">
+                <span>{song.title}</span>
+              </CardTitle>
+              <Badge variant="outline" class="shrink-0"
+                >{m.songbook_page()} {page}</Badge
+              >
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p
+              class="text-muted-foreground line-clamp-3 text-sm whitespace-pre-wrap"
+            >
+              {song.lyrics}
+            </p>
+          </CardContent>
+        </Card>
+      </a>
+    {:else}
+      <div
+        class="col-span-full flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/20 bg-muted/5 py-16 px-4 text-center shadow-sm animate-in fade-in duration-500"
+      >
+        <div
+          class="bg-primary/10 text-primary mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-primary/20 shadow-lg shadow-primary/5"
+        >
+          <MusicIcon class="h-8 w-8" />
+        </div>
+        <h3 class="text-xl font-bold tracking-tight">
+          {m.songbook_noSongsFound()}
+        </h3>
+        <p class="text-muted-foreground mt-2 max-w-sm text-sm">
+          {m.songbook_noSongsMatchingSearchDescription()}
+        </p>
+      </div>
+    {/each}
+  </div>
+
+  {#if data.songs.length > 0}
+    <Pagination
+      pageCount={data.pageCount}
+      class={{ hidden: !showBottomPagination }}
+    />
+  {/if}
+</div>

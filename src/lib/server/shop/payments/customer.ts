@@ -1,5 +1,5 @@
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import stripe from "./stripe";
+import { getStripe } from "./stripe";
 import { getFullName } from "$lib/utils/client/member";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
@@ -10,7 +10,7 @@ const createStripeCustomer = async ({
 }) => {
   const { id, studentId } = member;
   try {
-    const customer = await stripe.customers.create({
+    const customer = await getStripe().customers.create({
       name: getFullName({ ...member, nickname: null }),
       description: `D-sek member: ${studentId}`,
       metadata: {
@@ -47,7 +47,7 @@ export const obtainStripeCustomer = async (
 
   try {
     // check that customer exists and is not deleted
-    const customer = await stripe.customers.retrieve(stripeCustomerId);
+    const customer = await getStripe().customers.retrieve(stripeCustomerId);
     if (!customer.deleted) {
       return customer;
     }

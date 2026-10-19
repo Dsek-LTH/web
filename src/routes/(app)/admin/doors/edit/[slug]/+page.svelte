@@ -33,6 +33,9 @@
   } from "$lib/components/ui/alert-dialog";
   import * as m from "$paraglide/messages";
   import { untrack } from "svelte";
+  import { isAuthorized } from "$lib/utils/authorization";
+  import apiNames from "$lib/utils/apiNames";
+  import { page } from "$app/state";
 
   let { data }: PageProps = $props();
   let door = $derived(data.door);
@@ -65,129 +68,135 @@
 </script>
 
 <div class="space-y-6">
-  <!-- Form -->
-  <Card>
-    <CardHeader>
-      <CardTitle>{m.admin_doors_addAccessRule()}</CardTitle>
-      <CardDescription>
-        {m.admin_doors_grantOrRestrict({ door: door.verboseName })}
-      </CardDescription>
-    </CardHeader>
-    <CardContent>
-      <form class="space-y-4" method="POST" action="?/create" use:enhance>
-        <!-- TODO: display toast on success and form errors on failure -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+  {#if isAuthorized(apiNames.DOOR.UPDATE, page.data.user)}
+    <!-- Form -->
+    <Card>
+      <CardHeader>
+        <CardTitle>{m.admin_doors_addAccessRule()}</CardTitle>
+        <CardDescription>
+          {m.admin_doors_grantOrRestrict({ door: door.verboseName })}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form class="space-y-4" method="POST" action="?/create" use:enhance>
+          <!-- TODO: display toast on success and form errors on failure -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <div class="space-y-2 sm:col-span-2">
+              <Label for="subject">
+                {#if $form.type === "member"}
+                  {m.admin_doors_member()}
+                {:else}
+                  {m.admin_doors_role()}
+                {/if}
+              </Label>
+              <Input
+                id="subject"
+                name="subject"
+                placeholder={$form.type === "member"
+                  ? "ab1234cd-s"
+                  : "dsek.cpu"}
+                aria-invalid={$errors.subject ? "true" : undefined}
+                bind:value={$form.subject}
+                {...$constraints.subject}
+              />
+            </div>
+
+            <div class="space-y-2">
+              <Label for="type">{m.admin_doors_type()}</Label>
+              <Select
+                type="single"
+                name="type"
+                bind:value={$form.type}
+                {...$constraints.type}
+              >
+                <SelectTrigger id="type" class="w-full">
+                  {typeTrigger}
+                </SelectTrigger>
+                <SelectContent>
+                  {#each types as t (t.value)}
+                    <SelectItem value={t.value} label={t.label}>
+                      {t.label}
+                    </SelectItem>
+                  {/each}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div class="space-y-2">
+              <Label for="mode">{m.admin_doors_mode()}</Label>
+              <Select
+                type="single"
+                name="mode"
+                bind:value={$form.mode}
+                {...$constraints.mode}
+              >
+                <SelectTrigger id="mode" class="w-full">
+                  {modeTrigger}
+                </SelectTrigger>
+                <SelectContent>
+                  {#each modes as m (m.value)}
+                    <SelectItem value={m.value} label={m.label}>
+                      {m.label}
+                    </SelectItem>
+                  {/each}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="space-y-2">
+              <Label for="start-date"
+                >{m.admin_doors_startDate_optional()}</Label
+              >
+              <Input
+                id="start-date"
+                type="datetime-local"
+                name="startDatetime"
+                aria-invalid={$errors.startDatetime ? "true" : undefined}
+                bind:value={$form.startDatetime}
+                {...$constraints.startDatetime}
+              />
+            </div>
+
+            <div class="space-y-2">
+              <Label for="end-date">
+                {#if $form.type === "member"}
+                  {m.admin_doors_endDate()}
+                {:else}
+                  {m.admin_doors_endDate_optional()}
+                {/if}
+              </Label>
+              <Input
+                id="end-date"
+                type="datetime-local"
+                name="endDatetime"
+                aria-invalid={$errors.endDatetime ? "true" : undefined}
+                bind:value={$form.endDatetime}
+                {...$constraints.endDatetime}
+              />
+            </div>
+          </div>
+
           <div class="space-y-2 sm:col-span-2">
-            <Label for="subject">
-              {#if $form.type === "member"}
-                {m.admin_doors_member()}
-              {:else}
-                {m.admin_doors_role()}
-              {/if}
-            </Label>
+            <Label for="reason">{m.admin_doors_reasonLabel()}</Label>
             <Input
-              id="subject"
-              name="subject"
-              placeholder={$form.type === "member" ? "ab1234cd-s" : "dsek.cpu"}
-              aria-invalid={$errors.subject ? "true" : undefined}
-              bind:value={$form.subject}
-              {...$constraints.subject}
+              id="reason"
+              placeholder={m.admin_doors_reasonPlaceholder()}
+              name="reason"
+              aria-invalid={$errors.reason ? "true" : undefined}
+              bind:value={$form.reason}
+              {...$constraints.reason}
             />
           </div>
 
-          <div class="space-y-2">
-            <Label for="type">{m.admin_doors_type()}</Label>
-            <Select
-              type="single"
-              name="type"
-              bind:value={$form.type}
-              {...$constraints.type}
-            >
-              <SelectTrigger id="type" class="w-full">
-                {typeTrigger}
-              </SelectTrigger>
-              <SelectContent>
-                {#each types as t (t.value)}
-                  <SelectItem value={t.value} label={t.label}>
-                    {t.label}
-                  </SelectItem>
-                {/each}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div class="space-y-2">
-            <Label for="mode">{m.admin_doors_mode()}</Label>
-            <Select
-              type="single"
-              name="mode"
-              bind:value={$form.mode}
-              {...$constraints.mode}
-            >
-              <SelectTrigger id="mode" class="w-full">
-                {modeTrigger}
-              </SelectTrigger>
-              <SelectContent>
-                {#each modes as m (m.value)}
-                  <SelectItem value={m.value} label={m.label}>
-                    {m.label}
-                  </SelectItem>
-                {/each}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div class="space-y-2">
-            <Label for="start-date">{m.admin_doors_startDate_optional()}</Label>
-            <Input
-              id="start-date"
-              type="datetime-local"
-              name="startDatetime"
-              aria-invalid={$errors.startDatetime ? "true" : undefined}
-              bind:value={$form.startDatetime}
-              {...$constraints.startDatetime}
-            />
-          </div>
-
-          <div class="space-y-2">
-            <Label for="end-date">
-              {#if $form.type === "member"}
-                {m.admin_doors_endDate()}
-              {:else}
-                {m.admin_doors_endDate_optional()}
-              {/if}
-            </Label>
-            <Input
-              id="end-date"
-              type="datetime-local"
-              name="endDatetime"
-              aria-invalid={$errors.endDatetime ? "true" : undefined}
-              bind:value={$form.endDatetime}
-              {...$constraints.endDatetime}
-            />
-          </div>
-        </div>
-
-        <div class="space-y-2 sm:col-span-2">
-          <Label for="reason">{m.admin_doors_reasonLabel()}</Label>
-          <Input
-            id="reason"
-            placeholder={m.admin_doors_reasonPlaceholder()}
-            name="reason"
-            aria-invalid={$errors.reason ? "true" : undefined}
-            bind:value={$form.reason}
-            {...$constraints.reason}
-          />
-        </div>
-
-        <Button type="submit" class="w-full">
-          {m.admin_doors_add()}
-        </Button>
-      </form>
-    </CardContent>
-  </Card>
+          <Button type="submit" class="w-full">
+            {m.admin_doors_add()}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  {/if}
 
   <!-- Access policy list -->
   <Card>
@@ -243,18 +252,19 @@
                   </p>
                 {/if}
               </div>
-
-              <Button
-                type="submit"
-                size="icon"
-                aria-label="Delete"
-                onclick={() => {
-                  open = true;
-                  selectedPolicy = policy;
-                }}
-              >
-                <TrashIcon />
-              </Button>
+              {#if isAuthorized(apiNames.DOOR.DELETE, page.data.user)}
+                <Button
+                  type="submit"
+                  size="icon"
+                  aria-label="Delete"
+                  onclick={() => {
+                    open = true;
+                    selectedPolicy = policy;
+                  }}
+                >
+                  <TrashIcon />
+                </Button>
+              {/if}
             </li>
           {/each}
         </ul>

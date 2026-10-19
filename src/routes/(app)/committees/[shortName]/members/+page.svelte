@@ -3,6 +3,7 @@
   import PositionGroupCard from "./PositionGroupCard.svelte";
 
   import * as m from "$paraglide/messages";
+  import YearSelector from "$lib/components/YearSelector.svelte";
 
   let { data }: { data: CommitteeLoadData } = $props();
 
@@ -10,7 +11,10 @@
   let rightRow = $derived(data.positions.filter((_, i) => i % 2 == 1));
 </script>
 
-<h2>{m.committees_members()}</h2>
+<div class="flex flex-col justify-between gap-2 md:flex-row md:gap-0">
+  <h2>{m.committees_members()}</h2>
+  <YearSelector />
+</div>
 
 <div class="mt-4 flex flex-row gap-4">
   <div class="hidden w-full flex-col gap-4 lg:flex">

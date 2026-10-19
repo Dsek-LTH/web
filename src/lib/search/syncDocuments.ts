@@ -3,7 +3,7 @@ import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import servePdf from "$lib/utils/servePdf";
 import { error, type NumericRange } from "@sveltejs/kit";
-import { meilisearch } from "./meilisearch";
+import { getMeilisearch } from "./meilisearch";
 import {
   meilisearchConstants,
   type GoverningDocumentDataInMeilisearch,
@@ -33,7 +33,7 @@ export const syncGoverningDocuments = async () => {
   }
 
   const indexName: SearchableIndex = "governingDocuments";
-  const documentsIndex = await meilisearch.getIndex(indexName);
+  const documentsIndex = await getMeilisearch().getIndex(indexName);
   await resetIndex(documentsIndex, meilisearchConstants.governingDocument);
 
   // In Prisma, we store our governing documents, which has a URL to the actual document.
@@ -110,7 +110,7 @@ export const syncMeetingDocuments = async () => {
       return [];
     });
   const indexName: SearchableIndex = "meetingDocuments";
-  const documentsIndex = await meilisearch.getIndex(indexName);
+  const documentsIndex = await getMeilisearch().getIndex(indexName);
   await resetIndex(documentsIndex, meilisearchConstants.meetingDocument);
 
   for (let i = 0; i < files.length; i += batchSize) {

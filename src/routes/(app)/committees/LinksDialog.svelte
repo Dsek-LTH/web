@@ -68,6 +68,7 @@
           <Editor
             placeholder="**Heading**
 [link](/committees/committee/page)"
+            name="markdownEn"
             bind:value={$form.markdownEn as string | undefined}
             aria-invalid={!!$errors.markdownEn}
           />

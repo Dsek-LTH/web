@@ -14,7 +14,7 @@
 
   import * as m from "$paraglide/messages";
   import LinksDialog from "./LinksDialog.svelte";
-  import { marked } from "marked";
+  import { Marked } from "marked";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
@@ -25,6 +25,18 @@
   let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
 
   let committee = $derived(data.committee);
+
+  const renderer = {
+    // needed to preserve line breaks
+    br(): string {
+      return `
+            <span><br /></span>`;
+    },
+  };
+
+  const breakMarked = new Marked();
+
+  breakMarked.use({ renderer });
 </script>
 
 <div class="sm:layout-container sm:py-0">
@@ -90,7 +102,7 @@
         href="/about#committees"><ArrowLeft class="size-4" />{m.back()}</a
       >
       <div
-        class="[&_a]:text-muted-foreground [&_a]:hover:text-foreground flex flex-col gap-1 [&_a]:transition-all [&_strong]:font-medium"
+        class="[&_a]:text-muted-foreground [&_a]:hover:text-foreground flex flex-col gap-1 leading-normal [&_a]:transition-all [&_strong]:font-medium"
       >
         <span class="font-medium">{committee.name}</span>
         <a href="/committees/{committee.shortName}">{m.committees_about()}</a>
@@ -100,15 +112,14 @@
         <a href="/committees/{committee.shortName}/news"
           >{m.committees_news()}</a
         >
-        <span>&nbsp;</span>
         <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
-        {@html marked.parseInline(data.links?.markdown ?? "")}
+        {@html breakMarked.parseInline(data.links?.markdown ?? "")}
       </div>
       {#if canEdit}
         <LinksDialog {data} />
       {/if}
     </aside>
-    <main class="w-full border-x-[1px] p-8">
+    <main class="w-full min-w-0 flex-1 border-x-[1px] p-8">
       {@render children?.()}
     </main>
   </div>

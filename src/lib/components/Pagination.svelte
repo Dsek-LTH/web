@@ -2,10 +2,13 @@
   import { page } from "$app/state";
   import * as Pagination from "$lib/components/ui/pagination";
   import { cn } from "$lib/utils";
+  import type { ClassValue } from "svelte/elements";
   import { SvelteURLSearchParams } from "svelte/reactivity";
 
-  let { pageCount = 10, class: klass }: { pageCount?: number; class?: string } =
-    $props();
+  let {
+    pageCount = 10,
+    class: klass,
+  }: { pageCount?: number; class?: ClassValue } = $props();
 
   let thisPage = $derived(
     Number.parseInt(page.url.searchParams?.get("page") ?? "1"),

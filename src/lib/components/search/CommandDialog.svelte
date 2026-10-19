@@ -26,18 +26,16 @@
   import SongSearchResult from "./SongSearchResult.svelte";
   import DocumentSearchResult from "./DocumentSearchResult.svelte";
   import { resolve } from "$app/paths";
+  import { debounce } from "$lib/utils/debounce";
+  import { page } from "$app/state";
 
   let { open = $bindable(false) } = $props();
 
   let formElement: HTMLFormElement | null = $state(null);
   let inputElement: HTMLInputElement | null = $state(null);
-  let listItems: HTMLElement[] = $state([]);
-  let advancedSearchElement: HTMLElement | null = $state(null);
 
   let input = $state("");
-  let currentIndex = $state(-1);
   let isSearching = $state(false);
-  let timeout: ReturnType<typeof setTimeout> | null = null;
   let results: SearchDataWithType[] = $state([]);
 
   let groupedResults = $derived<{
@@ -72,84 +70,35 @@
     songs: results.filter((r) => r.type === "songs"),
   });
 
-  function handleSearch() {
-    // Cancel the previous timeout
-    if (timeout) clearTimeout(timeout);
+  const debouncedSearch = debounce(() => {
+    formElement?.requestSubmit();
+  }, 300);
 
-    // When user requests a search with empty string
-    // Happens when the user deletes the last key of the input
-    // We shouldn't search then
+  function handleSearch() {
     if (!input) {
+      debouncedSearch.cancel();
       isSearching = false;
       results = [];
       return;
-    } else {
-      // Do the search after 300ms
-      timeout = setTimeout(() => {
-        formElement?.requestSubmit();
-        currentIndex = -1;
-      }, 300);
-      isSearching = true;
     }
+    isSearching = true;
+    debouncedSearch();
   }
 
-  function captureListItems() {
-    // Capture all the search results, and the advanced search link
-    const resultElements = Array.from(
-      document.querySelectorAll("[data-search-result]"),
-    ) as HTMLElement[];
-
-    listItems = advancedSearchElement
-      ? [...resultElements, advancedSearchElement]
-      : resultElements;
-  }
-
+  // Arrow keys and Enter are handled by the Command component itself, which
+  // keeps focus in the input and highlights the selected result
   function handleKeydown(event: KeyboardEvent) {
     // Most probable case first: user just presses a key
     // We should then start searching
     if (
-      (open && currentIndex !== -1 && event.key.length === 1) ||
+      (open &&
+        document.activeElement !== inputElement &&
+        event.key.length === 1) ||
       ((event.key === "Backspace" || event.key === "Delete") &&
         input.length > 0)
     ) {
       isSearching = true;
       inputElement?.focus();
-      return;
-    }
-
-    // Second most probable case: user presses arrow keys
-    if (open && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
-      captureListItems();
-      event.preventDefault();
-
-      // Move the index based on the key pressed
-      if (event.key === "ArrowDown") {
-        if (currentIndex + 1 < listItems.length) {
-          currentIndex++;
-        }
-      } else if (event.key === "ArrowUp") {
-        if (currentIndex > 0) {
-          currentIndex--;
-        } else {
-          // Focus the input if we're at the top of the list
-          currentIndex = -1;
-          inputElement?.focus();
-          return;
-        }
-      }
-      // Update focus
-      listItems[currentIndex]?.focus();
-      return;
-    }
-
-    // User presses enter
-    if (open && event.key === "Enter") {
-      captureListItems();
-      // If we have a current index, click it
-      if (currentIndex !== -1) {
-        listItems[currentIndex]?.click();
-      }
-      event.preventDefault();
       return;
     }
 
@@ -163,7 +112,6 @@
     // User presses escape, close the dialog and blur the input
     if (open && event.key === "Escape") {
       inputElement?.blur();
-      currentIndex = -1;
       open = false;
       return;
     }
@@ -186,16 +134,20 @@
   // Reset input when dialog closes
   $effect(() => {
     if (!open) {
+      debouncedSearch.cancel();
       input = "";
       results = [];
-      currentIndex = -1;
     }
   });
 
   export { open };
 </script>
 
-<Command.Dialog bind:open shouldFilter={false}>
+<Command.Dialog
+  inset={page.data?.appInfo?.insets?.top ?? 0}
+  bind:open
+  shouldFilter={false}
+>
   <form
     method="POST"
     action="/search"
@@ -306,7 +258,6 @@
       <Command.Separator />
       <Command.Group>
         <Command.Item
-          bind:ref={advancedSearchElement}
           onSelect={() => {
             open = false;
             // eslint-disable-next-line svelte/no-navigation-without-resolve -- resolve is used, we only add parameters, see sveltejs/kit#14750

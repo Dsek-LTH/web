@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Command from "$lib/components/ui/command/index.js";
+  import * as Popover from "$lib/components/ui/popover/index.js";
   import * as m from "$paraglide/messages";
   import type {
     MemberSearchReturnAttributes,
@@ -12,6 +13,7 @@
   import { Button } from "$lib/components/ui/button";
   import { onMount } from "svelte";
   import { cn } from "$lib/utils";
+  import { debounce } from "$lib/utils/debounce";
 
   let {
     selectedMembers = $bindable([]),
@@ -21,9 +23,12 @@
     multiple = false,
     showId = true,
     showClass = true,
+    showNickname = true,
     limit = 0,
     class: klass = "",
     inputClass = "",
+    onchange = $bindable(),
+    onremove = $bindable(),
     ...restProps
   }: {
     selectedMembers?: Array<MemberSearchReturnAttributes & { id?: string }>;
@@ -33,30 +38,44 @@
     multiple: boolean;
     showId: boolean;
     showClass: boolean;
+    showNickname?: boolean;
     limit?: number;
     class?: string;
     inputClass?: string;
+    onchange?: () => void;
+    onremove?: () => void;
   } & InputProps = $props();
 
   let componentElement: HTMLElement | null = $state(null);
   let inputElement: HTMLInputElement | null = $state(null);
   let selectedItemsElement: HTMLElement | null = $state(null);
-  let searchResultElement: HTMLElement | null = $state(null);
+  let popoverContentElement: HTMLElement | null = $state(null);
   let addedItems: HTMLElement[] = $state([]);
   let triggerElement: HTMLElement | null = $state(null);
   let addedItemsIndex = $state(-1);
   let isSearching = $state(false);
 
+  // Make sure the popover gets the correct z-index.
+  let inDialog = $derived(
+    !!(componentElement as HTMLElement | null)?.closest(
+      '[data-slot="dialog-content"]',
+    ),
+  );
+
   $effect(() => {
     if (selectedMember?.id) {
-      selectedMemberId = new TextDecoder().decode(
-        base64ToBytes(selectedMember?.id),
-      );
+      if (selectedMember.id.includes("-")) {
+        selectedMemberId = selectedMember.id;
+      } else {
+        selectedMemberId = new TextDecoder().decode(
+          base64ToBytes(selectedMember?.id),
+        );
+      }
     }
     if (selectedMembers) {
-      selectedMembersIds = selectedMembers.map((m) =>
-        new TextDecoder().decode(base64ToBytes(m.id!)),
-      );
+      selectedMembersIds = selectedMembers
+        .filter((m) => !m.id?.includes("-"))
+        .map((m) => new TextDecoder().decode(base64ToBytes(m.id!)));
     }
   });
 
@@ -72,7 +91,6 @@
   });
 
   let input = $state("");
-  let timeout: ReturnType<typeof setTimeout> | null = null;
   let results: SearchDataWithType[] = $state([]);
   let filteredResults: MemberSearchReturnAttributes[] = $derived<
     MemberSearchReturnAttributes[]
@@ -86,37 +104,33 @@
     }),
   );
 
-  async function handleSearch() {
-    if (timeout) clearTimeout(timeout);
+  const debouncedSearch = debounce(async (searchQuery: string) => {
+    const url = new URL("/api/search", window.location.origin);
+    url.searchParams.set("query", searchQuery);
+    url.searchParams.set("indexes", JSON.stringify(["members"]));
+    url.searchParams.set("limit", "10");
+    url.searchParams.set("offset", "0");
+    const response = await fetch(url, {
+      method: "GET",
+    });
 
+    if (response.ok) {
+      results = [...(await response.json())];
+    } else {
+      results = [];
+    }
+    isSearching = false;
+  }, 200);
+
+  function handleSearch() {
     if (!input) {
+      debouncedSearch.cancel();
       isSearching = false;
       results = [];
       return;
-    } else {
-      timeout = setTimeout(async () => {
-        if (!input) {
-          results = [];
-          return;
-        }
-        const url = new URL("/api/search", window.location.origin);
-        url.searchParams.set("query", input);
-        url.searchParams.set("indexes", JSON.stringify(["members"]));
-        url.searchParams.set("limit", "10");
-        url.searchParams.set("offset", "0");
-        const response = await fetch(url, {
-          method: "GET",
-        });
-
-        if (response.ok) {
-          results = [...(await response.json())];
-        } else {
-          results = [];
-        }
-        isSearching = false;
-      }, 200);
-      isSearching = true;
     }
+    isSearching = true;
+    debouncedSearch(input);
   }
 
   function captureAddedItems() {
@@ -219,12 +233,20 @@
   function handleComponentFocusOut(event: FocusEvent) {
     const next = event.relatedTarget as Node | null;
 
-    // Still inside the component -> keep results open
-    if (next && componentElement?.contains(next)) return;
+    // Still inside the component (or its portaled results) -> keep results open
+    if (
+      next &&
+      (componentElement?.contains(next) ||
+        popoverContentElement?.contains(next))
+    )
+      return;
 
     // Wait one tick so activeElement is updated (mouse/tab)
     setTimeout(() => {
-      if (!componentElement?.contains(document.activeElement)) {
+      if (
+        !componentElement?.contains(document.activeElement) &&
+        !popoverContentElement?.contains(document.activeElement)
+      ) {
         results = [];
       }
     }, 0);
@@ -248,6 +270,7 @@
     selectedMembers = selectedMembers.filter(
       (mem) => mem.studentId !== member.studentId,
     );
+    onremove?.();
   }
 </script>
 
@@ -282,7 +305,12 @@
             class="added-item hover:bg-muted bg-background h-full cursor-pointer rounded-full p-0"
             onclick={() => removeMember(member)}
           >
-            <MemberCard {member} links={false} class="rounded-full p-1 pr-2">
+            <MemberCard
+              {member}
+              nickname={showNickname}
+              links={false}
+              class="rounded-full p-1 pr-2"
+            >
               <X class="h-4 w-4" />
             </MemberCard>
           </Button>
@@ -301,44 +329,59 @@
             bind:ref={inputElement}
             oninput={handleSearch}
             autocomplete="off"
+            {onchange}
           />
-          {#if input && isFocused()}
-            <Command.List
-              class="bg-popover absolute top-full z-50 mt-2 max-h-64 w-max overflow-auto rounded-md border-[1px] shadow-md"
-              style="
-                  max-width: calc(100vw - 2rem);
-                  margin-left:
-                    min(
-                      -0.5rem,
-                      calc(100vw - {searchResultElement?.getBoundingClientRect()
-                .width ?? 0}px - {inputElement?.getBoundingClientRect().left ??
-                0}px - 1rem)
-                  );
-                "
-              bind:ref={searchResultElement}
+          <!-- Portaled to <body> so ancestor overflow/stacking can't clip it -->
+          <Popover.Root
+            bind:open={() => !!input && isFocused(), () => undefined}
+          >
+            <Popover.Content
+              bind:ref={popoverContentElement}
+              customAnchor={triggerElement}
+              align="start"
+              sideOffset={8}
+              trapFocus={false}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              onInteractOutside={(e) => {
+                // Clicking the input/chips is not "outside"
+                if (
+                  e.target instanceof Node &&
+                  componentElement?.contains(e.target)
+                ) {
+                  e.preventDefault();
+                }
+              }}
+              onmousedown={(e) => e.preventDefault()}
+              class={cn(
+                "w-max max-w-[calc(100vw-2rem)] p-0",
+                inDialog ? "z-250" : "z-10",
+              )}
             >
-              <Command.Empty class="p-4 pb-2 text-center text-sm">
-                {isSearching ? m.search_searching() : m.search_noResults()}
-              </Command.Empty>
-              <Command.Group class="w-full p-2 pb-0">
-                {#each filteredResults as result (result.studentId)}
-                  <Command.Item
-                    data-search-result
-                    onclick={() => addMember(result)}
-                    class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
-                  >
-                    <MemberCard
-                      member={result}
-                      links={false}
-                      {showId}
-                      {showClass}
-                      class="w-full rounded-full p-1 pr-2  "
-                    />
-                  </Command.Item>
-                {/each}
-              </Command.Group>
-            </Command.List>
-          {/if}
+              <Command.List class="max-h-64 overflow-auto">
+                <Command.Empty class="p-4 pb-2 text-center text-sm">
+                  {isSearching ? m.search_searching() : m.search_noResults()}
+                </Command.Empty>
+                <Command.Group class="w-full p-2 pb-0">
+                  {#each filteredResults as result (result.studentId)}
+                    <Command.Item
+                      onclick={() => addMember(result)}
+                      class="mb-2 w-full cursor-pointer rounded-full p-0 opacity-80 data-selected:opacity-100"
+                    >
+                      <MemberCard
+                        member={result}
+                        links={false}
+                        nickname={showNickname}
+                        {showId}
+                        {showClass}
+                        class="w-full rounded-full p-1 pr-2  "
+                      />
+                    </Command.Item>
+                  {/each}
+                </Command.Group>
+              </Command.List>
+            </Popover.Content>
+          </Popover.Root>
         </li>
       {/if}
     </ul>

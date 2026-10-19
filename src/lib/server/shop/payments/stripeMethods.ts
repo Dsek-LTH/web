@@ -6,7 +6,7 @@ import {
 import * as m from "$paraglide/messages";
 import Stripe from "stripe";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import stripe from "./stripe";
+import { getStripe } from "./stripe";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
 type RequiredProps = "amount" | "metadata" | "customer";
@@ -19,7 +19,7 @@ type Props = Pick<Stripe.PaymentIntentCreateParams, RequiredProps> &
  * Creates a payment intent for a purchase.
  */
 export const createPaymentIntent = ({ idempotencyKey, ...params }: Props) => {
-  return stripe.paymentIntents.create(
+  return getStripe().paymentIntents.create(
     {
       currency: "SEK",
       automatic_payment_methods: {
@@ -38,7 +38,7 @@ export const updatePaymentIntent = (
   id: string,
   params: Omit<Stripe.PaymentIntentUpdateParams, "currency" | "description">,
 ) => {
-  return stripe.paymentIntents.update(id, {
+  return getStripe().paymentIntents.update(id, {
     currency: "SEK",
     description: "D-sek webshop purchase",
     ...params,
@@ -63,7 +63,7 @@ export const getPaymentIntent = (
   intentId: string,
   params?: Stripe.PaymentIntentRetrieveParams,
 ) => {
-  return stripe.paymentIntents.retrieve(intentId, params);
+  return getStripe().paymentIntents.retrieve(intentId, params);
 };
 
 export const resetConsumablesForIntent = async (intentId: string) => {
@@ -87,7 +87,7 @@ After it's canceled, no additional charges are made by the PaymentIntent and any
 You can't cancel the PaymentIntent for a Checkout Session. Expire the Checkout Session instead.
  */
 export const removePaymentIntent = async (intentId: string) => {
-  await stripe.paymentIntents.cancel(intentId);
+  await getStripe().paymentIntents.cancel(intentId);
   await resetConsumablesForIntent(intentId);
 };
 
@@ -144,7 +144,7 @@ export const refundConsumable = async (
     if (intent.status !== "succeeded") return; // refund can be seen as not necessary
     // if already refunded, or disputed and lost
     if ((intent.latest_charge as Stripe.Charge | null)?.refunded) return; // already refunded
-    const refund = await stripe.refunds.create({
+    const refund = await getStripe().refunds.create({
       amount: Math.min(intent.amount_received, amount),
       payment_intent: stripeIntentId,
     });

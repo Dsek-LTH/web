@@ -1,5 +1,5 @@
 import type { Index, EnqueuedTask } from "meilisearch";
-import { meilisearch } from "./meilisearch";
+import { getMeilisearch } from "./meilisearch";
 import type { MeilisearchConstants } from "./searchTypes";
 
 /**
@@ -15,7 +15,7 @@ export async function waitForTask(
   console.log(`Meilisearch: Waiting for "${taskName}" to finish`);
   const enqueued = await fn();
   const taskUid = enqueued.taskUid;
-  return await meilisearch
+  return await getMeilisearch()
     .waitForTask(taskUid, { timeOutMs })
     .then((task) => {
       console.log(

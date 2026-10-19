@@ -1,6 +1,6 @@
 // in src/routes/stripe/webhooks/+server.js
 import { env } from "$env/dynamic/private";
-import stripe from "$lib/server/shop/payments/stripe";
+import { getStripe } from "$lib/server/shop/payments/stripe";
 import {
   onPaymentCancellation,
   onPaymentFailure,
@@ -23,7 +23,7 @@ export async function POST({ request }) {
 
   // verify it
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       env.SECRET_STRIPE_WEBHOOK_SIGNING,

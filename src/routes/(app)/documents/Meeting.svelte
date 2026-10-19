@@ -6,11 +6,12 @@
   import type { FileData } from "$lib/files/fileHandler";
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "./DeleteFileForm.svelte";
-  import FileLink from "./FileLink.svelte";
+  import FileLink from "$lib/components/files/FileLink.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { DeleteSchema } from "./+page.server";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
+  import { cn } from "$lib/utils";
 
   let {
     deleteForm,
@@ -27,16 +28,20 @@
   const findFile = (names: string[]) =>
     files
       .filter((f) =>
-        names.some((s) => f.name.toLowerCase().includes(s.toLowerCase())),
+        names.some((s) => f.name.toLowerCase().startsWith(s.toLowerCase())),
       )
       .sort(
         (f1, f2) => (f1.modDate?.getTime() ?? 0) - (f2.modDate?.getTime() ?? 0),
       )
       .pop();
 
-  let notice = findFile(["Kallelse", "Notice"]);
-  let agenda = findFile(["Föredragningslista", "Foredragningslista", "Agenda"]);
-  let minutes = findFile(["Protokoll", "Minutes, Minute"]);
+  let notice = $derived(findFile(["Kallelse", "Notice"]));
+  let agenda = $derived(
+    findFile(["Föredragningslista", "Foredragningslista", "Agenda"]),
+  );
+  let minutes = $derived(
+    findFile(["Protokoll", "Mötesprotokoll", "Minutes", "Minute"]),
+  );
 
   let filteredFiles = $derived(
     files.filter((f) => {
@@ -52,14 +57,15 @@
   <h4 class="ml-2 pb-1">{name}</h4>
   <section class="flex flex-col rounded-md">
     <div
-      class="bg-background flex flex-row gap-2 rounded-t-md border-[1px] p-2"
+      class="bg-background flex flex-row flex-wrap gap-2 rounded-t-md border-[1px] p-2"
     >
       <a href={notice && notice.thumbnailUrl!}
         ><Button
           disabled={!notice}
           variant="outline"
           class="cursor-pointer rounded-sm"
-          ><FileText /> {m.documents_notice()}</Button
+          ><FileText class="text-rosa-background" />
+          {m.documents_notice()}</Button
         ></a
       >
       <a href={agenda && agenda.thumbnailUrl!}
@@ -67,7 +73,8 @@
           variant="outline"
           disabled={!agenda}
           class="cursor-pointer rounded-sm"
-          ><FileText /> {m.documents_agenda()}</Button
+          ><FileText class="text-rosa-background" />
+          {m.documents_agenda()}</Button
         ></a
       >
       <a href={minutes && minutes.thumbnailUrl!}
@@ -75,7 +82,8 @@
           variant="outline"
           disabled={!minutes}
           class="cursor-pointer rounded-sm"
-          ><FileText /> {m.documents_minutes()}</Button
+          ><FileText class="text-rosa-background" />
+          {m.documents_minutes()}</Button
         ></a
       >
     </div>
@@ -86,9 +94,12 @@
         <div class="flex items-center gap-0">
           {#if file.thumbnailUrl}
             <FileLink
-              class={isEditing
-                ? "rounded-full! rounded-r-none! border-[1px] border-r-0"
-                : ""}
+              class={cn(
+                isEditing
+                  ? "rounded-full! rounded-r-none! border-[1px] border-r-0"
+                  : "",
+                "*:shrink-0",
+              )}
               name={file.name}
               url={file.thumbnailUrl}
               full

@@ -51,7 +51,7 @@
 <SetPageTitle title={m.onboarding()} />
 <div
   class="hero-image min-h-screen bg-cover bg-center"
-  style:--url="url({getFileUrl('minio/files/public/photos/stock2.jpg')})"
+  style:--url="url({getFileUrl('minio/files/public/photos/stock2.webp')})"
 >
   <div class="min-h-screen bg-cover py-16 md:bg-transparent">
     <div
@@ -91,20 +91,15 @@
         </div>
         <div class="grid w-full items-center gap-1.5">
           <Label for="email">{m.onboarding_email()}</Label>
-          <Input
-            name="email"
-            required
-            disabled
-            readonly
-            bind:value={$form.email}
-            {...$constraints.email}
-            aria-errormessage={$errors.email?.at(0)}><Mail /></Input
+          <Input id="email" disabled readonly value={data.member.email}
+            ><Mail /></Input
           >
         </div>
         <div class="grid w-full items-center gap-1.5">
-          <Label for="pref">{m.onboarding_foodPreference()}</Label>
+          <Label for="foodPreference">{m.onboarding_foodPreference()}</Label>
           <Input
-            name="pref"
+            id="foodPreference"
+            name="foodPreference"
             bind:value={$form.foodPreference}
             {...$constraints.foodPreference}
             placeholder={m.onboarding_foodPreferencePlaceholder()}
@@ -121,8 +116,11 @@
               bind:value={$form.classProgramme as string | undefined}
             >
               <Select.Trigger class="w-full"
-                ><span class="flex flex-row items-center gap-1.5"
-                  ><Book />{$form.classProgramme}</span
+                ><span
+                  class="flex flex-row items-center gap-1.5 {$form.classProgramme
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'}"
+                  ><Book />{$form.classProgramme ?? m.onboarding_choose()}</span
                 ></Select.Trigger
               >
               <Select.Content>
@@ -157,10 +155,13 @@
             name="nollningGroupId"
             bind:value={$form.nollningGroupId as string | undefined}
           >
-            <Select.Trigger class="w-full"
+            <Select.Trigger
+              class="w-full {$form.nollningGroupId
+                ? 'text-foreground'
+                : 'text-muted-foreground'}"
               ><Users />{$form.nollningGroupId
                 ? phaddergroups.find((g) => g.id == $form.nollningGroupId)!.name
-                : ""}</Select.Trigger
+                : m.onboarding_choose()}</Select.Trigger
             >
             <Select.Content>
               {#each phaddergroups as group (group.id)}
