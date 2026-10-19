@@ -27,6 +27,11 @@ export const ticketReleaseSchema = z
 
 export type TicketReleaseSchema = Infer<typeof ticketReleaseSchema>;
 
+// Pinned to Europe/Stockholm (the zone the forms use) so SSR, which runs in
+// the server's timezone, renders the same text the client hydrates with.
+export const formatTicketDate = (date: string | Date) =>
+  new Date(date).toLocaleString("sv-SE", { timeZone: "Europe/Stockholm" });
+
 // EventID/opensAt aren't editable after publishing - see UpdateReleaseInput
 // in ticket-service for why. Server-side validation (closesAt vs. the fixed
 // opensAt/expiresAt) still applies and surfaces as a form error.

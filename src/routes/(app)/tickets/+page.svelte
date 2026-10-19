@@ -16,6 +16,7 @@
   import {
     releaseStatusLabel,
     releaseStatusBadgeVariant,
+    formatTicketDate,
   } from "$lib/utils/ticketRelease";
 
   let { data } = $props();
@@ -94,7 +95,7 @@
               </div>
               <span class="text-muted-foreground text-sm">
                 {m.ticketRelease_list_opensAt({
-                  date: new Date(release.opensAt).toLocaleString("sv-SE"),
+                  date: formatTicketDate(release.opensAt),
                 })}
               </span>
             </div>

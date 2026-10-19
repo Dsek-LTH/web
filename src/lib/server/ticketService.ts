@@ -1,5 +1,6 @@
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 import { env } from "$env/dynamic/private";
+import { error } from "@sveltejs/kit";
 
 export class TicketServiceError extends Error {
   status: number;
@@ -119,6 +120,25 @@ export const listTicketReleases = (
 
 export const getTicketRelease = (req: Request, releaseId: string) =>
   request<ReleaseSummary>(req, "GET", `/releases/${releaseId}`);
+
+// For page loads: a missing release (404) or malformed id (400) becomes a
+// SvelteKit 404 instead of a 500.
+export const getTicketReleaseOr404 = async (
+  req: Request,
+  releaseId: string,
+) => {
+  try {
+    return await getTicketRelease(req, releaseId);
+  } catch (err) {
+    if (
+      err instanceof TicketServiceError &&
+      (err.status === 404 || err.status === 400)
+    ) {
+      error(404, "Biljettsläppet hittades inte");
+    }
+    throw err;
+  }
+};
 
 export const requestTicket = (req: Request, releaseId: string) =>
   request<TicketQueueEntry>(req, "POST", `/releases/${releaseId}/request`);

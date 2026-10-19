@@ -18,6 +18,7 @@
   import {
     ticketStatusLabel,
     ticketStatusBadgeVariant,
+    formatTicketDate,
   } from "$lib/utils/ticketRelease";
   import TicketIcon from "@lucide/svelte/icons/ticket";
   import Users from "@lucide/svelte/icons/users";
@@ -41,7 +42,9 @@
       nowMs = Date.now();
     }, 1000);
     const poll = setInterval(() => {
-      if (!submitting) invalidate("ticket:status");
+      if (submitting || !shouldPoll || document.visibilityState !== "visible")
+        return;
+      invalidate("ticket:status");
     }, POLL_INTERVAL_MS);
     return () => {
       clearInterval(tick);
@@ -67,6 +70,17 @@
   const releaseIsOpen = $derived(msUntilOpen <= 0);
   const releaseIsClosed = $derived(
     new Date(data.release.closesAt).getTime() <= serverNowMs,
+  );
+
+  // Nothing changes long before opening, and once closed only a member still
+  // holding a live entry can see it move (promotion, offer expiry).
+  const hasLiveEntry = $derived(
+    data.status?.status === "pending" ||
+      data.status?.status === "waitlisted" ||
+      data.status?.status === "granted",
+  );
+  const shouldPoll = $derived(
+    msUntilOpen <= POLL_INTERVAL_MS && (!releaseIsClosed || hasLiveEntry),
   );
 
   // Live countdown for the last day before opening, so there's no reason to
@@ -169,7 +183,7 @@
           <p class="flex items-center gap-2">
             <Hourglass class="h-4 w-4" />
             {m.ticketRelease_detail_opensAtFuture({
-              date: new Date(data.release.opensAt).toLocaleString("sv-SE"),
+              date: formatTicketDate(data.release.opensAt),
             })}
           </p>
           {#if opensInCountdown}

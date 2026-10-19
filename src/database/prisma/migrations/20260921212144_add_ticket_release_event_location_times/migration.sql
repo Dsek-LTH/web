@@ -10,6 +10,9 @@ ALTER TABLE "ticket_release"
 -- brand new - but keep the migration correct regardless of dev DB state).
 UPDATE "ticket_release" SET "closes_at" = "opens_at" + INTERVAL '7 days' WHERE "closes_at" IS NULL;
 UPDATE "ticket_release" SET "expires_at" = "opens_at" + INTERVAL '30 days' WHERE "expires_at" IS NULL;
+-- event_id has no sensible backfill value, so drop any pre-existing releases
+-- (and, via ON DELETE CASCADE, their queue entries) instead.
+DELETE FROM "ticket_release" WHERE "event_id" IS NULL;
 
 ALTER TABLE "ticket_release"
     ALTER COLUMN "event_id" SET NOT NULL,

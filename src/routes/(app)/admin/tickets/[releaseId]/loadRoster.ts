@@ -1,6 +1,9 @@
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import { getTicketRelease, listTicketEntries } from "$lib/server/ticketService";
+import {
+  getTicketReleaseOr404,
+  listTicketEntries,
+} from "$lib/server/ticketService";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import type { AuthUser } from "@zenstackhq/runtime";
 
@@ -15,10 +18,9 @@ export const loadRoster = async (
 ) => {
   authorize(apiNames.WEBSHOP.MANAGE, user);
 
-  const [release, entries] = await Promise.all([
-    getTicketRelease(request, releaseId),
-    listTicketEntries(request, releaseId),
-  ]);
+  // Fetch the release first so a bad id 404s before the entries call fails.
+  const release = await getTicketReleaseOr404(request, releaseId);
+  const entries = await listTicketEntries(request, releaseId);
 
   const members = await prisma.member.findMany({
     where: { studentId: { in: entries.map((e) => e.memberId) } },

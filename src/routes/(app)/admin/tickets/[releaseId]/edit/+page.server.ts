@@ -2,7 +2,7 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { ticketReleaseEditSchema } from "$lib/utils/ticketRelease";
 import {
-  getTicketRelease,
+  getTicketReleaseOr404,
   updateTicketRelease,
 } from "$lib/server/ticketService";
 import * as m from "$paraglide/messages";
@@ -20,7 +20,7 @@ export const load = async ({ params, locals, request }) => {
   const { user } = locals;
   authorize(apiNames.WEBSHOP.MANAGE, user);
 
-  const release = await getTicketRelease(request, params.releaseId);
+  const release = await getTicketReleaseOr404(request, params.releaseId);
 
   return {
     release,

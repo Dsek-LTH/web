@@ -12,6 +12,7 @@
   import {
     releaseStatusLabel,
     releaseStatusBadgeVariant,
+    formatTicketDate,
   } from "$lib/utils/ticketRelease";
 
   let { data } = $props();
@@ -107,7 +108,7 @@
               </Table.Cell>
               <Table.Cell>{entry.member?.foodPreference ?? ""}</Table.Cell>
               <Table.Cell>
-                {new Date(entry.requestedAt).toLocaleString("sv-SE")}
+                {formatTicketDate(entry.requestedAt)}
               </Table.Cell>
             </Table.Row>
           {/each}

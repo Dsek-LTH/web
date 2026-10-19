@@ -46,6 +46,17 @@ LEFT JOIN ticket_queue_entry q ON q.release_id = r.id
 WHERE r.id = $1
 GROUP BY r.quantity;
 
+-- name: ListReleaseCounts :many
+SELECT
+    r.id,
+    r.quantity::int AS quantity,
+    count(*) FILTER (WHERE q.status IN ('granted', 'accepted'))::int AS claimed,
+    count(*) FILTER (WHERE q.status = 'waitlisted')::int AS waitlisted
+FROM ticket_release r
+LEFT JOIN ticket_queue_entry q ON q.release_id = r.id
+WHERE r.id = ANY(@ids::uuid[])
+GROUP BY r.id;
+
 -- name: InsertQueueEntry :one
 -- Idempotent: a repeat request for the same (release, member) just returns
 -- the existing row unchanged instead of erroring - unless that row is

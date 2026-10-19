@@ -8,6 +8,7 @@
   import {
     releaseStatusLabel,
     releaseStatusBadgeVariant,
+    formatTicketDate,
   } from "$lib/utils/ticketRelease";
 
   let { data } = $props();
@@ -47,7 +48,7 @@
             <Table.Row>
               <Table.Cell class="font-medium">{release.title}</Table.Cell>
               <Table.Cell>
-                {new Date(release.opensAt).toLocaleString("sv-SE")}
+                {formatTicketDate(release.opensAt)}
               </Table.Cell>
               <Table.Cell>
                 <Badge variant={releaseStatusBadgeVariant(release.status)}>

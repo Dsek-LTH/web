@@ -1,5 +1,5 @@
 import {
-  getTicketRelease,
+  getTicketReleaseOr404,
   getTicketStatus,
   requestTicket,
   acceptTicketOffer,
@@ -8,28 +8,24 @@ import {
 } from "$lib/server/ticketService";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
-import { error, fail } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 
 export const load = async ({ params, locals, request, depends }) => {
   depends("ticket:status");
 
-  let release;
-  try {
-    release = await getTicketRelease(request, params.releaseId);
-  } catch (err) {
-    if (err instanceof TicketServiceError && err.status === 404) {
-      error(404, "Biljettsläppet hittades inte");
-    }
-    throw err;
-  }
+  const release = await getTicketReleaseOr404(request, params.releaseId);
 
   let status = null;
-  const loggedIn = !!locals.member;
+  let loggedIn = !!locals.member;
   if (loggedIn) {
     try {
       status = await getTicketStatus(request, params.releaseId);
     } catch (err) {
-      if (!(err instanceof TicketServiceError && err.status === 404)) throw err;
+      if (!(err instanceof TicketServiceError)) throw err;
+      // 401: the session's id_token has expired - show the sign-in prompt
+      // rather than failing the whole page.
+      if (err.status === 401) loggedIn = false;
+      else if (err.status !== 404) throw err;
     }
   }
 

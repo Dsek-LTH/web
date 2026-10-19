@@ -216,6 +216,32 @@ func (s *Service) GetCounts(ctx context.Context, releaseID string) (Counts, erro
 	}, nil
 }
 
+// GetCountsForReleases is GetCounts for many releases in one query, keyed by
+// release ID.
+func (s *Service) GetCountsForReleases(ctx context.Context, releaseIDs []string) (map[string]Counts, error) {
+	ids := make([]pgtype.UUID, len(releaseIDs))
+	for i, releaseID := range releaseIDs {
+		id, err := parseUUID(releaseID)
+		if err != nil {
+			return nil, ErrInvalidInput
+		}
+		ids[i] = id
+	}
+	rows, err := s.queries.ListReleaseCounts(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	out := make(map[string]Counts, len(rows))
+	for _, row := range rows {
+		out[row.ID.String()] = Counts{
+			Quantity:   int(row.Quantity),
+			Claimed:    int(row.Claimed),
+			Waitlisted: int(row.Waitlisted),
+		}
+	}
+	return out, nil
+}
+
 func (s *Service) Status(ctx context.Context, releaseID, memberID string) (QueueEntry, error) {
 	id, err := parseUUID(releaseID)
 	if err != nil {
@@ -432,6 +458,11 @@ func (s *Service) ListReleaseIDsWithActiveOffers(ctx context.Context) ([]string,
 }
 
 func (s *Service) promoteWaitlist(ctx context.Context, q *db.Queries, release db.TicketRelease, n int) error {
+	// Past expires_at the release is hidden from every listing, so a fresh
+	// offer could never be seen or accepted - stop advancing the waitlist.
+	if time.Now().After(release.ExpiresAt.Time) {
+		return nil
+	}
 	front, err := q.ListWaitlistFrontForUpdate(ctx, db.ListWaitlistFrontForUpdateParams{ReleaseID: release.ID, Limit: int32(n)})
 	if err != nil {
 		return err

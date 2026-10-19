@@ -45,6 +45,7 @@ type Querier interface {
 	ListEntriesForMember(ctx context.Context, memberID string) ([]ListEntriesForMemberRow, error)
 	ListExpiredGrantedForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	ListPendingForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
+	ListReleaseCounts(ctx context.Context, ids []pgtype.UUID) ([]ListReleaseCountsRow, error)
 	// The public/browsing listing - expired releases (event over) are excluded.
 	ListReleases(ctx context.Context) ([]TicketRelease, error)
 	// Releases that have at least one granted-but-unaccepted offer, used to

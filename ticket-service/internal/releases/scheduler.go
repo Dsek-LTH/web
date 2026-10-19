@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"sync"
 	"time"
 )
 
@@ -17,13 +16,10 @@ import (
 // cross-service scheduling.
 type Scheduler struct {
 	svc *Service
-
-	mu     sync.Mutex
-	timers map[string]*time.Timer
 }
 
 func NewScheduler(svc *Service) *Scheduler {
-	return &Scheduler{svc: svc, timers: make(map[string]*time.Timer)}
+	return &Scheduler{svc: svc}
 }
 
 // lotteryRetryDelay is how long to wait before retrying a lottery run that
@@ -50,9 +46,6 @@ func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {
 		if err != nil {
 			log.Printf("lottery run failed for release %s: %v", releaseID, err)
 		}
-		s.mu.Lock()
-		delete(s.timers, releaseID)
-		s.mu.Unlock()
 	}
 
 	if delay <= 0 {
@@ -60,9 +53,7 @@ func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {
 		return
 	}
 
-	s.mu.Lock()
-	s.timers[releaseID] = time.AfterFunc(delay, run)
-	s.mu.Unlock()
+	time.AfterFunc(delay, run)
 }
 
 // RestoreOnStartup re-arms lottery timers for every release whose lottery

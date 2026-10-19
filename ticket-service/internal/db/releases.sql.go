@@ -517,6 +517,50 @@ func (q *Queries) ListPendingForUpdate(ctx context.Context, releaseID pgtype.UUI
 	return items, nil
 }
 
+const listReleaseCounts = `-- name: ListReleaseCounts :many
+SELECT
+    r.id,
+    r.quantity::int AS quantity,
+    count(*) FILTER (WHERE q.status IN ('granted', 'accepted'))::int AS claimed,
+    count(*) FILTER (WHERE q.status = 'waitlisted')::int AS waitlisted
+FROM ticket_release r
+LEFT JOIN ticket_queue_entry q ON q.release_id = r.id
+WHERE r.id = ANY($1::uuid[])
+GROUP BY r.id
+`
+
+type ListReleaseCountsRow struct {
+	ID         pgtype.UUID `json:"id"`
+	Quantity   int32       `json:"quantity"`
+	Claimed    int32       `json:"claimed"`
+	Waitlisted int32       `json:"waitlisted"`
+}
+
+func (q *Queries) ListReleaseCounts(ctx context.Context, ids []pgtype.UUID) ([]ListReleaseCountsRow, error) {
+	rows, err := q.db.Query(ctx, listReleaseCounts, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListReleaseCountsRow{}
+	for rows.Next() {
+		var i ListReleaseCountsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Quantity,
+			&i.Claimed,
+			&i.Waitlisted,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listReleases = `-- name: ListReleases :many
 SELECT id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at
 FROM ticket_release

@@ -71,6 +71,10 @@ func (h *Handlers) toReleaseSummary(ctx context.Context, r releases.Release) (Re
 	if err != nil {
 		return ReleaseSummary{}, err
 	}
+	return newReleaseSummary(r, counts), nil
+}
+
+func newReleaseSummary(r releases.Release, counts releases.Counts) ReleaseSummary {
 	return ReleaseSummary{
 		ID:          r.ID,
 		Title:       r.Title,
@@ -82,7 +86,7 @@ func (h *Handlers) toReleaseSummary(ctx context.Context, r releases.Release) (Re
 		Quantity:    counts.Quantity,
 		Claimed:     counts.Claimed,
 		Waitlisted:  counts.Waitlisted,
-	}, nil
+	}
 }
 
 type QueueEntryBody struct {
@@ -156,13 +160,17 @@ func (h *Handlers) listReleases(ctx context.Context, input *ListReleasesInput) (
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
+	ids := make([]string, len(all))
+	for i, r := range all {
+		ids[i] = r.ID
+	}
+	counts, err := h.svc.GetCountsForReleases(ctx, ids)
+	if err != nil {
+		return nil, mapServiceError(err)
+	}
 	out := make([]ReleaseSummary, 0, len(all))
 	for _, r := range all {
-		summary, err := h.toReleaseSummary(ctx, r)
-		if err != nil {
-			return nil, mapServiceError(err)
-		}
-		out = append(out, summary)
+		out = append(out, newReleaseSummary(r, counts[r.ID]))
 	}
 	return &ListReleasesOutput{Body: out}, nil
 }
