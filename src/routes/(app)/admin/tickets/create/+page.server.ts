@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { ticketReleaseSchema } from "$lib/utils/ticketRelease";
 import { createTicketRelease } from "$lib/server/ticketService";
 import * as m from "$paraglide/messages";
@@ -93,8 +93,11 @@ export const actions = {
       });
     }
 
+    // The release page needs WEBSHOP.MANAGE, which creating doesn't imply.
     throw redirect(
-      `/admin/tickets/${releaseId}`,
+      isAuthorized(apiNames.WEBSHOP.MANAGE, user)
+        ? `/admin/tickets/${releaseId}`
+        : "/admin/tickets",
       { message: m.ticketRelease_create_success(), type: "success" },
       event,
     );

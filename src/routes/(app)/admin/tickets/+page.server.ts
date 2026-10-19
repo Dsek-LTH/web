@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { listTicketReleases } from "$lib/server/ticketService";
 
 export const load = async ({ locals, request }) => {
@@ -8,5 +8,8 @@ export const load = async ({ locals, request }) => {
 
   const releases = await listTicketReleases(request, { includeExpired: true });
 
-  return { releases };
+  // The release pages need WEBSHOP.MANAGE, which CREATE doesn't imply.
+  const canManage = isAuthorized(apiNames.WEBSHOP.MANAGE, user);
+
+  return { releases, canManage };
 };

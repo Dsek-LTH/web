@@ -13,6 +13,9 @@ import (
 type Querier interface {
 	AcceptEntry(ctx context.Context, arg AcceptEntryParams) (int64, error)
 	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
+	// Moves everyone behind a waitlist position that was just vacated (e.g. by a
+	// cancellation) one step forward, keeping positions contiguous.
+	CloseWaitlistGap(ctx context.Context, arg CloseWaitlistGapParams) error
 	CountGrantedOrAccepted(ctx context.Context, releaseID pgtype.UUID) (int64, error)
 	CountWaitlisted(ctx context.Context, releaseID pgtype.UUID) (int64, error)
 	CreateRelease(ctx context.Context, arg CreateReleaseParams) (TicketRelease, error)
@@ -26,7 +29,9 @@ type Querier interface {
 	GetReleaseCounts(ctx context.Context, id pgtype.UUID) (GetReleaseCountsRow, error)
 	GrantEntry(ctx context.Context, arg GrantEntryParams) error
 	// Idempotent: a repeat request for the same (release, member) just returns
-	// the existing row unchanged instead of erroring.
+	// the existing row unchanged instead of erroring - unless that row is
+	// cancelled or expired, in which case it's reset to a fresh pending request
+	// so the member can rejoin.
 	InsertQueueEntry(ctx context.Context, arg InsertQueueEntryParams) (TicketQueueEntry, error)
 	// The admin roster for one release - only entries that actually hold a
 	// confirmed ticket (pending/waitlisted/granted/expired/cancelled are noise

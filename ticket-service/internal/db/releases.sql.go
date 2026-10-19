@@ -32,7 +32,7 @@ func (q *Queries) AcceptEntry(ctx context.Context, arg AcceptEntryParams) (int64
 
 const cancelEntry = `-- name: CancelEntry :execrows
 UPDATE ticket_queue_entry
-SET status = 'cancelled', updated_at = now()
+SET status = 'cancelled', queue_position = NULL, updated_at = now()
 WHERE release_id = $1 AND member_id = $2 AND status IN ('pending', 'granted', 'waitlisted')
 `
 
@@ -47,6 +47,24 @@ func (q *Queries) CancelEntry(ctx context.Context, arg CancelEntryParams) (int64
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const closeWaitlistGap = `-- name: CloseWaitlistGap :exec
+UPDATE ticket_queue_entry
+SET queue_position = queue_position - 1, updated_at = now()
+WHERE release_id = $1 AND status = 'waitlisted' AND queue_position > $2
+`
+
+type CloseWaitlistGapParams struct {
+	ReleaseID     pgtype.UUID `json:"release_id"`
+	QueuePosition pgtype.Int4 `json:"queue_position"`
+}
+
+// Moves everyone behind a waitlist position that was just vacated (e.g. by a
+// cancellation) one step forward, keeping positions contiguous.
+func (q *Queries) CloseWaitlistGap(ctx context.Context, arg CloseWaitlistGapParams) error {
+	_, err := q.db.Exec(ctx, closeWaitlistGap, arg.ReleaseID, arg.QueuePosition)
+	return err
 }
 
 const countGrantedOrAccepted = `-- name: CountGrantedOrAccepted :one
@@ -257,7 +275,12 @@ func (q *Queries) GrantEntry(ctx context.Context, arg GrantEntryParams) error {
 const insertQueueEntry = `-- name: InsertQueueEntry :one
 INSERT INTO ticket_queue_entry (release_id, member_id, status)
 VALUES ($1, $2, 'pending')
-ON CONFLICT (release_id, member_id) DO UPDATE SET member_id = EXCLUDED.member_id
+ON CONFLICT (release_id, member_id) DO UPDATE SET
+    status = CASE WHEN ticket_queue_entry.status IN ('cancelled', 'expired') THEN 'pending' ELSE ticket_queue_entry.status END,
+    queue_position = CASE WHEN ticket_queue_entry.status IN ('cancelled', 'expired') THEN NULL ELSE ticket_queue_entry.queue_position END,
+    offer_expires_at = CASE WHEN ticket_queue_entry.status IN ('cancelled', 'expired') THEN NULL ELSE ticket_queue_entry.offer_expires_at END,
+    requested_at = CASE WHEN ticket_queue_entry.status IN ('cancelled', 'expired') THEN now() ELSE ticket_queue_entry.requested_at END,
+    updated_at = CASE WHEN ticket_queue_entry.status IN ('cancelled', 'expired') THEN now() ELSE ticket_queue_entry.updated_at END
 RETURNING id, release_id, member_id, status, queue_position, offer_expires_at, requested_at, updated_at
 `
 
@@ -267,7 +290,9 @@ type InsertQueueEntryParams struct {
 }
 
 // Idempotent: a repeat request for the same (release, member) just returns
-// the existing row unchanged instead of erroring.
+// the existing row unchanged instead of erroring - unless that row is
+// cancelled or expired, in which case it's reset to a fresh pending request
+// so the member can rejoin.
 func (q *Queries) InsertQueueEntry(ctx context.Context, arg InsertQueueEntryParams) (TicketQueueEntry, error) {
 	row := q.db.QueryRow(ctx, insertQueueEntry, arg.ReleaseID, arg.MemberID)
 	var i TicketQueueEntry

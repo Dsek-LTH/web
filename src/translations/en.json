@@ -1226,6 +1226,8 @@
   "ticketRelease_detail_signInRequired": "You need to be signed in to sign up.",
   "ticketRelease_detail_signIn": "Sign in",
   "ticketRelease_detail_opensAtFuture": "This release opens {date}",
+  "ticketRelease_detail_opensIn": "Opens in {countdown}",
+  "ticketRelease_detail_manage": "Manage",
   "ticketRelease_detail_request": "Sign me up",
   "ticketRelease_detail_acceptDeadline": "Accept within {seconds} seconds, or the ticket moves on to the next person in line.",
   "ticketRelease_detail_accept": "Accept",

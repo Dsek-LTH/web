@@ -23,16 +23,17 @@
   import Users from "@lucide/svelte/icons/users";
   import Hourglass from "@lucide/svelte/icons/hourglass";
   import DoorOpen from "@lucide/svelte/icons/door-open";
+  import Settings from "@lucide/svelte/icons/settings";
 
   let { data, form } = $props();
 
   const POLL_INTERVAL_MS = 5000;
   let submitting = $state(false);
 
-  // Local 1s tick for the accept-by countdown, decoupled from the network
-  // poll below - the number on screen updates every second without a
-  // roundtrip, the poll only exists to catch state changes (promotion,
-  // expiry, someone else's cancellation freeing a slot, ...).
+  // Local 1s tick for the opening and accept-by countdowns, decoupled from
+  // the network poll below - the numbers on screen update every second
+  // without a roundtrip, the poll only exists to catch state changes
+  // (promotion, expiry, someone else's cancellation freeing a slot, ...).
   let nowMs = $state(Date.now());
 
   onMount(() => {
@@ -48,16 +49,39 @@
     };
   });
 
+  // How far this device's clock is behind the server's, re-measured on every
+  // load. Network latency makes it slightly underestimate, so the request
+  // button appears a moment late rather than before the server accepts it.
+  const clockOffsetMs = $derived(data.serverNow - Date.now());
+  const serverNowMs = $derived(nowMs + clockOffsetMs);
+
   const secondsLeft = $derived.by(() => {
     if (!data.status?.offerExpiresAt) return null;
-    const ms = new Date(data.status.offerExpiresAt).getTime() - nowMs;
+    const ms = new Date(data.status.offerExpiresAt).getTime() - serverNowMs;
     return Math.max(0, Math.ceil(ms / 1000));
   });
 
-  const releaseIsOpen = $derived(new Date(data.release.opensAt) <= new Date());
-  const releaseIsClosed = $derived(
-    new Date(data.release.closesAt) <= new Date(),
+  const msUntilOpen = $derived(
+    new Date(data.release.opensAt).getTime() - serverNowMs,
   );
+  const releaseIsOpen = $derived(msUntilOpen <= 0);
+  const releaseIsClosed = $derived(
+    new Date(data.release.closesAt).getTime() <= serverNowMs,
+  );
+
+  // Live countdown for the last day before opening, so there's no reason to
+  // keep reloading the page - the request button appears on its own.
+  const opensInCountdown = $derived.by(() => {
+    if (releaseIsOpen || msUntilOpen > 24 * 60 * 60 * 1000) return null;
+    const totalSeconds = Math.ceil(msUntilOpen / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return hours > 0
+      ? `${hours}:${pad(minutes)}:${pad(seconds)}`
+      : `${minutes}:${pad(seconds)}`;
+  });
 
   const submitAction = () => {
     submitting = true;
@@ -80,6 +104,17 @@
             {data.release.title}
           </CardTitle>
         </div>
+        {#if data.canManage}
+          <Button
+            variant="outline"
+            size="sm"
+            href="/admin/tickets/{data.release.id}"
+            class="shrink-0 gap-2"
+          >
+            <Settings class="h-4 w-4" />
+            {m.ticketRelease_detail_manage()}
+          </Button>
+        {/if}
       </div>
       {#if data.release.location}
         <p class="text-muted-foreground flex items-center gap-1.5 pt-1">
@@ -130,12 +165,21 @@
           </Button>
         </div>
       {:else if !releaseIsOpen}
-        <p class="flex items-center gap-2">
-          <Hourglass class="h-4 w-4" />
-          {m.ticketRelease_detail_opensAtFuture({
-            date: new Date(data.release.opensAt).toLocaleString("sv-SE"),
-          })}
-        </p>
+        <div class="flex flex-col gap-1">
+          <p class="flex items-center gap-2">
+            <Hourglass class="h-4 w-4" />
+            {m.ticketRelease_detail_opensAtFuture({
+              date: new Date(data.release.opensAt).toLocaleString("sv-SE"),
+            })}
+          </p>
+          {#if opensInCountdown}
+            <p class="text-2xl font-semibold tabular-nums">
+              {m.ticketRelease_detail_opensIn({
+                countdown: opensInCountdown,
+              })}
+            </p>
+          {/if}
+        </div>
       {:else if !data.status || data.status.status === "cancelled" || data.status.status === "expired"}
         {#if releaseIsClosed}
           <p class="text-muted-foreground">
@@ -155,8 +199,10 @@
         {/if}
       {:else}
         <div class="flex flex-col gap-4">
-          <Badge variant={ticketStatusBadgeVariant(data.status.status)}
-            class="w-fit">
+          <Badge
+            variant={ticketStatusBadgeVariant(data.status.status)}
+            class="w-fit"
+          >
             {ticketStatusLabel(data.status.status)}
           </Badge>
 
@@ -188,11 +234,7 @@
 
           {#if data.status.status === "pending" || data.status.status === "waitlisted" || data.status.status === "granted"}
             <form method="POST" action="?/cancel" use:enhance={submitAction}>
-              <Button
-                type="submit"
-                variant="outline"
-                disabled={submitting}
-              >
+              <Button type="submit" variant="outline" disabled={submitting}>
                 {m.ticketRelease_detail_cancel()}
               </Button>
             </form>

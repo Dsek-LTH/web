@@ -6,6 +6,8 @@ import {
   cancelTicketEntry,
   TicketServiceError,
 } from "$lib/server/ticketService";
+import apiNames from "$lib/utils/apiNames";
+import { isAuthorized } from "$lib/utils/authorization";
 import { error, fail } from "@sveltejs/kit";
 
 export const load = async ({ params, locals, request, depends }) => {
@@ -31,7 +33,16 @@ export const load = async ({ params, locals, request, depends }) => {
     }
   }
 
-  return { release, status, loggedIn };
+  return {
+    release,
+    status,
+    loggedIn,
+    // Same permission the admin release page requires.
+    canManage: isAuthorized(apiNames.WEBSHOP.MANAGE, locals.user),
+    // Lets the client line its countdown up with the server's clock, which
+    // is what actually rejects requests made before opens_at.
+    serverNow: Date.now(),
+  };
 };
 
 const handleAction = async (

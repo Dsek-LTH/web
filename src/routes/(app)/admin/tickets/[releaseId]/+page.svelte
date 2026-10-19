@@ -101,15 +101,13 @@
                     }}
                   />
                   <span class="font-medium">
-                    {entry.member
-                      ? getFullName(entry.member)
-                      : entry.memberId}
+                    {entry.member ? getFullName(entry.member) : entry.memberId}
                   </span>
                 </div>
               </Table.Cell>
               <Table.Cell>{entry.member?.foodPreference ?? ""}</Table.Cell>
               <Table.Cell>
-                {new Date(entry.updatedAt).toLocaleString("sv-SE")}
+                {new Date(entry.requestedAt).toLocaleString("sv-SE")}
               </Table.Cell>
             </Table.Row>
           {/each}

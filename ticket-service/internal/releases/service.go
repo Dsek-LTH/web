@@ -234,7 +234,8 @@ func (s *Service) Status(ctx context.Context, releaseID, memberID string) (Queue
 // RequestTicket joins the grace-window pool if the lottery for this release
 // hasn't run yet, or - once it has - immediately grants a ticket if one is
 // free, otherwise appends to the tail of the waitlist. Calling it again for
-// the same member is a no-op that just returns their existing entry.
+// the same member is a no-op that just returns their existing entry, unless
+// that entry was cancelled or expired - then it's treated as a fresh request.
 func (s *Service) RequestTicket(ctx context.Context, releaseID, memberID string) (QueueEntry, error) {
 	var result db.TicketQueueEntry
 	err := s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
@@ -255,11 +256,11 @@ func (s *Service) RequestTicket(ctx context.Context, releaseID, memberID string)
 		}
 
 		existing, err := q.GetQueueEntry(ctx, db.GetQueueEntryParams{ReleaseID: release.ID, MemberID: memberID})
-		if err == nil {
+		if err == nil && existing.Status != EntryStatusCancelled && existing.Status != EntryStatusExpired {
 			result = existing
 			return nil
 		}
-		if !errors.Is(err, pgx.ErrNoRows) {
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return err
 		}
 
@@ -316,7 +317,8 @@ func (s *Service) Accept(ctx context.Context, releaseID, memberID string) error 
 
 // Cancel withdraws a member's request, offer, or waitlist spot. If they held
 // an active granted-but-unaccepted offer, the freed slot is immediately
-// offered to whoever is at the front of the waitlist.
+// offered to whoever is at the front of the waitlist; if they held a
+// waitlist spot, everyone behind them moves up one.
 func (s *Service) Cancel(ctx context.Context, releaseID, memberID string) error {
 	return s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
 		entry, err := q.GetQueueEntry(ctx, db.GetQueueEntryParams{ReleaseID: release.ID, MemberID: memberID})
@@ -337,6 +339,9 @@ func (s *Service) Cancel(ctx context.Context, releaseID, memberID string) error 
 
 		if entry.Status == EntryStatusGranted && release.Status == ReleaseStatusLotteryDone {
 			return s.promoteWaitlist(ctx, q, release, 1)
+		}
+		if entry.Status == EntryStatusWaitlisted && entry.QueuePosition.Valid {
+			return q.CloseWaitlistGap(ctx, db.CloseWaitlistGapParams{ReleaseID: release.ID, QueuePosition: entry.QueuePosition})
 		}
 		return nil
 	})

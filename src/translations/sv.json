@@ -1226,6 +1226,8 @@
   "ticketRelease_detail_signInRequired": "Du måste vara inloggad för att kunna anmäla dig.",
   "ticketRelease_detail_signIn": "Logga in",
   "ticketRelease_detail_opensAtFuture": "Biljettsläppet öppnar {date}",
+  "ticketRelease_detail_opensIn": "Öppnar om {countdown}",
+  "ticketRelease_detail_manage": "Hantera",
   "ticketRelease_detail_request": "Anmäl mig",
   "ticketRelease_detail_acceptDeadline": "Tacka ja inom {seconds} sekunder, annars går biljetten vidare i kön.",
   "ticketRelease_detail_accept": "Tacka ja",

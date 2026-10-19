@@ -2,6 +2,7 @@ package releases
 
 import (
 	"context"
+	"errors"
 	"log"
 	"sync"
 	"time"
@@ -25,27 +26,42 @@ func NewScheduler(svc *Service) *Scheduler {
 	return &Scheduler{svc: svc, timers: make(map[string]*time.Timer)}
 }
 
+// lotteryRetryDelay is how long to wait before retrying a lottery run that
+// failed, e.g. on a transient database error.
+const lotteryRetryDelay = 30 * time.Second
+
 // ArmLottery schedules RunLottery to fire when the grace window for this
-// release ends, or immediately if that moment has already passed.
+// release ends, or immediately if that moment has already passed. A failed
+// run is retried every lotteryRetryDelay until it succeeds (RunLottery is a
+// no-op once the lottery has run, so a retry can never run it twice).
 func (s *Scheduler) ArmLottery(release Release) {
 	fireAt := release.OpensAt.Add(time.Duration(release.GraceWindowSeconds) * time.Second)
+	s.armLotteryAfter(release.ID, time.Until(fireAt))
+}
+
+func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {
 	run := func() {
-		if err := s.svc.RunLottery(context.Background(), release.ID); err != nil {
-			log.Printf("lottery run failed for release %s: %v", release.ID, err)
+		err := s.svc.RunLottery(context.Background(), releaseID)
+		if err != nil && !errors.Is(err, ErrNotFound) {
+			log.Printf("lottery run failed for release %s, retrying in %s: %v", releaseID, lotteryRetryDelay, err)
+			s.armLotteryAfter(releaseID, lotteryRetryDelay)
+			return
+		}
+		if err != nil {
+			log.Printf("lottery run failed for release %s: %v", releaseID, err)
 		}
 		s.mu.Lock()
-		delete(s.timers, release.ID)
+		delete(s.timers, releaseID)
 		s.mu.Unlock()
 	}
 
-	delay := time.Until(fireAt)
 	if delay <= 0 {
 		go run()
 		return
 	}
 
 	s.mu.Lock()
-	s.timers[release.ID] = time.AfterFunc(delay, run)
+	s.timers[releaseID] = time.AfterFunc(delay, run)
 	s.mu.Unlock()
 }
 

@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/lestrrat-go/httprc/v3"
@@ -32,6 +33,11 @@ type Validator struct {
 	audience   string
 	jwksURL    string
 	jwksMu     chan struct{}
+
+	// cachedJWKS is a live view of the jwk.Cache, which keeps re-fetching
+	// the key set in the background so Authentik key rotations are picked
+	// up. Guarded by cachedMu since it's set lazily on the first request.
+	cachedMu   sync.RWMutex
 	cachedJWKS jwk.Set
 }
 
@@ -56,14 +62,16 @@ func (v *Validator) ValidateBearer(ctx context.Context, header string) (Identity
 		return Identity{}, ErrUnauthenticated
 	}
 
-	if v.cachedJWKS == nil {
-		if err := v.refreshJWKS(ctx); err != nil {
+	keySet := v.loadJWKS()
+	if keySet == nil {
+		var err error
+		if keySet, err = v.initJWKS(ctx); err != nil {
 			return Identity{}, err
 		}
 	}
 
 	token, err := jwt.Parse([]byte(raw),
-		jwt.WithKeySet(v.cachedJWKS),
+		jwt.WithKeySet(keySet),
 		jwt.WithIssuer(v.issuer),
 		jwt.WithAudience(v.audience),
 	)
@@ -79,19 +87,33 @@ func (v *Validator) ValidateBearer(ctx context.Context, header string) (Identity
 	return Identity{MemberID: memberID}, nil
 }
 
-func (v *Validator) refreshJWKS(ctx context.Context) error {
+func (v *Validator) loadJWKS() jwk.Set {
+	v.cachedMu.RLock()
+	defer v.cachedMu.RUnlock()
+	return v.cachedJWKS
+}
+
+// initJWKS creates the background-refreshing JWKS cache. The cache's context
+// is deliberately never cancelled once set up: cancelling it stops the
+// refresher, freezing the keys at whatever the first fetch returned.
+func (v *Validator) initJWKS(ctx context.Context) (jwk.Set, error) {
 	select {
 	case v.jwksMu <- struct{}{}:
 		defer func() { <-v.jwksMu }()
 	case <-ctx.Done():
-		return ctx.Err()
+		return nil, ctx.Err()
 	}
-	if v.cachedJWKS != nil {
-		return nil
+	if set := v.loadJWKS(); set != nil {
+		return set, nil
 	}
 
 	cacheCtx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ok := false
+	defer func() {
+		if !ok {
+			cancel()
+		}
+	}()
 
 	cache, err := jwk.NewCache(
 		cacheCtx,
@@ -100,7 +122,7 @@ func (v *Validator) refreshJWKS(ctx context.Context) error {
 		),
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := cache.Register(
@@ -109,13 +131,17 @@ func (v *Validator) refreshJWKS(ctx context.Context) error {
 		jwk.WithMaxInterval(24*time.Hour*7),
 		jwk.WithMinInterval(5*time.Minute),
 	); err != nil {
-		return err
+		return nil, err
 	}
 
 	set, err := cache.CachedSet(v.jwksURL)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	ok = true
+
+	v.cachedMu.Lock()
 	v.cachedJWKS = set
-	return nil
+	v.cachedMu.Unlock()
+	return set, nil
 }

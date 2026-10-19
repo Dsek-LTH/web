@@ -57,9 +57,11 @@
               <Table.Cell>{release.claimed} / {release.quantity}</Table.Cell>
               <Table.Cell>{release.waitlisted}</Table.Cell>
               <Table.Cell>
-                <Button variant="ghost" href="/admin/tickets/{release.id}">
-                  {m.ticketRelease_admin_view()}
-                </Button>
+                {#if data.canManage}
+                  <Button variant="ghost" href="/admin/tickets/{release.id}">
+                    {m.ticketRelease_admin_view()}
+                  </Button>
+                {/if}
               </Table.Cell>
             </Table.Row>
           {/each}

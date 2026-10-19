@@ -12,6 +12,7 @@
   import TicketIcon from "@lucide/svelte/icons/ticket";
   import Users from "@lucide/svelte/icons/users";
   import DoorOpen from "@lucide/svelte/icons/door-open";
+  import Settings from "@lucide/svelte/icons/settings";
   import {
     releaseStatusLabel,
     releaseStatusBadgeVariant,
@@ -28,9 +29,17 @@
       </div>
       <h1 class="text-3xl font-bold">{m.ticketRelease_list_title()}</h1>
     </div>
-    <Button variant="outline" href="/tickets/mine">
-      {m.ticketRelease_list_myTickets()}
-    </Button>
+    <div class="flex items-center gap-2">
+      {#if data.canAdmin}
+        <Button variant="outline" href="/admin/tickets" class="gap-2">
+          <Settings class="h-4 w-4" />
+          {m.ticketRelease_detail_manage()}
+        </Button>
+      {/if}
+      <Button variant="outline" href="/tickets/mine">
+        {m.ticketRelease_list_myTickets()}
+      </Button>
+    </div>
   </div>
 
   {#if data.releases.length === 0}
