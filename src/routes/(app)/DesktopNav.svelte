@@ -6,7 +6,7 @@
   let { routes }: { routes: Route[] } = $props();
 
   function isRouteActive(route: Route): boolean {
-    const pathname = page.url.pathname;
+    const pathname = page.url.pathname + page.url.hash;
     const matches = (path: string | null | undefined) =>
       !!path &&
       (pathname === path || (path !== "/" && pathname.startsWith(path + "/")));
@@ -92,6 +92,7 @@
       // before we restore the transition -- otherwise both style changes can get coalesced into
       // one frame and animate anyway.
       await tick();
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- force a layout read
       panelEl?.offsetHeight;
       suppressPositionTransition = false;
     }
