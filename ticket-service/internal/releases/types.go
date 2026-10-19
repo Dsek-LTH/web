@@ -69,6 +69,7 @@ type MemberEntry struct {
 type Counts struct {
 	Quantity   int
 	Claimed    int
+	Accepted   int
 	Waitlisted int
 }
 

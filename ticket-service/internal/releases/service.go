@@ -212,6 +212,7 @@ func (s *Service) GetCounts(ctx context.Context, releaseID string) (Counts, erro
 	return Counts{
 		Quantity:   int(row.Quantity),
 		Claimed:    int(row.Claimed),
+		Accepted:   int(row.Accepted),
 		Waitlisted: int(row.Waitlisted),
 	}, nil
 }
@@ -236,6 +237,7 @@ func (s *Service) GetCountsForReleases(ctx context.Context, releaseIDs []string)
 		out[row.ID.String()] = Counts{
 			Quantity:   int(row.Quantity),
 			Claimed:    int(row.Claimed),
+			Accepted:   int(row.Accepted),
 			Waitlisted: int(row.Waitlisted),
 		}
 	}

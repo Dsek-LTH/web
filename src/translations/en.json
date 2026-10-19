@@ -1318,6 +1318,7 @@
   "ticketRelease_detail_request": "Sign me up",
   "ticketRelease_detail_joinWaitlist": "Join the waitlist",
   "ticketRelease_detail_soldOut": "All tickets have been claimed. Join the waitlist and you'll be offered a ticket if one frees up.",
+  "ticketRelease_detail_allOffered": "All tickets have been offered. Join the waitlist and you'll get one if an offer isn't accepted in time.",
   "ticketRelease_soldOut": "Sold out",
   "ticketRelease_detail_acceptDeadline": "Accept within {seconds} seconds, or the ticket moves on to the next person in line.",
   "ticketRelease_detail_accept": "Accept",

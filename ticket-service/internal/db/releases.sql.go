@@ -235,6 +235,7 @@ const getReleaseCounts = `-- name: GetReleaseCounts :one
 SELECT
     r.quantity::int AS quantity,
     count(*) FILTER (WHERE q.status IN ('granted', 'accepted'))::int AS claimed,
+    count(*) FILTER (WHERE q.status = 'accepted')::int AS accepted,
     count(*) FILTER (WHERE q.status = 'waitlisted')::int AS waitlisted
 FROM ticket_release r
 LEFT JOIN ticket_queue_entry q ON q.release_id = r.id
@@ -245,13 +246,19 @@ GROUP BY r.quantity
 type GetReleaseCountsRow struct {
 	Quantity   int32 `json:"quantity"`
 	Claimed    int32 `json:"claimed"`
+	Accepted   int32 `json:"accepted"`
 	Waitlisted int32 `json:"waitlisted"`
 }
 
 func (q *Queries) GetReleaseCounts(ctx context.Context, id pgtype.UUID) (GetReleaseCountsRow, error) {
 	row := q.db.QueryRow(ctx, getReleaseCounts, id)
 	var i GetReleaseCountsRow
-	err := row.Scan(&i.Quantity, &i.Claimed, &i.Waitlisted)
+	err := row.Scan(
+		&i.Quantity,
+		&i.Claimed,
+		&i.Accepted,
+		&i.Waitlisted,
+	)
 	return i, err
 }
 
@@ -522,6 +529,7 @@ SELECT
     r.id,
     r.quantity::int AS quantity,
     count(*) FILTER (WHERE q.status IN ('granted', 'accepted'))::int AS claimed,
+    count(*) FILTER (WHERE q.status = 'accepted')::int AS accepted,
     count(*) FILTER (WHERE q.status = 'waitlisted')::int AS waitlisted
 FROM ticket_release r
 LEFT JOIN ticket_queue_entry q ON q.release_id = r.id
@@ -533,6 +541,7 @@ type ListReleaseCountsRow struct {
 	ID         pgtype.UUID `json:"id"`
 	Quantity   int32       `json:"quantity"`
 	Claimed    int32       `json:"claimed"`
+	Accepted   int32       `json:"accepted"`
 	Waitlisted int32       `json:"waitlisted"`
 }
 
@@ -549,6 +558,7 @@ func (q *Queries) ListReleaseCounts(ctx context.Context, ids []pgtype.UUID) ([]L
 			&i.ID,
 			&i.Quantity,
 			&i.Claimed,
+			&i.Accepted,
 			&i.Waitlisted,
 		); err != nil {
 			return nil, err

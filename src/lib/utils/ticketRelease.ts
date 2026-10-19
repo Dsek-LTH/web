@@ -107,8 +107,9 @@ export const releaseStatusBadgeVariant = (status: string): BadgeVariant => {
   }
 };
 
-// Granted offers can still expire or be cancelled, so a sold-out release can
-// free up again - new requests just go to the waitlist in the meantime.
+// Only accepted tickets count - a granted offer can still expire or be
+// cancelled and move on down the waitlist, so the release isn't really gone
+// until every ticket has been accepted.
 export const isSoldOut = (
-  release: Pick<ReleaseSummary, "claimed" | "quantity">,
-) => release.claimed >= release.quantity;
+  release: Pick<ReleaseSummary, "accepted" | "quantity">,
+) => release.accepted >= release.quantity;

@@ -59,6 +59,7 @@ export type ReleaseSummary = {
   status: string;
   quantity: number;
   claimed: number;
+  accepted: number;
   waitlisted: number;
 };
 

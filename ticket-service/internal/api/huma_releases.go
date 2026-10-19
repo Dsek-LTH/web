@@ -64,6 +64,7 @@ type ReleaseSummary struct {
 	Status      string    `json:"status"`
 	Quantity    int       `json:"quantity"`
 	Claimed     int       `json:"claimed"`
+	Accepted    int       `json:"accepted"`
 	Waitlisted  int       `json:"waitlisted"`
 }
 
@@ -87,6 +88,7 @@ func newReleaseSummary(r releases.Release, counts releases.Counts) ReleaseSummar
 		Status:      r.Status,
 		Quantity:    counts.Quantity,
 		Claimed:     counts.Claimed,
+		Accepted:    counts.Accepted,
 		Waitlisted:  counts.Waitlisted,
 	}
 }

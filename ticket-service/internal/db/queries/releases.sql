@@ -40,6 +40,7 @@ UPDATE ticket_release SET status = $2 WHERE id = $1;
 SELECT
     r.quantity::int AS quantity,
     count(*) FILTER (WHERE q.status IN ('granted', 'accepted'))::int AS claimed,
+    count(*) FILTER (WHERE q.status = 'accepted')::int AS accepted,
     count(*) FILTER (WHERE q.status = 'waitlisted')::int AS waitlisted
 FROM ticket_release r
 LEFT JOIN ticket_queue_entry q ON q.release_id = r.id
@@ -51,6 +52,7 @@ SELECT
     r.id,
     r.quantity::int AS quantity,
     count(*) FILTER (WHERE q.status IN ('granted', 'accepted'))::int AS claimed,
+    count(*) FILTER (WHERE q.status = 'accepted')::int AS accepted,
     count(*) FILTER (WHERE q.status = 'waitlisted')::int AS waitlisted
 FROM ticket_release r
 LEFT JOIN ticket_queue_entry q ON q.release_id = r.id

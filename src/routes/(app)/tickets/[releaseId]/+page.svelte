@@ -85,6 +85,9 @@
   );
 
   const soldOut = $derived(isSoldOut(data.release));
+  // Every ticket is offered or accepted, so a new request lands on the
+  // waitlist even though some offers might still lapse.
+  const allClaimed = $derived(data.release.claimed >= data.release.quantity);
 
   const formatCountdown = (ms: number) => {
     const totalSeconds = Math.ceil(ms / 1000);
@@ -237,12 +240,14 @@
           <div class="flex flex-col items-start gap-3">
             {#if soldOut}
               <p>{m.ticketRelease_detail_soldOut()}</p>
+            {:else if allClaimed}
+              <p>{m.ticketRelease_detail_allOffered()}</p>
             {/if}
             <form method="POST" action="?/request" use:enhance={submitAction}>
               <Button type="submit" disabled={submitting} class="gap-2">
                 {#if submitting}
                   <Spinner class="h-4 w-4" />
-                {:else if soldOut}
+                {:else if allClaimed}
                   <Users class="h-4 w-4" />
                   {m.ticketRelease_detail_joinWaitlist()}
                 {:else}
