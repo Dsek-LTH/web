@@ -47,8 +47,11 @@
   }
 
   function onAlbumFileUpload() {
-    // @ts-expect-error -- expected
-    $form.albumFiles = [...albumFiles];
+    if (albumFiles) {
+      $form.albumFiles = [...albumFiles];
+    } else {
+      $form.albumFiles = [];
+    }
   }
 
   const tz = getLocalTimeZone();
