@@ -1,7 +1,11 @@
+import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { error, fail, redirect } from "@sveltejs/kit";
+import * as m from "$paraglide/messages";
+import { redirect as flashRedirect } from "sveltekit-flash-message/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { editSchema } from "../types";
@@ -38,7 +42,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, locals, params }) => {
+  save: async (event) => {
+    const { request, locals, params } = event;
     authorize(apiNames.GALLERY.UPDATE, locals.user);
 
     const form = await superValidate(
@@ -98,6 +103,40 @@ export const actions: Actions = {
       },
     });
 
-    redirect(303, `/gallery/album/${params.slug}`);
+    throw redirect(303, `/gallery/album/${params.slug}`);
+  },
+
+  delete: async (event) => {
+    const { locals, params } = event;
+    authorize(apiNames.GALLERY.DELETE, locals.user);
+
+    const album = await locals.prisma.album.findFirst({
+      where: { slug: params.slug },
+      select: { id: true, slug: true },
+    });
+
+    if (!album) {
+      error(404, "Album not found");
+    }
+
+    // Remove files from MinIO before deleting the album record
+    // to avoid orphaned objects if the deletion fails
+    await removeFilesWithoutAccessCheck(locals.user, PUBLIC_BUCKETS_ALBUMS, [
+      `public/${album.slug}/album/`,
+      `public/${album.slug}/cover/`,
+    ]);
+
+    await authorizedPrismaClient.album.delete({
+      where: { id: album.id },
+    });
+
+    throw flashRedirect(
+      "/gallery",
+      {
+        message: m.gallery_album_deleted(),
+        type: "success",
+      },
+      event,
+    );
   },
 };

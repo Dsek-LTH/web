@@ -13,6 +13,7 @@
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import type { SmallMemberSchema, EditSchema } from "../types";
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
+  import DeleteAlbumForm from "./DeleteAlbumForm.svelte";
   import {
     CalendarDateTime,
     fromDate,
@@ -56,11 +57,15 @@
   <a href={`/gallery/album/${data.slug}`} class="btn btn-outline btn-sm my-2"
     >{m.gallery_back()}</a
   >
-  <h1 class="text-2xl font-bold">{m.gallery_edit_album()}</h1>
+  <div class="flex items-center justify-between gap-4">
+    <h1 class="text-2xl font-bold">{m.gallery_edit_album()}</h1>
+    <DeleteAlbumForm slug={data.slug} />
+  </div>
   <form
     id="edit-album"
     class="form-control flex flex-col items-stretch gap-4"
     method="POST"
+    action="?/save"
     enctype="multipart/form-data"
     use:enhance
   >
