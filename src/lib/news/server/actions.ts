@@ -362,31 +362,30 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         try {
           if (shouldSchedule) {
             ok = (
-              await fetch(
-                `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
-                {
-                  method: "PATCH",
-                  body: JSON.stringify({
-                    scheduledTaskID: parseInt(existingArticle!.scheduledId!),
-                    body: JSON.stringify(notificationPayload),
-                    runTimestamp: publishedAt,
-                  }),
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${jwt?.["id_token"]}`,
-                  },
+              await fetch(env.SCHEDULER_ENDPOINT, {
+                method: "PATCH",
+                body: JSON.stringify({
+                  scheduledTaskID: parseInt(existingArticle!.scheduledId!),
+                  body: JSON.stringify(notificationPayload),
+                  runTimestamp: publishedAt,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${jwt?.["id_token"]}`,
+                  "X-Scheduler-Secret": env.SCHEDULER_PASSWORD,
                 },
-              )
+              })
             ).ok;
           } else {
             ok = (
               await fetch(
-                `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}&scheduledTaskID=${existingArticle!.scheduledId}`,
+                `${env.SCHEDULER_ENDPOINT}?scheduledTaskID=${existingArticle!.scheduledId}`,
                 {
                   method: "DELETE",
                   headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${jwt?.["id_token"]}`,
+                    "X-Scheduler-Secret": env.SCHEDULER_PASSWORD,
                   },
                 },
               )

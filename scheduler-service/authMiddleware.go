@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/lestrrat-go/httprc/v3"
@@ -19,21 +20,26 @@ type ctxKey string
 
 const jwtSubjectCtxKey ctxKey = "jwtSubject"
 
-var cachedJWKS jwk.Set
+// cachedJWKS is a live view of the jwk.Cache, which keeps re-fetching the
+// key set in the background so key rotations are picked up. Guarded by
+// cachedJWKSMu since it's set lazily on the first request.
+var (
+	cachedJWKSMu sync.Mutex
+	cachedJWKS   jwk.Set
+)
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if cachedJWKS == nil {
-			if err := createJWKCache(); err != nil {
-				log.Printf("Failed to create JWK cache: %s", err)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		keySet, err := getJWKS()
+		if err != nil {
+			log.Printf("Failed to create JWK cache: %s", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 
-				return
-			}
+			return
 		}
 
 		parseOptions := []jwt.ParseOption{
-			jwt.WithKeySet(cachedJWKS),
+			jwt.WithKeySet(keySet),
 			jwt.WithIssuer(JWTIssuer),
 			jwt.WithAudience(JWTAudience),
 		}
@@ -72,9 +78,32 @@ func getTokenFromHeader(r *http.Request) string {
 	return stringToken
 }
 
-func createJWKCache() error {
+func getJWKS() (jwk.Set, error) {
+	cachedJWKSMu.Lock()
+	defer cachedJWKSMu.Unlock()
+
+	if cachedJWKS == nil {
+		set, err := createJWKCache()
+		if err != nil {
+			return nil, err
+		}
+		cachedJWKS = set
+	}
+
+	return cachedJWKS, nil
+}
+
+// createJWKCache sets up the background-refreshing JWKS cache. Its context is
+// deliberately never cancelled once set up: cancelling it stops the
+// refresher, freezing the keys at whatever the first fetch returned.
+func createJWKCache() (jwk.Set, error) {
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ok := false
+	defer func() {
+		if !ok {
+			cancel()
+		}
+	}()
 
 	jwkCache, err := jwk.NewCache(
 		ctx,
@@ -85,7 +114,7 @@ func createJWKCache() error {
 	if err != nil {
 		log.Printf("Failed to create JWK cache: %s", err)
 
-		return err
+		return nil, err
 	}
 
 	if err = jwkCache.Register(
@@ -96,15 +125,16 @@ func createJWKCache() error {
 	); err != nil {
 		log.Printf("Failed to register JWK endpoint: %s", err)
 
-		return err
+		return nil, err
 	}
 
-	cachedJWKS, err = jwkCache.CachedSet(JWKSEndpoint)
+	set, err := jwkCache.CachedSet(JWKSEndpoint)
 	if err != nil {
 		log.Printf("Failed to get cached JWK set: %s", err)
 
-		return err
+		return nil, err
 	}
+	ok = true
 
-	return nil
+	return set, nil
 }
