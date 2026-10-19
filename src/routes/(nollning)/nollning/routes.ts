@@ -15,9 +15,9 @@ export const getRoutes = (): Route[] =>
   [
     /*
     {
-      title: "Nollning",
+      title: "N0llning",
       path: "/",
-      icon: "nollning-logo",
+      icon: "n0llning-logo",
       accessRequired: null,
       appBehaviour: "bottom-nav",
     },
@@ -36,7 +36,7 @@ export const getRoutes = (): Route[] =>
       appBehaviour: "bottom-nav",
     },
     {
-      title: m.nollning_wikia(),
+      title: m.n0llning_wikia(),
       path: "/wikia",
       specialBehaviour: "cart-badge",
       icon: "i-mdi-compass-outline",
@@ -53,11 +53,3 @@ export const appBottomNavRoutes = (routes: Route[]): Route[] =>
   routes.filter((route) => {
     return route.appBehaviour === "bottom-nav";
   });
-
-export const getIcon = (icon: string, revealTheme: boolean) => {
-  if (icon === "nollning-logo") {
-    if (revealTheme) return "i-mdi-cloud-outline";
-    else return "i-mdi-home";
-  }
-  return icon;
-};

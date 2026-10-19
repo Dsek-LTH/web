@@ -11,7 +11,7 @@ import {
   GUIDELINES,
   MARKDOWNS,
   models,
-  POLICYS,
+  POLICIES,
 } from "./data";
 import { checkForPostgresTunnel } from "./helpers";
 
@@ -55,7 +55,7 @@ const main = async () => {
   );
 
   await seed.document([
-    ...POLICYS.map((policy) => ({ title: policy, type: "POLICY" }) as const),
+    ...POLICIES.map((policy) => ({ title: policy, type: "POLICY" }) as const),
     ...GUIDELINES.map(
       (guideline) => ({ title: guideline, type: "GUIDELINE" }) as const,
     ),

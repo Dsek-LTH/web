@@ -1,5 +1,5 @@
 import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
+import sendNotification, { notificationLocale } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import { fail, type Action } from "@sveltejs/kit";
 import {
@@ -45,7 +45,12 @@ export const likesAction =
     if (member && shouldLike) {
       await sendNotification({
         title: `${article.header}`,
-        message: `${getFullName(member)} har gillat din nyhet`,
+        message: m.notifications_person_has_liked_your_news_item(
+          {
+            person: getFullName(member),
+          },
+          { locale: notificationLocale },
+        ),
         type: NotificationType.NEWS_LIKE,
         link: `/news/${article.slug}`,
         memberIds: [article.author.memberId],

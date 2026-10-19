@@ -111,7 +111,7 @@
           </Button>
         {/if}
       </div>
-      <p>{m.songbook_hereYoullFind()}</p>
+      <p>{m.songbook_hereYouWillFind()}</p>
       <p class="text-muted-foreground italic">{m.songbook_disclaimer()}</p>
     </div>
     <div class="hidden w-4/12 rounded-lg md:block">

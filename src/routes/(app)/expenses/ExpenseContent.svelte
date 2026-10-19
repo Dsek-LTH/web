@@ -23,7 +23,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import X from "@lucide/svelte/icons/x";
   import * as Select from "$lib/components/ui/select";
-  import { costCenters } from "./config";
+  import { getCostCenterOptions } from "./config";
   import { PiggyBank } from "@lucide/svelte";
   import { enhanceWithToast, toast } from "$lib/stores/toast";
   import { goto } from "$app/navigation";
@@ -171,7 +171,7 @@
                   ).value}
                 </Select.Trigger>
                 <Select.Content>
-                  {#each costCenters as costCenter (costCenter.value)}
+                  {#each getCostCenterOptions() as costCenter (costCenter.value)}
                     <Select.Item value={costCenter.value}
                       >{costCenter.label}</Select.Item
                     >

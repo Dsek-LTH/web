@@ -21,8 +21,8 @@
       desc: m.volunteer_meetings_htm1_desc,
     },
     {
-      name: m.volunteer_meetings_htmval_title,
-      desc: m.volunteer_meetings_htmval_desc,
+      name: m.volunteer_meetings_htmVal_title,
+      desc: m.volunteer_meetings_htmVal_desc,
     },
     {
       name: m.volunteer_meetings_htm2_title,

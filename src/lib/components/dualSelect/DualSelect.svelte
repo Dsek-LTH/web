@@ -33,7 +33,7 @@
   <input type="hidden" {name} value={JSON.stringify(selectedValues)} />
 
   <div class="flex w-1/2 flex-col">
-    <div class="pb-3 font-bold">{m.dualselect_enabled()}</div>
+    <div class="pb-3 font-bold">{m.dual_select_enabled()}</div>
     <div class="flex w-full flex-1 flex-col gap-2 overflow-scroll px-4">
       {#each selected as selectedItem, i (`selected-${i}`)}
         <div class="flex flex-row items-center justify-between gap-2">
@@ -59,7 +59,7 @@
   </div>
   <div class="border-r-[1px]"></div>
   <div class="flex w-1/2 flex-col">
-    <div class="pb-3 text-end font-bold">{m.dualselect_disabled()}</div>
+    <div class="pb-3 text-end font-bold">{m.dual_select_disabled()}</div>
     <div class="flex w-full flex-1 flex-col gap-2 overflow-scroll px-4">
       {#each unSelected as unSelectedItem, i (`unselected-${i}`)}
         <div class="flex flex-row items-center justify-between gap-2">

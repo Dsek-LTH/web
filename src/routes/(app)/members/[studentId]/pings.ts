@@ -1,5 +1,5 @@
 import { getFullName } from "$lib/utils/client/member";
-import sendNotification from "$lib/utils/notifications";
+import sendNotification, { notificationLocale } from "$lib/utils/notifications";
 import { NotificationType } from "$lib/utils/notifications/types";
 import * as m from "$paraglide/messages";
 import { error } from "@sveltejs/kit";
@@ -20,7 +20,7 @@ type MemberIdentification =
 type SendPingProps = {
   link: string; // link to the page where the ping is sent from
   fromMemberId: MemberIdentification; // the member that sends the ping
-  toMemberId: MemberIdentification; // the member that should recieve the ping
+  toMemberId: MemberIdentification; // the member that should receive the ping
 };
 
 export const sendPing = async (
@@ -57,7 +57,7 @@ export const sendPing = async (
   } catch (e) {
     throw error(
       500,
-      m.members_errors_couldntPing({
+      m.members_errors_couldNotPing({
         e: e instanceof Error ? e.message : "???",
       }),
     );
@@ -65,7 +65,12 @@ export const sendPing = async (
 
   await sendNotification({
     title: "PING!",
-    message: `${getFullName(sendingMember)} har pingat dig!`,
+    message: m.notifications_person_has_pinged_you(
+      {
+        person: getFullName(sendingMember),
+      },
+      { locale: notificationLocale },
+    ),
     type: NotificationType.PING,
     link: link,
     memberIds: [receivingMember.id],
@@ -76,7 +81,7 @@ export const sendPing = async (
 const assertMemberExists = async (
   prisma: ExtendedPrisma,
   member: MemberIdentification,
-  errorMsg = m.members_errors_memberDoesntExist(),
+  errorMsg = m.members_errors_memberDoesNotExist(),
 ) => {
   try {
     const foundMember = await prisma.member.findFirst({
