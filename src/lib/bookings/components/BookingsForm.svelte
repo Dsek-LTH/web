@@ -73,7 +73,7 @@
 
   const { form: formData, enhance } = $derived(form);
 
-  let selectedAccessMembers = $state<
+  let selectedAccessMembers = $derived<
     Array<MemberSearchReturnAttributes & { id: string }>
   >(
     data.currentMemberSearchAttributes
@@ -126,15 +126,15 @@
     };
   };
 
-  const initialStart = splitDateTime(data.form.data.start);
-  const initialEnd = splitDateTime(data.form.data.end);
+  const initialStart = $derived(splitDateTime(data.form.data.start));
+  const initialEnd = $derived(splitDateTime(data.form.data.end));
 
   let openStart = $state(false);
   let openEnd = $state(false);
-  let selectedStartDate = $state<DateValue | undefined>(initialStart.date);
-  let selectedEndDate = $state<DateValue | undefined>(initialEnd.date);
-  let startTime = $state(initialStart.time);
-  let endTime = $state(initialEnd.time);
+  let selectedStartDate = $derived<DateValue | undefined>(initialStart.date);
+  let selectedEndDate = $derived<DateValue | undefined>(initialEnd.date);
+  let startTime = $derived(initialStart.time);
+  let endTime = $derived(initialEnd.time);
 
   const normalizeTime = (time: string) => {
     const [h = "00", m = "00"] = time.split(":");
