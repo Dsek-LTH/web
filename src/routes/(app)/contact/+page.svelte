@@ -8,7 +8,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  let { vice_president, president, nära } = $derived(data);
+  let { vice_president, president, corporate_relations_head } = $derived(data);
 </script>
 
 <div class="layout-container flex flex-col gap-8">
@@ -18,7 +18,7 @@
     <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
       {@render positionCard(vice_president, m.contact_vice_president())}
       {@render positionCard(president, m.contact_president())}
-      {@render positionCard(nära, m.contact_business())}
+      {@render positionCard(corporate_relations_head, m.contact_business())}
     </div>
   </div>
 

@@ -125,9 +125,6 @@ ignore_patterns = [
     'N0LLA',
     'N0LLNING',
 
-    # Swedish words to look over
-    'nära',
-
     # Other
     'academic year \(läsår\)',
     'Beat Saber',
