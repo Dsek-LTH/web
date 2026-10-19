@@ -14,6 +14,8 @@
     { title: "Documents", icon: FileText, link: "/documents" },
     { title: "Menu", icon: Menu, link: "/app/navigation" },
   ];
+
+  let pressed = $state("");
 </script>
 
 <div class="flex w-full justify-center">
@@ -24,11 +26,13 @@
     {#each PAGES as item (item.title)}
       {@const Icon = item.icon}
       <a
+        onclick={() => (pressed = item.title)}
         href={item.link}
         aria-label={item.title}
         class={cn(
           "flex h-16 items-center justify-center py-4 *:size-[85%]",
-          page.url.pathname.startsWith(item.link)
+          (page.url.pathname.startsWith(item.link) && pressed == "") ||
+            pressed == item.title
             ? "text-rosa-background border-rosa-background border-b-4 pt-4 pb-3"
             : "text-muted-foreground",
         )}

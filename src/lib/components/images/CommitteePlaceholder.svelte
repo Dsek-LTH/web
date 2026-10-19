@@ -46,8 +46,8 @@
       FALLBACK,
   );
 
-  const TILE = 104;
-  const ICON = 46;
+  const TILE = 146;
+  const ICON = 70;
   const ROTATION = -16;
   const a = TILE * 0.25 - ICON / 2;
   const b = TILE * 0.75 - ICON / 2;

@@ -12,6 +12,7 @@ import { getLocale } from "$paraglide/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { redirect } from "sveltekit-flash-message/server";
+import DOMPurify from "isomorphic-dompurify";
 import {
   committeeToPositionMap,
   getPositionLink,
@@ -197,13 +198,16 @@ export const actions: Actions = {
 
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
+    const description = form.data.description
+      ? DOMPurify.sanitize(form.data.description)
+      : form.data.description;
     switch (getLocale()) {
       case "sv":
         await prisma.position.update({
           where: { id: searchId },
           data: {
             nameSv: form.data.name,
-            descriptionSv: form.data.description,
+            descriptionSv: description,
             email: form.data.email,
           },
         });
@@ -213,7 +217,7 @@ export const actions: Actions = {
           where: { id: searchId },
           data: {
             nameEn: form.data.name,
-            descriptionEn: form.data.description,
+            descriptionEn: description,
             email: form.data.email,
           },
         });

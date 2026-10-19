@@ -9,6 +9,7 @@ import apiNames from "$lib/utils/apiNames";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
+import * as m from "$paraglide/messages";
 
 const VALID_ORDER = [
   "title",
@@ -78,11 +79,17 @@ export const load: PageServerLoad = async ({ url, locals }) => {
     error(e.status as NumericRange<400, 599>, "Shlink error: " + e.title);
   }
   const tags = await apiClient.listTags();
+  const shlinkDomains = await apiClient.listDomains();
+  const defaultDomain =
+    shlinkDomains.data.find((d) => d.isDefault)?.domain ??
+    shlinkDomains.data[0]?.domain ??
+    null;
 
   return {
     domains: domains.data,
     pagination: domains.pagination,
     tags: tags.data,
+    defaultDomain,
     createLinksForm: await superValidate(zod4(createLinksSchema), {
       id: "create",
     }),
@@ -117,7 +124,7 @@ export const actions: Actions = {
     }
 
     return message(createForm, {
-      message: "Link successfully created",
+      message: m.admin_links_created_success(),
       type: "success",
     });
   },
@@ -145,7 +152,7 @@ export const actions: Actions = {
     }
 
     return message(updateForm, {
-      message: "Link successfully updated",
+      message: m.admin_links_updated_success(),
       type: "success",
     });
   },
@@ -180,7 +187,7 @@ export const actions: Actions = {
     }
 
     return message(deleteForm, {
-      message: "Link(s) successfully removed",
+      message: m.admin_links_removed_success(),
       type: "success",
     });
   },

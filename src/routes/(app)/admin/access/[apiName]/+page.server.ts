@@ -12,20 +12,10 @@ import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
 import * as messages from "$paraglide/messages";
 
-const createSchema = z
-  .object({
-    role: z.string().nullable(),
-    studentId: z.string().nullable(),
-  })
-  .refine(
-    (data) =>
-      (data.role !== null && data.studentId === null) ||
-      (data.role === null && data.studentId !== null),
-    {
-      path: ["role"],
-      message: "Either 'role' or 'studentId' must be defined",
-    },
-  );
+const createSchema = z.object({
+  type: z.enum(["member", "role"]),
+  subjects: z.array(z.string()).min(1),
+});
 
 const deleteSchema = z.object({
   id: z.string().uuid(),
@@ -58,24 +48,23 @@ export const actions: Actions = {
     const { prisma } = locals;
     const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
-    if (
-      form.data.studentId &&
-      (await prisma.member.count({
-        where: { studentId: form.data.studentId },
-      })) === 0
-    ) {
-      return setError(
-        form,
-        "studentId",
-        messages.admin_access_member_not_found(),
-      );
+    const { type, subjects } = form.data;
+
+    if (type === "member") {
+      const existing = await prisma.member.count({
+        where: { studentId: { in: subjects } },
+      });
+      if (existing !== subjects.length) {
+        return setError(form, "", messages.admin_access_member_not_found());
+      }
     }
-    await prisma.accessPolicy.create({
-      data: {
+
+    await prisma.accessPolicy.createMany({
+      data: subjects.map((subject) => ({
         apiName: params.apiName,
-        role: form.data.role,
-        studentId: form.data.studentId,
-      },
+        role: type === "role" ? subject : null,
+        studentId: type === "member" ? subject : null,
+      })),
     });
     return message(form, {
       message: messages.admin_access_policyCreated(),

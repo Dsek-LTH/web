@@ -1,3 +1,4 @@
+import "temporal-polyfill/global";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
 import { createMember } from "$lib/utils/member";
@@ -34,9 +35,7 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
-import { verifyCostCenterData } from "./routes/(app)/expenses/verification";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
-import { dev } from "$app/environment";
 import { paraglideMiddleware } from "$paraglide/server";
 import { getRequestEvent } from "$app/server";
 import {
@@ -44,9 +43,6 @@ import {
   httpRequestDurationMs,
   inflightRequests,
 } from "$lib/server/metrics";
-
-// TODO: This function should perhaps only be called during dev? Build? I'm not sure
-if (dev) verifyCostCenterData();
 
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
@@ -249,6 +245,7 @@ const appHandle: Handle = async ({ event, resolve }) => {
     const insetsJson = APP_INSETS_REGEX.exec(userAgent ?? "")?.[1];
     const insets = JSON.parse(insetsJson ?? "{}");
     event.locals.appInfo = {
+      os: userAgent?.substring(10).split(")")[0] ?? undefined,
       insets: {
         top: insets?.top ? Number(insets.top) : 0,
         bottom: insets?.bottom ? Number(insets.bottom) : 0,

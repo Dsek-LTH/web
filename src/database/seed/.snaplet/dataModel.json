@@ -329,6 +329,168 @@
         }
       ]
     },
+    "_booking_requests_access_doors": {
+      "id": "public._booking_requests_access_doors",
+      "schemaName": "public",
+      "tableName": "_booking_requests_access_doors",
+      "fields": [
+        {
+          "id": "public._booking_requests_access_doors.A",
+          "name": "A",
+          "columnName": "A",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public._booking_requests_access_doors.B",
+          "name": "B",
+          "columnName": "B",
+          "type": "varchar",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": 255
+        },
+        {
+          "name": "booking_requests",
+          "type": "booking_requests",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_booking_requests_access_doorsTobooking_requests",
+          "relationFromFields": [
+            "A"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "doors",
+          "type": "doors",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_booking_requests_access_doorsTodoors",
+          "relationFromFields": [
+            "B"
+          ],
+          "relationToFields": [
+            "name"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "_booking_requests_access_doors_AB_pkey",
+          "fields": [
+            "A",
+            "B"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
+    "_booking_requests_access_members": {
+      "id": "public._booking_requests_access_members",
+      "schemaName": "public",
+      "tableName": "_booking_requests_access_members",
+      "fields": [
+        {
+          "id": "public._booking_requests_access_members.A",
+          "name": "A",
+          "columnName": "A",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "id": "public._booking_requests_access_members.B",
+          "name": "B",
+          "columnName": "B",
+          "type": "uuid",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true,
+          "maxLength": null
+        },
+        {
+          "name": "booking_requests",
+          "type": "booking_requests",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_booking_requests_access_membersTobooking_requests",
+          "relationFromFields": [
+            "A"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "members",
+          "type": "members",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "_booking_requests_access_membersTomembers",
+          "relationFromFields": [
+            "B"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "_booking_requests_access_members_AB_pkey",
+          "fields": [
+            "A",
+            "B"
+          ],
+          "nullNotDistinct": false
+        }
+      ]
+    },
     "_booking_requests_bookables": {
       "id": "public._booking_requests_bookables",
       "schemaName": "public",
@@ -2225,6 +2387,24 @@
           "hasDefaultValue": false
         },
         {
+          "name": "doors",
+          "type": "doors",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "bookablesTodoors",
+          "relationFromFields": [
+            "door"
+          ],
+          "relationToFields": [
+            "name"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
           "name": "_booking_requests_bookables",
           "type": "_booking_requests_bookables",
           "isRequired": false,
@@ -2371,11 +2551,53 @@
           "hasDefaultValue": false
         },
         {
+          "name": "_booking_requests_access_doors",
+          "type": "_booking_requests_access_doors",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_booking_requests_access_doorsTobooking_requests",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_booking_requests_access_members",
+          "type": "_booking_requests_access_members",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_booking_requests_access_membersTobooking_requests",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
           "name": "_booking_requests_bookables",
           "type": "_booking_requests_bookables",
           "isRequired": false,
           "kind": "object",
           "relationName": "_booking_requests_bookablesTobooking_requests",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "door_access_policies",
+          "type": "door_access_policies",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "door_access_policiesTobooking_requests",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,
@@ -3953,6 +4175,38 @@
           "maxLength": 255
         },
         {
+          "id": "public.door_access_policies.booking_request_id",
+          "name": "booking_request_id",
+          "columnName": "booking_request_id",
+          "type": "uuid",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
+          "name": "booking_requests",
+          "type": "booking_requests",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "door_access_policiesTobooking_requests",
+          "relationFromFields": [
+            "booking_request_id"
+          ],
+          "relationToFields": [
+            "id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
           "name": "doors",
           "type": "doors",
           "isRequired": true,
@@ -4045,6 +4299,34 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": 255
+        },
+        {
+          "name": "_booking_requests_access_doors",
+          "type": "_booking_requests_access_doors",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_booking_requests_access_doorsTodoors",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "bookables",
+          "type": "bookables",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "bookablesTodoors",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
         },
         {
           "name": "door_access_policies",
@@ -6737,6 +7019,20 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "_article_likesTomembers",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "_booking_requests_access_members",
+          "type": "_booking_requests_access_members",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "_booking_requests_access_membersTomembers",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,

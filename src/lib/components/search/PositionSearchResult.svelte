@@ -11,7 +11,6 @@
 <Command.LinkItem
   class="flex flex-row justify-between"
   href={getPositionLink(data.dsekId)}
-  data-search-result
 >
   <div class="flex flex-row items-center gap-2">
     <Avatar.Root>

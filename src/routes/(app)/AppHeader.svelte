@@ -4,7 +4,6 @@
   import Search from "@lucide/svelte/icons/search";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
-  import { onMount } from "svelte";
 
   const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
     $props();
@@ -13,16 +12,9 @@
 
   // IOS creates insets that has the height of the notch, making it safe to place content below it
   // Android places its insets inside of the already safe space, therefore we ignore it
-  let user = $state("");
-  let os = $derived(
-    user.startsWith("DSEK-APP") ? user.substring(10).split(")")[0] : undefined,
+  let heightInset = $derived(
+    page.data.appInfo?.os == "ios" ? page.data.appInfo?.insets?.top : 0,
   );
-
-  let heightInset = $derived(os == "ios" ? page.data.appInfo?.insets?.top : 0);
-
-  onMount(() => {
-    user = navigator.userAgent;
-  });
 </script>
 
 <div class="flex w-full justify-center">

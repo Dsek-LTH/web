@@ -12,7 +12,6 @@
 <Command.LinkItem
   class="flex w-full flex-row justify-between"
   href={`/news/${data.slug}`}
-  data-search-result
 >
   <div class="flex w-full flex-col">
     <div class="flex w-full flex-row justify-between">
