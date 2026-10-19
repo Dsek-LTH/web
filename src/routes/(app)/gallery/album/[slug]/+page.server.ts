@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     : null;
 
   let pictures: FileData[] = [];
+  let cover: FileData | null = null;
   if (album) {
     pictures = await fileHandler
       .getInBucket(
@@ -40,12 +41,25 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         console.error("Error fetching files", err);
         return [];
       });
+    cover = await fileHandler
+      .getInBucket(
+        user,
+        PUBLIC_BUCKETS_ALBUMS,
+        "public/" + album.slug + "/cover",
+        true,
+      )
+      .then((files) => files[0] ?? null)
+      .catch((err) => {
+        console.error("Error fetching cover file", err);
+        return null;
+      });
   }
 
   console.log("Loaded album data for slug:", params.slug);
 
   return {
     album: album,
+    cover: cover,
     pictures: pictures,
   };
 };

@@ -54,7 +54,7 @@
         }}
         class="block text-left leading-[unset]"
         ><img
-          class="relative my-2 block object-contain"
+          class="relative my-2 block rounded-md object-contain"
           src={picture.thumbnailUrl}
           alt="display"
         />
