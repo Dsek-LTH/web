@@ -11,7 +11,6 @@
 <Command.LinkItem
   class="flex w-full flex-row justify-between"
   href={`/events/${data.slug}`}
-  data-search-result
 >
   <div class="flex w-full flex-row items-center justify-between gap-2">
     <div class="flex flex-col">

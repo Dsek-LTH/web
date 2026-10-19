@@ -30,6 +30,9 @@
   <div class="flex-1 gap-2 md:flex-row md:items-end">
     <NewsSearch />
   </div>
+  {#if isAuthorized(apiNames.TAGS.READ, data.user)}
+    <a href="/news/tags"><Button variant="outline">{m.news_tags()}</Button></a>
+  {/if}
   {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
     <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
   {/if}

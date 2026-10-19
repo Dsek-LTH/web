@@ -190,6 +190,14 @@ export const getRoutes = (): Route[] =>
           path: "/elections",
           icon: Vote,
         },
+        {
+          title: m.documents_requirementProfiles(),
+          description: m.documents_requirementProfilesBlurb(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/documents/requirements",
+          icon: FileText,
+        },
       ],
     },
     {
@@ -200,11 +208,11 @@ export const getRoutes = (): Route[] =>
       list: true,
       children: [
         {
-          title: m.tickets(),
+          title: m.nav_ticketReleases(),
           accessRequired: null,
           appBehaviour: "none",
-          description: m.nav_tickets_desc(),
-          path: "/shop/tickets",
+          description: m.nav_ticketReleases_desc(),
+          path: "/tickets",
           icon: Ticket,
         },
         {
@@ -212,7 +220,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_bookings_desc(),
-          path: "/booking",
+          path: "/bookings",
           icon: HousePlus,
         },
         {
@@ -222,13 +230,6 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
-        },
-        {
-          title: m.stocklist(),
-          accessRequired: "drinkitem:read",
-          appBehaviour: "none",
-          description: m.nav_stocklist_desc(),
-          path: "/admin/stocklist",
         },
       ],
     },
@@ -288,10 +289,11 @@ export const getRoutes = (): Route[] =>
           icon: Info,
         },
         {
-          title: m.qr_code(),
-          path: "/admin/qr",
-          accessRequired: null,
+          title: m.nav_admin_ticketReleases(),
+          path: "/admin/tickets",
+          accessRequired: apiNames.WEBSHOP.CREATE,
           appBehaviour: "none",
+          icon: Ticket,
         },
       ],
     },
@@ -418,32 +420,3 @@ export const getFooterRoutes = (): Route[] =>
       ],
     },
   ] as const;
-
-export const appBottomNavRoutes = (routes: Route[]): Route[] =>
-  [
-    {
-      title: "Hem",
-      icon: "dsek-icon",
-      path: "/app/home",
-      accessRequired: null,
-      appBehaviour: "bottom-nav",
-    } as unknown as Route,
-  ]
-    .concat(
-      routes
-        .flatMap((route) =>
-          route.children ? [route, ...route.children] : route,
-        )
-        .filter((route) => {
-          return route.appBehaviour === "bottom-nav";
-        }),
-    )
-    .concat([
-      {
-        title: "Konto",
-        // icon: "i-mdi-account-circle",
-        path: "/app/account",
-        accessRequired: null,
-        appBehaviour: "bottom-nav",
-      },
-    ]);

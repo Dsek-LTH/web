@@ -218,7 +218,8 @@ model Bookable {
   nameEn     String?           @map("name_en") @db.VarChar(255)
   isDisabled Boolean           @default(false)
   categoryId String?           @map("category_id") @db.Uuid()
-  door       String?           @db.VarChar(255)
+  doorName   String?           @map("door") @db.VarChar(255)
+  door       Door?             @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "bookables_door_name_foreign")
   category   BookableCategory? @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookables_category_id_foreign")
   bookings   BookingRequest[]  @relation("booking_requests_bookables")
 
@@ -227,15 +228,18 @@ model Bookable {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model BookingRequest {
-  id        String               @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  bookerId  String?              @map("booker_id") @db.Uuid()
-  start     DateTime?            @db.Timestamptz(6)
-  end       DateTime?            @db.Timestamptz(6)
-  created   DateTime?            @default(now()) @db.Timestamptz(6)
-  event     String?              @db.VarChar(255)
-  status    BookingRequestStatus @default(PENDING)
-  bookables Bookable[]           @relation("booking_requests_bookables")
-  booker    Member?              @relation(fields: [bookerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_requests_booker_id_foreign")
+  id                 String               @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  bookerId           String?              @map("booker_id") @db.Uuid()
+  start              DateTime?            @db.Timestamptz(6)
+  end                DateTime?            @db.Timestamptz(6)
+  created            DateTime?            @default(now()) @db.Timestamptz(6)
+  event              String?              @db.VarChar(255)
+  status             BookingRequestStatus @default(PENDING)
+  bookables          Bookable[]           @relation("booking_requests_bookables")
+  booker             Member?              @relation(fields: [bookerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "booking_requests_booker_id_foreign")
+  accessDoors        Door[]               @relation("booking_requests_access_doors")
+  accessMembers      Member[]             @relation("booking_requests_access_members")
+  doorAccessPolicies DoorAccessPolicy[]
 
   @@map("booking_requests")
 }
@@ -317,26 +321,30 @@ model CustomAuthor {
 }
 
 model DoorAccessPolicy {
-  id            String    @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  doorName      String    @map("door_name") @db.VarChar(255)
-  role          String?   @db.VarChar(255)
-  studentId     String?   @map("student_id") @db.VarChar(255)
-  member        Member?   @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_member_id_foreign")
-  startDatetime DateTime? @map("start_datetime") @db.Timestamptz(6)
-  endDatetime   DateTime? @map("end_datetime") @db.Timestamptz(6)
-  information   String?   @map("information") @db.VarChar(255)
-  isBan         Boolean   @default(false) @map("is_ban")
-  door          Door      @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_door_name_foreign")
+  id               String          @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  doorName         String          @map("door_name") @db.VarChar(255)
+  role             String?         @db.VarChar(255)
+  studentId        String?         @map("student_id") @db.VarChar(255)
+  member           Member?         @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_member_id_foreign")
+  startDatetime    DateTime?       @map("start_datetime") @db.Timestamptz(6)
+  endDatetime      DateTime?       @map("end_datetime") @db.Timestamptz(6)
+  information      String?         @map("information") @db.VarChar(255)
+  isBan            Boolean         @default(false) @map("is_ban")
+  door             Door            @relation(fields: [doorName], references: [name], onDelete: NoAction, onUpdate: NoAction, map: "door_access_policies_door_name_foreign")
+  bookingRequestId String?         @map("booking_request_id") @db.Uuid()
+  bookingRequest   BookingRequest? @relation(fields: [bookingRequestId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "door_access_policies_booking_request_id_foreign")
 
   @@map("door_access_policies")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Door {
-  name           String             @id() @db.VarChar(255)
-  id             String?            @db.VarChar(255)
-  accessPolicies DoorAccessPolicy[]
-  verboseName    String             @map("verbose_name") @db.VarChar(255)
+  name            String             @id() @db.VarChar(255)
+  id              String?            @db.VarChar(255)
+  accessPolicies  DoorAccessPolicy[]
+  verboseName     String             @map("verbose_name") @db.VarChar(255)
+  bookables       Bookable[]
+  bookingRequests BookingRequest[]   @relation("booking_requests_access_doors")
 
   @@map("doors")
 }
@@ -407,6 +415,7 @@ model Event {
   author               Member          @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_author_id_foreign")
   tags                 Tag[]           @relation("event_tags")
   tickets              Ticket[]
+  ticketReleases       TicketRelease[]
   recurringEventParent RecurringEvent? @relation(fields: [recurringParentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recurring_event_parent")
   committee            Committee?      @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "events_committee_id_foreign")
 
@@ -527,51 +536,52 @@ model Meeting {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
-  id                      String                  @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  studentId               String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-  email                   String?                 @unique() @db.VarChar(255)
-  firstName               String?                 @map("first_name") @db.VarChar(255)
-  nickname                String?                 @db.VarChar(255)
-  lastName                String?                 @map("last_name") @db.VarChar(255)
-  bio                     String?                 @db.Text()
-  picturePath             String?                 @map("picture_path") @db.Text()
-  classProgramme          String?                 @map("class_programme") @db.VarChar(255)
-  classYear               Int?                    @map("class_year")
-  graduationYear          Int?                    @map("graduation_year")
-  visible                 Boolean                 @default(true)
-  foodPreference          String?                 @map("food_preference") @db.VarChar(255)
-  language                String?                 @map("language") @db.VarChar(255)
-  stripeCustomerId        String?                 @map("stripe_customer_id")
-  nollningGroupId         String?                 @map("nollning_group_id") @db.Uuid()
-  nollaIn                 PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
-  pingsFromMe             Ping[]                  @relation("pings_from_memberTomembers")
-  pingsToMe               Ping[]                  @relation("pings_to_memberTomembers")
-  likedArticles           Article[]               @relation("article_likes")
-  articleComments         ArticleComment[]
-  articleRequests         ArticleRequest[]
-  authors                 Author[]
-  eventComments           EventComment[]
-  eventsGoingTos          Event[]                 @relation("event_going")
-  eventsInterestedIns     Event[]                 @relation("event_interested")
-  subscribedTags          Tag[]                   @relation("member_tag_subscriptions")
-  authoredEvents          Event[]
-  mandates                Mandate[]
-  notifications           Notification[]
-  subscriptionSettings    SubscriptionSetting[]
-  memberSpecificPolicies  AccessPolicy[]
-  doorAccessPolicies      DoorAccessPolicy[]
-  shoppableAccessPolicies ShoppableAccessPolicy[]
-  authoredShoppables      Shoppable[]
-  inventory               Consumable[]
-  shopReservations        ConsumableReservation[]
-  bookingRequests         BookingRequest[]
-  recurringEvent          RecurringEvent[]
-  tokens                  ExpoToken[]
-  expenses                Expense[]
-  expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
-  signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
-  closedAlerts            Alert[]                 @relation("alerts_closed_by")
-  cafeShifts              CafeShift[]
+  id                           String                  @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  studentId                    String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
+  email                        String?                 @unique() @db.VarChar(255)
+  firstName                    String?                 @map("first_name") @db.VarChar(255)
+  nickname                     String?                 @db.VarChar(255)
+  lastName                     String?                 @map("last_name") @db.VarChar(255)
+  bio                          String?                 @db.Text()
+  picturePath                  String?                 @map("picture_path") @db.Text()
+  classProgramme               String?                 @map("class_programme") @db.VarChar(255)
+  classYear                    Int?                    @map("class_year")
+  graduationYear               Int?                    @map("graduation_year")
+  visible                      Boolean                 @default(true)
+  foodPreference               String?                 @map("food_preference") @db.VarChar(255)
+  language                     String?                 @map("language") @db.VarChar(255)
+  stripeCustomerId             String?                 @map("stripe_customer_id")
+  nollningGroupId              String?                 @map("nollning_group_id") @db.Uuid()
+  nollaIn                      PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
+  pingsFromMe                  Ping[]                  @relation("pings_from_memberTomembers")
+  pingsToMe                    Ping[]                  @relation("pings_to_memberTomembers")
+  likedArticles                Article[]               @relation("article_likes")
+  articleComments              ArticleComment[]
+  articleRequests              ArticleRequest[]
+  authors                      Author[]
+  eventComments                EventComment[]
+  eventsGoingTos               Event[]                 @relation("event_going")
+  eventsInterestedIns          Event[]                 @relation("event_interested")
+  subscribedTags               Tag[]                   @relation("member_tag_subscriptions")
+  authoredEvents               Event[]
+  mandates                     Mandate[]
+  notifications                Notification[]
+  subscriptionSettings         SubscriptionSetting[]
+  memberSpecificPolicies       AccessPolicy[]
+  doorAccessPolicies           DoorAccessPolicy[]
+  shoppableAccessPolicies      ShoppableAccessPolicy[]
+  authoredShoppables           Shoppable[]
+  inventory                    Consumable[]
+  shopReservations             ConsumableReservation[]
+  bookingRequests              BookingRequest[]
+  accessGrantedBookingRequests BookingRequest[]        @relation("booking_requests_access_members")
+  recurringEvent               RecurringEvent[]
+  tokens                       ExpoToken[]
+  expenses                     Expense[]
+  expensesToSign               ExpenseItem[]           @relation("expense_item_signer")
+  signedExpenses               ExpenseItem[]           @relation("expense_item_signed_by")
+  closedAlerts                 Alert[]                 @relation("alerts_closed_by")
+  cafeShifts                   CafeShift[]
 
   @@map("members")
 }
@@ -870,6 +880,42 @@ model Ticket {
   maxAmountPerUser Int       @default(1)
 
   @@map("ticket")
+}
+
+model TicketRelease {
+  id                 String             @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  eventId            String             @map("event_id") @db.Uuid()
+  event              Event              @relation(fields: [eventId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  title              String
+  description        String             @default("")
+  location           String             @default("")
+  quantity           Int
+  opensAt            DateTime           @map("opens_at") @db.Timestamptz(6)
+  closesAt           DateTime           @map("closes_at") @db.Timestamptz(6)
+  expiresAt          DateTime           @map("expires_at") @db.Timestamptz(6)
+  graceWindowSeconds Int                @default(60) @map("grace_window_seconds")
+  offerWindowSeconds Int                @default(300) @map("offer_window_seconds")
+  status             String             @default("scheduled")
+  createdBy          String             @map("created_by")
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  entries            TicketQueueEntry[]
+
+  @@map("ticket_release")
+}
+
+model TicketQueueEntry {
+  id             String        @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  releaseId      String        @map("release_id") @db.Uuid()
+  release        TicketRelease @relation(fields: [releaseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  memberId       String        @map("member_id")
+  status         String        @default("pending")
+  queuePosition  Int?          @map("queue_position")
+  offerExpiresAt DateTime?     @map("offer_expires_at") @db.Timestamptz(6)
+  requestedAt    DateTime      @default(now()) @map("requested_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([releaseId, memberId])
+  @@map("ticket_queue_entry")
 }
 
 model ItemQuestion {

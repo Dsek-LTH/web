@@ -13,11 +13,11 @@
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
   import { m } from "$paraglide/messages";
-  import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
-  import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
+  import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
   import { Spinner } from "$lib/components/ui/spinner";
   import { page } from "$app/state";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -98,50 +98,23 @@
     </Button>
 
     <div>
-      <h2>{m.news()}</h2>
+      <h2>
+        <a class="hover:text-muted-foreground transition-colors" href="/news"
+          >{m.news()}</a
+        >
+      </h2>
       <div class="mt-4 flex flex-col gap-4 lg:flex-row">
-        {#each data.news as newsArticle, i (newsArticle.id)}
-          <a
-            href="/news/{newsArticle.slug}"
-            class={[
-              "relative aspect-2/1 w-full overflow-hidden rounded-xl hover:underline lg:w-1/3",
-              i >= 2 && "hidden lg:block",
-            ]}
-          >
-            {#if newsArticle.imageUrl}
-              <div
-                class="absolute inset-0 bg-cover bg-center"
-                style="background-image: url({newsArticle.imageUrl});"
-              ></div>
-              <div class="absolute top-2 right-2 size-14 p-3">
-                <CommitteeSymbol
-                  committee={newsArticle.committee ?? undefined}
-                  class="size-8"
-                />
-              </div>
-              <div
-                class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent"
-              ></div>
-            {:else}
-              <CommitteePlaceholder
-                class="absolute inset-0"
-                committee={newsArticle.committee}
-              />
-            {/if}
-            <div
-              class={[
-                "relative flex h-full w-full flex-col justify-end p-4",
-                newsArticle.imageUrl && "text-white",
-              ]}
-            >
-              <h2 class="line-clamp-2 overflow-hidden">
-                {newsArticle.header}
-              </h2>
-              <span class="text-right font-light">
-                {dayjs(newsArticle.publishedAt).format("YYYY-MM-DD")}
-              </span>
-            </div>
-          </a>
+        {#each data.news.slice(0, 3) as newsArticle (newsArticle.id)}
+          <ArticleSmallCard
+            article={{
+              slug: newsArticle.slug,
+              header: newsArticle.header,
+              publishedAt: newsArticle.publishedAt,
+              committee: newsArticle.committee,
+              imageUrl: newsArticle.imageUrl,
+            }}
+            isPreview={false}
+          />
         {:else}
           <div
             class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
@@ -150,10 +123,19 @@
           </div>
         {/each}
       </div>
+      <div class="mt-2 flex">
+        <Button variant="outline" class="w-full" href="/news"
+          >{m.home_more_news()} <ArrowRight /></Button
+        >
+      </div>
     </div>
 
     <div>
-      <h2>{m.events()}</h2>
+      <h2>
+        <a class="hover:text-muted-foreground transition-colors" href="/events"
+          >{m.events()}</a
+        >
+      </h2>
       <HomeCalendar
         events={data.events.map((e) => ({
           startDate: e.startDatetime,

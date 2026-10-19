@@ -22,7 +22,11 @@
   }}
 />
 
-<Article {article} canEdit={data.canEdit} canDelete={data.canDelete}
+<Article
+  {article}
+  likeForm={data.likeForm}
+  canEdit={data.canEdit}
+  canDelete={data.canDelete}
   ><div class="flex flex-row items-center gap-2">
     <AuthorCard
       member={article.author.member}
