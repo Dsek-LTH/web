@@ -44,6 +44,7 @@ ignore_patterns = [
 
     # Organizations
     'AF Bostäder',
+    'Akademiska Föreningen',
     'BoPoolen',
     'D-Chip',
 
@@ -74,9 +75,11 @@ ignore_patterns = [
     'UtEDischo',
 
     # Tools
+    'formsnap',
     'getmeili',
     'IBM Plex',
     'iCal',
+    'preact',
     'StiL',
     'YouTube',
 
@@ -150,6 +153,7 @@ ignore_patterns = [
     'nollning(_group_id|GroupId|_start|_end|:phaddrar)', # Should be "n0llning".
     '\[NOLLNING\]', # Should be "[N0LLNING]".
     'nollor:', # Should be "n0llor". The schema is configured separately.
+    '\.nollor', # Should be "n0llor". The schema is configured separately.
     'phaddrar', # Should be "phadders".
     'see_staben',
     'Tomembers',
@@ -347,10 +351,12 @@ words = [
     'influencer',
     'infos',
     'instrumentations',
+    'keyless',
     'licensor',
     'likers',
     'lmao',
     'noninfringement',
+    'oklab',
     'oklch',
     'portalled',
     'presigned',
@@ -364,6 +370,7 @@ words = [
     'sms',
     'sponsorships',
     'strikethrough', # Noun
+    'sublabel',
     'sublicensable',
     'sublicense',
     'subprocessor',
@@ -372,6 +379,7 @@ words = [
     'unapprove',
     'unconsume',
     'unported',
+    'unticking',
     'wcag',
     'webhooks',
     'webshop',
@@ -574,6 +582,7 @@ words = [
     'avkonsumerats',
     'cafémackor',
     'dagsvis',
+    'dagsvy',
     'datan',
     'eftersexa',
     'filsökväg',
@@ -599,6 +608,7 @@ words = [
     'phadderval',
     'ping',
     'policykod',
+    'policykoder',
     'rave',
     'shitpost',
     'sjungboken',
@@ -612,6 +622,7 @@ words = [
     'tombolabodar',
     'trivselråd',
     'trivselrådet',
+    'veckovy',
     'vintertack',
     'wikia',
     'ølmil',
@@ -740,8 +751,10 @@ extra_ignore_patterns = [
     'fc-scrollgrid',
     'font-extrabold',
     'h-dvh',
+    'h-\[[0-9]+dvh\]',
     'lucide-[a-z-]+',
     'srgb',
+    'tabular-nums',
     'w-dvw',
 ]
 
@@ -921,6 +934,7 @@ extra_ignore_patterns = [
 paths = [
     'src/database/seed/data.ts',
     'src/lib/server/shop/payments/purchase.test.ts',
+    'src/lib/utils/escapeHtml.test.ts',
     'src/lib/utils/slugify.test.ts',
 ]
 # We just ignore all string, kind of a cop-out but this data is not important.

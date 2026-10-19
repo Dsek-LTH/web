@@ -21,8 +21,8 @@
       calendarEvent.calendarId as CalendarStatusCategory
     ] ?? calendarStatusCategoriesTailwind.PENDING,
   );
-  const colours = $derived(category.darkColors ?? category.lightColors);
-  const colourClasses = $derived(Object.values(colours ?? {}).join(" "));
+  const colors = $derived(category.darkColors ?? category.lightColors);
+  const colorClasses = $derived(Object.values(colors ?? {}).join(" "));
 
   const MIN_HEIGHT_FOR_TIME = 38;
   const MIN_HEIGHT_FOR_BOOKER = 58;
@@ -51,7 +51,7 @@
 
 <div
   bind:this={eventElement}
-  class={`${colourClasses} relative size-full cursor-pointer overflow-hidden rounded-xs py-1 pl-2
+  class={`${colorClasses} relative size-full cursor-pointer overflow-hidden rounded-xs py-1 pl-2
          transition-all duration-200 ease-out before:absolute before:top-0 before:left-0
          before:h-full before:w-1 before:rounded-l-md before:content-[''] hover:-translate-x-[1px] hover:-translate-y-0.5
          hover:shadow-md`}

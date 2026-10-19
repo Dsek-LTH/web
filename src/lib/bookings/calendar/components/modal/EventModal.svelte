@@ -95,7 +95,7 @@
     isEndDate = false,
   ): [number, number, number] | [number, number, number, number, number] {
     if (dt instanceof Temporal.PlainDate) {
-      // For all-day events, ICS expects DTEND to be exclusive
+      // For all-day events, ICS expects the end time to be exclusive
       const date = isEndDate ? dt.add({ days: 1 }) : dt;
       return [date.year, date.month, date.day];
     } else if (dt instanceof Temporal.ZonedDateTime) {

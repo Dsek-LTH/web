@@ -55,7 +55,7 @@
           <Input id="fileName" name="fileName" bind:value={$form.fileName} />
         </div>
         <div class="flex flex-col gap-2">
-          <Label for="file">{m.fileupload_title()}</Label>
+          <Label for="file">{m.fileUpload_title()}</Label>
           <Input id="file" name="file" type="file" bind:files={$file} />
           {#if $errors.file}
             <p class="text-destructive text-sm font-medium">{$errors.file}</p>
@@ -71,7 +71,7 @@
           </a>
         {/if}
         <div class="flex justify-end">
-          <Button type="submit">{m.fileupload_title()}</Button>
+          <Button type="submit">{m.fileUpload_title()}</Button>
         </div>
       </form>
     </CardContent>

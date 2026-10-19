@@ -85,7 +85,7 @@ const createSchema = z
         });
       } else {
         // check if role exists: either a virtual role not backed by any
-        // Position (everyone/signed-in/nolla/board, or a programme+year
+        // Position (everyone/signed-in/n0lla/board, or a program+year
         // combo), or a real Position id (or dot-prefix of one)
         const virtualRoles = ["*", "_", "nolla", "dsek.styr"];
         if (virtualRoles.includes(data.subject)) return true;

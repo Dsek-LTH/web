@@ -5,37 +5,37 @@ export type CalendarStatusCategory = "ACCEPTED" | "PENDING" | "DENIED";
 type ConfigMode = "tailwind" | "css";
 type CalendarStatusColours = Record<CalendarStatusCategory, string>;
 
-const baseColours: CalendarStatusColours = {
+const baseColors: CalendarStatusColours = {
   ACCEPTED: "primary",
   PENDING: "color-lila-400",
   DENIED: "destructive",
 };
 
-const bgColours: CalendarStatusColours = {
+const backgroundColors: CalendarStatusColours = {
   ACCEPTED: "bg-primary/15",
   PENDING: "bg-lila-400/15",
   DENIED: "bg-destructive/15",
 };
 
-const textColours: CalendarStatusColours = {
+const textColors: CalendarStatusColours = {
   ACCEPTED: "text-primary",
   PENDING: "text-lila-400",
   DENIED: "text-destructive",
 };
 
-const beforeColours: CalendarStatusColours = {
+const beforeColors: CalendarStatusColours = {
   ACCEPTED: "before:bg-primary",
   PENDING: "before:bg-lila-400",
   DENIED: "before:bg-destructive",
 };
 
-export const bgColoursModal: CalendarStatusColours = {
+export const backgroundColorsModal: CalendarStatusColours = {
   ACCEPTED: "bg-primary",
   PENDING: "bg-lila-400",
   DENIED: "bg-destructive",
 };
 
-export const shadowColoursModal: CalendarStatusColours = {
+export const shadowColorsModal: CalendarStatusColours = {
   ACCEPTED: "shadow-[0_0_4px_var(--primary)]",
   PENDING: "shadow-[0_0_4px_var(--color-lila-400)]",
   DENIED: "shadow-[0_0_4px_var(--destructive)]",
@@ -45,14 +45,14 @@ const getCalendarCategory = (
   categoryName: CalendarStatusCategory,
   mode: ConfigMode,
 ) => {
-  const colourName = baseColours[categoryName];
+  const colorName = baseColors[categoryName];
   const main =
-    mode === "css" ? `var(--${colourName})` : beforeColours[categoryName];
-  const onContainer = mode === "css" ? main : textColours[categoryName];
+    mode === "css" ? `var(--${colorName})` : beforeColors[categoryName];
+  const onContainer = mode === "css" ? main : textColors[categoryName];
   const container =
     mode === "css"
       ? `color-mix(in oklab, ${main} 15%, transparent)`
-      : bgColours[categoryName];
+      : backgroundColors[categoryName];
 
   return {
     colorName: categoryName,

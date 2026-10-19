@@ -54,20 +54,20 @@
     const base: RoleOption[] = [
       { id: "*", label: m.role_everyone() },
       { id: "_", label: m.role_signedIn() },
-      { id: "nolla", label: m.role_nolla() },
+      { id: "nolla", label: m.role_n0lla() },
       { id: "dsek.styr", label: m.role_boardMembers() },
     ];
-    const programmeRoles = programmes.flatMap((programme) =>
+    const programRoles = programmes.flatMap(program =>
       Array.from({ length: YEARS_BACK + 1 }, (_, i) => {
         const year = currentYear - i;
         const shortYear = String(year % 100).padStart(2, "0");
         return {
-          id: `${programme.id}${shortYear}`,
-          label: `${programme.name} ${year}`,
+          id: `${program.id}${shortYear}`,
+          label: `${program.name} ${year}`,
         };
       }),
     );
-    return [...base, ...programmeRoles];
+    return [...base, ...programRoles];
   })();
 
   let componentElement: HTMLElement | null = $state(null);

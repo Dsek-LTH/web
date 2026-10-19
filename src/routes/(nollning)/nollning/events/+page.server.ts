@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({
   }
   const { weekStart, weekEnd } = getWeekInterval(week);
 
-  depends("nollning-events");
+  depends("n0llning-events");
   const events = await prisma.event.findMany({
     where: {
       ...BASIC_EVENT_FILTER(revealTheme),
