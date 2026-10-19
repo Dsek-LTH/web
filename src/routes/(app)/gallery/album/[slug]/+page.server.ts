@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       .getInBucket(
         user,
         PUBLIC_BUCKETS_ALBUMS,
-        "public/" + album.slug + "/album",
+        "public/" + album.id + "/album",
         true,
       )
       .catch((err) => {
@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       .getInBucket(
         user,
         PUBLIC_BUCKETS_ALBUMS,
-        "public/" + album.slug + "/cover",
+        "public/" + album.id + "/cover",
         true,
       )
       .then((files) => files[0] ?? null)

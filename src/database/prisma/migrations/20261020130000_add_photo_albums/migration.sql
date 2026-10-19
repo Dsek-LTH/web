@@ -6,7 +6,7 @@ CREATE TABLE "albums" (
     "date" DATE NOT NULL,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL,
-    "photos_directory" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "image_count" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "albums_pkey" PRIMARY KEY ("id")

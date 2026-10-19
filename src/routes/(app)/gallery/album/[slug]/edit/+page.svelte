@@ -22,7 +22,9 @@
     toCalendarDate,
   } from "@internationalized/date";
 
-  let { data }: { data: { slug: string; form: SuperValidated<EditSchema> } } =
+  let {
+    data,
+  }: { data: { id: string; slug: string; form: SuperValidated<EditSchema> } } =
     $props();
 
   let { form, constraints, errors, enhance } = $derived(
@@ -61,6 +63,10 @@
     <h1 class="text-2xl font-bold">{m.gallery_edit_album()}</h1>
     <DeleteAlbumForm slug={data.slug} />
   </div>
+  <p class="text-muted-foreground my-2 text-sm">
+    {m.gallery_album_id()}:
+    <code class="bg-muted rounded px-1 py-0.5 text-xs">{data.id}</code>
+  </p>
   <form
     id="edit-album"
     class="form-control flex flex-col items-stretch gap-4"

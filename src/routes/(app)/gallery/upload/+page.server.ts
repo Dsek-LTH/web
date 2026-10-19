@@ -5,10 +5,11 @@ import type { Actions, PageServerLoad } from "./$types";
 import { uploadSchema } from "./types";
 import { uploadAlbumFiles, uploadCoverFile } from "./uploadFiles";
 import { redirect } from "@sveltejs/kit";
-import { slugify, slugWithCount } from "$lib/utils/slugify";
+import { slugifyWithYear, findAvailableSlug } from "$lib/utils/slugify";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { randomUUID } from "node:crypto";
 
 export const load: PageServerLoad = async ({ locals }) => {
   authorize(apiNames.GALLERY.CREATE, locals.user);
@@ -32,24 +33,20 @@ export const actions: Actions = {
     const { title, date, description, photographers, editors, albumFiles } =
       form.data;
 
-    let slug = slugify(title);
+    const baseSlug = slugifyWithYear(title, new Date(date).getFullYear());
+    const slug = await findAvailableSlug(baseSlug, async (candidate) =>
+      Boolean(await prisma.album.findFirst({ where: { slug: candidate } })),
+    );
     console.log("Generated slug:", slug);
-    const existingAlbum = await prisma.album.findFirst({
-      where: { slug: slug },
-    });
-    if (existingAlbum) {
-      form.data.title = slugWithCount(title, 1);
-      const newSlug = slugify(form.data.title);
-      slug = newSlug;
-    }
+    const albumId = randomUUID();
 
     if (!form.valid) return fail(400, withFiles({ form }));
     try {
-      console.log("Uploading album files for slug:", slug);
-      await uploadAlbumFiles(user, form.data, slug);
-      console.log("Uploading cover file for slug:", slug);
-      await uploadCoverFile(user, form.data, slug);
-      console.log("File uploads completed for slug:", slug);
+      console.log("Uploading album files for id:", albumId);
+      await uploadAlbumFiles(user, form.data, albumId);
+      console.log("Uploading cover file for id:", albumId);
+      await uploadCoverFile(user, form.data, albumId);
+      console.log("File uploads completed for id:", albumId);
     } catch (e) {
       return message(
         form,
@@ -120,6 +117,7 @@ export const actions: Actions = {
       console.log("Creating album in database with title:", title);
       result = await authorizedPrismaClient.album.create({
         data: {
+          id: albumId,
           title,
           description,
           date: new Date(date),
