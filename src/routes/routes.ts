@@ -24,6 +24,7 @@ import Ticket from "@lucide/svelte/icons/ticket";
 import UserPlus from "@lucide/svelte/icons/user-plus";
 import Users from "@lucide/svelte/icons/users";
 import Vote from "@lucide/svelte/icons/vote";
+import BookImage from "@lucide/svelte/icons/book-image";
 import type { Component } from "svelte";
 
 // bottom-nav: Show in the bottom navigation bar
@@ -165,13 +166,6 @@ export const getRoutes = (): Route[] =>
           path: "/songbook",
           icon: Music,
         },
-        {
-          title: m.gallery(),
-          description: m.gallery_desc(),
-          accessRequired: null,
-          appBehaviour: "none",
-          path: "/gallery",
-        },
       ],
     },
     {
@@ -237,6 +231,14 @@ export const getRoutes = (): Route[] =>
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
+        },
+        {
+          title: m.gallery(),
+          description: m.gallery_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/gallery",
+          icon: BookImage,
         },
       ],
     },
