@@ -31,7 +31,7 @@ export async function sendNotificationToKM(
   bookingRequest: BookingRequestWithBookables,
   prisma: ExtendedPrisma,
 ) {
-  const kallarMastare = await prisma.member.findFirst({
+  const källarmästare = await prisma.member.findFirst({
     where: {
       mandates: {
         some: {
@@ -42,7 +42,7 @@ export async function sendNotificationToKM(
       },
     },
   });
-  if (!kallarMastare) return;
+  if (!källarmästare) return;
 
   const booker = bookingRequest.bookerId
     ? await prisma.member.findUnique({
@@ -62,7 +62,7 @@ export async function sendNotificationToKM(
     message: `${bookerName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} until ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
     type: NotificationType.BOOKING_REQUEST,
     link: `/bookings/admin/${bookingRequest.id}`,
-    memberIds: [kallarMastare.id],
+    memberIds: [källarmästare.id],
   });
 }
 
