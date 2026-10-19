@@ -220,7 +220,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_bookings_desc(),
-          path: "/booking",
+          path: "/bookings",
           icon: HousePlus,
         },
         {
