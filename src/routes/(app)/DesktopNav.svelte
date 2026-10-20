@@ -378,7 +378,6 @@
     outline-offset: 2px;
   }
   .nav-trigger:hover {
-    transform: translateY(-1px);
     color: color-mix(in srgb, var(--foreground) 80%, var(--primary) 20%);
     font-weight: 600;
   }

@@ -4,9 +4,13 @@
   import {
     formatBookingTime,
     bookingMonthLabels,
-    bookingWeekdayLabels,
   } from "$lib/bookings/calendar/dateUtils";
   import Section from "./Section.svelte";
+
+  import dayjs from "dayjs";
+  import localeData from "dayjs/plugin/localeData";
+
+  dayjs.extend(localeData);
 
   type PropDate = Temporal.ZonedDateTime | Temporal.PlainDate;
 
@@ -15,7 +19,7 @@
 
   const startTime = $derived(formatBookingTime(startDate));
   const startDay = $derived(startDate.day);
-  const startWeekday = $derived(bookingWeekdayLabels[startDate.dayOfWeek - 1]);
+  const startWeekday = $derived(dayjs.weekdays()[startDate.dayOfWeek]);
   const startMonth = $derived(bookingMonthLabels[startDate.month - 1]);
   const startYear = $derived(startDate.year);
 

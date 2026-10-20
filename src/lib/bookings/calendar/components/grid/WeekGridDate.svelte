@@ -1,26 +1,29 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
-  import { bookingWeekdayLabels } from "$lib/bookings/calendar/dateUtils";
+  import dayjs from "dayjs";
+  import localeData from "dayjs/plugin/localeData";
+  import weekOfYear from "dayjs/plugin/weekOfYear";
+
+  dayjs.extend(localeData);
+  dayjs.extend(weekOfYear);
 
   const { date }: { date: string } = $props();
 
-  const today = Temporal.Now.plainDateISO("Europe/Stockholm");
-  const temporalDate = $derived(Temporal.PlainDate.from(date));
-  const currentDay = $derived(
-    bookingWeekdayLabels[temporalDate.dayOfWeek - 1]?.substring(0, 3),
-  );
-  const currentWeek = $derived(temporalDate.weekOfYear);
+  const today = dayjs();
+  const dayjsDate = $derived(dayjs(date));
+  const currentDay = $derived(dayjs.weekdaysShort()[dayjsDate.day()]);
+  const currentWeek = $derived(dayjs().week());
 </script>
 
 <div class="text-center">
   <span
-    class={`mb-1 block text-xs font-bold uppercase opacity-60 ${today.equals(temporalDate) ? "text-primary opacity-75" : ""}`}
+    class={`mb-1 block text-xs font-bold opacity-60 ${today.date() == dayjsDate.date() ? "text-primary opacity-75" : ""}`}
     >{currentDay}</span
   >
   <span
-    class={`text-2xl font-bold ${today.equals(temporalDate) ? "text-primary underline decoration-3 underline-offset-3" : ""}`}
+    class={`text-2xl font-bold ${today.date() == dayjsDate.date() ? "text-primary underline decoration-3 underline-offset-3" : ""}`}
   >
-    {temporalDate.day}
+    {dayjsDate.date()}
   </span>
   <span
     class="sx-calendar:hidden font-headline absolute top-12 left-4 text-[0.65rem] font-medium tracking-tight uppercase opacity-75"
