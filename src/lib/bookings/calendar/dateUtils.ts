@@ -22,13 +22,3 @@ export const bookingMonthLabels = [
   m.november(),
   m.december(),
 ];
-
-export const bookingWeekdayLabels = [
-  m.monday(),
-  m.tuesday(),
-  m.wednesday(),
-  m.thursday(),
-  m.friday(),
-  m.saturday(),
-  m.sunday(),
-];
