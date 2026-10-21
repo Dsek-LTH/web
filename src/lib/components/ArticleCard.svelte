@@ -63,6 +63,8 @@
     <YoutubePreview
       {videoId}
       title={article.header}
+      imageUrl={article.imageUrl}
+      committee={article.committee}
       class="aspect-[2/1] w-full shrink-0"
     />
   {:else}

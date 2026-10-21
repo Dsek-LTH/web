@@ -66,6 +66,7 @@
         publishedAt: new Date(),
         imageUrl: uploadedImageUrl ?? $form.imageUrls?.[0] ?? null,
         committee: null,
+        youtubeUrl: $form.youtubeUrl ?? null,
       }}
       isPreview={true}
     />

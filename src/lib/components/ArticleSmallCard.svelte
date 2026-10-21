@@ -3,6 +3,10 @@
   import dayjs from "dayjs";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
+  import {
+    getYoutubeThumbnailUrl,
+    getYoutubeVideoId,
+  } from "$lib/utils/youtube";
 
   let {
     article,
@@ -10,12 +14,22 @@
   }: {
     article: Pick<
       Article,
-      "slug" | "imageUrl" | "header" | "publishedAt" | "committee"
+      | "slug"
+      | "imageUrl"
+      | "header"
+      | "publishedAt"
+      | "committee"
+      | "youtubeUrl"
     >;
     isPreview: boolean;
   } = $props();
 
   let imageFailed = $state(false);
+  let videoFailed = $state(false);
+  const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
+  const coverVisible = $derived(
+    (!!videoId && !videoFailed) || (!!article.imageUrl && !imageFailed),
+  );
 </script>
 
 <svelte:element
@@ -41,7 +55,16 @@
       onerror={() => (imageFailed = true)}
     />
   {/if}
-  {#if article.imageUrl && !imageFailed}
+  {#if videoId && !videoFailed}
+    <img
+      src={getYoutubeThumbnailUrl(videoId)}
+      alt=""
+      loading="lazy"
+      class="absolute inset-0 size-full object-cover"
+      onerror={() => (videoFailed = true)}
+    />
+  {/if}
+  {#if coverVisible}
     <div class="absolute top-2 right-2 size-14 p-3">
       <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
@@ -52,9 +75,7 @@
   <div
     class={[
       "relative flex h-full w-full flex-col justify-end p-4",
-      article.imageUrl &&
-        !imageFailed &&
-        "text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.9)]",
+      coverVisible && "text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.9)]",
     ]}
   >
     <h2
