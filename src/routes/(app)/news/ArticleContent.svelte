@@ -4,17 +4,19 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import YoutubeEmbed from "$lib/components/YoutubeEmbed.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
-  import type { ArticlePreviewData } from "$lib/news/preview";
+  import type { ArticleContentData } from "$lib/news/types";
   import type { Snippet } from "svelte";
 
   let {
     article,
     headerActions,
     byline,
+    isPreview = false,
   }: {
-    article: ArticlePreviewData;
+    article: ArticleContentData;
     headerActions?: Snippet;
     byline?: Snippet;
+    isPreview?: boolean;
   } = $props();
 </script>
 
@@ -47,6 +49,7 @@
   <MarkdownBody
     class="article-body text-foreground min-w-0 overflow-x-auto break-words"
     body={article.body}
+    preview={isPreview}
   />
   {#if article.imageUrls.length > 0}
     <ImageList images={article.imageUrls} />

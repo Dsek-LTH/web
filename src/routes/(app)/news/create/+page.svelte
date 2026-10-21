@@ -4,6 +4,7 @@
   import type { PageData } from "./$types";
   import { type ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
+  import * as m from "$paraglide/messages";
 
   let { data }: { data: PageData } = $props();
 
@@ -14,6 +15,8 @@
     delayMs: 500,
   });
 </script>
+
+<h1 class="sr-only">{m.news_createArticle()}</h1>
 
 <ArticleEditor
   allTags={data.allTags}

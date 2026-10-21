@@ -20,7 +20,4 @@ export const getCommitteeOptions = (
       shortName: true,
       symbolUrl: true,
     },
-    orderBy: {
-      nameSv: "asc",
-    },
   });
