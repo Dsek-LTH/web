@@ -14,10 +14,10 @@
 
   import * as m from "$paraglide/messages";
   import LinksDialog from "./LinksDialog.svelte";
-  import { Marked } from "marked";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
+  import { renderMarkdown } from "$lib/utils/markdown";
 
   let { data, children }: { data: CommitteeLoadData; children: Snippet } =
     $props();
@@ -29,18 +29,6 @@
   const hasBanner = $derived(
     !!committee.bannerUrl && failedBannerUrl !== committee.bannerUrl,
   );
-
-  const renderer = {
-    // needed to preserve line breaks
-    br(): string {
-      return `
-            <span><br /></span>`;
-    },
-  };
-
-  const breakMarked = new Marked();
-
-  breakMarked.use({ renderer });
 </script>
 
 <div class="sm:layout-container sm:py-0">
@@ -132,8 +120,8 @@
         <a href="/committees/{committee.shortName}/news"
           >{m.committees_news()}</a
         >
-        <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
-        {@html breakMarked.parseInline(data.links?.markdown ?? "")}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdown -->
+        {@html renderMarkdown(data.links?.markdown ?? "", { inline: true })}
       </div>
       {#if canEdit}
         <LinksDialog {data} />
