@@ -5,7 +5,7 @@
   import type { Member, PhadderGroup } from "@prisma/client";
   import { page } from "$app/state";
   import type { PhadderGroupSchema } from "./+page.server";
-  import { marked } from "marked";
+  import { renderMarkdown } from "$lib/utils/markdown";
 
   import * as Dialog from "$lib/components/ui/dialog";
   import * as Select from "$lib/components/ui/select";
@@ -51,8 +51,8 @@
         {m.members_phadder_group_modal_title()}
       </Dialog.Title>
       <Dialog.Description>
-        <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-        {@html marked(m.members_phadder_group_modal_subtitle())}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdown -->
+        {@html renderMarkdown(m.members_phadder_group_modal_subtitle())}
       </Dialog.Description>
     </Dialog.Header>
 

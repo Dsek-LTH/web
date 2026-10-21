@@ -2,12 +2,11 @@
   import type { Article } from "$lib/news/getArticles";
   import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
-  import { Marked } from "marked";
-  import type { Tokens } from "marked";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
   import { getYoutubeVideoId } from "$lib/utils/youtube";
   import Play from "@lucide/svelte/icons/play";
+  import { renderMarkdownExcerpt } from "$lib/utils/markdown";
 
   let {
     article,
@@ -40,30 +39,7 @@
       !!article.imageUrl &&
       failedImageUrl !== article.imageUrl,
   );
-
-  const renderer = {
-    // this removes links in the article preview, preventing svelte hydration issues
-    link({ tokens }: { tokens: Tokens.Link }): string {
-      // @ts-expect-error using marked types from documentation
-      const text: string = this.parser.parseInline(tokens);
-
-      return `
-            <span>${text}</span>`;
-    },
-    heading({ tokens }: { tokens: Tokens.Heading }): string {
-      //remove headings from preview
-      // @ts-expect-error using marked types from documentation
-      const text: string = this.parser.parseInline(tokens);
-
-      return `
-            <span>${text}</span>`;
-    },
-  };
-
-  const previewMarked = new Marked();
-
-  // @ts-expect-error using marked types from documentation
-  previewMarked.use({ renderer });
+  const excerptHtml = $derived(renderMarkdownExcerpt(article.body));
 </script>
 
 <div
@@ -124,8 +100,8 @@
       {article.header}
     </h3>
     <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
-      <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
-      {@html previewMarked.parse(article.body)}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdownExcerpt -->
+      {@html excerptHtml}
     </div>
   </a>
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
