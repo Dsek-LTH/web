@@ -120,7 +120,7 @@
   <section class="flex min-w-0 flex-col gap-6">
     <div class="flex min-w-0 flex-col gap-3">
       <h2 class="text-lg font-semibold">{m.news_preview()}</h2>
-      <ArticleContent article={preview.article}>
+      <ArticleContent article={preview.article} isPreview>
         {#snippet byline()}
           <ArticleByline
             links={false}
@@ -191,7 +191,7 @@
             {m.news_command_preview()}
           </h4>
           <Command.Root class="border-border rounded-lg border-[1px]">
-            <Command.List>
+            <Command.List class="max-h-none overflow-visible">
               <Command.Group>
                 <CommandArticleSearchResult
                   data={previewSearchResult}

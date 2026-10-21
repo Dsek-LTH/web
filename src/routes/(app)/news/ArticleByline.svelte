@@ -1,7 +1,10 @@
 <script lang="ts">
   import AuthorCard from "$lib/components/AuthorCard.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type {
+    ArticleAuthorSummary,
+    ArticleCommitteeSummary,
+  } from "$lib/news/types";
 
   let {
     member,
@@ -11,20 +14,11 @@
     committee = null,
     links = true,
   }: {
-    member: Pick<
-      ExtendedPrismaModel<"Member">,
-      "firstName" | "lastName" | "nickname" | "studentId" | "picturePath"
-    >;
-    customAuthor?: Pick<
-      ExtendedPrismaModel<"CustomAuthor">,
-      "name" | "imageUrl"
-    > | null;
-    position?: Pick<ExtendedPrismaModel<"Position">, "id" | "name">;
-    type?: ExtendedPrismaModel<"Author">["type"];
-    committee?: Pick<
-      ExtendedPrismaModel<"Committee">,
-      "shortName" | "symbolUrl" | "name"
-    > | null;
+    member: ArticleAuthorSummary["member"];
+    customAuthor?: ArticleAuthorSummary["customAuthor"];
+    position?: NonNullable<ArticleAuthorSummary["mandate"]>["position"];
+    type?: ArticleAuthorSummary["type"];
+    committee?: ArticleCommitteeSummary | null;
     links?: boolean;
   } = $props();
 </script>

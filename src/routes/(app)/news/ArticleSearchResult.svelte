@@ -9,7 +9,7 @@
 
   let {
     data,
-    language = getLocale(),
+    language,
     isPreview = false,
   }: {
     data: ArticleSearchReturnAttributes;
@@ -17,8 +17,9 @@
     isPreview?: boolean;
   } = $props();
 
+  const activeLanguage = $derived(language ?? getLocale());
   const header = $derived(
-    language === "en" && data.headerEn ? data.headerEn : data.headerSv,
+    activeLanguage === "en" && data.headerEn ? data.headerEn : data.headerSv,
   );
 </script>
 

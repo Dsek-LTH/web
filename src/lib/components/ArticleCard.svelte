@@ -5,39 +5,14 @@
   import YoutubePreview from "./YoutubePreview.svelte";
   import { getYoutubeVideoId } from "$lib/utils/youtube";
   import { renderMarkdownExcerpt } from "$lib/utils/markdown";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { ArticleCardData } from "$lib/news/types";
 
   let {
     article,
     index,
     isPreview = false,
   }: {
-    article: {
-      author: {
-        member: Pick<
-          ExtendedPrismaModel<"Member">,
-          "firstName" | "lastName" | "nickname" | "studentId" | "picturePath"
-        >;
-        customAuthor: Pick<
-          ExtendedPrismaModel<"CustomAuthor">,
-          "name" | "imageUrl"
-        > | null;
-        mandate: {
-          position: Pick<ExtendedPrismaModel<"Position">, "id" | "name">;
-        } | null;
-        type: ExtendedPrismaModel<"Author">["type"];
-      };
-      slug: string;
-      imageUrl: string | null;
-      header: string;
-      body: string;
-      createdAt: Date;
-      committee: Pick<
-        ExtendedPrismaModel<"Committee">,
-        "shortName" | "symbolUrl" | "name"
-      > | null;
-      youtubeUrl: string | null;
-    };
+    article: ArticleCardData;
     index: number;
     isPreview?: boolean;
   } = $props();
