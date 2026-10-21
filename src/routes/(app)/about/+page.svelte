@@ -9,8 +9,14 @@
   import { breakName } from "$lib/utils/committee";
   import { getFileUrl } from "$lib/files/client";
   import { mode } from "mode-watcher";
+  import { SvelteSet } from "svelte/reactivity";
 
   let { data } = $props();
+
+  const failedPreviews = new SvelteSet<string>();
+  function failPreview(id: string) {
+    failedPreviews.add(id);
+  }
 </script>
 
 <SetPageTitle title={m.about_guild()} />
@@ -48,24 +54,29 @@
           class="border-border animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px] duration-300"
           style:animation-delay={(index ?? 0) * 50 + "ms"}
         >
-          {#if committee.previewUrl}
-            <div
-              class="bg-rosa-300 relative aspect-[5/2] rounded-t-md bg-cover bg-center sm:aspect-square"
-              style:background-image={`url('${committee.previewUrl}')`}
-            >
-              {@render committeeIcon(committee)}
+          <div
+            class="relative aspect-[5/2] overflow-hidden rounded-t-md sm:aspect-square"
+          >
+            <div class="absolute inset-0" aria-hidden="true">
+              <CommitteePlaceholder {committee} class="absolute inset-0" />
             </div>
-          {:else}
-            <CommitteePlaceholder
-              {committee}
-              class="aspect-[5/2] rounded-t-md sm:aspect-square"
-            >
-              {@render committeeIcon({
-                ...committee,
-                isBannerTextLight: mode.current === "dark",
-              })}
-            </CommitteePlaceholder>
-          {/if}
+            {#if committee.previewUrl && !failedPreviews.has(committee.id)}
+              <img
+                src={committee.previewUrl}
+                alt=""
+                loading="lazy"
+                class="absolute inset-0 size-full object-cover"
+                onerror={() => failPreview(committee.id)}
+              />
+            {/if}
+            {@render committeeIcon({
+              ...committee,
+              isBannerTextLight:
+                committee.previewUrl && !failedPreviews.has(committee.id)
+                  ? committee.isBannerTextLight
+                  : mode.current === "dark",
+            })}
+          </div>
           <div class="flex flex-col gap-1 p-3 transition-all">
             <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized before output -->
             <h3>{@html breakName(committee.name)}</h3>

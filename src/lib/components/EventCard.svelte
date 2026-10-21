@@ -2,6 +2,7 @@
   import dayjs from "dayjs";
   import type { EventWithIncludes } from "$lib/events/getEvents";
   import CommitteeSymbol from "./images/CommitteeSymbol.svelte";
+  import CommitteePlaceholder from "./images/CommitteePlaceholder.svelte";
   import TagChip from "./TagChip.svelte";
   import * as m from "$paraglide/messages";
   import Users from "@lucide/svelte/icons/users";
@@ -13,6 +14,8 @@
     event: EventWithIncludes;
     index: number;
   } = $props();
+
+  let imageFailed = $state(false);
 </script>
 
 <div
@@ -22,9 +25,24 @@
   <a href={"/events/" + event.slug}>
     {#if event.imageUrl}
       <div
-        style="background-image: url({event.imageUrl});"
-        class="aspect-[2/1] w-full shrink-0 rounded-md bg-[#eee] bg-cover bg-center"
-      ></div>
+        class="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
+      >
+        <div class="absolute inset-0" aria-hidden="true">
+          <CommitteePlaceholder
+            committee={event.committee ?? null}
+            class="absolute inset-0"
+          />
+        </div>
+        {#if !imageFailed}
+          <img
+            src={event.imageUrl}
+            alt=""
+            loading="lazy"
+            class="absolute inset-0 size-full object-cover"
+            onerror={() => (imageFailed = true)}
+          />
+        {/if}
+      </div>
     {/if}
 
     <h3 class="mt-2 px-2" class:line-through={event.isCancelled}>
