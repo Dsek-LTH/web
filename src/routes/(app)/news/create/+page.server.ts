@@ -9,6 +9,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { Actions, PageServerLoad } from "./$types";
 import { getAllTags } from "$lib/news/tags";
+import { getCommitteeOptions } from "$lib/news/committees";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma, user } = locals;
@@ -36,12 +37,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         },
       },
     }),
-    prisma.committee.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-    }),
+    getCommitteeOptions(prisma),
   ]);
 
   if (!currentMemberWithMandates)
@@ -50,6 +46,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     prisma,
     currentMemberWithMandates,
   );
+  const now = new Date();
   return {
     allTags,
     authorOptions,
@@ -64,6 +61,8 @@ export const load: PageServerLoad = async ({ locals }) => {
       },
     ),
     committees,
+    createdAt: now,
+    now,
   };
 };
 
