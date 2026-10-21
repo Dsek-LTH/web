@@ -12,7 +12,7 @@ import { getLocale } from "$paraglide/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { redirect } from "sveltekit-flash-message/server";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 import {
   committeeToPositionMap,
   getPositionLink,
@@ -199,7 +199,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const description = form.data.description
-      ? DOMPurify.sanitize(form.data.description)
+      ? sanitizeHtml(form.data.description)
       : form.data.description;
     switch (getLocale()) {
       case "sv":

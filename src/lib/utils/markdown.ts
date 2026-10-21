@@ -1,16 +1,21 @@
-import DOMPurify from "isomorphic-dompurify";
 import { Marked } from "marked";
 import type { RendererObject, Tokens } from "marked";
+import { sanitizeHtml } from "./sanitize";
 
 const defaultMarked = new Marked();
 
-const excerptRenderer: RendererObject = {
-  // Links and headings are noise in card excerpts, where the whole card is a link.
+const stripLinksRenderer: RendererObject = {
   link(token: Tokens.Link): string {
     const text: string = this.parser.parseInline(token.tokens);
 
     return `<span>${text}</span>`;
   },
+};
+
+const previewMarked = new Marked({ renderer: stripLinksRenderer });
+
+const excerptRenderer: RendererObject = {
+  ...stripLinksRenderer,
   heading(token: Tokens.Heading): string {
     const text: string = this.parser.parseInline(token.tokens);
 
@@ -20,28 +25,10 @@ const excerptRenderer: RendererObject = {
 
 const excerptMarked = new Marked({ renderer: excerptRenderer });
 
-const SANITIZE_OPTIONS = {
-  ADD_TAGS: ["iframe"],
-  ADD_ATTR: [
-    "target",
-    "allow",
-    "allowfullscreen",
-    "frameborder",
-    "referrerpolicy",
-    "sandbox",
-  ],
-};
-
-DOMPurify.addHook("afterSanitizeAttributes", (node) => {
-  if (node.tagName === "A" && node.getAttribute("target") === "_blank") {
-    node.setAttribute("rel", "noopener noreferrer");
-  }
-});
-
-const sanitize = (html: string) => DOMPurify.sanitize(html, SANITIZE_OPTIONS);
-
 export type RenderMarkdownOptions = {
   inline?: boolean;
+  /** Keep the full article layout but render links as plain spans. */
+  preview?: boolean;
 };
 
 /**
@@ -50,15 +37,16 @@ export type RenderMarkdownOptions = {
  */
 export const renderMarkdown = (
   markdown: string,
-  { inline = false }: RenderMarkdownOptions = {},
+  { inline = false, preview = false }: RenderMarkdownOptions = {},
 ): string => {
+  const marked = preview ? previewMarked : defaultMarked;
   const html = inline
-    ? defaultMarked.parseInline(markdown, { async: false })
-    : defaultMarked.parse(markdown, { async: false });
+    ? marked.parseInline(markdown, { async: false })
+    : marked.parse(markdown, { async: false });
 
-  return sanitize(html);
+  return sanitizeHtml(html);
 };
 
 /** Renders a sanitized card excerpt without links or headings. */
 export const renderMarkdownExcerpt = (markdown: string): string =>
-  sanitize(excerptMarked.parse(markdown, { async: false }));
+  sanitizeHtml(excerptMarked.parse(markdown, { async: false }));
