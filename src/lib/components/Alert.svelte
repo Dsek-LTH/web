@@ -2,8 +2,7 @@
   import { invalidate } from "$app/navigation";
   import { Button } from "$lib/components/ui/button";
   import { cn } from "$lib/utils";
-  import DOMPurify from "isomorphic-dompurify";
-  import { marked } from "marked";
+  import { renderMarkdown } from "$lib/utils/markdown";
 
   import { type IconProps } from "@lucide/svelte";
 
@@ -73,8 +72,8 @@
   <Icon size={24} class="shrink-0" strokeWidth={3} />
 
   <div class="text-lg font-bold [&_a]:underline">
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -- Markdown is sanitized before rendering -->
-    {@html DOMPurify.sanitize(marked.parse(message, { async: false }))}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdown -->
+    {@html renderMarkdown(message)}
   </div>
 
   <Button class={foreground} variant="ghost" onclick={closeAlert}>
