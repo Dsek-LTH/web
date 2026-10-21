@@ -20,18 +20,6 @@ const excerptRenderer: RendererObject = {
 
 const excerptMarked = new Marked({ renderer: excerptRenderer });
 
-const inlineBreakRenderer: RendererObject = {
-  // Preserve line breaks in short inline descriptions such as committee links.
-  br(): string {
-    return "<span><br /></span>";
-  },
-};
-
-const inlineBreakMarked = new Marked({
-  renderer: inlineBreakRenderer,
-  breaks: true,
-});
-
 export type RenderMarkdownOptions = {
   inline?: boolean;
   renderer?: RendererObject;
@@ -56,7 +44,3 @@ export const renderMarkdown = (
 /** Renders a sanitized card excerpt without links or headings. */
 export const renderMarkdownExcerpt = (markdown: string): string =>
   DOMPurify.sanitize(excerptMarked.parse(markdown, { async: false }));
-
-/** Renders sanitized inline markdown while preserving line breaks. */
-export const renderMarkdownInlineWithBreaks = (markdown: string): string =>
-  DOMPurify.sanitize(inlineBreakMarked.parseInline(markdown, { async: false }));
