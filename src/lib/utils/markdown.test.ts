@@ -30,6 +30,15 @@ describe("renderMarkdown", () => {
     expect(html).not.toContain("javascript:");
   });
 
+  it("allows target=_blank and adds rel attributes", () => {
+    const html = renderMarkdown(
+      '<a href="https://example.com" target="_blank">external</a>',
+    );
+
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+  });
+
   it("supports inline rendering", () => {
     const html = renderMarkdown("**bold**", { inline: true });
 
