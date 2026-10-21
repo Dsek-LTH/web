@@ -14,8 +14,8 @@
   let { data } = $props();
 
   const failedPreviews = new SvelteSet<string>();
-  function failPreview(id: string) {
-    failedPreviews.add(id);
+  function failPreview(url: string) {
+    failedPreviews.add(url);
   }
 </script>
 
@@ -55,24 +55,29 @@
           style:animation-delay={(index ?? 0) * 50 + "ms"}
         >
           <div
-            class="relative aspect-[5/2] overflow-hidden rounded-t-md sm:aspect-square"
+            class="bg-muted-background relative aspect-[5/2] overflow-hidden rounded-t-md sm:aspect-square"
           >
-            <div class="absolute inset-0" aria-hidden="true">
-              <CommitteePlaceholder {committee} class="absolute inset-0" />
-            </div>
-            {#if committee.previewUrl && !failedPreviews.has(committee.id)}
+            {#if !committee.previewUrl || failedPreviews.has(committee.previewUrl)}
+              <div class="absolute inset-0" aria-hidden="true">
+                <CommitteePlaceholder {committee} class="absolute inset-0" />
+              </div>
+            {/if}
+            {#if committee.previewUrl && !failedPreviews.has(committee.previewUrl)}
               <img
                 src={committee.previewUrl}
                 alt=""
                 loading="lazy"
                 class="absolute inset-0 size-full object-cover"
-                onerror={() => failPreview(committee.id)}
+                onerror={() => {
+                  if (committee.previewUrl) failPreview(committee.previewUrl);
+                }}
               />
             {/if}
             {@render committeeIcon({
               ...committee,
               isBannerTextLight:
-                committee.previewUrl && !failedPreviews.has(committee.id)
+                committee.previewUrl &&
+                !failedPreviews.has(committee.previewUrl)
                   ? committee.isBannerTextLight
                   : mode.current === "dark",
             })}
