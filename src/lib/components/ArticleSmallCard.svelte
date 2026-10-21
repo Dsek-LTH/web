@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Article } from "$lib/news/getArticles";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import dayjs from "dayjs";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
@@ -12,13 +13,13 @@
   }: {
     article: Pick<
       Article,
-      | "slug"
-      | "imageUrl"
-      | "header"
-      | "publishedAt"
-      | "committee"
-      | "youtubeUrl"
-    >;
+      "slug" | "imageUrl" | "header" | "publishedAt" | "youtubeUrl"
+    > & {
+      committee: Pick<
+        ExtendedPrismaModel<"Committee">,
+        "shortName" | "symbolUrl" | "name"
+      > | null;
+    };
     isPreview: boolean;
   } = $props();
 

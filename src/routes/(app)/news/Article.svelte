@@ -1,15 +1,10 @@
 <script lang="ts">
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { Button, buttonVariants } from "$lib/components/ui/button";
-  import dayjs from "dayjs";
   import Pen from "@lucide/svelte/icons/pen";
   import Trash from "@lucide/svelte/icons/trash";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import * as m from "$paraglide/messages";
-  import ImageList from "$lib/components/ImageList.svelte";
-  import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import YoutubeEmbed from "$lib/components/YoutubeEmbed.svelte";
-  import TagChip from "$lib/components/TagChip.svelte";
   import type { Snippet } from "svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import LikeButton from "./LikeButton.svelte";
@@ -17,6 +12,7 @@
   import type { LikeSchema } from "./likes";
   import LikersList from "./LikersList.svelte";
   import Separator from "$lib/components/ui/separator/separator.svelte";
+  import ArticleContent from "./ArticleContent.svelte";
 
   let {
     article,
@@ -38,39 +34,23 @@
 
 <SetPageTitle title={article.header} />
 
-<main class="flex flex-col gap-2">
-  <div class="flex flex-row justify-between">
-    <h2>{article.header}</h2>
-    <div class="flex flex-row gap-2">
+<article class="flex flex-col gap-2">
+  <ArticleContent {article}>
+    {#snippet byline()}
+      {@render children?.()}
+    {/snippet}
+    {#snippet headerActions()}
       {#if canEdit}<a href={"/news/" + article.slug + "/edit"}
           ><Button variant="outline"><Pen /></Button></a
         >{/if}
       {#if canDelete}{@render removeArticle()}{/if}
-    </div>
-  </div>
+    {/snippet}
+  </ArticleContent>
 
-  <div class="flex flex-row items-center justify-between">
-    {@render children?.()}
-    <div class="flex flex-row *:mx-1">
-      <p class="text-muted-foreground">
-        {dayjs(article.createdAt).format("YYYY-MM-DD")}
-      </p>
-    </div>
-  </div>
-  <div class="flex flex-row flex-wrap gap-2">
-    {#each article.tags as tag (tag.id)}
-      <TagChip {tag} />
-    {/each}
-  </div>
-  <YoutubeEmbed url={article.youtubeUrl} title={article.header} />
-  <MarkdownBody class="text-foreground article-body" body={article.body} />
-  {#if article.imageUrls}
-    <ImageList images={article.imageUrls} />
-  {/if}
   <Separator class="mt-8" orientation="horizontal" />
   <LikeButton likers={article.likers} {likeForm} articleId={article.id} />
   <LikersList likers={article.likers} />
-</main>
+</article>
 
 {#snippet removeArticle()}
   <AlertDialog.Root>
