@@ -3,26 +3,40 @@
   import { twMerge } from "tailwind-merge";
   import * as m from "$paraglide/messages";
   import YoutubeFrame from "./YoutubeFrame.svelte";
+  import CommitteePlaceholder from "./images/CommitteePlaceholder.svelte";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import {
     getYoutubeEmbedUrl,
     getYoutubeThumbnailUrl,
     type YoutubeThumbnailQuality,
   } from "$lib/utils/youtube";
 
+  type Committee = Pick<
+    ExtendedPrismaModel<"Committee">,
+    "shortName" | "symbolUrl" | "name"
+  >;
+
   let {
     videoId,
     title,
+    imageUrl,
+    committee,
     class: klass,
   }: {
     videoId: string;
     /** Describes the video for the play button and the embedded player. */
     title: string;
+    /** Cover image used when the video thumbnail is unavailable. */
+    imageUrl?: string | null;
+    committee?: Committee | null;
     class?: string;
   } = $props();
 
   let playing = $state(false);
   let posterQuality = $state<YoutubeThumbnailQuality>("maxresdefault");
   let posterFailed = $state(false);
+  let failedImageUrl = $state<string | null>(null);
+  const imageVisible = $derived(!!imageUrl && failedImageUrl !== imageUrl);
 
   const embedUrl = $derived(getYoutubeEmbedUrl(videoId, true));
 
@@ -50,6 +64,22 @@
       aria-label={m.news_play_video({ title })}
       onclick={() => (playing = true)}
     >
+      <div class="absolute inset-0" aria-hidden="true">
+        <CommitteePlaceholder
+          committee={committee ?? null}
+          class="absolute inset-0"
+        />
+      </div>
+      {#if imageUrl && imageVisible}
+        {@const url = imageUrl}
+        <img
+          src={url}
+          alt=""
+          loading="lazy"
+          class="absolute inset-0 size-full object-cover"
+          onerror={() => (failedImageUrl = url)}
+        />
+      {/if}
       {#if !posterFailed}
         <img
           src={getYoutubeThumbnailUrl(videoId, posterQuality)}
