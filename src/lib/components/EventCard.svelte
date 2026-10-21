@@ -30,22 +30,31 @@
       <div
         class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
       >
-        {#if !hasImage}
-          <div class="absolute inset-0" aria-hidden="true">
-            <CommitteePlaceholder
-              committee={event.committee ?? null}
-              class="absolute inset-0"
-            />
-          </div>
-        {/if}
-        {#if hasImage}
-          <img
-            src={event.imageUrl}
-            alt=""
-            loading="lazy"
-            class="absolute inset-0 size-full object-cover"
-            onerror={() => (failedImageUrl = event.imageUrl)}
+        <div class="absolute inset-0" aria-hidden="true">
+          <CommitteePlaceholder
+            committee={event.committee ?? null}
+            class="absolute inset-0"
           />
+        </div>
+        {#if event.imageUrl && hasImage}
+          {@const url = event.imageUrl}
+          {#key url}
+            <img
+              src={url}
+              alt=""
+              loading="lazy"
+              class="absolute inset-0 size-full object-cover opacity-0"
+              onload={(event) =>
+                (event.currentTarget as HTMLImageElement).classList.replace(
+                  "opacity-0",
+                  "opacity-100",
+                )}
+              onerror={(event) =>
+                (failedImageUrl = (
+                  event.currentTarget as HTMLImageElement
+                ).getAttribute("src"))}
+            />
+          {/key}
         {/if}
       </div>
     {/if}

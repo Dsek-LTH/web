@@ -48,21 +48,27 @@
     <header
       class="bg-muted-background relative h-60 overflow-hidden rounded-md"
     >
-      {#if !hasBanner}
-        <div class="absolute inset-0" aria-hidden="true">
-          <CommitteePlaceholder
-            {committee}
-            class="absolute inset-0 size-full"
-          />
-        </div>
-      {/if}
+      <div class="absolute inset-0" aria-hidden="true">
+        <CommitteePlaceholder {committee} class="absolute inset-0 size-full" />
+      </div>
       {#if hasBanner}
-        <img
-          src={committee.bannerUrl}
-          alt=""
-          class="absolute inset-0 size-full object-cover"
-          onerror={() => (failedBannerUrl = committee.bannerUrl)}
-        />
+        {@const url = committee.bannerUrl}
+        {#key url}
+          <img
+            src={url}
+            alt=""
+            class="absolute inset-0 size-full object-cover opacity-0"
+            onload={(event) =>
+              (event.currentTarget as HTMLImageElement).classList.replace(
+                "opacity-0",
+                "opacity-100",
+              )}
+            onerror={(event) =>
+              (failedBannerUrl = (
+                event.currentTarget as HTMLImageElement
+              ).getAttribute("src"))}
+          />
+        {/key}
       {/if}
       <div
         class="absolute bottom-1 left-4 flex flex-col sm:bottom-4 sm:flex-row sm:gap-4"

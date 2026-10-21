@@ -14,8 +14,11 @@
   let { data } = $props();
 
   const failedPreviews = new SvelteSet<string>();
-  function failPreview(url: string) {
-    failedPreviews.add(url);
+  function failPreview(url: string | null) {
+    if (url) failedPreviews.add(url);
+  }
+  function hasPreview(url: string | null | undefined) {
+    return !!url && !failedPreviews.has(url);
   }
 </script>
 
@@ -49,6 +52,7 @@
     {#each data.committees
       .filter((e: ExtendedPrismaModel<"Committee">) => e.shortName != "dchip")
       .sort( (e1: ExtendedPrismaModel<"Committee">, e2: ExtendedPrismaModel<"Committee">) => e1.nameSv.localeCompare(e2.nameSv, "sv"), ) as committee, index (committee.id)}
+      {@const previewUrl = committee.previewUrl ?? ""}
       <a class="group block" href="/committees/{committee.shortName}">
         <div
           class="border-border animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px] duration-300"
@@ -57,29 +61,35 @@
           <div
             class="bg-muted-background relative aspect-[5/2] overflow-hidden rounded-t-md sm:aspect-square"
           >
-            {#if !committee.previewUrl || failedPreviews.has(committee.previewUrl)}
-              <div class="absolute inset-0" aria-hidden="true">
-                <CommitteePlaceholder {committee} class="absolute inset-0" />
-              </div>
-            {/if}
-            {#if committee.previewUrl && !failedPreviews.has(committee.previewUrl)}
-              <img
-                src={committee.previewUrl}
-                alt=""
-                loading="lazy"
-                class="absolute inset-0 size-full object-cover"
-                onerror={() => {
-                  if (committee.previewUrl) failPreview(committee.previewUrl);
-                }}
-              />
+            <div class="absolute inset-0" aria-hidden="true">
+              <CommitteePlaceholder {committee} class="absolute inset-0" />
+            </div>
+            {#if hasPreview(previewUrl)}
+              {#key previewUrl}
+                <img
+                  src={previewUrl}
+                  alt=""
+                  loading="lazy"
+                  class="absolute inset-0 size-full object-cover opacity-0"
+                  onload={(event) =>
+                    (event.currentTarget as HTMLImageElement).classList.replace(
+                      "opacity-0",
+                      "opacity-100",
+                    )}
+                  onerror={(event) =>
+                    failPreview(
+                      (event.currentTarget as HTMLImageElement).getAttribute(
+                        "src",
+                      ),
+                    )}
+                />
+              {/key}
             {/if}
             {@render committeeIcon({
               ...committee,
-              isBannerTextLight:
-                committee.previewUrl &&
-                !failedPreviews.has(committee.previewUrl)
-                  ? committee.isBannerTextLight
-                  : mode.current === "dark",
+              isBannerTextLight: hasPreview(previewUrl)
+                ? committee.isBannerTextLight
+                : mode.current === "dark",
             })}
           </div>
           <div class="flex flex-col gap-1 p-3 transition-all">

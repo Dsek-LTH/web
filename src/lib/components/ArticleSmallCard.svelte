@@ -16,9 +16,11 @@
   } = $props();
 
   let failedImageUrl = $state<string | null>(null);
+  let loadedImageUrl = $state<string | null>(null);
   const hasImage = $derived(
     !!article.imageUrl && failedImageUrl !== article.imageUrl,
   );
+  const imageReady = $derived(hasImage && loadedImageUrl === article.imageUrl);
 </script>
 
 <svelte:element
@@ -29,24 +31,35 @@
     !isPreview && "lg:w-1/3",
   ]}
 >
-  {#if !hasImage}
-    <div class="absolute inset-0" aria-hidden="true">
-      <CommitteePlaceholder
-        committee={article.committee ?? null}
-        class="absolute inset-0"
-      />
-    </div>
-  {/if}
-  {#if hasImage}
-    <img
-      src={article.imageUrl}
-      alt=""
-      loading="lazy"
-      class="absolute inset-0 size-full object-cover"
-      onerror={() => (failedImageUrl = article.imageUrl)}
+  <div class="absolute inset-0" aria-hidden="true">
+    <CommitteePlaceholder
+      committee={article.committee ?? null}
+      class="absolute inset-0"
     />
+  </div>
+  {#if article.imageUrl && hasImage}
+    {@const url = article.imageUrl}
+    {#key url}
+      <img
+        src={url}
+        alt=""
+        loading="lazy"
+        class="absolute inset-0 size-full object-cover transition-opacity duration-300"
+        class:opacity-0={!imageReady}
+        onload={(event) => {
+          const src = (event.currentTarget as HTMLImageElement).getAttribute(
+            "src",
+          );
+          if (src === article.imageUrl) loadedImageUrl = src;
+        }}
+        onerror={(event) =>
+          (failedImageUrl = (
+            event.currentTarget as HTMLImageElement
+          ).getAttribute("src"))}
+      />
+    {/key}
   {/if}
-  {#if hasImage}
+  {#if imageReady}
     <div class="absolute top-2 right-2 size-14 p-3">
       <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
@@ -57,7 +70,7 @@
   <div
     class={[
       "relative flex h-full w-full flex-col justify-end p-4",
-      hasImage && "text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.9)]",
+      imageReady && "text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.9)]",
     ]}
   >
     <h2

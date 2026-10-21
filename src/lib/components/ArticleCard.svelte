@@ -55,27 +55,37 @@
   style="animation-delay:{index * 50}ms"
 >
   <a href={"/news/" + article.slug}>
-    <!-- The placeholder is the fallback. Only mount it when there is no
-         cover or the current one failed, so hidden placeholders don't render. -->
+    <!-- The placeholder stays underneath: a broken image paints nothing, and
+         mounting it unconditionally also covers failures that happen before
+         hydration (when the error event has no listener yet). -->
     <div
       class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
     >
-      {#if !article.imageUrl || failedImageUrl === article.imageUrl}
-        <div class="absolute inset-0" aria-hidden="true">
-          <CommitteePlaceholder
-            committee={article.committee}
-            class="absolute inset-0"
-          />
-        </div>
-      {/if}
-      {#if article.imageUrl && failedImageUrl !== article.imageUrl}
-        <img
-          src={article.imageUrl}
-          alt=""
-          loading="lazy"
-          class="absolute inset-0 size-full object-cover"
-          onerror={() => (failedImageUrl = article.imageUrl)}
+      <div class="absolute inset-0" aria-hidden="true">
+        <CommitteePlaceholder
+          committee={article.committee}
+          class="absolute inset-0"
         />
+      </div>
+      {#if article.imageUrl && failedImageUrl !== article.imageUrl}
+        {@const url = article.imageUrl}
+        {#key url}
+          <img
+            src={url}
+            alt=""
+            loading="lazy"
+            class="absolute inset-0 size-full object-cover opacity-0"
+            onload={(event) =>
+              (event.currentTarget as HTMLImageElement).classList.replace(
+                "opacity-0",
+                "opacity-100",
+              )}
+            onerror={(event) =>
+              (failedImageUrl = (
+                event.currentTarget as HTMLImageElement
+              ).getAttribute("src"))}
+          />
+        {/key}
       {/if}
     </div>
     <h3 class="mt-2 px-2">
