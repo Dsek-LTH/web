@@ -2,6 +2,7 @@
   import dayjs from "dayjs";
   import type { EventWithIncludes } from "$lib/events/getEvents";
   import CommitteeSymbol from "./images/CommitteeSymbol.svelte";
+  import CommitteePlaceholder from "./images/CommitteePlaceholder.svelte";
   import TagChip from "./TagChip.svelte";
   import * as m from "$paraglide/messages";
   import Users from "@lucide/svelte/icons/users";
@@ -13,6 +14,11 @@
     event: EventWithIncludes;
     index: number;
   } = $props();
+
+  let failedImageUrl = $state<string | null>(null);
+  const hasImage = $derived(
+    !!event.imageUrl && failedImageUrl !== event.imageUrl,
+  );
 </script>
 
 <div
@@ -22,9 +28,35 @@
   <a href={"/events/" + event.slug}>
     {#if event.imageUrl}
       <div
-        style="background-image: url({event.imageUrl});"
-        class="aspect-[2/1] w-full shrink-0 rounded-md bg-[#eee] bg-cover bg-center"
-      ></div>
+        class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
+      >
+        <div class="absolute inset-0" aria-hidden="true">
+          <CommitteePlaceholder
+            committee={event.committee ?? null}
+            class="absolute inset-0"
+          />
+        </div>
+        {#if event.imageUrl && hasImage}
+          {@const url = event.imageUrl}
+          {#key url}
+            <img
+              src={url}
+              alt=""
+              loading="lazy"
+              class="absolute inset-0 size-full object-cover opacity-0"
+              onload={(event) =>
+                (event.currentTarget as HTMLImageElement).classList.replace(
+                  "opacity-0",
+                  "opacity-100",
+                )}
+              onerror={(event) =>
+                (failedImageUrl = (
+                  event.currentTarget as HTMLImageElement
+                ).getAttribute("src"))}
+            />
+          {/key}
+        {/if}
+      </div>
     {/if}
 
     <h3 class="mt-2 px-2" class:line-through={event.isCancelled}>
