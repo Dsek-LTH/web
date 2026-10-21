@@ -54,6 +54,11 @@ describe("getYoutubeEmbedUrl", () => {
     expect(url.searchParams.get("autoplay")).toBe("1");
   });
 
+  it("rejects ids that are not 11 safe characters", () => {
+    expect(() => getYoutubeEmbedUrl("bad?id=1")).toThrow();
+    expect(() => getYoutubeThumbnailUrl("bad?id=1")).toThrow();
+  });
+
   it("returns null when the url has no video id", () => {
     expect(getYoutubeEmbedUrlFromUrl("https://example.com")).toBeNull();
   });
