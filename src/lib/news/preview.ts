@@ -1,3 +1,6 @@
+import { sanitizeHtml } from "$lib/utils/sanitize";
+import type { ArticleCommitteeSummary, ArticleContentData } from "./types";
+
 export type PreviewLanguage = "sv" | "en";
 
 export type PreviewTagSource = {
@@ -28,31 +31,9 @@ export type PreviewForm = {
   youtubeUrl?: string | null;
 };
 
-export type ArticlePreviewTag = {
-  id: string;
-  name: string;
-  color: string | null;
-};
-
-export type ArticlePreviewData = {
-  header: string;
-  body: string;
-  createdAt: Date;
-  imageUrls: string[];
-  tags: ArticlePreviewTag[];
-  youtubeUrl: string | null;
-};
-
-export type ArticlePreviewCommittee = {
-  id: string;
-  name: string;
-  shortName: string | null;
-  symbolUrl: string | null;
-};
-
 export type ArticlePreview = {
-  article: ArticlePreviewData;
-  committee: ArticlePreviewCommittee | null;
+  article: ArticleContentData;
+  committee: ArticleCommitteeSummary | null;
   cardImageUrl: string | null;
   cardPublishedAt: Date;
 };
@@ -151,7 +132,8 @@ export const buildArticlePreview = ({
   return {
     article: {
       header: getPreviewHeader(form, language),
-      body: getPreviewBody(form, language),
+      // Match the server write path, which sanitizes the markdown source.
+      body: sanitizeHtml(getPreviewBody(form, language)),
       createdAt,
       imageUrls,
       tags: previewTags,

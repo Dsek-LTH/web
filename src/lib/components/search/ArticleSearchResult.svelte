@@ -10,7 +10,7 @@
 
   let {
     data,
-    language = getLocale(),
+    language,
     isPreview = false,
   }: {
     data: ArticleSearchReturnAttributes;
@@ -18,8 +18,9 @@
     isPreview?: boolean;
   } = $props();
 
+  const activeLanguage = $derived(language ?? getLocale());
   const header = $derived(
-    language === "en" && data.headerEn ? data.headerEn : data.headerSv,
+    activeLanguage === "en" && data.headerEn ? data.headerEn : data.headerSv,
   );
 </script>
 
@@ -45,7 +46,11 @@
 {/snippet}
 
 {#if isPreview}
-  <Command.Item class="flex w-full flex-row justify-between">
+  <Command.Item
+    class="flex w-full flex-row justify-between"
+    tabindex={-1}
+    aria-disabled="true"
+  >
     {@render content()}
   </Command.Item>
 {:else}
