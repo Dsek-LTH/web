@@ -8,6 +8,7 @@
   import * as m from "$paraglide/messages";
   import ImageList from "$lib/components/ImageList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
+  import YoutubeEmbed from "$lib/components/YoutubeEmbed.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import type { Snippet } from "svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
@@ -64,6 +65,7 @@
       <TagChip {tag} />
     {/each}
   </div>
+  <YoutubeEmbed url={article.youtubeUrl} title={article.header} />
   <MarkdownBody class="text-foreground article-body" body={article.body} />
   {#if article.imageUrls}
     <ImageList images={article.imageUrls} />
