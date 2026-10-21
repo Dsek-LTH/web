@@ -14,6 +14,8 @@
     >;
     isPreview: boolean;
   } = $props();
+
+  let imageFailed = $state(false);
 </script>
 
 <svelte:element
@@ -24,22 +26,28 @@
     !isPreview && "lg:w-1/3",
   ]}
 >
+  <div class="absolute inset-0" aria-hidden="true">
+    <CommitteePlaceholder
+      committee={article.committee ?? null}
+      class="absolute inset-0"
+    />
+  </div>
+  {#if article.imageUrl && !imageFailed}
+    <img
+      src={article.imageUrl}
+      alt=""
+      loading="lazy"
+      class="absolute inset-0 size-full object-cover"
+      onerror={() => (imageFailed = true)}
+    />
+  {/if}
   {#if article.imageUrl}
-    <div
-      class="absolute inset-0 bg-cover bg-center"
-      style="background-image: url({article.imageUrl});"
-    ></div>
     <div class="absolute top-2 right-2 size-14 p-3">
       <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
     <div
       class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent"
     ></div>
-  {:else}
-    <CommitteePlaceholder
-      class="absolute inset-0"
-      committee={article.committee ?? null}
-    />
   {/if}
   <div
     class={[
