@@ -39,6 +39,30 @@ describe("renderMarkdown", () => {
     expect(html).toContain('rel="noopener noreferrer"');
   });
 
+  it("allows iframe embeds and their attributes", () => {
+    const html = renderMarkdown(
+      '<iframe src="https://www.youtube.com/embed/abc" title="Video" allow="autoplay; fullscreen" allowfullscreen frameborder="0" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>',
+    );
+
+    expect(html).toContain("<iframe");
+    expect(html).toContain('src="https://www.youtube.com/embed/abc"');
+    expect(html).toContain('title="Video"');
+    expect(html).toContain("allowfullscreen");
+    expect(html).toContain("sandbox=");
+    expect(html).toContain("loading=");
+  });
+
+  it("strips srcdoc, event handlers, and javascript iframe sources", () => {
+    const html = renderMarkdown(
+      '<iframe srcdoc="<script>alert(1)</script>" src="javascript:alert(1)" onload="alert(1)"></iframe>',
+    );
+
+    expect(html).not.toContain("srcdoc");
+    expect(html).not.toContain("javascript:");
+    expect(html).not.toContain("onload");
+    expect(html).not.toContain("<script");
+  });
+
   it("supports inline rendering", () => {
     const html = renderMarkdown("**bold**", { inline: true });
 
