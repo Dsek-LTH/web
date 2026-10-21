@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  renderMarkdown,
-  renderMarkdownExcerpt,
-  renderMarkdownInlineWithBreaks,
-} from "./markdown";
+import { renderMarkdown, renderMarkdownExcerpt } from "./markdown";
 
 describe("renderMarkdown", () => {
   it("renders normal markdown", () => {
@@ -60,21 +56,18 @@ describe("renderMarkdownExcerpt", () => {
   });
 });
 
-describe("renderMarkdownInlineWithBreaks", () => {
-  it("preserves line breaks", () => {
-    const html = renderMarkdownInlineWithBreaks("first\nsecond");
+describe("renderMarkdown line breaks", () => {
+  it("does not convert single newlines into line breaks", () => {
+    const html = renderMarkdown("first\nsecond");
+
+    expect(html).not.toContain("<br");
+  });
+
+  it("preserves explicit line breaks", () => {
+    const html = renderMarkdown("first<br>second");
 
     expect(html).toContain("<br");
     expect(html).toContain("first");
     expect(html).toContain("second");
-  });
-
-  it("sanitizes raw HTML", () => {
-    const html = renderMarkdownInlineWithBreaks(
-      `<script>alert("xss")</script>`,
-    );
-
-    expect(html).not.toContain("<script");
-    expect(html).not.toContain("alert(");
   });
 });
