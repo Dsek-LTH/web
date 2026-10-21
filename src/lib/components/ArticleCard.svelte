@@ -23,6 +23,8 @@
     index: number;
   } = $props();
 
+  let imageFailed = $state(false);
+
   const renderer = {
     // this removes links in the article preview, preventing svelte hydration issues
     link({ tokens }: { tokens: Tokens.Link }): string {
@@ -53,17 +55,25 @@
   style="animation-delay:{index * 50}ms"
 >
   <a href={"/news/" + article.slug}>
-    {#if article.imageUrl}
-      <div
-        style="background-image: url({article.imageUrl});"
-        class="aspect-[2/1] w-full shrink-0 rounded-md bg-[#eee] bg-cover bg-center"
-      ></div>
-    {:else}
+    <!-- The placeholder is always the base layer, so a missing or broken
+         cover image reveals the committee pattern instead of a grey box. -->
+    <div
+      class="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
+    >
       <CommitteePlaceholder
         committee={article.committee}
-        class="aspect-[2/1] w-full shrink-0 rounded-md"
+        class="absolute inset-0"
       />
-    {/if}
+      {#if article.imageUrl && !imageFailed}
+        <img
+          src={article.imageUrl}
+          alt=""
+          loading="lazy"
+          class="absolute inset-0 size-full object-cover"
+          onerror={() => (imageFailed = true)}
+        />
+      {/if}
+    </div>
     <h3 class="mt-2 px-2">
       {article.header}
     </h3>
