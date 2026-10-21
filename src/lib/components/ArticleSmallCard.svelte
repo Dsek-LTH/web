@@ -46,13 +46,15 @@
       <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
     <div
-      class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent"
+      class="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black/95 via-black/60 to-transparent"
     ></div>
   {/if}
   <div
     class={[
       "relative flex h-full w-full flex-col justify-end p-4",
-      article.imageUrl && !imageFailed && "text-white",
+      article.imageUrl &&
+        !imageFailed &&
+        "text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.9)]",
     ]}
   >
     <h2
