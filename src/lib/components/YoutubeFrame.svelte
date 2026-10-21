@@ -16,7 +16,7 @@
   {src}
   {title}
   loading={lazy ? "lazy" : undefined}
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
   referrerpolicy="strict-origin-when-cross-origin"
   allowfullscreen
 ></iframe>

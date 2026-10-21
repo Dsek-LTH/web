@@ -70,7 +70,7 @@
       />
     {/key}
   {:else}
-    <a href={articleUrl} class="block">
+    <a href={articleUrl} class="block" tabindex="-1" aria-hidden="true">
       <!-- The placeholder stays underneath: a broken image paints nothing,
            and this also covers failures before hydration. -->
       <div
