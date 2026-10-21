@@ -4,18 +4,13 @@ import { sanitizeHtml } from "./sanitize";
 
 const defaultMarked = new Marked();
 
-const stripLinksRenderer: RendererObject = {
+const excerptRenderer: RendererObject = {
+  // Links and headings are noise in card excerpts, where the whole card is a link.
   link(token: Tokens.Link): string {
     const text: string = this.parser.parseInline(token.tokens);
 
     return `<span>${text}</span>`;
   },
-};
-
-const previewMarked = new Marked({ renderer: stripLinksRenderer });
-
-const excerptRenderer: RendererObject = {
-  ...stripLinksRenderer,
   heading(token: Tokens.Heading): string {
     const text: string = this.parser.parseInline(token.tokens);
 
@@ -27,8 +22,6 @@ const excerptMarked = new Marked({ renderer: excerptRenderer });
 
 export type RenderMarkdownOptions = {
   inline?: boolean;
-  /** Keep the full article layout but render links as plain spans. */
-  preview?: boolean;
 };
 
 /**
@@ -37,12 +30,11 @@ export type RenderMarkdownOptions = {
  */
 export const renderMarkdown = (
   markdown: string,
-  { inline = false, preview = false }: RenderMarkdownOptions = {},
+  { inline = false }: RenderMarkdownOptions = {},
 ): string => {
-  const marked = preview ? previewMarked : defaultMarked;
   const html = inline
-    ? marked.parseInline(markdown, { async: false })
-    : marked.parse(markdown, { async: false });
+    ? defaultMarked.parseInline(markdown, { async: false })
+    : defaultMarked.parse(markdown, { async: false });
 
   return sanitizeHtml(html);
 };
