@@ -2,7 +2,13 @@
   import { renderMarkdown } from "$lib/utils/markdown";
   import { twMerge } from "tailwind-merge";
 
-  let { body, class: klass }: { body: string; class?: string } = $props();
+  let {
+    body,
+    class: klass,
+    preview = false,
+  }: { body: string; class?: string; preview?: boolean } = $props();
+
+  const html = $derived(renderMarkdown(body, { preview }));
 </script>
 
 <section
@@ -12,5 +18,5 @@
   )}
 >
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdown -->
-  {@html renderMarkdown(body)}
+  {@html html}
 </section>
