@@ -5,6 +5,8 @@
   import { Marked } from "marked";
   import type { Tokens } from "marked";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
+  import YoutubePreview from "./YoutubePreview.svelte";
+  import { getYoutubeVideoId } from "$lib/utils/youtube";
 
   let {
     article,
@@ -19,10 +21,13 @@
       | "body"
       | "createdAt"
       | "committee"
+      | "youtubeUrl"
     >;
     index: number;
   } = $props();
 
+  const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
+  const articleUrl = $derived(`/news/${article.slug}`);
   let imageFailed = $state(false);
 
   const renderer = {
@@ -54,26 +59,36 @@
   class="hover:bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] border-border flex flex-col rounded-xl border-[1px] p-4 duration-300"
   style="animation-delay:{index * 50}ms"
 >
-  <a href={"/news/" + article.slug}>
-    <!-- The placeholder is always the base layer, so a missing or broken
-         cover image reveals the committee pattern instead of a grey box. -->
-    <div
-      class="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
-    >
-      <CommitteePlaceholder
-        committee={article.committee}
-        class="absolute inset-0"
-      />
-      {#if article.imageUrl && !imageFailed}
-        <img
-          src={article.imageUrl}
-          alt=""
-          loading="lazy"
-          class="absolute inset-0 size-full object-cover"
-          onerror={() => (imageFailed = true)}
+  {#if videoId}
+    <YoutubePreview
+      {videoId}
+      title={article.header}
+      class="aspect-[2/1] w-full shrink-0"
+    />
+  {:else}
+    <a href={articleUrl} class="block">
+      <!-- The placeholder is always the base layer, so a missing or broken
+           cover image reveals the committee pattern instead of a grey box. -->
+      <div
+        class="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
+      >
+        <CommitteePlaceholder
+          committee={article.committee}
+          class="absolute inset-0"
         />
-      {/if}
-    </div>
+        {#if article.imageUrl && !imageFailed}
+          <img
+            src={article.imageUrl}
+            alt=""
+            loading="lazy"
+            class="absolute inset-0 size-full object-cover"
+            onerror={() => (imageFailed = true)}
+          />
+        {/if}
+      </div>
+    </a>
+  {/if}
+  <a href={articleUrl} class="block">
     <h3 class="mt-2 px-2">
       {article.header}
     </h3>
