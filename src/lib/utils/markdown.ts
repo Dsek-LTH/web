@@ -21,7 +21,15 @@ const excerptRenderer: RendererObject = {
 const excerptMarked = new Marked({ renderer: excerptRenderer });
 
 const SANITIZE_OPTIONS = {
-  ADD_ATTR: ["target"],
+  ADD_TAGS: ["iframe"],
+  ADD_ATTR: [
+    "target",
+    "allow",
+    "allowfullscreen",
+    "frameborder",
+    "referrerpolicy",
+    "sandbox",
+  ],
 };
 
 DOMPurify.addHook("afterSanitizeAttributes", (node) => {
