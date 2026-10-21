@@ -41,7 +41,7 @@
       onerror={() => (imageFailed = true)}
     />
   {/if}
-  {#if article.imageUrl}
+  {#if article.imageUrl && !imageFailed}
     <div class="absolute top-2 right-2 size-14 p-3">
       <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
@@ -52,7 +52,7 @@
   <div
     class={[
       "relative flex h-full w-full flex-col justify-end p-4",
-      article.imageUrl && "text-white",
+      article.imageUrl && !imageFailed && "text-white",
     ]}
   >
     <h2
