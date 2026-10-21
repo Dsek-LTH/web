@@ -112,6 +112,7 @@
               publishedAt: newsArticle.publishedAt,
               committee: newsArticle.committee,
               imageUrl: newsArticle.imageUrl,
+              youtubeUrl: newsArticle.youtubeUrl,
             }}
             isPreview={false}
           />

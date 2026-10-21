@@ -5,6 +5,8 @@
   import { Marked } from "marked";
   import type { Tokens } from "marked";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
+  import YoutubePreview from "./YoutubePreview.svelte";
+  import { getYoutubeVideoId } from "$lib/utils/youtube";
 
   let {
     article,
@@ -19,10 +21,13 @@
       | "body"
       | "createdAt"
       | "committee"
+      | "youtubeUrl"
     >;
     index: number;
   } = $props();
 
+  const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
+  const articleUrl = $derived(`/news/${article.slug}`);
   let failedImageUrl = $state<string | null>(null);
 
   const renderer = {
@@ -54,40 +59,53 @@
   class="hover:bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] border-border flex flex-col rounded-xl border-[1px] p-4 duration-300"
   style="animation-delay:{index * 50}ms"
 >
-  <a href={"/news/" + article.slug}>
-    <!-- The placeholder stays underneath: a broken image paints nothing, and
-         mounting it unconditionally also covers failures that happen before
-         hydration (when the error event has no listener yet). -->
-    <div
-      class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
-    >
-      <div class="absolute inset-0" aria-hidden="true">
-        <CommitteePlaceholder
-          committee={article.committee}
-          class="absolute inset-0"
-        />
-      </div>
-      {#if article.imageUrl && failedImageUrl !== article.imageUrl}
-        {@const url = article.imageUrl}
-        {#key url}
-          <img
-            src={url}
-            alt=""
-            loading="lazy"
-            class="absolute inset-0 size-full object-cover opacity-0"
-            onload={(event) =>
-              (event.currentTarget as HTMLImageElement).classList.replace(
-                "opacity-0",
-                "opacity-100",
-              )}
-            onerror={(event) =>
-              (failedImageUrl = (
-                event.currentTarget as HTMLImageElement
-              ).getAttribute("src"))}
+  {#if videoId}
+    {#key videoId}
+      <YoutubePreview
+        {videoId}
+        title={article.header}
+        imageUrl={article.imageUrl}
+        committee={article.committee}
+        class="aspect-[2/1] w-full shrink-0"
+      />
+    {/key}
+  {:else}
+    <a href={articleUrl} class="block" tabindex="-1" aria-hidden="true">
+      <!-- The placeholder stays underneath: a broken image paints nothing,
+           and this also covers failures before hydration. -->
+      <div
+        class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
+      >
+        <div class="absolute inset-0" aria-hidden="true">
+          <CommitteePlaceholder
+            committee={article.committee}
+            class="absolute inset-0"
           />
-        {/key}
-      {/if}
-    </div>
+        </div>
+        {#if article.imageUrl && failedImageUrl !== article.imageUrl}
+          {@const url = article.imageUrl}
+          {#key url}
+            <img
+              src={url}
+              alt=""
+              loading="lazy"
+              class="absolute inset-0 size-full object-cover opacity-0"
+              onload={(event) =>
+                (event.currentTarget as HTMLImageElement).classList.replace(
+                  "opacity-0",
+                  "opacity-100",
+                )}
+              onerror={(event) =>
+                (failedImageUrl = (
+                  event.currentTarget as HTMLImageElement
+                ).getAttribute("src"))}
+            />
+          {/key}
+        {/if}
+      </div>
+    </a>
+  {/if}
+  <a href={articleUrl} class="block">
     <h3 class="mt-2 px-2">
       {article.header}
     </h3>
