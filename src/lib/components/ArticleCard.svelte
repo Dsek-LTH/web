@@ -1,28 +1,45 @@
 <script lang="ts">
-  import type { Article } from "$lib/news/getArticles";
   import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import YoutubePreview from "./YoutubePreview.svelte";
   import { getYoutubeVideoId } from "$lib/utils/youtube";
   import { renderMarkdownExcerpt } from "$lib/utils/markdown";
+  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let {
     article,
     index,
+    isPreview = false,
   }: {
-    article: Pick<
-      Article,
-      | "author"
-      | "slug"
-      | "imageUrl"
-      | "header"
-      | "body"
-      | "createdAt"
-      | "committee"
-      | "youtubeUrl"
-    >;
+    article: {
+      author: {
+        member: Pick<
+          ExtendedPrismaModel<"Member">,
+          "firstName" | "lastName" | "nickname" | "studentId" | "picturePath"
+        >;
+        customAuthor: Pick<
+          ExtendedPrismaModel<"CustomAuthor">,
+          "name" | "imageUrl"
+        > | null;
+        mandate: {
+          position: Pick<ExtendedPrismaModel<"Position">, "id" | "name">;
+        } | null;
+        type: ExtendedPrismaModel<"Author">["type"];
+      };
+      slug: string;
+      imageUrl: string | null;
+      header: string;
+      body: string;
+      createdAt: Date;
+      committee: Pick<
+        ExtendedPrismaModel<"Committee">,
+        "shortName" | "symbolUrl" | "name"
+      > | null;
+      youtubeUrl: string | null;
+    };
     index: number;
+    isPreview?: boolean;
   } = $props();
 
   const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
@@ -46,7 +63,13 @@
       />
     {/key}
   {:else}
-    <a href={articleUrl} class="block" tabindex="-1" aria-hidden="true">
+    <svelte:element
+      this={isPreview ? "div" : "a"}
+      href={isPreview ? undefined : articleUrl}
+      tabindex={isPreview ? undefined : -1}
+      aria-hidden={isPreview ? undefined : "true"}
+      class="block"
+    >
       <!-- The placeholder stays underneath: a broken image paints nothing,
            and this also covers failures before hydration. -->
       <div
@@ -79,22 +102,28 @@
           {/key}
         {/if}
       </div>
-    </a>
+    </svelte:element>
   {/if}
-  <a href={articleUrl} class="block">
-    <h3 class="mt-2 px-2">
+  <svelte:element
+    this={isPreview ? "div" : "a"}
+    href={isPreview ? undefined : articleUrl}
+    class="block"
+  >
+    <h3 class="mt-2 px-2 break-words">
       {article.header}
     </h3>
     <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdownExcerpt -->
       {@html excerptHtml}
-    </div></a
+    </div></svelte:element
   >
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
     <AuthorCard
       member={article.author.member}
       customAuthor={article.author.customAuthor}
       position={article.author.mandate?.position}
+      type={article.author.type}
+      links={!isPreview}
     />
     <span class="text-muted-foreground"
       >{dayjs(article.createdAt).format("YYYY-MM-DD")}</span
