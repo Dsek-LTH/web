@@ -66,10 +66,9 @@ export function getYoutubeEmbedUrl(videoId: string, autoplay = false): string {
 /** Convenience wrapper for when you only have the URL that was stored. */
 export function getYoutubeEmbedUrlFromUrl(
   url: string | null | undefined,
-  autoplay = false,
 ): string | null {
   const videoId = getYoutubeVideoId(url);
-  return videoId ? getYoutubeEmbedUrl(videoId, autoplay) : null;
+  return videoId ? getYoutubeEmbedUrl(videoId) : null;
 }
 
 export function getYoutubeThumbnailUrl(

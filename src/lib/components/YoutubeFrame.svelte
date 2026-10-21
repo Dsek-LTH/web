@@ -1,22 +1,18 @@
 <script lang="ts">
-  import { twMerge } from "tailwind-merge";
-
   let {
     src,
     title,
     lazy = false,
-    class: klass,
   }: {
     src: string;
     /** Describes the video for screen readers. */
     title: string;
     lazy?: boolean;
-    class?: string;
   } = $props();
 </script>
 
 <iframe
-  class={twMerge("size-full border-0", klass)}
+  class="size-full border-0"
   {src}
   {title}
   loading={lazy ? "lazy" : undefined}
