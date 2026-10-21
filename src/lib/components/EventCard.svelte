@@ -15,7 +15,10 @@
     index: number;
   } = $props();
 
-  let imageFailed = $state(false);
+  let failedImageUrl = $state<string | null>(null);
+  const hasImage = $derived(
+    !!event.imageUrl && failedImageUrl !== event.imageUrl,
+  );
 </script>
 
 <div
@@ -25,21 +28,23 @@
   <a href={"/events/" + event.slug}>
     {#if event.imageUrl}
       <div
-        class="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
+        class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
       >
-        <div class="absolute inset-0" aria-hidden="true">
-          <CommitteePlaceholder
-            committee={event.committee ?? null}
-            class="absolute inset-0"
-          />
-        </div>
-        {#if !imageFailed}
+        {#if !hasImage}
+          <div class="absolute inset-0" aria-hidden="true">
+            <CommitteePlaceholder
+              committee={event.committee ?? null}
+              class="absolute inset-0"
+            />
+          </div>
+        {/if}
+        {#if hasImage}
           <img
             src={event.imageUrl}
             alt=""
             loading="lazy"
             class="absolute inset-0 size-full object-cover"
-            onerror={() => (imageFailed = true)}
+            onerror={() => (failedImageUrl = event.imageUrl)}
           />
         {/if}
       </div>

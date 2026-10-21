@@ -15,33 +15,38 @@
     isPreview: boolean;
   } = $props();
 
-  let imageFailed = $state(false);
+  let failedImageUrl = $state<string | null>(null);
+  const hasImage = $derived(
+    !!article.imageUrl && failedImageUrl !== article.imageUrl,
+  );
 </script>
 
 <svelte:element
   this={isPreview ? "div" : "a"}
   href={isPreview ? undefined : `/news/${article.slug}`}
   class={[
-    "relative aspect-2/1 w-full overflow-hidden rounded-xl border-[1px] transition-all hover:opacity-85",
+    "bg-muted-background relative aspect-2/1 w-full overflow-hidden rounded-xl border-[1px] transition-all hover:opacity-85",
     !isPreview && "lg:w-1/3",
   ]}
 >
-  <div class="absolute inset-0" aria-hidden="true">
-    <CommitteePlaceholder
-      committee={article.committee ?? null}
-      class="absolute inset-0"
-    />
-  </div>
-  {#if article.imageUrl && !imageFailed}
+  {#if !hasImage}
+    <div class="absolute inset-0" aria-hidden="true">
+      <CommitteePlaceholder
+        committee={article.committee ?? null}
+        class="absolute inset-0"
+      />
+    </div>
+  {/if}
+  {#if hasImage}
     <img
       src={article.imageUrl}
       alt=""
       loading="lazy"
       class="absolute inset-0 size-full object-cover"
-      onerror={() => (imageFailed = true)}
+      onerror={() => (failedImageUrl = article.imageUrl)}
     />
   {/if}
-  {#if article.imageUrl && !imageFailed}
+  {#if hasImage}
     <div class="absolute top-2 right-2 size-14 p-3">
       <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
     </div>
@@ -52,9 +57,7 @@
   <div
     class={[
       "relative flex h-full w-full flex-col justify-end p-4",
-      article.imageUrl &&
-        !imageFailed &&
-        "text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.9)]",
+      hasImage && "text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.9)]",
     ]}
   >
     <h2

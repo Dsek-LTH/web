@@ -23,7 +23,7 @@
     index: number;
   } = $props();
 
-  let imageFailed = $state(false);
+  let failedImageUrl = $state<string | null>(null);
 
   const renderer = {
     // this removes links in the article preview, preventing svelte hydration issues
@@ -55,22 +55,26 @@
   style="animation-delay:{index * 50}ms"
 >
   <a href={"/news/" + article.slug}>
-    <!-- The placeholder is always the base layer, so a missing or broken
-         cover image reveals the committee pattern instead of a grey box. -->
+    <!-- The placeholder is the fallback. Only mount it when there is no
+         cover or the current one failed, so hidden placeholders don't render. -->
     <div
-      class="relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
+      class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
     >
-      <CommitteePlaceholder
-        committee={article.committee}
-        class="absolute inset-0"
-      />
-      {#if article.imageUrl && !imageFailed}
+      {#if !article.imageUrl || failedImageUrl === article.imageUrl}
+        <div class="absolute inset-0" aria-hidden="true">
+          <CommitteePlaceholder
+            committee={article.committee}
+            class="absolute inset-0"
+          />
+        </div>
+      {/if}
+      {#if article.imageUrl && failedImageUrl !== article.imageUrl}
         <img
           src={article.imageUrl}
           alt=""
           loading="lazy"
           class="absolute inset-0 size-full object-cover"
-          onerror={() => (imageFailed = true)}
+          onerror={() => (failedImageUrl = article.imageUrl)}
         />
       {/if}
     </div>
