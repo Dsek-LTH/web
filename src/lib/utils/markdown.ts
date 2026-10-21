@@ -42,7 +42,6 @@ const sanitize = (html: string) => DOMPurify.sanitize(html, SANITIZE_OPTIONS);
 
 export type RenderMarkdownOptions = {
   inline?: boolean;
-  renderer?: RendererObject;
 };
 
 /**
@@ -51,12 +50,11 @@ export type RenderMarkdownOptions = {
  */
 export const renderMarkdown = (
   markdown: string,
-  { inline = false, renderer }: RenderMarkdownOptions = {},
+  { inline = false }: RenderMarkdownOptions = {},
 ): string => {
-  const marked = renderer ? new Marked({ renderer }) : defaultMarked;
   const html = inline
-    ? marked.parseInline(markdown, { async: false })
-    : marked.parse(markdown, { async: false });
+    ? defaultMarked.parseInline(markdown, { async: false })
+    : defaultMarked.parse(markdown, { async: false });
 
   return sanitize(html);
 };
