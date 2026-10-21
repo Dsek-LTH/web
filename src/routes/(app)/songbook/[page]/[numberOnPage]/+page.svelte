@@ -15,6 +15,8 @@
   import { mayWatchVideos } from "../../helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
+  import { getYoutubeEmbedUrlFromUrl } from "$lib/utils/youtube";
+  import YoutubeFrame from "$lib/components/YoutubeFrame.svelte";
 
   let { data } = $props();
   let song = $derived(data.song);
@@ -24,20 +26,7 @@
   );
   const canWatchVideo = $derived(song.video && mayWatchVideos(data.user));
 
-  function getYoutubeEmbedUrl(url: string): string | null {
-    if (!url) return null;
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    const videoId = match ? match[2] : null;
-    return videoId && videoId.length === 11
-      ? `https://www.youtube.com/embed/${videoId}`
-      : null;
-  }
-
-  const youtubeEmbedUrl = $derived(
-    song.video ? getYoutubeEmbedUrl(song.video) : null,
-  );
+  const youtubeEmbedUrl = $derived(getYoutubeEmbedUrlFromUrl(song.video));
 </script>
 
 <div class="mx-auto max-w-3xl px-4 py-8">
@@ -97,14 +86,7 @@
           >
             {#if youtubeEmbedUrl}
               <div class="aspect-video w-full">
-                <iframe
-                  title="Youtube Video Player"
-                  src={youtubeEmbedUrl}
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
-                  class="h-full w-full"
-                ></iframe>
+                <YoutubeFrame src={youtubeEmbedUrl} title={song.title} lazy />
               </div>
             {:else}
               <video
