@@ -7,6 +7,13 @@ function toVideoId(candidate: string | null | undefined): string | null {
   return candidate && VIDEO_ID_PATTERN.test(candidate) ? candidate : null;
 }
 
+function assertVideoId(videoId: string): string {
+  if (!VIDEO_ID_PATTERN.test(videoId)) {
+    throw new Error(`Invalid YouTube video id: ${videoId}`);
+  }
+  return videoId;
+}
+
 /**
  * Extracts the 11 character video id from any common YouTube URL shape
  * (watch, youtu.be, shorts, embed, live, music, ...). Bare ids are accepted
@@ -58,9 +65,10 @@ export function getYoutubeVideoId(
  * a user gesture for sound.
  */
 export function getYoutubeEmbedUrl(videoId: string, autoplay = false): string {
+  const id = assertVideoId(videoId);
   const params = new URLSearchParams({ rel: "0", playsinline: "1" });
   if (autoplay) params.set("autoplay", "1");
-  return `${NOCOOKIE_EMBED_ORIGIN}/embed/${videoId}?${params.toString()}`;
+  return `${NOCOOKIE_EMBED_ORIGIN}/embed/${id}?${params.toString()}`;
 }
 
 /** Convenience wrapper for when you only have the URL that was stored. */
@@ -75,5 +83,6 @@ export function getYoutubeThumbnailUrl(
   videoId: string,
   quality: YoutubeThumbnailQuality = "maxresdefault",
 ): string {
-  return `https://i.ytimg.com/vi/${videoId}/${quality}.jpg`;
+  const id = assertVideoId(videoId);
+  return `https://i.ytimg.com/vi/${id}/${quality}.jpg`;
 }

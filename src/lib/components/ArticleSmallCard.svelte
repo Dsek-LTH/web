@@ -3,10 +3,8 @@
   import dayjs from "dayjs";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
-  import {
-    getYoutubeThumbnailUrl,
-    getYoutubeVideoId,
-  } from "$lib/utils/youtube";
+  import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
+  import { getYoutubeVideoId } from "$lib/utils/youtube";
 
   let {
     article,
@@ -28,7 +26,6 @@
   let loadedImageUrl = $state<string | null>(null);
   let failedVideoId = $state<string | null>(null);
   let loadedVideoId = $state<string | null>(null);
-  let videoEl = $state<HTMLImageElement | null>(null);
   const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
   const imageVisible = $derived(
     !!article.imageUrl && failedImageUrl !== article.imageUrl,
@@ -39,17 +36,6 @@
   const videoVisible = $derived(!!videoId && failedVideoId !== videoId);
   const videoReady = $derived(videoVisible && loadedVideoId === videoId);
   const coverReady = $derived(imageReady || videoReady);
-
-  // Seed loaded/failed for the video thumbnail that finished before hydration.
-  $effect(() => {
-    const el = videoEl;
-    const id = videoId;
-    if (!el || !id) return;
-    if (el.complete && el.getAttribute("src") === getYoutubeThumbnailUrl(id)) {
-      if (el.naturalWidth > 0) loadedVideoId = id;
-      else failedVideoId = id;
-    }
-  });
 </script>
 
 <svelte:element
@@ -90,15 +76,14 @@
   {/if}
   {#if videoId && videoVisible}
     {@const id = videoId}
-    <img
-      bind:this={videoEl}
-      src={getYoutubeThumbnailUrl(id)}
-      alt=""
-      loading="lazy"
-      class="absolute inset-0 size-full object-cover"
-      onload={() => (loadedVideoId = id)}
-      onerror={() => (failedVideoId = id)}
-    />
+    {#key id}
+      <YoutubeThumbnail
+        videoId={id}
+        class="absolute inset-0 size-full object-cover"
+        onready={() => (loadedVideoId = id)}
+        onunavailable={() => (failedVideoId = id)}
+      />
+    {/key}
   {/if}
   {#if coverReady}
     <div class="absolute top-2 right-2 size-14 p-3">

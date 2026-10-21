@@ -3,13 +3,10 @@
   import { twMerge } from "tailwind-merge";
   import * as m from "$paraglide/messages";
   import YoutubeFrame from "./YoutubeFrame.svelte";
+  import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
   import CommitteePlaceholder from "./images/CommitteePlaceholder.svelte";
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import {
-    getYoutubeEmbedUrl,
-    getYoutubeThumbnailUrl,
-    type YoutubeThumbnailQuality,
-  } from "$lib/utils/youtube";
+  import { getYoutubeEmbedUrl } from "$lib/utils/youtube";
 
   type Committee = Pick<
     ExtendedPrismaModel<"Committee">,
@@ -33,20 +30,10 @@
   } = $props();
 
   let playing = $state(false);
-  let posterQuality = $state<YoutubeThumbnailQuality>("maxresdefault");
-  let posterFailed = $state(false);
   let failedImageUrl = $state<string | null>(null);
   const imageVisible = $derived(!!imageUrl && failedImageUrl !== imageUrl);
 
   const embedUrl = $derived(getYoutubeEmbedUrl(videoId, true));
-
-  function fallbackPoster() {
-    if (posterQuality === "maxresdefault") {
-      posterQuality = "hqdefault";
-    } else {
-      posterFailed = true;
-    }
-  }
 </script>
 
 <div
@@ -72,29 +59,30 @@
       </div>
       {#if imageUrl && imageVisible}
         {@const url = imageUrl}
-        <img
-          src={url}
-          alt=""
-          loading="lazy"
-          class="absolute inset-0 size-full object-cover"
-          onerror={() => (failedImageUrl = url)}
-        />
+        {#key url}
+          <img
+            src={url}
+            alt=""
+            loading="lazy"
+            class="absolute inset-0 size-full object-cover opacity-0"
+            onload={(event) =>
+              (event.currentTarget as HTMLImageElement).classList.replace(
+                "opacity-0",
+                "opacity-100",
+              )}
+            onerror={(event) =>
+              (failedImageUrl = (
+                event.currentTarget as HTMLImageElement
+              ).getAttribute("src"))}
+          />
+        {/key}
       {/if}
-      {#if !posterFailed}
-        <img
-          src={getYoutubeThumbnailUrl(videoId, posterQuality)}
-          alt=""
-          loading="lazy"
+      {#key videoId}
+        <YoutubeThumbnail
+          {videoId}
           class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          onerror={fallbackPoster}
-          onload={(event) => {
-            // YouTube sometimes serves a 120x90 grey placeholder with HTTP 200.
-            const image = event.currentTarget;
-            if (!(image instanceof HTMLImageElement)) return;
-            if (image.naturalWidth <= 120) fallbackPoster();
-          }}
         />
-      {/if}
+      {/key}
       <span
         class="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors group-hover:bg-black/10"
       >
