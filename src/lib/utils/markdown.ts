@@ -20,6 +20,18 @@ const excerptRenderer: RendererObject = {
 
 const excerptMarked = new Marked({ renderer: excerptRenderer });
 
+const SANITIZE_OPTIONS = {
+  ADD_ATTR: ["target"],
+};
+
+DOMPurify.addHook("afterSanitizeAttributes", (node) => {
+  if (node.tagName === "A" && node.getAttribute("target") === "_blank") {
+    node.setAttribute("rel", "noopener noreferrer");
+  }
+});
+
+const sanitize = (html: string) => DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+
 export type RenderMarkdownOptions = {
   inline?: boolean;
   renderer?: RendererObject;
@@ -38,9 +50,9 @@ export const renderMarkdown = (
     ? marked.parseInline(markdown, { async: false })
     : marked.parse(markdown, { async: false });
 
-  return DOMPurify.sanitize(html);
+  return sanitize(html);
 };
 
 /** Renders a sanitized card excerpt without links or headings. */
 export const renderMarkdownExcerpt = (markdown: string): string =>
-  DOMPurify.sanitize(excerptMarked.parse(markdown, { async: false }));
+  sanitize(excerptMarked.parse(markdown, { async: false }));
