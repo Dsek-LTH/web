@@ -1,7 +1,7 @@
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
 import { error, fail } from "@sveltejs/kit";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import { updateSongSchema } from "../../schema";
@@ -39,8 +39,8 @@ export const actions: Actions = {
         id: data.id,
       },
       data: {
-        title: DOMPurify.sanitize(data.title.trim()),
-        lyrics: DOMPurify.sanitize(data.lyrics.trim()),
+        title: sanitizeHtml(data.title.trim()),
+        lyrics: sanitizeHtml(data.lyrics.trim()),
         melody: data.melody.trim(),
         category: data.category.trim(),
         video: data.video?.trim() || null,

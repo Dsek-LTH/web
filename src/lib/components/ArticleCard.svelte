@@ -27,6 +27,7 @@
 
   const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
   const articleUrl = $derived(`/news/${article.slug}`);
+  const excerptHtml = $derived(renderMarkdownExcerpt(article.body));
   let failedImageUrl = $state<string | null>(null);
 </script>
 
@@ -86,7 +87,7 @@
     </h3>
     <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
       <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdownExcerpt -->
-      {@html renderMarkdownExcerpt(article.body)}
+      {@html excerptHtml}
     </div></a
   >
   <div class="mt-auto flex flex-row items-center justify-between pt-2">

@@ -55,10 +55,10 @@
 
   let srcdoc = $derived(
     bioFrame
-      .replace("%STYLESHEETS%", stylesheets)
-      .replace("%CSS%", css)
+      .replace("%STYLESHEETS%", () => stylesheets)
+      .replace("%CSS%", () => css)
       .replace("%BIO%", () => renderMarkdown(bio ?? ""))
-      .replace("%THEME%", mode.current ?? "light"),
+      .replace("%THEME%", () => mode.current ?? "light"),
   );
 </script>
 
