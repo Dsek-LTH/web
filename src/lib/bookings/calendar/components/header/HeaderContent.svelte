@@ -71,7 +71,7 @@
 
   <div class="sx-calendar:block flex items-center">
     <div class="sx-calendar:block flex flex-col">
-      <span class="sx-calendar:text-4xl text-3xl font-semibold uppercase"
+      <span class="sx-calendar:text-4xl text-3xl font-semibold"
         >{currentMonth + " " + currentYear}</span
       >
 
