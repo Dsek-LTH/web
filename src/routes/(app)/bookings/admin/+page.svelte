@@ -10,7 +10,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import { enhance } from "$app/forms";
   import { cn } from "$lib/utils";
-  import { escapeHtml } from "$lib/utils/escapeHtml";
+  import DOMPurify from "isomorphic-dompurify";
   import {
     PencilIcon,
     Trash2Icon,
@@ -68,8 +68,8 @@
           <AlertDialog.Description>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html m.booking_deleteAreYouSure({
-              name: escapeHtml(bookingRequest.booker?.firstName ?? ""),
-              bookables: escapeHtml(
+              name: DOMPurify.sanitize(bookingRequest.booker?.firstName ?? ""),
+              bookables: DOMPurify.sanitize(
                 bookingRequest.bookables.map(({ name }) => name).join(", "),
               ),
             })}
