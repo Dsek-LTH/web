@@ -48,10 +48,7 @@
   </span>
 
   {#snippet selectItem(item: { value: string; label: string })}
-    <Select.Item
-      class="data-[selected]:text-primary data-[highlighted]:text-primary"
-      value={item.value}
-    >
+    <Select.Item value={item.value}>
       {item.label}
     </Select.Item>
   {/snippet}
@@ -73,7 +70,7 @@
       </div>
     </Select.Trigger>
 
-    <Select.Content class="text-muted-foreground uppercase">
+    <Select.Content>
       {#each categories as category (category.value)}
         {@render selectItem(category)}
       {/each}

@@ -49,7 +49,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { cn } from "$lib/utils";
-  import { escapeHtml } from "$lib/utils/escapeHtml";
+  import DOMPurify from "isomorphic-dompurify";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
   const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
@@ -229,11 +229,17 @@
                     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                     {@html isOwner && !isAdmin
                       ? m.booking_deleteMyAreYouSure({
-                          bookables: escapeHtml(calendarEvent.location ?? ""),
+                          bookables: DOMPurify.sanitize(
+                            calendarEvent.location ?? "",
+                          ),
                         })
                       : m.booking_deleteAreYouSure({
-                          name: escapeHtml(bookingEvent.bookerName ?? ""),
-                          bookables: escapeHtml(calendarEvent.location ?? ""),
+                          name: DOMPurify.sanitize(
+                            bookingEvent.bookerName ?? "",
+                          ),
+                          bookables: DOMPurify.sanitize(
+                            calendarEvent.location ?? "",
+                          ),
                         })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>

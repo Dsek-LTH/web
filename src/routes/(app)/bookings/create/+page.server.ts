@@ -16,8 +16,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export const load = async ({ locals }) => {
-  const { prisma, user } = locals;
-  const bookables = await prisma.bookable.findMany();
+  const { user } = locals;
+  const bookables = await authorizedPrismaClient.bookable.findMany({
+    include: { category: true },
+  });
   const doors = await authorizedPrismaClient.door.findMany();
   const form = await superValidate(zod4(bookingSchema));
 
