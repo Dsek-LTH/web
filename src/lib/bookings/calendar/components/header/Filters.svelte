@@ -8,6 +8,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { setBookingViewFilter } from "$lib/bookings/filters";
+  import * as Tabs from "$lib/components/ui/tabs";
 
   const options = [
     { value: "all", label: m.booking_allBookings() },
@@ -62,11 +63,7 @@
   });
 </script>
 
-<ToggleGroup.Root
-  type="single"
-  variant="default"
-  spacing={3}
-  size="lg"
+<Tabs.Root
   bind:value={currentValue}
   onValueChange={(value) => {
     if (value === "") return;
@@ -75,21 +72,11 @@
   }}
   class={className}
 >
-  <div
-    class="not-sx-calendar:mx-1.5 not-sx-calendar:my-1.5 not-sx-calendar:w-full sx-calendar:gap-3 relative flex"
-  >
-    <div
-      class="ring-primary/30 bg-muted not-sx-calendar:rounded-md sx-calendar:w-[calc(50%-0.375rem)] absolute top-0 left-0 h-full w-1/2 rounded-full ring"
-      style={`transform: translateX(${x.current}%);`}
-    ></div>
-
+  <Tabs.List>
     {#each options as option (option.value)}
-      <ToggleGroup.Item
-        class="text-muted-foreground data-[state=on]:text-foreground not-sx-calendar:w-1/2 not-sx-calendar:rounded-sm relative z-10 p-4 data-[state=on]:bg-transparent"
-        value={option.value}
-      >
+      <Tabs.Trigger value={option.value}>
         {option.label}
-      </ToggleGroup.Item>
+      </Tabs.Trigger>
     {/each}
-  </div>
-</ToggleGroup.Root>
+  </Tabs.List>
+</Tabs.Root>
