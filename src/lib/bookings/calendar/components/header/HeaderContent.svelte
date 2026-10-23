@@ -101,9 +101,9 @@
       <Separator class="opacity-50" orientation="vertical" />
     </div>
 
-    <Button class="py-5 has-[>svg]:px-4" href={`${page.url.pathname}/create`}>
+    <Button size="lg" href={`${page.url.pathname}/create`}>
       <Plus class="size-4" />
-      <span class="font-semibold uppercase">{m.booking_newBooking()}</span>
+      {m.booking_newBooking()}
     </Button>
   </div>
 </div>
