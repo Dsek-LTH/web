@@ -83,6 +83,7 @@
     "prisma-case-format": "^2.2.1",
     "svelte": "^5.56.3",
     "svelte-check": "^4.3.4",
+    "svelte-eslint-parser": "1.4.0",
     "sveltekit-flash-message": "^2.4.6",
     "sveltekit-superforms": "^2.29.1",
     "tailwind-merge": "^3.3.1",
@@ -112,9 +113,9 @@
     "@fullcalendar/daygrid": "^6.1.17",
     "@goauthentik/api": "2025.6.3-1751754396",
     "@iconify-json/svg-spinners": "^1.2.4",
-    "@myriaddreamin/typst-ts-renderer": "0.7.0",
-    "@myriaddreamin/typst-ts-web-compiler": "0.7.0",
-    "@myriaddreamin/typst.ts": "0.7.0",
+    "@myriaddreamin/typst-ts-renderer": "0.8.0-rc3",
+    "@myriaddreamin/typst-ts-web-compiler": "0.8.0-rc3",
+    "@myriaddreamin/typst.ts": "0.8.0-rc3",
     "@opentelemetry/auto-instrumentations-node": "^0.67.3",
     "@opentelemetry/exporter-trace-otlp-http": "^0.209.0",
     "@opentelemetry/sdk-node": "^0.209.0",
@@ -160,14 +161,5 @@
   "engines": {
     "node": "<=26"
   },
-  "packageManager": "pnpm@9.14.4",
-  "pnpm": {
-    "overrides": {
-      "@prisma/generator-helper@5.14.0-dev.34": "^6.0.0",
-      "@prisma/internals@5.14.0-dev.34": "^6.0.0"
-    },
-    "patchedDependencies": {
-      "devalue@5.8.1": "patches/devalue@5.8.1.patch"
-    }
-  }
+  "packageManager": "pnpm@12.15.0"
 }

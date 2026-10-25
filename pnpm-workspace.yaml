@@ -1,0 +1,21 @@
+packages:
+  - "."
+
+allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  "@snaplet/seed": true
+  "@tailwindcss/oxide": true
+  "@vercel/speed-insights": true
+  esbuild: true
+  prisma: true
+  protobufjs: true
+  sharp: true
+  zenstack: true
+
+overrides:
+  "@prisma/generator-helper@5.14.0-dev.34": ^6.0.0
+  "@prisma/internals@5.14.0-dev.34": ^6.0.0
+
+patchedDependencies:
+  "devalue@5.8.1": patches/devalue@5.8.1.patch

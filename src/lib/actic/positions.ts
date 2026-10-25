@@ -445,3 +445,11 @@ export const ALL_POSITIONS: Array<{
     groupEn: g.labelEn,
   })),
 );
+
+/**
+ * The guild committees (groups with a `name`), used by the equal treatment
+ * plan's committee picker. `otherpos` holds positions but is not a committee.
+ */
+export const COMMITTEE_GROUPS: PositionGroup[] = POSITION_GROUPS.filter(
+  (g) => g.key !== "otherpos",
+);

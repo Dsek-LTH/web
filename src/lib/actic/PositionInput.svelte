@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from "svelte";
   import { Input } from "$lib/components/ui/input/index.js";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { ALL_POSITIONS } from "$lib/actic/positions";
@@ -24,6 +25,10 @@
 
   let focused = $state(false);
   let open = $state(false);
+  /** Highlighted option while navigating with the keyboard; -1 is none. */
+  let activeIndex = $state(-1);
+  let listEl: HTMLUListElement | undefined = $state();
+  const uid = $props.id();
 
   const english = $derived(getLocale() === "en");
   function labelOf(p: (typeof ALL_POSITIONS)[number]): string {
@@ -54,7 +59,7 @@
       ? ALL_POSITIONS.filter((p) =>
           labelOf(p).toLowerCase().includes(input.trim().toLowerCase()),
         ).slice(0, 8)
-      : [],
+      : ALL_POSITIONS,
   );
 
   function setFromText(value: string) {
@@ -76,6 +81,37 @@
     open = false;
     setFromText(label);
   }
+
+  // Keyboard navigation: focus stays on the input while the highlight moves
+  // through the list (a combobox, not a menu of tab stops).
+  async function scrollActive() {
+    await tick();
+    (listEl?.children[activeIndex] as HTMLElement | undefined)?.scrollIntoView({
+      block: "nearest",
+    });
+  }
+
+  function onkeydown(event: KeyboardEvent) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      open = true;
+      const count = matches.length;
+      if (count === 0) return;
+      if (activeIndex === -1) {
+        activeIndex = event.key === "ArrowDown" ? 0 : count - 1;
+      } else {
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        activeIndex = (activeIndex + step + count) % count;
+      }
+      scrollActive();
+    } else if (event.key === "Enter" && open && activeIndex >= 0) {
+      event.preventDefault();
+      const match = matches[activeIndex];
+      if (match) pick(labelOf(match));
+    } else if (event.key === "Escape" || event.key === "Tab") {
+      open = false;
+    }
+  }
 </script>
 
 <div class="relative">
@@ -85,13 +121,20 @@
     class={FIELD_BG}
     value={input}
     autocomplete="off"
+    role="combobox"
+    aria-expanded={open}
+    aria-controls={open ? `${uid}-listbox` : undefined}
+    aria-activedescendant={open && activeIndex >= 0 ? `${uid}-${activeIndex}` : undefined}
+    onkeydown={onkeydown}
     oninput={(e) => {
       input = e.currentTarget.value;
       setFromText(input);
+      activeIndex = -1;
       open = true;
     }}
     onfocus={() => {
       focused = true;
+      activeIndex = -1;
       open = true;
     }}
     onblur={() => {
@@ -101,16 +144,24 @@
   />
   {#if open && matches.length > 0}
     <ul
-      class="bg-popover border-border absolute z-50 mt-1 max-h-64 w-max max-w-[22rem] min-w-full overflow-x-hidden overflow-y-auto rounded-md border shadow-md"
+      bind:this={listEl}
+      id={`${uid}-listbox`}
+      role="listbox"
+      class="bg-popover border-border absolute inset-x-0 top-full z-50 mt-1 ml-0 max-h-64 list-none overflow-y-auto rounded-md border shadow-md"
     >
-      {#each matches as match (match.path)}
+      {#each matches as match, i (match.path)}
         {@const urls = groupLogoUrls(
           match.path.slice(0, match.path.indexOf(".")),
         )}
-        <li>
+        <li role="presentation">
           <button
             type="button"
-            class="hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
+            id={`${uid}-${i}`}
+            role="option"
+            aria-selected={activeIndex === i}
+            class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
+            class:bg-accent={activeIndex === i}
+            onmousemove={() => (activeIndex = i)}
             onmousedown={(e) => {
               e.preventDefault();
               pick(labelOf(match));
