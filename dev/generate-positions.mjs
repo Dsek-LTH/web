@@ -115,6 +115,20 @@ lines.push("    groupEn: g.labelEn,");
 lines.push("  })),");
 lines.push(");");
 lines.push("");
+lines.push("/**");
+lines.push(
+  " * The guild committees (groups with a `name`), used by the equal treatment",
+);
+lines.push(
+  " * plan's committee picker. `otherpos` holds positions but is not a committee.",
+);
+lines.push(" */");
+lines.push(
+  "export const COMMITTEE_GROUPS: PositionGroup[] = POSITION_GROUPS.filter(",
+);
+lines.push('  (g) => g.key !== "otherpos",');
+lines.push(");");
+lines.push("");
 
 const out = new URL("../src/lib/actic/positions.ts", import.meta.url);
 writeFileSync(out, lines.join("\n"));

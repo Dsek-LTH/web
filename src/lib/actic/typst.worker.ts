@@ -5,6 +5,10 @@
  * The worker owns the compiler; the main thread only renders the resulting
  * vector artifact (which is cheap) and touches the DOM.
  */
+// NOTE: `@myriaddreamin/typst.ts` is pinned to 0.8.0-rc3 (Typst 0.15) because
+// `@preview/dsek:0.1.0`'s `nomination-proposal` calls `Dict::map`, which was
+// added in Typst 0.15. On 0.7.0 (Typst 0.13) nomination documents fail to
+// compile ("type dictionary has no method `map`").
 import { $typst, loadFonts } from "@myriaddreamin/typst.ts";
 import { CompileFormatEnum } from "@myriaddreamin/typst.ts/compiler";
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";

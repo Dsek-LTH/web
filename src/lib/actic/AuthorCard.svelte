@@ -14,7 +14,8 @@
     removeSignature,
   } from "$lib/actic/signatures";
   import * as m from "$paraglide/messages";
-  import GripVertical from "@lucide/svelte/icons/grip-vertical";
+  import GripHorizontal from "@lucide/svelte/icons/grip-horizontal";
+  import Trash2 from "@lucide/svelte/icons/trash-2";
   import X from "@lucide/svelte/icons/x";
   import ImageUp from "@lucide/svelte/icons/image-up";
 
@@ -23,6 +24,7 @@
     index,
     handle,
     onremove,
+    removeDisabled = false,
   }: {
     // Mutated in place by the inputs below (it is a `$state` object owned by the
     // parent), so no `$bindable` is needed.
@@ -31,6 +33,8 @@
     /** dnd-kit attachment for the drag handle. */
     handle: (node: HTMLElement) => () => void;
     onremove: () => void;
+    /** The last author cannot be removed. */
+    removeDisabled?: boolean;
   } = $props();
 
   let fileInput: HTMLInputElement | undefined = $state();
@@ -65,29 +69,36 @@
 </script>
 
 <div
-  class="border-border bg-background flex flex-col gap-2 rounded-md border p-2"
+  class="border-border bg-background relative flex flex-col gap-2 rounded-md border p-2"
 >
-  <div class="flex items-center justify-between">
+  <!-- The whole top strip is grabbable; the dots sit in the middle. The
+       remove button is a sibling, not a child, so the drag handle never
+       swallows its press. -->
+  <div
+    class="flex items-center justify-center py-1"
+    use:attachAction={handle}
+    role="button"
+    tabindex="0"
+    aria-label={m.actic_author_drag()}
+    title={m.actic_author_drag()}
+  >
     <span
-      use:attachAction={handle}
       class="text-muted-foreground flex cursor-grab items-center gap-1 text-xs"
-      role="button"
-      tabindex="0"
-      aria-label={m.actic_author_drag()}
-      title={m.actic_author_drag()}
     >
-      <GripVertical class="h-4 w-4" />
+      <GripHorizontal class="h-4 w-4" />
       {index + 1}
     </span>
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label={m.actic_author_remove()}
-      onclick={onremove}
-    >
-      <X class="h-4 w-4" />
-    </Button>
   </div>
+  <Button
+    variant="ghost"
+    size="icon-sm"
+    class="absolute top-1 right-1"
+    disabled={removeDisabled}
+    aria-label={m.actic_author_remove()}
+    onclick={onremove}
+  >
+    <Trash2 class="h-4 w-4" />
+  </Button>
 
   <div class="flex flex-col gap-1">
     <Label for={`author-message-${index}`} class="text-xs"

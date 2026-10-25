@@ -15,14 +15,26 @@
     placeholder,
     invalid = false,
     errorMessage = "",
+    unstyled = false,
     onblur,
+    oninput,
+    onenter,
+    onescape,
   }: {
     value?: string;
     id?: string;
     placeholder?: string;
     invalid?: boolean;
     errorMessage?: string;
+    /** Render without the boxed input look, for rows in a shared list box. */
+    unstyled?: boolean;
     onblur?: () => void;
+    /** Called after the value changed, e.g. to grow a trailing free row. */
+    oninput?: () => void;
+    /** Fired on Enter when it was *not* used to complete a suggestion. */
+    onenter?: () => void;
+    /** Fired on Escape (the dropdown is closed at the same time). */
+    onescape?: () => void;
   } = $props();
 
   type Member = {
@@ -35,6 +47,9 @@
 
   let results = $state<Member[]>([]);
   let open = $state(false);
+  /** Highlighted suggestion while navigating with the keyboard; -1 is none. */
+  let activeIndex = $state(-1);
+  const uid = $props.id();
 
   const search = debounce(async (query: string) => {
     if (!query) {
@@ -50,6 +65,7 @@
     } catch {
       results = [];
     }
+    activeIndex = -1;
     open = results.length > 0;
   }, 200);
 
@@ -71,7 +87,32 @@
   function pick(member: Member) {
     value = displayName(member);
     results = [];
+    activeIndex = -1;
     open = false;
+    // A pick changes the value without an input event; let the parent react
+    // (e.g. grow a new free row when the last row was filled).
+    oninput?.();
+  }
+
+  function onkeydown(event: KeyboardEvent) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (!open || results.length === 0) return;
+      event.preventDefault();
+      const step = event.key === "ArrowDown" ? 1 : -1;
+      activeIndex = (activeIndex + step + results.length) % results.length;
+    } else if (event.key === "Enter") {
+      if (open && results.length > 0) {
+        // Enter completes the highlighted (or first) suggestion instead of
+        // adding a new row.
+        event.preventDefault();
+        pick(results[activeIndex] ?? (results[0] as Member));
+      } else {
+        onenter?.();
+      }
+    } else if (event.key === "Escape") {
+      open = false;
+      onescape?.();
+    }
   }
 </script>
 
@@ -79,12 +120,21 @@
   <Input
     {id}
     {placeholder}
-    class={FIELD_BG}
+    class={unstyled
+      ? "rounded-none border-0 bg-transparent px-3 shadow-none focus-visible:border-transparent focus-visible:ring-0"
+      : FIELD_BG}
     bind:value
     autocomplete="off"
+    role="combobox"
+    aria-expanded={open}
+    aria-activedescendant={open && activeIndex >= 0 ? `${uid}-suggestion` : undefined}
     aria-invalid={invalid}
     aria-errormessage={errorMessage}
-    oninput={() => search(value)}
+    onkeydown={onkeydown}
+    oninput={() => {
+      search(value);
+      oninput?.();
+    }}
     onfocus={() => {
       if (results.length) open = true;
     }}
@@ -95,13 +145,20 @@
   />
   {#if open}
     <ul
-      class="bg-popover border-border absolute z-50 mt-1 w-full overflow-hidden rounded-md border shadow-md"
+      id={`${uid}-suggestions`}
+      role="listbox"
+      class="bg-popover border-border absolute inset-x-0 top-full z-50 mt-1 ml-0 w-full list-none overflow-hidden rounded-md border shadow-md"
     >
-      {#each results as member (member.studentId)}
-        <li>
+      {#each results as member, i (member.studentId)}
+        <li role="presentation">
           <button
             type="button"
-            class="hover:bg-accent flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
+            id={`${uid}-suggestion`}
+            role="option"
+            aria-selected={activeIndex === i}
+            class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
+            class:bg-accent={activeIndex === i}
+            onmousemove={() => (activeIndex = i)}
             onmousedown={(e) => {
               e.preventDefault();
               pick(member);

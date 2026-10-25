@@ -117,8 +117,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.heading}
-      aria-label={m.actic_tool_heading()}
-      title={m.actic_tool_heading()}
+      aria-label={m.editor_heading()}
+      title={m.editor_heading()}
       onclick={() => run(cycleHeading)}
     >
       <Heading class="size-4" />
@@ -127,8 +127,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.bullet}
-      aria-label={m.actic_tool_bullet()}
-      title={m.actic_tool_bullet()}
+      aria-label={m.editor_ulist()}
+      title={m.editor_ulist()}
       onclick={() => run(toggleBullet)}
     >
       <List class="size-4" />
@@ -137,8 +137,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.numbered}
-      aria-label={m.actic_tool_numbered()}
-      title={m.actic_tool_numbered()}
+      aria-label={m.editor_olist()}
+      title={m.editor_olist()}
       onclick={() => run(toggleNumbered)}
     >
       <ListOrdered class="size-4" />
@@ -150,8 +150,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.bold}
-      aria-label={m.actic_tool_bold()}
-      title={`${m.actic_tool_bold()} (Ctrl+B)`}
+      aria-label={m.editor_bold()}
+      title={`${m.editor_bold()} (Ctrl+B)`}
       onclick={() => run(toggleBold)}
     >
       <Bold class="size-4" />
@@ -160,8 +160,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.italic}
-      aria-label={m.actic_tool_italic()}
-      title={`${m.actic_tool_italic()} (Ctrl+I)`}
+      aria-label={m.editor_italic()}
+      title={`${m.editor_italic()} (Ctrl+I)`}
       onclick={() => run(toggleItalic)}
     >
       <Italic class="size-4" />
@@ -170,8 +170,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.strike}
-      aria-label={m.actic_tool_strike()}
-      title={`${m.actic_tool_strike()} (Ctrl+Shift+X)`}
+      aria-label={m.editor_strikethrough()}
+      title={`${m.editor_strikethrough()} (Ctrl+Shift+X)`}
       onclick={() => run(toggleStrike)}
     >
       <Strikethrough class="size-4" />
@@ -180,8 +180,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.code}
-      aria-label={m.actic_tool_code()}
-      title={`${m.actic_tool_code()} (Ctrl+E)`}
+      aria-label={m.editor_inlinecode()}
+      title={`${m.editor_inlinecode()} (Ctrl+E)`}
       onclick={() => run(toggleInlineCode)}
     >
       <Code class="size-4" />
@@ -189,8 +189,8 @@
     <button
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.actic_tool_codeblock()}
-      title={m.actic_tool_codeblock()}
+      aria-label={m.editor_codeblock()}
+      title={m.editor_codeblock()}
       onclick={() => run(toggleCodeBlock)}
     >
       <SquareCode class="size-4" />
@@ -201,8 +201,8 @@
     <button
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.actic_tool_link()}
-      title={`${m.actic_tool_link()} (Ctrl+K)`}
+      aria-label={m.editor_link()}
+      title={`${m.editor_link()} (Ctrl+K)`}
       onclick={() => run(insertLink)}
     >
       <Link class="size-4" />
@@ -210,8 +210,8 @@
     <button
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.actic_tool_table()}
-      title={m.actic_tool_table()}
+      aria-label={m.editor_table()}
+      title={m.editor_table()}
       onclick={() => run(insertTable)}
     >
       <Table class="size-4" />
