@@ -169,6 +169,7 @@
   "packageManager": "pnpm@9.14.4",
   "pnpm": {
     "overrides": {
+      "dompurify": "^3.4.17",
       "@prisma/generator-helper@5.14.0-dev.34": "^6.0.0",
       "@prisma/internals@5.14.0-dev.34": "^6.0.0"
     },
