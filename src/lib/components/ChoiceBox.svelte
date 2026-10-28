@@ -38,7 +38,7 @@
         group = [...group, value];
       }
     } else {
-      group = group.filter((v) => v !== value);
+      group = group.filter((v: string) => v !== value);
     }
   }
 </script>

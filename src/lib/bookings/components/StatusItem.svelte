@@ -31,7 +31,7 @@
     count: number;
   } = $props();
 
-  const descriptionColour = $derived(
+  const descriptionColor = $derived(
     variant === "DENIED" ? "text-destructive" : "text-foreground",
   );
 
@@ -48,7 +48,7 @@
       <Item.Title class={variants({ variant, mode })}
         >{translatedTitle}</Item.Title
       >
-      <Item.Description class={`mt-0 text-4xl font-bold ${descriptionColour}`}>
+      <Item.Description class={`mt-0 text-4xl font-bold ${descriptionColor}`}>
         {count}
       </Item.Description>
     </Item.Content>
@@ -56,8 +56,7 @@
 {:else}
   <Item.Root class="py-4" variant="muted">
     <Item.Content>
-      <Item.Description
-        class={`mx-auto text-3xl font-bold ${descriptionColour}`}
+      <Item.Description class={`mx-auto text-3xl font-bold ${descriptionColor}`}
         >{count}</Item.Description
       >
       <Item.Title class={variants({ variant, mode })}

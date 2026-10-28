@@ -54,8 +54,16 @@
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
   const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
 
-  const startDate = $derived(calendarEvent.start);
-  const endDate = $derived(calendarEvent.end);
+  const startDate = $derived(
+    calendarEvent.start instanceof Temporal.ZonedDateTime
+      ? calendarEvent.start
+      : calendarEvent.start.toZonedDateTime("Europe/Stockholm"),
+  );
+  const endDate = $derived(
+    calendarEvent.end instanceof Temporal.ZonedDateTime
+      ? calendarEvent.end
+      : calendarEvent.end.toZonedDateTime("Europe/Stockholm"),
+  );
 
   const currentUser = $derived(page.data.user);
   const isAdmin = $derived(isAuthorized(apiNames.BOOKINGS.UPDATE, currentUser));
@@ -137,9 +145,7 @@
   }
 </script>
 
-<div
-  class="bg-background border-border/40 w-[340px] rounded-2xl border p-6 shadow-2xl"
->
+<div class="bg-background w-[340px] rounded-2xl border p-6 shadow-lg">
   <Header title={calendarEvent.title ?? "-"} calendarId={status} />
 
   <div class="space-y-4">
