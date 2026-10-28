@@ -52,7 +52,7 @@
       form: SuperValidated<Infer<BookingSchema>>;
       bookables: Array<
         ExtendedPrismaModel<"Bookable"> & {
-          category: ExtendedPrismaModel<"BookableCategory">;
+          category: ExtendedPrismaModel<"BookableCategory"> | null;
         }
       >;
       doors: Array<ExtendedPrismaModel<"Door">>;
