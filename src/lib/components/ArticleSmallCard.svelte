@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Article } from "$lib/news/getArticles";
+  import type { ArticleSmallCardData } from "$lib/news/types";
   import dayjs from "dayjs";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
@@ -10,15 +10,7 @@
     article,
     isPreview,
   }: {
-    article: Pick<
-      Article,
-      | "slug"
-      | "imageUrl"
-      | "header"
-      | "publishedAt"
-      | "committee"
-      | "youtubeUrl"
-    >;
+    article: ArticleSmallCardData;
     isPreview: boolean;
   } = $props();
 
@@ -104,8 +96,10 @@
     >
       {article.header}
     </h2>
-    <span class="text-right font-light">
-      {dayjs(article.publishedAt).format("YYYY-MM-DD")}
-    </span>
+    {#if article.publishedAt}
+      <span class="text-right font-light">
+        {dayjs(article.publishedAt).format("YYYY-MM-DD")}
+      </span>
+    {/if}
   </div>
 </svelte:element>

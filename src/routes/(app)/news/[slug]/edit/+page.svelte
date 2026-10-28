@@ -18,12 +18,17 @@
   });
 </script>
 
+<h1 class="sr-only">{m.news_editArticle()}</h1>
+
 <ArticleEditor
   allTags={data.allTags}
   authorOptions={data.authorOptions}
   data={data.form}
   superform={superform as unknown as SuperForm<ArticleSchema>}
   committees={data.committees}
+  createdAt={data.createdAt}
+  now={data.now}
+  isEditing
   formAction="?/update"
 />
 
