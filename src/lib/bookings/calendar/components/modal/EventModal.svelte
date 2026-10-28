@@ -49,13 +49,21 @@
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import { cn } from "$lib/utils";
-  import { escapeHtml } from "$lib/utils/escapeHtml";
+  import DOMPurify from "isomorphic-dompurify";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
   const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
 
-  const startDate = $derived(calendarEvent.start);
-  const endDate = $derived(calendarEvent.end);
+  const startDate = $derived(
+    calendarEvent.start instanceof Temporal.ZonedDateTime
+      ? calendarEvent.start
+      : calendarEvent.start.toZonedDateTime("Europe/Stockholm"),
+  );
+  const endDate = $derived(
+    calendarEvent.end instanceof Temporal.ZonedDateTime
+      ? calendarEvent.end
+      : calendarEvent.end.toZonedDateTime("Europe/Stockholm"),
+  );
 
   const currentUser = $derived(page.data.user);
   const isAdmin = $derived(isAuthorized(apiNames.BOOKINGS.UPDATE, currentUser));
@@ -137,9 +145,7 @@
   }
 </script>
 
-<div
-  class="bg-background border-border/40 w-[340px] rounded-2xl border p-6 shadow-2xl"
->
+<div class="bg-background w-[340px] rounded-2xl border p-6 shadow-lg">
   <Header title={calendarEvent.title ?? "-"} calendarId={status} />
 
   <div class="space-y-4">
@@ -229,11 +235,17 @@
                     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                     {@html isOwner && !isAdmin
                       ? m.booking_deleteMyAreYouSure({
-                          bookables: escapeHtml(calendarEvent.location ?? ""),
+                          bookables: DOMPurify.sanitize(
+                            calendarEvent.location ?? "",
+                          ),
                         })
                       : m.booking_deleteAreYouSure({
-                          name: escapeHtml(bookingEvent.bookerName ?? ""),
-                          bookables: escapeHtml(calendarEvent.location ?? ""),
+                          name: DOMPurify.sanitize(
+                            bookingEvent.bookerName ?? "",
+                          ),
+                          bookables: DOMPurify.sanitize(
+                            calendarEvent.location ?? "",
+                          ),
                         })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>

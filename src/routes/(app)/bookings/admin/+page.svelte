@@ -10,7 +10,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import { enhance } from "$app/forms";
   import { cn } from "$lib/utils";
-  import { escapeHtml } from "$lib/utils/escapeHtml";
+  import DOMPurify from "isomorphic-dompurify";
   import {
     PencilIcon,
     Trash2Icon,
@@ -40,9 +40,6 @@
         status === "PENDING" && !!end && new Date(end) >= new Date(),
     ).length,
   );
-
-  const formatDateTime = (date: Date | null) =>
-    date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "";
 </script>
 
 {#snippet deleteDialog(
@@ -68,8 +65,8 @@
           <AlertDialog.Description>
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html m.booking_deleteAreYouSure({
-              name: escapeHtml(bookingRequest.booker?.firstName ?? ""),
-              bookables: escapeHtml(
+              name: DOMPurify.sanitize(bookingRequest.booker?.firstName ?? ""),
+              bookables: DOMPurify.sanitize(
                 bookingRequest.bookables.map(({ name }) => name).join(", "),
               ),
             })}
@@ -92,9 +89,9 @@
   <div
     class="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between"
   >
-    <h1 class="text-2xl font-semibold uppercase sm:text-3xl">
+    <h2>
       {m.booking_manageBookings()}
-    </h1>
+    </h2>
     <div class="flex gap-2 *:flex-1 sm:*:flex-none">
       <Button variant="outline" href="/bookings">
         <ArrowLeftIcon class="size-4" />
@@ -112,7 +109,7 @@
   <!-- MOBILE -->
   <ul class="ml-0 list-none space-y-3 md:hidden">
     {#each data.bookingRequests as bookingRequest (bookingRequest.id)}
-      <li class="bg-muted-background space-y-2 rounded-lg p-4">
+      <li class="bg-muted-background space-y-2 rounded-lg border p-4">
         <div class="flex items-start justify-between gap-3">
           <a
             href="/bookings/admin/{bookingRequest.id}"
@@ -130,9 +127,9 @@
           {bookingRequest.bookables.map(({ name }) => name).join(", ")}
         </p>
         <p class="text-muted-foreground text-sm tabular-nums">
-          {formatDateTime(bookingRequest.start)} – {formatDateTime(
+          {dayjs(bookingRequest.start).format("YYYY-MM-DD HH:mm")} – {dayjs(
             bookingRequest.end,
-          )}
+          ).format("YYYY-MM-DD HH:mm")}
         </p>
         <div class="flex items-center justify-between gap-2 pt-1">
           {#if bookingRequest.booker}
@@ -140,18 +137,13 @@
               href="/members/{bookingRequest.booker.studentId}"
               class="flex min-w-0 items-center gap-2 text-sm hover:underline"
             >
-              <MemberAvatar
-                member={bookingRequest.booker}
-                class="size-5 flex-shrink-0"
-              />
+              <MemberAvatar member={bookingRequest.booker} />
               <span class="truncate">
                 {getFullName(bookingRequest.booker, { hideNickname: true })}
               </span>
             </a>
-          {:else}
-            <span></span>
           {/if}
-          <div class="flex shrink-0 items-center gap-2">
+          <div class="ml-auto flex shrink-0 items-center gap-2">
             <Button
               variant="outline"
               size="icon"
@@ -184,13 +176,13 @@
     <Table.Root class="table-fixed">
       <Table.Header>
         <Table.Row>
-          <Table.Head class="w-[18%]">{m.booking_booking()}</Table.Head>
-          <Table.Head class="w-[12%]">{m.booking_from()}</Table.Head>
-          <Table.Head class="w-[12%]">{m.booking_until()}</Table.Head>
-          <Table.Head class="w-[20%]">{m.booking_event()}</Table.Head>
-          <Table.Head class="w-[16%]">{m.booking_responsible()}</Table.Head>
-          <Table.Head class="w-[8%]">{m.booking_status()}</Table.Head>
-          <Table.Head class="w-[14%]"></Table.Head>
+          <Table.Head>{m.booking_booking()}</Table.Head>
+          <Table.Head>{m.booking_from()}</Table.Head>
+          <Table.Head>{m.booking_until()}</Table.Head>
+          <Table.Head>{m.booking_event()}</Table.Head>
+          <Table.Head>{m.booking_responsible()}</Table.Head>
+          <Table.Head>{m.booking_status()}</Table.Head>
+          <Table.Head></Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -202,10 +194,10 @@
               {/each}
             </Table.Cell>
             <Table.Cell>
-              {formatDateTime(bookingRequest.start)}
+              {dayjs(bookingRequest.start).format("YYYY-MM-DD HH:mm")}
             </Table.Cell>
             <Table.Cell>
-              {formatDateTime(bookingRequest.end)}
+              {dayjs(bookingRequest.end).format("YYYY-MM-DD HH:mm")}
             </Table.Cell>
             <Table.Cell
               class="max-w-0 truncate"

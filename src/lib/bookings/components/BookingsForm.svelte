@@ -6,13 +6,11 @@
   import { superForm } from "$lib/utils/client/superForms";
   import { zod4Client } from "sveltekit-superforms/adapters";
   import * as Card from "$lib/components/ui/card/index";
-  import * as ToggleGroup from "$lib/components/ui/toggle-group/index.js";
   import {
     ArchiveIcon,
     Calendar1Icon,
     CalendarCheckIcon,
     CalendarIcon,
-    CircleCheckBigIcon,
     ClockIcon,
     DoorOpenIcon,
     PartyPopperIcon,
@@ -20,6 +18,7 @@
     CheckIcon,
     UsersIcon,
     XIcon,
+    CircleAlert,
   } from "@lucide/svelte";
   import Calendar from "$lib/components/ui/calendar/calendar.svelte";
   import * as Popover from "$lib/components/ui/popover/index.js";
@@ -39,6 +38,9 @@
   } from "$lib/bookings/stickyBottom";
   import * as m from "$paraglide/messages";
   import { untrack } from "svelte";
+  import ChoiceBox from "$lib/components/ChoiceBox.svelte";
+  import * as Alert from "$lib/components/ui/alert";
+  import DOMPurify from "isomorphic-dompurify";
 
   const {
     data,
@@ -48,7 +50,11 @@
   }: {
     data: {
       form: SuperValidated<Infer<BookingSchema>>;
-      bookables: Array<ExtendedPrismaModel<"Bookable">>;
+      bookables: Array<
+        ExtendedPrismaModel<"Bookable"> & {
+          category: ExtendedPrismaModel<"BookableCategory"> | null;
+        }
+      >;
       doors: Array<ExtendedPrismaModel<"Door">>;
       currentMemberSearchAttributes?:
         | (MemberSearchReturnAttributes & { id: string })
@@ -69,6 +75,25 @@
     }),
   );
   const bookables = $derived(data.bookables);
+
+  const groupedBookables = $derived(
+    Object.values(
+      bookables.reduce(
+        (acc, bookable) => {
+          const catId = bookable.category?.id ?? "uncategorized";
+          const catName = bookable.category?.name ?? m.booking_other();
+
+          if (!acc[catId]) {
+            acc[catId] = { categoryName: catName, items: [] };
+          }
+          acc[catId].items.push(bookable);
+          return acc;
+        },
+        {} as Record<string, { categoryName: string; items: typeof bookables }>,
+      ),
+    ),
+  );
+
   const doors = $derived(data.doors);
 
   const { form: formData, enhance } = $derived(form);
@@ -113,8 +138,6 @@
 
   const sectionClass =
     "gap-3 border-none px-0.5 py-5 *:px-4 md:pt-8 md:pb-9 md:*:px-6";
-  const toggleItemClass =
-    "group data-[state=on]:bg-primary/10 data-[state=on]:text-primary bg-muted hover:bg-primary/10 hover:text-primary h-auto justify-start rounded-md border-none px-3 py-4 text-sm font-medium whitespace-normal transition-all duration-100 ease-out hover:-translate-y-0.5 active:scale-95 sm:px-4 sm:py-8 sm:text-base";
 
   const splitDateTime = (value: string | undefined) => {
     if (!value) return { date: undefined, time: "" };
@@ -166,9 +189,15 @@
       $formData.end = nextEnd;
     }
   });
+
+  const boardRoomId = "99854837-fdb9-4dba-85fc-86a5c514253c";
+  let showBoardRoomWarning = $derived(
+    $formData.bookables.includes(boardRoomId),
+  );
 </script>
 
 <div class="layout-container lg:w-3/5">
+  <h2 class="mb-4">Skapa bokning</h2>
   <form class="space-y-2 md:space-y-8" method="POST" use:enhance>
     {#if booking}
       <input hidden name="id" type="text" value={booking.id} />
@@ -198,14 +227,14 @@
                             {...test}
                             variant="outline"
                             disabled={readOnly}
-                            class="bg-muted hover:bg-muted w-full justify-between border-none font-normal"
+                            class="w-full justify-between font-normal"
                           >
+                            <CalendarIcon />
                             {selectedStartDate
                               ? selectedStartDate
                                   .toDate(getLocalTimeZone())
                                   .toLocaleDateString()
                               : m.booking_selectDate()}
-                            <CalendarIcon />
                           </Button>
                         {/snippet}
                       </Popover.Trigger>
@@ -233,7 +262,7 @@
                       step="60"
                       disabled={readOnly}
                       bind:value={startTime}
-                      class="bg-muted w-full cursor-pointer appearance-none border-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                      class="bg-muted-background w-full cursor-pointer appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                     >
                       <ClockIcon class="text-foreground" />
                     </Input>
@@ -275,14 +304,14 @@
                             {...test}
                             variant="outline"
                             disabled={readOnly}
-                            class="bg-muted hover:bg-muted w-full justify-between border-none font-normal"
+                            class="w-full justify-between font-normal"
                           >
+                            <CalendarIcon />
                             {selectedEndDate
                               ? selectedEndDate
                                   .toDate(getLocalTimeZone())
                                   .toLocaleDateString()
                               : m.booking_selectDate()}
-                            <CalendarIcon />
                           </Button>
                         {/snippet}
                       </Popover.Trigger>
@@ -312,7 +341,7 @@
                       step="60"
                       disabled={readOnly}
                       bind:value={endTime}
-                      class="bg-muted w-full cursor-pointer appearance-none border-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                      class="bg-muted-background w-full cursor-pointer appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                     >
                       <ClockIcon class="text-foreground" />
                     </Input>
@@ -332,30 +361,6 @@
       </Form.Field>
     </div>
 
-    {#snippet bookableItem(props: object, value: string, label: string)}
-      <ToggleGroup.Item
-        {...props}
-        {value}
-        disabled={readOnly}
-        aria-label={label}
-        class={toggleItemClass}
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          {label}
-          <CircleCheckBigIcon
-            class="text-primary size-5 scale-75 transform-gpu opacity-0 transition-all duration-100 ease-in group-data-[state=on]:scale-100 group-data-[state=on]:opacity-100"
-          />
-        </div>
-        <input
-          class="hidden"
-          {...props}
-          type="checkbox"
-          bind:group={$formData.bookables}
-          {value}
-          disabled={readOnly}
-        />
-      </ToggleGroup.Item>
-    {/snippet}
     <Card.Root class={sectionClass}>
       <Card.Header>
         <Card.Title
@@ -367,49 +372,43 @@
       </Card.Header>
       <Card.Content>
         <Form.Fieldset {form} name="bookables">
-          <ToggleGroup.Root
-            bind:value={$formData.bookables}
-            variant="outline"
-            type="multiple"
-            spacing={3}
-            disabled={readOnly}
-            class="grid w-full grid-cols-2"
-          >
-            {#each bookables as bookable (bookable.id)}
-              <Form.Control>
-                {#snippet children({ props })}
-                  {@render bookableItem(props, bookable.id, bookable.name)}
-                {/snippet}
-              </Form.Control>
-            {/each}
-          </ToggleGroup.Root>
+          {#each groupedBookables as category (category.categoryName)}
+            <h6 class="text-muted-foreground">{category.categoryName}</h6>
+
+            <div class="grid w-full grid-cols-2 gap-2">
+              {#each category.items as bookable (bookable.id)}
+                <Form.Control>
+                  {#snippet children({ props })}
+                    <ChoiceBox
+                      {...props}
+                      title={bookable.name}
+                      value={bookable.id}
+                      disabled={readOnly}
+                      bind:group={$formData.bookables}
+                      aria-label={bookable.name}
+                    />
+                  {/snippet}
+                </Form.Control>
+              {/each}
+            </div>
+          {/each}
           <Form.FieldErrors />
         </Form.Fieldset>
       </Card.Content>
     </Card.Root>
 
-    {#snippet doorItem(props: object, value: string, label: string)}
-      <ToggleGroup.Item
-        {...props}
-        {value}
-        aria-label={label}
-        class={toggleItemClass}
-      >
-        <div class="flex w-full items-center justify-between gap-3">
-          {label}
-          <CircleCheckBigIcon
-            class="text-primary size-5 scale-75 transform-gpu opacity-0 transition-all duration-100 ease-in group-data-[state=on]:scale-100 group-data-[state=on]:opacity-100"
-          />
-        </div>
-        <input
-          class="hidden"
-          {...props}
-          type="checkbox"
-          bind:group={$formData.accessDoors}
-          {value}
-        />
-      </ToggleGroup.Item>
-    {/snippet}
+    {#if showBoardRoomWarning}
+      <Alert.Root variant="warning">
+        <Alert.Title class="flex flex-row items-center gap-2 text-lg"
+          ><CircleAlert class="size-6" /> {m.booking_boardRoom()}</Alert.Title
+        >
+        <Alert.Description class="inline">
+          <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
+          {@html DOMPurify.sanitize(m.booking_boardRoomWarning())}
+        </Alert.Description>
+      </Alert.Root>
+    {/if}
+
     <Card.Root class={sectionClass}>
       <Card.Header>
         <Card.Title
@@ -421,21 +420,22 @@
       </Card.Header>
       <Card.Content>
         <Form.Fieldset {form} name="accessDoors">
-          <ToggleGroup.Root
-            bind:value={$formData.accessDoors}
-            variant="outline"
-            type="multiple"
-            spacing={3}
-            class="grid w-full grid-cols-2"
-          >
+          <div class="grid w-full grid-cols-2 gap-2">
             {#each doors as door (door.name)}
               <Form.Control>
                 {#snippet children({ props })}
-                  {@render doorItem(props, door.name, door.verboseName)}
+                  <ChoiceBox
+                    {...props}
+                    title={door.verboseName}
+                    value={door.name}
+                    disabled={readOnly}
+                    bind:group={$formData.accessDoors}
+                    aria-label={door.verboseName}
+                  />
                 {/snippet}
               </Form.Control>
             {/each}
-          </ToggleGroup.Root>
+          </div>
           <Form.FieldErrors />
         </Form.Fieldset>
       </Card.Content>
@@ -484,7 +484,6 @@
                   {...props}
                   bind:value={$formData.name}
                   disabled={readOnly}
-                  class="bg-muted border-none"
                   placeholder={m.booking_eventPlaceholder()}
                 />
               </Card.Content>
@@ -525,20 +524,12 @@
         class="{stickyBottomClass} bg-background sticky z-10 -mx-4 flex gap-3 px-4 py-3 *:flex-1 md:static md:mx-0 md:justify-end md:p-0 md:*:flex-none"
         style:bottom={stickyBottom}
       >
-        <Button
-          variant="outline"
-          size="lg"
-          class="py-6 text-base font-bold md:py-7"
-          href={backHref}
-        >
+        <Button variant="outline" size="lg" href={backHref}>
           {m.booking_goBack()}
         </Button>
-        <Form.Button
-          size="lg"
-          class="flex items-center justify-center gap-3 py-6 text-base font-bold md:py-7 md:has-[>svg]:px-10"
-        >
+        <Form.Button size="lg">
           {mode === "edit" ? m.save() : m.booking_sendRequest()}
-          <SendHorizontalIcon class="size-5" />
+          <SendHorizontalIcon />
         </Form.Button>
       </div>
     {/if}
