@@ -1,5 +1,4 @@
 <script lang="ts">
-  import * as ToggleGroup from "$lib/components/ui/toggle-group";
   import type { WithElementRef } from "$lib/utils";
   import { onMount } from "svelte";
   import * as m from "$paraglide/messages";

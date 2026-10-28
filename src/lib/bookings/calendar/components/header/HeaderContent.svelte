@@ -4,13 +4,13 @@
   import Separator from "$lib/components/ui/separator/separator.svelte";
   import Navigation from "./Navigation.svelte";
   import Filters from "./Filters.svelte";
-  import { bookingMonthLabels } from "$lib/bookings/calendar/dateUtils";
   import { page } from "$app/state";
   import { getBookingViewFilter } from "$lib/bookings/filters";
   import * as m from "$paraglide/messages";
   import { Plus } from "@lucide/svelte";
   import { Button } from "$lib/components/ui/button";
   import ViewSwitcher from "./ViewSwitcher.svelte";
+  import dayjs from "dayjs";
 
   type CalendarAppParams = ConstructorParameters<typeof CalendarApp>[0];
 
@@ -22,8 +22,7 @@
     >,
   );
   let currentDate = $derived(calendarControls.getDate());
-  const currentMonth = $derived(bookingMonthLabels[currentDate.month - 1]);
-  const currentYear = $derived(currentDate.year);
+  let dCurrentDate = $derived(dayjs(currentDate.toString()));
 
   const viewLabels: Record<string, string> = {
     day: m.booking_dayView(),
@@ -63,17 +62,14 @@
 <div class="sx-calendar:p-4">
   <!-- MOBILE -->
   <div class="sx-calendar:hidden mb-5">
-    <Filters
-      class="flex w-full justify-center rounded-md border border-[var(--sx-color-outline-variant)]"
-      currentValue={initialFilter}
-    />
+    <Filters currentValue={initialFilter} />
   </div>
 
   <div class="sx-calendar:block flex items-center">
     <div class="sx-calendar:block flex flex-col">
-      <span class="sx-calendar:text-4xl text-3xl font-semibold"
-        >{currentMonth + " " + currentYear}</span
-      >
+      <h2 class="font-semibold capitalize">
+        {dCurrentDate.format("MMMM YYYY")}
+      </h2>
 
       <!-- MOBILE -->
       <div class="sx-calendar:hidden flex items-center gap-2">

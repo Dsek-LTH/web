@@ -2,8 +2,8 @@
   import { Button } from "$lib/components/ui/button";
   import { X } from "@lucide/svelte";
   import {
-    bgColoursModal,
-    shadowColoursModal,
+    bgColorsModal,
+    shadowColorsModal,
     type CalendarStatusCategory,
   } from "../../config";
 
@@ -11,16 +11,14 @@
     $props();
 
   const status = $derived((calendarId ?? "PENDING") as CalendarStatusCategory);
-  const bgColour = $derived(bgColoursModal[status]);
-  const shadow = $derived(shadowColoursModal[status]);
+  const bgColor = $derived(bgColorsModal[status]);
+  const shadow = $derived(shadowColorsModal[status]);
 </script>
 
-<div class="mb-6 flex items-start justify-between">
+<div class="mb-6 flex items-center justify-between">
   <div class="flex items-center gap-2 pt-1">
-    <div class={`h-3 w-3 rounded-[3px] ${bgColour} ${shadow}`}></div>
-    <span
-      class="-mt-[1px] text-lg leading-none font-black tracking-tight uppercase"
-    >
+    <div class={`h-3 w-3 rounded-[3px] ${bgColor} ${shadow}`}></div>
+    <span class="-mt-[1px] text-lg leading-none font-black tracking-tight">
       {title}
     </span>
   </div>

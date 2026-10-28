@@ -40,6 +40,7 @@
   import { untrack } from "svelte";
   import ChoiceBox from "$lib/components/ChoiceBox.svelte";
   import * as Alert from "$lib/components/ui/alert";
+  import DOMPurify from "isomorphic-dompurify";
 
   const {
     data,
@@ -371,7 +372,7 @@
       </Card.Header>
       <Card.Content>
         <Form.Fieldset {form} name="bookables">
-          {#each groupedBookables as category}
+          {#each groupedBookables as category (category.categoryName)}
             <h6 class="text-muted-foreground">{category.categoryName}</h6>
 
             <div class="grid w-full grid-cols-2 gap-2">
@@ -402,7 +403,8 @@
           ><CircleAlert class="size-6" /> {m.booking_boardRoom()}</Alert.Title
         >
         <Alert.Description class="inline">
-          {@html m.booking_boardRoomWarning()}
+          <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
+          {@html DOMPurify.sanitize(m.booking_boardRoomWarning())}
         </Alert.Description>
       </Alert.Root>
     {/if}
