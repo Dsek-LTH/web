@@ -1198,7 +1198,6 @@
   "news_notification_send": "Send notification?",
   "news_notification_text": "Notification text",
   "news_youtube_url": "Youtube URL",
-  "news_play_video": "Play video: {title}",
   "news_notification_explanation": "The notification text. If left empty, the beginning of the article body will be used.",
   "news_committee": "Committee",
   "member_edit_profile": "Edit profile",
