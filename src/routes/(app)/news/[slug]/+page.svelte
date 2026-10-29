@@ -1,5 +1,6 @@
 <script>
   import AuthorCard from "$lib/components/AuthorCard.svelte";
+  import CommentSection from "$lib/components/comments/CommentSection.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
@@ -27,7 +28,17 @@
   likeForm={data.likeForm}
   canEdit={data.canEdit}
   canDelete={data.canDelete}
-  ><div class="flex flex-row items-center gap-2">
+>
+  {#snippet after()}
+    <CommentSection
+      type="NEWS"
+      comments={article.comments}
+      taggedMembers={data.allTaggedMembers}
+      commentForm={data.commentForm}
+      removeCommentForm={data.removeCommentForm}
+    />
+  {/snippet}
+  <div class="flex flex-row items-center gap-2">
     <AuthorCard
       member={article.author.member}
       customAuthor={article.author.customAuthor}
@@ -38,5 +49,5 @@
           class="text-muted-foreground">{article.committee.name}</span
         >
       </div>{/if}
-  </div></Article
->
+  </div>
+</Article>

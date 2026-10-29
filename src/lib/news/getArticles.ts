@@ -30,6 +30,9 @@ const include = {
     include: {
       member: true,
     },
+    orderBy: {
+      published: "desc" as const,
+    },
   },
   likers: true,
   tags: true,

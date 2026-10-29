@@ -27,6 +27,9 @@ const include = {
     include: {
       member: true,
     },
+    orderBy: {
+      published: "desc" as const,
+    },
   },
   going: true,
   interested: true,

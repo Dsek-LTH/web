@@ -22,6 +22,7 @@
     canEdit,
     canDelete,
     children,
+    after,
     likeForm,
   }: {
     article: ExtendedPrismaModel<"Article"> & {
@@ -31,6 +32,8 @@
     canEdit: boolean;
     canDelete: boolean;
     children?: Snippet;
+    /** Shown below the like list, for example the comment section. */
+    after?: Snippet;
     likeForm: SuperValidated<LikeSchema>;
   } = $props();
 </script>
@@ -68,6 +71,7 @@
   <Separator class="mt-8" orientation="horizontal" />
   <LikeButton likers={article.likers} {likeForm} articleId={article.id} />
   <LikersList likers={article.likers} />
+  {@render after?.()}
 </main>
 
 {#snippet removeArticle()}

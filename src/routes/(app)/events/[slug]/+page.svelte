@@ -13,6 +13,7 @@
   import Event from "../Event.svelte";
   import InterestedGoingButtons from "../InterestedGoingButtons.svelte";
   import InterestedGoingList from "../InterestedGoingList.svelte";
+  import CommentSection from "$lib/components/comments/CommentSection.svelte";
 
   let { data } = $props();
 
@@ -55,6 +56,13 @@
 
   {#snippet after()}
     <InterestedGoingList interested={event.interested} going={event.going} />
+    <CommentSection
+      type="EVENT"
+      comments={event.comments}
+      taggedMembers={data.allTaggedMembers}
+      commentForm={data.commentForm}
+      removeCommentForm={data.removeCommentForm}
+    />
   {/snippet}
 </Event>
 

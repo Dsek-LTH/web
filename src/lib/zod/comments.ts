@@ -8,9 +8,10 @@ import { zod4 } from "sveltekit-superforms/adapters";
 
 import { z } from "zod";
 import DOMPurify from "isomorphic-dompurify";
+import * as m from "$paraglide/messages";
 
 export const commentSchema = z.object({
-  content: z.string().min(1),
+  content: z.string().trim().min(1).max(255),
 });
 export type CommentSchema = Infer<typeof commentSchema>;
 
@@ -53,7 +54,7 @@ export const commentAction =
         return message(
           form,
           {
-            message: 'Kommentar skickades inte. "Invalid comment entity type"',
+            message: m.comments_errors_invalidEntity(),
             type: "error",
           },
           {
@@ -62,8 +63,8 @@ export const commentAction =
         );
     }
     return message(form, {
-      message: "Kommentar skickad",
-      type: "hidden",
+      message: m.comments_posted(),
+      type: "success",
     });
   };
 
@@ -94,8 +95,7 @@ export const removeCommentAction =
         return message(
           form,
           {
-            message:
-              'Kommentar kunde inte tas bort. "Invalid comment entity type"',
+            message: m.comments_errors_invalidEntity(),
             type: "error",
           },
           {
@@ -104,7 +104,7 @@ export const removeCommentAction =
         );
     }
     return message(form, {
-      message: "Kommentar borttagen",
+      message: m.comments_removed(),
       type: "success",
     });
   };
