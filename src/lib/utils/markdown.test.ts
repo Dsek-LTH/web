@@ -50,6 +50,7 @@ describe("renderMarkdown", () => {
     expect(html).toContain("allowfullscreen");
     expect(html).toContain("sandbox=");
     expect(html).toContain("loading=");
+    expect(html).not.toContain('allow="');
   });
 
   it("strips srcdoc, event handlers, and javascript iframe sources", () => {
@@ -92,6 +93,16 @@ describe("renderMarkdownExcerpt", () => {
     const html = renderMarkdownExcerpt(`<img src="x" onerror="alert('xss')">`);
 
     expect(html).not.toContain("onerror");
+  });
+
+  it("removes embedded media", () => {
+    const html = renderMarkdownExcerpt(
+      '<iframe src="https://www.youtube.com/embed/abc"></iframe><video src="https://example.com/video.mp4"></video><audio src="https://example.com/audio.mp3"></audio>',
+    );
+
+    expect(html).not.toContain("<iframe");
+    expect(html).not.toContain("<video");
+    expect(html).not.toContain("<audio");
   });
 });
 

@@ -51,6 +51,7 @@
 
   let { icon, foreground, background } = $derived(data[severity])!;
   const Icon = $derived(icon);
+  const html = $derived(renderMarkdown(message));
 
   let closeAlert = () =>
     fetch("/api/closeAlert", {
@@ -73,7 +74,7 @@
 
   <div class="text-lg font-bold [&_a]:underline">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdown -->
-    {@html renderMarkdown(message)}
+    {@html html}
   </div>
 
   <Button class={foreground} variant="ghost" onclick={closeAlert}>

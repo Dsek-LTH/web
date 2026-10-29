@@ -39,6 +39,8 @@ export const renderMarkdown = (
   return sanitizeHtml(html);
 };
 
-/** Renders a sanitized card excerpt without links or headings. */
+/** Renders a sanitized card excerpt without links, headings, or media. */
 export const renderMarkdownExcerpt = (markdown: string): string =>
-  sanitizeHtml(excerptMarked.parse(markdown, { async: false }));
+  sanitizeHtml(excerptMarked.parse(markdown, { async: false }), {
+    forbidTags: ["iframe", "video", "audio"],
+  });
