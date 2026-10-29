@@ -306,7 +306,9 @@
       type="text"
       id="youtubeUrl"
       name="youtubeUrl"
-      placeholder="https://youtube.com/v/..."><Play /></Input
+      placeholder="https://youtube.com/v/..."
+      aria-invalid={!!$errors.youtubeUrl}
+      aria-errormessage={$errors.youtubeUrl?.at(0)}><Play /></Input
     >
   </div>
   <div class="flex w-full flex-row justify-between gap-1.5">

@@ -5,6 +5,9 @@
   import { Marked } from "marked";
   import type { Tokens } from "marked";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
+  import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
+  import { getYoutubeVideoId } from "$lib/utils/youtube";
+  import Play from "@lucide/svelte/icons/play";
 
   let {
     article,
@@ -19,11 +22,24 @@
       | "body"
       | "createdAt"
       | "committee"
+      | "youtubeUrl"
     >;
     index: number;
   } = $props();
 
+  const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
+  const articleUrl = $derived(`/news/${article.slug}`);
   let failedImageUrl = $state<string | null>(null);
+  let unavailableVideoId = $state<string | null>(null);
+
+  const videoUnavailable = $derived(
+    !!videoId && unavailableVideoId === videoId,
+  );
+  const coverImageVisible = $derived(
+    (!videoId || videoUnavailable) &&
+      !!article.imageUrl &&
+      failedImageUrl !== article.imageUrl,
+  );
 
   const renderer = {
     // this removes links in the article preview, preventing svelte hydration issues
@@ -54,10 +70,9 @@
   class="hover:bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] border-border flex flex-col rounded-xl border-[1px] p-4 duration-300"
   style="animation-delay:{index * 50}ms"
 >
-  <a href={"/news/" + article.slug}>
-    <!-- The placeholder stays underneath: a broken image paints nothing, and
-         mounting it unconditionally also covers failures that happen before
-         hydration (when the error event has no listener yet). -->
+  <a href={articleUrl} class="group block">
+    <!-- The placeholder stays underneath: a broken image paints nothing,
+         and this also covers failures before hydration. -->
     <div
       class="bg-muted-background relative aspect-[2/1] w-full shrink-0 overflow-hidden rounded-md"
     >
@@ -67,7 +82,7 @@
           class="absolute inset-0"
         />
       </div>
-      {#if article.imageUrl && failedImageUrl !== article.imageUrl}
+      {#if coverImageVisible}
         {@const url = article.imageUrl}
         {#key url}
           <img
@@ -87,6 +102,23 @@
           />
         {/key}
       {/if}
+      {#if videoId}
+        <YoutubeThumbnail
+          {videoId}
+          class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          onunavailable={() => (unavailableVideoId = videoId)}
+        />
+        <span
+          class="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors group-hover:bg-black/10"
+          aria-hidden="true"
+        >
+          <span
+            class="flex size-14 items-center justify-center rounded-full bg-black/70 text-white shadow-lg backdrop-blur-sm"
+          >
+            <Play class="ml-1 size-6 fill-current" />
+          </span>
+        </span>
+      {/if}
     </div>
     <h3 class="mt-2 px-2">
       {article.header}
@@ -94,8 +126,8 @@
     <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
       <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
       {@html previewMarked.parse(article.body)}
-    </div></a
-  >
+    </div>
+  </a>
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
     <AuthorCard
       member={article.author.member}
