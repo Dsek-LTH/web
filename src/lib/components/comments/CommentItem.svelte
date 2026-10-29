@@ -11,7 +11,7 @@
   } from "$lib/utils/client/commentTagging";
   import { relativeDate } from "$lib/utils/client/datetime";
   import { getFullName } from "$lib/utils/client/member";
-  import { superForm } from "$lib/utils/client/superForms";
+  import { superForm, toastFormMessage } from "$lib/utils/client/superForms";
   import type { RemoveCommentSchema } from "$lib/zod/comments";
   import * as m from "$paraglide/messages";
   import Reply from "@lucide/svelte/icons/reply";
@@ -39,6 +39,7 @@
   const { errors, constraints, enhance } = superForm(removeCommentForm, {
     id: comment.id,
     invalidateAll: true,
+    onResult: ({ result }) => toastFormMessage(result),
   });
 
   const content = $derived(
@@ -55,7 +56,7 @@
     href="/members/{comment.member.studentId}"
     class="shrink-0 transition-opacity hover:opacity-80"
   >
-    <MemberAvatar member={comment.member} class="size-9" />
+    <MemberAvatar member={comment.member} />
   </a>
 
   <div class="flex min-w-0 flex-1 flex-col gap-1">

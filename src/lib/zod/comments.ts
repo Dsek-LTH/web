@@ -64,7 +64,7 @@ export const commentAction =
     }
     return message(form, {
       message: m.comments_posted(),
-      type: "hidden",
+      type: "success",
     });
   };
 

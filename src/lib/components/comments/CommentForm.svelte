@@ -7,7 +7,7 @@
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { debounce } from "$lib/utils/debounce";
   import { getFullName } from "$lib/utils/client/member";
-  import { superForm } from "$lib/utils/client/superForms";
+  import { superForm, toastFormMessage } from "$lib/utils/client/superForms";
   import { getMentionText } from "$lib/utils/client/commentTagging";
   import type { CommentSchema } from "$lib/zod/comments";
   import * as m from "$paraglide/messages";
@@ -31,6 +31,7 @@
     {
       resetForm: true,
       invalidateAll: true,
+      onResult: ({ result }) => toastFormMessage(result),
     },
   );
 
@@ -193,7 +194,7 @@
   onsubmit={closeMention}
 >
   <div class="flex gap-3">
-    <MemberAvatar member={author} class="size-9 shrink-0" />
+    <MemberAvatar member={author} class="shrink-0" />
     <div class="flex min-w-0 flex-1 flex-col gap-2">
       <Textarea
         bind:ref={textarea}
