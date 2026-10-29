@@ -4,6 +4,7 @@ import {
   getYoutubeEmbedUrlFromUrl,
   getYoutubeThumbnailUrl,
   getYoutubeVideoId,
+  nextYoutubeThumbnailQuality,
 } from "./youtube";
 
 describe("getYoutubeVideoId", () => {
@@ -67,10 +68,17 @@ describe("getYoutubeEmbedUrl", () => {
 describe("getYoutubeThumbnailUrl", () => {
   it("builds a thumbnail url", () => {
     expect(getYoutubeThumbnailUrl("dQw4w9WgXcQ")).toBe(
-      "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/sddefault.jpg",
     );
     expect(getYoutubeThumbnailUrl("dQw4w9WgXcQ", "hqdefault")).toBe(
       "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
     );
+  });
+});
+
+describe("nextYoutubeThumbnailQuality", () => {
+  it("falls back from sd to hq, then stops", () => {
+    expect(nextYoutubeThumbnailQuality("sddefault")).toBe("hqdefault");
+    expect(nextYoutubeThumbnailQuality("hqdefault")).toBeNull();
   });
 });

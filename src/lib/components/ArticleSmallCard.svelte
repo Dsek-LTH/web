@@ -28,7 +28,9 @@
   let loadedVideoId = $state<string | null>(null);
   const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
   const imageVisible = $derived(
-    !!article.imageUrl && failedImageUrl !== article.imageUrl,
+    (!videoId || failedVideoId === videoId) &&
+      !!article.imageUrl &&
+      failedImageUrl !== article.imageUrl,
   );
   const imageReady = $derived(
     imageVisible && loadedImageUrl === article.imageUrl,
@@ -76,14 +78,12 @@
   {/if}
   {#if videoId && videoVisible}
     {@const id = videoId}
-    {#key id}
-      <YoutubeThumbnail
-        videoId={id}
-        class="absolute inset-0 size-full object-cover"
-        onready={() => (loadedVideoId = id)}
-        onunavailable={() => (failedVideoId = id)}
-      />
-    {/key}
+    <YoutubeThumbnail
+      videoId={id}
+      class="absolute inset-0 size-full object-cover"
+      onready={() => (loadedVideoId = id)}
+      onunavailable={() => (failedVideoId = id)}
+    />
   {/if}
   {#if coverReady}
     <div class="absolute top-2 right-2 size-14 p-3">

@@ -1,7 +1,7 @@
 const VIDEO_ID_PATTERN = /^[\w-]{11}$/;
 const NOCOOKIE_EMBED_ORIGIN = "https://www.youtube-nocookie.com";
 
-export type YoutubeThumbnailQuality = "maxresdefault" | "hqdefault";
+export type YoutubeThumbnailQuality = "sddefault" | "hqdefault";
 
 function toVideoId(candidate: string | null | undefined): string | null {
   return candidate && VIDEO_ID_PATTERN.test(candidate) ? candidate : null;
@@ -81,8 +81,15 @@ export function getYoutubeEmbedUrlFromUrl(
 
 export function getYoutubeThumbnailUrl(
   videoId: string,
-  quality: YoutubeThumbnailQuality = "maxresdefault",
+  quality: YoutubeThumbnailQuality = "sddefault",
 ): string {
   const id = assertVideoId(videoId);
   return `https://i.ytimg.com/vi/${id}/${quality}.jpg`;
+}
+
+/** Returns the next thumbnail size to try, or null when none are left. */
+export function nextYoutubeThumbnailQuality(
+  quality: YoutubeThumbnailQuality,
+): YoutubeThumbnailQuality | null {
+  return quality === "sddefault" ? "hqdefault" : null;
 }

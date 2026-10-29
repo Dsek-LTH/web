@@ -103,13 +103,11 @@
         {/key}
       {/if}
       {#if videoId}
-        {#key videoId}
-          <YoutubeThumbnail
-            {videoId}
-            class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            onunavailable={() => (unavailableVideoId = videoId)}
-          />
-        {/key}
+        <YoutubeThumbnail
+          {videoId}
+          class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          onunavailable={() => (unavailableVideoId = videoId)}
+        />
         <span
           class="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors group-hover:bg-black/10"
           aria-hidden="true"
