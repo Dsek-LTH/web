@@ -8,6 +8,7 @@ import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
 import { authorize } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
@@ -26,8 +27,8 @@ export const actions: Actions = {
     await prisma.markdown.create({
       data: {
         name: slugify(name),
-        markdownSv,
-        markdownEn,
+        markdownSv: sanitizeHtml(markdownSv),
+        markdownEn: markdownEn ? sanitizeHtml(markdownEn) : markdownEn,
       },
     });
     throw redirect(

@@ -4,6 +4,7 @@ import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "sveltekit-flash-message/server";
 import { electionSchema } from "../../schemas";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 import * as m from "$paraglide/messages";
 import dayjs from "dayjs";
 
@@ -58,8 +59,8 @@ export const actions: Actions = {
     await prisma.election.update({
       where: { id },
       data: {
-        markdownSv,
-        markdownEn,
+        markdownSv: sanitizeHtml(markdownSv),
+        markdownEn: markdownEn ? sanitizeHtml(markdownEn) : markdownEn,
         link,
         expiresAt: dayjs(expiresAt).endOf("day").toDate(),
         committeeId,
