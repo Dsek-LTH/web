@@ -6,7 +6,7 @@ import type {
 /** The committee fields needed by the article form and its previews. */
 export type CommitteeOption = Pick<
   ExtendedPrismaModel<"Committee">,
-  "id" | "nameSv" | "nameEn" | "shortName" | "symbolUrl"
+  "id" | "name" | "nameSv" | "nameEn" | "shortName" | "symbolUrl"
 >;
 
 export const getCommitteeOptions = (
@@ -15,6 +15,7 @@ export const getCommitteeOptions = (
   prisma.committee.findMany({
     select: {
       id: true,
+      name: true,
       nameSv: true,
       nameEn: true,
       shortName: true,

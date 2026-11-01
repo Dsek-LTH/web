@@ -8,8 +8,6 @@
     preview = false,
   }: { body: string; class?: string; preview?: boolean } = $props();
 
-  const html = $derived(marked(body));
-
   /**
    * Keep links visible and styled like the published article, but block
    * navigation while the editor preview is mounted.
@@ -47,5 +45,5 @@
   )}
 >
   <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-  {@html html}
+  {@html marked(body)}
 </section>

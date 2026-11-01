@@ -31,7 +31,6 @@
   import { type SuperForm } from "sveltekit-superforms";
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-  import type { CommitteeOption } from "$lib/news/committees";
   import type { ArticleSchema } from "$lib/news/schema";
   import type { AuthorOption } from "$lib/news/getArticles";
   import { Spinner } from "$lib/components/ui/spinner";
@@ -52,27 +51,13 @@
     activeTab: "sv" | "en";
     superform: SuperForm<ArticleSchema>;
     authorOptions: AuthorOption[];
-    committees: CommitteeOption[];
+    committees: Array<Pick<ExtendedPrismaModel<"Committee">, "id" | "name">>;
     action?: string;
   } = $props();
 
   const { form, errors, enhance, delayed } = $derived(superform);
 
   const tz = getLocalTimeZone();
-
-  const getCommitteeName = (committee: (typeof committees)[number]) =>
-    activeTab === "en" && committee.nameEn
-      ? committee.nameEn
-      : committee.nameSv;
-
-  const selectedCommittee = $derived(
-    committees.find((committee) => committee.id === $form.committeeId),
-  );
-  const sortedCommittees = $derived(
-    [...committees].sort((c1, c2) =>
-      getCommitteeName(c1).localeCompare(getCommitteeName(c2)),
-    ),
-  );
 
   // These are immutable objects that are only re-assigned,
   // so using $state.raw avoids overhead.
@@ -247,15 +232,12 @@
       name="committeeId"
     >
       <Select.Trigger class="w-full"
-        ><Users />{selectedCommittee
-          ? getCommitteeName(selectedCommittee)
-          : ""}</Select.Trigger
+        ><Users />{committees.find((_) => _.id == $form.committeeId)?.name ??
+          ""}</Select.Trigger
       >
       <Select.Content side="bottom">
-        {#each sortedCommittees as committee (committee.id)}
-          <Select.Item value={committee.id}
-            >{getCommitteeName(committee)}</Select.Item
-          >
+        {#each committees.sort( (c1, c2) => c1.name.localeCompare(c2.name), ) as committee (committee.id)}
+          <Select.Item value={committee.id}>{committee.name}</Select.Item>
         {/each}
       </Select.Content>
     </Select.Root>
