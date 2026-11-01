@@ -3,32 +3,20 @@
 
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
   import { getLocale } from "$paraglide/runtime";
-  import type { Locale } from "$paraglide/runtime";
+  const { data }: { data: ArticleSearchReturnAttributes } = $props();
   import dayjs from "dayjs";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
-
-  let {
-    data,
-    language,
-    isPreview = false,
-  }: {
-    data: ArticleSearchReturnAttributes;
-    language?: Locale;
-    isPreview?: boolean;
-  } = $props();
-
-  const activeLanguage = $derived(language ?? getLocale());
-  const header = $derived(
-    activeLanguage === "en" && data.headerEn ? data.headerEn : data.headerSv,
-  );
 </script>
 
-{#snippet content()}
+<Command.LinkItem
+  class="flex w-full flex-row justify-between"
+  href={`/news/${data.slug}`}
+>
   <div class="flex w-full flex-col">
     <div class="flex w-full flex-row justify-between">
       <span class="line-clamp-1 font-medium">
-        {header}
+        {getLocale() === "sv" ? data.headerSv : data.headerEn}
       </span>
       <div class="text-muted-foreground">
         {dayjs(data.publishedAt).format("YYYY-MM-DD")}
@@ -43,21 +31,4 @@
       >
     </div>
   </div>
-{/snippet}
-
-{#if isPreview}
-  <Command.Item
-    class="flex w-full flex-row justify-between"
-    tabindex={-1}
-    aria-disabled="true"
-  >
-    {@render content()}
-  </Command.Item>
-{:else}
-  <Command.LinkItem
-    class="flex w-full flex-row justify-between"
-    href={`/news/${data.slug}`}
-  >
-    {@render content()}
-  </Command.LinkItem>
-{/if}
+</Command.LinkItem>

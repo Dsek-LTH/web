@@ -10,9 +10,6 @@
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
-  import ArticleSearchResult from "./ArticleSearchResult.svelte";
-  import CommandArticleSearchResult from "$lib/components/search/ArticleSearchResult.svelte";
-  import * as Command from "$lib/components/ui/command";
   import type { CommitteeOption } from "$lib/news/committees";
   import { buildArticlePreview } from "$lib/news/preview";
   import * as m from "$paraglide/messages";
@@ -96,16 +93,6 @@
     committee: preview.committee,
     youtubeUrl: $form.youtubeUrl ?? null,
   });
-
-  const previewSearchResult = $derived({
-    headerSv: $form.headerSv,
-    headerEn: $form.headerEn,
-    bodySv: $form.bodySv ?? "",
-    bodyEn: $form.bodyEn,
-    slug: "",
-    publishedAt: preview.cardPublishedAt,
-    author: $form.author.member,
-  });
 </script>
 
 <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:*:w-1/2 sm:*:min-w-0">
@@ -168,39 +155,6 @@
             {m.news_listing_preview()}
           </h4>
           <ArticleCard article={previewCardArticle} index={0} isPreview />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <div class="flex min-w-0 flex-col gap-3">
-          <h4
-            class="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
-          >
-            {m.news_search_preview()}
-          </h4>
-          <ArticleSearchResult
-            data={previewSearchResult}
-            language={activeTab}
-            isPreview
-          />
-        </div>
-        <div class="flex min-w-0 flex-col gap-3">
-          <h4
-            class="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
-          >
-            {m.news_command_preview()}
-          </h4>
-          <Command.Root class="border-border rounded-lg border-[1px]">
-            <Command.List class="max-h-none overflow-visible">
-              <Command.Group>
-                <CommandArticleSearchResult
-                  data={previewSearchResult}
-                  language={activeTab}
-                  isPreview
-                />
-              </Command.Group>
-            </Command.List>
-          </Command.Root>
         </div>
       </div>
     </div>

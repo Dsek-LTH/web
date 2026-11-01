@@ -4,36 +4,18 @@
   import type { ArticleSearchReturnAttributes } from "$lib/search/searchTypes";
   import { getFullName } from "$lib/utils/client/member";
   import { getLocale } from "$paraglide/runtime";
-  import type { Locale } from "$paraglide/runtime";
+  const { data }: { data: ArticleSearchReturnAttributes } = $props();
   import dayjs from "dayjs";
-
-  let {
-    data,
-    language,
-    isPreview = false,
-  }: {
-    data: ArticleSearchReturnAttributes;
-    language?: Locale;
-    isPreview?: boolean;
-  } = $props();
-
-  const activeLanguage = $derived(language ?? getLocale());
-  const header = $derived(
-    activeLanguage === "en" && data.headerEn ? data.headerEn : data.headerSv,
-  );
 </script>
 
-<svelte:element
-  this={isPreview ? "div" : "a"}
-  href={isPreview ? undefined : `/news/${data.slug}`}
->
+<a href={`/news/${data.slug}`}>
   <div
     class="flex w-full flex-row justify-between border-t-[1px] border-b-[1px] p-4"
   >
     <div class="flex w-full flex-col">
       <div class="flex w-full flex-row justify-between">
         <span class="line-clamp-1 font-medium">
-          {header}
+          {getLocale() === "sv" ? data.headerSv : data.headerEn}
         </span>
         <div class="text-muted-foreground">
           {dayjs(data.publishedAt).format("YYYY-MM-DD")}
@@ -49,4 +31,4 @@
       </div>
     </div>
   </div>
-</svelte:element>
+</a>
