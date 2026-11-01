@@ -69,16 +69,6 @@ describe("renderMarkdown", () => {
 
     expect(html).toBe("<strong>bold</strong>");
   });
-
-  it("renders links as spans in preview mode", () => {
-    const html = renderMarkdown("Read [the article](/news/example).", {
-      preview: true,
-    });
-
-    expect(html).toContain("the article");
-    expect(html).not.toContain("<a ");
-    expect(html).not.toContain("href=");
-  });
 });
 
 describe("renderMarkdownExcerpt", () => {

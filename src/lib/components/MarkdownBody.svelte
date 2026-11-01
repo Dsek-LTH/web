@@ -2,13 +2,9 @@
   import { renderMarkdown } from "$lib/utils/markdown";
   import { twMerge } from "tailwind-merge";
 
-  let {
-    body,
-    class: klass,
-    preview = false,
-  }: { body: string; class?: string; preview?: boolean } = $props();
+  let { body, class: klass }: { body: string; class?: string } = $props();
 
-  const html = $derived(renderMarkdown(body, { preview }));
+  const html = $derived(renderMarkdown(body));
 </script>
 
 <section
