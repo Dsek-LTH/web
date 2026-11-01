@@ -1,4 +1,3 @@
-import { sanitizeHtml } from "$lib/utils/sanitize";
 import type { ArticleCommitteeSummary, ArticleContentData } from "./types";
 
 export type PreviewLanguage = "sv" | "en";
@@ -132,8 +131,7 @@ export const buildArticlePreview = ({
   return {
     article: {
       header: getPreviewHeader(form, language),
-      // Match the server write path, which sanitizes the markdown source.
-      body: sanitizeHtml(getPreviewBody(form, language)),
+      body: getPreviewBody(form, language),
       createdAt,
       imageUrls,
       tags: previewTags,
