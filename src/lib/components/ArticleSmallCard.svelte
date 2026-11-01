@@ -96,10 +96,8 @@
     >
       {article.header}
     </h2>
-    {#if article.publishedAt}
-      <span class="text-right font-light">
-        {dayjs(article.publishedAt).format("YYYY-MM-DD")}
-      </span>
-    {/if}
+    <span class="text-right font-light">
+      {dayjs(article.publishedAt).format("YYYY-MM-DD")}
+    </span>
   </div>
 </svelte:element>
