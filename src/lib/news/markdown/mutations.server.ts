@@ -3,7 +3,7 @@ import { type ExtendedPrisma } from "$lib/server/extendedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
 import type { AuthUser } from "@zenstackhq/runtime";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 
 export const updateMarkdown = async (
   user: AuthUser,
@@ -26,9 +26,9 @@ export const updateMarkdown = async (
       name: markdown.name,
     },
     data: {
-      markdownSv: DOMPurify.sanitize(markdown.markdownSv),
+      markdownSv: sanitizeHtml(markdown.markdownSv),
       markdownEn: markdown.markdownEn
-        ? DOMPurify.sanitize(markdown.markdownEn)
+        ? sanitizeHtml(markdown.markdownEn)
         : markdown.markdownEn,
     },
   });

@@ -7,6 +7,7 @@ import { message, superValidate, withFiles } from "sveltekit-superforms/server";
 import { updateCommitteeBody, updateCommitteeSchema } from "./types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 
 /**
  * Load all data that every committee load function needs
@@ -202,8 +203,8 @@ export const committeeActions = (
       await prisma.markdown.create({
         data: {
           name: markdownSlug,
-          markdownSv,
-          markdownEn,
+          markdownSv: sanitizeHtml(markdownSv),
+          markdownEn: markdownEn ? sanitizeHtml(markdownEn) : markdownEn,
         },
       });
 

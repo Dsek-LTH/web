@@ -10,7 +10,7 @@ import { type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 import {
   isScheduleFailure,
   scheduleExecution,
@@ -87,8 +87,8 @@ export const createArticle: Action = async (event) => {
       slug,
       headerSv: headerSv,
       headerEn: headerEn,
-      bodySv: DOMPurify.sanitize(bodySv),
-      bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
+      bodySv: sanitizeHtml(bodySv),
+      bodyEn: bodyEn ? sanitizeHtml(bodyEn) : bodyEn,
       ...rest,
       shouldSendNotification,
       notificationText,
@@ -258,8 +258,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         slug: slug,
       },
       data: {
-        bodySv: DOMPurify.sanitize(bodySv),
-        bodyEn: bodyEn ? DOMPurify.sanitize(bodyEn) : bodyEn,
+        bodySv: sanitizeHtml(bodySv),
+        bodyEn: bodyEn ? sanitizeHtml(bodyEn) : bodyEn,
         publishedAt,
         shouldSendNotification: sendNotification,
         notificationText: notificationText,

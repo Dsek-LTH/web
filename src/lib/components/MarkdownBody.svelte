@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { marked } from "marked";
+  import { renderMarkdown } from "$lib/utils/markdown";
   import { twMerge } from "tailwind-merge";
 
   let { body, class: klass }: { body: string; class?: string } = $props();
+
+  const html = $derived(renderMarkdown(body));
 </script>
 
 <section
@@ -11,6 +13,6 @@
     klass,
   )}
 >
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-  {@html marked(body)}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized by renderMarkdown -->
+  {@html html}
 </section>

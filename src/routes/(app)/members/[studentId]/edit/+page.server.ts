@@ -16,7 +16,7 @@ import { v4 as uuid } from "uuid";
 import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "../types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
@@ -201,7 +201,7 @@ export const actions: Actions = {
     await prisma.member.update({
       where: { studentId },
       data: {
-        bio: bio ? DOMPurify.sanitize(bio) : bio,
+        bio: bio ? sanitizeHtml(bio) : bio,
         ...rest,
       },
     });

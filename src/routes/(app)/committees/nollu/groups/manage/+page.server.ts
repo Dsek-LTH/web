@@ -4,7 +4,7 @@ import {
 } from "$lib/nollning/groups/types";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -84,7 +84,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     form.data.description = form.data.description
-      ? DOMPurify.sanitize(form.data.description)
+      ? sanitizeHtml(form.data.description)
       : form.data.description;
     await prisma.phadderGroup.create({
       data: form.data,
@@ -99,7 +99,7 @@ export const actions = {
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
     form.data.description = form.data.description
-      ? DOMPurify.sanitize(form.data.description)
+      ? sanitizeHtml(form.data.description)
       : form.data.description;
     const res = await prisma.phadderGroup.update({
       where: {

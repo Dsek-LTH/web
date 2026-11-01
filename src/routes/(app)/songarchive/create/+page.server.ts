@@ -8,7 +8,7 @@ import { slugifySongTitle } from "./helpers";
 import { getExistingCategories, getExistingMelodies } from "../helpers";
 import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 import { redirect } from "sveltekit-flash-message/server";
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -38,11 +38,11 @@ export const actions: Actions = {
     const now = new Date();
     const result = await prisma.song.create({
       data: {
-        title: DOMPurify.sanitize(title),
+        title: sanitizeHtml(title),
         slug: await slugifySongTitle(prisma, title),
         melody: melody.trim(),
         category: category.trim(),
-        lyrics: DOMPurify.sanitize(lyrics),
+        lyrics: sanitizeHtml(lyrics),
         video: video?.trim() || null,
         createdAt: now,
         updatedAt: now,

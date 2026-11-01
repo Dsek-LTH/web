@@ -8,7 +8,7 @@
 <script lang="ts">
   import { browser, dev } from "$app/environment";
   import { onMount } from "svelte";
-  import { marked } from "marked";
+  import { renderMarkdown } from "$lib/utils/markdown";
   import bioFrame from "./bio.html?raw";
   import { mode } from "mode-watcher";
 
@@ -55,10 +55,10 @@
 
   let srcdoc = $derived(
     bioFrame
-      .replace("%STYLESHEETS%", stylesheets)
-      .replace("%CSS%", css)
-      .replace("%BIO%", marked(bio ?? "") as string)
-      .replace("%THEME%", mode.current ?? "light"),
+      .replace("%STYLESHEETS%", () => stylesheets)
+      .replace("%CSS%", () => css)
+      .replace("%BIO%", () => renderMarkdown(bio ?? ""))
+      .replace("%THEME%", () => mode.current ?? "light"),
   );
 </script>
 

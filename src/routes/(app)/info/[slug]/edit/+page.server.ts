@@ -7,7 +7,7 @@ import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { updateMarkdown } from "$lib/news/markdown/mutations.server";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -46,9 +46,9 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
-    form.data.markdownSv = DOMPurify.sanitize(form.data.markdownSv);
+    form.data.markdownSv = sanitizeHtml(form.data.markdownSv);
     form.data.markdownEn = form.data.markdownEn
-      ? DOMPurify.sanitize(form.data.markdownEn)
+      ? sanitizeHtml(form.data.markdownEn)
       : form.data.markdownEn;
     // read the form data sent by the browser
     await prisma.markdown.create({

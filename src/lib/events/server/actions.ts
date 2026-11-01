@@ -16,7 +16,7 @@ import { error, type Action } from "@sveltejs/kit";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { generateOccurrences, retimeOccurrence } from "$lib/events/recurrence";
 import type dayjs from "dayjs";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeHtml } from "$lib/utils/sanitize";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 
@@ -89,9 +89,9 @@ export const createEvent: Action = async (event) => {
       id: tag.id,
     }));
   // sanitize
-  eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
+  eventData.descriptionSv = sanitizeHtml(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
-    ? DOMPurify.sanitize(eventData.descriptionEn)
+    ? sanitizeHtml(eventData.descriptionEn)
     : eventData.descriptionEn;
 
   if (isRecurring) {
@@ -211,9 +211,9 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     ...eventData
   } = recurringEventData;
 
-  eventData.descriptionSv = DOMPurify.sanitize(eventData.descriptionSv);
+  eventData.descriptionSv = sanitizeHtml(eventData.descriptionSv);
   eventData.descriptionEn = eventData.descriptionEn
-    ? DOMPurify.sanitize(eventData.descriptionEn)
+    ? sanitizeHtml(eventData.descriptionEn)
     : eventData.descriptionEn;
   const committee = await resolveCommittee(prisma, committeeId);
   if (committee) eventData.organizer = committee.nameSv;

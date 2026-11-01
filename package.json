@@ -59,7 +59,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/table-core": "^8.21.3",
     "@types/eslint": "^9.6.1",
-    "@types/node": "^22.10.1",
+    "@types/node": "^24.19.2",
     "@types/node-schedule": "^2.1.7",
     "@types/nodemailer": "^6.4.17",
     "@types/uuid": "^10.0.0",
@@ -141,7 +141,7 @@
     "express": "^4.21.1",
     "ics": "^3.8.1",
     "import-in-the-middle": "^2.0.1",
-    "isomorphic-dompurify": "^2.18.0",
+    "isomorphic-dompurify": "^4.6.0",
     "markdown-to-txt": "^2.0.1",
     "marked": "^15.0.3",
     "meilisearch": "^0.45.0",
@@ -164,7 +164,7 @@
     "vite-plugin-cjs-interop": "^2.1.6"
   },
   "engines": {
-    "node": "<=26"
+    "node": "^24.15.0 || >=26.0.0"
   },
   "packageManager": "pnpm@9.14.4",
   "pnpm": {
