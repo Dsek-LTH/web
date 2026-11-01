@@ -21,8 +21,6 @@
     };
 
     node.addEventListener("click", blockNavigation, true);
-    node.addEventListener("auxclick", blockNavigation, true);
-    node.addEventListener("contextmenu", blockNavigation, true);
 
     return {
       update(nextEnabled: boolean) {
@@ -30,8 +28,6 @@
       },
       destroy() {
         node.removeEventListener("click", blockNavigation, true);
-        node.removeEventListener("auxclick", blockNavigation, true);
-        node.removeEventListener("contextmenu", blockNavigation, true);
       },
     };
   }
