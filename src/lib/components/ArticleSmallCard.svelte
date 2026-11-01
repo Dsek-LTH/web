@@ -100,7 +100,7 @@
     ]}
   >
     <h2
-      class="line-clamp-2 overflow-hidden text-3xl leading-6 lg:text-xl 2xl:text-3xl 2xl:leading-8"
+      class="line-clamp-2 overflow-hidden text-3xl leading-6 break-words lg:text-xl 2xl:text-3xl 2xl:leading-8"
     >
       {article.header}
     </h2>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Article } from "$lib/news/getArticles";
+  import type { ArticleCardData } from "$lib/news/types";
   import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
   import { Marked } from "marked";
@@ -13,17 +13,7 @@
     article,
     index,
   }: {
-    article: Pick<
-      Article,
-      | "author"
-      | "slug"
-      | "imageUrl"
-      | "header"
-      | "body"
-      | "createdAt"
-      | "committee"
-      | "youtubeUrl"
-    >;
+    article: ArticleCardData;
     index: number;
   } = $props();
 
@@ -120,10 +110,12 @@
         </span>
       {/if}
     </div>
-    <h3 class="mt-2 px-2">
+    <h3 class="mt-2 px-2 break-words">
       {article.header}
     </h3>
-    <div class="prose-p:text-foreground line-clamp-2 px-2 overflow-ellipsis">
+    <div
+      class="prose-p:text-foreground line-clamp-2 px-2 break-words overflow-ellipsis"
+    >
       <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
       {@html previewMarked.parse(article.body)}
     </div>
@@ -133,6 +125,7 @@
       member={article.author.member}
       customAuthor={article.author.customAuthor}
       position={article.author.mandate?.position}
+      type={article.author.type}
     />
     <span class="text-muted-foreground"
       >{dayjs(article.createdAt).format("YYYY-MM-DD")}</span
