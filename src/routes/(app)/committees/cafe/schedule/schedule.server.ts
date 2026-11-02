@@ -1,253 +1,126 @@
 import type { Actions, PageServerLoadEvent } from "./$types";
-import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
-import { committeeLoad } from "../../committee.server";
 import * as m from "$paraglide/messages";
-import { error, fail } from "@sveltejs/kit";
-import { TimeSlot } from "../types";
+import { error, fail, type NumericRange } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
+import { serverApi } from "$lib/server/apiClient";
+import { TimeSlot, editWeeklyCiabattaSchema, scheduleForm } from "../types";
 
-import dayjs from "dayjs";
+// Week math, the cafe:see_all_weeks viewing window, and every shift rule
+// (day managers, sign-up/quit deadlines, editing others' shifts) are Go's
+// (GET /cafe/schedule, PUT /cafe/shifts, PUT /cafe/ciabatta - see
+// backend/CLAUDE.md's Cafe routes section). The committee itself comes
+// from the committees layout.
+export const scheduleLoad = async (event: PageServerLoadEvent) => {
+  const { url } = event;
+  const api = serverApi(event);
+  const weekParam = url.searchParams.get("week");
+  const yearParam = url.searchParams.get("year");
 
-import weekYear from "dayjs/plugin/weekYear";
-import weekOfYear from "dayjs/plugin/weekOfYear";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import type { AuthUser } from "@zenstackhq/runtime";
-import { editWeeklyCiabattaSchema, scheduleForm } from "../types";
-
-dayjs.extend(weekOfYear);
-dayjs.extend(weekYear);
-
-function getWeek(weekString: string | null, user: AuthUser): dayjs.Dayjs {
-  const currentWeek = dayjs().startOf("week");
-  const weekNum = Number(weekString ?? currentWeek.week());
-  if (!isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user)) {
-    if (weekNum < currentWeek.week() || weekNum > currentWeek.week() + 2) {
+  const scheduleRes = await api.GET("/cafe/schedule", {
+    params: {
+      query: {
+        ...(weekParam ? { week: Number(weekParam) } : {}),
+        ...(yearParam ? { year: Number(yearParam) } : {}),
+      },
+    },
+  });
+  if (scheduleRes.error) {
+    if (scheduleRes.response.status === 403) {
       error(403, { message: m.cafe_error_no_week_viewing_perms() });
     }
+    error((scheduleRes.response.status as NumericRange<400, 599>) ?? 500, {
+      message: "Failed to load cafe schedule",
+    });
   }
-  return dayjs()
-    .startOf("year")
-    .add(weekNum - 1, "week");
-}
 
-export const scheduleLoad = async ({ locals, url }: PageServerLoadEvent) => {
-  const { user, prisma } = locals;
-
-  const targetWeek = getWeek(url.searchParams.get("week"), user);
-
-  const openingHours = prisma.markdown.findMany({
-    where: {
-      name: {
-        startsWith: "cafe:open",
-      },
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
-
-  const shifts = prisma.cafeShift.findMany({
-    where: {
-      date: {
-        gte: targetWeek.startOf("week").toDate(),
-        lte: targetWeek.endOf("week").toDate(),
-      },
-    },
-    include: {
-      worker: true,
-    },
-    orderBy: { date: "asc" },
-  });
-
-  const ciabattaOfTheWeek = prisma.ciabattaOfTheWeek.findFirst({
-    where: {
-      year: targetWeek.year(),
-      week: targetWeek.week(),
-    },
-  });
-
-  return committeeLoad(prisma, "cafe", url).then(async (data) => ({
-    ...data,
-    openingHours: await openingHours,
-    shifts: await shifts,
-    ciabattaOfTheWeek: await ciabattaOfTheWeek,
-    week: targetWeek.week(),
-  }));
+  return {
+    shifts: scheduleRes.data.shifts ?? [],
+    ciabattaOfTheWeek: scheduleRes.data.ciabatta ?? null,
+    week: scheduleRes.data.week,
+  };
 };
 
+export type ScheduleLoadData = Awaited<ReturnType<typeof scheduleLoad>>;
+
 export const scheduleActions = (): Actions => ({
-  updateSchedule: async ({ request, locals }) => {
-    const { user, prisma } = locals;
+  // Go's PUT /cafe/shifts collapses sign-up/quit/reassign into one
+  // toggle-based endpoint (see internal/cafe.Service.SetShift's doc
+  // comment) - this action just translates its result into the same
+  // message keys the old prisma-based version used.
+  updateSchedule: async (event) => {
+    const { request, locals } = event;
     const form = await superValidate(request, zod4(scheduleForm));
     if (!form.valid) return fail(400, { form });
 
     const { date, worker, timeSlot } = form.data;
+    const targetStudentId = worker || locals.user?.studentId || "";
 
-    const parsedDate = dayjs(date, "YYYY-MM-DD", true);
-    if (!parsedDate.isValid()) {
-      return fail(400, { form });
-    }
-    const startOfDay = parsedDate.startOf("day").toDate();
-    const nextDay = parsedDate.add(1, "day").startOf("day").toDate();
-
-    const member = worker || user.studentId;
-    if (!member) {
-      return fail(400, { form });
-    }
-    const isSetByAdmin = isAuthorized(apiNames.CAFE.EDIT_WORKERS, user);
-    if (member != user.studentId) {
-      if (!isAuthorized(apiNames.CAFE.EDIT_WORKERS, user)) {
-        return message(form, {
-          message: m.cafe_error_no_edit_worker_perms(),
-          type: "error",
-        });
-      }
-    }
-    const dayShifts = await prisma.cafeShift.findMany({
-      where: { date: { gte: startOfDay, lt: nextDay } },
-      include: { worker: { select: { studentId: true } } },
+    const res = await serverApi(event).PUT("/cafe/shifts", {
+      body: { date, timeSlot, studentId: worker || undefined },
     });
 
-    const cafeShift = dayShifts.find((shift) => shift.timeSlot == timeSlot);
-
-    const isDayManager = isAuthorized(apiNames.CAFE.DAY_MANAGER, user);
-    if (!cafeShift) {
-      if (timeSlot == TimeSlot.DAYMANAGER && !isDayManager && !isSetByAdmin) {
+    if (res.error) {
+      if (res.response.status === 403) {
         return message(form, {
-          message: m.cafe_error_only_daymanagers(),
+          message:
+            timeSlot === TimeSlot.DAYMANAGER
+              ? m.cafe_error_only_daymanagers()
+              : m.cafe_error_no_edit_worker_perms(),
           type: "error",
         });
       }
-      if (!isSetByAdmin && parsedDate.isBefore(dayjs(), "day")) {
-        return message(form, {
-          message: m.cafe_error_sign_on_after(),
-          type: "error",
-        });
-      }
-      // Check if the user already has a shift
-      const tempShift = dayShifts.filter(
-        (shift) =>
-          shift.timeSlot != timeSlot &&
-          shift.worker.studentId == user.studentId,
-      );
-      if (!isSetByAdmin && tempShift.length === 1) {
-        return message(form, {
-          message: m.cafe_error_already_have_shift(),
-          type: "error",
-        });
-      }
-      try {
-        await prisma.cafeShift.create({
-          data: {
-            date: startOfDay,
-            worker: {
-              connect: {
-                studentId: member,
-              },
-            },
-            timeSlot: timeSlot,
-          },
-        });
-      } catch (error: unknown) {
-        // Ugly (but afaik only) way to catch specifically when a valid member studentId isn't passed in.
-        // This requires less db calls then first checking the member.
-        if (
-          error instanceof PrismaClientKnownRequestError &&
-          error.code === "P2025"
-        ) {
-          return message(form, {
-            message: m.cafe_error_worker_not_exist({ name: member }),
-            type: "error",
-          });
-        }
-        throw error;
-      }
-    } else {
-      // There is already a shift.
-      if (cafeShift.worker.studentId === member) {
-        const shiftDate = dayjs(cafeShift.date);
-        if (isSetByAdmin || shiftDate > dayjs().add(1, "day")) {
-          await prisma.cafeShift.delete({ where: { id: cafeShift.id } });
-          return message(form, {
-            message:
-              member === user.studentId
-                ? m.cafe_quit_shift()
-                : m.cafe_quit_shift_for_other({ name: member }),
-            type: "success",
-          });
-        } else {
-          return message(form, {
-            message:
-              shiftDate > dayjs().subtract(1, "day")
-                ? m.cafe_error_sign_off_close()
-                : m.cafe_error_sign_off_after(),
-            type: "error",
-          });
-        }
-      } else {
-        // There is already a shift in this location, but it is not attributed to the user we are trying to edit.
-        if (isSetByAdmin) {
-          await prisma.cafeShift.update({
-            where: { id: cafeShift.id },
-            data: {
-              worker: {
-                connect: {
-                  studentId: member,
-                },
-              },
-            },
-          });
-        } else {
-          return fail(403, {
-            message: m.cafe_error_no_edit_worker_perms(),
-            type: "error",
-          });
-        }
-      }
+      // Go's 400 details name the broken rule; map them back onto the
+      // old messages.
+      const detail = res.error.detail ?? "";
+      const msg = detail.includes("does not exist")
+        ? m.cafe_error_worker_not_exist({ name: targetStudentId })
+        : detail.includes("in the past")
+          ? m.cafe_error_sign_on_after()
+          : detail.includes("already have a shift")
+            ? m.cafe_error_already_have_shift()
+            : detail.includes("too close")
+              ? m.cafe_error_sign_off_close()
+              : detail || m.cafe_error_no_edit_worker_perms();
+      return message(form, { message: msg, type: "error" });
     }
 
+    const isSelf = targetStudentId === locals.user?.studentId;
+    if (res.data.action === "quit") {
+      return message(form, {
+        message: isSelf
+          ? m.cafe_quit_shift()
+          : m.cafe_quit_shift_for_other({ name: targetStudentId }),
+        type: "success",
+      });
+    }
     return message(form, {
-      message:
-        member === user.studentId
-          ? m.cafe_signed_up()
-          : m.cafe_signed_up_for_other({ name: member }),
+      message: isSelf
+        ? m.cafe_signed_up()
+        : m.cafe_signed_up_for_other({ name: targetStudentId }),
       type: "success",
     });
   },
 
-  editWeeklyCiabatta: async ({ request, locals }) => {
-    const { user, prisma } = locals;
-    const form = await superValidate(request, zod4(editWeeklyCiabattaSchema));
+  editWeeklyCiabatta: async (event) => {
+    const form = await superValidate(
+      event.request,
+      zod4(editWeeklyCiabattaSchema),
+    );
     if (!form.valid) return fail(400, { form });
-    if (!isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user)) {
+
+    const res = await serverApi(event).PUT("/cafe/ciabatta", {
+      body: form.data,
+    });
+    if (res.error) {
       return message(form, {
         message: m.cafe_error_no_ciabatta_edit_perms(),
         type: "error",
       });
     }
-    await prisma.ciabattaOfTheWeek.upsert({
-      where: {
-        year_week: {
-          year: form.data.year,
-          week: form.data.week,
-        },
-      },
-      update: {
-        name: form.data.name,
-      },
-      create: {
-        year: form.data.year,
-        week: form.data.week,
-        name: form.data.name,
-      },
-    });
     return message(form, {
       message: m.cafe_changed_ciabatta(),
       type: "success",
     });
   },
 });
-
-export type ScheduleLoadData = Awaited<ReturnType<typeof scheduleLoad>>;

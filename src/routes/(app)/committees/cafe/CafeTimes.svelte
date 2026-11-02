@@ -7,8 +7,9 @@
   import Pen from "@lucide/svelte/icons/pen";
   import { Save, X } from "@lucide/svelte";
   import { Input } from "$lib/components/ui/input";
-  import { enhanceWithToast } from "$lib/stores/toast";
-  import { updateHours } from "./times.remote";
+  import { enhance } from "$app/forms";
+  import { toast } from "$lib/stores/toast";
+  import type { SubmitFunction } from "@sveltejs/kit";
   import type { PageData } from "./$types";
 
   let { openingHours }: { openingHours: PageData["openingHours"] } = $props();
@@ -16,6 +17,18 @@
   let isEditing = $state(false);
 
   dayjs.extend(LocaleData);
+
+  const toastResult: SubmitFunction =
+    () =>
+    async ({ result, update }) => {
+      if (result.type === "success" || result.type === "failure") {
+        const message = result.data?.["message"];
+        if (typeof message === "string" && message) {
+          toast(message, result.type === "success" ? "success" : "error");
+        }
+      }
+      await update({ reset: false });
+    };
 </script>
 
 <Card.Root class="h-fit">
@@ -44,7 +57,12 @@
         >
           <p class="capitalize">{weekday}</p>
           {#if isEditing}
-            <form class="flex gap-4" {...enhanceWithToast(updateHours.for(i))}>
+            <form
+              class="flex gap-4"
+              method="POST"
+              action="?/updateHours"
+              use:enhance={toastResult}
+            >
               <input
                 hidden
                 type="text"

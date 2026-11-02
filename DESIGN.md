@@ -2135,6 +2135,17 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       act through Go; `$lib/bookings/server/queries.ts`'s
       `normalizeBooking` turns Go's JSON (string dates, nullable lists)
       into the shape upstream's components were written against.
+    - **Cafe** (upstream #1310 and its follow-ups): no Go changes - the
+      Phase 8 cafe API already covered everything the redesign does; only
+      its frontend wiring moved, since upstream split the page into the
+      committee page (with opening hours) and `/committees/cafe/schedule`
+      (shifts and ciabatta). Upstream's `times.remote.ts` (editing one
+      weekday's opening hours) became the page's `updateHours` form
+      action, per this phase's remote-function decision. Go's 400 details
+      for a refused shift change are mapped back onto the old per-rule
+      messages. `committeeActions`' params type was widened to an
+      optional `shortName` so the cafe route (which has none) type-checks,
+      as upstream did.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

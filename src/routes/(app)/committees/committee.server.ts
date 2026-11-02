@@ -7,11 +7,13 @@ import { updateCommitteeBody, updateCommitteeSchema } from "./types";
 
 export const committeeActions = (
   shortName?: string,
-): Actions<{ shortName: string }> => ({
+): Actions<{ shortName?: string }> => ({
   updateCommitteeMarkdown: async (event) => {
     const { params, request } = event;
     const api = serverApi(event);
-    const sn = shortName ?? params.shortName;
+    // The cafe page passes its committee explicitly (its route has no
+    // [shortName] param).
+    const sn = shortName ?? params.shortName ?? "";
     const form = await superValidate(request, zod4(updateCommitteeBody));
     if (!form.valid) return fail(400);
 
@@ -44,7 +46,9 @@ export const committeeActions = (
   updateCommitteeDetails: async (event) => {
     const { params, request } = event;
     const api = serverApi(event);
-    const sn = shortName ?? params.shortName;
+    // The cafe page passes its committee explicitly (its route has no
+    // [shortName] param).
+    const sn = shortName ?? params.shortName ?? "";
     const form = await superValidate(request, zod4(updateCommitteeSchema), {
       allowFiles: true,
     });

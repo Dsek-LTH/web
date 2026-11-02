@@ -4,7 +4,8 @@
   import { goto } from "$app/navigation";
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import type { AuthUser } from "@zenstackhq/runtime";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
+  import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
   import { cn } from "$lib/utils";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -131,14 +132,30 @@
 
   let editing: boolean = $state(false);
 
-  type Member = ExtendedPrismaModel<"Member">;
+  // The shape MemberSelector works with.
+  type Member = Omit<MemberSearchReturnAttributes, "fullName"> & {
+    id?: string;
+  };
+  const toSelectorMember = (
+    worker: components["schemas"]["Member"],
+  ): Member => ({
+    id: worker.id,
+    firstName: worker.firstName ?? null,
+    lastName: worker.lastName ?? null,
+    nickname: worker.nickname ?? null,
+    studentId: worker.studentId ?? null,
+    picturePath: worker.picturePath ?? null,
+    classYear: worker.classYear ?? null,
+    classProgramme: worker.classProgramme ?? null,
+  });
 
   let memberMap: Record<string, Member | undefined> = $state({});
 
   $effect(() => {
     const newMap: Record<string, Member | undefined> = {};
     for (const shift of shifts) {
-      newMap[getKey(dayjs(shift.date), shift.timeSlot)] = shift.worker;
+      newMap[getKey(dayjs(shift.date), shift.timeSlot as TimeSlot)] =
+        toSelectorMember(shift.worker);
     }
     memberMap = newMap;
   });
