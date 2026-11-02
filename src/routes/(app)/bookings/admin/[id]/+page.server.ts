@@ -13,7 +13,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
   authorize(apiNames.BOOKINGS.UPDATE, user);
 
-  const bookables = await prisma.bookable.findMany();
+  const bookables = await authorizedPrismaClient.bookable.findMany({
+    include: { category: true },
+  });
   const doors = await authorizedPrismaClient.door.findMany();
   const booking = await getBookingRequestOrThrow(prisma, params.id);
   const form = await getSuperValidatedBookingForm(booking);
