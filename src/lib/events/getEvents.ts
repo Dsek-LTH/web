@@ -1,7 +1,6 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import type { Prisma } from "@prisma/client";
-import dayjs from "dayjs";
 
 export type EventFilters = {
   tags?: string[];
@@ -15,10 +14,8 @@ export type EventSpan =
       span: "past" | "upcoming";
     }
   | {
-      weekStartingAt: Date;
-    }
-  | {
-      monthStartingAt: Date;
+      startingAt: Date;
+      endingAt: Date;
     };
 
 const include = {
@@ -126,13 +123,8 @@ export const getEvents = async (
       after = now;
     }
   } else {
-    if ("weekStartingAt" in filters) {
-      after = filters.weekStartingAt;
-      before = dayjs(filters.weekStartingAt).add(1, "week").toDate();
-    } else {
-      after = filters.monthStartingAt;
-      before = dayjs(filters.monthStartingAt).add(1, "month").toDate();
-    }
+    after = filters.startingAt;
+    before = filters.endingAt;
   }
 
   const where: Prisma.EventWhereInput = {

@@ -1,4 +1,6 @@
 import { getEvents, type EventSpan } from "$lib/events/getEvents";
+import { getMonthRange } from "$lib/events/monthCalendar";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import { interestedGoingSchema } from "$lib/events/schema";
 import { getAllTags } from "$lib/news/tags";
 import {
@@ -15,6 +17,8 @@ import { z } from "zod";
 const displaySchema = z.enum(["week", "month", "upcoming", "past"]);
 export type Display = z.infer<typeof displaySchema>;
 
+const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+
 const eventPageLoad =
   (adminMode = false) =>
   async ({ locals, url }: ServerLoadEvent) => {
@@ -24,12 +28,23 @@ const eventPageLoad =
       url.searchParams.get("display") ?? "week",
     );
 
+    const requestedMonth = monthSchema.safeParse(url.searchParams.get("month"));
+    const monthKey = requestedMonth.success
+      ? requestedMonth.data
+      : dayjs().tz(APP_TIMEZONE).format("YYYY-MM");
+
     let spanFilter: EventSpan;
 
     if (display === "week") {
-      spanFilter = { weekStartingAt: dayjs().startOf("day").toDate() };
+      // Keep the week view's existing server-local window unchanged for now.
+      const start = dayjs().startOf("day");
+      spanFilter = {
+        startingAt: start.toDate(),
+        endingAt: start.add(1, "week").toDate(),
+      };
     } else if (display === "month") {
-      spanFilter = { monthStartingAt: dayjs().startOf("month").toDate() };
+      const { startingAt, endingAt } = getMonthRange(monthKey);
+      spanFilter = { startingAt, endingAt };
     } else {
       const pageSize = getPageSizeOrThrowSvelteError(url);
       // The upper bound depends on the search/tag filters, so it is checked
@@ -65,6 +80,7 @@ const eventPageLoad =
       pageCount,
       allTags,
       display,
+      month: monthKey,
       interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
     };
   };
