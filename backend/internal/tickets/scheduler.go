@@ -38,7 +38,12 @@ func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {
 	run := func() {
 		err := s.svc.RunLottery(context.Background(), releaseID)
 		if err != nil && !errors.Is(err, ErrNotFound) {
-			log.Printf("lottery run failed for release %s, retrying in %s: %v", releaseID, lotteryRetryDelay, err)
+			log.Printf(
+				"lottery run failed for release %s, retrying in %s: %v",
+				releaseID,
+				lotteryRetryDelay,
+				err,
+			)
 			s.armLotteryAfter(releaseID, lotteryRetryDelay)
 			return
 		}

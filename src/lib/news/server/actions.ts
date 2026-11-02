@@ -81,7 +81,9 @@ export const createArticle: Action = async (event) => {
   throw redirect(
     publishTimeIsInFuture ? "/news" : `/news/${created.data.slug}`,
     {
-      message: publishTimeIsInFuture ? m.news_articleScheduled() : m.news_articleCreated(),
+      message: publishTimeIsInFuture
+        ? m.news_articleScheduled()
+        : m.news_articleCreated(),
       type: "success",
     },
     event,
@@ -116,7 +118,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   const newImages = await Promise.all(
     Array.from(images).map((image) => uploadImage(api, image)),
   );
-  const finalImageUrls = imageUrls === undefined ? newImages : [...imageUrls, ...newImages];
+  const finalImageUrls =
+    imageUrls === undefined ? newImages : [...imageUrls, ...newImages];
 
   const input: ArticleInput = {
     headerSv,

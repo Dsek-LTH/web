@@ -8,13 +8,22 @@ import { api } from "$lib/api/client";
 
 export const load: LayoutLoad = async ({ fetch, params }) => {
   const [songRes, categoriesRes, melodiesRes] = await Promise.all([
-    api.GET("/songs/{slug}", { fetch, params: { path: { slug: params.slug } } }),
+    api.GET("/songs/{slug}", {
+      fetch,
+      params: { path: { slug: params.slug } },
+    }),
     // includeDeleted=true here (unlike the list page's grouped chips) mirrors
     // the old layout's own getExistingCategories/getExistingMelodies calls,
     // which pass isDeletedAccessible straight through - Go itself downgrades
     // this to false for a caller without song:delete either way.
-    api.GET("/songs/categories", { fetch, params: { query: { includeDeleted: true } } }),
-    api.GET("/songs/melodies", { fetch, params: { query: { includeDeleted: true } } }),
+    api.GET("/songs/categories", {
+      fetch,
+      params: { query: { includeDeleted: true } },
+    }),
+    api.GET("/songs/melodies", {
+      fetch,
+      params: { query: { includeDeleted: true } },
+    }),
   ]);
 
   if (songRes.error) {

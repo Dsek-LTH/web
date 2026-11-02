@@ -106,51 +106,64 @@ func (s *Service) CreateRelease(ctx context.Context, in CreateReleaseInput) (Rel
 // increases and the lottery has already run, the newly freed slots are
 // immediately offered to the front of the waitlist, same as a cancellation
 // would.
-func (s *Service) UpdateRelease(ctx context.Context, releaseID string, in UpdateReleaseInput) (Release, error) {
+func (s *Service) UpdateRelease(
+	ctx context.Context,
+	releaseID string,
+	in UpdateReleaseInput,
+) (Release, error) {
 	if err := auth.Require(ctx, apinames.WebshopManage); err != nil {
 		return Release{}, err
 	}
 	var result Release
-	err := s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
-		if in.Title == "" || in.Quantity <= 0 {
-			return ErrInvalidInput
-		}
-		if !in.ClosesAt.After(release.OpensAt.Time) {
-			return ErrInvalidInput
-		}
-		if !release.ExpiresAt.Time.After(in.ClosesAt) {
-			return ErrInvalidInput
-		}
+	err := s.withReleaseLock(
+		ctx,
+		releaseID,
+		func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
+			if in.Title == "" || in.Quantity <= 0 {
+				return ErrInvalidInput
+			}
+			if !in.ClosesAt.After(release.OpensAt.Time) {
+				return ErrInvalidInput
+			}
+			if !release.ExpiresAt.Time.After(in.ClosesAt) {
+				return ErrInvalidInput
+			}
 
-		claimed, err := q.CountGrantedOrAccepted(ctx, release.ID)
-		if err != nil {
-			return err
-		}
-		if int64(in.Quantity) < claimed {
-			return ErrInvalidInput
-		}
-
-		updated, err := q.UpdateRelease(ctx, db.UpdateReleaseParams{
-			ID:          release.ID,
-			Title:       in.Title,
-			Description: in.Description,
-			Location:    in.Location,
-			Quantity:    int32(in.Quantity),
-			ClosesAt:    pgtype.Timestamptz{Time: in.ClosesAt, Valid: true},
-		})
-		if err != nil {
-			return err
-		}
-
-		if release.Status == ReleaseStatusLotteryDone && updated.Quantity > release.Quantity {
-			if err := s.promoteWaitlist(ctx, q, updated, int(updated.Quantity-release.Quantity)); err != nil {
+			claimed, err := q.CountGrantedOrAccepted(ctx, release.ID)
+			if err != nil {
 				return err
 			}
-		}
+			if int64(in.Quantity) < claimed {
+				return ErrInvalidInput
+			}
 
-		result = toRelease(updated)
-		return nil
-	})
+			updated, err := q.UpdateRelease(ctx, db.UpdateReleaseParams{
+				ID:          release.ID,
+				Title:       in.Title,
+				Description: in.Description,
+				Location:    in.Location,
+				Quantity:    int32(in.Quantity),
+				ClosesAt:    pgtype.Timestamptz{Time: in.ClosesAt, Valid: true},
+			})
+			if err != nil {
+				return err
+			}
+
+			if release.Status == ReleaseStatusLotteryDone && updated.Quantity > release.Quantity {
+				if err := s.promoteWaitlist(
+					ctx,
+					q,
+					updated,
+					int(updated.Quantity-release.Quantity),
+				); err != nil {
+					return err
+				}
+			}
+
+			result = toRelease(updated)
+			return nil
+		},
+	)
 	if err != nil {
 		return Release{}, err
 	}
@@ -200,7 +213,10 @@ func (s *Service) ListReleases(ctx context.Context, includeExpired bool) ([]Rele
 
 // ListEntriesForMember returns every queue entry a member has ever had,
 // across all releases, newest first - their "my tickets" view.
-func (s *Service) ListEntriesForMember(ctx context.Context, memberID string) ([]MemberEntry, error) {
+func (s *Service) ListEntriesForMember(
+	ctx context.Context,
+	memberID string,
+) ([]MemberEntry, error) {
 	rows, err := s.queries.ListEntriesForMember(ctx, memberID)
 	if err != nil {
 		return nil, err
@@ -226,7 +242,10 @@ func (s *Service) ListEntriesForMember(ctx context.Context, memberID string) ([]
 
 // ListAcceptedEntriesForRelease returns everyone with a confirmed ticket for
 // one release, oldest first - the admin roster.
-func (s *Service) ListAcceptedEntriesForRelease(ctx context.Context, releaseID string) ([]QueueEntry, error) {
+func (s *Service) ListAcceptedEntriesForRelease(
+	ctx context.Context,
+	releaseID string,
+) ([]QueueEntry, error) {
 	id, err := parseUUID(releaseID)
 	if err != nil {
 		return nil, ErrInvalidInput
@@ -264,7 +283,10 @@ func (s *Service) GetCounts(ctx context.Context, releaseID string) (Counts, erro
 
 // GetCountsForReleases is GetCounts for many releases in one query, keyed by
 // release ID.
-func (s *Service) GetCountsForReleases(ctx context.Context, releaseIDs []string) (map[string]Counts, error) {
+func (s *Service) GetCountsForReleases(
+	ctx context.Context,
+	releaseIDs []string,
+) (map[string]Counts, error) {
 	ids := make([]pgtype.UUID, len(releaseIDs))
 	for i, releaseID := range releaseIDs {
 		id, err := parseUUID(releaseID)
@@ -294,7 +316,10 @@ func (s *Service) Status(ctx context.Context, releaseID, memberID string) (Queue
 	if err != nil {
 		return QueueEntry{}, ErrInvalidInput
 	}
-	e, err := s.queries.GetQueueEntry(ctx, db.GetQueueEntryParams{ReleaseID: id, MemberID: memberID})
+	e, err := s.queries.GetQueueEntry(
+		ctx,
+		db.GetQueueEntryParams{ReleaseID: id, MemberID: memberID},
+	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return QueueEntry{}, ErrEntryNotFound
@@ -309,66 +334,97 @@ func (s *Service) Status(ctx context.Context, releaseID, memberID string) (Queue
 // free, otherwise appends to the tail of the waitlist. Calling it again for
 // the same member is a no-op that just returns their existing entry, unless
 // that entry was cancelled or expired - then it's treated as a fresh request.
-func (s *Service) RequestTicket(ctx context.Context, releaseID, memberID string) (QueueEntry, error) {
+func (s *Service) RequestTicket(
+	ctx context.Context,
+	releaseID, memberID string,
+) (QueueEntry, error) {
 	var result db.TicketQueueEntry
-	err := s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
-		if time.Now().Before(release.OpensAt.Time) {
-			return ErrNotOpenYet
-		}
-		if time.Now().After(release.ClosesAt.Time) {
-			return ErrClosed
-		}
+	err := s.withReleaseLock(
+		ctx,
+		releaseID,
+		func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
+			if time.Now().Before(release.OpensAt.Time) {
+				return ErrNotOpenYet
+			}
+			if time.Now().After(release.ClosesAt.Time) {
+				return ErrClosed
+			}
 
-		if release.Status != ReleaseStatusLotteryDone {
-			e, err := q.InsertQueueEntry(ctx, db.InsertQueueEntryParams{ReleaseID: release.ID, MemberID: memberID})
+			if release.Status != ReleaseStatusLotteryDone {
+				e, err := q.InsertQueueEntry(
+					ctx,
+					db.InsertQueueEntryParams{ReleaseID: release.ID, MemberID: memberID},
+				)
+				if err != nil {
+					return err
+				}
+				result = e
+				return nil
+			}
+
+			existing, err := q.GetQueueEntry(
+				ctx,
+				db.GetQueueEntryParams{ReleaseID: release.ID, MemberID: memberID},
+			)
+			if err == nil && existing.Status != EntryStatusCancelled &&
+				existing.Status != EntryStatusExpired {
+				result = existing
+				return nil
+			}
+			if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+				return err
+			}
+
+			e, err := q.InsertQueueEntry(
+				ctx,
+				db.InsertQueueEntryParams{ReleaseID: release.ID, MemberID: memberID},
+			)
 			if err != nil {
 				return err
+			}
+
+			claimed, err := q.CountGrantedOrAccepted(ctx, release.ID)
+			if err != nil {
+				return err
+			}
+
+			if int32(claimed) < release.Quantity {
+				offerExpiresAt := offerDeadline(release)
+				if err := q.GrantEntry(
+					ctx,
+					db.GrantEntryParams{
+						ID:             e.ID,
+						ReleaseID:      release.ID,
+						OfferExpiresAt: offerExpiresAt,
+					},
+				); err != nil {
+					return err
+				}
+				e.Status = EntryStatusGranted
+				e.OfferExpiresAt = offerExpiresAt
+			} else {
+				waitlisted, err := q.CountWaitlisted(ctx, release.ID)
+				if err != nil {
+					return err
+				}
+				position := pgtype.Int4{Int32: int32(waitlisted), Valid: true}
+				if err := q.WaitlistEntry(
+					ctx,
+					db.WaitlistEntryParams{
+						ID:            e.ID,
+						ReleaseID:     release.ID,
+						QueuePosition: position,
+					},
+				); err != nil {
+					return err
+				}
+				e.Status = EntryStatusWaitlisted
+				e.QueuePosition = position
 			}
 			result = e
 			return nil
-		}
-
-		existing, err := q.GetQueueEntry(ctx, db.GetQueueEntryParams{ReleaseID: release.ID, MemberID: memberID})
-		if err == nil && existing.Status != EntryStatusCancelled && existing.Status != EntryStatusExpired {
-			result = existing
-			return nil
-		}
-		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-			return err
-		}
-
-		e, err := q.InsertQueueEntry(ctx, db.InsertQueueEntryParams{ReleaseID: release.ID, MemberID: memberID})
-		if err != nil {
-			return err
-		}
-
-		claimed, err := q.CountGrantedOrAccepted(ctx, release.ID)
-		if err != nil {
-			return err
-		}
-
-		if int32(claimed) < release.Quantity {
-			offerExpiresAt := offerDeadline(release)
-			if err := q.GrantEntry(ctx, db.GrantEntryParams{ID: e.ID, ReleaseID: release.ID, OfferExpiresAt: offerExpiresAt}); err != nil {
-				return err
-			}
-			e.Status = EntryStatusGranted
-			e.OfferExpiresAt = offerExpiresAt
-		} else {
-			waitlisted, err := q.CountWaitlisted(ctx, release.ID)
-			if err != nil {
-				return err
-			}
-			position := pgtype.Int4{Int32: int32(waitlisted), Valid: true}
-			if err := q.WaitlistEntry(ctx, db.WaitlistEntryParams{ID: e.ID, ReleaseID: release.ID, QueuePosition: position}); err != nil {
-				return err
-			}
-			e.Status = EntryStatusWaitlisted
-			e.QueuePosition = position
-		}
-		result = e
-		return nil
-	})
+		},
+	)
 	if err != nil {
 		return QueueEntry{}, err
 	}
@@ -376,16 +432,23 @@ func (s *Service) RequestTicket(ctx context.Context, releaseID, memberID string)
 }
 
 func (s *Service) Accept(ctx context.Context, releaseID, memberID string) error {
-	return s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
-		rows, err := q.AcceptEntry(ctx, db.AcceptEntryParams{ReleaseID: release.ID, MemberID: memberID})
-		if err != nil {
-			return err
-		}
-		if rows == 0 {
-			return ErrOfferNotActive
-		}
-		return nil
-	})
+	return s.withReleaseLock(
+		ctx,
+		releaseID,
+		func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
+			rows, err := q.AcceptEntry(
+				ctx,
+				db.AcceptEntryParams{ReleaseID: release.ID, MemberID: memberID},
+			)
+			if err != nil {
+				return err
+			}
+			if rows == 0 {
+				return ErrOfferNotActive
+			}
+			return nil
+		},
+	)
 }
 
 // Cancel withdraws a member's request, offer, or waitlist spot. If they held
@@ -393,31 +456,47 @@ func (s *Service) Accept(ctx context.Context, releaseID, memberID string) error 
 // offered to whoever is at the front of the waitlist; if they held a
 // waitlist spot, everyone behind them moves up one.
 func (s *Service) Cancel(ctx context.Context, releaseID, memberID string) error {
-	return s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
-		entry, err := q.GetQueueEntry(ctx, db.GetQueueEntryParams{ReleaseID: release.ID, MemberID: memberID})
-		if err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
+	return s.withReleaseLock(
+		ctx,
+		releaseID,
+		func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
+			entry, err := q.GetQueueEntry(
+				ctx,
+				db.GetQueueEntryParams{ReleaseID: release.ID, MemberID: memberID},
+			)
+			if err != nil {
+				if errors.Is(err, pgx.ErrNoRows) {
+					return ErrEntryNotFound
+				}
+				return err
+			}
+
+			rows, err := q.CancelEntry(
+				ctx,
+				db.CancelEntryParams{ReleaseID: release.ID, MemberID: memberID},
+			)
+			if err != nil {
+				return err
+			}
+			if rows == 0 {
 				return ErrEntryNotFound
 			}
-			return err
-		}
 
-		rows, err := q.CancelEntry(ctx, db.CancelEntryParams{ReleaseID: release.ID, MemberID: memberID})
-		if err != nil {
-			return err
-		}
-		if rows == 0 {
-			return ErrEntryNotFound
-		}
-
-		if entry.Status == EntryStatusGranted && release.Status == ReleaseStatusLotteryDone {
-			return s.promoteWaitlist(ctx, q, release, 1)
-		}
-		if entry.Status == EntryStatusWaitlisted && entry.QueuePosition.Valid {
-			return q.CloseWaitlistGap(ctx, db.CloseWaitlistGapParams{ReleaseID: release.ID, QueuePosition: entry.QueuePosition})
-		}
-		return nil
-	})
+			if entry.Status == EntryStatusGranted && release.Status == ReleaseStatusLotteryDone {
+				return s.promoteWaitlist(ctx, q, release, 1)
+			}
+			if entry.Status == EntryStatusWaitlisted && entry.QueuePosition.Valid {
+				return q.CloseWaitlistGap(
+					ctx,
+					db.CloseWaitlistGapParams{
+						ReleaseID:     release.ID,
+						QueuePosition: entry.QueuePosition,
+					},
+				)
+			}
+			return nil
+		},
+	)
 }
 
 // RunLottery performs the grace-window lottery for a release: pending
@@ -425,33 +504,58 @@ func (s *Service) Cancel(ctx context.Context, releaseID, memberID string) error 
 // become an ordered waitlist. Safe to call more than once - a no-op once the
 // release has already moved past the "scheduled" phase.
 func (s *Service) RunLottery(ctx context.Context, releaseID string) error {
-	return s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
-		if release.Status != ReleaseStatusScheduled {
-			return nil
-		}
+	return s.withReleaseLock(
+		ctx,
+		releaseID,
+		func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
+			if release.Status != ReleaseStatusScheduled {
+				return nil
+			}
 
-		pending, err := q.ListPendingForUpdate(ctx, release.ID)
-		if err != nil {
-			return err
-		}
-
-		granted, waitlisted := runLottery(rand.New(rand.NewSource(time.Now().UnixNano())), pending, int(release.Quantity))
-
-		offerExpiresAt := offerDeadline(release)
-		for _, e := range granted {
-			if err := q.GrantEntry(ctx, db.GrantEntryParams{ID: e.ID, ReleaseID: release.ID, OfferExpiresAt: offerExpiresAt}); err != nil {
+			pending, err := q.ListPendingForUpdate(ctx, release.ID)
+			if err != nil {
 				return err
 			}
-		}
-		for i, e := range waitlisted {
-			position := pgtype.Int4{Int32: int32(i), Valid: true}
-			if err := q.WaitlistEntry(ctx, db.WaitlistEntryParams{ID: e.ID, ReleaseID: release.ID, QueuePosition: position}); err != nil {
-				return err
-			}
-		}
 
-		return q.SetReleaseStatus(ctx, db.SetReleaseStatusParams{ID: release.ID, Status: ReleaseStatusLotteryDone})
-	})
+			granted, waitlisted := runLottery(
+				rand.New(rand.NewSource(time.Now().UnixNano())),
+				pending,
+				int(release.Quantity),
+			)
+
+			offerExpiresAt := offerDeadline(release)
+			for _, e := range granted {
+				if err := q.GrantEntry(
+					ctx,
+					db.GrantEntryParams{
+						ID:             e.ID,
+						ReleaseID:      release.ID,
+						OfferExpiresAt: offerExpiresAt,
+					},
+				); err != nil {
+					return err
+				}
+			}
+			for i, e := range waitlisted {
+				position := pgtype.Int4{Int32: int32(i), Valid: true}
+				if err := q.WaitlistEntry(
+					ctx,
+					db.WaitlistEntryParams{
+						ID:            e.ID,
+						ReleaseID:     release.ID,
+						QueuePosition: position,
+					},
+				); err != nil {
+					return err
+				}
+			}
+
+			return q.SetReleaseStatus(
+				ctx,
+				db.SetReleaseStatusParams{ID: release.ID, Status: ReleaseStatusLotteryDone},
+			)
+		},
+	)
 }
 
 // SweepExpiredOffers expires any granted-but-unaccepted offers past their
@@ -459,21 +563,25 @@ func (s *Service) RunLottery(ctx context.Context, releaseID string) error {
 // waitlist into fresh offers. Called periodically by Scheduler.RunSweepLoop
 // for every release that currently has an active offer.
 func (s *Service) SweepExpiredOffers(ctx context.Context, releaseID string) error {
-	return s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
-		expired, err := q.ListExpiredGrantedForUpdate(ctx, release.ID)
-		if err != nil {
-			return err
-		}
-		for _, e := range expired {
-			if err := q.ExpireEntry(ctx, e.ID); err != nil {
+	return s.withReleaseLock(
+		ctx,
+		releaseID,
+		func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
+			expired, err := q.ListExpiredGrantedForUpdate(ctx, release.ID)
+			if err != nil {
 				return err
 			}
-		}
-		if len(expired) == 0 {
-			return nil
-		}
-		return s.promoteWaitlist(ctx, q, release, len(expired))
-	})
+			for _, e := range expired {
+				if err := q.ExpireEntry(ctx, e.ID); err != nil {
+					return err
+				}
+			}
+			if len(expired) == 0 {
+				return nil
+			}
+			return s.promoteWaitlist(ctx, q, release, len(expired))
+		},
+	)
 }
 
 // ListScheduledReleases returns releases whose lottery hasn't run yet -
@@ -504,13 +612,21 @@ func (s *Service) ListReleaseIDsWithActiveOffers(ctx context.Context) ([]string,
 	return ids, nil
 }
 
-func (s *Service) promoteWaitlist(ctx context.Context, q *db.Queries, release db.TicketRelease, n int) error {
+func (s *Service) promoteWaitlist(
+	ctx context.Context,
+	q *db.Queries,
+	release db.TicketRelease,
+	n int,
+) error {
 	// Past expires_at the release is hidden from every listing, so a fresh
 	// offer could never be seen or accepted - stop advancing the waitlist.
 	if time.Now().After(release.ExpiresAt.Time) {
 		return nil
 	}
-	front, err := q.ListWaitlistFrontForUpdate(ctx, db.ListWaitlistFrontForUpdateParams{ReleaseID: release.ID, Limit: int32(n)})
+	front, err := q.ListWaitlistFrontForUpdate(
+		ctx,
+		db.ListWaitlistFrontForUpdateParams{ReleaseID: release.ID, Limit: int32(n)},
+	)
 	if err != nil {
 		return err
 	}
@@ -519,7 +635,10 @@ func (s *Service) promoteWaitlist(ctx context.Context, q *db.Queries, release db
 	}
 	offerExpiresAt := offerDeadline(release)
 	for _, e := range front {
-		if err := q.GrantEntry(ctx, db.GrantEntryParams{ID: e.ID, ReleaseID: release.ID, OfferExpiresAt: offerExpiresAt}); err != nil {
+		if err := q.GrantEntry(
+			ctx,
+			db.GrantEntryParams{ID: e.ID, ReleaseID: release.ID, OfferExpiresAt: offerExpiresAt},
+		); err != nil {
 			return err
 		}
 	}
@@ -533,7 +652,11 @@ func (s *Service) promoteWaitlist(ctx context.Context, q *db.Queries, release db
 // via SELECT ... FOR UPDATE, serializing every state change for one release
 // through Postgres so overselling is impossible even under a simultaneous
 // burst of requests, regardless of how many instances of this service run.
-func (s *Service) withReleaseLock(ctx context.Context, releaseID string, fn func(ctx context.Context, q *db.Queries, release db.TicketRelease) error) error {
+func (s *Service) withReleaseLock(
+	ctx context.Context,
+	releaseID string,
+	fn func(ctx context.Context, q *db.Queries, release db.TicketRelease) error,
+) error {
 	id, err := parseUUID(releaseID)
 	if err != nil {
 		return ErrInvalidInput

@@ -36,7 +36,9 @@
   // removeDocument pattern. Go derives the correct bucket from `type`,
   // fixing the old app's delete-always-hits-documentsBucket bug.
   async function removeFile(id: string) {
-    const res = await api.DELETE("/documents", { params: { query: { type, id } } });
+    const res = await api.DELETE("/documents", {
+      params: { query: { type, id } },
+    });
     if (res.error) {
       toast(m.documents_fileDeleted(), "error");
       return;

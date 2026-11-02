@@ -47,11 +47,11 @@ export function sameAuthorOption(
 /** Reduces a picked option to the `{mandateId?, customId?}` the Go API's
  * AuthorInput wants - the member is always resolved server-side from the
  * acting identity, never sent explicitly. */
-export function toAuthorInput(
-  author: AuthorOptionSchema,
-): { mandateId?: string; customId?: string } {
+export function toAuthorInput(author: AuthorOptionSchema): {
+  mandateId?: string;
+  customId?: string;
+} {
   if (author.type === "Mandate") return { mandateId: author.position?.id };
-  if (author.type === "Custom")
-    return { customId: author.customAuthor?.id };
+  if (author.type === "Custom") return { customId: author.customAuthor?.id };
   return {};
 }

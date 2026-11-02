@@ -59,7 +59,7 @@ type bookingRequestIDInput struct {
 // own door/member access lists are used as they are.
 type acceptBookingRequestInput struct {
 	ID   string               `path:"id"`
-	Body *booking.AccessInput `required:"false"`
+	Body *booking.AccessInput `          required:"false"`
 }
 
 type bookingDoorsOutput struct {

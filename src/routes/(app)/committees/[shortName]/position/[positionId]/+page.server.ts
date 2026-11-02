@@ -59,7 +59,9 @@ export const load: PageServerLoad = async (event) => {
   const startMonth = position.startMonth ?? 0;
   const endMonth = position.endMonth ?? 11;
   const addMandateMonthDifference =
-    endMonth > startMonth ? endMonth - startMonth : 12 - Math.abs(endMonth - startMonth);
+    endMonth > startMonth
+      ? endMonth - startMonth
+      : 12 - Math.abs(endMonth - startMonth);
 
   return {
     updateForm: superValidate(

@@ -4,7 +4,10 @@
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import Meeting from "./Meeting.svelte";
   import type { PageData } from "./$types";
-  import { PUBLIC_BUCKETS_DOCUMENTS, PUBLIC_BUCKETS_FILES } from "$env/static/public";
+  import {
+    PUBLIC_BUCKETS_DOCUMENTS,
+    PUBLIC_BUCKETS_FILES,
+  } from "$env/static/public";
   import apiNames from "$lib/utils/apiNames";
   import { DocumentTypes as dt } from "./types";
 

@@ -38,7 +38,11 @@
   <main class="flex min-h-0 flex-1 flex-col">
     {#each data.alerts as alert (alert.id)}
       {#if !alert.closedByMe}
-        <Alert id={alert.id} message={alert.message} severity={alert.severity} />
+        <Alert
+          id={alert.id}
+          message={alert.message}
+          severity={alert.severity}
+        />
       {/if}
     {/each}
 

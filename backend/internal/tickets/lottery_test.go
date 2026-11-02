@@ -61,7 +61,11 @@ func TestRunLottery_MorePendingThanQuantity(t *testing.T) {
 func TestRunLottery_ZeroPending(t *testing.T) {
 	granted, waitlisted := runLottery(rand.New(rand.NewSource(1)), nil, 5)
 	if len(granted) != 0 || len(waitlisted) != 0 {
-		t.Fatalf("expected no entries either way, got granted=%d waitlisted=%d", len(granted), len(waitlisted))
+		t.Fatalf(
+			"expected no entries either way, got granted=%d waitlisted=%d",
+			len(granted),
+			len(waitlisted),
+		)
 	}
 }
 
@@ -86,6 +90,8 @@ func TestRunLottery_NotAlwaysFirstComeFirstServed(t *testing.T) {
 		}
 	}
 	if !firstEntrySometimesWaitlisted {
-		t.Fatal("expected the first-requested entry to sometimes miss out on a grant across random seeds")
+		t.Fatal(
+			"expected the first-requested entry to sometimes miss out on a grant across random seeds",
+		)
 	}
 }

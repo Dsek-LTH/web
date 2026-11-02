@@ -39,7 +39,9 @@
   // backend's Phase 2 nollning redesign) - only groups belonging to the
   // currently-active nollning season are offered.
   let phaddergroups = $derived(
-    data.phadderGroups.filter((group) => group.seasonId === data.currentSeasonId),
+    data.phadderGroups.filter(
+      (group) => group.seasonId === data.currentSeasonId,
+    ),
   );
 </script>
 

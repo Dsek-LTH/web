@@ -55,7 +55,12 @@ export function forwardSetCookies(response: Response, cookies: Cookies) {
 
     let path = "/";
     let maxAge: number | undefined;
-    const opts: { domain?: string; sameSite?: "lax" | "strict" | "none"; httpOnly?: boolean; secure?: boolean } = {};
+    const opts: {
+      domain?: string;
+      sameSite?: "lax" | "strict" | "none";
+      httpOnly?: boolean;
+      secure?: boolean;
+    } = {};
     for (const attr of attrs) {
       const [rawKey, rawVal] = attr.split("=");
       switch (rawKey?.toLowerCase()) {

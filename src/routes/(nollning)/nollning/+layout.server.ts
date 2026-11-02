@@ -23,7 +23,8 @@ export const load = async (event) => {
     // Season year, not calendar year, is the real "is this member this
     // year's nolla cohort" check now - same fix as auth.DerivedRoles'
     // NollaYear on the Go side (see backend's Phase 2 nollning redesign).
-    member?.classYear == current?.season?.year && member?.nollningGroupId != null
+    member?.classYear == current?.season?.year &&
+    member?.nollningGroupId != null
       ? prisma.phadderGroup.findUnique({
           where: {
             id: member!.nollningGroupId!,

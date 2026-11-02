@@ -178,8 +178,7 @@
         ><User
         />{#if $form.author.type === "Custom" && $form.author.customAuthor != null}{$form
             .author.customAuthor.name}{:else}{$form.author.member.firstName}
-          {$form.author.member
-            .lastName}{#if $form.author.position?.name},
+          {$form.author.member.lastName}{#if $form.author.position?.name},
             {$form.author.position?.name}
           {/if}{/if}</Select.Trigger
       >
@@ -193,8 +192,7 @@
               {authorOption.customAuthor.name}
             {:else}
               {authorOption.member.firstName}
-              {authorOption.member
-                .lastName}{#if authorOption.position?.name},
+              {authorOption.member.lastName}{#if authorOption.position?.name},
                 {authorOption.position?.name}
               {/if}
             {/if}</Select.Item

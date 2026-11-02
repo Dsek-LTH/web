@@ -39,9 +39,15 @@ export const load: PageServerLoad = async (event) => {
     ]);
   if (memberRes.status === "rejected" || memberRes.value.error)
     throw error(500, m.members_errors_couldntFetchMember());
-  if (phadderGroupsResult.status === "rejected" || phadderGroupsResult.value.error)
+  if (
+    phadderGroupsResult.status === "rejected" ||
+    phadderGroupsResult.value.error
+  )
     throw error(505, "Failed to fetch phadder groups");
-  if (currentNollningResult.status === "rejected" || currentNollningResult.value.error)
+  if (
+    currentNollningResult.status === "rejected" ||
+    currentNollningResult.value.error
+  )
     throw error(505, "Failed to fetch current nollning season");
 
   const profile = memberRes.value.data;

@@ -82,11 +82,17 @@ export const load: PageServerLoad = async (event) => {
     throw error(500, m.members_errors_couldntFetchMember());
   if (publishedArticlesResult.status === "rejected")
     throw error(500, m.members_errors_couldntFetchArticles());
-  if (phadderGroupsResult.status === "rejected" || phadderGroupsResult.value.error)
+  if (
+    phadderGroupsResult.status === "rejected" ||
+    phadderGroupsResult.value.error
+  )
     throw error(505, "Failed to fetch phadder groups");
   if (phadderRoleResult.status === "rejected" || phadderRoleResult.value.error)
     throw error(505, "Failed to fetch phadder role");
-  if (currentNollningResult.status === "rejected" || currentNollningResult.value.error)
+  if (
+    currentNollningResult.status === "rejected" ||
+    currentNollningResult.value.error
+  )
     throw error(505, "Failed to fetch current nollning season");
   if (seasonsResult.status === "rejected" || seasonsResult.value.error)
     throw error(505, "Failed to fetch nollning seasons");
@@ -131,9 +137,11 @@ export const load: PageServerLoad = async (event) => {
   // not a duplicated authorization decision (Principle #5).
   const doorAccess =
     member.id === user?.memberId
-      ? (await api.GET("/members/{studentId}/door-access", {
-          params: { path: { studentId } },
-        }).then((res) => res.data ?? []))
+      ? await api
+          .GET("/members/{studentId}/door-access", {
+            params: { path: { studentId } },
+          })
+          .then((res) => res.data ?? [])
       : [];
 
   const showPhadderGroupModal =
@@ -302,10 +310,13 @@ export const actions: Actions = {
     );
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
-    const res = await serverApi(event).PATCH("/members/{studentId}/food-preference", {
-      params: { path: { studentId } },
-      body: { foodPreference: form.data.foodPreference },
-    });
+    const res = await serverApi(event).PATCH(
+      "/members/{studentId}/food-preference",
+      {
+        params: { path: { studentId } },
+        body: { foodPreference: form.data.foodPreference },
+      },
+    );
     if (res.error)
       return message(
         form,

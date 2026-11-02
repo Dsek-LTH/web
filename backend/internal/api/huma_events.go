@@ -15,7 +15,7 @@ import (
 type listEventsInput struct {
 	Search           string    `query:"search"           doc:"free-text search over title/description"`
 	Tags             []string  `query:"tags,explode"     doc:"tag UUIDs, ANY-match"`
-	Span             string    `query:"span"             enum:"upcoming,past,range" doc:"upcoming (default): ends after now; past: started before now, newest first; range: overlaps [from, to)"`
+	Span             string    `query:"span"             doc:"upcoming (default): ends after now; past: started before now, newest first; range: overlaps [from, to)" enum:"upcoming,past,range"`
 	From             time.Time `query:"from"             doc:"start of the range span (inclusive)"`
 	To               time.Time `query:"to"               doc:"end of the range span (exclusive)"`
 	IncludeRemoved   bool      `query:"includeRemoved"   doc:"also list soft-removed events; requires event:update"`

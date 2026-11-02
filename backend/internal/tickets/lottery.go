@@ -11,7 +11,11 @@ import (
 // equal odds regardless of how quickly they requested - order is randomized
 // rather than first-come-first-served. The order of the returned waitlist
 // slice becomes each entry's queue_position (0 = front of the line).
-func runLottery(rng *rand.Rand, pending []db.TicketQueueEntry, quantity int) (granted, waitlisted []db.TicketQueueEntry) {
+func runLottery(
+	rng *rand.Rand,
+	pending []db.TicketQueueEntry,
+	quantity int,
+) (granted, waitlisted []db.TicketQueueEntry) {
 	shuffled := make([]db.TicketQueueEntry, len(pending))
 	copy(shuffled, pending)
 	rng.Shuffle(len(shuffled), func(i, j int) {

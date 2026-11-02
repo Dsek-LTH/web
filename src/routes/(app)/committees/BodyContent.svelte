@@ -27,9 +27,7 @@
   let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
 
   let previewPositions = $derived(
-    data.positions
-      ?.filter((p) => (p.mandates ?? []).length == 1)
-      .slice(0, 3),
+    data.positions?.filter((p) => (p.mandates ?? []).length == 1).slice(0, 3),
   );
   let previewMembers = $derived(
     data.positions

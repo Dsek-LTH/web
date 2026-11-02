@@ -1,4 +1,9 @@
-import { error, fail, type RequestEvent, type ServerLoadEvent } from "@sveltejs/kit";
+import {
+  error,
+  fail,
+  type RequestEvent,
+  type ServerLoadEvent,
+} from "@sveltejs/kit";
 import { serverApi } from "$lib/server/apiClient";
 
 // Both settingsLoad and settingsActions now call Go's

@@ -163,7 +163,9 @@ type ListParams struct {
 	PageSize       int
 }
 
-func (p ListParams) window(now time.Time) (after, before pgtype.Timestamptz, descending bool, err error) {
+func (p ListParams) window(
+	now time.Time,
+) (after, before pgtype.Timestamptz, descending bool, err error) {
 	switch p.Span {
 	case SpanUpcoming, "":
 		return dbutil.ToTimestamptz(&now), pgtype.Timestamptz{}, false, nil

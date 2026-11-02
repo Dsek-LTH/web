@@ -496,7 +496,11 @@ type NotPhadderError struct {
 }
 
 func (e *NotPhadderError) Error() string {
-	return fmt.Sprintf("%v: not a phadder that year: %s", ErrInvalidInput, strings.Join(e.Names, ", "))
+	return fmt.Sprintf(
+		"%v: not a phadder that year: %s",
+		ErrInvalidInput,
+		strings.Join(e.Names, ", "),
+	)
 }
 
 func (e *NotPhadderError) Unwrap() error { return ErrInvalidInput }

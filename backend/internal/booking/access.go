@@ -82,9 +82,12 @@ func (s *Service) setAccess(ctx context.Context, id pgtype.UUID, in AccessInput)
 		}
 	}
 	if len(memberIDs) > 0 {
-		if err := s.queries.AddBookingRequestAccessMembers(ctx, db.AddBookingRequestAccessMembersParams{
-			ID: id, MemberIds: memberIDs,
-		}); err != nil {
+		if err := s.queries.AddBookingRequestAccessMembers(
+			ctx,
+			db.AddBookingRequestAccessMembersParams{
+				ID: id, MemberIds: memberIDs,
+			},
+		); err != nil {
 			return fmt.Errorf("add access members: %w", err)
 		}
 	}

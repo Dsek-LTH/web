@@ -16,13 +16,13 @@
     // are ported too - see CommitteeSymbol's identical note. (home and
     // elections/ElectionCard were on this list until the Elections phase
     // ported both off Prisma - 2026-09-02.)
-    committee: {
-      [K in
-        | "darkImageUrl"
-        | "lightImageUrl"
-        | "monoImageUrl"
-        | "nameSv"]?: ExtendedPrismaModel<"Committee">[K] | undefined;
-    } | null;
+    committee:
+      | {
+          [K in "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"]?:
+            | ExtendedPrismaModel<"Committee">[K]
+            | undefined;
+        }
+      | null;
     useMono?: boolean;
     class?: string;
     override?: "light" | "dark";

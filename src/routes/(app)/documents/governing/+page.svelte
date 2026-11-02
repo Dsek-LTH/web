@@ -33,8 +33,7 @@
   // per-resource "can this identity touch this thing" decision, not
   // reading an already-resolved flat policy list for a visibility toggle).
   let canWrite = $derived(
-    data.user?.policies?.includes(apiNames.GOVERNING_DOCUMENT.CREATE) ??
-      false,
+    data.user?.policies?.includes(apiNames.GOVERNING_DOCUMENT.CREATE) ?? false,
   );
   let canCreate = $derived(canWrite);
   let canUpdate = $derived(canWrite);

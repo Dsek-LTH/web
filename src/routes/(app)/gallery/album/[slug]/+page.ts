@@ -18,7 +18,10 @@ export const load: PageLoad = async ({ fetch, params }) => {
     pictures: res.data.pictures ?? [],
     metadata:
       res.data.photographer || res.data.editor
-        ? { photographer: res.data.photographer ?? "", editor: res.data.editor ?? "" }
+        ? {
+            photographer: res.data.photographer ?? "",
+            editor: res.data.editor ?? "",
+          }
         : undefined,
   };
 };

@@ -379,14 +379,14 @@
                 {#if mandates}
                   {#each mandates as mandate (mandate.id)}
                     <PositionCard
-                    mandate={{
-                      id: mandate.id,
-                      position: {
-                        ...mandate.position!,
-                        committee: mandate.position?.committee ?? null,
-                      },
-                    }}
-                  />
+                      mandate={{
+                        id: mandate.id,
+                        position: {
+                          ...mandate.position!,
+                          committee: mandate.position?.committee ?? null,
+                        },
+                      }}
+                    />
                   {/each}
                 {/if}
                 {#if member.nollaIn?.year.toString() === year}
