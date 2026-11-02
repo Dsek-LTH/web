@@ -565,6 +565,8 @@
   "events_calendar_subscribe_details": "This is an iCal link that you can use to subscribe to the calendar in your calendar app.",
   "events_calendar_subscribe_copyToClipboard": "The iCal link has been copied to your clipboard",
   "events_calendar_today": "Today",
+  "events_calendar_previousMonth": "Previous month",
+  "events_calendar_nextMonth": "Next month",
   "events_calendar_month": "Month",
   "events_calendar_week": "Week",
   "events_calendar_day": "Day",
