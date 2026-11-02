@@ -17,7 +17,6 @@ import {
   type ScheduleSuccess,
 } from "$lib/server/scheduleExecution";
 import { announceArticle } from "./notifications";
-import { planArticleNotification } from "./notificationPlan";
 import { env } from "$env/dynamic/private";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
@@ -302,11 +301,11 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     const wasAlreadyLive =
       existingArticle?.publishedAt != null &&
       existingArticle?.publishedAt <= now;
-    if (wasAlreadyLive || !sendNotification) return "none";
-    const notificationPlan = publishedAt > now ? "schedule" : "sendNow";
-
-    const shouldSchedule = notificationPlan === "schedule";
-    const shouldSendNow = notificationPlan === "sendNow";
+    // Only an article that isn't live yet can be announced, so editing an
+    // already published article never notifies anyone again.
+    const canAnnounce = sendNotification && !wasAlreadyLive;
+    const shouldSchedule = canAnnounce && publishedAt > now;
+    const shouldSendNow = canAnnounce && publishedAt <= now;
 
     const hadPendingTask =
       existingArticle?.scheduledId != null &&
