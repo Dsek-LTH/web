@@ -25,7 +25,7 @@ const eventPageLoad =
     const { prisma } = locals;
 
     const display = displaySchema.parse(
-      url.searchParams.get("display") ?? "week",
+      url.searchParams.get("display") ?? "month",
     );
 
     const requestedMonth = monthSchema.safeParse(url.searchParams.get("month"));
