@@ -28,11 +28,6 @@ const envSpec = {
   MEILISEARCH_MASTER_KEY: { feature: "search" },
   POPPLER_SERVER_URL: { feature: "search in documents" },
 
-  SMTP_HOST: { feature: "email" },
-  SMTP_PORT: { feature: "email" },
-  EMAIL_YRKA_USER: { feature: "yrkanden emails" },
-  EMAIL_YRKA_PASS: { feature: "yrkanden emails" },
-
   SHLINK_ENDPOINT: { feature: "link shortener" },
   SHLINK_API_KEY: { feature: "link shortener" },
 
