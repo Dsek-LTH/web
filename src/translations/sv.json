@@ -195,6 +195,7 @@
   "admin_access_addNewPolicy": "Lägg till nya policyer",
   "admin_access_newPolicy": "Ny policy",
   "admin_access_policyCreated": "Ny policy skapad",
+  "admin_alerts_globalMessages": "Globala meddelanden",
   "admin_alerts_title": "Skapa globalt meddelande",
   "admin_alerts_message_swedish": "Svenskt meddelande",
   "admin_alerts_message_english": "Engelskt meddelande",
