@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/microcosm-cc/bluemonday"
+
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dsek-lth/web/backend/internal/apinames"
@@ -30,8 +32,9 @@ func invalidf(format string, args ...any) error {
 }
 
 type Service struct {
-	queries  *db.Queries
-	nollning *nollning.Service
+	queries   *db.Queries
+	nollning  *nollning.Service
+	sanitizer *bluemonday.Policy
 }
 
 // nollning is used by ListBoard to know which committee's positions to
@@ -40,7 +43,11 @@ type Service struct {
 // dependency on internal/nollning has, since internal/nollning never
 // imports this package.
 func NewService(dbtx db.DBTX, nollningSvc *nollning.Service) *Service {
-	return &Service{queries: db.New(dbtx), nollning: nollningSvc}
+	return &Service{
+		queries:   db.New(dbtx),
+		nollning:  nollningSvc,
+		sanitizer: bluemonday.UGCPolicy(),
+	}
 }
 
 func (s *Service) ListCommittees(ctx context.Context) ([]Committee, error) {
@@ -458,12 +465,15 @@ func (s *Service) UpdatePosition(
 		return nil, err
 	}
 	row, err := s.queries.UpdatePosition(ctx, db.UpdatePositionParams{
-		ID:            id,
-		NameSv:        in.NameSv,
-		NameEn:        dbutil.ToText(in.NameEn),
-		Email:         dbutil.ToText(in.Email),
-		DescriptionSv: dbutil.ToText(in.DescriptionSv),
-		DescriptionEn: dbutil.ToText(in.DescriptionEn),
+		ID:     id,
+		NameSv: in.NameSv,
+		NameEn: dbutil.ToText(in.NameEn),
+		Email:  dbutil.ToText(in.Email),
+		// Position descriptions may contain HTML since upstream #1363
+		// (rendered through MarkdownBody), so they're sanitized here, the
+		// way upstream's action DOMPurified them.
+		DescriptionSv: dbutil.ToText(s.sanitizePtr(in.DescriptionSv)),
+		DescriptionEn: dbutil.ToText(s.sanitizePtr(in.DescriptionEn)),
 		Active:        in.Active,
 		BoardMember:   in.BoardMember,
 	})
@@ -632,4 +642,12 @@ func (s *Service) DeleteMandate(ctx context.Context, id string) error {
 // param, extracted so it's easy to find/replace in tests.
 func CurrentYear() int32 {
 	return int32(time.Now().Year())
+}
+
+func (s *Service) sanitizePtr(p *string) *string {
+	if p == nil {
+		return nil
+	}
+	clean := s.sanitizer.Sanitize(*p)
+	return &clean
 }

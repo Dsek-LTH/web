@@ -2193,6 +2193,10 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       (nickname, bio, ...) over from the current profile. Upstream's
       onboarding unit test is ported to mock the Go client instead of
       Prisma. `setNollningGroup` uses the student-id nollor endpoints.
+    - **Small Go-side ports of upstream fixes**: meeting documents match
+      notice/agenda/minutes by filename *prefix* (plus "Mötesprotokoll"),
+      and position descriptions - HTML-capable since #1363 - are
+      sanitized in Go's `UpdatePosition`.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

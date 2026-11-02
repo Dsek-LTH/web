@@ -152,7 +152,10 @@ func (s *Service) ListMeetings(ctx context.Context, docType string, year int) ([
 
 // buildMeeting ports Meeting.svelte's findFile: for each of
 // notice/agenda/minutes, the most-recently-modified file whose name
-// case-insensitively contains one of that field's substrings.
+// case-insensitively starts with one of that field's prefixes. Prefix, not
+// substring, and "mötesprotokoll" added, since upstream's fix to the same
+// function (synced in Phase 12) - a file merely mentioning "agenda"
+// somewhere in its name was being picked as the agenda.
 //
 // Real fix included here: the old minutes substring list was
 // ["Protokoll", "Minutes, Minute"] - a single string containing a literal
@@ -162,7 +165,7 @@ func (s *Service) ListMeetings(ctx context.Context, docType string, year int) ([
 func buildMeeting(name string, files []storage.Object) Meeting {
 	notice := findFile(files, "kallelse", "notice")
 	agenda := findFile(files, "föredragningslista", "foredragningslista", "agenda")
-	minutes := findFile(files, "protokoll", "minutes", "minute")
+	minutes := findFile(files, "protokoll", "mötesprotokoll", "minutes", "minute")
 
 	m := Meeting{Name: name}
 	if notice != nil {
@@ -188,14 +191,14 @@ func buildMeeting(name string, files []storage.Object) Meeting {
 	return m
 }
 
-func findFile(files []storage.Object, substrings ...string) *storage.Object {
+func findFile(files []storage.Object, prefixes ...string) *storage.Object {
 	var best *storage.Object
 	for i := range files {
 		f := &files[i]
 		lower := strings.ToLower(f.Name)
 		matched := false
-		for _, s := range substrings {
-			if strings.Contains(lower, s) {
+		for _, p := range prefixes {
+			if strings.HasPrefix(lower, p) {
 				matched = true
 				break
 			}
