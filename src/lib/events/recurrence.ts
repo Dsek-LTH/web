@@ -1,11 +1,6 @@
 import dayjs from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
-export const EVENT_TIMEZONE = "Europe/Stockholm";
+import { APP_TIMEZONE, toAppTime } from "$lib/utils/datetime";
 
 export type EventInterval = { start: Date; end: Date };
 
@@ -21,12 +16,12 @@ export type EventInterval = { start: Date; end: Date };
  */
 
 const toWallClock = (instant: Date) => {
-  const local = dayjs(instant).tz(EVENT_TIMEZONE);
+  const local = toAppTime(instant);
   return { date: local.format("YYYY-MM-DD"), time: local.format("HH:mm") };
 };
 
 const fromWallClock = (date: string, time: string) =>
-  dayjs.tz(`${date} ${time}`, EVENT_TIMEZONE).toDate();
+  dayjs.tz(`${date} ${time}`, APP_TIMEZONE).toDate();
 
 const addToDate = (date: string, amount: number, unit: dayjs.ManipulateType) =>
   dayjs.utc(date).add(amount, unit).format("YYYY-MM-DD");
