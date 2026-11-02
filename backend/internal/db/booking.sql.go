@@ -11,6 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addBookingRequestAccessDoors = `-- name: AddBookingRequestAccessDoors :exec
+INSERT INTO _booking_requests_access_doors ("A", "B")
+SELECT $1, unnest($2::text[])
+`
+
+type AddBookingRequestAccessDoorsParams struct {
+	ID        pgtype.UUID `json:"id"`
+	DoorNames []string    `json:"door_names"`
+}
+
+func (q *Queries) AddBookingRequestAccessDoors(ctx context.Context, arg AddBookingRequestAccessDoorsParams) error {
+	_, err := q.db.Exec(ctx, addBookingRequestAccessDoors, arg.ID, arg.DoorNames)
+	return err
+}
+
+const addBookingRequestAccessMembers = `-- name: AddBookingRequestAccessMembers :exec
+INSERT INTO _booking_requests_access_members ("A", "B")
+SELECT $1, unnest($2::uuid[])
+`
+
+type AddBookingRequestAccessMembersParams struct {
+	ID        pgtype.UUID   `json:"id"`
+	MemberIds []pgtype.UUID `json:"member_ids"`
+}
+
+func (q *Queries) AddBookingRequestAccessMembers(ctx context.Context, arg AddBookingRequestAccessMembersParams) error {
+	_, err := q.db.Exec(ctx, addBookingRequestAccessMembers, arg.ID, arg.MemberIds)
+	return err
+}
+
 const addBookingRequestBookables = `-- name: AddBookingRequestBookables :exec
 INSERT INTO _booking_requests_bookables ("A", "B")
 SELECT unnest($1::uuid[]), $2
@@ -27,6 +57,33 @@ func (q *Queries) AddBookingRequestBookables(ctx context.Context, arg AddBooking
 	return err
 }
 
+const clearBookingDoorAccess = `-- name: ClearBookingDoorAccess :exec
+DELETE FROM door_access_policies WHERE booking_request_id = $1
+`
+
+func (q *Queries) ClearBookingDoorAccess(ctx context.Context, bookingRequestID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, clearBookingDoorAccess, bookingRequestID)
+	return err
+}
+
+const clearBookingRequestAccessDoors = `-- name: ClearBookingRequestAccessDoors :exec
+DELETE FROM _booking_requests_access_doors WHERE "A" = $1
+`
+
+func (q *Queries) ClearBookingRequestAccessDoors(ctx context.Context, a pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, clearBookingRequestAccessDoors, a)
+	return err
+}
+
+const clearBookingRequestAccessMembers = `-- name: ClearBookingRequestAccessMembers :exec
+DELETE FROM _booking_requests_access_members WHERE "A" = $1
+`
+
+func (q *Queries) ClearBookingRequestAccessMembers(ctx context.Context, a pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, clearBookingRequestAccessMembers, a)
+	return err
+}
+
 const clearBookingRequestBookables = `-- name: ClearBookingRequestBookables :exec
 DELETE FROM _booking_requests_bookables WHERE "B" = $1
 `
@@ -34,6 +91,28 @@ DELETE FROM _booking_requests_bookables WHERE "B" = $1
 func (q *Queries) ClearBookingRequestBookables(ctx context.Context, bookingRequestID pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, clearBookingRequestBookables, bookingRequestID)
 	return err
+}
+
+const countDoorsByName = `-- name: CountDoorsByName :one
+SELECT count(*) FROM doors WHERE name = ANY($1::text[])
+`
+
+func (q *Queries) CountDoorsByName(ctx context.Context, names []string) (int64, error) {
+	row := q.db.QueryRow(ctx, countDoorsByName, names)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countMembersByID = `-- name: CountMembersByID :one
+SELECT count(*) FROM members WHERE id = ANY($1::uuid[])
+`
+
+func (q *Queries) CountMembersByID(ctx context.Context, ids []pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countMembersByID, ids)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const createBookable = `-- name: CreateBookable :one
@@ -272,6 +351,120 @@ func (q *Queries) GetCurrentKarhusmastare(ctx context.Context) (GetCurrentKarhus
 	return i, err
 }
 
+const grantBookingDoorAccess = `-- name: GrantBookingDoorAccess :exec
+INSERT INTO door_access_policies (
+    door_name, student_id, start_datetime, end_datetime, information,
+    booking_request_id
+)
+SELECT d."B", m.student_id, b.start - $1::interval,
+       b."end" + $1::interval,
+       left('Booking: ' || COALESCE(b.event, b.id::text), 255), b.id
+FROM booking_requests b
+JOIN _booking_requests_access_doors d ON d."A" = b.id
+JOIN _booking_requests_access_members a ON a."A" = b.id
+JOIN members m ON m.id = a."B"
+WHERE b.id = $2
+  AND b.start IS NOT NULL AND b."end" IS NOT NULL
+  AND m.student_id IS NOT NULL
+`
+
+type GrantBookingDoorAccessParams struct {
+	Buffer pgtype.Interval `json:"buffer"`
+	ID     pgtype.UUID     `json:"id"`
+}
+
+// One door policy per (requested door x requested member with a student
+// id), for the booking's window widened by `buffer` on both sides.
+func (q *Queries) GrantBookingDoorAccess(ctx context.Context, arg GrantBookingDoorAccessParams) error {
+	_, err := q.db.Exec(ctx, grantBookingDoorAccess, arg.Buffer, arg.ID)
+	return err
+}
+
+const listAccessDoorsForBookingRequests = `-- name: ListAccessDoorsForBookingRequests :many
+SELECT a."A" AS booking_request_id, d.name, d.verbose_name
+FROM _booking_requests_access_doors a
+JOIN doors d ON d.name = a."B"
+WHERE a."A" = ANY($1::uuid[])
+ORDER BY d.verbose_name
+`
+
+type ListAccessDoorsForBookingRequestsRow struct {
+	BookingRequestID pgtype.UUID `json:"booking_request_id"`
+	Name             string      `json:"name"`
+	VerboseName      string      `json:"verbose_name"`
+}
+
+func (q *Queries) ListAccessDoorsForBookingRequests(ctx context.Context, ids []pgtype.UUID) ([]ListAccessDoorsForBookingRequestsRow, error) {
+	rows, err := q.db.Query(ctx, listAccessDoorsForBookingRequests, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAccessDoorsForBookingRequestsRow{}
+	for rows.Next() {
+		var i ListAccessDoorsForBookingRequestsRow
+		if err := rows.Scan(&i.BookingRequestID, &i.Name, &i.VerboseName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAccessMembersForBookingRequests = `-- name: ListAccessMembersForBookingRequests :many
+SELECT a."A" AS booking_request_id, m.id, m.student_id, m.first_name,
+       m.last_name, m.nickname, m.picture_path, m.class_year, m.class_programme
+FROM _booking_requests_access_members a
+JOIN members m ON m.id = a."B"
+WHERE a."A" = ANY($1::uuid[])
+ORDER BY m.first_name, m.last_name
+`
+
+type ListAccessMembersForBookingRequestsRow struct {
+	BookingRequestID pgtype.UUID `json:"booking_request_id"`
+	ID               pgtype.UUID `json:"id"`
+	StudentID        pgtype.Text `json:"student_id"`
+	FirstName        pgtype.Text `json:"first_name"`
+	LastName         pgtype.Text `json:"last_name"`
+	Nickname         pgtype.Text `json:"nickname"`
+	PicturePath      pgtype.Text `json:"picture_path"`
+	ClassYear        pgtype.Int4 `json:"class_year"`
+	ClassProgramme   pgtype.Text `json:"class_programme"`
+}
+
+func (q *Queries) ListAccessMembersForBookingRequests(ctx context.Context, ids []pgtype.UUID) ([]ListAccessMembersForBookingRequestsRow, error) {
+	rows, err := q.db.Query(ctx, listAccessMembersForBookingRequests, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAccessMembersForBookingRequestsRow{}
+	for rows.Next() {
+		var i ListAccessMembersForBookingRequestsRow
+		if err := rows.Scan(
+			&i.BookingRequestID,
+			&i.ID,
+			&i.StudentID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Nickname,
+			&i.PicturePath,
+			&i.ClassYear,
+			&i.ClassProgramme,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listBookableCategories = `-- name: ListBookableCategories :many
 SELECT id, name_sv, name_en FROM bookable_categories ORDER BY name_sv
 `
@@ -468,6 +661,62 @@ func (q *Queries) ListConflictingBookingRequests(ctx context.Context, arg ListCo
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listDoorsForBooking = `-- name: ListDoorsForBooking :many
+SELECT name, verbose_name FROM doors ORDER BY verbose_name
+`
+
+type ListDoorsForBookingRow struct {
+	Name        string `json:"name"`
+	VerboseName string `json:"verbose_name"`
+}
+
+func (q *Queries) ListDoorsForBooking(ctx context.Context) ([]ListDoorsForBookingRow, error) {
+	rows, err := q.db.Query(ctx, listDoorsForBooking)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListDoorsForBookingRow{}
+	for rows.Next() {
+		var i ListDoorsForBookingRow
+		if err := rows.Scan(&i.Name, &i.VerboseName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPendingBookingRequestIDs = `-- name: ListPendingBookingRequestIDs :many
+SELECT id FROM booking_requests
+WHERE status = 'PENDING' AND start IS NOT NULL AND "end" >= now()
+ORDER BY start, "end"
+`
+
+// The review queue: pending requests that haven't ended yet.
+func (q *Queries) ListPendingBookingRequestIDs(ctx context.Context) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, listPendingBookingRequestIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pgtype.UUID{}
+	for rows.Next() {
+		var id pgtype.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

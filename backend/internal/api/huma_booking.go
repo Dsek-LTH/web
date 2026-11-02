@@ -55,6 +55,21 @@ type bookingRequestIDInput struct {
 	ID string `path:"id"`
 }
 
+// acceptBookingRequestInput's body is optional: without it the request's
+// own door/member access lists are used as they are.
+type acceptBookingRequestInput struct {
+	ID   string               `path:"id"`
+	Body *booking.AccessInput `required:"false"`
+}
+
+type bookingDoorsOutput struct {
+	Body []booking.AccessDoor
+}
+
+type reviewQueueOutput struct {
+	Body []booking.ReviewItem
+}
+
 type bookingRequestOutput struct {
 	Body booking.BookingRequest
 }
@@ -189,6 +204,32 @@ func registerBookingRoutes(api huma.API, svc *booking.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
+		OperationID: "list-booking-doors",
+		Method:      http.MethodGet,
+		Path:        "/booking-requests/doors",
+		Summary:     "Doors a booking request can ask access for (booking_request:create)",
+	}, func(ctx context.Context, _ *struct{}) (*bookingDoorsOutput, error) {
+		doors, err := svc.ListDoors(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &bookingDoorsOutput{Body: doors}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "booking-review-queue",
+		Method:      http.MethodGet,
+		Path:        "/booking-requests/review",
+		Summary:     "Pending booking requests with their conflicts (booking_request:update)",
+	}, func(ctx context.Context, _ *struct{}) (*reviewQueueOutput, error) {
+		items, err := svc.ReviewQueue(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &reviewQueueOutput{Body: items}, nil
+	})
+
+	huma.Register(api, huma.Operation{
 		OperationID: "get-booking-request",
 		Method:      http.MethodGet,
 		Path:        "/booking-requests/{id}",
@@ -252,8 +293,8 @@ func registerBookingRoutes(api huma.API, svc *booking.Service) {
 		Method:      http.MethodPost,
 		Path:        "/booking-requests/{id}/accept",
 		Summary:     "Accept a booking request",
-	}, func(ctx context.Context, input *bookingRequestIDInput) (*bookingRequestOutput, error) {
-		br, err := svc.SetStatus(ctx, input.ID, true)
+	}, func(ctx context.Context, input *acceptBookingRequestInput) (*bookingRequestOutput, error) {
+		br, err := svc.SetStatus(ctx, input.ID, true, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
@@ -266,7 +307,7 @@ func registerBookingRoutes(api huma.API, svc *booking.Service) {
 		Path:        "/booking-requests/{id}/reject",
 		Summary:     "Reject a booking request",
 	}, func(ctx context.Context, input *bookingRequestIDInput) (*bookingRequestOutput, error) {
-		br, err := svc.SetStatus(ctx, input.ID, false)
+		br, err := svc.SetStatus(ctx, input.ID, false, nil)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}

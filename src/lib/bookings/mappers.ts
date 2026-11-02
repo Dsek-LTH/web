@@ -14,10 +14,10 @@ type BookingSource = {
     nameEn?: string | null;
   }>;
   booker: {
-    firstName: string | null;
-    lastName: string | null;
-    studentId: string | null;
-    picturePath: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    studentId?: string | null;
+    picturePath?: string | null;
   } | null;
 };
 

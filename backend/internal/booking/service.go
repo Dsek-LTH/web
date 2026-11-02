@@ -179,6 +179,9 @@ func (s *Service) CreateBookable(ctx context.Context, in BookableInput) (*Bookab
 	if err != nil {
 		return nil, invalidf("invalid categoryId: %v", err)
 	}
+	if err := s.validateBookableDoor(ctx, &in); err != nil {
+		return nil, err
+	}
 	row, err := s.queries.CreateBookable(ctx, db.CreateBookableParams{
 		NameSv:     in.NameSv,
 		NameEn:     dbutil.ToText(in.NameEn),
@@ -218,6 +221,9 @@ func (s *Service) UpdateBookable(
 	categoryID, err := dbutil.ParseUUIDPtr(in.CategoryID)
 	if err != nil {
 		return nil, invalidf("invalid categoryId: %v", err)
+	}
+	if err := s.validateBookableDoor(ctx, &in); err != nil {
+		return nil, err
 	}
 	row, err := s.queries.UpdateBookable(ctx, db.UpdateBookableParams{
 		ID:         uid,
@@ -282,7 +288,52 @@ func (s *Service) List(ctx context.Context) ([]BookingRequest, error) {
 		br.Bookables = orEmptyBookables(bookablesByRequest[dbutil.UUIDStr(row.ID)])
 		out[i] = br
 	}
+	ptrs := make([]*BookingRequest, len(out))
+	for i := range out {
+		ptrs[i] = &out[i]
+	}
+	if err := s.attachAccess(ctx, ptrs); err != nil {
+		return nil, err
+	}
 	return out, nil
+}
+
+// ReviewQueue lists the pending requests that haven't ended yet, each with
+// the accepted/pending requests it overlaps on a shared bookable - the
+// admin review page (upstream #1184's getBookingReviewQueue).
+func (s *Service) ReviewQueue(ctx context.Context) ([]ReviewItem, error) {
+	if err := auth.Require(ctx, apinames.BookingRequestUpdate); err != nil {
+		return nil, err
+	}
+	ids, err := s.queries.ListPendingBookingRequestIDs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list pending booking requests: %w", err)
+	}
+	items := make([]ReviewItem, 0, len(ids))
+	for _, id := range ids {
+		br, err := s.getFull(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		item := ReviewItem{BookingRequest: *br, Conflicts: []BookingRequest{}}
+		if br.Start != nil && br.End != nil {
+			bookableIDs := make([]pgtype.UUID, 0, len(br.Bookables))
+			for _, b := range br.Bookables {
+				bid, err := dbutil.ParseUUID(b.ID)
+				if err != nil {
+					return nil, fmt.Errorf("parse bookable id: %w", err)
+				}
+				bookableIDs = append(bookableIDs, bid)
+			}
+			conflicts, err := s.conflicts(ctx, bookableIDs, *br.Start, *br.End, &id)
+			if err != nil {
+				return nil, err
+			}
+			item.Conflicts = conflicts
+		}
+		items = append(items, item)
+	}
+	return items, nil
 }
 
 func (s *Service) Get(ctx context.Context, id string) (*BookingRequest, error) {
@@ -346,6 +397,9 @@ func (s *Service) Create(
 		BookingRequestID: row.ID,
 	}); err != nil {
 		return nil, nil, fmt.Errorf("link bookables: %w", err)
+	}
+	if err := s.setAccess(ctx, row.ID, in.AccessInput); err != nil {
+		return nil, nil, err
 	}
 
 	conflicts, err := s.conflicts(ctx, bookableIDs, in.Start, in.End, &row.ID)
@@ -429,6 +483,19 @@ func (s *Service) Update(
 	}); err != nil {
 		return nil, nil, fmt.Errorf("link bookables: %w", err)
 	}
+	if err := s.setAccess(ctx, uid, in.AccessInput); err != nil {
+		return nil, nil, err
+	}
+	// A still-accepted request (an admin edit keeps the status) gets its
+	// door access re-granted for the new time/doors/members; any other
+	// status loses whatever an earlier acceptance granted.
+	if status == db.BookingRequestStatusACCEPTED {
+		if err := s.grantDoorAccess(ctx, uid); err != nil {
+			return nil, nil, err
+		}
+	} else if err := s.queries.ClearBookingDoorAccess(ctx, uid); err != nil {
+		return nil, nil, fmt.Errorf("clear booking door access: %w", err)
+	}
 
 	conflicts, err := s.conflicts(ctx, bookableIDs, in.Start, in.End, &uid)
 	if err != nil {
@@ -477,10 +544,16 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 // (matches the old app's authorize(apiNames.BOOKINGS.UPDATE) gate on the
 // admin pages that call it; the plain booker never gets an accept/reject
 // button).
+//
+// access, when non-nil, replaces the request's door/member access lists
+// before accepting - the review page lets the admin adjust them (upstream
+// #1184). Accepting grants that door access; rejecting removes any an
+// earlier acceptance granted.
 func (s *Service) SetStatus(
 	ctx context.Context,
 	id string,
 	accepted bool,
+	access *AccessInput,
 ) (*BookingRequest, error) {
 	if err := auth.Require(ctx, apinames.BookingRequestUpdate); err != nil {
 		return nil, err
@@ -504,11 +577,23 @@ func (s *Service) SetStatus(
 		status = db.BookingRequestStatusACCEPTED
 		statusText = "accepted"
 	}
+	if accepted && access != nil {
+		if err := s.setAccess(ctx, uid, *access); err != nil {
+			return nil, err
+		}
+	}
 	if _, err := s.queries.UpdateBookingRequestStatus(ctx, db.UpdateBookingRequestStatusParams{
 		ID:     uid,
 		Status: status,
 	}); err != nil {
 		return nil, fmt.Errorf("update booking request status: %w", err)
+	}
+	if accepted {
+		if err := s.grantDoorAccess(ctx, uid); err != nil {
+			return nil, err
+		}
+	} else if err := s.queries.ClearBookingDoorAccess(ctx, uid); err != nil {
+		return nil, fmt.Errorf("clear booking door access: %w", err)
 	}
 
 	result, err := s.getFull(ctx, uid)
@@ -682,6 +767,9 @@ func (s *Service) getFull(ctx context.Context, id pgtype.UUID) (*BookingRequest,
 		},
 	})
 	br.Bookables = orEmptyBookables(bookablesByRequest[dbutil.UUIDStr(id)])
+	if err := s.attachAccess(ctx, []*BookingRequest{&br}); err != nil {
+		return nil, err
+	}
 	return &br, nil
 }
 
@@ -709,4 +797,22 @@ func (s *Service) bookablesForRequests(
 		}))
 	}
 	return out, nil
+}
+
+// validateBookableDoor checks a bookable's door is a real door - it's a
+// foreign key to doors.name since upstream's booking door access
+// migration, no longer free text. An empty door means none.
+func (s *Service) validateBookableDoor(ctx context.Context, in *BookableInput) error {
+	if in.Door == nil || *in.Door == "" {
+		in.Door = nil
+		return nil
+	}
+	n, err := s.queries.CountDoorsByName(ctx, []string{*in.Door})
+	if err != nil {
+		return fmt.Errorf("look up door: %w", err)
+	}
+	if n == 0 {
+		return invalidf("unknown door %q", *in.Door)
+	}
+	return nil
 }

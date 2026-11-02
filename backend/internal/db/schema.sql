@@ -412,6 +412,9 @@ CREATE TABLE bookables (
     name_en     VARCHAR(255),
     "isDisabled" BOOLEAN NOT NULL DEFAULT false,
     category_id UUID REFERENCES bookable_categories (id),
+    -- A door name (FK to doors.name since upstream's
+    -- 20260911101936_add_booking_door_access, not modeled here since
+    -- doors is declared further down).
     door        VARCHAR(255)
 );
 
@@ -550,5 +553,24 @@ CREATE TABLE door_access_policies (
     start_datetime TIMESTAMPTZ,
     end_datetime   TIMESTAMPTZ,
     is_ban         BOOLEAN NOT NULL DEFAULT false,
-    information    VARCHAR(255)
+    information    VARCHAR(255),
+    -- Set for the policies a booking's acceptance granted (see
+    -- internal/booking's door access), so they can be replaced/removed with
+    -- the booking. Added by upstream's 20260911101936_add_booking_door_access.
+    booking_request_id UUID REFERENCES booking_requests (id) ON DELETE CASCADE
+);
+
+-- Which doors ("B", by name) and which members ("B") a booking request
+-- ("A") asked door access for - upstream's
+-- 20260911101936_add_booking_door_access, implicit Prisma join tables.
+CREATE TABLE _booking_requests_access_doors (
+    "A" UUID NOT NULL REFERENCES booking_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" VARCHAR(255) NOT NULL REFERENCES doors (name) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY ("A", "B")
+);
+
+CREATE TABLE _booking_requests_access_members (
+    "A" UUID NOT NULL REFERENCES booking_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY ("A", "B")
 );

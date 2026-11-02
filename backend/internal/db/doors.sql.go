@@ -27,7 +27,18 @@ type CreateDoorAccessPolicyParams struct {
 	Information   pgtype.Text        `json:"information"`
 }
 
-func (q *Queries) CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAccessPolicyParams) (DoorAccessPolicy, error) {
+type CreateDoorAccessPolicyRow struct {
+	ID            pgtype.UUID        `json:"id"`
+	DoorName      string             `json:"door_name"`
+	Role          pgtype.Text        `json:"role"`
+	StudentID     pgtype.Text        `json:"student_id"`
+	StartDatetime pgtype.Timestamptz `json:"start_datetime"`
+	EndDatetime   pgtype.Timestamptz `json:"end_datetime"`
+	IsBan         bool               `json:"is_ban"`
+	Information   pgtype.Text        `json:"information"`
+}
+
+func (q *Queries) CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAccessPolicyParams) (CreateDoorAccessPolicyRow, error) {
 	row := q.db.QueryRow(ctx, createDoorAccessPolicy,
 		arg.DoorName,
 		arg.Role,
@@ -37,7 +48,7 @@ func (q *Queries) CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAcce
 		arg.IsBan,
 		arg.Information,
 	)
-	var i DoorAccessPolicy
+	var i CreateDoorAccessPolicyRow
 	err := row.Scan(
 		&i.ID,
 		&i.DoorName,

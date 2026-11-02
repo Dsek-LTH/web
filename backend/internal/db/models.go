@@ -306,6 +306,16 @@ type BookingRequest struct {
 	Status   BookingRequestStatus `json:"status"`
 }
 
+type BookingRequestsAccessDoor struct {
+	A pgtype.UUID `json:"A"`
+	B string      `json:"B"`
+}
+
+type BookingRequestsAccessMember struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
+}
+
 type BookingRequestsBookable struct {
 	A pgtype.UUID `json:"A"`
 	B pgtype.UUID `json:"B"`
@@ -375,14 +385,15 @@ type Door struct {
 }
 
 type DoorAccessPolicy struct {
-	ID            pgtype.UUID        `json:"id"`
-	DoorName      string             `json:"door_name"`
-	Role          pgtype.Text        `json:"role"`
-	StudentID     pgtype.Text        `json:"student_id"`
-	StartDatetime pgtype.Timestamptz `json:"start_datetime"`
-	EndDatetime   pgtype.Timestamptz `json:"end_datetime"`
-	IsBan         bool               `json:"is_ban"`
-	Information   pgtype.Text        `json:"information"`
+	ID               pgtype.UUID        `json:"id"`
+	DoorName         string             `json:"door_name"`
+	Role             pgtype.Text        `json:"role"`
+	StudentID        pgtype.Text        `json:"student_id"`
+	StartDatetime    pgtype.Timestamptz `json:"start_datetime"`
+	EndDatetime      pgtype.Timestamptz `json:"end_datetime"`
+	IsBan            bool               `json:"is_ban"`
+	Information      pgtype.Text        `json:"information"`
+	BookingRequestID pgtype.UUID        `json:"booking_request_id"`
 }
 
 type Election struct {

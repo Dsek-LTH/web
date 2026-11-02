@@ -394,6 +394,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/booking-requests/doors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Doors a booking request can ask access for (booking_request:create) */
+        get: operations["list-booking-doors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/booking-requests/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Pending booking requests with their conflicts (booking_request:update) */
+        get: operations["booking-review-queue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/booking-requests/{id}": {
         parameters: {
             query?: never;
@@ -1662,6 +1696,20 @@ export interface components {
             /** Format: int64 */
             grantCount: number;
         };
+        AccessDoor: {
+            name: string;
+            verboseName: string;
+        };
+        AccessInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AccessInput.json
+             */
+            readonly $schema?: string;
+            accessDoors: string[] | null;
+            accessMemberIds: string[] | null;
+        };
         AccessPolicy: {
             /**
              * Format: uri
@@ -1890,6 +1938,8 @@ export interface components {
              * @example https://example.com/schemas/BookingRequest.json
              */
             readonly $schema?: string;
+            accessDoors: components["schemas"]["AccessDoor"][] | null;
+            accessMembers: components["schemas"]["Member"][] | null;
             bookables: components["schemas"]["Bookable"][] | null;
             booker?: components["schemas"]["Member"];
             /** Format: date-time */
@@ -1909,6 +1959,8 @@ export interface components {
              * @example https://example.com/schemas/BookingRequestInput.json
              */
             readonly $schema?: string;
+            accessDoors: string[] | null;
+            accessMemberIds: string[] | null;
             bookableIds: string[] | null;
             /** Format: date-time */
             end: string;
@@ -2688,6 +2740,22 @@ export interface components {
         RequirementFolder: {
             files: components["schemas"]["DocumentFile"][] | null;
             name: string;
+        };
+        ReviewItem: {
+            accessDoors: components["schemas"]["AccessDoor"][] | null;
+            accessMembers: components["schemas"]["Member"][] | null;
+            bookables: components["schemas"]["Bookable"][] | null;
+            booker?: components["schemas"]["Member"];
+            conflicts: components["schemas"]["BookingRequest"][] | null;
+            /** Format: date-time */
+            created?: string;
+            /** Format: date-time */
+            end?: string;
+            event?: string;
+            id: string;
+            /** Format: date-time */
+            start?: string;
+            status: string;
         };
         Schedule: {
             /**
@@ -4153,6 +4221,64 @@ export interface operations {
             };
         };
     };
+    "list-booking-doors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccessDoor"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "booking-review-queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewItem"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "get-booking-request": {
         parameters: {
             query?: never;
@@ -4257,7 +4383,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AccessInput"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {

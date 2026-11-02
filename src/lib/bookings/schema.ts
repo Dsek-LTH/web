@@ -1,11 +1,7 @@
+import dayjs from "dayjs";
 import { z } from "zod";
 import * as m from "$paraglide/messages";
 
-// start/end are z.date() (not the old z.string() + server-side dayjs.tz
-// conversion) to match $lib/events/schema.ts's own pattern - the browser
-// parses a datetime-local input as a local wall-clock Date, and
-// .toISOString() at the call site turns that into an unambiguous UTC
-// instant with no explicit Stockholm-timezone handling needed here.
 export const bookingSchema = z
   .object({
     name: z.string().min(1),
@@ -25,7 +21,7 @@ export const bookingSchema = z
     accessDoors: z.array(z.string()).default([]),
     accessMemberIds: z.array(z.uuid()).default([]),
   })
-  .refine((data) => data.start < data.end, {
+  .refine((data) => dayjs(data.start).isBefore(dayjs(data.end)), {
     message: m.booking_startDateBeforeEndDate(),
     path: ["end"],
   });

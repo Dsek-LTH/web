@@ -30,7 +30,7 @@
     today,
     type DateValue,
   } from "@internationalized/date";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import MemberSelector from "$lib/components/MemberSelector.svelte";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
   import {
@@ -48,8 +48,8 @@
   }: {
     data: {
       form: SuperValidated<Infer<BookingSchema>>;
-      bookables: Array<ExtendedPrismaModel<"Bookable">>;
-      doors: Array<ExtendedPrismaModel<"Door">>;
+      bookables: Array<components["schemas"]["Bookable"]>;
+      doors: Array<components["schemas"]["AccessDoor"]>;
       currentMemberSearchAttributes?:
         | (MemberSearchReturnAttributes & { id: string })
         | null;
@@ -58,7 +58,7 @@
       >;
     };
     mode?: "create" | "edit" | "review";
-    booking?: { id: string; status: "ACCEPTED" | "PENDING" | "DENIED" };
+    booking?: { id: string; status: string };
     backHref?: string;
   } = $props();
 
@@ -94,7 +94,7 @@
 
     untrack(() => {
       const doorsToAdd = added
-        .map((id) => bookables.find((b) => b.id === id)?.doorName)
+        .map((id) => bookables.find((b) => b.id === id)?.door)
         .filter(
           (doorName): doorName is string =>
             !!doorName && !$formData.accessDoors.includes(doorName),

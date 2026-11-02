@@ -1,16 +1,20 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { error } from "@sveltejs/kit";
 import { bookingReviewActions } from "$lib/bookings/server/actions";
-import { getBookingReviewQueue } from "$lib/bookings/server/queries";
+import { normalizeBooking } from "$lib/bookings/server/queries";
+import { serverApi } from "$lib/server/apiClient";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma, user } = locals;
-  authorize(apiNames.BOOKINGS.UPDATE, user);
-
-  const queue = await getBookingReviewQueue(prisma);
-
-  return { queue };
+// The pending requests with their conflicts; Go requires
+// booking_request:update for the queue.
+export const load: PageServerLoad = async (event) => {
+  const res = await serverApi(event).GET("/booking-requests/review", {});
+  if (res.error) error(res.response.status === 403 ? 403 : 500);
+  return {
+    queue: (res.data ?? []).map((item) => ({
+      ...normalizeBooking(item),
+      conflicts: (item.conflicts ?? []).map(normalizeBooking),
+    })),
+  };
 };
 
 export const actions: Actions = bookingReviewActions;

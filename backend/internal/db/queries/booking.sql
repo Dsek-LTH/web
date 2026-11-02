@@ -132,3 +132,68 @@ WHERE ma.position_id = 'dsek.km.mastare'
   AND ma.start_date <= CURRENT_DATE AND ma.end_date >= CURRENT_DATE
 ORDER BY ma.start_date DESC
 LIMIT 1;
+
+-- name: ListAccessDoorsForBookingRequests :many
+SELECT a."A" AS booking_request_id, d.name, d.verbose_name
+FROM _booking_requests_access_doors a
+JOIN doors d ON d.name = a."B"
+WHERE a."A" = ANY(sqlc.arg(ids)::uuid[])
+ORDER BY d.verbose_name;
+
+-- name: ListAccessMembersForBookingRequests :many
+SELECT a."A" AS booking_request_id, m.id, m.student_id, m.first_name,
+       m.last_name, m.nickname, m.picture_path, m.class_year, m.class_programme
+FROM _booking_requests_access_members a
+JOIN members m ON m.id = a."B"
+WHERE a."A" = ANY(sqlc.arg(ids)::uuid[])
+ORDER BY m.first_name, m.last_name;
+
+-- name: ClearBookingRequestAccessDoors :exec
+DELETE FROM _booking_requests_access_doors WHERE "A" = $1;
+
+-- name: ClearBookingRequestAccessMembers :exec
+DELETE FROM _booking_requests_access_members WHERE "A" = $1;
+
+-- name: AddBookingRequestAccessDoors :exec
+INSERT INTO _booking_requests_access_doors ("A", "B")
+SELECT sqlc.arg(id), unnest(sqlc.arg(door_names)::text[]);
+
+-- name: AddBookingRequestAccessMembers :exec
+INSERT INTO _booking_requests_access_members ("A", "B")
+SELECT sqlc.arg(id), unnest(sqlc.arg(member_ids)::uuid[]);
+
+-- name: CountDoorsByName :one
+SELECT count(*) FROM doors WHERE name = ANY(sqlc.arg(names)::text[]);
+
+-- name: CountMembersByID :one
+SELECT count(*) FROM members WHERE id = ANY(sqlc.arg(ids)::uuid[]);
+
+-- name: ClearBookingDoorAccess :exec
+DELETE FROM door_access_policies WHERE booking_request_id = $1;
+
+-- name: GrantBookingDoorAccess :exec
+-- One door policy per (requested door x requested member with a student
+-- id), for the booking's window widened by `buffer` on both sides.
+INSERT INTO door_access_policies (
+    door_name, student_id, start_datetime, end_datetime, information,
+    booking_request_id
+)
+SELECT d."B", m.student_id, b.start - sqlc.arg(buffer)::interval,
+       b."end" + sqlc.arg(buffer)::interval,
+       left('Booking: ' || COALESCE(b.event, b.id::text), 255), b.id
+FROM booking_requests b
+JOIN _booking_requests_access_doors d ON d."A" = b.id
+JOIN _booking_requests_access_members a ON a."A" = b.id
+JOIN members m ON m.id = a."B"
+WHERE b.id = sqlc.arg(id)
+  AND b.start IS NOT NULL AND b."end" IS NOT NULL
+  AND m.student_id IS NOT NULL;
+
+-- name: ListPendingBookingRequestIDs :many
+-- The review queue: pending requests that haven't ended yet.
+SELECT id FROM booking_requests
+WHERE status = 'PENDING' AND start IS NOT NULL AND "end" >= now()
+ORDER BY start, "end";
+
+-- name: ListDoorsForBooking :many
+SELECT name, verbose_name FROM doors ORDER BY verbose_name;

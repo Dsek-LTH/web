@@ -62,6 +62,31 @@ type BookingRequest struct {
 	Status    string           `json:"status"`
 	Booker    *apitypes.Member `json:"booker,omitempty"`
 	Bookables []Bookable       `json:"bookables"`
+	// AccessDoors/AccessMembers are the doors the booker asked to have
+	// opened for the booking and who should get in (upstream #1184).
+	// Accepting the request grants exactly that door access, for the
+	// booking's time plus a buffer (see Service.SetStatus).
+	AccessDoors   []AccessDoor      `json:"accessDoors"`
+	AccessMembers []apitypes.Member `json:"accessMembers"`
+}
+
+type AccessDoor struct {
+	Name        string `json:"name"`
+	VerboseName string `json:"verboseName"`
+}
+
+// ReviewItem is a pending request in the admin review queue, with the
+// other active requests it collides with.
+type ReviewItem struct {
+	BookingRequest
+	Conflicts []BookingRequest `json:"conflicts"`
+}
+
+// AccessInput replaces a request's door-access lists (door names, member
+// ids).
+type AccessInput struct {
+	AccessDoors     []string `json:"accessDoors"`
+	AccessMemberIDs []string `json:"accessMemberIds"`
 }
 
 type BookingRequestInput struct {
@@ -69,4 +94,5 @@ type BookingRequestInput struct {
 	Start       time.Time `json:"start"`
 	End         time.Time `json:"end"`
 	BookableIDs []string  `json:"bookableIds"`
+	AccessInput
 }

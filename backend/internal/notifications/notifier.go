@@ -116,7 +116,7 @@ func (n *RealNotifier) NotifyNewBookingRequest(
 			b.Start.Format("02/01 15:04"), b.End.Format("02/01 15:04"),
 		),
 		Type:      TypeBookingRequest,
-		Link:      "/booking/admin/" + b.BookingRequestID,
+		Link:      "/bookings/admin/" + b.BookingRequestID,
 		MemberIDs: []string{b.RecipientMemberID},
 	})
 }
@@ -130,7 +130,7 @@ func (n *RealNotifier) NotifyBookingRequestStatus(
 		Title:     fmt.Sprintf("Booking request %s", b.Status),
 		Message:   fmt.Sprintf("Your booking request for %s has been %s", b.Event, b.Status),
 		Type:      TypeBookingRequest,
-		Link:      "/booking",
+		Link:      "/bookings",
 		MemberIDs: []string{b.RecipientMemberID},
 	})
 }

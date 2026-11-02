@@ -1,27 +1,25 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 import { bookingReviewPageActions } from "$lib/bookings/server/actions";
 import {
+  getBookingFormOptions,
   getBookingRequestOrThrow,
   getSuperValidatedBookingForm,
   toMemberSearchAttributes,
 } from "$lib/bookings/server/queries";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-  const { prisma, user } = locals;
-  authorize(apiNames.BOOKINGS.UPDATE, user);
+// Accepting/rejecting requires booking_request:update in Go.
+export const load: PageServerLoad = async (event) => {
+  const [options, booking] = await Promise.all([
+    getBookingFormOptions(event),
+    getBookingRequestOrThrow(event, event.params.id),
+  ]);
 
-  const bookables = await prisma.bookable.findMany();
-  const doors = await authorizedPrismaClient.door.findMany();
-  const booking = await getBookingRequestOrThrow(prisma, params.id);
-  const form = await getSuperValidatedBookingForm(booking);
-  const initialAccessMembers = booking.accessMembers.map(
-    toMemberSearchAttributes,
-  );
-
-  return { bookables, doors, form, booking, initialAccessMembers };
+  return {
+    ...options,
+    form: await getSuperValidatedBookingForm(booking),
+    booking,
+    initialAccessMembers: booking.accessMembers.map(toMemberSearchAttributes),
+  };
 };
 
 export const actions: Actions = bookingReviewPageActions;

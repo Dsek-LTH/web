@@ -2113,6 +2113,28 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       shape principle #5 already allows. `mayWatchVideos` (now in
       `$lib/songs/helpers.ts`, shared by both detail pages) tolerates a
       null `roles`, which crashed both detail pages under mock auth.
+    - **Bookings** (upstream #1184, plus `/booking` -> `/bookings`): a
+      request now carries the doors to open and the members to let in
+      (`accessDoors`/`accessMembers`, upstream's two join tables).
+      Accepting grants exactly that: one `door_access_policies` row per
+      door x member, for the booking's window plus an hour either side,
+      tagged with `booking_request_id` so re-accepting/rejecting/editing
+      replaces or removes it and deleting the request cascades it -
+      upstream's `grantBookingDoorAccess`, moved into Go
+      (`internal/booking/access.go`) and done as one INSERT ... SELECT.
+      The review page may adjust the lists while accepting (optional body
+      on `POST /booking-requests/{id}/accept`); the quick accept/reject
+      buttons don't send one, so they keep what was requested - the same
+      split upstream made. Also new: `GET /booking-requests/review`
+      (pending requests with their conflicts) and
+      `GET /booking-requests/doors` (door names for the form, gated on
+      `booking_request:create` - upstream read doors past `door:read` for
+      the same reason, and the door *policies* stay behind it). A
+      bookable's `door` is a real FK to `doors` now, validated in Go.
+      Notification links point at `/bookings`. All booking pages load and
+      act through Go; `$lib/bookings/server/queries.ts`'s
+      `normalizeBooking` turns Go's JSON (string dates, nullable lists)
+      into the shape upstream's components were written against.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

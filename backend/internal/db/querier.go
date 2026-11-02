@@ -13,6 +13,8 @@ import (
 type Querier interface {
 	AddArticleLike(ctx context.Context, arg AddArticleLikeParams) error
 	AddArticleTags(ctx context.Context, arg AddArticleTagsParams) error
+	AddBookingRequestAccessDoors(ctx context.Context, arg AddBookingRequestAccessDoorsParams) error
+	AddBookingRequestAccessMembers(ctx context.Context, arg AddBookingRequestAccessMembersParams) error
 	AddBookingRequestBookables(ctx context.Context, arg AddBookingRequestBookablesParams) error
 	// Going/interested are mutually exclusive in the UI (see
 	// internal/events.Service.SetGoing/SetInterested/ClearAttendance), but that
@@ -24,6 +26,9 @@ type Querier interface {
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
+	ClearBookingDoorAccess(ctx context.Context, bookingRequestID pgtype.UUID) error
+	ClearBookingRequestAccessDoors(ctx context.Context, a pgtype.UUID) error
+	ClearBookingRequestAccessMembers(ctx context.Context, a pgtype.UUID) error
 	ClearBookingRequestBookables(ctx context.Context, bookingRequestID pgtype.UUID) error
 	ClearEventTags(ctx context.Context, eventID pgtype.UUID) error
 	// Mirrors the old removePhadder action: clears every one of this member's
@@ -38,8 +43,10 @@ type Querier interface {
 	CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) error
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
+	CountDoorsByName(ctx context.Context, names []string) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
+	CountMembersByID(ctx context.Context, ids []pgtype.UUID) (int64, error)
 	CountMembersByStudentIDs(ctx context.Context, studentIds []string) (int64, error)
 	CountSongBookEntries(ctx context.Context, arg CountSongBookEntriesParams) (int64, error)
 	CountSongSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
@@ -57,7 +64,7 @@ type Querier interface {
 	CreateBookableCategory(ctx context.Context, arg CreateBookableCategoryParams) (BookableCategory, error)
 	CreateBookingRequest(ctx context.Context, arg CreateBookingRequestParams) (BookingRequest, error)
 	CreateCafeShift(ctx context.Context, arg CreateCafeShiftParams) (CafeShift, error)
-	CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAccessPolicyParams) (DoorAccessPolicy, error)
+	CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAccessPolicyParams) (CreateDoorAccessPolicyRow, error)
 	CreateElection(ctx context.Context, arg CreateElectionParams) (Election, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
@@ -217,6 +224,9 @@ type Querier interface {
 	GetSongBySlug(ctx context.Context, arg GetSongBySlugParams) (Song, error)
 	GetSubscribedTagIDsForMember(ctx context.Context, a pgtype.UUID) ([]pgtype.UUID, error)
 	GetSubscriptionSettingsForMember(ctx context.Context, memberID pgtype.UUID) ([]SubscriptionSetting, error)
+	// One door policy per (requested door x requested member with a student
+	// id), for the booking's window widened by `buffer` on both sides.
+	GrantBookingDoorAccess(ctx context.Context, arg GrantBookingDoorAccessParams) error
 	InsertSubscribedTag(ctx context.Context, arg InsertSubscribedTagParams) error
 	InsertSubscriptionSetting(ctx context.Context, arg InsertSubscriptionSettingParams) error
 	// Backs IsStaben: does memberID hold a mandate, active today, on a position
@@ -225,6 +235,8 @@ type Querier interface {
 	// Every apiName with at least one grant, and how many - the admin access
 	// page's per-apiName badges (upstream #1291).
 	ListAPINameGrantCounts(ctx context.Context) ([]ListAPINameGrantCountsRow, error)
+	ListAccessDoorsForBookingRequests(ctx context.Context, ids []pgtype.UUID) ([]ListAccessDoorsForBookingRequestsRow, error)
+	ListAccessMembersForBookingRequests(ctx context.Context, ids []pgtype.UUID) ([]ListAccessMembersForBookingRequestsRow, error)
 	// Optional apiName filter; joins member first/last name for studentId-scoped
 	// rows (role-scoped rows have no member to join).
 	ListAccessPolicies(ctx context.Context, apiName pgtype.Text) ([]ListAccessPoliciesRow, error)
@@ -318,6 +330,7 @@ type Querier interface {
 	// role is checked for exact membership).
 	ListDoorAccessPoliciesForMemberView(ctx context.Context, arg ListDoorAccessPoliciesForMemberViewParams) ([]ListDoorAccessPoliciesForMemberViewRow, error)
 	ListDoors(ctx context.Context) ([]Door, error)
+	ListDoorsForBooking(ctx context.Context) ([]ListDoorsForBookingRow, error)
 	ListEmailAliasesForPosition(ctx context.Context, positionID string) ([]EmailAlias, error)
 	ListEventComments(ctx context.Context, eventID pgtype.UUID) ([]ListEventCommentsRow, error)
 	ListEventGoing(ctx context.Context, eventID pgtype.UUID) ([]ListEventGoingRow, error)
@@ -393,6 +406,8 @@ type Querier interface {
 	// slice of committees columns the election card actually renders (icon +
 	// name), same fields the old page's committee `select` projected.
 	ListOpenElections(ctx context.Context) ([]ListOpenElectionsRow, error)
+	// The review queue: pending requests that haven't ended yet.
+	ListPendingBookingRequestIDs(ctx context.Context) ([]pgtype.UUID, error)
 	// Nolla/phadder counts alongside each group, mirroring
 	// ListCommitteesWithCounts' count-subquery pattern.
 	ListPhadderGroups(ctx context.Context, seasonID pgtype.UUID) ([]ListPhadderGroupsRow, error)
