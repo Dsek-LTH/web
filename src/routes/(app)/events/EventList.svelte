@@ -81,9 +81,10 @@
 {#if display === "week"}
   <HomeCalendar
     events={data.events.map((event) => ({
+      id: event.id,
       startDate: event.startDatetime,
       endDate: event.endDatetime,
-      slug: event.slug ?? "",
+      slug: event.slug,
       title: event.title,
     }))}
   />

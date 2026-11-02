@@ -1,53 +1,72 @@
 <script lang="ts">
   import dayjs from "dayjs";
+
+  import { eventLink } from "$lib/events/events";
+  import { appDateKey, appEndDateKey, APP_TIMEZONE } from "$lib/utils/datetime";
   import { m } from "$paraglide/messages";
 
   const {
     events,
   }: {
     events: Array<{
+      id: string;
       startDate: Date;
       endDate: Date;
       title: string;
-      slug: string;
+      slug: string | null;
     }>;
   } = $props();
+
+  const todayKey = dayjs().tz(APP_TIMEZONE).format("YYYY-MM-DD");
+  const allDays = Array.from({ length: 7 }, (_, day) =>
+    dayjs.utc(todayKey).add(day, "day"),
+  );
+  const mobileDays = allDays.slice(0, 3);
+  const weekEndKey = allDays[6]!.format("YYYY-MM-DD");
+  const mobileEndKey = mobileDays[2]!.format("YYYY-MM-DD");
+
   const mapped = $derived(
-    events.map((e) => ({
-      ...e,
-      diff: dayjs(e.endDate).diff(dayjs(e.startDate), "day"),
-      // Calculate which column the event should start in (1-7) based on days from today
-      startDateNumber: Math.max(
-        1,
-        Math.min(7, dayjs(e.startDate).diff(dayjs().startOf("day"), "day") + 1),
-      ),
-      endDateNumber: Math.min(
-        8,
-        dayjs(e.endDate).diff(dayjs().startOf("day"), "day") + 2,
-      ),
-    })),
+    events.map((event) => {
+      const startKey = appDateKey(event.startDate);
+      const endKey = appEndDateKey(event.endDate);
+
+      return {
+        ...event,
+        start: dayjs(event.startDate).tz(APP_TIMEZONE),
+        end: dayjs(event.endDate).tz(APP_TIMEZONE),
+        diff: dayjs.utc(endKey).diff(dayjs.utc(startKey), "day"),
+        startDateNumber: Math.max(
+          1,
+          Math.min(7, dayjs.utc(startKey).diff(dayjs.utc(todayKey), "day") + 1),
+        ),
+        endDateNumber: Math.min(
+          8,
+          dayjs.utc(endKey).diff(dayjs.utc(todayKey), "day") + 2,
+        ),
+        mobileStartDateNumber: Math.max(
+          1,
+          Math.min(3, dayjs.utc(startKey).diff(dayjs.utc(todayKey), "day") + 1),
+        ),
+        mobileEndDateNumber: Math.min(
+          4,
+          dayjs.utc(endKey).diff(dayjs.utc(todayKey), "day") + 2,
+        ),
+        startsBeforeWeek: startKey < todayKey,
+        endsAfterWeek: endKey > weekEndKey,
+        startKey,
+        endKey,
+      };
+    }),
   );
 
-  const allDays = Array.from(Array(7).keys()).map((i) => dayjs().add(i, "day"));
-
-  const mobileDays = Array.from(Array(3).keys()).map((i) =>
-    dayjs().add(i, "day"),
-  );
-
-  const isEventInMobileRange = (event: (typeof mapped)[0]) => {
-    const eventStart = dayjs(event.startDate);
-    const eventEnd = dayjs(event.endDate);
-    const rangeEnd = dayjs().add(2, "day").endOf("day");
-    const rangeStart = dayjs().startOf("day");
-
-    return eventStart.isBefore(rangeEnd) && eventEnd.isAfter(rangeStart);
-  };
+  const isEventInMobileRange = (event: (typeof mapped)[0]) =>
+    event.startKey <= mobileEndKey && event.endKey >= todayKey;
 </script>
 
 {#snippet eventCard(event: (typeof mapped)[0])}
   <a
-    href={`/events/${event.slug}`}
-    class={`hover:bg-secondary-hover rounded-md border-2 p-3 ${dayjs(event.startDate).isBefore(allDays[0]?.startOf("day")) ? "rounded-l-none" : ""} ${dayjs(event.endDate).isAfter(allDays[allDays.length - 1]?.endOf("day")) ? "rounded-r-none" : ""} ${dayjs(new Date()).isAfter(dayjs(event.startDate)) && dayjs(new Date()).isBefore(dayjs(event.endDate)) ? "bg-rosa-50 dark:bg-rosa-950 border-rosa-500" : ""}`}
+    href={eventLink(event)}
+    class={`hover:bg-secondary-hover rounded-md border-2 p-3 ${event.startsBeforeWeek ? "rounded-l-none" : ""} ${event.endsAfterWeek ? "rounded-r-none" : ""} ${dayjs().isAfter(event.start) && dayjs().isBefore(event.end) ? "bg-rosa-50 dark:bg-rosa-950 border-rosa-500" : ""}`}
     style="grid-column-start: {event.startDateNumber}; grid-column-end: {event.endDateNumber};"
   >
     <div class="line-clamp-1 font-sans text-sm font-medium">
@@ -55,12 +74,10 @@
     </div>
     <div class="text-muted-foreground">
       {#if event.diff > 0}
-        {dayjs(event.startDate).format("DD/MM HH:mm")} - {dayjs(
-          event.endDate,
-        ).format("DD/MM HH:mm")}{:else}
-        {dayjs(event.startDate).format("HH:mm")} - {dayjs(event.endDate).format(
-          "HH:mm",
-        )}
+        {event.start.format("DD/MM HH:mm")} - {event.end.format(
+          "DD/MM HH:mm",
+        )}{:else}
+        {event.start.format("HH:mm")} - {event.end.format("HH:mm")}
       {/if}
     </div>
   </a>
@@ -73,7 +90,9 @@
   {#each mobileDays as day, index (index)}
     <div class="col-span-1 flex flex-row items-center">
       <div class="flex flex-row">
-        <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-rosa-400" : ""}>
+        <h3
+          class={day.format("YYYY-MM-DD") === todayKey ? "text-rosa-400" : ""}
+        >
           {day.get("date")}
         </h3>
         <div
@@ -84,20 +103,11 @@
       </div>
     </div>
   {/each}
-  {#each mapped.filter(isEventInMobileRange) as event (event.slug)}
+  {#each mapped.filter(isEventInMobileRange) as event (event.id)}
     {@render eventCard({
       ...event,
-      startDateNumber: Math.max(
-        1,
-        Math.min(
-          3,
-          dayjs(event.startDate).diff(dayjs().startOf("day"), "day") + 1,
-        ),
-      ),
-      endDateNumber: Math.min(
-        4,
-        dayjs(event.endDate).diff(dayjs().startOf("day"), "day") + 2,
-      ),
+      startDateNumber: event.mobileStartDateNumber,
+      endDateNumber: event.mobileEndDateNumber,
     })}
   {/each}
   {#if mapped.filter(isEventInMobileRange).length === 0}
@@ -116,7 +126,9 @@
   {#each allDays as day (day)}
     <div class="col-span-1 flex flex-row items-center">
       <div class="flex flex-row">
-        <h3 class={day.isSame(dayjs(new Date()), "day") ? "text-rosa-400" : ""}>
+        <h3
+          class={day.format("YYYY-MM-DD") === todayKey ? "text-rosa-400" : ""}
+        >
           {day.get("date")}
         </h3>
         <div
@@ -127,7 +139,7 @@
       </div>
     </div>
   {/each}
-  {#each mapped as event (event.slug)}
+  {#each mapped as event (event.id)}
     {@render eventCard(event)}
   {/each}
   {#if mapped.length === 0}
