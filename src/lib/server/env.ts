@@ -42,7 +42,6 @@ const envSpec = {
   MINECRAFT_URL: { feature: "minecraft status" },
 
   ORIGIN: { default: "http://localhost:5173" },
-  PURCHASE_PASS_ON_TRANSACTION_FEE: { default: "false" },
   MOCK_IS_APP: {},
   PRISMA_LOG_LEVEL: {},
 } satisfies EnvSpec;
