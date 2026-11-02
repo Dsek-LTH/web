@@ -1,39 +1,64 @@
-import { getAllTaggedMembers } from "$lib/utils/commentTagging";
-import { error } from "@sveltejs/kit";
+import { actionType } from "$lib/events/schema";
 import { serverApi } from "$lib/server/apiClient";
-import type { PageServerLoad } from "./$types";
+import { commentAction, removeCommentAction } from "$lib/server/comments";
 import * as m from "$paraglide/messages";
+import { error, fail, type Action } from "@sveltejs/kit";
+import { z } from "zod";
+import { redirect } from "sveltekit-flash-message/server";
+import { zod4 } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import type { Actions } from "./$types";
 
-// Server-only load, not +page.ts - a documented exception (see DESIGN.md's
-// "Principles going forward": "server-only load is a stopgap for routes
-// that can't do that yet"). This page needs getAllTaggedMembers, which is
-// a real Prisma lookup (@mention resolution, shared with articles - see
-// DESIGN.md's API shape section) that depends on the event's comments,
-// which only exist after fetching the event itself from Go - a universal
-// +page.ts load has no way to sequence a Prisma call after a Go API call
-// like that.
-export const load: PageServerLoad = async (requestEvent) => {
-  const { locals, params } = requestEvent;
-  const { prisma } = locals;
-  const res = await serverApi(requestEvent).GET("/events/{slug}", {
-    params: { path: { slug: params.slug } },
-  });
-  if (res.error) {
-    throw error(404, { message: m.events_errors_eventNotFound() });
-  }
-  const event = res.data;
-  const allTaggedMembers = await getAllTaggedMembers(
-    prisma,
-    (event.comments ?? []).map((c) => ({ content: c.content ?? null })),
-  );
+// The load is universal (+page.ts); these are the page's form actions, all
+// thin proxies to Go - attendance, comments and delete are each enforced
+// there, not here.
 
-  return {
-    event,
-    allTaggedMembers,
-    // From Go (EventDetail.canEdit/canDelete), computed server-side from
-    // the same checks Update/Delete themselves enforce - see the article
-    // detail page's +page.ts and DESIGN.md's "Principles going forward" #5.
-    canEdit: event.canEdit,
-    canDelete: event.canDelete,
+const removeEventSchema = z.object({ removeType: actionType.default("THIS") });
+
+const attendanceAction =
+  (status: "going" | "interested" | "none"): Action<{ slug: string }> =>
+  async (event) => {
+    // The event comes from the URL; InterestedGoingButtons' hidden eventId
+    // field isn't needed.
+    const res = await serverApi(event).PATCH("/events/{slug}/attendance", {
+      params: { path: { slug: event.params.slug } },
+      body: { status },
+    });
+    if (res.error) {
+      error(res.response.status === 404 ? 404 : 400, {
+        message: m.events_errors_eventNotFound(),
+      });
+    }
   };
+
+export const actions: Actions = {
+  going: attendanceAction("going"),
+  interested: attendanceAction("interested"),
+  none: attendanceAction("none"),
+  comment: commentAction("EVENT"),
+  removeComment: removeCommentAction("EVENT"),
+  removeEvent: async (event) => {
+    const form = await superValidate(event.request, zod4(removeEventSchema));
+    if (!form.valid) return fail(400, { form });
+    // Go itself only removes more than this one event for a recurring
+    // series, so a stray FUTURE/ALL on a single event can't do damage.
+    const scope = form.data.removeType;
+    const res = await serverApi(event).DELETE("/events/{slug}", {
+      params: { path: { slug: event.params.slug }, query: { scope } },
+    });
+    if (res.error) {
+      error(res.response.status === 404 ? 404 : 403, {
+        message: m.events_errors_eventNotFound(),
+      });
+    }
+    redirect(
+      "/events",
+      {
+        message:
+          scope === "THIS" ? m.events_eventDeleted() : m.events_eventsDeleted(),
+        type: "success",
+      },
+      event,
+    );
+  },
 };

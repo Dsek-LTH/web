@@ -50,6 +50,23 @@ func (q *Queries) DeleteArticleComment(ctx context.Context, arg DeleteArticleCom
 	return err
 }
 
+const getArticleCommentMemberID = `-- name: GetArticleCommentMemberID :one
+SELECT member_id FROM article_comments
+WHERE id = $1 AND article_id = $2
+`
+
+type GetArticleCommentMemberIDParams struct {
+	CommentID pgtype.UUID `json:"comment_id"`
+	ArticleID pgtype.UUID `json:"article_id"`
+}
+
+func (q *Queries) GetArticleCommentMemberID(ctx context.Context, arg GetArticleCommentMemberIDParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getArticleCommentMemberID, arg.CommentID, arg.ArticleID)
+	var member_id pgtype.UUID
+	err := row.Scan(&member_id)
+	return member_id, err
+}
+
 const listArticleComments = `-- name: ListArticleComments :many
 SELECT
     c.id, c.content, c.published,
@@ -59,7 +76,7 @@ SELECT
 FROM article_comments c
 JOIN members m ON m.id = c.member_id
 WHERE c.article_id = $1
-ORDER BY c.published ASC
+ORDER BY c.published DESC
 `
 
 type ListArticleCommentsRow struct {

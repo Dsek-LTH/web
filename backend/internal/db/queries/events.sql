@@ -10,7 +10,9 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id, e.nollning_season_id,
+    e.recurring_parent_id, e.nollning_season_id, e.committee_id,
+    c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+    c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -19,6 +21,7 @@ SELECT
     COALESCE(it.n, 0)::int AS interested_count
 FROM events e
 JOIN members m ON m.id = e.author_id
+LEFT JOIN committees c ON c.id = e.committee_id
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM event_comments WHERE event_id = e.id
 ) cm ON true
@@ -28,10 +31,22 @@ LEFT JOIN LATERAL (
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM _event_interested WHERE "A" = e.id
 ) it ON true
-WHERE (e.removed_at IS NULL OR e.removed_at > now())
+WHERE (
+    sqlc.arg('include_removed')::bool
+    OR e.removed_at IS NULL OR e.removed_at > now()
+  )
+  -- Every listing is a time window: upcoming (after=now), past
+  -- (before=now), or an explicit range (both set, the events page's
+  -- week/month views). An event is in the window if any part of it
+  -- overlaps, so an ongoing event shows up in both upcoming and past -
+  -- same rule as upstream's getEvents (#1198).
   AND (
-    (NOT sqlc.arg('past')::bool AND e.end_datetime >= now())
-    OR (sqlc.arg('past')::bool AND e.end_datetime <= now())
+    sqlc.narg('after')::timestamptz IS NULL
+    OR e.end_datetime > sqlc.narg('after')::timestamptz
+  )
+  AND (
+    sqlc.narg('before')::timestamptz IS NULL
+    OR e.start_datetime < sqlc.narg('before')::timestamptz
   )
   AND (
     sqlc.narg('search')::text IS NULL
@@ -53,22 +68,34 @@ WHERE (e.removed_at IS NULL OR e.removed_at > now())
     sqlc.narg('nollning_season_id')::uuid IS NULL
     OR e.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
   )
--- Ordering direction depends on 'past': upcoming events sort soonest-first
--- (ASC), past events sort most-recent-first (DESC). sqlc can't parameterize
--- ORDER BY directly, so both directions are expressed as CASE'd sort keys -
--- exactly one is non-null per row depending on 'past', the other ties (NULL)
--- and is ignored.
+-- Ordering direction depends on 'descending' (set for past events, which
+-- sort most-recent-first; everything else sorts soonest-first). sqlc can't
+-- parameterize ORDER BY directly, so both directions are expressed as
+-- CASE'd sort keys - exactly one is non-null per row, the other ties
+-- (NULL) and is ignored.
 ORDER BY
-    (CASE WHEN sqlc.arg('past')::bool THEN e.start_datetime END) DESC NULLS LAST,
-    (CASE WHEN NOT sqlc.arg('past')::bool THEN e.start_datetime END) ASC NULLS LAST
+    (CASE WHEN sqlc.arg('descending')::bool THEN e.start_datetime END) DESC NULLS LAST,
+    (CASE WHEN NOT sqlc.arg('descending')::bool THEN e.start_datetime END) ASC NULLS LAST
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: CountEvents :one
 SELECT count(*) FROM events e
-WHERE (e.removed_at IS NULL OR e.removed_at > now())
+WHERE (
+    sqlc.arg('include_removed')::bool
+    OR e.removed_at IS NULL OR e.removed_at > now()
+  )
+  -- Every listing is a time window: upcoming (after=now), past
+  -- (before=now), or an explicit range (both set, the events page's
+  -- week/month views). An event is in the window if any part of it
+  -- overlaps, so an ongoing event shows up in both upcoming and past -
+  -- same rule as upstream's getEvents (#1198).
   AND (
-    (NOT sqlc.arg('past')::bool AND e.end_datetime >= now())
-    OR (sqlc.arg('past')::bool AND e.end_datetime <= now())
+    sqlc.narg('after')::timestamptz IS NULL
+    OR e.end_datetime > sqlc.narg('after')::timestamptz
+  )
+  AND (
+    sqlc.narg('before')::timestamptz IS NULL
+    OR e.start_datetime < sqlc.narg('before')::timestamptz
   )
   AND (
     sqlc.narg('search')::text IS NULL
@@ -100,7 +127,9 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id, e.nollning_season_id,
+    e.recurring_parent_id, e.nollning_season_id, e.committee_id,
+    c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+    c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -109,6 +138,7 @@ SELECT
     COALESCE(it.n, 0)::int AS interested_count
 FROM events e
 JOIN members m ON m.id = e.author_id
+LEFT JOIN committees c ON c.id = e.committee_id
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM event_comments WHERE event_id = e.id
 ) cm ON true
@@ -130,7 +160,9 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id, e.nollning_season_id,
+    e.recurring_parent_id, e.nollning_season_id, e.committee_id,
+    c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+    c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -139,6 +171,7 @@ SELECT
     COALESCE(it.n, 0)::int AS interested_count
 FROM events e
 JOIN members m ON m.id = e.author_id
+LEFT JOIN committees c ON c.id = e.committee_id
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM event_comments WHERE event_id = e.id
 ) cm ON true
@@ -167,9 +200,9 @@ INSERT INTO events (
     title_sv, title_en, description_sv, description_en, link, location,
     organizer, author_id, short_description_sv, short_description_en,
     start_datetime, end_datetime, slug, "imageUrl", alarm_active,
-    is_cancelled, recurring_parent_id, nollning_season_id
+    is_cancelled, recurring_parent_id, nollning_season_id, committee_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
 ) RETURNING id, slug;
 
 -- name: UpdateEvent :one
@@ -193,7 +226,8 @@ UPDATE events SET
     "imageUrl" = $13,
     alarm_active = $14,
     is_cancelled = $15,
-    nollning_season_id = $16
+    nollning_season_id = $16,
+    committee_id = $17
 WHERE id = $1
 RETURNING id, slug;
 
@@ -225,7 +259,7 @@ WHERE recurring_parent_id = sqlc.arg('recurring_parent_id')
   );
 
 -- name: CreateRecurringEvent :one
-INSERT INTO "RecurringEvent" (
+INSERT INTO recurring_event (
     separation_count, recurring_type, author_id, start_datetime, end_datetime
 ) VALUES (
     $1, $2, $3, $4, $5
@@ -233,5 +267,10 @@ INSERT INTO "RecurringEvent" (
 
 -- name: GetRecurringEvent :one
 SELECT id, separation_count, recurring_type, author_id, start_datetime, end_datetime
-FROM "RecurringEvent"
+FROM recurring_event
 WHERE id = $1;
+
+-- name: GetCommitteeNameSv :one
+-- Events store the chosen organizing committee's Swedish name in the
+-- free-text organizer column too (see Service.resolveCommittee).
+SELECT name_sv FROM committees WHERE id = $1;

@@ -256,9 +256,10 @@ CREATE TYPE "recurringType" AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY');
 -- One row per recurring series; individual occurrences are pre-materialized
 -- as ordinary rows in `events` (see recurring_parent_id below) at creation
 -- time, not expanded at read time - see DESIGN.md's events section.
--- No snake_case mapping on the table name itself, same situation as
--- phadder_groups."createdAt" noted above - trust `psql \d`, not schema.prisma.
-CREATE TABLE "RecurringEvent" (
+-- Renamed from "RecurringEvent" to recurring_event by upstream's
+-- 20260914163028_fix_recurringevent_table migration (carried into
+-- internal/db/migrations during the Phase 12 upstream sync).
+CREATE TABLE recurring_event (
     id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     separation_count INTEGER NOT NULL,
     recurring_type   "recurringType" NOT NULL,
@@ -287,12 +288,14 @@ CREATE TABLE events (
     removed_at            TIMESTAMPTZ,
     "imageUrl"            TEXT,
     is_detatched          BOOLEAN NOT NULL DEFAULT false,
-    recurring_parent_id   UUID REFERENCES "RecurringEvent" (id),
+    recurring_parent_id   UUID REFERENCES recurring_event (id),
     is_cancelled          BOOLEAN DEFAULT false,
     -- Ticket relation deliberately not modeled - see DESIGN.md's "Shop /
     -- tickets: cut from scope entirely".
     -- Added by migration 20260901220100_add_nollning_season_id_to_content.
-    nollning_season_id    UUID REFERENCES nollning_seasons (id)
+    nollning_season_id    UUID REFERENCES nollning_seasons (id),
+    -- Added by upstream's 20260921190000_add_committee_to_events migration.
+    committee_id          UUID REFERENCES committees (id)
 );
 
 CREATE TABLE event_comments (

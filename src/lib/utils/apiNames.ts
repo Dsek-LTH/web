@@ -21,12 +21,6 @@ const apiNames = {
   TAGS: {
     ...crud("tags"),
   },
-  DRINKITEM: {
-    ...crud("drinkitem"),
-  },
-  DRINKITEMBATCH: {
-    ...crud("drinkitembatch"),
-  },
   EVENT: {
     ...crud("event"),
     COMMENT: "event:comment",
@@ -96,6 +90,13 @@ const apiNames = {
     EDIT_CIABATTAS: "cafe:edit_ciabattas",
     SEE_ALL_WEEKS: "cafe:see_all_weeks",
     DAY_MANAGER: "cafe:day_manager",
+  },
+  // The free-ticket releases (internal/tickets, upstream #1325) reuse the
+  // old webshop's policies, so existing grants keep working - only these
+  // two, the rest of the webshop group went with the shop.
+  WEBSHOP: {
+    CREATE: "webshop:create",
+    MANAGE: "webshop:manage",
   },
 } as const;
 

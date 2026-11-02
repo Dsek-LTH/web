@@ -18,7 +18,9 @@
   let { data } = $props();
 
   const event = $derived(data.event);
-  const isRecurring = $derived(event.recurringParentId !== null);
+  const going = $derived(event.going ?? []);
+  const interested = $derived(event.interested ?? []);
+  const isRecurring = $derived(!!event.recurringParentId);
 
   let removeType: ActionType = $state("THIS");
 
@@ -47,18 +49,14 @@
   {/snippet}
 
   {#snippet buttons()}
-    <InterestedGoingButtons
-      eventId={event.id}
-      interested={event.interested}
-      going={event.going}
-    />
+    <InterestedGoingButtons eventId={event.id} {interested} {going} />
   {/snippet}
 
   {#snippet after()}
-    <InterestedGoingList interested={event.interested} going={event.going} />
+    <InterestedGoingList {interested} {going} />
     <CommentSection
       type="EVENT"
-      comments={event.comments}
+      comments={event.comments ?? []}
       taggedMembers={data.allTaggedMembers}
       commentForm={data.commentForm}
       removeCommentForm={data.removeCommentForm}

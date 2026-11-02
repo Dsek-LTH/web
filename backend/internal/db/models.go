@@ -424,6 +424,7 @@ type Event struct {
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
+	CommitteeID        pgtype.UUID        `json:"committee_id"`
 }
 
 type EventComment struct {

@@ -86,6 +86,9 @@ type ArticleSummary struct {
 type ArticleDetail struct {
 	ArticleSummary
 	Comments []Comment `json:"comments"`
+	// TaggedMembers are the members @mentioned in Comments - see
+	// events.EventDetail's identical field.
+	TaggedMembers []Member `json:"taggedMembers"`
 	// CanEdit/CanDelete are the acting identity's own permissions on this
 	// article, computed server-side from the exact same author-or-policy
 	// checks Update/Delete themselves enforce (see Service.detail) - the

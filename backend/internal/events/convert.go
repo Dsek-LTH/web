@@ -20,6 +20,22 @@ func toEventSummary(row db.ListEventsRow, loc string) EventSummary {
 		short = &s
 	}
 
+	var committee *Committee
+	if row.CommitteeID.Valid {
+		committee = &Committee{
+			ID: dbutil.UUIDStr(row.CommitteeID),
+			Name: dbutil.ResolveName(
+				row.CommitteeNameSv.String,
+				dbutil.TextPtr(row.CommitteeNameEn),
+				loc,
+			),
+			NameSv:    row.CommitteeNameSv.String,
+			NameEn:    dbutil.TextPtr(row.CommitteeNameEn),
+			ShortName: dbutil.TextPtr(row.CommitteeShortName),
+			SymbolURL: dbutil.TextPtr(row.CommitteeSymbolUrl),
+		}
+	}
+
 	return EventSummary{
 		ID:      dbutil.UUIDStr(row.ID),
 		Slug:    dbutil.StringOr(dbutil.TextPtr(row.Slug), ""),
@@ -46,6 +62,8 @@ func toEventSummary(row db.ListEventsRow, loc string) EventSummary {
 		IsCancelled:        row.IsCancelled.Bool,
 		RecurringParentID:  dbutil.UUIDStrPtr(row.RecurringParentID),
 		NollningSeasonID:   dbutil.UUIDStrPtr(row.NollningSeasonID),
+		CommitteeID:        dbutil.UUIDStrPtr(row.CommitteeID),
+		Committee:          committee,
 		Tags:               []Tag{},
 		CommentCount:       int(row.CommentCount),
 		GoingCount:         int(row.GoingCount),

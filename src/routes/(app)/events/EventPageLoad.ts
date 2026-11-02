@@ -1,62 +1,99 @@
-import { getEvents, type EventSpan } from "$lib/events/getEvents";
-import { interestedGoingSchema } from "$lib/events/schema";
-import { getAllTags } from "$lib/news/tags";
+import { api } from "$lib/api/client";
 import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url";
 import * as m from "$paraglide/messages";
-import { error, type ServerLoadEvent } from "@sveltejs/kit";
+import { error, type LoadEvent } from "@sveltejs/kit";
 import dayjs from "dayjs";
-import { zod4 } from "sveltekit-superforms/adapters";
-import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 
 const displaySchema = z.enum(["week", "month", "upcoming", "past"]);
 export type Display = z.infer<typeof displaySchema>;
 
+// The week/month views list every event in the window, unpaginated - this
+// is just a ceiling well above anything a single week or month holds.
+const RANGE_PAGE_SIZE = 500;
+
+/**
+ * Universal load shared by /events and the admin /events/all-events page
+ * (`adminMode`, which also lists soft-removed events - Go gates that on
+ * event:update itself). The `tags` search param holds tag *names* (see
+ * EventFilters.svelte), matched against either language here and sent to
+ * Go as ids.
+ */
 const eventPageLoad =
   (adminMode = false) =>
-  async ({ locals, url }: ServerLoadEvent) => {
-    const { prisma } = locals;
-
+  async ({ fetch, url }: Pick<LoadEvent, "fetch" | "url">) => {
     const display = displaySchema.parse(
       url.searchParams.get("display") ?? "week",
     );
 
-    let spanFilter: EventSpan;
+    const tagsRes = await api.GET("/tags", { fetch });
+    const allTags = tagsRes.data ?? [];
+    const tagNames = url.searchParams
+      .getAll("tags")
+      .map((name) => name.toLowerCase());
+    const tagIds = allTags
+      .filter((tag) =>
+        [tag.nameSv, tag.nameEn].some(
+          (name) => name && tagNames.includes(name.toLowerCase()),
+        ),
+      )
+      .map((tag) => tag.id);
 
-    if (display === "week") {
-      spanFilter = { weekStartingAt: dayjs().startOf("day").toDate() };
-    } else if (display === "month") {
-      spanFilter = { monthStartingAt: dayjs().startOf("month").toDate() };
+    let window: {
+      span: "upcoming" | "past" | "range";
+      from?: string;
+      to?: string;
+      page: number;
+      pageSize: number;
+    };
+    if (display === "week" || display === "month") {
+      const from =
+        display === "week" ? dayjs().startOf("day") : dayjs().startOf("month");
+      window = {
+        span: "range",
+        from: from.toISOString(),
+        to: from.add(1, display).toISOString(),
+        page: 1,
+        pageSize: RANGE_PAGE_SIZE,
+      };
     } else {
-      const pageSize = getPageSizeOrThrowSvelteError(url);
-      // The upper bound depends on the search/tag filters, so it is checked
-      // against the filtered page count once the events have been fetched.
-      const page = getPageOrThrowSvelteError(url);
-
-      spanFilter = {
+      window = {
         span: display,
-        pageSize,
-        page,
+        // The upper bound depends on the search/tag filters, so it is
+        // checked against the filtered page count once the events have
+        // been fetched.
+        page: getPageOrThrowSvelteError(url),
+        pageSize: getPageSizeOrThrowSvelteError(url),
       };
     }
 
-    const [[events, pageCount], allTags] = await Promise.all([
-      getEvents(
-        prisma,
-        {
-          tags: url.searchParams.getAll("tags"),
-          search: url.searchParams.get("search") ?? undefined,
-          ...spanFilter,
-        },
-        !adminMode,
-      ),
-      getAllTags(prisma, adminMode),
-    ]);
+    // A tag filter that matched no known tag can't match any event either.
+    const unknownTagsOnly = tagNames.length > 0 && tagIds.length === 0;
+    const eventsRes = unknownTagsOnly
+      ? null
+      : await api.GET("/events", {
+          fetch,
+          params: {
+            query: {
+              ...window,
+              search: url.searchParams.get("search") || undefined,
+              tags: tagIds,
+              includeRemoved: adminMode,
+            },
+          },
+        });
+    if (eventsRes?.error) {
+      error(eventsRes.response.status === 403 ? 403 : 500, {
+        message: m.events_errors_eventNotFound(),
+      });
+    }
+    const events = eventsRes?.data.events ?? [];
+    const pageCount = eventsRes?.data.pageCount ?? 0;
 
-    if ("page" in spanFilter && spanFilter.page > Math.max(pageCount, 1)) {
+    if (window.span !== "range" && window.page > Math.max(pageCount, 1)) {
       error(400, m.events_errors_invalidPage());
     }
 
@@ -65,7 +102,6 @@ const eventPageLoad =
       pageCount,
       allTags,
       display,
-      interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
     };
   };
 

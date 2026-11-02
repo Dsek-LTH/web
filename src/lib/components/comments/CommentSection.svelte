@@ -3,7 +3,6 @@
   import { Separator } from "$lib/components/ui/separator";
   import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import type { TaggedMember } from "$lib/utils/client/commentTagging";
   import type { CommentSchema, RemoveCommentSchema } from "$lib/zod/comments";
   import * as m from "$paraglide/messages";
@@ -33,7 +32,8 @@
   let mentionCounter = 0;
 
   const canComment = $derived(
-    !!page.data.member && isAuthorized(apiNames[type].COMMENT, page.data.user),
+    !!page.data.member &&
+      !!page.data.user?.policies?.includes(apiNames[type].COMMENT),
   );
   const hiddenCount = $derived(
     Math.max(comments.length - ALWAYS_SHOWN_COMMENTS, 0),
@@ -67,7 +67,6 @@
       {#each visibleComments as comment (comment.id)}
         <CommentItem
           {comment}
-          {type}
           {taggedMembers}
           {removeCommentForm}
           canReply={canComment}

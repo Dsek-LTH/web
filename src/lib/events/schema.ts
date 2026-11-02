@@ -73,13 +73,8 @@ export const eventSchema = z
   );
 export type EventSchema = Infer<typeof eventSchema>;
 
-export const interestedGoingSchema = z.object({
-  slug: z.string(),
-});
 export const actionType = z.enum(["THIS", "FUTURE", "ALL"]);
 
 export type ActionType = z.infer<typeof actionType>;
 /** The event form as used by the create/edit pages, which also ask how a recurring event should be edited. */
 export type EventFormSchema = EventSchema & { editType?: ActionType };
-
-export type InterestedGoingSchema = Infer<typeof interestedGoingSchema>;

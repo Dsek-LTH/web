@@ -1,12 +1,8 @@
-import { getFullName } from "$lib/utils/client/member";
-import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import { getFullName, type MemberNames } from "$lib/utils/client/member";
 
 export const tagRegex = /\[([^\]]*)\]\(\/members\/([^)]+)\)/g;
 
-export type TaggedMember = Pick<
-  ExtendedPrismaModel<"Member">,
-  "studentId" | "firstName" | "lastName" | "nickname"
->;
+export type TaggedMember = MemberNames & { studentId?: string | null };
 
 /**
  * Replaces the stored member-tag markdown with the member's current name.

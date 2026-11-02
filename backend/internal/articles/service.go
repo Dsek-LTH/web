@@ -13,10 +13,12 @@ import (
 
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/comments"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/dbutil"
 	"github.com/dsek-lth/web/backend/internal/integrations"
 	"github.com/dsek-lth/web/backend/internal/locale"
+	"github.com/dsek-lth/web/backend/internal/mentions"
 	"github.com/dsek-lth/web/backend/internal/slug"
 )
 
@@ -469,6 +471,10 @@ func (s *Service) AddComment(ctx context.Context, slug, content string) (*Commen
 		return nil, invalidf("invalid member id: %v", err)
 	}
 
+	content, err = comments.Normalize(content)
+	if err != nil {
+		return nil, invalidf("%v", err)
+	}
 	sanitized := s.sanitizer.Sanitize(content)
 	created, err := s.queries.CreateArticleComment(ctx, db.CreateArticleCommentParams{
 		ArticleID: articleID,
@@ -484,12 +490,19 @@ func (s *Service) AddComment(ctx context.Context, slug, content string) (*Commen
 		Content:   &sanitized,
 		Published: created.Published.Time,
 		Member:    Member{ID: identity.MemberID},
+		CanDelete: true,
 	}, nil
 }
 
+// RemoveComment lets a comment's own author, or anyone holding
+// apinames.NewsArticleCommentDelete, delete it - the old ZModel's two
+// ArticleComment delete rules (see internal/comments.CanDelete; the author
+// half was added in the Phase 12 upstream sync, once upstream's restored
+// comment UI (#1390) relied on it).
 func (s *Service) RemoveComment(ctx context.Context, slug, commentID string) error {
-	if err := auth.Require(ctx, apinames.NewsArticleCommentDelete); err != nil {
-		return err
+	identity, ok := auth.FromContext(ctx)
+	if !ok {
+		return auth.ErrUnauthenticated
 	}
 	articleID, err := s.queries.GetArticleIDBySlug(ctx, slug)
 	if err != nil {
@@ -501,6 +514,19 @@ func (s *Service) RemoveComment(ctx context.Context, slug, commentID string) err
 	commentUUID, err := dbutil.ParseUUID(commentID)
 	if err != nil {
 		return invalidf("invalid comment id: %v", err)
+	}
+	authorID, err := s.queries.GetArticleCommentMemberID(ctx, db.GetArticleCommentMemberIDParams{
+		CommentID: commentUUID,
+		ArticleID: articleID,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("find comment: %w", err)
+	}
+	if !comments.CanDelete(identity, apinames.NewsArticleCommentDelete, dbutil.UUIDStr(authorID)) {
+		return auth.ErrForbidden
 	}
 	if err := s.queries.DeleteArticleComment(ctx, db.DeleteArticleCommentParams{
 		CommentID: commentUUID,
@@ -780,9 +806,13 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 	if err != nil {
 		return nil, fmt.Errorf("list comments: %w", err)
 	}
-	comments := make([]Comment, len(commentRows))
+	identity, _ := auth.FromContext(ctx)
+	articleComments := make([]Comment, len(commentRows))
 	for i, c := range commentRows {
-		comments[i] = Comment{
+		articleComments[i] = Comment{
+			CanDelete: comments.CanDelete(
+				identity, apinames.NewsArticleCommentDelete, dbutil.UUIDStr(c.MemberID),
+			),
 			ID:        dbutil.UUIDStr(c.ID),
 			Content:   dbutil.TextPtr(c.Content),
 			Published: c.Published.Time,
@@ -797,8 +827,17 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 		}
 	}
 
+	contents := make([]string, len(articleComments))
+	for i, c := range articleComments {
+		contents[i] = dbutil.StringOr(c.Content, "")
+	}
+	taggedMembers, err := mentions.Resolve(ctx, s.queries, contents)
+	if err != nil {
+		return nil, err
+	}
+
 	canEdit, canDelete := false, false
-	if identity, ok := auth.FromContext(ctx); ok {
+	if identity != nil {
 		// Mirrors Update's author-or-policy bypass and Delete's
 		// policy-only check exactly (see those methods) - one
 		// implementation of "can this identity touch this article",
@@ -810,7 +849,8 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 
 	return &ArticleDetail{
 		ArticleSummary: summary,
-		Comments:       comments,
+		Comments:       articleComments,
+		TaggedMembers:  taggedMembers,
 		CanEdit:        canEdit,
 		CanDelete:      canDelete,
 	}, nil

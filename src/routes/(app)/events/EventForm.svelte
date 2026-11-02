@@ -23,7 +23,7 @@
   import * as Select from "$lib/components/ui/select";
   import { Spinner } from "$lib/components/ui/spinner";
   import type { ActionType, EventFormSchema } from "$lib/events/schema";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import { recurringTypes, type RecurringType } from "$lib/utils/events";
   import * as m from "$paraglide/messages";
 
@@ -45,7 +45,7 @@
     cancelHref,
   }: {
     superform: SuperForm<EventFormSchema>;
-    allTags: Array<ExtendedPrismaModel<"Tag">>;
+    allTags: Array<components["schemas"]["Tag"]>;
     committees: EventCommittee[];
     activeTab: "sv" | "en";
     /** Whether this is the create page (as opposed to editing an existing event). */

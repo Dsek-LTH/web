@@ -43,6 +43,9 @@ type Comment struct {
 	Content   *string   `json:"content,omitempty"`
 	Published time.Time `json:"published"`
 	Member    Member    `json:"member"`
+	// CanDelete is whether the acting identity may delete this comment -
+	// its author, or a moderator (see internal/comments.CanDelete).
+	CanDelete bool `json:"canDelete"`
 }
 
 // Committee/Position/Mandate started as minimal structs local to

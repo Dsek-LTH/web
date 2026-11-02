@@ -1,6 +1,6 @@
 <script lang="ts">
   import dayjs from "dayjs";
-  import type { EventWithIncludes } from "$lib/events/getEvents";
+  import type { components } from "$lib/api/schema";
   import CommitteeSymbol from "./images/CommitteeSymbol.svelte";
   import CommitteePlaceholder from "./images/CommitteePlaceholder.svelte";
   import TagChip from "./TagChip.svelte";
@@ -11,7 +11,7 @@
     event,
     index,
   }: {
-    event: EventWithIncludes;
+    event: components["schemas"]["EventSummary"];
     index: number;
   } = $props();
 
@@ -98,10 +98,10 @@
       class="text-muted-foreground ml-auto pl-2"
       class:line-through={event.isCancelled}
     >
-      {dayjs(event.startDatetime).format("YYYY-MM-DD")}
-      {#if event.startDatetime.getDate() !== event.endDatetime.getDate()}
+      {dayjs(event.startAt).format("YYYY-MM-DD")}
+      {#if !dayjs(event.startAt).isSame(event.endAt, "day")}
         <br />
-        {dayjs(event.endDatetime).format("YYYY-MM-DD")}
+        {dayjs(event.endAt).format("YYYY-MM-DD")}
       {/if}
     </span>
   </div>

@@ -2008,6 +2008,50 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       entry above) no longer has a frontend. The tables themselves are
       left in the DB, same "app-layer removal only" treatment as
       shop/expenses.
+    **Progress, per domain:**
+    - **Schema catch-up**: upstream's 7 Prisma migrations since the branch
+      point (booking door access, `RecurringEvent` -> `recurring_event`,
+      `song_book_entries`, the ticket tables, `events.committee_id`) were
+      applied with `prisma migrate deploy` (so `_prisma_migrations` stays
+      truthful for the tables Prisma still owns) and copied into
+      `internal/db/migrations` as `.up.sql` per "DB migrations, once Prisma
+      is gone"; `migrate`'s tracking table was then `force`d to
+      `20260921212144`. `schema.sql` is updated per domain as each one is
+      ported.
+    - **Events** (upstream #1198/#1328/#1322/#1390): Go gained the
+      organizing committee (`committeeId` on input; `committee` sub-object
+      on output; `organizer` is overwritten with the committee's Swedish
+      name, matching upstream's `resolveCommittee`), a listing `span`
+      (`upcoming`/`past`/`range` with `from`/`to`, for the new week/month
+      views) plus `includeRemoved` (the admin all-events list, gated on
+      `event:update` in Go instead of a SvelteKit `authorize()`),
+      newest-first comments, and `recurring` on the detail response (the
+      series' own type/separation/end, so the edit page prefills them -
+      closing the gap the events port had left open "until a real edit UI
+      ships", which it now has). Recurrence was rewritten to mirror
+      upstream's DST fix (#1322) exactly - calendar-date + wall-clock math,
+      end placed by the template's day offset (so retiming a same-day
+      occurrence into an overnight one keeps end after start, which the
+      old Go `retimeOccurrence` got wrong), and dayjs-style end-of-month
+      clamping for MONTHLY/YEARLY - with upstream's vitest cases ported to
+      `internal/events/recurrence_test.go`. Upstream's other fix in this
+      area (a non-recurring event's FUTURE/ALL delete hitting every
+      parentless event) was already impossible in Go. Every events page
+      now loads from Go via universal `+page.ts` loads; the detail page's
+      `+page.server.ts` only holds form actions (attendance, comments,
+      delete).
+    - **Comments** (shared by events and news, upstream #1390): restored
+      UI needs two things Go didn't have. (1) The old ZModel let a
+      comment's *author* delete it as well as moderators; the Go port had
+      only kept the moderator rule. Restored in a new `internal/comments`
+      package (`CanDelete`, plus a per-comment `canDelete` on the response
+      so the UI doesn't re-derive it) - a fidelity gap, not a new rule.
+      (2) Mentions: Go now resolves the members @mentioned in comments
+      (`taggedMembers` on article/event detail, `internal/mentions`),
+      replacing the SvelteKit-side `getAllTaggedMembers` Prisma lookup -
+      which is what let the event detail load become a universal
+      `+page.ts`. Comment content is trimmed and capped at 255 characters
+      in Go too (`comments.Normalize`), not just in zod.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

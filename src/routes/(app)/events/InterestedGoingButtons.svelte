@@ -2,7 +2,7 @@
   import { enhance } from "$app/forms";
   import { page } from "$app/state";
   import { Button } from "$lib/components/ui/button";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import * as m from "$paraglide/messages";
 
   import CircleCheck from "@lucide/svelte/icons/circle-check";
@@ -14,8 +14,8 @@
     going,
   }: {
     eventId: string;
-    interested: Array<Pick<ExtendedPrismaModel<"Member">, "studentId">>;
-    going: Array<Pick<ExtendedPrismaModel<"Member">, "studentId">>;
+    interested: Array<Pick<components["schemas"]["Member"], "studentId">>;
+    going: Array<Pick<components["schemas"]["Member"], "studentId">>;
   } = $props();
 
   const studentId = $derived(page.data.user?.studentId);

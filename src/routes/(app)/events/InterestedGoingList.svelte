@@ -5,9 +5,9 @@
     formatGoingList,
     formatInterestedList,
   } from "$lib/events/pluralization";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
 
-  type Member = ExtendedPrismaModel<"Member">;
+  type Member = components["schemas"]["Member"];
 
   let {
     interested,
@@ -33,12 +33,7 @@
         <ul class="flex max-h-96 flex-col overflow-y-auto">
           {#each members as member (member.id)}
             <li>
-              <AuthorCard
-                lazy
-                {member}
-                customAuthor={null}
-                position={undefined}
-              />
+              <AuthorCard lazy author={{ type: "Member", member }} />
             </li>
           {/each}
         </ul>

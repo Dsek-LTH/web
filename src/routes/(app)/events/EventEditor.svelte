@@ -2,7 +2,7 @@
   import type { SuperForm } from "sveltekit-superforms";
 
   import type { EventFormSchema } from "$lib/events/schema";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import * as m from "$paraglide/messages";
 
   import Event, { type EventCommittee } from "./Event.svelte";
@@ -17,7 +17,7 @@
     cancelHref,
   }: {
     superform: SuperForm<EventFormSchema>;
-    allTags: Array<ExtendedPrismaModel<"Tag">>;
+    allTags: Array<components["schemas"]["Tag"]>;
     committees: EventCommittee[];
     creating?: boolean;
     isRecurringEvent?: boolean;
@@ -78,8 +78,8 @@
         organizer: $form.organizer,
         committee:
           committees.find(({ id }) => id === $form.committeeId) ?? null,
-        startDatetime: $form.startDatetime,
-        endDatetime: $form.endDatetime,
+        startAt: $form.startDatetime,
+        endAt: $form.endDatetime,
         isCancelled: $form.isCancelled,
         tags: allTags.filter((tag) => selectedTagIds.includes(tag.id)),
       }}

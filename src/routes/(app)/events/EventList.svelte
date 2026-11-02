@@ -81,8 +81,8 @@
 {#if display === "week"}
   <HomeCalendar
     events={data.events.map((event) => ({
-      startDate: event.startDatetime,
-      endDate: event.endDatetime,
+      startDate: new Date(event.startAt),
+      endDate: new Date(event.endAt),
       slug: event.slug ?? "",
       title: event.title,
     }))}
@@ -94,7 +94,7 @@
   <div class="flex flex-col gap-4 pt-8">
     {#each eventPairs as { last, event }, index (event.id)}
       {@const shouldAddWeekday =
-        !last || !dayjs(last.startDatetime).isSame(event.startDatetime, "day")}
+        !last || !dayjs(last.startAt).isSame(event.startAt, "day")}
 
       <div
         class="flex flex-col gap-4 sm:flex-row"
@@ -103,9 +103,9 @@
         <div class="min-w-40">
           {#if shouldAddWeekday}
             <h2>
-              {dayjs(event.startDatetime).format("dddd")}
+              {dayjs(event.startAt).format("dddd")}
             </h2>
-            {dayjs(event.startDatetime).format("D MMMM")}
+            {dayjs(event.startAt).format("D MMMM")}
           {/if}
         </div>
 

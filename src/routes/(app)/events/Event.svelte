@@ -1,25 +1,27 @@
 <script lang="ts" module>
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
+  import type { EventCommittee as Committee } from "$lib/events/committees";
 
-  export type EventCommittee = Pick<
-    ExtendedPrismaModel<"Committee">,
-    "id" | "name" | "shortName" | "symbolUrl"
-  >;
+  export type EventCommittee = Committee;
 
+  /**
+   * What the event page renders - Go's EventDetail satisfies this directly,
+   * and the editor preview builds one from the form.
+   */
   export type EventView = {
     title: string;
-    shortDescription: string | null;
+    shortDescription?: string | null;
     description: string;
-    imageUrl: string | null | undefined;
-    location: string | null;
-    link: string | null;
+    imageUrl?: string | null;
+    location?: string | null;
+    link?: string | null;
     /** The old free text organizer, only shown for events without a committee. */
     organizer: string;
-    committee: EventCommittee | null;
-    startDatetime: Date;
-    endDatetime: Date;
-    isCancelled: boolean | null;
-    tags: Array<ExtendedPrismaModel<"Tag">>;
+    committee?: EventCommittee | null;
+    startAt: Date | string;
+    endAt: Date | string;
+    isCancelled?: boolean | null;
+    tags: Array<components["schemas"]["Tag"]> | null;
   };
 </script>
 
@@ -52,8 +54,8 @@
     after?: Snippet;
   } = $props();
 
-  const start = $derived(dayjs(event.startDatetime));
-  const end = $derived(dayjs(event.endDatetime));
+  const start = $derived(dayjs(event.startAt));
+  const end = $derived(dayjs(event.endAt));
   const sameDay = $derived(start.isSame(end, "day"));
   const hasOrganizer = $derived(!!event.committee || !!event.organizer);
 
@@ -121,7 +123,7 @@
       {/if}
     </div>
   {/if}
-  {#if event.tags.length > 0}
+  {#if event.tags?.length}
     <div class="flex flex-row flex-wrap gap-2">
       {#each event.tags as tag (tag.id)}
         <TagChip {tag} />

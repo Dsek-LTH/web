@@ -2,9 +2,6 @@
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { Button } from "$lib/components/ui/button";
-  import { page } from "$app/state";
-  import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import {
     replaceCommentTags,
     type TaggedMember,
@@ -17,18 +14,16 @@
   import Reply from "@lucide/svelte/icons/reply";
   import Trash from "@lucide/svelte/icons/trash";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { CommentType, CommentWithMember } from "./types";
+  import type { CommentWithMember } from "./types";
 
   let {
     comment,
-    type,
     taggedMembers,
     removeCommentForm,
     canReply,
     onReply,
   }: {
     comment: CommentWithMember;
-    type: CommentType;
     taggedMembers: TaggedMember[];
     removeCommentForm: SuperValidated<RemoveCommentSchema>;
     canReply: boolean;
@@ -45,10 +40,8 @@
   const content = $derived(
     replaceCommentTags(comment.content ?? "", taggedMembers),
   );
-  const canDelete = $derived(
-    isAuthorized(apiNames[type].COMMENT_DELETE, page.data.user) ||
-      comment.memberId === page.data.user?.memberId,
-  );
+  // Computed by Go: the comment's own author, or a moderator.
+  const canDelete = $derived(comment.canDelete);
 </script>
 
 <article id="comment-{comment.id}" class="flex gap-3 py-3">
@@ -68,10 +61,10 @@
         {getFullName(comment.member)}
       </a>
       <time
-        datetime={comment.published.toISOString()}
+        datetime={new Date(comment.published).toISOString()}
         class="text-muted-foreground text-xs"
       >
-        {relativeDate(comment.published)}
+        {relativeDate(new Date(comment.published))}
       </time>
 
       <div class="ml-auto flex flex-row gap-1">

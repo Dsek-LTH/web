@@ -50,6 +50,23 @@ func (q *Queries) DeleteEventComment(ctx context.Context, arg DeleteEventComment
 	return err
 }
 
+const getEventCommentMemberID = `-- name: GetEventCommentMemberID :one
+SELECT member_id FROM event_comments
+WHERE id = $1 AND event_id = $2
+`
+
+type GetEventCommentMemberIDParams struct {
+	CommentID pgtype.UUID `json:"comment_id"`
+	EventID   pgtype.UUID `json:"event_id"`
+}
+
+func (q *Queries) GetEventCommentMemberID(ctx context.Context, arg GetEventCommentMemberIDParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getEventCommentMemberID, arg.CommentID, arg.EventID)
+	var member_id pgtype.UUID
+	err := row.Scan(&member_id)
+	return member_id, err
+}
+
 const listEventComments = `-- name: ListEventComments :many
 SELECT
     c.id, c.content, c.published,
@@ -59,7 +76,7 @@ SELECT
 FROM event_comments c
 JOIN members m ON m.id = c.member_id
 WHERE c.event_id = $1
-ORDER BY c.published ASC
+ORDER BY c.published DESC
 `
 
 type ListEventCommentsRow struct {

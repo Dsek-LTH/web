@@ -112,6 +112,7 @@ type Querier interface {
 	GetAnyMember(ctx context.Context) (GetAnyMemberRow, error)
 	// Public lookup: only published, not (currently) removed articles.
 	GetArticleBySlug(ctx context.Context, slug string) (GetArticleBySlugRow, error)
+	GetArticleCommentMemberID(ctx context.Context, arg GetArticleCommentMemberIDParams) (pgtype.UUID, error)
 	GetArticleIDBySlug(ctx context.Context, slug string) (pgtype.UUID, error)
 	// Unfiltered lookup: no publish/removed filter. Used internally after
 	// create/update (so the caller gets back exactly what it just wrote even if
@@ -139,6 +140,9 @@ type Querier interface {
 	// Currently-active mandate/unique-member counts, same as
 	// ListCommitteesWithCounts - the committee detail page shows these too.
 	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (GetCommitteeByShortNameRow, error)
+	// Events store the chosen organizing committee's Swedish name in the
+	// free-text organizer column too (see Service.resolveCommittee).
+	GetCommitteeNameSv(ctx context.Context, id pgtype.UUID) (string, error)
 	// The building-manager position holder, notified on every new booking
 	// request - a hardcoded position slug in the old app too (dsek.km.mastare),
 	// not configurable.
@@ -157,6 +161,7 @@ type Querier interface {
 	// ListEvents. The old TS getEvent() applied no such filter at all (see
 	// DESIGN.md's events section) - fixed here rather than replicated.
 	GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEventBySlugRow, error)
+	GetEventCommentMemberID(ctx context.Context, arg GetEventCommentMemberIDParams) (pgtype.UUID, error)
 	// Phase 9: setAttendance needs the organizer/title/slug to notify on
 	// going/interested (see integrations.EventNotification), not just the id
 	// GetEventIDBySlug returns.
@@ -314,11 +319,11 @@ type Querier interface {
 	// doc comments) + comment/going/interested counts. Duplicated across
 	// ListEvents/GetEventBySlug/GetEventRowBySlug because sqlc has no
 	// macro/fragment support (same situation as articles.sql).
-	// Ordering direction depends on 'past': upcoming events sort soonest-first
-	// (ASC), past events sort most-recent-first (DESC). sqlc can't parameterize
-	// ORDER BY directly, so both directions are expressed as CASE'd sort keys -
-	// exactly one is non-null per row depending on 'past', the other ties (NULL)
-	// and is ignored.
+	// Ordering direction depends on 'descending' (set for past events, which
+	// sort most-recent-first; everything else sorts soonest-first). sqlc can't
+	// parameterize ORDER BY directly, so both directions are expressed as
+	// CASE'd sort keys - exactly one is non-null per row, the other ties
+	// (NULL) and is ignored.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
 	ListExpoTokensWithUnreadCount(ctx context.Context, memberIds []pgtype.UUID) ([]ListExpoTokensWithUnreadCountRow, error)
 	ListGoverningDocuments(ctx context.Context) ([]Document, error)
@@ -354,6 +359,8 @@ type Querier interface {
 	// value to pre-fill a dropdown), not an intentional API restriction.
 	ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error)
 	ListMembersByIDs(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListMembersByIDsRow, error)
+	// Resolves @mentions in comments (see internal/mentions).
+	ListMembersByStudentIDs(ctx context.Context, studentIds []string) ([]ListMembersByStudentIDsRow, error)
 	ListMembersSubscribedToAnyTag(ctx context.Context, tagIds []pgtype.UUID) ([]pgtype.UUID, error)
 	// Members subscribed to settingType, optionally narrowed to a specific
 	// candidate id list (mirrors sendNotification's memberIds intersection).

@@ -4,9 +4,8 @@
   import * as Popover from "$lib/components/ui/popover";
   import { Textarea } from "$lib/components/ui/textarea";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { debounce } from "$lib/utils/debounce";
-  import { getFullName } from "$lib/utils/client/member";
+  import { getFullName, type MemberNames } from "$lib/utils/client/member";
   import { superForm, toastFormMessage } from "$lib/utils/client/superForms";
   import { getMentionText } from "$lib/utils/client/commentTagging";
   import type { CommentSchema } from "$lib/zod/comments";
@@ -20,7 +19,7 @@
     commentForm,
     mentionRequest = null,
   }: {
-    author: ExtendedPrismaModel<"Member">;
+    author: MemberNames & { picturePath?: string | null };
     commentForm: SuperValidated<CommentSchema>;
     mentionRequest?: MentionRequest | null;
   } = $props();

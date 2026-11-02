@@ -689,112 +689,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/drink-item-batches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List drink-inventory stock-change log entries */
-        get: operations["list-drink-item-batches"];
-        put?: never;
-        /** Log a stock change and apply it to the item's running totals */
-        post: operations["create-drink-item-batch"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/drink-item-batches/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete a stock-change log entry and reverse its effect */
-        delete: operations["delete-drink-item-batch"];
-        options?: never;
-        head?: never;
-        /** Edit a stock-change log entry's delta */
-        patch: operations["update-drink-item-batch"];
-        trace?: never;
-    };
-    "/drink-items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List cafe drink-inventory products */
-        get: operations["list-drink-items"];
-        put?: never;
-        /** Create a drink-inventory product */
-        post: operations["create-drink-item"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/drink-items/import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Bulk-create drink-inventory products from a CSV upload */
-        post: operations["import-drink-items-csv"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/drink-items/inventory-value": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Compute the current total inventory value */
-        get: operations["get-drink-inventory-value"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/drink-items/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete a drink-inventory product */
-        delete: operations["delete-drink-item"];
-        options?: never;
-        head?: never;
-        /** Update a drink-inventory product */
-        patch: operations["update-drink-item"];
-        trace?: never;
-    };
     "/elections": {
         parameters: {
             query?: never;
@@ -1734,6 +1628,7 @@ export interface components {
             sendNotification: boolean;
             slug: string;
             status?: string;
+            taggedMembers: components["schemas"]["Member"][] | null;
             tags: components["schemas"]["Tag"][] | null;
             /** Format: date-time */
             updatedAt?: string;
@@ -1923,6 +1818,7 @@ export interface components {
              * @example https://example.com/schemas/Comment.json
              */
             readonly $schema?: string;
+            canDelete: boolean;
             content?: string;
             id: string;
             member: components["schemas"]["Member"];
@@ -1987,21 +1883,6 @@ export interface components {
             symbolUrl?: string;
             /** Format: int32 */
             year: number;
-        };
-        CreateBatchInput: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/CreateBatchInput.json
-             */
-            readonly $schema?: string;
-            /** Format: date-time */
-            date: string;
-            drinkItemId: string;
-            /** Format: int32 */
-            nrBottlesDelta: number;
-            /** Format: int32 */
-            quantityDelta: number;
         };
         CreateCommentInputBody: {
             /**
@@ -2161,85 +2042,6 @@ export interface components {
             startDatetime?: string;
             studentId?: string;
         };
-        DrinkItem: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/DrinkItem.json
-             */
-            readonly $schema?: string;
-            /** Format: int32 */
-            bottleEmptyWeight?: number;
-            /** Format: int32 */
-            bottleFullWeight?: number;
-            group: string;
-            id: string;
-            name: string;
-            /** Format: int32 */
-            nrBottles: number;
-            /** Format: int32 */
-            price: number;
-            /** Format: int32 */
-            quantityAvailable: number;
-            quantityType: string;
-            /** Format: int32 */
-            systembolagetId: number;
-        };
-        DrinkItemBatch: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/DrinkItemBatch.json
-             */
-            readonly $schema?: string;
-            /** Format: date-time */
-            date: string;
-            drinkItemId: string;
-            id: string;
-            itemName: string;
-            /** Format: int32 */
-            nrBottlesDelta: number;
-            /** Format: int32 */
-            quantityDelta: number;
-            user: string;
-        };
-        DrinkItemCreateInput: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/DrinkItemCreateInput.json
-             */
-            readonly $schema?: string;
-            /** Format: int32 */
-            bottleEmptyWeight?: number;
-            /** Format: int32 */
-            bottleFullWeight?: number;
-            group: string;
-            name: string;
-            /** Format: double */
-            price: number;
-            quantityType: string;
-            /** Format: int32 */
-            systembolagetId: number;
-        };
-        DrinkItemUpdateInput: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/DrinkItemUpdateInput.json
-             */
-            readonly $schema?: string;
-            /** Format: int32 */
-            bottleEmptyWeight?: number;
-            /** Format: int32 */
-            bottleFullWeight?: number;
-            group: string;
-            name: string;
-            /** Format: double */
-            price: number;
-            /** Format: int32 */
-            systembolagetId: number;
-        };
         Election: {
             /**
              * Format: uri
@@ -2334,6 +2136,8 @@ export interface components {
             /** Format: int64 */
             commentCount: number;
             comments: components["schemas"]["Comment"][] | null;
+            committee?: components["schemas"]["Committee"];
+            committeeId?: string;
             description: string;
             descriptionEn?: string;
             descriptionSv: string;
@@ -2352,6 +2156,7 @@ export interface components {
             location?: string;
             nollningSeasonId?: string;
             organizer: string;
+            recurring?: components["schemas"]["RecurringInput"];
             recurringParentId?: string;
             shortDescription?: string;
             shortDescriptionEn?: string;
@@ -2359,6 +2164,7 @@ export interface components {
             slug: string;
             /** Format: date-time */
             startAt: string;
+            taggedMembers: components["schemas"]["Member"][] | null;
             tags: components["schemas"]["Tag"][] | null;
             title: string;
             titleEn?: string;
@@ -2372,6 +2178,7 @@ export interface components {
              */
             readonly $schema?: string;
             alarmActive: boolean;
+            committeeId: string | null;
             descriptionEn: string | null;
             descriptionSv: string;
             /** Format: date-time */
@@ -2396,6 +2203,8 @@ export interface components {
             author: components["schemas"]["Member"];
             /** Format: int64 */
             commentCount: number;
+            committee?: components["schemas"]["Committee"];
+            committeeId?: string;
             description: string;
             descriptionEn?: string;
             descriptionSv: string;
@@ -2446,26 +2255,6 @@ export interface components {
              */
             readonly $schema?: string;
             memberId: string;
-        };
-        ImportDrinkItemsOutputBody: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/ImportDrinkItemsOutputBody.json
-             */
-            readonly $schema?: string;
-            /** Format: int64 */
-            created: number;
-        };
-        InventoryValueOutputBody: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/InventoryValueOutputBody.json
-             */
-            readonly $schema?: string;
-            /** Format: double */
-            value: number;
         };
         ListArticlesOutputBody: {
             /**
@@ -2905,18 +2694,6 @@ export interface components {
             name: string;
             nameEn?: string;
             nameSv: string;
-        };
-        UpdateBatchInput: {
-            /**
-             * Format: uri
-             * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/UpdateBatchInput.json
-             */
-            readonly $schema?: string;
-            /** Format: int32 */
-            nrBottlesDelta: number;
-            /** Format: int32 */
-            quantityDelta: number;
         };
         UpdateCommitteeInput: {
             /**
@@ -4891,327 +4668,6 @@ export interface operations {
             };
         };
     };
-    "list-drink-item-batches": {
-        parameters: {
-            query?: {
-                /** @description YYYY-MM-DD; unset lists every batch entry */
-                beforeDate?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DrinkItemBatch"][] | null;
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "create-drink-item-batch": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateBatchInput"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DrinkItemBatch"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "delete-drink-item-batch": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "update-drink-item-batch": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateBatchInput"];
-            };
-        };
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "list-drink-items": {
-        parameters: {
-            query?: {
-                /** @description only items with quantityAvailable > 0 - matches the main stocklist page; omit for showproducts' full list */
-                availableOnly?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DrinkItem"][] | null;
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "create-drink-item": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DrinkItemCreateInput"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DrinkItem"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "import-drink-items-csv": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ImportDrinkItemsOutputBody"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "get-drink-inventory-value": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InventoryValueOutputBody"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "delete-drink-item": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
-    "update-drink-item": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DrinkItemUpdateInput"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DrinkItem"];
-                };
-            };
-            /** @description Error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ErrorModel"];
-                };
-            };
-        };
-    };
     "list-elections": {
         parameters: {
             query?: never;
@@ -5376,8 +4832,14 @@ export interface operations {
                 search?: string;
                 /** @description tag UUIDs, ANY-match */
                 tags?: string[] | null;
-                /** @description list past events (ended) instead of upcoming ones */
-                past?: boolean;
+                /** @description upcoming (default): ends after now; past: started before now, newest first; range: overlaps [from, to) */
+                span?: "upcoming" | "past" | "range";
+                /** @description start of the range span (inclusive) */
+                from?: string;
+                /** @description end of the range span (exclusive) */
+                to?: string;
+                /** @description also list soft-removed events; requires event:update */
+                includeRemoved?: boolean;
                 nollningSeasonId?: string;
                 /** @description 1-based */
                 page?: number;

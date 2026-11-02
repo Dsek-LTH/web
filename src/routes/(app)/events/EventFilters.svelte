@@ -3,13 +3,15 @@
   import { page } from "$app/state";
   import TagSelector from "$lib/components/TagSelector.svelte";
   import { Input } from "$lib/components/ui/input";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import { debounce } from "$lib/utils/debounce";
   import * as m from "$paraglide/messages";
 
   import Search from "@lucide/svelte/icons/search";
 
-  let { allTags }: { allTags: Array<ExtendedPrismaModel<"Tag">> } = $props();
+  type Tag = components["schemas"]["Tag"];
+
+  let { allTags }: { allTags: Tag[] } = $props();
 
   let search = $state(page.url.searchParams.get("search") ?? "");
 
@@ -35,7 +37,7 @@
     });
   }, 300);
 
-  const setTags = (tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>) => {
+  const setTags = (tags: Array<Pick<Tag, "id">>) => {
     const names = allTags
       .filter((tag) => tags.some(({ id }) => id === tag.id))
       .map((tag) => tag.name);

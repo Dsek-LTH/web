@@ -24,43 +24,59 @@ func (q *Queries) CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype
 
 const countEvents = `-- name: CountEvents :one
 SELECT count(*) FROM events e
-WHERE (e.removed_at IS NULL OR e.removed_at > now())
+WHERE (
+    $1::bool
+    OR e.removed_at IS NULL OR e.removed_at > now()
+  )
+  -- Every listing is a time window: upcoming (after=now), past
+  -- (before=now), or an explicit range (both set, the events page's
+  -- week/month views). An event is in the window if any part of it
+  -- overlaps, so an ongoing event shows up in both upcoming and past -
+  -- same rule as upstream's getEvents (#1198).
   AND (
-    (NOT $1::bool AND e.end_datetime >= now())
-    OR ($1::bool AND e.end_datetime <= now())
+    $2::timestamptz IS NULL
+    OR e.end_datetime > $2::timestamptz
   )
   AND (
-    $2::text IS NULL
-    OR e.title_sv ILIKE '%' || $2::text || '%'
-    OR e.title_en ILIKE '%' || $2::text || '%'
-    OR e.short_description_sv ILIKE '%' || $2::text || '%'
-    OR e.short_description_en ILIKE '%' || $2::text || '%'
-    OR e.description_sv ILIKE '%' || $2::text || '%'
-    OR e.description_en ILIKE '%' || $2::text || '%'
+    $3::timestamptz IS NULL
+    OR e.start_datetime < $3::timestamptz
   )
   AND (
-    $3::uuid[] IS NULL
+    $4::text IS NULL
+    OR e.title_sv ILIKE '%' || $4::text || '%'
+    OR e.title_en ILIKE '%' || $4::text || '%'
+    OR e.short_description_sv ILIKE '%' || $4::text || '%'
+    OR e.short_description_en ILIKE '%' || $4::text || '%'
+    OR e.description_sv ILIKE '%' || $4::text || '%'
+    OR e.description_en ILIKE '%' || $4::text || '%'
+  )
+  AND (
+    $5::uuid[] IS NULL
     OR EXISTS (
         SELECT 1 FROM _event_tags t
-        WHERE t."A" = e.id AND t."B" = ANY($3::uuid[])
+        WHERE t."A" = e.id AND t."B" = ANY($5::uuid[])
     )
   )
   AND (
-    $4::uuid IS NULL
-    OR e.nollning_season_id = $4::uuid
+    $6::uuid IS NULL
+    OR e.nollning_season_id = $6::uuid
   )
 `
 
 type CountEventsParams struct {
-	Past             bool          `json:"past"`
-	Search           pgtype.Text   `json:"search"`
-	TagIds           []pgtype.UUID `json:"tag_ids"`
-	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
+	IncludeRemoved   bool               `json:"include_removed"`
+	After            pgtype.Timestamptz `json:"after"`
+	Before           pgtype.Timestamptz `json:"before"`
+	Search           pgtype.Text        `json:"search"`
+	TagIds           []pgtype.UUID      `json:"tag_ids"`
+	NollningSeasonID pgtype.UUID        `json:"nollning_season_id"`
 }
 
 func (q *Queries) CountEvents(ctx context.Context, arg CountEventsParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countEvents,
-		arg.Past,
+		arg.IncludeRemoved,
+		arg.After,
+		arg.Before,
 		arg.Search,
 		arg.TagIds,
 		arg.NollningSeasonID,
@@ -75,9 +91,9 @@ INSERT INTO events (
     title_sv, title_en, description_sv, description_en, link, location,
     organizer, author_id, short_description_sv, short_description_en,
     start_datetime, end_datetime, slug, "imageUrl", alarm_active,
-    is_cancelled, recurring_parent_id, nollning_season_id
+    is_cancelled, recurring_parent_id, nollning_season_id, committee_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
 ) RETURNING id, slug
 `
 
@@ -100,6 +116,7 @@ type CreateEventParams struct {
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
 	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
+	CommitteeID        pgtype.UUID        `json:"committee_id"`
 }
 
 type CreateEventRow struct {
@@ -127,6 +144,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Creat
 		arg.IsCancelled,
 		arg.RecurringParentID,
 		arg.NollningSeasonID,
+		arg.CommitteeID,
 	)
 	var i CreateEventRow
 	err := row.Scan(&i.ID, &i.Slug)
@@ -134,7 +152,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Creat
 }
 
 const createRecurringEvent = `-- name: CreateRecurringEvent :one
-INSERT INTO "RecurringEvent" (
+INSERT INTO recurring_event (
     separation_count, recurring_type, author_id, start_datetime, end_datetime
 ) VALUES (
     $1, $2, $3, $4, $5
@@ -162,13 +180,28 @@ func (q *Queries) CreateRecurringEvent(ctx context.Context, arg CreateRecurringE
 	return id, err
 }
 
+const getCommitteeNameSv = `-- name: GetCommitteeNameSv :one
+SELECT name_sv FROM committees WHERE id = $1
+`
+
+// Events store the chosen organizing committee's Swedish name in the
+// free-text organizer column too (see Service.resolveCommittee).
+func (q *Queries) GetCommitteeNameSv(ctx context.Context, id pgtype.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, getCommitteeNameSv, id)
+	var name_sv string
+	err := row.Scan(&name_sv)
+	return name_sv, err
+}
+
 const getEventBySlug = `-- name: GetEventBySlug :one
 SELECT
     e.id, e.title_sv, e.title_en, e.description_sv, e.description_en, e.link,
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id, e.nollning_season_id,
+    e.recurring_parent_id, e.nollning_season_id, e.committee_id,
+    c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+    c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -177,6 +210,7 @@ SELECT
     COALESCE(it.n, 0)::int AS interested_count
 FROM events e
 JOIN members m ON m.id = e.author_id
+LEFT JOIN committees c ON c.id = e.committee_id
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM event_comments WHERE event_id = e.id
 ) cm ON true
@@ -211,6 +245,11 @@ type GetEventBySlugRow struct {
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
 	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
+	CommitteeID        pgtype.UUID        `json:"committee_id"`
+	CommitteeNameSv    pgtype.Text        `json:"committee_name_sv"`
+	CommitteeNameEn    pgtype.Text        `json:"committee_name_en"`
+	CommitteeShortName pgtype.Text        `json:"committee_short_name"`
+	CommitteeSymbolUrl pgtype.Text        `json:"committee_symbol_url"`
 	AuthorMemberID     pgtype.UUID        `json:"author_member_id"`
 	AuthorStudentID    pgtype.Text        `json:"author_student_id"`
 	AuthorFirstName    pgtype.Text        `json:"author_first_name"`
@@ -249,6 +288,11 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEven
 		&i.IsCancelled,
 		&i.RecurringParentID,
 		&i.NollningSeasonID,
+		&i.CommitteeID,
+		&i.CommitteeNameSv,
+		&i.CommitteeNameEn,
+		&i.CommitteeShortName,
+		&i.CommitteeSymbolUrl,
 		&i.AuthorMemberID,
 		&i.AuthorStudentID,
 		&i.AuthorFirstName,
@@ -305,7 +349,9 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id, e.nollning_season_id,
+    e.recurring_parent_id, e.nollning_season_id, e.committee_id,
+    c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+    c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -314,6 +360,7 @@ SELECT
     COALESCE(it.n, 0)::int AS interested_count
 FROM events e
 JOIN members m ON m.id = e.author_id
+LEFT JOIN committees c ON c.id = e.committee_id
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM event_comments WHERE event_id = e.id
 ) cm ON true
@@ -347,6 +394,11 @@ type GetEventRowBySlugRow struct {
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
 	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
+	CommitteeID        pgtype.UUID        `json:"committee_id"`
+	CommitteeNameSv    pgtype.Text        `json:"committee_name_sv"`
+	CommitteeNameEn    pgtype.Text        `json:"committee_name_en"`
+	CommitteeShortName pgtype.Text        `json:"committee_short_name"`
+	CommitteeSymbolUrl pgtype.Text        `json:"committee_symbol_url"`
 	AuthorMemberID     pgtype.UUID        `json:"author_member_id"`
 	AuthorStudentID    pgtype.Text        `json:"author_student_id"`
 	AuthorFirstName    pgtype.Text        `json:"author_first_name"`
@@ -385,6 +437,11 @@ func (q *Queries) GetEventRowBySlug(ctx context.Context, slug pgtype.Text) (GetE
 		&i.IsCancelled,
 		&i.RecurringParentID,
 		&i.NollningSeasonID,
+		&i.CommitteeID,
+		&i.CommitteeNameSv,
+		&i.CommitteeNameEn,
+		&i.CommitteeShortName,
+		&i.CommitteeSymbolUrl,
 		&i.AuthorMemberID,
 		&i.AuthorStudentID,
 		&i.AuthorFirstName,
@@ -400,7 +457,7 @@ func (q *Queries) GetEventRowBySlug(ctx context.Context, slug pgtype.Text) (GetE
 
 const getRecurringEvent = `-- name: GetRecurringEvent :one
 SELECT id, separation_count, recurring_type, author_id, start_datetime, end_datetime
-FROM "RecurringEvent"
+FROM recurring_event
 WHERE id = $1
 `
 
@@ -476,7 +533,9 @@ SELECT
     e.location, e.organizer, e.author_id, e.short_description_sv,
     e.short_description_en, e.start_datetime, e.end_datetime, e.slug,
     e.alarm_active, e.removed_at, e."imageUrl", e.is_cancelled,
-    e.recurring_parent_id, e.nollning_season_id,
+    e.recurring_parent_id, e.nollning_season_id, e.committee_id,
+    c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
+    c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
     m.id AS author_member_id, m.student_id AS author_student_id,
     m.first_name AS author_first_name, m.last_name AS author_last_name,
     m.nickname AS author_nickname, m.picture_path AS author_picture_path,
@@ -485,6 +544,7 @@ SELECT
     COALESCE(it.n, 0)::int AS interested_count
 FROM events e
 JOIN members m ON m.id = e.author_id
+LEFT JOIN committees c ON c.id = e.committee_id
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM event_comments WHERE event_id = e.id
 ) cm ON true
@@ -494,44 +554,59 @@ LEFT JOIN LATERAL (
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM _event_interested WHERE "A" = e.id
 ) it ON true
-WHERE (e.removed_at IS NULL OR e.removed_at > now())
+WHERE (
+    $1::bool
+    OR e.removed_at IS NULL OR e.removed_at > now()
+  )
+  -- Every listing is a time window: upcoming (after=now), past
+  -- (before=now), or an explicit range (both set, the events page's
+  -- week/month views). An event is in the window if any part of it
+  -- overlaps, so an ongoing event shows up in both upcoming and past -
+  -- same rule as upstream's getEvents (#1198).
   AND (
-    (NOT $1::bool AND e.end_datetime >= now())
-    OR ($1::bool AND e.end_datetime <= now())
+    $2::timestamptz IS NULL
+    OR e.end_datetime > $2::timestamptz
   )
   AND (
-    $2::text IS NULL
-    OR e.title_sv ILIKE '%' || $2::text || '%'
-    OR e.title_en ILIKE '%' || $2::text || '%'
-    OR e.short_description_sv ILIKE '%' || $2::text || '%'
-    OR e.short_description_en ILIKE '%' || $2::text || '%'
-    OR e.description_sv ILIKE '%' || $2::text || '%'
-    OR e.description_en ILIKE '%' || $2::text || '%'
+    $3::timestamptz IS NULL
+    OR e.start_datetime < $3::timestamptz
   )
   AND (
-    $3::uuid[] IS NULL
+    $4::text IS NULL
+    OR e.title_sv ILIKE '%' || $4::text || '%'
+    OR e.title_en ILIKE '%' || $4::text || '%'
+    OR e.short_description_sv ILIKE '%' || $4::text || '%'
+    OR e.short_description_en ILIKE '%' || $4::text || '%'
+    OR e.description_sv ILIKE '%' || $4::text || '%'
+    OR e.description_en ILIKE '%' || $4::text || '%'
+  )
+  AND (
+    $5::uuid[] IS NULL
     OR EXISTS (
         SELECT 1 FROM _event_tags t
-        WHERE t."A" = e.id AND t."B" = ANY($3::uuid[])
+        WHERE t."A" = e.id AND t."B" = ANY($5::uuid[])
     )
   )
   AND (
-    $4::uuid IS NULL
-    OR e.nollning_season_id = $4::uuid
+    $6::uuid IS NULL
+    OR e.nollning_season_id = $6::uuid
   )
 ORDER BY
-    (CASE WHEN $1::bool THEN e.start_datetime END) DESC NULLS LAST,
-    (CASE WHEN NOT $1::bool THEN e.start_datetime END) ASC NULLS LAST
-LIMIT $6 OFFSET $5
+    (CASE WHEN $7::bool THEN e.start_datetime END) DESC NULLS LAST,
+    (CASE WHEN NOT $7::bool THEN e.start_datetime END) ASC NULLS LAST
+LIMIT $9 OFFSET $8
 `
 
 type ListEventsParams struct {
-	Past             bool          `json:"past"`
-	Search           pgtype.Text   `json:"search"`
-	TagIds           []pgtype.UUID `json:"tag_ids"`
-	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
-	Offset           int32         `json:"offset"`
-	Limit            int32         `json:"limit"`
+	IncludeRemoved   bool               `json:"include_removed"`
+	After            pgtype.Timestamptz `json:"after"`
+	Before           pgtype.Timestamptz `json:"before"`
+	Search           pgtype.Text        `json:"search"`
+	TagIds           []pgtype.UUID      `json:"tag_ids"`
+	NollningSeasonID pgtype.UUID        `json:"nollning_season_id"`
+	Descending       bool               `json:"descending"`
+	Offset           int32              `json:"offset"`
+	Limit            int32              `json:"limit"`
 }
 
 type ListEventsRow struct {
@@ -555,6 +630,11 @@ type ListEventsRow struct {
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
 	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
+	CommitteeID        pgtype.UUID        `json:"committee_id"`
+	CommitteeNameSv    pgtype.Text        `json:"committee_name_sv"`
+	CommitteeNameEn    pgtype.Text        `json:"committee_name_en"`
+	CommitteeShortName pgtype.Text        `json:"committee_short_name"`
+	CommitteeSymbolUrl pgtype.Text        `json:"committee_symbol_url"`
 	AuthorMemberID     pgtype.UUID        `json:"author_member_id"`
 	AuthorStudentID    pgtype.Text        `json:"author_student_id"`
 	AuthorFirstName    pgtype.Text        `json:"author_first_name"`
@@ -571,17 +651,20 @@ type ListEventsRow struct {
 // doc comments) + comment/going/interested counts. Duplicated across
 // ListEvents/GetEventBySlug/GetEventRowBySlug because sqlc has no
 // macro/fragment support (same situation as articles.sql).
-// Ordering direction depends on 'past': upcoming events sort soonest-first
-// (ASC), past events sort most-recent-first (DESC). sqlc can't parameterize
-// ORDER BY directly, so both directions are expressed as CASE'd sort keys -
-// exactly one is non-null per row depending on 'past', the other ties (NULL)
-// and is ignored.
+// Ordering direction depends on 'descending' (set for past events, which
+// sort most-recent-first; everything else sorts soonest-first). sqlc can't
+// parameterize ORDER BY directly, so both directions are expressed as
+// CASE'd sort keys - exactly one is non-null per row, the other ties
+// (NULL) and is ignored.
 func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error) {
 	rows, err := q.db.Query(ctx, listEvents,
-		arg.Past,
+		arg.IncludeRemoved,
+		arg.After,
+		arg.Before,
 		arg.Search,
 		arg.TagIds,
 		arg.NollningSeasonID,
+		arg.Descending,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -613,6 +696,11 @@ func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]ListE
 			&i.IsCancelled,
 			&i.RecurringParentID,
 			&i.NollningSeasonID,
+			&i.CommitteeID,
+			&i.CommitteeNameSv,
+			&i.CommitteeNameEn,
+			&i.CommitteeShortName,
+			&i.CommitteeSymbolUrl,
 			&i.AuthorMemberID,
 			&i.AuthorStudentID,
 			&i.AuthorFirstName,
@@ -680,7 +768,8 @@ UPDATE events SET
     "imageUrl" = $13,
     alarm_active = $14,
     is_cancelled = $15,
-    nollning_season_id = $16
+    nollning_season_id = $16,
+    committee_id = $17
 WHERE id = $1
 RETURNING id, slug
 `
@@ -702,6 +791,7 @@ type UpdateEventParams struct {
 	AlarmActive        pgtype.Bool        `json:"alarm_active"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
 	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
+	CommitteeID        pgtype.UUID        `json:"committee_id"`
 }
 
 type UpdateEventRow struct {
@@ -732,6 +822,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Updat
 		arg.AlarmActive,
 		arg.IsCancelled,
 		arg.NollningSeasonID,
+		arg.CommitteeID,
 	)
 	var i UpdateEventRow
 	err := row.Scan(&i.ID, &i.Slug)

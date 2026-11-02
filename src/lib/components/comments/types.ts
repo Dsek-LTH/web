@@ -1,16 +1,11 @@
-import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import type { components } from "$lib/api/schema";
 
 export type CommentType = "NEWS" | "EVENT";
 
-export type CommentMember = ExtendedPrismaModel<"Member">;
+export type CommentMember = components["schemas"]["Member"];
 
-type BaseComment =
-  | ExtendedPrismaModel<"ArticleComment">
-  | ExtendedPrismaModel<"EventComment">;
-
-export type CommentWithMember = BaseComment & {
-  member: CommentMember;
-};
+/** A comment as Go returns it on an article/event detail. */
+export type CommentWithMember = components["schemas"]["Comment"];
 
 export type MentionRequest = {
   id: number;

@@ -1,10 +1,7 @@
-import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
-import { getFullName } from "$lib/utils/client/member";
+import { getFullName, type MemberNames } from "$lib/utils/client/member";
 import * as m from "$paraglide/messages";
 
-export const formatGoingList = (
-  going: Array<ExtendedPrismaModel<"Member">>,
-): string => {
+export const formatGoingList = (going: MemberNames[]): string => {
   switch (going.length) {
     case 0:
       return "";
@@ -28,9 +25,7 @@ export const formatGoingList = (
   }
 };
 
-export const formatInterestedList = (
-  interested: Array<ExtendedPrismaModel<"Member">>,
-): string => {
+export const formatInterestedList = (interested: MemberNames[]): string => {
   switch (interested.length) {
     case 0:
       return "";

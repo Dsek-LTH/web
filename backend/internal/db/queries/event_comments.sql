@@ -7,7 +7,7 @@ SELECT
 FROM event_comments c
 JOIN members m ON m.id = c.member_id
 WHERE c.event_id = sqlc.arg('event_id')
-ORDER BY c.published ASC;
+ORDER BY c.published DESC;
 
 -- name: CreateEventComment :one
 INSERT INTO event_comments (event_id, member_id, content, published)
@@ -16,4 +16,8 @@ RETURNING id, published;
 
 -- name: DeleteEventComment :exec
 DELETE FROM event_comments
+WHERE id = sqlc.arg('comment_id') AND event_id = sqlc.arg('event_id');
+
+-- name: GetEventCommentMemberID :one
+SELECT member_id FROM event_comments
 WHERE id = sqlc.arg('comment_id') AND event_id = sqlc.arg('event_id');

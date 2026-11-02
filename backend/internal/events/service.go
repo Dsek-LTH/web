@@ -14,10 +14,12 @@ import (
 
 	"github.com/dsek-lth/web/backend/internal/apinames"
 	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/comments"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/dbutil"
 	"github.com/dsek-lth/web/backend/internal/integrations"
 	"github.com/dsek-lth/web/backend/internal/locale"
+	"github.com/dsek-lth/web/backend/internal/mentions"
 	"github.com/dsek-lth/web/backend/internal/slug"
 )
 
@@ -88,8 +90,21 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]EventSummary, 
 		return nil, 0, invalidf("invalid nollning season id: %v", err)
 	}
 
+	if params.IncludeRemoved {
+		if err := auth.Require(ctx, apinames.EventUpdate); err != nil {
+			return nil, 0, err
+		}
+	}
+	after, before, descending, err := params.window(time.Now())
+	if err != nil {
+		return nil, 0, err
+	}
+
 	rows, err := s.queries.ListEvents(ctx, db.ListEventsParams{
-		Past:             params.Past,
+		IncludeRemoved:   params.IncludeRemoved,
+		After:            after,
+		Before:           before,
+		Descending:       descending,
 		Search:           search,
 		TagIds:           tagIDs,
 		NollningSeasonID: nollningSeasonID,
@@ -101,7 +116,9 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]EventSummary, 
 	}
 
 	total, err := s.queries.CountEvents(ctx, db.CountEventsParams{
-		Past:             params.Past,
+		IncludeRemoved:   params.IncludeRemoved,
+		After:            after,
+		Before:           before,
 		Search:           search,
 		TagIds:           tagIDs,
 		NollningSeasonID: nollningSeasonID,
@@ -183,6 +200,11 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 		}
 	}
 
+	committeeID, err := s.resolveCommittee(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
+
 	base := slug.Slugify(in.TitleSv)
 	slugCount, err := s.queries.CountEventSlugsWithPrefix(
 		ctx,
@@ -196,7 +218,7 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 		firstSlug := slug.SlugWithCount(base, int(slugCount))
 		created, err := s.queries.CreateEvent(
 			ctx,
-			s.createParams(in, authorID, firstSlug, pgtype.UUID{}, nollningSeasonID),
+			s.createParams(in, authorID, firstSlug, pgtype.UUID{}, nollningSeasonID, committeeID),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("create event: %w", err)
@@ -247,7 +269,7 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 		occIn.EndAt = occ.End
 		created, err := qtx.CreateEvent(
 			ctx,
-			s.createParams(occIn, authorID, occSlug, recurringID, nollningSeasonID),
+			s.createParams(occIn, authorID, occSlug, recurringID, nollningSeasonID, committeeID),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("create occurrence %d: %w", i, err)
@@ -274,6 +296,7 @@ func (s *Service) createParams(
 	eventSlug string,
 	recurringParentID pgtype.UUID,
 	nollningSeasonID pgtype.UUID,
+	committeeID pgtype.UUID,
 ) db.CreateEventParams {
 	return db.CreateEventParams{
 		TitleSv:            in.TitleSv,
@@ -294,7 +317,34 @@ func (s *Service) createParams(
 		IsCancelled:        pgtype.Bool{Bool: in.IsCancelled, Valid: true},
 		RecurringParentID:  recurringParentID,
 		NollningSeasonID:   nollningSeasonID,
+		CommitteeID:        committeeID,
 	}
+}
+
+// resolveCommittee validates in.CommitteeID (the organizing committee
+// picked in the event form, upstream #1198) and, when set, overwrites
+// in.Organizer with the committee's Swedish name - organizer stays the
+// free-text column everything that only knows about text (the ICS feed,
+// older clients) reads, so it's kept in sync rather than dropped. Unset
+// keeps whatever free-text organizer the caller sent, for events with no
+// committee.
+func (s *Service) resolveCommittee(ctx context.Context, in *EventInput) (pgtype.UUID, error) {
+	committeeID, err := dbutil.ParseUUIDPtr(in.CommitteeID)
+	if err != nil {
+		return pgtype.UUID{}, invalidf("invalid committee id: %v", err)
+	}
+	if !committeeID.Valid {
+		return committeeID, nil
+	}
+	name, err := s.queries.GetCommitteeNameSv(ctx, committeeID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return pgtype.UUID{}, invalidf("committee not found")
+		}
+		return pgtype.UUID{}, fmt.Errorf("get committee: %w", err)
+	}
+	in.Organizer = name
+	return committeeID, nil
 }
 
 // Update replaces every writable field of an event (PUT semantics, not a
@@ -354,6 +404,11 @@ func (s *Service) Update(
 		}
 	}
 
+	committeeID, err := s.resolveCommittee(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
+
 	targets := []db.ListEventSiblingsRow{{
 		ID:            current.ID,
 		Slug:          current.Slug,
@@ -389,7 +444,6 @@ func (s *Service) Update(
 			// exactly as given, free to change the date too.
 			startAt, endAt, err = retimeOccurrence(
 				t.StartDatetime.Time,
-				t.EndDatetime.Time,
 				in.StartAt,
 				in.EndAt,
 			)
@@ -417,6 +471,7 @@ func (s *Service) Update(
 			AlarmActive:        pgtype.Bool{Bool: occIn.AlarmActive, Valid: true},
 			IsCancelled:        pgtype.Bool{Bool: occIn.IsCancelled, Valid: true},
 			NollningSeasonID:   nollningSeasonID,
+			CommitteeID:        committeeID,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("update occurrence %d: %w", i, err)
@@ -430,36 +485,6 @@ func (s *Service) Update(
 	}
 
 	return s.getBySlugUnfiltered(ctx, updatedSlug)
-}
-
-// retimeOccurrence reconstructs origStart/origEnd's dates with
-// newStart/newEnd's Europe/Stockholm wall-clock time-of-day, preserving
-// origStart/origEnd's own day offset - the per-sibling half of a
-// Future/All series edit (see Update's doc comment).
-func retimeOccurrence(
-	origStart, origEnd, newStart, newEnd time.Time,
-) (time.Time, time.Time, error) {
-	loc, err := time.LoadLocation(stockholmTZ)
-	if err != nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("load %s: %w", stockholmTZ, err)
-	}
-	origStartLocal := origStart.In(loc)
-	origEndLocal := origEnd.In(loc)
-	newStartLocal := newStart.In(loc)
-	newEndLocal := newEnd.In(loc)
-
-	sh, sm, ss := newStartLocal.Clock()
-	eh, em, es := newEndLocal.Clock()
-
-	retimedStart := time.Date(
-		origStartLocal.Year(), origStartLocal.Month(), origStartLocal.Day(),
-		sh, sm, ss, newStartLocal.Nanosecond(), loc,
-	)
-	retimedEnd := time.Date(
-		origEndLocal.Year(), origEndLocal.Month(), origEndLocal.Day(),
-		eh, em, es, newEndLocal.Nanosecond(), loc,
-	)
-	return retimedStart, retimedEnd, nil
 }
 
 // Delete soft-deletes an event (sets removed_at); it does not remove the
@@ -621,6 +646,10 @@ func (s *Service) AddComment(ctx context.Context, eventSlug, content string) (*C
 		return nil, invalidf("invalid member id: %v", err)
 	}
 
+	content, err = comments.Normalize(content)
+	if err != nil {
+		return nil, invalidf("%v", err)
+	}
 	sanitized := s.sanitizer.Sanitize(content)
 	created, err := s.queries.CreateEventComment(ctx, db.CreateEventCommentParams{
 		EventID:  eventID,
@@ -636,17 +665,22 @@ func (s *Service) AddComment(ctx context.Context, eventSlug, content string) (*C
 		Content:   &sanitized,
 		Published: created.Published.Time,
 		Member:    Member{ID: identity.MemberID},
+		CanDelete: true,
 	}, nil
 }
 
-// RemoveComment is gated on apinames.EventCommentDelete - the old TS
-// removeCommentAction("EVENT") had no authorization check at all (any
-// visitor could delete any comment on any event), a real bug flagged in
-// DESIGN.md's events section and fixed here, not replicated. Matches
-// articles.Service.RemoveComment's already-correct pattern exactly.
+// RemoveComment lets a comment's own author, or anyone holding
+// apinames.EventCommentDelete, delete it - the old ZModel's two
+// EventComment delete rules (see internal/comments.CanDelete). The old TS
+// removeCommentAction("EVENT") itself had no authorization check at all
+// (any visitor could delete any comment), a real bug flagged in
+// DESIGN.md's events section and fixed here, not replicated. The author
+// half was missing from the first Go port and added in the Phase 12
+// upstream sync, once upstream's restored comment UI (#1390) relied on it.
 func (s *Service) RemoveComment(ctx context.Context, eventSlug, commentID string) error {
-	if err := auth.Require(ctx, apinames.EventCommentDelete); err != nil {
-		return err
+	identity, ok := auth.FromContext(ctx)
+	if !ok {
+		return auth.ErrUnauthenticated
 	}
 	eventID, err := s.queries.GetEventIDBySlug(ctx, dbutil.ToText(&eventSlug))
 	if err != nil {
@@ -658,6 +692,19 @@ func (s *Service) RemoveComment(ctx context.Context, eventSlug, commentID string
 	commentUUID, err := dbutil.ParseUUID(commentID)
 	if err != nil {
 		return invalidf("invalid comment id: %v", err)
+	}
+	authorID, err := s.queries.GetEventCommentMemberID(ctx, db.GetEventCommentMemberIDParams{
+		CommentID: commentUUID,
+		EventID:   eventID,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("find comment: %w", err)
+	}
+	if !comments.CanDelete(identity, apinames.EventCommentDelete, dbutil.UUIDStr(authorID)) {
+		return auth.ErrForbidden
 	}
 	if err := s.queries.DeleteEventComment(ctx, db.DeleteEventCommentParams{
 		CommentID: commentUUID,
@@ -708,9 +755,13 @@ func (s *Service) detail(ctx context.Context, row db.ListEventsRow) (*EventDetai
 	if err != nil {
 		return nil, fmt.Errorf("list comments: %w", err)
 	}
-	comments := make([]Comment, len(commentRows))
+	identity, _ := auth.FromContext(ctx)
+	eventComments := make([]Comment, len(commentRows))
 	for i, c := range commentRows {
-		comments[i] = Comment{
+		eventComments[i] = Comment{
+			CanDelete: comments.CanDelete(
+				identity, apinames.EventCommentDelete, dbutil.UUIDStr(c.MemberID),
+			),
 			ID:        dbutil.UUIDStr(c.ID),
 			Content:   dbutil.TextPtr(c.Content),
 			Published: c.Published.Time,
@@ -723,6 +774,15 @@ func (s *Service) detail(ctx context.Context, row db.ListEventsRow) (*EventDetai
 				PicturePath: dbutil.TextPtr(c.MemberPicturePath),
 			},
 		}
+	}
+
+	contents := make([]string, len(eventComments))
+	for i, c := range eventComments {
+		contents[i] = dbutil.StringOr(c.Content, "")
+	}
+	taggedMembers, err := mentions.Resolve(ctx, s.queries, contents)
+	if err != nil {
+		return nil, err
 	}
 
 	going, err := s.queries.ListEventGoing(ctx, row.ID)
@@ -757,6 +817,21 @@ func (s *Service) detail(ctx context.Context, row db.ListEventsRow) (*EventDetai
 		}
 	}
 
+	var recurring *RecurringInput
+	if row.RecurringParentID.Valid {
+		series, err := s.queries.GetRecurringEvent(ctx, row.RecurringParentID)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("get recurring series: %w", err)
+		}
+		if err == nil {
+			recurring = &RecurringInput{
+				Type:            string(series.RecurringType),
+				SeparationCount: int(series.SeparationCount),
+				EndAt:           series.EndDatetime.Time,
+			}
+		}
+	}
+
 	canEdit, canDelete := false, false
 	if identity, ok := auth.FromContext(ctx); ok {
 		// Mirrors Update's author-or-EventUpdate bypass and Delete's
@@ -769,12 +844,14 @@ func (s *Service) detail(ctx context.Context, row db.ListEventsRow) (*EventDetai
 	}
 
 	return &EventDetail{
-		EventSummary: summary,
-		Comments:     comments,
-		Going:        orEmptyMembers(goingMembers),
-		Interested:   orEmptyMembers(interestedMembers),
-		CanEdit:      canEdit,
-		CanDelete:    canDelete,
+		EventSummary:  summary,
+		Comments:      eventComments,
+		TaggedMembers: taggedMembers,
+		Going:         orEmptyMembers(goingMembers),
+		Interested:    orEmptyMembers(interestedMembers),
+		CanEdit:       canEdit,
+		CanDelete:     canDelete,
+		Recurring:     recurring,
 	}, nil
 }
 

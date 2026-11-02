@@ -97,6 +97,15 @@ Registered in `huma_events.go`. See `DESIGN.md`'s "Events" section for the full 
 
 Not ported this pass (see DESIGN.md for the full "Events" section): push notifications on going/interested, the calendar range endpoint, the ICS subscribe feed, the typeahead search endpoint, the admin all-events bypass listing, nollning event visibility.
 
+**Phase 12 (upstream sync, 2026-11-02) changes to the above** - see `DESIGN.md`'s Phase 12 "Events" and "Comments" bullets for the why:
+- `GET /events` takes `span` (`upcoming` default / `past` / `range` with `from`+`to`) instead of the old `past` bool, plus `includeRemoved` (requires `event:update`). An event is in a window if any part of it overlaps it.
+- `EventInput.committeeId` / `EventSummary.committee` - the organizing committee; `organizer` is overwritten with its Swedish name when set (`Service.resolveCommittee`).
+- `EventDetail.recurring` (the series' type/separation/end) and `taggedMembers` (members @mentioned in the comments, `internal/mentions`); comments are newest-first and each carries `canDelete`.
+- Comment delete allows the comment's own author as well as `event:comment:delete` (`internal/comments.CanDelete`, same for articles); comment content is trimmed and limited to 255 characters (`comments.Normalize`).
+- `recurrence.go` mirrors upstream's `src/lib/events/recurrence.ts` (#1322), tested in `recurrence_test.go`.
+- The table is `recurring_event` now (upstream's rename migration).
+- Frontend: every events route loads via `+page.ts` from Go (`EventPageLoad.ts` is the shared list load); `[slug]/+page.server.ts` is actions only; `(tv)/events/tv` too. Still on Prisma, unchanged: `subscribe` (ICS), `id/[id]`, `api/events`, and the nollning events page.
+
 ### Directory routes (members / committees / positions / mandates / access policies)
 
 **Both the Go backend and its SvelteKit frontend wiring are implemented** (per DESIGN.md's roadmap "Phase 1: directory foundation"). Three packages: `internal/members` (`huma_members.go`), `internal/committees` (owns Committee/Position/Mandate - they're relationally nested and always queried together; `huma_committees.go`), `internal/accesspolicies` (`huma_access_policies.go`). `Committee`/`Position`/`Mandate` moved into `internal/apitypes` from their old minimal `internal/articles`-only shapes during this port (same reason as Member/Tag/Comment - see that package's doc comment) - `internal/articles` now aliases them and keeps working with fewer fields populated; `internal/members`' own richer member-profile DTO is named `MemberProfile`, not `Member`, specifically to avoid colliding with `apitypes.Member` (this is exactly the huma "duplicate schema name" trap CLAUDE.md warns about above - it panicked at server startup during this port before the rename).

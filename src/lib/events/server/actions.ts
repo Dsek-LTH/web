@@ -41,6 +41,8 @@ function toEventInput(
     link: data.link,
     location: data.location,
     organizer: data.organizer,
+    // Go overwrites organizer with the committee's name when one is set.
+    committeeId: data.committeeId,
     imageUrl,
     startAt: data.startDatetime.toISOString(),
     endAt: data.endDatetime.toISOString(),

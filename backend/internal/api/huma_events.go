@@ -5,6 +5,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 
@@ -12,12 +13,15 @@ import (
 )
 
 type listEventsInput struct {
-	Search           string   `query:"search"           doc:"free-text search over title/description"`
-	Tags             []string `query:"tags,explode"     doc:"tag UUIDs, ANY-match"`
-	Past             bool     `query:"past"             doc:"list past events (ended) instead of upcoming ones"`
-	NollningSeasonID string   `query:"nollningSeasonId"`
-	Page             int      `query:"page"             doc:"1-based"`
-	PageSize         int      `query:"pageSize"`
+	Search           string    `query:"search"           doc:"free-text search over title/description"`
+	Tags             []string  `query:"tags,explode"     doc:"tag UUIDs, ANY-match"`
+	Span             string    `query:"span"             enum:"upcoming,past,range" doc:"upcoming (default): ends after now; past: started before now, newest first; range: overlaps [from, to)"`
+	From             time.Time `query:"from"             doc:"start of the range span (inclusive)"`
+	To               time.Time `query:"to"               doc:"end of the range span (exclusive)"`
+	IncludeRemoved   bool      `query:"includeRemoved"   doc:"also list soft-removed events; requires event:update"`
+	NollningSeasonID string    `query:"nollningSeasonId"`
+	Page             int       `query:"page"             doc:"1-based"`
+	PageSize         int       `query:"pageSize"`
 }
 
 type listEventsOutput struct {
@@ -93,10 +97,17 @@ func registerEventRoutes(api huma.API, svc *events.Service) {
 		Summary:     "List events",
 	}, func(ctx context.Context, input *listEventsInput) (*listEventsOutput, error) {
 		params := events.ListParams{
-			TagIDs:   input.Tags,
-			Past:     input.Past,
-			Page:     input.Page,
-			PageSize: input.PageSize,
+			TagIDs:         input.Tags,
+			Span:           events.Span(input.Span),
+			IncludeRemoved: input.IncludeRemoved,
+			Page:           input.Page,
+			PageSize:       input.PageSize,
+		}
+		if !input.From.IsZero() {
+			params.From = &input.From
+		}
+		if !input.To.IsZero() {
+			params.To = &input.To
 		}
 		if input.Search != "" {
 			params.Search = &input.Search
