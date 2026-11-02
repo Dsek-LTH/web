@@ -5,12 +5,8 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "sveltekit-flash-message/server";
 import { electionSchema } from "../schemas";
 import * as m from "$paraglide/messages";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals }) => {
   const { prisma } = locals;
@@ -56,7 +52,7 @@ export const actions: Actions = {
         markdownEn,
         link,
         expiresAt: dayjs
-          .tz(`${expiresAt} 23:59:59`, "Europe/Stockholm")
+          .tz(`${expiresAt} 23:59:59`, APP_TIMEZONE)
           .utc()
           .toDate(),
         committeeId,

@@ -8,14 +8,10 @@
   import Coffee from "@lucide/svelte/icons/coffee";
   import UsersRound from "@lucide/svelte/icons/users-round";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
-  import dayjs from "dayjs";
-  import utc from "dayjs/plugin/utc";
-  import timezone from "dayjs/plugin/timezone";
   import { m } from "$paraglide/messages";
+  import { toAppTime } from "$lib/utils/datetime";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
   import Documents from "./Documents.svelte";
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
   const { data } = $props();
 </script>
 
@@ -89,9 +85,7 @@
               </h5>
               <span class="w-full text-center font-light">
                 {m.elections_close()}
-                {dayjs(election.expiresAt)
-                  .tz(dayjs.tz.guess())
-                  .format("YYYY-MM-DD")}</span
+                {toAppTime(election.expiresAt).format("YYYY-MM-DD")}</span
               >
               <Button href={election.link} class="mt-4"
                 >{m.elections_apply()}</Button
