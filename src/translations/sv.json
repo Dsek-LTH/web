@@ -496,6 +496,7 @@
   "news_errors_invalidPage": "Ogiltig sida",
   "news_errors_articleNotFound": "Kunde inte hitta artikel",
   "news_errors_tagNotFound": "Tag not found",
+  "news_errors_notificationFailed": "Nyheten publicerades, men dess notiser kunde inte skickas.",
   "news_errors_schedulingFailed": "Misslyckades med schemaläggning",
   "news_articleScheduled": "Nyhet schemalagd",
   "news_show": "Visa",

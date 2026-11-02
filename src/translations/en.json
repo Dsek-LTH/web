@@ -496,6 +496,7 @@
   "news_errors_invalidPage": "Invalid page",
   "news_errors_articleNotFound": "Article not found",
   "news_errors_tagNotFound": "Tag not found",
+  "news_errors_notificationFailed": "The article was published, but its notifications could not be sent.",
   "news_errors_schedulingFailed": "Failed to schedule article",
   "news_articleScheduled": "Article scheduled for publishing",
   "news_show": "Show",
