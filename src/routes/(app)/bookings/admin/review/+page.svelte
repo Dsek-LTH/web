@@ -24,8 +24,9 @@
     stickyBottomClass,
   } from "$lib/bookings/stickyBottom";
   import * as m from "$paraglide/messages";
-  import { getLocale } from "$paraglide/runtime";
   import type { PageData } from "./$types";
+  import dayjs, { type Dayjs } from "dayjs";
+  import { Badge } from "$lib/components/ui/badge";
 
   let { data }: { data: PageData } = $props();
 
@@ -42,46 +43,21 @@
 
   const stickyBottom = $derived(getStickyBottomOffset());
 
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString(getLocale(), {
-      timeZone: "Europe/Stockholm",
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-    });
+  const formatDuration = (start: Dayjs, end: Dayjs) => {
+    const diffMin = end.diff(start, "minute");
+    const diffHours = end.diff(start, "hour");
+    const diffDays = end.diff(start, "days");
+    const restMin = diffMin - diffHours * 60;
 
-  const formatTime = (date: Date) =>
-    date.toLocaleTimeString(getLocale(), {
-      timeZone: "Europe/Stockholm",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-  const formatShortDateTime = (date: Date) =>
-    date.toLocaleString(getLocale(), {
-      timeZone: "Europe/Stockholm",
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-  const isSameDay = (a: Date, b: Date) =>
-    formatDate(a) === formatDate(b) && b.getTime() - a.getTime() < 86_400_000;
-
-  const formatDuration = (start: Date, end: Date) => {
-    const minutes = Math.round((end.getTime() - start.getTime()) / 60_000);
-    const hours = Math.floor(minutes / 60);
-    const rest = minutes % 60;
-    if (hours >= 24) {
+    if (diffDays > 0) {
       return m.booking_durationDaysHours({
-        days: Math.floor(hours / 24),
-        hours: hours % 24,
+        days: diffDays,
+        hours: diffHours,
       });
     }
-    return rest
-      ? m.booking_durationHoursMinutes({ hours, minutes: rest })
-      : m.booking_durationHours({ hours });
+    return restMin > 0
+      ? m.booking_durationHoursMinutes({ hours: diffHours, minutes: restMin })
+      : m.booking_durationHours({ hours: diffHours });
   };
 
   const handleDecision: SubmitFunction = ({ formData, action }) => {
@@ -118,7 +94,7 @@
       <ArrowLeftIcon class="size-4" />
       <span class="hidden sm:inline">{m.booking_goBack()}</span>
     </Button>
-    <h1 class="text-lg font-semibold uppercase">{m.booking_reviewQueue()}</h1>
+    <h4 class="">{m.booking_reviewQueue()}</h4>
     <span
       class="text-muted-foreground min-w-12 text-right text-sm tabular-nums"
     >
@@ -154,8 +130,8 @@
   {/if}
 
   {#if booking?.start && booking.end}
-    {@const start = new Date(booking.start)}
-    {@const end = new Date(booking.end)}
+    {@const start = dayjs(booking.start)}
+    {@const end = dayjs(booking.end)}
     <article class="bg-muted-background flex-1 space-y-5 rounded-xl p-5">
       <header class="space-y-3">
         <h2
@@ -178,22 +154,25 @@
       <section class="flex gap-3">
         <ClockIcon class="text-primary mt-0.5 size-5 shrink-0" />
         <div>
-          {#if isSameDay(start, end)}
-            <p class="font-medium first-letter:uppercase">
-              {formatDate(start)}
+          {#if start.isSame(end, "day")}
+            <p class="font-medium">
+              {start.format("DD MMMM YYYY")}
             </p>
             <p class="text-xl font-semibold tabular-nums">
-              {formatTime(start)} – {formatTime(end)}
+              {start.format("HH:mm")} – {end.format("HH:mm")}
             </p>
           {:else}
             <p class="font-medium first-letter:uppercase">
-              {formatDate(start)}
-              <span class="font-semibold tabular-nums">{formatTime(start)}</span
+              {start.format("DD MMMM YYYY")}
+              <span class="font-semibold tabular-nums"
+                >{start.format("HH:mm")}</span
               >
             </p>
             <p class="font-medium first-letter:uppercase">
-              – {formatDate(end)}
-              <span class="font-semibold tabular-nums">{formatTime(end)}</span>
+              – {end.format("DD MMMM YYYY")}
+              <span class="font-semibold tabular-nums"
+                >{end.format("HH:mm")}</span
+              >
             </p>
           {/if}
           <p class="text-muted-foreground text-sm">
@@ -202,15 +181,13 @@
         </div>
       </section>
 
-      <section class="flex gap-3">
+      <section class="flex items-center gap-3">
         <ArchiveIcon class="text-primary mt-0.5 size-5 shrink-0" />
         <div class="flex flex-wrap gap-2">
           {#each booking.bookables as bookable (bookable.id)}
-            <span
-              class="bg-primary/10 text-primary rounded-md px-2.5 py-1 text-sm font-medium"
-            >
+            <Badge variant="outline" class="px-2.5 py-1.5 text-sm font-medium">
               {bookable.name}
-            </span>
+            </Badge>
           {/each}
         </div>
       </section>
@@ -231,9 +208,9 @@
                   })}
                   {#if conflict.start && conflict.end}
                     <span class="block text-xs opacity-80">
-                      {formatShortDateTime(new Date(conflict.start))} – {formatShortDateTime(
-                        new Date(conflict.end),
-                      )}
+                      {dayjs(conflict.start).format("DD MMM HH:mm")} – {dayjs(
+                        conflict.end,
+                      ).format("DD MMM HH:mm")}
                       · {conflict.status === "ACCEPTED"
                         ? m.booking_accepted()
                         : m.booking_pending()}
@@ -246,24 +223,24 @@
         </Alert.Root>
       {/if}
 
-      <section class="flex gap-3">
+      <section class="flex items-center gap-3">
         <DoorOpenIcon class="text-primary mt-0.5 size-5 shrink-0" />
         {#if booking.accessDoors.length > 0}
-          <p>
+          <span>
             {booking.accessDoors.map((door) => door.verboseName).join(", ")}
-          </p>
+          </span>
         {:else}
-          <p class="text-muted-foreground">{m.booking_noDoorAccess()}</p>
+          <span class="text-muted-foreground">{m.booking_noDoorAccess()}</span>
         {/if}
       </section>
 
       {#if booking.accessMembers.length > 0}
-        <section class="flex gap-3">
+        <section class="flex items-center gap-3">
           <UsersIcon class="text-primary mt-0.5 size-5 shrink-0" />
           <ul class="ml-0 flex list-none flex-wrap gap-x-4 gap-y-2">
             {#each booking.accessMembers as member (member.id)}
               <li class="flex items-center gap-1.5 text-sm">
-                <MemberAvatar {member} class="size-5" />
+                <MemberAvatar {member} />
                 {getFullName(member, { hideNickname: true })}
               </li>
             {/each}
@@ -277,7 +254,7 @@
         {#if booking.created}
           <span>
             {m.booking_requestedAt({
-              date: formatShortDateTime(new Date(booking.created)),
+              date: dayjs(booking.created).format("DD MMM HH:mm"),
             })}
           </span>
         {/if}

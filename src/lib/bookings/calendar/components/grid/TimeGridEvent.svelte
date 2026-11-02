@@ -3,26 +3,38 @@
   import * as Avatar from "$lib/components/ui/avatar";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
   import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
-  import { formatBookingTime } from "$lib/bookings/calendar/dateUtils";
   import * as m from "$paraglide/messages";
   import {
     calendarStatusCategoriesTailwind,
     type CalendarStatusCategory,
   } from "../../config";
+  import dayjs from "dayjs";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
   const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
 
-  const startTime = $derived(formatBookingTime(calendarEvent.start));
-  const endTime = $derived(formatBookingTime(calendarEvent.end));
+  const dStartDate = $derived(
+    dayjs(
+      calendarEvent.start instanceof Temporal.ZonedDateTime
+        ? calendarEvent.start.epochMilliseconds
+        : calendarEvent.start.toString(),
+    ),
+  );
+  const dEndDate = $derived(
+    dayjs(
+      calendarEvent.end instanceof Temporal.ZonedDateTime
+        ? calendarEvent.end.epochMilliseconds
+        : calendarEvent.end.toString(),
+    ),
+  );
 
   const category = $derived(
     calendarStatusCategoriesTailwind[
       calendarEvent.calendarId as CalendarStatusCategory
     ] ?? calendarStatusCategoriesTailwind.PENDING,
   );
-  const colours = $derived(category.darkColors ?? category.lightColors);
-  const colourClasses = $derived(Object.values(colours ?? {}).join(" "));
+  const colors = $derived(category.darkColors ?? category.lightColors);
+  const colorClasses = $derived(Object.values(colors ?? {}).join(" "));
 
   const MIN_HEIGHT_FOR_TIME = 38;
   const MIN_HEIGHT_FOR_BOOKER = 58;
@@ -51,7 +63,7 @@
 
 <div
   bind:this={eventElement}
-  class={`${colourClasses} relative size-full cursor-pointer overflow-hidden rounded-xs py-1 pl-2
+  class={`${colorClasses} relative size-full cursor-pointer overflow-hidden rounded-xs py-1 pl-2
          transition-all duration-200 ease-out before:absolute before:top-0 before:left-0
          before:h-full before:w-1 before:rounded-l-md before:content-[''] hover:-translate-x-[1px] hover:-translate-y-0.5
          hover:shadow-md`}
@@ -59,7 +71,7 @@
   <div class="flex min-w-0 flex-col">
     {#if showTime}
       <span class="text-[0.6rem] font-medium">
-        {startTime} - {endTime}
+        {dStartDate.format("HH:mm")} - {dEndDate.format("HH:mm")}
       </span>
     {/if}
 

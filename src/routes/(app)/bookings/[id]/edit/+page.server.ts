@@ -26,7 +26,9 @@ dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  const bookables = await prisma.bookable.findMany();
+  const bookables = await authorizedPrismaClient.bookable.findMany({
+    include: { category: true },
+  });
   const doors = await authorizedPrismaClient.door.findMany();
 
   const booking = await getBookingRequestOrThrow(prisma, params.id);
