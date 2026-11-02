@@ -5,7 +5,6 @@
   import Footer from "./Footer.svelte";
   import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
   import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
-  import { getLocale } from "$paraglide/runtime";
   import { page } from "$app/state";
   import AppNavigation from "./AppNavigation.svelte";
   import AppHeader from "./AppHeader.svelte";

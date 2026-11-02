@@ -17,7 +17,7 @@ export const getNotifications = query(
     if (!event.locals.user?.memberId) {
       return { notifications: [], hasMore: false };
     }
-    const res = await serverApi(event).GET("/notifications", {
+    const res = await serverApi(event).GET("/notifications/page", {
       params: { query: { take } },
     });
     return res.data ?? { notifications: [], hasMore: false };

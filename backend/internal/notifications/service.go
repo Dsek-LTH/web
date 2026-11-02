@@ -267,6 +267,70 @@ func (s *Service) List(ctx context.Context, nolla bool) ([]Group, error) {
 		}
 	}
 
+	return s.group(ctx, rows)
+}
+
+// Page is one page of the acting member's notifications for the bell's
+// lazily-loaded dropdown (upstream #4846a125): the newest `take`
+// notifications, grouped, and whether older ones exist. Grouping happens
+// within the page, so a group can split across a page boundary - same as
+// upstream's getMyGroupedNotificationsPage.
+func (s *Service) Page(ctx context.Context, take int) ([]Group, bool, error) {
+	identity, ok := auth.FromContext(ctx)
+	if !ok {
+		return nil, false, auth.ErrUnauthenticated
+	}
+	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
+	if err != nil {
+		return nil, false, invalidf("invalid member id: %v", err)
+	}
+	if take < 1 {
+		return nil, false, invalidf("take must be positive")
+	}
+	rows, err := s.queries.ListNotificationsPageForMember(
+		ctx,
+		db.ListNotificationsPageForMemberParams{
+			MemberID: memberUUID,
+			RowLimit: int32(take + 1),
+		},
+	)
+	if err != nil {
+		return nil, false, fmt.Errorf("list notifications page: %w", err)
+	}
+	hasMore := len(rows) > take
+	if hasMore {
+		rows = rows[:take]
+	}
+	groups, err := s.group(ctx, rows)
+	if groups == nil {
+		groups = []Group{}
+	}
+	return groups, hasMore, err
+}
+
+// UnreadCount is the acting member's number of unread notifications - the
+// bell's badge, a cheap COUNT loaded on every page instead of the whole
+// list (upstream #4846a125).
+func (s *Service) UnreadCount(ctx context.Context) (int64, error) {
+	identity, ok := auth.FromContext(ctx)
+	if !ok {
+		return 0, auth.ErrUnauthenticated
+	}
+	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
+	if err != nil {
+		return 0, invalidf("invalid member id: %v", err)
+	}
+	n, err := s.queries.CountUnreadNotificationsForMember(ctx, memberUUID)
+	if err != nil {
+		return 0, fmt.Errorf("count unread notifications: %w", err)
+	}
+	return n, nil
+}
+
+// group resolves each notification's author and groups duplicates (see
+// groupNotifications).
+func (s *Service) group(ctx context.Context, rows []db.Notification) ([]Group, error) {
+	var err error
 	authorCache := make(map[string]*NotificationAuthor)
 	loc := locale.FromContext(ctx)
 	raw := make([]rawNotification, len(rows))

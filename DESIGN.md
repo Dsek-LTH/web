@@ -2065,6 +2065,16 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       object to `AuthorCard` instead of upstream's split
       member/position/customAuthor props. YouTube needed nothing in Go -
       `youtubeUrl` was already stored and returned.
+    - **Notifications** (upstream 4846a125, lazy bell): the layout now
+      only loads a cheap unread count (`GET /notifications/unread-count`)
+      and the bell fetches `GET /notifications/page?take=N` (grouped,
+      newest first, `hasMore`) once opened, 20 more per "load more" - the
+      same shape as upstream's `getMyGroupedNotificationsPage`, including
+      grouping within the page. `GET /notifications` itself is unchanged,
+      since the nollning layout still uses its full grouped list. The
+      bell keeps calling Go through `notifications/data.remote.ts`'s
+      remote functions, which predate the sync (Phase 9) - the "convert
+      remote functions" decision was about the ones the merge brought in.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

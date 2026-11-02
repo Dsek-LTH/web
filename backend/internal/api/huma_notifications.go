@@ -46,7 +46,55 @@ type putNotificationSettingsInput struct {
 	Body notifications.Settings
 }
 
+type notificationsPageInput struct {
+	Take int `query:"take" minimum:"1" maximum:"500" default:"20"`
+}
+
+type notificationsPageOutput struct {
+	Body struct {
+		Notifications []notifications.Group `json:"notifications"`
+		HasMore       bool                  `json:"hasMore"`
+	}
+}
+
+type unreadCountOutput struct {
+	Body struct {
+		Count int64 `json:"count"`
+	}
+}
+
 func registerNotificationRoutes(api huma.API, svc *notifications.Service) {
+	huma.Register(api, huma.Operation{
+		OperationID: "list-notifications-page",
+		Method:      http.MethodGet,
+		Path:        "/notifications/page",
+		Summary:     "The acting member's newest notifications, grouped, plus whether there are more",
+	}, func(ctx context.Context, input *notificationsPageInput) (*notificationsPageOutput, error) {
+		groups, hasMore, err := svc.Page(ctx, input.Take)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		out := &notificationsPageOutput{}
+		out.Body.Notifications = groups
+		out.Body.HasMore = hasMore
+		return out, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "count-unread-notifications",
+		Method:      http.MethodGet,
+		Path:        "/notifications/unread-count",
+		Summary:     "The acting member's number of unread notifications",
+	}, func(ctx context.Context, _ *struct{}) (*unreadCountOutput, error) {
+		n, err := svc.UnreadCount(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		out := &unreadCountOutput{}
+		out.Body.Count = n
+		return out, nil
+	})
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-notifications",
 		Method:      http.MethodGet,

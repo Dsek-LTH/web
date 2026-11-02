@@ -136,3 +136,18 @@ SELECT id, name_sv, name_en, color FROM tags WHERE id = ANY(sqlc.arg(ids)::uuid[
 -- synthesizes itself (e.g. "X har gillat din nyhet") - mirrors getFullName's
 -- inputs exactly (fullName in service.go is the Go port of getFullName).
 SELECT first_name, nickname, last_name FROM members WHERE id = $1;
+
+-- name: ListNotificationsPageForMember :many
+-- One page of the bell's lazily-loaded list (upstream #4846a125): newest
+-- first, the caller asks for one row more than it shows to know whether
+-- there are more.
+SELECT id, title, message, type, link, read_at, member_id, created_at,
+       updated_at, from_author_id
+FROM notifications
+WHERE member_id = sqlc.arg(member_id)
+ORDER BY created_at DESC, id DESC
+LIMIT sqlc.arg(row_limit);
+
+-- name: CountUnreadNotificationsForMember :one
+SELECT count(*) FROM notifications
+WHERE member_id = $1 AND read_at IS NULL;

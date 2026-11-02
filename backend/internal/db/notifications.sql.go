@@ -22,6 +22,18 @@ func (q *Queries) CountUnreadNotifications(ctx context.Context, memberID pgtype.
 	return count, err
 }
 
+const countUnreadNotificationsForMember = `-- name: CountUnreadNotificationsForMember :one
+SELECT count(*) FROM notifications
+WHERE member_id = $1 AND read_at IS NULL
+`
+
+func (q *Queries) CountUnreadNotificationsForMember(ctx context.Context, memberID pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countUnreadNotificationsForMember, memberID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createNotifications = `-- name: CreateNotifications :exec
 INSERT INTO notifications (title, message, type, link, member_id, from_author_id)
 SELECT $1::text, $2::text, $3::text,
@@ -496,6 +508,54 @@ ORDER BY created_at DESC
 
 func (q *Queries) ListNotificationsForMember(ctx context.Context, memberID pgtype.UUID) ([]Notification, error) {
 	rows, err := q.db.Query(ctx, listNotificationsForMember, memberID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Notification{}
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Message,
+			&i.Type,
+			&i.Link,
+			&i.ReadAt,
+			&i.MemberID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.FromAuthorID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listNotificationsPageForMember = `-- name: ListNotificationsPageForMember :many
+SELECT id, title, message, type, link, read_at, member_id, created_at,
+       updated_at, from_author_id
+FROM notifications
+WHERE member_id = $1
+ORDER BY created_at DESC, id DESC
+LIMIT $2
+`
+
+type ListNotificationsPageForMemberParams struct {
+	MemberID pgtype.UUID `json:"member_id"`
+	RowLimit int32       `json:"row_limit"`
+}
+
+// One page of the bell's lazily-loaded list (upstream #4846a125): newest
+// first, the caller asks for one row more than it shows to know whether
+// there are more.
+func (q *Queries) ListNotificationsPageForMember(ctx context.Context, arg ListNotificationsPageForMemberParams) ([]Notification, error) {
+	rows, err := q.db.Query(ctx, listNotificationsPageForMember, arg.MemberID, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}

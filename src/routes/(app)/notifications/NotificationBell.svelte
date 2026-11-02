@@ -43,7 +43,7 @@
     else loadingMore = true;
     try {
       const result = await getNotifications({ take: newTake });
-      notifications = result.notifications;
+      notifications = result.notifications ?? [];
       hasMore = result.hasMore;
       take = newTake;
       listLoaded = true;

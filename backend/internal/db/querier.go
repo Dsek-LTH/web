@@ -43,6 +43,7 @@ type Querier interface {
 	CountSongSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountSongs(ctx context.Context, arg CountSongsParams) (int64, error)
 	CountUnreadNotifications(ctx context.Context, memberID pgtype.UUID) (int64, error)
+	CountUnreadNotificationsForMember(ctx context.Context, memberID pgtype.UUID) (int64, error)
 	CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error)
 	CreateAlert(ctx context.Context, arg CreateAlertParams) (Alert, error)
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
@@ -373,6 +374,10 @@ type Querier interface {
 	ListNollningTagIDs(ctx context.Context) ([]pgtype.UUID, error)
 	ListNollorForGroup(ctx context.Context, nollningGroupID pgtype.UUID) ([]ListNollorForGroupRow, error)
 	ListNotificationsForMember(ctx context.Context, memberID pgtype.UUID) ([]Notification, error)
+	// One page of the bell's lazily-loaded list (upstream #4846a125): newest
+	// first, the caller asks for one row more than it shows to know whether
+	// there are more.
+	ListNotificationsPageForMember(ctx context.Context, arg ListNotificationsPageForMemberParams) ([]Notification, error)
 	// Only elections that haven't expired yet, soonest-closing first - matches
 	// the old /elections page's prisma.election.findMany({where: {expiresAt:
 	// {gte: now()}}, orderBy: [{expiresAt: "asc"}]}) exactly. Joins the small

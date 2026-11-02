@@ -1305,6 +1305,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notifications/page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The acting member's newest notifications, grouped, plus whether there are more */
+        get: operations["list-notifications-page"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications/read": {
         parameters: {
             query?: never;
@@ -1333,6 +1350,23 @@ export interface paths {
         put?: never;
         /** Register the acting member's Expo push token */
         post: operations["upload-expo-token"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The acting member's number of unread notifications */
+        get: operations["count-unread-notifications"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2402,6 +2436,16 @@ export interface components {
             name: string;
             pictureUrl?: string;
         };
+        NotificationsPageOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/NotificationsPageOutputBody.json
+             */
+            readonly $schema?: string;
+            hasMore: boolean;
+            notifications: components["schemas"]["Group"][] | null;
+        };
         OpeningHour: {
             markdown: string;
             markdownEn?: string;
@@ -2739,6 +2783,16 @@ export interface components {
             color: string | null;
             nameEn: string | null;
             nameSv: string;
+        };
+        UnreadCountOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UnreadCountOutputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            count: number;
         };
         UpdateCommitteeInput: {
             /**
@@ -6524,6 +6578,37 @@ export interface operations {
             };
         };
     };
+    "list-notifications-page": {
+        parameters: {
+            query?: {
+                take?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationsPageOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "mark-notifications-read": {
         parameters: {
             query?: {
@@ -6573,6 +6658,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "count-unread-notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadCountOutputBody"];
+                };
             };
             /** @description Error */
             default: {
