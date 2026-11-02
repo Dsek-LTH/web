@@ -17,8 +17,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const { notificationText } = body;
 
-  // A non-2xx response makes the scheduler retry. That's safe for members, as
-  // sendNotification skips anyone who already has this notification.
+  // A non-2xx response makes the scheduler retry. That's safe, as sendNotification
+  // skips members who already have this notification and the webhook only posts once.
   if (!(await announceArticle(body, notificationText))) {
     return new Response("Failed to announce article", { status: 500 });
   }

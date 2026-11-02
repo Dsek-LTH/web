@@ -1655,6 +1655,20 @@
           "maxLength": 255
         },
         {
+          "id": "public.articles.discord_announced_at",
+          "name": "discord_announced_at",
+          "columnName": "discord_announced_at",
+          "type": "timestamptz",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.articles.header_en",
           "name": "header_en",
           "columnName": "header_en",
