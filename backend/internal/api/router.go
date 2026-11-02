@@ -79,6 +79,7 @@ func NewRouter(
 	registerAccessPolicyRoutes(api, accessPolicySvc)
 	registerNollningRoutes(api, nollningSvc)
 	registerSongRoutes(api, songSvc)
+	registerSongBookRoutes(api, songSvc)
 	registerAlertRoutes(api, alertSvc)
 	registerMarkdownRoutes(api, markdownSvc)
 	registerGoverningDocumentRoutes(api, governingDocSvc)

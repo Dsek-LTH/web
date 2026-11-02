@@ -12,8 +12,13 @@ WHERE (
   AND (
     sqlc.narg('search')::text IS NULL
     OR title ILIKE '%' || sqlc.narg('search')::text || '%'
-    OR lyrics ILIKE '%' || sqlc.narg('search')::text || '%'
-    OR melody ILIKE '%' || sqlc.narg('search')::text || '%'
+    OR (
+      NOT sqlc.arg('title_only')::bool
+      AND (
+        lyrics ILIKE '%' || sqlc.narg('search')::text || '%'
+        OR melody ILIKE '%' || sqlc.narg('search')::text || '%'
+      )
+    )
   )
   AND (
     sqlc.narg('categories')::text[] IS NULL
@@ -22,7 +27,9 @@ WHERE (
         WHERE category ILIKE '%' || c || '%'
     )
   )
-ORDER BY title ASC
+-- Newest first - the song archive's order since upstream #1283 (it was
+-- alphabetical when this list was the songbook itself).
+ORDER BY created_at DESC NULLS LAST, title ASC
 LIMIT $1 OFFSET $2;
 
 -- name: CountSongs :one
@@ -33,8 +40,13 @@ WHERE (
   AND (
     sqlc.narg('search')::text IS NULL
     OR title ILIKE '%' || sqlc.narg('search')::text || '%'
-    OR lyrics ILIKE '%' || sqlc.narg('search')::text || '%'
-    OR melody ILIKE '%' || sqlc.narg('search')::text || '%'
+    OR (
+      NOT sqlc.arg('title_only')::bool
+      AND (
+        lyrics ILIKE '%' || sqlc.narg('search')::text || '%'
+        OR melody ILIKE '%' || sqlc.narg('search')::text || '%'
+      )
+    )
   )
   AND (
     sqlc.narg('categories')::text[] IS NULL

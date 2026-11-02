@@ -163,6 +163,9 @@ Not ported this pass (see DESIGN.md for the full "Events" section): push notific
 
 **Frontend**: `songbook/+page.ts`/`[slug]/+layout.ts` (universal loads, real pages), `create`/`[slug]/edit` keep `+page.server.ts` server actions for `create`/`update` (real authoring forms, zod for instant-feedback UX only) but `delete`/`restore` converted to direct client-side Go calls (no SvelteKit action), matching `RemoveArticleDialog.svelte`'s established pattern. `songbook/helpers.ts` had `getExistingCategories`/`getExistingMelodies`/`canAccessDeletedSongs`/`fixSongText`/`groupCategories` deleted (moved server-side into Go) — only `mayWatchVideos` remains; `songbook/create/helpers.ts` (`slugifySongTitle`) deleted entirely (Go owns slug generation now).
 
+
+**Phase 12 (upstream sync)**: the routes above now back `/songarchive` (upstream renamed the all-songs list; `GET /songs` is newest-first and takes `titleOnly`). The printed songbook's index is `song_book_entries`, served by `GET/POST /songbook` and `GET/PATCH/DELETE /songbook/{page}/{numberOnPage}` (`songbook.go`, `huma_songbook.go`) - same `song:*` policies, 409 for a taken position (`ErrPositionTaken`) or a song already in the book (`ErrAlreadyInSongBook`).
+
 ### Alert routes
 
 **Go backend and SvelteKit frontend wiring both implemented 2026-09-02.** `internal/alerts` (`huma_alerts.go`), ported from `src/routes/(app)/admin/alerts` and the old `api/closeAlert` endpoint. `alerts` + the implicit join table `_alerts_closed_by` pre-date this Go port (Prisma-created) — `schema.sql` additions only, no new migration.

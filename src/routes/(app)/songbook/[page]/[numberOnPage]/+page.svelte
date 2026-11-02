@@ -12,7 +12,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import * as m from "$paraglide/messages.js";
   import apiNames from "$lib/utils/apiNames";
-  import { mayWatchVideos } from "../../helpers";
+  import { mayWatchVideos } from "$lib/songs/helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import { getYoutubeEmbedUrlFromUrl } from "$lib/utils/youtube";

@@ -4,7 +4,7 @@
   import * as Command from "$lib/components/ui/command/index.js";
   import { CheckIcon, ChevronsUpDownIcon } from "@lucide/svelte";
   import { cn } from "$lib/utils.js";
-  import { searchSongTitles } from "./data.remote.js";
+  import { api } from "$lib/api/client";
   import { Button } from "$lib/components/ui/button";
   import { tick } from "svelte";
 
@@ -42,7 +42,21 @@
     debounceTimer = setTimeout(async () => {
       isFetching = true;
       try {
-        searchResults = await searchSongTitles(searchQuery.trim());
+        // Straight to Go's song list (song:read is enforced there) - this
+        // used to be a remote function wrapping the same Prisma query.
+        const res = await api.GET("/songs", {
+          params: {
+            query: {
+              search: searchQuery.trim(),
+              titleOnly: true,
+              pageSize: 10,
+            },
+          },
+        });
+        searchResults = (res.data?.songs ?? []).map(({ id, title }) => ({
+          id,
+          title,
+        }));
       } catch (error) {
         console.error("Failed to fetch songs", error);
       } finally {

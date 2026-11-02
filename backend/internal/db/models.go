@@ -563,6 +563,14 @@ type Song struct {
 	Video     pgtype.Text        `json:"video"`
 }
 
+type SongBookEntry struct {
+	SongID       pgtype.UUID        `json:"song_id"`
+	Page         int32              `json:"page"`
+	NumberOnPage int32              `json:"number_on_page"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+}
+
 type SubscriptionSetting struct {
 	ID               pgtype.UUID `json:"id"`
 	MemberID         pgtype.UUID `json:"member_id"`

@@ -29,6 +29,9 @@ type SongInput struct {
 
 type ListParams struct {
 	Search *string
+	// TitleOnly limits Search to titles (the songbook editor's song
+	// picker) instead of also matching lyrics and melodies.
+	TitleOnly bool
 	// Categories ANY-matches (contains, case-insensitive) against each
 	// entry - mirroring the old app's repeated ?category= query param.
 	Categories []string

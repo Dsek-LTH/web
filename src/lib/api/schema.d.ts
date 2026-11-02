@@ -1459,6 +1459,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/songbook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List songbook entries in page order */
+        get: operations["list-songbook"];
+        put?: never;
+        /** Put a song in the songbook (song:create) */
+        post: operations["create-songbook-entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/songbook/{page}/{numberOnPage}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the songbook entry at a page and number */
+        get: operations["get-songbook-entry"];
+        put?: never;
+        post?: never;
+        /** Take a song out of the songbook (song:delete) */
+        delete: operations["delete-songbook-entry"];
+        options?: never;
+        head?: never;
+        /** Move a songbook entry and/or change its song (song:update) */
+        patch: operations["update-songbook-entry"];
+        trace?: never;
+    };
     "/songs": {
         parameters: {
             query?: never;
@@ -2390,6 +2427,17 @@ export interface components {
             /** Format: int64 */
             pageCount: number;
         };
+        ListSongBookOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ListSongBookOutputBody.json
+             */
+            readonly $schema?: string;
+            entries: components["schemas"]["SongBookEntry"][] | null;
+            /** Format: int64 */
+            pageCount: number;
+        };
         ListSongsOutputBody: {
             /**
              * Format: uri
@@ -2795,6 +2843,32 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
             video?: string;
+        };
+        SongBookEntry: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/SongBookEntry.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            numberOnPage: number;
+            /** Format: int64 */
+            page: number;
+            song: components["schemas"]["Song"];
+        };
+        SongBookEntryInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/SongBookEntryInput.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            numberOnPage: number;
+            /** Format: int64 */
+            page: number;
+            songId: string;
         };
         SongInput: {
             /**
@@ -6941,10 +7015,178 @@ export interface operations {
             };
         };
     };
+    "list-songbook": {
+        parameters: {
+            query?: {
+                /** @description a page number, or text to search song titles for */
+                search?: string;
+                /** @description 1-based */
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListSongBookOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-songbook-entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SongBookEntryInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SongBookEntry"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-songbook-entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page: number;
+                numberOnPage: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SongBookEntry"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-songbook-entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page: number;
+                numberOnPage: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-songbook-entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page: number;
+                numberOnPage: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SongBookEntryInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SongBookEntry"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "list-songs": {
         parameters: {
             query?: {
                 search?: string;
+                /** @description search titles only, not lyrics/melodies */
+                titleOnly?: boolean;
                 /** @description ANY-match; repeat the param for multiple categories */
                 category?: string[] | null;
                 /** @description trash view (only soft-deleted songs) instead of the active list; only honored for a caller holding song:delete */

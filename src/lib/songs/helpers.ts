@@ -4,16 +4,14 @@
 // FixSongText/GroupCategories in text.go) as part of DESIGN.md's Phase 3 -
 // see backend/CLAUDE.md's Songbook routes section. mayWatchVideos stays
 // here: a purely client-visible UI gate over data already sent to the
-// client (see the songbook detail page's own note on this), not a real
+// client (see the song pages' own note on this), not a real
 // access boundary Go needs to enforce.
 
-export function mayWatchVideos(user?: { roles: string[] } | null): boolean {
-  if (!user) return false;
-  return (
-    user.roles.includes("C") ||
-    user.roles.includes("D") ||
-    user.roles.includes("VR/AR")
-  );
+export function mayWatchVideos(
+  user?: { roles?: string[] | null } | null,
+): boolean {
+  const roles = user?.roles ?? [];
+  return roles.includes("C") || roles.includes("D") || roles.includes("VR/AR");
 }
 
 /**

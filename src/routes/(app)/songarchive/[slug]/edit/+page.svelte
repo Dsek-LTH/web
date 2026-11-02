@@ -48,7 +48,7 @@
       return;
     }
     toast(m.songbook_songRemoved(), "success");
-    await goto(resolve(`/songbook/${song.slug}`));
+    await goto(resolve(`/songarchive/${song.slug}`));
   }
 
   async function restoreSong() {
@@ -60,7 +60,7 @@
       return;
     }
     toast(m.songbook_songRestored(), "success");
-    await goto(resolve(`/songbook/${song.slug}`));
+    await goto(resolve(`/songarchive/${song.slug}`));
   }
 </script>
 

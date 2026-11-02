@@ -11,6 +11,7 @@ import (
 
 type listSongsInput struct {
 	Search      string   `query:"search"`
+	TitleOnly   bool     `query:"titleOnly"        doc:"search titles only, not lyrics/melodies"`
 	Category    []string `query:"category,explode" doc:"ANY-match; repeat the param for multiple categories"`
 	ShowDeleted bool     `query:"showDeleted"      doc:"trash view (only soft-deleted songs) instead of the active list; only honored for a caller holding song:delete"`
 	Page        int      `query:"page"             doc:"1-based"`
@@ -65,6 +66,7 @@ func registerSongRoutes(api huma.API, svc *songs.Service) {
 		Summary:     "List songbook entries",
 	}, func(ctx context.Context, input *listSongsInput) (*listSongsOutput, error) {
 		params := songs.ListParams{
+			TitleOnly:   input.TitleOnly,
 			ShowDeleted: input.ShowDeleted,
 			Categories:  input.Category,
 			Page:        input.Page,

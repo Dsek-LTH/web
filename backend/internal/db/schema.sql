@@ -344,6 +344,19 @@ CREATE TABLE songs (
     video      TEXT
 );
 
+-- The printed songbook's page/number for a song (upstream's
+-- 20260917122428_add_songbook_entries, carried into internal/db/migrations
+-- during the Phase 12 upstream sync). At most one entry per song and per
+-- (page, number_on_page).
+CREATE TABLE song_book_entries (
+    song_id        UUID NOT NULL UNIQUE REFERENCES songs (id),
+    page           INTEGER NOT NULL,
+    number_on_page INTEGER NOT NULL,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at     TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (page, number_on_page)
+);
+
 CREATE TABLE alerts (
     id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     severity   VARCHAR(255) NOT NULL,

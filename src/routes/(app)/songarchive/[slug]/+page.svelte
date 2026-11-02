@@ -13,7 +13,7 @@
   import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
   import * as m from "$paraglide/messages.js";
   import apiNames from "$lib/utils/apiNames";
-  import { mayWatchVideos } from "../helpers";
+  import { mayWatchVideos } from "$lib/songs/helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import { api } from "$lib/api/client";
   import { invalidateAll } from "$app/navigation";

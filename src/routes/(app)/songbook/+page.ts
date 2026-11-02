@@ -2,44 +2,22 @@ import { api } from "$lib/api/client";
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
 
+// The printed songbook's entries in page order. A numeric search finds a
+// page, anything else searches song titles (Go decides which).
 export const load: PageLoad = async ({ fetch, url }) => {
   const search = url.searchParams.get("search") || "";
-  const categoryFilter = url.searchParams.getAll("category");
   const page = parseInt(url.searchParams.get("page") || "1", 10);
-  const showDeleted = url.searchParams.get("show-deleted") === "true";
 
-  const [songsRes, categoryMapRes] = await Promise.all([
-    api.GET("/songs", {
-      fetch,
-      params: {
-        query: {
-          search: search || undefined,
-          category: categoryFilter.length > 0 ? categoryFilter : undefined,
-          showDeleted,
-          page,
-        },
-      },
-    }),
-    // Go decides (from the acting identity, per DESIGN.md's Principle #5)
-    // whether showDeleted is actually honored - this just forwards the
-    // caller's request, same as the old app's canAccessDeletedSongs gate.
-    api.GET("/songs/categories/grouped", {
-      fetch,
-      params: { query: { includeDeleted: showDeleted } },
-    }),
-  ]);
-  if (songsRes.error) throw error(500, "Failed to load songs");
-
-  const categoryMap = categoryMapRes.data ?? {};
+  const res = await api.GET("/songbook", {
+    fetch,
+    params: { query: { search: search || undefined, page, pageSize: 20 } },
+  });
+  if (res.error) error(res.response.status === 403 ? 403 : 500);
 
   return {
-    songs: songsRes.data.songs ?? [],
-    pageCount: songsRes.data.pageCount,
-    categories: Object.keys(categoryMap),
-    categoryMap,
+    songs: res.data.entries ?? [],
+    pageCount: res.data.pageCount,
     currentPage: page,
     search,
-    categoryFilter,
-    showDeleted,
   };
 };

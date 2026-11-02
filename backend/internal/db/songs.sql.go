@@ -30,13 +30,18 @@ WHERE (
   AND (
     $2::text IS NULL
     OR title ILIKE '%' || $2::text || '%'
-    OR lyrics ILIKE '%' || $2::text || '%'
-    OR melody ILIKE '%' || $2::text || '%'
+    OR (
+      NOT $3::bool
+      AND (
+        lyrics ILIKE '%' || $2::text || '%'
+        OR melody ILIKE '%' || $2::text || '%'
+      )
+    )
   )
   AND (
-    $3::text[] IS NULL
+    $4::text[] IS NULL
     OR EXISTS (
-        SELECT 1 FROM unnest($3::text[]) c
+        SELECT 1 FROM unnest($4::text[]) c
         WHERE category ILIKE '%' || c || '%'
     )
   )
@@ -45,11 +50,17 @@ WHERE (
 type CountSongsParams struct {
 	ShowDeleted pgtype.Bool `json:"show_deleted"`
 	Search      pgtype.Text `json:"search"`
+	TitleOnly   bool        `json:"title_only"`
 	Categories  []string    `json:"categories"`
 }
 
 func (q *Queries) CountSongs(ctx context.Context, arg CountSongsParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countSongs, arg.ShowDeleted, arg.Search, arg.Categories)
+	row := q.db.QueryRow(ctx, countSongs,
+		arg.ShowDeleted,
+		arg.Search,
+		arg.TitleOnly,
+		arg.Categories,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -192,17 +203,22 @@ WHERE (
   AND (
     $4::text IS NULL
     OR title ILIKE '%' || $4::text || '%'
-    OR lyrics ILIKE '%' || $4::text || '%'
-    OR melody ILIKE '%' || $4::text || '%'
+    OR (
+      NOT $5::bool
+      AND (
+        lyrics ILIKE '%' || $4::text || '%'
+        OR melody ILIKE '%' || $4::text || '%'
+      )
+    )
   )
   AND (
-    $5::text[] IS NULL
+    $6::text[] IS NULL
     OR EXISTS (
-        SELECT 1 FROM unnest($5::text[]) c
+        SELECT 1 FROM unnest($6::text[]) c
         WHERE category ILIKE '%' || c || '%'
     )
   )
-ORDER BY title ASC
+ORDER BY created_at DESC NULLS LAST, title ASC
 LIMIT $1 OFFSET $2
 `
 
@@ -211,6 +227,7 @@ type ListSongsParams struct {
 	Offset      int32       `json:"offset"`
 	ShowDeleted pgtype.Bool `json:"show_deleted"`
 	Search      pgtype.Text `json:"search"`
+	TitleOnly   bool        `json:"title_only"`
 	Categories  []string    `json:"categories"`
 }
 
@@ -219,12 +236,15 @@ type ListSongsParams struct {
 // normal active-songs list (false/unset) or the trash view of only
 // soft-deleted songs (true) - never both at once, unlike GetSongBySlug's
 // include_deleted below, which unions.
+// Newest first - the song archive's order since upstream #1283 (it was
+// alphabetical when this list was the songbook itself).
 func (q *Queries) ListSongs(ctx context.Context, arg ListSongsParams) ([]Song, error) {
 	rows, err := q.db.Query(ctx, listSongs,
 		arg.Limit,
 		arg.Offset,
 		arg.ShowDeleted,
 		arg.Search,
+		arg.TitleOnly,
 		arg.Categories,
 	)
 	if err != nil {

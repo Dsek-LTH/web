@@ -72,6 +72,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]Song, int, err
 
 	rows, err := s.queries.ListSongs(ctx, db.ListSongsParams{
 		Search:      search,
+		TitleOnly:   params.TitleOnly,
 		Categories:  categories,
 		ShowDeleted: dbutil.ToBool(showDeleted),
 		Limit:       int32(pageSize),
@@ -82,6 +83,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]Song, int, err
 	}
 	total, err := s.queries.CountSongs(ctx, db.CountSongsParams{
 		Search:      search,
+		TitleOnly:   params.TitleOnly,
 		Categories:  categories,
 		ShowDeleted: dbutil.ToBool(showDeleted),
 	})

@@ -2097,6 +2097,22 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       seen in dev since there's no API key. `internal/links` now unwraps
       (tested with an `httptest` Shlink), and gained `GET /links/domains`
       for the create form's default domain.
+    - **Songbook / song archive** (upstream #1283/#1349): upstream split
+      the old songbook into `/songarchive` (every song - what our Phase 3
+      port called the songbook) and a new `/songbook` that is the printed
+      book's page/number index (`song_book_entries`). The archive pages
+      kept our Go wiring (renamed routes; the list is newest-first now,
+      matching upstream). The book got `GET/POST /songbook` and
+      `GET/PATCH/DELETE /songbook/{page}/{numberOnPage}` in
+      `internal/songs` (same `song:*` policies), with "position taken" /
+      "song already in the book" as distinct 409s so the forms can put
+      the error on the right field. Upstream's `searchSongTitles` remote
+      function (the editor's song picker) became a direct client call to
+      `GET /songs?titleOnly=true` rather than a load/action - it's a
+      search-as-you-type widget, the same "pure proxy straight to Go"
+      shape principle #5 already allows. `mayWatchVideos` (now in
+      `$lib/songs/helpers.ts`, shared by both detail pages) tolerates a
+      null `roles`, which crashed both detail pages under mock auth.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

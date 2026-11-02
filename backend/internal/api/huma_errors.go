@@ -67,6 +67,9 @@ func humaServiceError(err error) error {
 		errors.Is(err, adminsettings.ErrInvalidInput),
 		errors.Is(err, links.ErrInvalidInput):
 		return huma.Error400BadRequest(err.Error())
+	case errors.Is(err, songs.ErrPositionTaken),
+		errors.Is(err, songs.ErrAlreadyInSongBook):
+		return huma.Error409Conflict(err.Error())
 	case errors.Is(err, auth.ErrUnauthenticated):
 		return huma.Error401Unauthorized("unauthenticated")
 	case errors.Is(err, auth.ErrForbidden):

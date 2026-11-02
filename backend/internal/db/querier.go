@@ -41,6 +41,7 @@ type Querier interface {
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
 	CountMembersByStudentIDs(ctx context.Context, studentIds []string) (int64, error)
+	CountSongBookEntries(ctx context.Context, arg CountSongBookEntriesParams) (int64, error)
 	CountSongSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountSongs(ctx context.Context, arg CountSongsParams) (int64, error)
 	CountUnreadNotifications(ctx context.Context, memberID pgtype.UUID) (int64, error)
@@ -76,6 +77,7 @@ type Querier interface {
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
 	CreateSeason(ctx context.Context, arg CreateSeasonParams) (NollningSeason, error)
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
+	CreateSongBookEntry(ctx context.Context, arg CreateSongBookEntryParams) error
 	CreateTag(ctx context.Context, nameSv string) (Tag, error)
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteAdminSetting(ctx context.Context, key string) (int64, error)
@@ -90,6 +92,7 @@ type Querier interface {
 	DeleteMandate(ctx context.Context, id pgtype.UUID) error
 	DeleteNotifications(ctx context.Context, arg DeleteNotificationsParams) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
+	DeleteSongBookEntry(ctx context.Context, arg DeleteSongBookEntryParams) (int64, error)
 	// pattern is built by the caller as "{prefix}%" - a real SQL LIKE
 	// wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
 	// literal-escaping of startsWith) only ever matched a position id that
@@ -205,6 +208,7 @@ type Querier interface {
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
 	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
 	GetSeason(ctx context.Context, id pgtype.UUID) (NollningSeason, error)
+	GetSongBookEntry(ctx context.Context, arg GetSongBookEntryParams) (GetSongBookEntryRow, error)
 	// include_deleted here means "also visible if deleted" (a union, unlike
 	// ListSongs' show_deleted above, which is an exclusive toggle) - mirrors the
 	// old app's detail-page load, which bypasses the deletedAt filter entirely
@@ -414,11 +418,16 @@ type Querier interface {
 	// `classYear: {gte: currentYear - 10}` exactly.
 	ListRecentMemberStudentIDs(ctx context.Context, minClassYear int32) ([]pgtype.Text, error)
 	ListSeasons(ctx context.Context) ([]NollningSeason, error)
+	// A numeric search matches the page; anything else searches song titles.
+	// Entries whose song is soft-deleted are only listed for show_deleted.
+	ListSongBookEntries(ctx context.Context, arg ListSongBookEntriesParams) ([]ListSongBookEntriesRow, error)
 	// show_deleted toggles between two mutually exclusive views (mirroring the
 	// old app's "show-deleted" query param on the songbook list page): the
 	// normal active-songs list (false/unset) or the trash view of only
 	// soft-deleted songs (true) - never both at once, unlike GetSongBySlug's
 	// include_deleted below, which unions.
+	// Newest first - the song archive's order since upstream #1283 (it was
+	// alphabetical when this list was the songbook itself).
 	ListSongs(ctx context.Context, arg ListSongsParams) ([]Song, error)
 	// Current (start_date <= today <= end_date) mandate holders of any of the
 	// given positions - the role-based half of salto's allowed-student list.
@@ -457,6 +466,13 @@ type Querier interface {
 	SoftDeleteEventSeries(ctx context.Context, arg SoftDeleteEventSeriesParams) error
 	SoftDeleteGoverningDocument(ctx context.Context, id pgtype.UUID) error
 	SoftDeleteSong(ctx context.Context, id pgtype.UUID) error
+	// Whether (page, number_on_page) belongs to an entry other than the one at
+	// (except_page, except_number), which is the entry being edited (NULLs for
+	// a create).
+	SongBookPositionTaken(ctx context.Context, arg SongBookPositionTakenParams) (bool, error)
+	SongExists(ctx context.Context, id pgtype.UUID) (bool, error)
+	// Whether song_id already has an entry other than the one being edited.
+	SongInSongBook(ctx context.Context, arg SongInSongBookParams) (bool, error)
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) (UpdateArticleRow, error)
 	UpdateBookable(ctx context.Context, arg UpdateBookableParams) (UpdateBookableRow, error)
 	UpdateBookableCategory(ctx context.Context, arg UpdateBookableCategoryParams) (BookableCategory, error)
@@ -486,6 +502,7 @@ type Querier interface {
 	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)
 	UpdateSeason(ctx context.Context, arg UpdateSeasonParams) (NollningSeason, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
+	UpdateSongBookEntry(ctx context.Context, arg UpdateSongBookEntryParams) (int64, error)
 	// Full-replace of the editable fields (the tag admin dialog always sends
 	// all three).
 	UpdateTag(ctx context.Context, arg UpdateTagParams) (Tag, error)

@@ -1,93 +1,80 @@
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { setError, superValidate } from "sveltekit-superforms/server";
+import { serverApi } from "$lib/server/apiClient";
 import { updateSongBookEntrySchema } from "../../../schema";
-import type { Actions, PageServerLoad } from "./$types";
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
+import { songBookConflictField } from "../../../conflicts";
+import type { Actions } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  authorize(apiNames.SONG.UPDATE, locals.user);
-};
-
+// song:update/song:delete and the duplicate-position/duplicate-song checks
+// are all Go's (PATCH/DELETE /songbook/{page}/{numberOnPage}).
 export const actions: Actions = {
   update: async (event) => {
-    const { request, locals, params } = event;
-    authorize(apiNames.SONG.UPDATE, locals.user);
-    const { prisma } = locals;
-    const formData = await request.formData();
-    const form = await superValidate(formData, zod4(updateSongBookEntrySchema));
+    const { request, params } = event;
+    const form = await superValidate(request, zod4(updateSongBookEntrySchema));
     if (!form.valid) return fail(400, { form });
 
-    const data = form.data;
-    const originalPage = Number(params.page);
-    const originalNumber = Number(params.numberOnPage);
-
-    if (
-      (await prisma.songBookEntry.count({
-        where: {
-          page: data.page,
-          numberOnPage: data.numberOnPage,
-          NOT: { page: originalPage, numberOnPage: originalNumber },
-        },
-      })) > 0
-    ) {
-      return setError(
-        form,
-        "numberOnPage",
-        m.songbook_compositeKeyDuplicateError(),
-      );
-    }
-
-    if (
-      (await prisma.songBookEntry.count({
-        where: {
-          songId: data.songId,
-          NOT: { page: originalPage, numberOnPage: originalNumber },
-        },
-      })) > 0
-    ) {
-      return setError(form, "songId", m.songbook_songIdDuplicateError());
-    }
-
-    const updatedSong = await prisma.songBookEntry.update({
-      where: {
-        page_numberOnPage: { page: originalPage, numberOnPage: originalNumber },
-      },
-      data,
-    });
-    throw redirect(
-      `/songbook/${updatedSong.page}/${updatedSong.numberOnPage}`,
+    const res = await serverApi(event).PATCH(
+      "/songbook/{page}/{numberOnPage}",
       {
-        message: m.songbook_songUpdated(),
-        type: "success",
+        params: {
+          path: {
+            page: Number(params.page),
+            numberOnPage: Number(params.numberOnPage),
+          },
+        },
+        body: form.data,
       },
+    );
+    if (res.error) {
+      const field = songBookConflictField(
+        res.response.status,
+        res.error.detail,
+      );
+      if (field === "numberOnPage") {
+        return setError(
+          form,
+          "numberOnPage",
+          m.songbook_compositeKeyDuplicateError(),
+        );
+      }
+      if (field === "songId") {
+        return setError(form, "songId", m.songbook_songIdDuplicateError());
+      }
+      error(res.response.status === 404 ? 404 : 400, {
+        message: m.songbook_errors_songNotFound(),
+      });
+    }
+    throw redirect(
+      `/songbook/${res.data.page}/${res.data.numberOnPage}`,
+      { message: m.songbook_songUpdated(), type: "success" },
       event,
     );
   },
 
   delete: async (event) => {
-    const { locals, params } = event;
-    const { prisma } = locals;
-    authorize(apiNames.SONG.DELETE, locals.user);
-
-    const originalPage = Number(params.page);
-    const originalNumber = Number(params.numberOnPage);
-
-    await prisma.songBookEntry.delete({
-      where: {
-        page_numberOnPage: { page: originalPage, numberOnPage: originalNumber },
+    const { params } = event;
+    const res = await serverApi(event).DELETE(
+      "/songbook/{page}/{numberOnPage}",
+      {
+        params: {
+          path: {
+            page: Number(params.page),
+            numberOnPage: Number(params.numberOnPage),
+          },
+        },
       },
-    });
-
+    );
+    if (res.error) {
+      error(res.response.status === 404 ? 404 : 403, {
+        message: m.songbook_errors_songNotFound(),
+      });
+    }
     throw redirect(
       "/songbook",
-      {
-        message: m.songbook_songRemoved(),
-        type: "success",
-      },
+      { message: m.songbook_songRemoved(), type: "success" },
       event,
     );
   },
