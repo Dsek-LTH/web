@@ -202,9 +202,26 @@ RETURNING id, slug;
 -- name: SoftDeleteArticle :exec
 UPDATE articles SET removed_at = now() WHERE slug = $1;
 
--- name: SetArticleScheduledID :exec
--- Targeted single-field write: the caller's external scheduler task id,
--- recorded after scheduling a future publish succeeds. Deliberately
--- separate from UpdateArticle (which is full-replace) since this needs to
--- happen without the caller re-submitting the whole article.
-UPDATE articles SET scheduled_id = $2 WHERE slug = $1;
+-- name: ClaimArticleAnnouncement :execrows
+-- Claims an article's one go-live announcement: affects the row only if
+-- it hasn't been announced (or deliberately skipped) yet.
+UPDATE articles SET announced_at = now()
+WHERE id = $1 AND announced_at IS NULL;
+
+-- name: ReleaseArticleAnnouncement :exec
+-- Gives a claim back after the announcement failed, so the sweep retries.
+UPDATE articles SET announced_at = NULL WHERE id = $1;
+
+-- name: ListDueArticleAnnouncements :many
+-- Live articles whose announcement hasn't been handled yet, oldest first.
+SELECT a.id, a.slug, a.header_sv, a.body_sv, a.notification_text,
+       a.should_send_notification, a.published_datetime, a.author_id,
+       au.member_id AS author_member_id
+FROM articles a
+JOIN authors au ON au.id = a.author_id
+WHERE a.announced_at IS NULL
+  AND a.removed_at IS NULL
+  AND a.published_datetime IS NOT NULL
+  AND a.published_datetime <= now()
+ORDER BY a.published_datetime
+LIMIT 100;

@@ -70,12 +70,10 @@ type ArticleSummary struct {
 	Tags         []Tag      `json:"tags"`
 	CommentCount int        `json:"commentCount"`
 	LikeCount    int        `json:"likeCount"`
-	// Scheduling bookkeeping: this API doesn't act on these (see
-	// backend/CLAUDE.md), it just stores/returns them for a caller - like
-	// the SvelteKit app - that owns the actual scheduled-publish logic.
+	// Whether (and with what text) the article is announced when it goes
+	// live - see Service.syncNotifications and Service.AnnounceDue.
 	ShouldSendNotification bool    `json:"sendNotification"`
 	NotificationText       *string `json:"notificationText,omitempty"`
-	ScheduledID            *string `json:"scheduledId,omitempty"`
 	// NollningSeasonID associates this article with a nollning season -
 	// see DESIGN.md's nollning section. Setting/changing it to a non-null
 	// value requires apinames.NollningContentAssociate (see Service.Create/

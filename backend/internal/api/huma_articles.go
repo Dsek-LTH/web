@@ -53,13 +53,6 @@ type slugInput struct {
 	Slug string `path:"slug"`
 }
 
-type setScheduleInput struct {
-	Slug string `path:"slug"`
-	Body struct {
-		ScheduledID string `json:"scheduledId"`
-	}
-}
-
 type createCommentInput struct {
 	Slug string `path:"slug"`
 	Body struct {
@@ -204,19 +197,6 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		DefaultStatus: http.StatusNoContent,
 	}, func(ctx context.Context, input *slugInput) (*struct{}, error) {
 		if err := svc.Delete(ctx, input.Slug); err != nil {
-			return nil, humaServiceError(err)
-		}
-		return nil, nil
-	})
-
-	huma.Register(api, huma.Operation{
-		OperationID:   "set-article-schedule",
-		Method:        http.MethodPatch,
-		Path:          "/articles/{slug}/schedule",
-		Summary:       "Record the external scheduler task id for a future publish",
-		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *setScheduleInput) (*struct{}, error) {
-		if err := svc.SetScheduledID(ctx, input.Slug, input.Body.ScheduledID); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil

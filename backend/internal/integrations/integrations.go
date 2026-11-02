@@ -1,9 +1,10 @@
 // Package integrations declares the external systems article handling
-// depends on but that aren't built in Go yet: scheduled publishing, push
-// notifications, the Discord webhook, and image storage. Each is an
-// interface with only a mock implementation (mock.go) for now - see
-// ../../DESIGN.md's "Mocking out-of-scope dependencies" section for why
-// that's the intended shape, not a shortcut.
+// depends on: push notifications, the Discord webhook, and image storage.
+// Each started out as an interface with only a mock implementation
+// (mock.go) - see ../../DESIGN.md's "Mocking out-of-scope dependencies"
+// section; the real implementations live in internal/notifications and
+// internal/storage. (Scheduled publishing had a Scheduler interface here
+// too; it was replaced by internal/articles' own announcement sweep.)
 package integrations
 
 import (
@@ -12,7 +13,7 @@ import (
 	"time"
 )
 
-// ArticleNotification is what a Notifier/Webhooker/Scheduler needs to
+// ArticleNotification is what a Notifier/Webhooker needs to
 // announce a new article. AuthorID is the authors.id used for the article's
 // byline (added in Phase 9 for the real Notifier/Webhooker - see
 // internal/notifications) - not necessarily a "self" author for
@@ -48,21 +49,6 @@ type EventNotification struct {
 	TitleSv           string
 	OrganizerMemberID string
 	ActingMemberID    string
-}
-
-// Scheduler arranges for a future action (re-checking/notifying about an
-// article at its scheduled publish time). It doesn't publish anything
-// itself - internal/articles still owns the actual publish state via
-// published_datetime; this is purely "call me back at runAt."
-type Scheduler interface {
-	// Schedule returns an opaque id the caller can pass to Cancel later, or
-	// store for its own bookkeeping (see articles.Service.SetScheduledID).
-	Schedule(
-		ctx context.Context,
-		notification ArticleNotification,
-		runAt time.Time,
-	) (scheduledID string, err error)
-	Cancel(ctx context.Context, scheduledID string) error
 }
 
 // BookingRequestNotification is what a Notifier needs for booking's two

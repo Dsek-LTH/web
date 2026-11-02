@@ -268,23 +268,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/articles/{slug}/schedule": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Record the external scheduler task id for a future publish */
-    patch: operations["set-article-schedule"];
-    trace?: never;
-  };
   "/board": {
     parameters: {
       query?: never;
@@ -1961,7 +1944,6 @@ export interface components {
       notificationText?: string;
       /** Format: date-time */
       publishedAt?: string;
-      scheduledId?: string;
       sendNotification: boolean;
       slug: string;
       status?: string;
@@ -2016,7 +1998,6 @@ export interface components {
       notificationText?: string;
       /** Format: date-time */
       publishedAt?: string;
-      scheduledId?: string;
       sendNotification: boolean;
       slug: string;
       status?: string;
@@ -3032,15 +3013,6 @@ export interface components {
       week: number;
       /** Format: int32 */
       year: number;
-    };
-    SetScheduleInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SetScheduleInputBody.json
-       */
-      readonly $schema?: string;
-      scheduledId: string;
     };
     SetShiftInput: {
       /**
@@ -4153,39 +4125,6 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "set-article-schedule": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        slug: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SetScheduleInputBody"];
-      };
-    };
     responses: {
       /** @description No Content */
       204: {

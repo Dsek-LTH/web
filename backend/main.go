@@ -31,7 +31,6 @@ import (
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/gallery"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
-	"github.com/dsek-lth/web/backend/internal/integrations"
 	"github.com/dsek-lth/web/backend/internal/links"
 	"github.com/dsek-lth/web/backend/internal/markdown"
 	"github.com/dsek-lth/web/backend/internal/medals"
@@ -146,11 +145,13 @@ func main() {
 	realNotifier := notifications.NewRealNotifier(notificationSvc)
 	articleSvc := articles.NewService(
 		pool,
-		integrations.MockScheduler{},
 		realNotifier,
 		notifications.NewRealWebhooker(notificationSvc),
 		store,
 	)
+	// Announces articles as they go live (future-dated ones included) -
+	// replaces the external scheduler-service.
+	go articleSvc.RunAnnouncementLoop(context.Background(), time.Minute)
 	eventSvc := events.NewService(pool, realNotifier)
 	memberSvc := members.NewService(pool)
 	committeeSvc := committees.NewService(pool, nollningSvc)
@@ -229,8 +230,8 @@ func main() {
 
 	addr := os.Getenv("ADDR")
 	if addr == "" {
-		// Not :8080 - the SvelteKit app's scheduler-service already claims
-		// that port in local dev (see SCHEDULER_ENDPOINT in ../.env).
+		// Not :8080, which the old scheduler-service used to claim in local
+		// dev.
 		addr = ":8090"
 	}
 

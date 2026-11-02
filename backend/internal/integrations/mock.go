@@ -6,31 +6,7 @@ import (
 	"encoding/hex"
 	"io"
 	"log"
-	"time"
 )
-
-// MockScheduler never actually schedules anything - it fabricates a
-// plausible-looking id so callers have something to store, and logs so
-// it's obvious in dev output that nothing real happened.
-type MockScheduler struct{}
-
-func (MockScheduler) Schedule(
-	_ context.Context,
-	n ArticleNotification,
-	runAt time.Time,
-) (string, error) {
-	id := "mock-" + randomHex(8)
-	log.Printf(
-		"integrations: mock scheduler - pretending to schedule %q for %s (id %s)",
-		n.Slug, runAt.Format(time.RFC3339), id,
-	)
-	return id, nil
-}
-
-func (MockScheduler) Cancel(_ context.Context, scheduledID string) error {
-	log.Printf("integrations: mock scheduler - pretending to cancel %s", scheduledID)
-	return nil
-}
 
 // MockNotifier never sends a push notification.
 type MockNotifier struct{}

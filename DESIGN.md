@@ -283,7 +283,8 @@ shape of the fix.
   (codegen) — declared as Go 1.24 `tool` dependencies in `go.mod`, invoked
   via `go tool <name>`, not installed globally.
 - **Port**: `:8090`, not `:8080` — the SvelteKit app's `scheduler-service`
-  already claims `:8080` in local dev.
+  already claims `:8080` in local dev. (`scheduler-service` was removed on
+  2026-11-03, see "Mock replacement, just-in-time"; the port stays.)
 
 ## Auth
 
@@ -1020,6 +1021,9 @@ implemented 2026-09-01** (`backend/internal/integrations`):
   (cancel-if-scheduled, then schedule-if-wanted) since the external
   scheduler-service's specific HTTP contract no longer needs preserving -
   this is equally correct for a real implementation, not just the mock.
+  **Superseded 2026-11-03**: there's no `Scheduler` anymore - Go announces
+  articles itself when they go live (see the `Scheduler` entry under "Mock
+  replacement, just-in-time").
 
 The old SvelteKit-side code for all three
 (`src/lib/news/server/notifications.ts`, `webhooks.ts`,
@@ -2316,7 +2320,8 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       before posting and released if the post fails; the webhook now
       returns errors instead of only logging them. Note that scheduled
       sends themselves still don't happen in Go (`MockScheduler`, unchanged
-      - see "Mock replacement, just-in-time"); upstream's
+      - see "Mock replacement, just-in-time"; **superseded the same day**,
+      see that section's `Scheduler` entry); upstream's
       `scheduler-service` retry changes merged as-is, and its
       `/api/schedule/news` target stays deleted on this branch.
     - **Expo push** (#1401): Go now reads Expo's per-message tickets, logs
@@ -2424,6 +2429,44 @@ phase first has a real dependent, not in one dedicated pass.
   would remove a whole service from the architecture rather than
   reimplementing its HTTP contract in Go. Not decided; flag for whoever
   picks this up.
+  **Superseded 2026-11-03 - replaced by an in-process announcement sweep,
+  and `scheduler-service` removed (user-confirmed).** The mock had quietly
+  been a real regression since the articles port: a future-dated article
+  still went live on time (visibility is just `published_datetime <=
+  now()`), but nobody was ever notified - no in-app/push notification, no
+  Discord post - which the scheduler's callback used to do. The fix took
+  the route this entry suggested rather than reimplementing the scheduler's
+  HTTP contract:
+  - `articles.announced_at` (Go-owned migration
+    `20261103120000_add_article_announced_at`, with a `.down.sql`; already
+    live articles backfilled as announced) records that an article's
+    go-live announcement was handled - sent, or deliberately skipped.
+  - `articles.Service.RunAnnouncementLoop` (started in `main.go`, like the
+    ticket offer sweep) calls `AnnounceDue` every minute: every live,
+    non-removed article with `announced_at` still NULL is announced, or
+    just marked if it doesn't want a notification. A save that publishes
+    right away announces immediately instead of waiting.
+  - Each announcement claims `announced_at` atomically first, so a save
+    and the sweep (or two backend instances) announce an article once. If
+    the notification or Discord post fails, the claim is released and the
+    next sweep retries - safe, since in-app sends skip members who already
+    have it and Discord has its own once-only claim. After an hour live
+    it's marked handled and logged instead, so a broken webhook can't make
+    the sweep retry forever.
+  - Survives restarts with no timers to re-arm: anything that went live
+    while the backend was down is picked up by the first sweep.
+  - Removed: `integrations.Scheduler`/`MockScheduler`,
+    `PATCH /articles/{slug}/schedule`, `scheduledId` on article responses
+    (the `scheduled_id` column stays in the DB, unused), the
+    `scheduler-service/` directory, its image-build job in the three
+    deploy workflows, and `SCHEDULER_ENDPOINT`/`SCHEDULER_PASSWORD` from
+    `.env`. Any deployment config outside this repo that runs the
+    scheduler container can drop it too.
+  - Verified: DB-backed tests in `internal/articles/notifications_test.go`
+    (run inside a rolled-back transaction against the dev DB, skipped
+    without one), plus a live run where a future-dated article was
+    announced by the real sweep within a minute of going live and not
+    again on the next sweep.
 
 ### Nollning: proposed redesign
 

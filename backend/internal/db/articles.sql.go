@@ -11,6 +11,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const claimArticleAnnouncement = `-- name: ClaimArticleAnnouncement :execrows
+UPDATE articles SET announced_at = now()
+WHERE id = $1 AND announced_at IS NULL
+`
+
+// Claims an article's one go-live announcement: affects the row only if
+// it hasn't been announced (or deliberately skipped) yet.
+func (q *Queries) ClaimArticleAnnouncement(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, claimArticleAnnouncement, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const countArticleSlugsWithPrefix = `-- name: CountArticleSlugsWithPrefix :one
 SELECT count(*) FROM articles WHERE slug LIKE $1 || '%'
 `
@@ -583,21 +598,70 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 	return items, nil
 }
 
-const setArticleScheduledID = `-- name: SetArticleScheduledID :exec
-UPDATE articles SET scheduled_id = $2 WHERE slug = $1
+const listDueArticleAnnouncements = `-- name: ListDueArticleAnnouncements :many
+SELECT a.id, a.slug, a.header_sv, a.body_sv, a.notification_text,
+       a.should_send_notification, a.published_datetime, a.author_id,
+       au.member_id AS author_member_id
+FROM articles a
+JOIN authors au ON au.id = a.author_id
+WHERE a.announced_at IS NULL
+  AND a.removed_at IS NULL
+  AND a.published_datetime IS NOT NULL
+  AND a.published_datetime <= now()
+ORDER BY a.published_datetime
+LIMIT 100
 `
 
-type SetArticleScheduledIDParams struct {
-	Slug        string      `json:"slug"`
-	ScheduledID pgtype.Text `json:"scheduled_id"`
+type ListDueArticleAnnouncementsRow struct {
+	ID                     pgtype.UUID        `json:"id"`
+	Slug                   string             `json:"slug"`
+	HeaderSv               string             `json:"header_sv"`
+	BodySv                 string             `json:"body_sv"`
+	NotificationText       pgtype.Text        `json:"notification_text"`
+	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
+	PublishedDatetime      pgtype.Timestamptz `json:"published_datetime"`
+	AuthorID               pgtype.UUID        `json:"author_id"`
+	AuthorMemberID         pgtype.UUID        `json:"author_member_id"`
 }
 
-// Targeted single-field write: the caller's external scheduler task id,
-// recorded after scheduling a future publish succeeds. Deliberately
-// separate from UpdateArticle (which is full-replace) since this needs to
-// happen without the caller re-submitting the whole article.
-func (q *Queries) SetArticleScheduledID(ctx context.Context, arg SetArticleScheduledIDParams) error {
-	_, err := q.db.Exec(ctx, setArticleScheduledID, arg.Slug, arg.ScheduledID)
+// Live articles whose announcement hasn't been handled yet, oldest first.
+func (q *Queries) ListDueArticleAnnouncements(ctx context.Context) ([]ListDueArticleAnnouncementsRow, error) {
+	rows, err := q.db.Query(ctx, listDueArticleAnnouncements)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListDueArticleAnnouncementsRow{}
+	for rows.Next() {
+		var i ListDueArticleAnnouncementsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Slug,
+			&i.HeaderSv,
+			&i.BodySv,
+			&i.NotificationText,
+			&i.ShouldSendNotification,
+			&i.PublishedDatetime,
+			&i.AuthorID,
+			&i.AuthorMemberID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const releaseArticleAnnouncement = `-- name: ReleaseArticleAnnouncement :exec
+UPDATE articles SET announced_at = NULL WHERE id = $1
+`
+
+// Gives a claim back after the announcement failed, so the sweep retries.
+func (q *Queries) ReleaseArticleAnnouncement(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, releaseArticleAnnouncement, id)
 	return err
 }
 

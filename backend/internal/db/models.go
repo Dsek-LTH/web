@@ -240,6 +240,7 @@ type Article struct {
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
 	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 	DiscordAnnouncedAt     pgtype.Timestamptz `json:"discord_announced_at"`
+	AnnouncedAt            pgtype.Timestamptz `json:"announced_at"`
 }
 
 type ArticleComment struct {

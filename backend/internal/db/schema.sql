@@ -195,7 +195,11 @@ CREATE TABLE articles (
     -- Added by upstream's 20261102190000_add_article_discord_announced_at
     -- (carried into internal/db/migrations): set while/once the article
     -- has been posted to Discord, so it's only ever posted once.
-    discord_announced_at     TIMESTAMPTZ
+    discord_announced_at     TIMESTAMPTZ,
+    -- Go-owned (migration 20261103120000_add_article_announced_at): when
+    -- the article's go-live announcement was handled, sent or skipped -
+    -- see articles.Service.AnnounceDue.
+    announced_at             TIMESTAMPTZ
 );
 
 CREATE TABLE article_comments (

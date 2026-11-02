@@ -27,6 +27,9 @@ type Querier interface {
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
 	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
+	// Claims an article's one go-live announcement: affects the row only if
+	// it hasn't been announced (or deliberately skipped) yet.
+	ClaimArticleAnnouncement(ctx context.Context, id pgtype.UUID) (int64, error)
 	// Claims an article's one Discord announcement: affects a row only if it
 	// hasn't been posted (or claimed) yet.
 	ClaimArticleDiscordAnnouncement(ctx context.Context, id pgtype.UUID) (int64, error)
@@ -372,6 +375,8 @@ type Querier interface {
 	ListDoorAccessPoliciesForMemberView(ctx context.Context, arg ListDoorAccessPoliciesForMemberViewParams) ([]ListDoorAccessPoliciesForMemberViewRow, error)
 	ListDoors(ctx context.Context) ([]Door, error)
 	ListDoorsForBooking(ctx context.Context) ([]ListDoorsForBookingRow, error)
+	// Live articles whose announcement hasn't been handled yet, oldest first.
+	ListDueArticleAnnouncements(ctx context.Context) ([]ListDueArticleAnnouncementsRow, error)
 	ListEmailAliasesForPosition(ctx context.Context, positionID string) ([]EmailAlias, error)
 	// A member's "my tickets" view - expired releases (event over) are excluded
 	// so old tickets don't build up indefinitely.
@@ -528,6 +533,8 @@ type Querier interface {
 	ListWaitlistFrontForUpdate(ctx context.Context, arg ListWaitlistFrontForUpdateParams) ([]TicketQueueEntry, error)
 	LockRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
 	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
+	// Gives a claim back after the announcement failed, so the sweep retries.
+	ReleaseArticleAnnouncement(ctx context.Context, id pgtype.UUID) error
 	// Gives a claim back after the post failed, so a retry can send it.
 	ReleaseArticleDiscordAnnouncement(ctx context.Context, id pgtype.UUID) error
 	RemoveArticleLike(ctx context.Context, arg RemoveArticleLikeParams) error
@@ -536,11 +543,6 @@ type Querier interface {
 	ReplaceSubscribedTags(ctx context.Context, a pgtype.UUID) error
 	ReplaceSubscriptionSettings(ctx context.Context, memberID pgtype.UUID) error
 	RestoreSong(ctx context.Context, id pgtype.UUID) error
-	// Targeted single-field write: the caller's external scheduler task id,
-	// recorded after scheduling a future publish succeeds. Deliberately
-	// separate from UpdateArticle (which is full-replace) since this needs to
-	// happen without the caller re-submitting the whole article.
-	SetArticleScheduledID(ctx context.Context, arg SetArticleScheduledIDParams) error
 	SetMandatePhadderGroup(ctx context.Context, arg SetMandatePhadderGroupParams) error
 	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
 	SetReleaseStatus(ctx context.Context, arg SetReleaseStatusParams) error
