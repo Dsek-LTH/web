@@ -1670,6 +1670,128 @@ export interface paths {
         patch: operations["update-tag"];
         trace?: never;
     };
+    "/ticket-releases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List free-ticket releases, newest first */
+        get: operations["list-ticket-releases"];
+        put?: never;
+        /** Create a free-ticket release for an event (webshop:create) */
+        post: operations["create-ticket-release"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ticket-releases/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a free-ticket release with its counts */
+        get: operations["get-ticket-release"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit a release after publishing (webshop:manage) */
+        patch: operations["update-ticket-release"];
+        trace?: never;
+    };
+    "/ticket-releases/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept the signed-in member's ticket offer */
+        post: operations["accept-ticket-offer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ticket-releases/{id}/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request a ticket as the signed-in member */
+        post: operations["request-ticket"];
+        /** Withdraw the signed-in member's request, offer or waitlist spot */
+        delete: operations["cancel-ticket-request"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ticket-releases/{id}/roster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Everyone with a confirmed ticket (webshop:manage) */
+        get: operations["get-ticket-roster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ticket-releases/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in member's place in a release's queue */
+        get: operations["ticket-status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tickets/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every queue entry the signed-in member has had, newest first */
+        get: operations["my-tickets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/uploads": {
         parameters: {
             query?: never;
@@ -2152,6 +2274,29 @@ export interface components {
             readonly $schema?: string;
             nameSv: string;
         };
+        CreateTicketReleaseInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CreateTicketReleaseInputBody.json
+             */
+            readonly $schema?: string;
+            /**
+             * Format: date-time
+             * @description After this time, no new requests are accepted
+             */
+            closesAt: string;
+            description?: string;
+            /** @description UUID of the event this release is for */
+            eventId: string;
+            /** @description Room name, not a maps location */
+            location?: string;
+            /** Format: date-time */
+            opensAt: string;
+            /** Format: int64 */
+            quantity: number;
+            title: string;
+        };
         CurrentInfo: {
             /**
              * Format: uri
@@ -2581,6 +2726,15 @@ export interface components {
             studentId?: string;
             visible: boolean;
         };
+        MyTicket: {
+            /** Format: date-time */
+            offerExpiresAt?: string;
+            /** Format: int64 */
+            queuePosition?: number;
+            releaseId: string;
+            releaseTitle: string;
+            status: string;
+        };
         NotificationAuthor: {
             id: string;
             name: string;
@@ -2976,6 +3130,87 @@ export interface components {
             nameEn: string | null;
             nameSv: string;
         };
+        TicketQueueEntry: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/TicketQueueEntry.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            offerExpiresAt?: string;
+            /** Format: int64 */
+            queuePosition?: number;
+            status: string;
+        };
+        TicketRelease: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/TicketRelease.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            closesAt: string;
+            description: string;
+            eventId: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: int64 */
+            graceWindowSeconds: number;
+            id: string;
+            location: string;
+            /** Format: int64 */
+            offerWindowSeconds: number;
+            /** Format: date-time */
+            opensAt: string;
+            /** Format: int64 */
+            quantity: number;
+            status: string;
+            title: string;
+        };
+        TicketReleaseSummary: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/TicketReleaseSummary.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            accepted: number;
+            /** Format: int64 */
+            claimed: number;
+            /** Format: date-time */
+            closesAt: string;
+            description: string;
+            eventId: string;
+            /** Format: date-time */
+            expiresAt: string;
+            id: string;
+            location: string;
+            /** Format: date-time */
+            lotteryAt: string;
+            /** Format: date-time */
+            opensAt: string;
+            /** Format: int64 */
+            quantity: number;
+            status: string;
+            title: string;
+            /** Format: int64 */
+            waitlisted: number;
+        };
+        TicketRosterEntry: {
+            firstName?: string;
+            foodPreference?: string;
+            lastName?: string;
+            nickname?: string;
+            picturePath?: string;
+            /** Format: date-time */
+            requestedAt: string;
+            studentId: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         UnreadCountOutputBody: {
             /**
              * Format: uri
@@ -3076,6 +3311,21 @@ export interface components {
             language?: string;
             lastName: string;
             nickname?: string;
+        };
+        UpdateTicketReleaseInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UpdateTicketReleaseInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            closesAt: string;
+            description?: string;
+            location?: string;
+            /** Format: int64 */
+            quantity: number;
+            title: string;
         };
         UploadExpoTokenInputBody: {
             /**
@@ -7687,6 +7937,321 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Tag"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "list-ticket-releases": {
+        parameters: {
+            query?: {
+                /** @description also list releases whose event is over; requires webshop:create */
+                includeExpired?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketReleaseSummary"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-ticket-release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTicketReleaseInputBody"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketRelease"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-ticket-release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketReleaseSummary"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-ticket-release": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTicketReleaseInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketRelease"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "accept-ticket-offer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketQueueEntry"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "request-ticket": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketQueueEntry"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "cancel-ticket-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketQueueEntry"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-ticket-roster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketRosterEntry"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "ticket-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketQueueEntry"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "my-tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyTicket"][] | null;
                 };
             };
             /** @description Error */

@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	AcceptEntry(ctx context.Context, arg AcceptEntryParams) (int64, error)
 	AddArticleLike(ctx context.Context, arg AddArticleLikeParams) error
 	AddArticleTags(ctx context.Context, arg AddArticleTagsParams) error
 	AddBookingRequestAccessDoors(ctx context.Context, arg AddBookingRequestAccessDoorsParams) error
@@ -25,6 +26,7 @@ type Querier interface {
 	AddEventGoing(ctx context.Context, arg AddEventGoingParams) error
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
+	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
 	ClearBookingDoorAccess(ctx context.Context, bookingRequestID pgtype.UUID) error
 	ClearBookingRequestAccessDoors(ctx context.Context, a pgtype.UUID) error
@@ -41,11 +43,15 @@ type Querier interface {
 	// actually exists.
 	ClearMemberPhadderGroup(ctx context.Context, arg ClearMemberPhadderGroupParams) error
 	CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) error
+	// Moves everyone behind a waitlist position that was just vacated (e.g. by a
+	// cancellation) one step forward, keeping positions contiguous.
+	CloseWaitlistGap(ctx context.Context, arg CloseWaitlistGapParams) error
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
 	CountDoorsByName(ctx context.Context, names []string) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
+	CountGrantedOrAccepted(ctx context.Context, releaseID pgtype.UUID) (int64, error)
 	CountMembersByID(ctx context.Context, ids []pgtype.UUID) (int64, error)
 	CountMembersByStudentIDs(ctx context.Context, studentIds []string) (int64, error)
 	CountSongBookEntries(ctx context.Context, arg CountSongBookEntriesParams) (int64, error)
@@ -53,6 +59,7 @@ type Querier interface {
 	CountSongs(ctx context.Context, arg CountSongsParams) (int64, error)
 	CountUnreadNotifications(ctx context.Context, memberID pgtype.UUID) (int64, error)
 	CountUnreadNotificationsForMember(ctx context.Context, memberID pgtype.UUID) (int64, error)
+	CountWaitlisted(ctx context.Context, releaseID pgtype.UUID) (int64, error)
 	// One statement, so a batch is all-or-nothing.
 	CreateAccessPoliciesBulk(ctx context.Context, arg CreateAccessPoliciesBulkParams) ([]ApiAccessPolicy, error)
 	CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error)
@@ -82,10 +89,14 @@ type Querier interface {
 	CreateNotifications(ctx context.Context, arg CreateNotificationsParams) error
 	CreatePhadderGroup(ctx context.Context, arg CreatePhadderGroupParams) (PhadderGroup, error)
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
+	// Free-ticket releases (upstream #1325's ticket-service, folded into this
+	// backend during the Phase 12 upstream sync - see internal/tickets).
+	CreateRelease(ctx context.Context, arg CreateReleaseParams) (TicketRelease, error)
 	CreateSeason(ctx context.Context, arg CreateSeasonParams) (NollningSeason, error)
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
 	CreateSongBookEntry(ctx context.Context, arg CreateSongBookEntryParams) error
 	CreateTag(ctx context.Context, nameSv string) (Tag, error)
+	DecrementWaitlistPositions(ctx context.Context, arg DecrementWaitlistPositionsParams) error
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteAdminSetting(ctx context.Context, key string) (int64, error)
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
@@ -107,6 +118,7 @@ type Querier interface {
 	// (2026-09-03, see DESIGN.md's Phase 10 entry): role-based door/create-form
 	// validation now does a real prefix match.
 	ExistsPositionWithPrefix(ctx context.Context, pattern string) (bool, error)
+	ExpireEntry(ctx context.Context, id pgtype.UUID) error
 	// The member's phadder/uppdrag mandate overlapping the group's season
 	// window, ordered like the old getPhadderMandates (position id asc, i.e.
 	// "phadder" before "uppdrag", then start_date asc) so the first row is the
@@ -213,7 +225,13 @@ type Querier interface {
 	// the position detail page links/displays the committee without a second
 	// request.
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
+	GetQueueEntry(ctx context.Context, arg GetQueueEntryParams) (TicketQueueEntry, error)
 	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
+	// Not filtered by expires_at - old releases are kept in the database (not
+	// purged) and stay reachable directly, e.g. for an admin reviewing a past
+	// event's attendee list. They're just excluded from the listings below.
+	GetRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
+	GetReleaseCounts(ctx context.Context, id pgtype.UUID) (GetReleaseCountsRow, error)
 	GetSeason(ctx context.Context, id pgtype.UUID) (NollningSeason, error)
 	GetSongBookEntry(ctx context.Context, arg GetSongBookEntryParams) (GetSongBookEntryRow, error)
 	// include_deleted here means "also visible if deleted" (a union, unlike
@@ -224,9 +242,17 @@ type Querier interface {
 	GetSongBySlug(ctx context.Context, arg GetSongBySlugParams) (Song, error)
 	GetSubscribedTagIDsForMember(ctx context.Context, a pgtype.UUID) ([]pgtype.UUID, error)
 	GetSubscriptionSettingsForMember(ctx context.Context, memberID pgtype.UUID) ([]SubscriptionSetting, error)
+	// A release expires when its event ends (see CreateRelease).
+	GetTicketEventEnd(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error)
 	// One door policy per (requested door x requested member with a student
 	// id), for the booking's window widened by `buffer` on both sides.
 	GrantBookingDoorAccess(ctx context.Context, arg GrantBookingDoorAccessParams) error
+	GrantEntry(ctx context.Context, arg GrantEntryParams) error
+	// Idempotent: a repeat request for the same (release, member) just returns
+	// the existing row unchanged instead of erroring - unless that row is
+	// cancelled or expired, in which case it's reset to a fresh pending request
+	// so the member can rejoin.
+	InsertQueueEntry(ctx context.Context, arg InsertQueueEntryParams) (TicketQueueEntry, error)
 	InsertSubscribedTag(ctx context.Context, arg InsertSubscribedTagParams) error
 	InsertSubscriptionSetting(ctx context.Context, arg InsertSubscriptionSettingParams) error
 	// Backs IsStaben: does memberID hold a mandate, active today, on a position
@@ -235,6 +261,11 @@ type Querier interface {
 	// Every apiName with at least one grant, and how many - the admin access
 	// page's per-apiName badges (upstream #1291).
 	ListAPINameGrantCounts(ctx context.Context) ([]ListAPINameGrantCountsRow, error)
+	// The admin roster for one release - only entries that actually hold a
+	// confirmed ticket (pending/waitlisted/granted/expired/cancelled are noise
+	// for "who has a ticket" purposes, and their status would always read the
+	// same anyway).
+	ListAcceptedEntriesForRelease(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	ListAccessDoorsForBookingRequests(ctx context.Context, ids []pgtype.UUID) ([]ListAccessDoorsForBookingRequestsRow, error)
 	ListAccessMembersForBookingRequests(ctx context.Context, ids []pgtype.UUID) ([]ListAccessMembersForBookingRequestsRow, error)
 	// Optional apiName filter; joins member first/last name for studentId-scoped
@@ -266,6 +297,8 @@ type Querier interface {
 	// (per SUBSCRIPTION_SETTINGS_MAP) has no subscription_settings row
 	// requirement at all.
 	ListAllMemberIDs(ctx context.Context, arg ListAllMemberIDsParams) ([]pgtype.UUID, error)
+	// The admin listing - nothing excluded, so past events stay reviewable.
+	ListAllReleases(ctx context.Context) ([]TicketRelease, error)
 	ListArticleComments(ctx context.Context, articleID pgtype.UUID) ([]ListArticleCommentsRow, error)
 	ListArticleLikers(ctx context.Context, articleID pgtype.UUID) ([]ListArticleLikersRow, error)
 	// Shared column list for the "joined article" shape: article + committee +
@@ -332,6 +365,9 @@ type Querier interface {
 	ListDoors(ctx context.Context) ([]Door, error)
 	ListDoorsForBooking(ctx context.Context) ([]ListDoorsForBookingRow, error)
 	ListEmailAliasesForPosition(ctx context.Context, positionID string) ([]EmailAlias, error)
+	// A member's "my tickets" view - expired releases (event over) are excluded
+	// so old tickets don't build up indefinitely.
+	ListEntriesForMember(ctx context.Context, memberID string) ([]ListEntriesForMemberRow, error)
 	ListEventComments(ctx context.Context, eventID pgtype.UUID) ([]ListEventCommentsRow, error)
 	ListEventGoing(ctx context.Context, eventID pgtype.UUID) ([]ListEventGoingRow, error)
 	ListEventInterested(ctx context.Context, eventID pgtype.UUID) ([]ListEventInterestedRow, error)
@@ -350,6 +386,7 @@ type Querier interface {
 	// CASE'd sort keys - exactly one is non-null per row, the other ties
 	// (NULL) and is ignored.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
+	ListExpiredGrantedForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	ListExpoTokensWithUnreadCount(ctx context.Context, memberIds []pgtype.UUID) ([]ListExpoTokensWithUnreadCountRow, error)
 	ListGoverningDocuments(ctx context.Context) ([]Document, error)
 	// Full mandate history (not just currently-active, unlike
@@ -408,6 +445,7 @@ type Querier interface {
 	ListOpenElections(ctx context.Context) ([]ListOpenElectionsRow, error)
 	// The review queue: pending requests that haven't ended yet.
 	ListPendingBookingRequestIDs(ctx context.Context) ([]pgtype.UUID, error)
+	ListPendingForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	// Nolla/phadder counts alongside each group, mirroring
 	// ListCommitteesWithCounts' count-subquery pattern.
 	ListPhadderGroups(ctx context.Context, seasonID pgtype.UUID) ([]ListPhadderGroupsRow, error)
@@ -432,6 +470,15 @@ type Querier interface {
 	// is within the last ~10 years, matching the old app's
 	// `classYear: {gte: currentYear - 10}` exactly.
 	ListRecentMemberStudentIDs(ctx context.Context, minClassYear int32) ([]pgtype.Text, error)
+	ListReleaseCounts(ctx context.Context, ids []pgtype.UUID) ([]ListReleaseCountsRow, error)
+	// The public/browsing listing - expired releases (event over) are excluded.
+	ListReleases(ctx context.Context) ([]TicketRelease, error)
+	// Releases that have at least one granted-but-unaccepted offer, used to
+	// know which releases need an expiry sweep.
+	ListReleasesWithActiveOffers(ctx context.Context) ([]TicketRelease, error)
+	// Releases whose lottery hasn't run yet, used to re-arm in-process timers
+	// after a restart.
+	ListScheduledReleases(ctx context.Context) ([]TicketRelease, error)
 	ListSeasons(ctx context.Context) ([]NollningSeason, error)
 	// A numeric search matches the page; anything else searches song titles.
 	// Entries whose song is soft-deleted are only listed for show_deleted.
@@ -453,11 +500,16 @@ type Querier interface {
 	ListTagsByIDs(ctx context.Context, ids []pgtype.UUID) ([]ListTagsByIDsRow, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
+	// Everyone with a confirmed ticket for one release, oldest first, with
+	// the member behind each (member_id holds a student id).
+	ListTicketRoster(ctx context.Context, releaseID pgtype.UUID) ([]ListTicketRosterRow, error)
 	// Mirrors the old app's getUpcomingBookingRequests: every request starting
 	// on or after `since` (callers pass now-1week, matching the old hardcoded
 	// window), regardless of booker - visibility is gated at the service layer
 	// (booking_request:read), not per-row ownership.
 	ListUpcomingBookingRequests(ctx context.Context, since pgtype.Timestamptz) ([]ListUpcomingBookingRequestsRow, error)
+	ListWaitlistFrontForUpdate(ctx context.Context, arg ListWaitlistFrontForUpdateParams) ([]TicketQueueEntry, error)
+	LockRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
 	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
 	RemoveArticleLike(ctx context.Context, arg RemoveArticleLikeParams) error
 	RemoveEventGoing(ctx context.Context, arg RemoveEventGoingParams) error
@@ -472,6 +524,7 @@ type Querier interface {
 	SetArticleScheduledID(ctx context.Context, arg SetArticleScheduledIDParams) error
 	SetMandatePhadderGroup(ctx context.Context, arg SetMandatePhadderGroupParams) error
 	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
+	SetReleaseStatus(ctx context.Context, arg SetReleaseStatusParams) error
 	SoftDeleteAlert(ctx context.Context, id pgtype.UUID) error
 	SoftDeleteArticle(ctx context.Context, slug string) error
 	SoftDeleteEvent(ctx context.Context, id pgtype.UUID) error
@@ -515,6 +568,7 @@ type Querier interface {
 	UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfileParams) (UpdateMemberProfileRow, error)
 	UpdatePhadderGroup(ctx context.Context, arg UpdatePhadderGroupParams) (PhadderGroup, error)
 	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)
+	UpdateRelease(ctx context.Context, arg UpdateReleaseParams) (TicketRelease, error)
 	UpdateSeason(ctx context.Context, arg UpdateSeasonParams) (NollningSeason, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
 	UpdateSongBookEntry(ctx context.Context, arg UpdateSongBookEntryParams) (int64, error)
@@ -525,6 +579,7 @@ type Querier interface {
 	UpsertCiabatta(ctx context.Context, arg UpsertCiabattaParams) (CiabattaOfTheWeek, error)
 	UpsertExpoToken(ctx context.Context, arg UpsertExpoTokenParams) error
 	UpsertMarkdown(ctx context.Context, arg UpsertMarkdownParams) (Markdown, error)
+	WaitlistEntry(ctx context.Context, arg WaitlistEntryParams) error
 }
 
 var _ Querier = (*Queries)(nil)

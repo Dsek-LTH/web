@@ -1,5 +1,5 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize, isAuthorized } from "$lib/utils/authorization";
+import { serverApi } from "$lib/server/apiClient";
 import { ticketReleaseSchema } from "$lib/utils/ticketRelease";
 import { createTicketRelease } from "$lib/server/ticketService";
 import * as m from "$paraglide/messages";
@@ -13,23 +13,19 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export const load = async ({ locals }) => {
-  const { user, prisma } = locals;
-  authorize(apiNames.WEBSHOP.CREATE, user);
-
-  const events = await prisma.event.findMany({
-    where: {
-      endDatetime: { gte: new Date() },
-      // isCancelled is nullable and old events (and events created without
-      // touching the cancel checkbox) have NULL there. Prisma's
-      // `isCancelled: false` (and `not: true`) both exclude NULL, which hid
-      // those events from this picker even though the calendar shows them.
-      OR: [{ isCancelled: false }, { isCancelled: null }],
-    },
-    orderBy: { startDatetime: "asc" },
-    select: { id: true, titleSv: true, startDatetime: true },
-    take: 100,
+// Creating requires webshop:create in Go.
+export const load = async (event) => {
+  // Upcoming, not cancelled events to attach a release to.
+  const res = await serverApi(event).GET("/events", {
+    params: { query: { span: "upcoming", page: 1, pageSize: 100 } },
   });
+  const events = (res.data?.events ?? [])
+    .filter((e) => !e.isCancelled)
+    .map((e) => ({
+      id: e.id,
+      titleSv: e.titleSv,
+      startDatetime: new Date(e.startAt),
+    }));
 
   return {
     events,
@@ -60,33 +56,16 @@ export const load = async ({ locals }) => {
 export const actions = {
   default: async (event) => {
     const { locals, request } = event;
-    const { user, prisma } = locals;
     const form = await superValidate(request, zod4(ticketReleaseSchema));
     if (!form.valid) return fail(400, { form });
-    authorize(apiNames.WEBSHOP.CREATE, user);
-
-    const chosenEvent = await prisma.event.findUnique({
-      where: { id: form.data.eventId },
-      select: { endDatetime: true },
-    });
-    if (!chosenEvent) {
-      return message(form, {
-        message: m.ticketRelease_create_error({
-          error: "Event not found",
-        }),
-        type: "error",
-      });
-    }
 
     let releaseId: string;
     try {
-      const release = await createTicketRelease(request, {
+      // Go sets the release's expiry from the linked event's end.
+      const release = await createTicketRelease(event, {
         ...form.data,
         opensAt: dayjs.tz(form.data.opensAt, "Europe/Stockholm").toDate(),
         closesAt: dayjs.tz(form.data.closesAt, "Europe/Stockholm").toDate(),
-        // The release disappears once the linked event is over - never
-        // client-supplied, always derived from the real event record.
-        expiresAt: chosenEvent.endDatetime,
       });
       releaseId = release.id;
     } catch (err) {
@@ -99,7 +78,7 @@ export const actions = {
 
     // The release page needs WEBSHOP.MANAGE, which creating doesn't imply.
     throw redirect(
-      isAuthorized(apiNames.WEBSHOP.MANAGE, user)
+      locals.user?.policies?.includes(apiNames.WEBSHOP.MANAGE)
         ? `/admin/tickets/${releaseId}`
         : "/admin/tickets",
       { message: m.ticketRelease_create_success(), type: "success" },

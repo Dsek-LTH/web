@@ -574,3 +574,38 @@ CREATE TABLE _booking_requests_access_members (
     "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY ("A", "B")
 );
+
+-- Free-ticket releases for events and their request queues (upstream
+-- #1325's ticket_release/ticket_queue_entry, created by upstream's
+-- 20260921172447/20260921180031/20260921212144 migrations; owned by
+-- internal/tickets since the Phase 12 upstream sync). member_id and
+-- created_by hold student ids, not member uuids - what the original
+-- ticket-service got from Authentik's preferred_username.
+CREATE TABLE ticket_release (
+    id                   UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title                TEXT NOT NULL,
+    quantity             INTEGER NOT NULL,
+    opens_at             TIMESTAMPTZ NOT NULL,
+    grace_window_seconds INTEGER NOT NULL DEFAULT 60,
+    offer_window_seconds INTEGER NOT NULL DEFAULT 300,
+    status               TEXT NOT NULL DEFAULT 'scheduled',
+    created_by           TEXT NOT NULL,
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    description          TEXT NOT NULL DEFAULT '',
+    event_id             UUID NOT NULL REFERENCES events (id),
+    location             TEXT NOT NULL DEFAULT '',
+    closes_at            TIMESTAMPTZ NOT NULL,
+    expires_at           TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE ticket_queue_entry (
+    id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    release_id       UUID NOT NULL REFERENCES ticket_release (id) ON DELETE CASCADE,
+    member_id        TEXT NOT NULL,
+    status           TEXT NOT NULL DEFAULT 'pending',
+    queue_position   INTEGER,
+    offer_expires_at TIMESTAMPTZ,
+    requested_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (release_id, member_id)
+);

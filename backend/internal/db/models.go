@@ -596,3 +596,31 @@ type Tag struct {
 	Color     pgtype.Text `json:"color"`
 	IsDefault pgtype.Bool `json:"is_default"`
 }
+
+type TicketQueueEntry struct {
+	ID             pgtype.UUID        `json:"id"`
+	ReleaseID      pgtype.UUID        `json:"release_id"`
+	MemberID       string             `json:"member_id"`
+	Status         string             `json:"status"`
+	QueuePosition  pgtype.Int4        `json:"queue_position"`
+	OfferExpiresAt pgtype.Timestamptz `json:"offer_expires_at"`
+	RequestedAt    pgtype.Timestamptz `json:"requested_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
+type TicketRelease struct {
+	ID                 pgtype.UUID        `json:"id"`
+	Title              string             `json:"title"`
+	Quantity           int32              `json:"quantity"`
+	OpensAt            pgtype.Timestamptz `json:"opens_at"`
+	GraceWindowSeconds int32              `json:"grace_window_seconds"`
+	OfferWindowSeconds int32              `json:"offer_window_seconds"`
+	Status             string             `json:"status"`
+	CreatedBy          string             `json:"created_by"`
+	CreatedAt          pgtype.Timestamptz `json:"created_at"`
+	Description        string             `json:"description"`
+	EventID            pgtype.UUID        `json:"event_id"`
+	Location           string             `json:"location"`
+	ClosesAt           pgtype.Timestamptz `json:"closes_at"`
+	ExpiresAt          pgtype.Timestamptz `json:"expires_at"`
+}

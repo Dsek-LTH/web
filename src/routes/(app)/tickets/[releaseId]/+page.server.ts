@@ -7,23 +7,23 @@ import {
   TicketServiceError,
 } from "$lib/server/ticketService";
 import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
-import { fail } from "@sveltejs/kit";
+import { fail, type RequestEvent } from "@sveltejs/kit";
 
-export const load = async ({ params, locals, request, depends }) => {
+export const load = async (event) => {
+  const { params, locals, depends } = event;
   depends("ticket:status");
 
-  const release = await getTicketReleaseOr404(request, params.releaseId);
+  const release = await getTicketReleaseOr404(event, params.releaseId);
 
   let status = null;
   let loggedIn = !!locals.member;
   if (loggedIn) {
     try {
-      status = await getTicketStatus(request, params.releaseId);
+      status = await getTicketStatus(event, params.releaseId);
     } catch (err) {
       if (!(err instanceof TicketServiceError)) throw err;
-      // 401: the session's id_token has expired - show the sign-in prompt
-      // rather than failing the whole page.
+      // 401: the session has expired - show the sign-in prompt rather
+      // than failing the whole page.
       if (err.status === 401) loggedIn = false;
       else if (err.status !== 404) throw err;
     }
@@ -33,8 +33,8 @@ export const load = async ({ params, locals, request, depends }) => {
     release,
     status,
     loggedIn,
-    // Same permission the admin release page requires.
-    canManage: isAuthorized(apiNames.WEBSHOP.MANAGE, locals.user),
+    // Only decides whether to link the admin page - Go gates it itself.
+    canManage: !!locals.user?.policies?.includes(apiNames.WEBSHOP.MANAGE),
     // Lets the client line its countdown up with the server's clock, which
     // is what actually rejects requests made before opens_at.
     serverNow: Date.now(),
@@ -42,12 +42,11 @@ export const load = async ({ params, locals, request, depends }) => {
 };
 
 const handleAction = async (
-  action: (req: Request, releaseId: string) => Promise<unknown>,
-  request: Request,
-  releaseId: string,
+  action: (event: RequestEvent, releaseId: string) => Promise<unknown>,
+  event: RequestEvent<{ releaseId: string }>,
 ) => {
   try {
-    await action(request, releaseId);
+    await action(event, event.params.releaseId);
   } catch (err) {
     if (err instanceof TicketServiceError) {
       return fail(err.status, { message: err.message });
@@ -60,10 +59,7 @@ const handleAction = async (
 };
 
 export const actions = {
-  request: async ({ params, request }) =>
-    handleAction(requestTicket, request, params.releaseId),
-  accept: async ({ params, request }) =>
-    handleAction(acceptTicketOffer, request, params.releaseId),
-  cancel: async ({ params, request }) =>
-    handleAction(cancelTicketEntry, request, params.releaseId),
+  request: async (event) => handleAction(requestTicket, event),
+  accept: async (event) => handleAction(acceptTicketOffer, event),
+  cancel: async (event) => handleAction(cancelTicketEntry, event),
 };

@@ -369,3 +369,13 @@ This directory is a subdirectory of the larger `Dsek-LTH/web` git repository (br
 
 
 **Phase 12 (upstream sync) changes**: `POST /access-policies/bulk` (`{apiName, roles[], studentIds[]}`, all-or-nothing) and `GET /access-policies/api-names` returning `[{apiName, grantCount}]`; `GET /links/domains`; `internal/links` now unwraps Shlink's `{"shortUrls"|"tags"|"domains": {...}}` responses (a Phase 11 bug - see `DESIGN.md`'s Phase 12 "Admin" bullet); doors accept position-less roles (`*`, `_`, `nolla`, `dsek.styr`, programme codes) in the role-exists check. `auth.ContextWithIdentity` exists for other packages' tests.
+
+### Ticket routes
+
+**Added in Phase 12 (upstream sync)** - upstream's standalone `ticket-service/` (#1325), folded into `internal/tickets` (`huma_tickets.go`). See `DESIGN.md`'s Phase 12 "Tickets" bullet.
+
+- `GET /ticket-releases` (`?includeExpired=true` needs `webshop:create`), `GET /ticket-releases/{id}` - public, with claimed/accepted/waitlisted counts and `lotteryAt`.
+- `POST /ticket-releases` (`webshop:create`; expiry = the event's end, set in Go), `PATCH /ticket-releases/{id}` (`webshop:manage`), `GET /ticket-releases/{id}/roster` (`webshop:manage`, includes food preferences).
+- `POST/DELETE /ticket-releases/{id}/request`, `POST /ticket-releases/{id}/accept`, `GET /ticket-releases/{id}/status`, `GET /tickets/mine` - as the signed-in member, keyed by student id.
+- Every state change runs under `SELECT ... FOR UPDATE` on the release (`withReleaseLock`). Lottery timers (`Scheduler.ArmLottery`) and the offer-expiry sweep loop are started in `main.go` and re-armed on startup.
+

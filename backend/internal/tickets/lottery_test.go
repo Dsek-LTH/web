@@ -1,4 +1,4 @@
-package releases
+package tickets
 
 import (
 	"math/rand"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/Dsek-LTH/ticket-service/internal/db"
+	"github.com/dsek-lth/web/backend/internal/db"
 )
 
 func makeEntries(n int) []db.TicketQueueEntry {

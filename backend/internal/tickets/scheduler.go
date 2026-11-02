@@ -1,4 +1,4 @@
-package releases
+package tickets
 
 import (
 	"context"

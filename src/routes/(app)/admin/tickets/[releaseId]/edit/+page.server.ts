@@ -1,5 +1,3 @@
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 import { ticketReleaseEditSchema } from "$lib/utils/ticketRelease";
 import {
   getTicketReleaseOr404,
@@ -16,11 +14,9 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export const load = async ({ params, locals, request }) => {
-  const { user } = locals;
-  authorize(apiNames.WEBSHOP.MANAGE, user);
-
-  const release = await getTicketReleaseOr404(request, params.releaseId);
+// Editing requires webshop:manage in Go.
+export const load = async (event) => {
+  const release = await getTicketReleaseOr404(event, event.params.releaseId);
 
   return {
     release,
@@ -42,14 +38,12 @@ export const load = async ({ params, locals, request }) => {
 
 export const actions = {
   default: async (event) => {
-    const { locals, request, params } = event;
-    const { user } = locals;
+    const { request, params } = event;
     const form = await superValidate(request, zod4(ticketReleaseEditSchema));
     if (!form.valid) return fail(400, { form });
-    authorize(apiNames.WEBSHOP.MANAGE, user);
 
     try {
-      await updateTicketRelease(request, params.releaseId, {
+      await updateTicketRelease(event, params.releaseId, {
         ...form.data,
         closesAt: dayjs.tz(form.data.closesAt, "Europe/Stockholm").toDate(),
       });

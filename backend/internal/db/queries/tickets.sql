@@ -1,34 +1,37 @@
+-- Free-ticket releases (upstream #1325's ticket-service, folded into this
+-- backend during the Phase 12 upstream sync - see internal/tickets).
+
 -- name: CreateRelease :one
 INSERT INTO ticket_release (
     event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, created_by
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
 )
-RETURNING id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at;
+RETURNING id, title, quantity, opens_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at, description, event_id, location, closes_at, expires_at;
 
 -- name: GetRelease :one
 -- Not filtered by expires_at - old releases are kept in the database (not
 -- purged) and stay reachable directly, e.g. for an admin reviewing a past
 -- event's attendee list. They're just excluded from the listings below.
-SELECT id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at
+SELECT id, title, quantity, opens_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at, description, event_id, location, closes_at, expires_at
 FROM ticket_release
 WHERE id = $1;
 
 -- name: ListReleases :many
 -- The public/browsing listing - expired releases (event over) are excluded.
-SELECT id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at
+SELECT id, title, quantity, opens_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at, description, event_id, location, closes_at, expires_at
 FROM ticket_release
 WHERE expires_at > now()
 ORDER BY opens_at DESC;
 
 -- name: ListAllReleases :many
 -- The admin listing - nothing excluded, so past events stay reviewable.
-SELECT id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at
+SELECT id, title, quantity, opens_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at, description, event_id, location, closes_at, expires_at
 FROM ticket_release
 ORDER BY opens_at DESC;
 
 -- name: LockRelease :one
-SELECT id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at
+SELECT id, title, quantity, opens_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at, description, event_id, location, closes_at, expires_at
 FROM ticket_release
 WHERE id = $1
 FOR UPDATE;
@@ -104,7 +107,7 @@ ORDER BY requested_at ASC;
 UPDATE ticket_release
 SET title = $2, description = $3, location = $4, quantity = $5, closes_at = $6
 WHERE id = $1
-RETURNING id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at;
+RETURNING id, title, quantity, opens_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at, description, event_id, location, closes_at, expires_at;
 
 -- name: CountGrantedOrAccepted :one
 SELECT count(*) FROM ticket_queue_entry
@@ -172,14 +175,29 @@ WHERE release_id = $1 AND status = 'waitlisted' AND queue_position > $2;
 -- name: ListScheduledReleases :many
 -- Releases whose lottery hasn't run yet, used to re-arm in-process timers
 -- after a restart.
-SELECT id, event_id, title, description, location, quantity, opens_at, closes_at, expires_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at
+SELECT id, title, quantity, opens_at, grace_window_seconds, offer_window_seconds, status, created_by, created_at, description, event_id, location, closes_at, expires_at
 FROM ticket_release
 WHERE status = 'scheduled';
 
 -- name: ListReleasesWithActiveOffers :many
 -- Releases that have at least one granted-but-unaccepted offer, used to
 -- know which releases need an expiry sweep.
-SELECT DISTINCT r.id, r.event_id, r.title, r.description, r.location, r.quantity, r.opens_at, r.closes_at, r.expires_at, r.grace_window_seconds, r.offer_window_seconds, r.status, r.created_by, r.created_at
+SELECT DISTINCT r.id, r.title, r.quantity, r.opens_at, r.grace_window_seconds, r.offer_window_seconds, r.status, r.created_by, r.created_at, r.description, r.event_id, r.location, r.closes_at, r.expires_at
 FROM ticket_release r
 JOIN ticket_queue_entry q ON q.release_id = r.id
 WHERE q.status = 'granted';
+
+-- name: ListTicketRoster :many
+-- Everyone with a confirmed ticket for one release, oldest first, with
+-- the member behind each (member_id holds a student id).
+SELECT e.member_id, e.requested_at, e.updated_at, e.status,
+       m.first_name, m.last_name, m.nickname, m.picture_path, m.food_preference
+FROM ticket_queue_entry e
+LEFT JOIN members m ON m.student_id = e.member_id
+WHERE e.release_id = $1 AND e.status = 'accepted'
+ORDER BY e.updated_at;
+
+-- name: GetTicketEventEnd :one
+-- A release expires when its event ends (see CreateRelease).
+SELECT end_datetime FROM events
+WHERE id = $1 AND (removed_at IS NULL OR removed_at > now());

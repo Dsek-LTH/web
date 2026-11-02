@@ -35,6 +35,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
+	"github.com/dsek-lth/web/backend/internal/tickets"
 )
 
 // NewRouter registers every endpoint. Every request is authenticated via
@@ -64,6 +65,8 @@ func NewRouter(
 	notificationSvc *notifications.Service,
 	adminSettingsSvc *adminsettings.Service,
 	linksSvc *links.Service,
+	ticketSvc *tickets.Service,
+	ticketScheduler *tickets.Scheduler,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -80,6 +83,7 @@ func NewRouter(
 	registerNollningRoutes(api, nollningSvc)
 	registerSongRoutes(api, songSvc)
 	registerSongBookRoutes(api, songSvc)
+	registerTicketRoutes(api, ticketSvc, ticketScheduler)
 	registerAlertRoutes(api, alertSvc)
 	registerMarkdownRoutes(api, markdownSvc)
 	registerGoverningDocumentRoutes(api, governingDocSvc)

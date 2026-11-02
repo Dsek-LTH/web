@@ -1,8 +1,20 @@
-package releases
+// Package tickets is the free-ticket release system (upstream #1325):
+// a release offers a fixed number of tickets to an event; requests made
+// during the grace window after it opens go into a lottery, later ones
+// get a free ticket or join the waitlist, and an offer not accepted in
+// time passes to the next in line. Every change to a release runs under
+// a row lock (withReleaseLock) so it can't be oversold. Ported from the
+// standalone ticket-service during the Phase 12 upstream sync - see
+// DESIGN.md - with the backend's auth replacing its own JWT validation.
+//
+// Queue entries and created_by hold the member's student id, as the
+// original service stored them.
+package tickets
 
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -10,7 +22,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/Dsek-LTH/ticket-service/internal/db"
+	"github.com/dsek-lth/web/backend/internal/apinames"
+	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/backend/internal/dbutil"
 )
 
 type Service struct {
@@ -23,6 +38,28 @@ func NewService(pool *pgxpool.Pool) *Service {
 }
 
 func (s *Service) CreateRelease(ctx context.Context, in CreateReleaseInput) (Release, error) {
+	if err := auth.Require(ctx, apinames.WebshopCreate); err != nil {
+		return Release{}, err
+	}
+	studentID, err := actingStudentID(ctx)
+	if err != nil {
+		return Release{}, err
+	}
+	in.CreatedBy = studentID
+	// The release drops out of listings once its event is over - always
+	// the real event's end, never caller-supplied.
+	eventUUID, err := parseUUID(in.EventID)
+	if err != nil {
+		return Release{}, ErrInvalidInput
+	}
+	end, err := s.queries.GetTicketEventEnd(ctx, eventUUID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return Release{}, fmt.Errorf("%w: event not found", ErrInvalidInput)
+		}
+		return Release{}, err
+	}
+	in.ExpiresAt = end.Time
 	eventID, err := parseUUID(in.EventID)
 	if err != nil {
 		return Release{}, ErrInvalidInput
@@ -70,6 +107,9 @@ func (s *Service) CreateRelease(ctx context.Context, in CreateReleaseInput) (Rel
 // immediately offered to the front of the waitlist, same as a cancellation
 // would.
 func (s *Service) UpdateRelease(ctx context.Context, releaseID string, in UpdateReleaseInput) (Release, error) {
+	if err := auth.Require(ctx, apinames.WebshopManage); err != nil {
+		return Release{}, err
+	}
 	var result Release
 	err := s.withReleaseLock(ctx, releaseID, func(ctx context.Context, q *db.Queries, release db.TicketRelease) error {
 		if in.Title == "" || in.Quantity <= 0 {
@@ -136,6 +176,11 @@ func (s *Service) GetRelease(ctx context.Context, releaseID string) (Release, er
 // whose linked event is over are excluded (the public browsing view);
 // includeExpired lifts that for admin use, so past events stay reviewable.
 func (s *Service) ListReleases(ctx context.Context, includeExpired bool) ([]Release, error) {
+	if includeExpired {
+		if err := auth.Require(ctx, apinames.WebshopCreate); err != nil {
+			return nil, err
+		}
+	}
 	var rows []db.TicketRelease
 	var err error
 	if includeExpired {
@@ -567,4 +612,69 @@ func toQueueEntry(e db.TicketQueueEntry) QueueEntry {
 		out.OfferExpiresAt = &t
 	}
 	return out
+}
+
+// actingStudentID is the acting member's student id - what queue entries
+// are keyed by.
+func actingStudentID(ctx context.Context) (string, error) {
+	identity, ok := auth.FromContext(ctx)
+	if !ok || identity.StudentID == "" {
+		return "", auth.ErrUnauthenticated
+	}
+	return identity.StudentID, nil
+}
+
+// ActingStudentID exposes actingStudentID to the API layer, which passes
+// it to the member actions (RequestTicket, Accept, Cancel, Status,
+// ListEntriesForMember).
+func ActingStudentID(ctx context.Context) (string, error) { return actingStudentID(ctx) }
+
+// RosterEntry is one confirmed ticket with the member holding it, for the
+// admin roster (and its CSV export).
+type RosterEntry struct {
+	StudentID      string
+	FirstName      *string
+	LastName       *string
+	Nickname       *string
+	PicturePath    *string
+	FoodPreference *string
+	RequestedAt    time.Time
+	UpdatedAt      time.Time
+}
+
+// ListRoster lists a release's confirmed tickets, oldest first. Requires
+// webshop:manage - the same policy that gates reading members' food
+// preferences, which the roster shows.
+func (s *Service) ListRoster(ctx context.Context, releaseID string) ([]RosterEntry, error) {
+	if err := auth.Require(ctx, apinames.WebshopManage); err != nil {
+		return nil, err
+	}
+	id, err := parseUUID(releaseID)
+	if err != nil {
+		return nil, ErrInvalidInput
+	}
+	if _, err := s.queries.GetRelease(ctx, id); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	rows, err := s.queries.ListTicketRoster(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]RosterEntry, len(rows))
+	for i, r := range rows {
+		out[i] = RosterEntry{
+			StudentID:      r.MemberID,
+			FirstName:      dbutil.TextPtr(r.FirstName),
+			LastName:       dbutil.TextPtr(r.LastName),
+			Nickname:       dbutil.TextPtr(r.Nickname),
+			PicturePath:    dbutil.TextPtr(r.PicturePath),
+			FoodPreference: dbutil.TextPtr(r.FoodPreference),
+			RequestedAt:    r.RequestedAt.Time,
+			UpdatedAt:      r.UpdatedAt.Time,
+		}
+	}
+	return out, nil
 }

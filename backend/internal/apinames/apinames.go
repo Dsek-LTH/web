@@ -14,6 +14,13 @@ const (
 	NewsArticleComment       = "news:article:comment"
 	NewsArticleCommentDelete = "news:article:comment:delete"
 
+	// WebshopCreate/WebshopManage gate free-ticket releases (internal/
+	// tickets, upstream #1325): creating one, and editing one or reading
+	// its roster (which shows food preferences). They're the old webshop's
+	// policy names, kept so existing grants carry over.
+	WebshopCreate = "webshop:create"
+	WebshopManage = "webshop:manage"
+
 	// TagsCreate/TagsUpdate mirror apiNames.TAGS's crud() group - the tag
 	// admin page (/news/tags, upstream #1291).
 	TagsCreate = "tags:create"
@@ -180,6 +187,8 @@ func All() []string {
 		NewsArticleCommentDelete,
 		TagsCreate,
 		TagsUpdate,
+		WebshopCreate,
+		WebshopManage,
 		EventCreate,
 		EventRead,
 		EventUpdate,

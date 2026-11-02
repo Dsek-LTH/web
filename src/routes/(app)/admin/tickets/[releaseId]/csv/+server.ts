@@ -16,14 +16,8 @@ const contentDisposition = (filename: string) => {
   return `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(filename).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}`;
 };
 
-export const GET = async ({ params, locals, request }) => {
-  const { user, prisma } = locals;
-  const { release, roster } = await loadRoster(
-    prisma,
-    user,
-    request,
-    params.releaseId,
-  );
+export const GET = async (event) => {
+  const { release, roster } = await loadRoster(event, event.params.releaseId);
 
   let csv = "Namn,StilID,Matpreferens,Bekräftad\r\n";
   for (const entry of roster) {

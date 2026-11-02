@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -39,6 +40,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/storage"
+	"github.com/dsek-lth/web/backend/internal/tickets"
 )
 
 func main() {
@@ -169,6 +171,16 @@ func main() {
 	doorSvc := doors.NewService(pool)
 	adminSettingsSvc := adminsettings.NewService(pool)
 	linksSvc := links.NewService(os.Getenv("SHLINK_ENDPOINT"), os.Getenv("SHLINK_API_KEY"))
+
+	// Ticket releases' lottery and offer-expiry sweeps run in-process (see
+	// internal/tickets' Scheduler): lottery timers don't survive a restart,
+	// so they're re-armed from the database here.
+	ticketSvc := tickets.NewService(pool)
+	ticketScheduler := tickets.NewScheduler(ticketSvc)
+	if err := ticketScheduler.RestoreOnStartup(context.Background()); err != nil {
+		log.Fatalf("restore ticket lotteries: %v", err)
+	}
+	go ticketScheduler.RunSweepLoop(context.Background(), 15*time.Second)
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -190,6 +202,8 @@ func main() {
 		notificationSvc,
 		adminSettingsSvc,
 		linksSvc,
+		ticketSvc,
+		ticketScheduler,
 		authenticator,
 		oidcClient,
 		queries,

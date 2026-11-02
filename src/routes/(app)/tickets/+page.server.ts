@@ -1,12 +1,11 @@
 import apiNames from "$lib/utils/apiNames";
-import { isAuthorized } from "$lib/utils/authorization";
 import { listTicketReleases } from "$lib/server/ticketService";
 
-export const load = async ({ locals, request }) => {
-  const releases = await listTicketReleases(request);
+export const load = async (event) => {
+  const releases = await listTicketReleases(event);
   return {
     releases,
-    // Same permission the admin release list requires.
-    canAdmin: isAuthorized(apiNames.WEBSHOP.CREATE, locals.user),
+    // Only decides whether to link the admin page - Go gates it itself.
+    canAdmin: !!event.locals.user?.policies?.includes(apiNames.WEBSHOP.CREATE),
   };
 };

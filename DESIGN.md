@@ -2156,6 +2156,29 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       *year*; that maps onto the year's nollning season (no season, no
       save). Group descriptions are now sanitized in Go - the old
       SvelteKit action used to DOMPurify them before writing.
+    - **Tickets** (upstream #1325's `ticket-service/`, folded in as
+      decided): the service, lottery, scheduler and their tests moved
+      nearly verbatim into `internal/tickets`, its queries into
+      `internal/db/queries/tickets.sql` (column lists reordered to the
+      live table so sqlc reuses the model structs), and its routes into
+      `huma_tickets.go` under `/ticket-releases/...` and `/tickets/mine`.
+      Auth is the backend's own: the JWKS validator is gone; queue
+      entries are keyed by the acting identity's student id (what the
+      old service stored from `preferred_username`, so existing rows
+      keep working); creating needs `webshop:create`, editing, the
+      roster and the admin "include expired" list `webshop:manage` /
+      `webshop:create` - the policy names upstream already used, so
+      grants carry over - enforced in Go now instead of by SvelteKit
+      `authorize()` calls in front of an unprotected service. The roster
+      is joined to members in Go (it shows food preferences), and a
+      release's expiry is derived from its event's end in Go (upstream's
+      own rule, previously computed SvelteKit-side with Prisma).
+      Lottery timers and the 15s offer-expiry sweep run in-process and
+      are re-armed on startup, unchanged. `$lib/server/ticketService.ts`
+      keeps its function names as a thin Go client so the ticket pages
+      barely changed. `ticket-service/` and its three deploy-workflow
+      jobs are deleted; the root `.env`'s `TICKET_SERVICE_ENDPOINT` is
+      now unused.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

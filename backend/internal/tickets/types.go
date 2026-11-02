@@ -1,4 +1,4 @@
-package releases
+package tickets
 
 import (
 	"errors"
@@ -81,8 +81,9 @@ type CreateReleaseInput struct {
 	Quantity    int
 	OpensAt     time.Time
 	ClosesAt    time.Time
-	// ExpiresAt should be the linked event's end time - once it passes, the
-	// release drops out of listings (rows are kept, never purged).
+	// ExpiresAt is set by CreateRelease to the linked event's end time -
+	// once it passes, the release drops out of listings (rows are kept,
+	// never purged).
 	ExpiresAt time.Time
 	CreatedBy string
 	// GraceWindowSeconds and OfferWindowSeconds default to 60 and 300 when zero.

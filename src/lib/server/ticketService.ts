@@ -1,6 +1,11 @@
-import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
-import { env } from "$env/dynamic/private";
-import { error } from "@sveltejs/kit";
+import { error, type RequestEvent } from "@sveltejs/kit";
+import type { components } from "$lib/api/schema";
+import { serverApi } from "$lib/server/apiClient";
+
+// Free-ticket releases, served by the Go backend's internal/tickets (it
+// used to be the standalone ticket-service; folded in during the Phase 12
+// upstream sync). Kept as a small module with the same function names the
+// ticket pages already call; who may do what is decided in Go.
 
 export class TicketServiceError extends Error {
   status: number;
@@ -10,60 +15,10 @@ export class TicketServiceError extends Error {
   }
 }
 
-const request = async <T>(
-  req: Request,
-  method: string,
-  path: string,
-  body?: unknown,
-): Promise<T> => {
-  const jwt = await getDecryptedJWT(req);
-  const res = await fetch(`${env.TICKET_SERVICE_ENDPOINT}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwt?.["id_token"]}`,
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new TicketServiceError(res.status, text || res.statusText);
-  }
-  if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
-};
-
-export type TicketRelease = {
-  id: string;
-  eventId: string;
-  title: string;
-  description: string;
-  location: string;
-  quantity: number;
-  opensAt: string;
-  closesAt: string;
-  expiresAt: string;
-  graceWindowSeconds: number;
-  offerWindowSeconds: number;
-  status: string;
-};
-
-export type ReleaseSummary = {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  opensAt: string;
-  closesAt: string;
-  lotteryAt: string;
-  status: string;
-  quantity: number;
-  claimed: number;
-  accepted: number;
-  waitlisted: number;
-};
-
-export type TicketQueueEntry = {
+type Schemas = components["schemas"];
+export type TicketRelease = Schemas["TicketRelease"];
+export type ReleaseSummary = Schemas["TicketReleaseSummary"];
+export type TicketQueueEntry = Omit<Schemas["TicketQueueEntry"], "status"> & {
   status:
     | "pending"
     | "granted"
@@ -71,23 +26,30 @@ export type TicketQueueEntry = {
     | "accepted"
     | "expired"
     | "cancelled";
-  queuePosition?: number;
-  offerExpiresAt?: string;
+};
+export type MyTicket = Omit<Schemas["MyTicket"], "status"> &
+  Pick<TicketQueueEntry, "status">;
+export type RosterEntry = Schemas["TicketRosterEntry"];
+
+/** Unwraps an openapi-fetch result, throwing TicketServiceError on failure. */
+const unwrap = <T>(res: {
+  data?: T;
+  error?: { detail?: string; title?: string };
+  response: Response;
+}): T => {
+  if (res.error || res.data === undefined) {
+    throw new TicketServiceError(
+      res.response.status,
+      res.error?.detail ?? res.error?.title ?? res.response.statusText,
+    );
+  }
+  return res.data;
 };
 
-export type MyTicket = TicketQueueEntry & {
-  releaseId: string;
-  releaseTitle: string;
-};
+const path = (releaseId: string) => ({ params: { path: { id: releaseId } } });
 
-export type ReleaseEntry = TicketQueueEntry & {
-  memberId: string;
-  requestedAt: string;
-  updatedAt: string;
-};
-
-export const createTicketRelease = (
-  req: Request,
+export const createTicketRelease = async (
+  event: RequestEvent,
   input: {
     eventId: string;
     title: string;
@@ -96,41 +58,43 @@ export const createTicketRelease = (
     quantity: number;
     opensAt: Date;
     closesAt: Date;
-    expiresAt: Date;
   },
 ) =>
-  request<TicketRelease>(req, "POST", "/releases", {
-    eventId: input.eventId,
-    title: input.title,
-    description: input.description,
-    location: input.location,
-    quantity: input.quantity,
-    opensAt: input.opensAt.toISOString(),
-    closesAt: input.closesAt.toISOString(),
-    expiresAt: input.expiresAt.toISOString(),
-  });
-
-export const listTicketReleases = (
-  req: Request,
-  opts?: { includeExpired?: boolean },
-) =>
-  request<ReleaseSummary[]>(
-    req,
-    "GET",
-    opts?.includeExpired ? "/releases?includeExpired=true" : "/releases",
+  // Go sets the release's expiry to the event's end itself.
+  unwrap(
+    await serverApi(event).POST("/ticket-releases", {
+      body: {
+        ...input,
+        opensAt: input.opensAt.toISOString(),
+        closesAt: input.closesAt.toISOString(),
+      },
+    }),
   );
 
-export const getTicketRelease = (req: Request, releaseId: string) =>
-  request<ReleaseSummary>(req, "GET", `/releases/${releaseId}`);
+export const listTicketReleases = async (
+  event: RequestEvent,
+  opts?: { includeExpired?: boolean },
+) =>
+  unwrap(
+    await serverApi(event).GET("/ticket-releases", {
+      params: { query: { includeExpired: opts?.includeExpired ?? false } },
+    }),
+  ) ?? [];
+
+export const getTicketRelease = async (
+  event: RequestEvent,
+  releaseId: string,
+) =>
+  unwrap(await serverApi(event).GET("/ticket-releases/{id}", path(releaseId)));
 
 // For page loads: a missing release (404) or malformed id (400) becomes a
 // SvelteKit 404 instead of a 500.
 export const getTicketReleaseOr404 = async (
-  req: Request,
+  event: RequestEvent,
   releaseId: string,
 ) => {
   try {
-    return await getTicketRelease(req, releaseId);
+    return await getTicketRelease(event, releaseId);
   } catch (err) {
     if (
       err instanceof TicketServiceError &&
@@ -142,26 +106,59 @@ export const getTicketReleaseOr404 = async (
   }
 };
 
-export const requestTicket = (req: Request, releaseId: string) =>
-  request<TicketQueueEntry>(req, "POST", `/releases/${releaseId}/request`);
+export const requestTicket = async (event: RequestEvent, releaseId: string) =>
+  unwrap(
+    await serverApi(event).POST(
+      "/ticket-releases/{id}/request",
+      path(releaseId),
+    ),
+  ) as TicketQueueEntry;
 
-export const acceptTicketOffer = (req: Request, releaseId: string) =>
-  request<TicketQueueEntry>(req, "POST", `/releases/${releaseId}/accept`);
+export const acceptTicketOffer = async (
+  event: RequestEvent,
+  releaseId: string,
+) =>
+  unwrap(
+    await serverApi(event).POST(
+      "/ticket-releases/{id}/accept",
+      path(releaseId),
+    ),
+  ) as TicketQueueEntry;
 
-export const cancelTicketEntry = (req: Request, releaseId: string) =>
-  request<undefined>(req, "DELETE", `/releases/${releaseId}/request`);
+export const cancelTicketEntry = async (
+  event: RequestEvent,
+  releaseId: string,
+) => {
+  const res = await serverApi(event).DELETE(
+    "/ticket-releases/{id}/request",
+    path(releaseId),
+  );
+  if (res.error) {
+    throw new TicketServiceError(
+      res.response.status,
+      res.error.detail ?? res.response.statusText,
+    );
+  }
+};
 
-export const getTicketStatus = (req: Request, releaseId: string) =>
-  request<TicketQueueEntry>(req, "GET", `/releases/${releaseId}/status`);
+export const getTicketStatus = async (event: RequestEvent, releaseId: string) =>
+  unwrap(
+    await serverApi(event).GET("/ticket-releases/{id}/status", path(releaseId)),
+  ) as TicketQueueEntry;
 
-export const listMyTickets = (req: Request) =>
-  request<MyTicket[]>(req, "GET", "/me/tickets");
+export const listMyTickets = async (event: RequestEvent) =>
+  (unwrap(await serverApi(event).GET("/tickets/mine", {})) ?? []) as MyTicket[];
 
-export const listTicketEntries = (req: Request, releaseId: string) =>
-  request<ReleaseEntry[]>(req, "GET", `/releases/${releaseId}/entries`);
+export const listTicketRoster = async (
+  event: RequestEvent,
+  releaseId: string,
+) =>
+  unwrap(
+    await serverApi(event).GET("/ticket-releases/{id}/roster", path(releaseId)),
+  ) ?? [];
 
-export const updateTicketRelease = (
-  req: Request,
+export const updateTicketRelease = async (
+  event: RequestEvent,
   releaseId: string,
   input: {
     title: string;
@@ -171,10 +168,9 @@ export const updateTicketRelease = (
     closesAt: Date;
   },
 ) =>
-  request<TicketRelease>(req, "PATCH", `/releases/${releaseId}`, {
-    title: input.title,
-    description: input.description,
-    location: input.location,
-    quantity: input.quantity,
-    closesAt: input.closesAt.toISOString(),
-  });
+  unwrap(
+    await serverApi(event).PATCH("/ticket-releases/{id}", {
+      ...path(releaseId),
+      body: { ...input, closesAt: input.closesAt.toISOString() },
+    }),
+  );
