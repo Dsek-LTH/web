@@ -197,7 +197,7 @@
 </script>
 
 <div class="layout-container lg:w-3/5">
-  <h2 class="mb-4">Skapa bokning</h2>
+  <h2 class="mb-4">{m.booking_createBooking()}</h2>
   <form class="space-y-2 md:space-y-8" method="POST" use:enhance>
     {#if booking}
       <input hidden name="id" type="text" value={booking.id} />

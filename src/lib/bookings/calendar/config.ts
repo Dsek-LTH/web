@@ -45,9 +45,9 @@ const getCalendarCategory = (
   categoryName: CalendarStatusCategory,
   mode: ConfigMode,
 ) => {
-  const ColorName = baseColors[categoryName];
+  const colorName = baseColors[categoryName];
   const main =
-    mode === "css" ? `var(--${ColorName})` : beforeColors[categoryName];
+    mode === "css" ? `var(--${colorName})` : beforeColors[categoryName];
   const onContainer = mode === "css" ? main : textColors[categoryName];
   const container =
     mode === "css"
