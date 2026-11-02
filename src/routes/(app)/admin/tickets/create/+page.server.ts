@@ -20,7 +20,11 @@ export const load = async ({ locals }) => {
   const events = await prisma.event.findMany({
     where: {
       endDatetime: { gte: new Date() },
-      isCancelled: false,
+      // isCancelled is nullable and old events (and events created without
+      // touching the cancel checkbox) have NULL there. Prisma's
+      // `isCancelled: false` (and `not: true`) both exclude NULL, which hid
+      // those events from this picker even though the calendar shows them.
+      OR: [{ isCancelled: false }, { isCancelled: null }],
     },
     orderBy: { startDatetime: "asc" },
     select: { id: true, titleSv: true, startDatetime: true },
