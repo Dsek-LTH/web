@@ -1386,6 +1386,7 @@
   "nollu_manage_groupUpdated": "Phaddergruppen uppdaterad",
   "nollu_manage_groupDeleted": "Phaddergruppen borttagen",
   "nollu_manage_groupNotFound": "Gruppen hittades inte",
+  "nollu_manage_noSeasonForYear": "Det finns ingen nollningsperiod det året",
   "nollu_manage_memberNotFound": "Medlem hittades inte",
   "nollu_manage_membersNotFound": "En eller flera medlemmar hittades inte",
   "nollu_manage_nollaAdded": "Nolla tillagd",

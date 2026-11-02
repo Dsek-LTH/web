@@ -1243,7 +1243,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add a member to a phadder group as a nolla */
+        /** Add members (by student id) to a phadder group as nollor - all or nothing */
         post: operations["add-nolla"];
         delete?: never;
         options?: never;
@@ -1251,7 +1251,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/nollning/groups/{id}/nollor/{memberId}": {
+    "/nollning/groups/{id}/nollor/{studentId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1277,7 +1277,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Tag a member's active phadder/uppdrag mandate to a phadder group */
+        /** Tag members' (by student id) active phadder/uppdrag mandates to a phadder group - all or nothing */
         post: operations["add-phadder"];
         delete?: never;
         options?: never;
@@ -1285,7 +1285,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/nollning/groups/{id}/phaddrar/{memberId}": {
+    "/nollning/groups/{id}/phaddrar/{studentId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2448,14 +2448,14 @@ export interface components {
             title: string;
             type: string;
         };
-        GroupMemberInputBody: {
+        GroupMembersInputBody: {
             /**
              * Format: uri
              * @description A URL to the JSON Schema for this object.
-             * @example https://example.com/schemas/GroupMemberInputBody.json
+             * @example https://example.com/schemas/GroupMembersInputBody.json
              */
             readonly $schema?: string;
-            memberId: string;
+            studentIds: string[] | null;
         };
         ListArticlesOutputBody: {
             /**
@@ -6560,7 +6560,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["GroupMemberInputBody"];
+                "application/json": components["schemas"]["GroupMembersInputBody"];
             };
         };
         responses: {
@@ -6588,7 +6588,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                memberId: string;
+                studentId: string;
             };
             cookie?: never;
         };
@@ -6623,7 +6623,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["GroupMemberInputBody"];
+                "application/json": components["schemas"]["GroupMembersInputBody"];
             };
         };
         responses: {
@@ -6651,7 +6651,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
-                memberId: string;
+                studentId: string;
             };
             cookie?: never;
         };

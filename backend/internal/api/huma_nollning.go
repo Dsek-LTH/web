@@ -62,16 +62,16 @@ type deleteGroupInput struct {
 	ID string `path:"id"`
 }
 
-type groupMemberInput struct {
+type groupMembersInput struct {
 	ID   string `path:"id"`
 	Body struct {
-		MemberID string `json:"memberId"`
+		StudentIDs []string `json:"studentIds" minItems:"1"`
 	}
 }
 
 type deleteGroupMemberInput struct {
-	ID       string `path:"id"`
-	MemberID string `path:"memberId"`
+	ID        string `path:"id"`
+	StudentID string `path:"studentId"`
 }
 
 type phadderRoleInput struct {
@@ -210,10 +210,10 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 		OperationID:   "add-nolla",
 		Method:        http.MethodPost,
 		Path:          "/nollning/groups/{id}/nollor",
-		Summary:       "Add a member to a phadder group as a nolla",
+		Summary:       "Add members (by student id) to a phadder group as nollor - all or nothing",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *groupMemberInput) (*struct{}, error) {
-		if err := svc.AddNolla(ctx, input.ID, input.Body.MemberID); err != nil {
+	}, func(ctx context.Context, input *groupMembersInput) (*struct{}, error) {
+		if err := svc.AddNollor(ctx, input.ID, input.Body.StudentIDs); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
@@ -222,11 +222,11 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "remove-nolla",
 		Method:        http.MethodDelete,
-		Path:          "/nollning/groups/{id}/nollor/{memberId}",
+		Path:          "/nollning/groups/{id}/nollor/{studentId}",
 		Summary:       "Remove a member from a phadder group's nollor",
 		DefaultStatus: http.StatusNoContent,
 	}, func(ctx context.Context, input *deleteGroupMemberInput) (*struct{}, error) {
-		if err := svc.RemoveNolla(ctx, input.ID, input.MemberID); err != nil {
+		if err := svc.RemoveNolla(ctx, input.ID, input.StudentID); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
@@ -236,10 +236,10 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 		OperationID:   "add-phadder",
 		Method:        http.MethodPost,
 		Path:          "/nollning/groups/{id}/phaddrar",
-		Summary:       "Tag a member's active phadder/uppdrag mandate to a phadder group",
+		Summary:       "Tag members' (by student id) active phadder/uppdrag mandates to a phadder group - all or nothing",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *groupMemberInput) (*struct{}, error) {
-		if err := svc.AddPhadder(ctx, input.ID, input.Body.MemberID); err != nil {
+	}, func(ctx context.Context, input *groupMembersInput) (*struct{}, error) {
+		if err := svc.AddPhaddrar(ctx, input.ID, input.Body.StudentIDs); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
@@ -248,11 +248,11 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "remove-phadder",
 		Method:        http.MethodDelete,
-		Path:          "/nollning/groups/{id}/phaddrar/{memberId}",
+		Path:          "/nollning/groups/{id}/phaddrar/{studentId}",
 		Summary:       "Untag a member's mandate(s) from a phadder group",
 		DefaultStatus: http.StatusNoContent,
 	}, func(ctx context.Context, input *deleteGroupMemberInput) (*struct{}, error) {
-		if err := svc.RemovePhadder(ctx, input.ID, input.MemberID); err != nil {
+		if err := svc.RemovePhadder(ctx, input.ID, input.StudentID); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil

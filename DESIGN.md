@@ -2146,6 +2146,16 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       messages. `committeeActions`' params type was widened to an
       optional `shortName` so the cafe route (which has none) type-checks,
       as upstream did.
+    - **Nollu group management** (#1291's page): the page adds members by
+      student id, several at once, so Go's nollor/phaddrar endpoints now
+      take `{studentIds}` and address removals by `{studentId}` (nothing
+      else called the old memberId versions). Adding is all-or-nothing:
+      unknown student ids, or members without a phadder/uppdrag mandate
+      for the group's season (named in the error), reject the whole
+      batch, as upstream's Prisma version did. The page edits groups by
+      *year*; that maps onto the year's nollning season (no season, no
+      save). Group descriptions are now sanitized in Go - the old
+      SvelteKit action used to DOMPurify them before writing.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

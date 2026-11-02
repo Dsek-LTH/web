@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -17,11 +20,23 @@ import (
 )
 
 type Service struct {
-	queries *db.Queries
+	queries   *db.Queries
+	sanitizer *bluemonday.Policy
 }
 
 func NewService(dbtx db.DBTX) *Service {
-	return &Service{queries: db.New(dbtx)}
+	return &Service{queries: db.New(dbtx), sanitizer: bluemonday.UGCPolicy()}
+}
+
+// sanitizeDescription cleans a phadder group's description, which is
+// HTML-capable user input - the SvelteKit action used to DOMPurify it
+// before writing; Go owns that now.
+func (s *Service) sanitizeDescription(d *string) *string {
+	if d == nil {
+		return nil
+	}
+	clean := s.sanitizer.Sanitize(*d)
+	return &clean
 }
 
 // Current returns the season whose window covers right now, or nil (not an
@@ -355,7 +370,7 @@ func (s *Service) CreateGroup(ctx context.Context, in PhadderGroupInput) (*Phadd
 	}
 	created, err := s.queries.CreatePhadderGroup(ctx, db.CreatePhadderGroupParams{
 		Name:        in.Name,
-		Description: dbutil.ToText(in.Description),
+		Description: dbutil.ToText(s.sanitizeDescription(in.Description)),
 		ImageUrl:    dbutil.ToText(in.ImageURL),
 		SeasonID:    seasonID,
 	})
@@ -385,7 +400,7 @@ func (s *Service) UpdateGroup(
 	updated, err := s.queries.UpdatePhadderGroup(ctx, db.UpdatePhadderGroupParams{
 		ID:          groupID,
 		Name:        in.Name,
-		Description: dbutil.ToText(in.Description),
+		Description: dbutil.ToText(s.sanitizeDescription(in.Description)),
 		ImageUrl:    dbutil.ToText(in.ImageURL),
 		SeasonID:    seasonID,
 	})
@@ -419,51 +434,82 @@ func (s *Service) DeleteGroup(ctx context.Context, id string) error {
 	return nil
 }
 
-// AddNolla/RemoveNolla set/clear a member's members.nollning_group_id -
-// the direct-relation half of the old dual-path model.
+// AddNollor/RemoveNolla set/clear members.nollning_group_id - the
+// direct-relation half of the old dual-path model. Members are addressed
+// by student id (the manage page's member picker gives those, upstream
+// #1291), and adding takes several at once: every student id must exist
+// or nothing is added.
 
-func (s *Service) AddNolla(ctx context.Context, groupID, memberID string) error {
+func (s *Service) AddNollor(ctx context.Context, groupID string, studentIDs []string) error {
 	if err := auth.Require(ctx, apinames.NollningPhadderGroupsManage); err != nil {
 		return err
 	}
-	gID, mID, err := parseGroupAndMember(groupID, memberID)
+	gID, err := dbutil.ParseUUID(groupID)
+	if err != nil {
+		return invalidf("invalid group id: %v", err)
+	}
+	members, err := s.membersByStudentID(ctx, studentIDs)
 	if err != nil {
 		return err
 	}
-	if err := s.queries.SetMemberPhadderGroup(ctx, db.SetMemberPhadderGroupParams{
-		ID: mID, NollningGroupID: gID,
-	}); err != nil {
-		return fmt.Errorf("add nolla: %w", err)
+	for _, m := range members {
+		if err := s.queries.SetMemberPhadderGroup(ctx, db.SetMemberPhadderGroupParams{
+			ID: m.ID, NollningGroupID: gID,
+		}); err != nil {
+			return fmt.Errorf("add nolla: %w", err)
+		}
 	}
 	return nil
 }
 
-func (s *Service) RemoveNolla(ctx context.Context, groupID, memberID string) error {
+func (s *Service) RemoveNolla(ctx context.Context, groupID, studentID string) error {
 	if err := auth.Require(ctx, apinames.NollningPhadderGroupsManage); err != nil {
 		return err
 	}
-	gID, mID, err := parseGroupAndMember(groupID, memberID)
+	gID, err := dbutil.ParseUUID(groupID)
+	if err != nil {
+		return invalidf("invalid group id: %v", err)
+	}
+	members, err := s.membersByStudentID(ctx, []string{studentID})
 	if err != nil {
 		return err
 	}
 	if err := s.queries.ClearMemberPhadderGroup(ctx, db.ClearMemberPhadderGroupParams{
-		ID: mID, NollningGroupID: gID,
+		ID: members[0].ID, NollningGroupID: gID,
 	}); err != nil {
 		return fmt.Errorf("remove nolla: %w", err)
 	}
 	return nil
 }
 
-// AddPhadder/RemovePhadder set/clear mandates.phadderInId on the member's
+// AddPhaddrar/RemovePhadder set/clear mandates.phadderInId on the members'
 // phadder/uppdrag mandate(s), scoped to the group's season window (Decision
 // #5: this uses the season's real nolla_start_at/end_at instead of the old
-// hardcoded Aug 1 - Oct 1 guess phadderMandateFilter used).
+// hardcoded Aug 1 - Oct 1 guess phadderMandateFilter used). Adding is
+// all-or-nothing like AddNollor; members without such a mandate are named
+// in a NotPhadderError.
 
-func (s *Service) AddPhadder(ctx context.Context, groupID, memberID string) error {
+// NotPhadderError lists the members AddPhaddrar refused because they hold
+// no phadder/uppdrag mandate during the group's season.
+type NotPhadderError struct {
+	Names []string
+}
+
+func (e *NotPhadderError) Error() string {
+	return fmt.Sprintf("%v: not a phadder that year: %s", ErrInvalidInput, strings.Join(e.Names, ", "))
+}
+
+func (e *NotPhadderError) Unwrap() error { return ErrInvalidInput }
+
+func (s *Service) AddPhaddrar(ctx context.Context, groupID string, studentIDs []string) error {
 	if err := auth.Require(ctx, apinames.NollningPhadderGroupsManage); err != nil {
 		return err
 	}
-	gID, mID, err := parseGroupAndMember(groupID, memberID)
+	gID, err := dbutil.ParseUUID(groupID)
+	if err != nil {
+		return invalidf("invalid group id: %v", err)
+	}
+	members, err := s.membersByStudentID(ctx, studentIDs)
 	if err != nil {
 		return err
 	}
@@ -480,38 +526,55 @@ func (s *Service) AddPhadder(ctx context.Context, groupID, memberID string) erro
 		return fmt.Errorf("get group season: %w", err)
 	}
 
-	mandate, err := s.queries.FindActivePhadderMandate(ctx, db.FindActivePhadderMandateParams{
-		MemberID:  mID,
-		StartDate: pgtype.Date{Time: season.NollaStartAt.Time, Valid: true},
-		EndDate:   pgtype.Date{Time: season.EndAt.Time, Valid: true},
-	})
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return invalidf("member has no phadder/uppdrag mandate for this group's season")
+	mandateIDs := make([]pgtype.UUID, 0, len(members))
+	var notPhadder []string
+	for _, m := range members {
+		mandate, err := s.queries.FindActivePhadderMandate(ctx, db.FindActivePhadderMandateParams{
+			MemberID:  m.ID,
+			StartDate: pgtype.Date{Time: season.NollaStartAt.Time, Valid: true},
+			EndDate:   pgtype.Date{Time: season.EndAt.Time, Valid: true},
+		})
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				notPhadder = append(notPhadder, strings.TrimSpace(
+					m.FirstName.String+" "+m.LastName.String,
+				))
+				continue
+			}
+			return fmt.Errorf("find active phadder mandate: %w", err)
 		}
-		return fmt.Errorf("find active phadder mandate: %w", err)
+		mandateIDs = append(mandateIDs, mandate.ID)
+	}
+	if len(notPhadder) > 0 {
+		return &NotPhadderError{Names: notPhadder}
 	}
 
-	if err := s.queries.SetMandatePhadderGroup(ctx, db.SetMandatePhadderGroupParams{
-		ID: mandate.ID, PhadderInId: gID,
-	}); err != nil {
-		return fmt.Errorf("add phadder: %w", err)
+	for _, id := range mandateIDs {
+		if err := s.queries.SetMandatePhadderGroup(ctx, db.SetMandatePhadderGroupParams{
+			ID: id, PhadderInId: gID,
+		}); err != nil {
+			return fmt.Errorf("add phadder: %w", err)
+		}
 	}
 	return nil
 }
 
-func (s *Service) RemovePhadder(ctx context.Context, groupID, memberID string) error {
+func (s *Service) RemovePhadder(ctx context.Context, groupID, studentID string) error {
 	if err := auth.Require(ctx, apinames.NollningPhadderGroupsManage); err != nil {
 		return err
 	}
-	gID, mID, err := parseGroupAndMember(groupID, memberID)
+	gID, err := dbutil.ParseUUID(groupID)
+	if err != nil {
+		return invalidf("invalid group id: %v", err)
+	}
+	members, err := s.membersByStudentID(ctx, []string{studentID})
 	if err != nil {
 		return err
 	}
 	if err := s.queries.ClearMandatePhadderGroupForMember(
 		ctx,
 		db.ClearMandatePhadderGroupForMemberParams{
-			MemberID: mID, PhadderInId: gID,
+			MemberID: members[0].ID, PhadderInId: gID,
 		},
 	); err != nil {
 		return fmt.Errorf("remove phadder: %w", err)
@@ -519,14 +582,29 @@ func (s *Service) RemovePhadder(ctx context.Context, groupID, memberID string) e
 	return nil
 }
 
-func parseGroupAndMember(groupID, memberID string) (pgtype.UUID, pgtype.UUID, error) {
-	gID, err := dbutil.ParseUUID(groupID)
-	if err != nil {
-		return pgtype.UUID{}, pgtype.UUID{}, invalidf("invalid group id: %v", err)
+// membersByStudentID resolves every student id, or fails naming the
+// unknown ones.
+func (s *Service) membersByStudentID(
+	ctx context.Context, studentIDs []string,
+) ([]db.GetMemberByStudentIDRow, error) {
+	if len(studentIDs) == 0 {
+		return nil, invalidf("no members given")
 	}
-	mID, err := dbutil.ParseUUID(memberID)
-	if err != nil {
-		return pgtype.UUID{}, pgtype.UUID{}, invalidf("invalid member id: %v", err)
+	members := make([]db.GetMemberByStudentIDRow, 0, len(studentIDs))
+	var missing []string
+	for _, id := range studentIDs {
+		m, err := s.queries.GetMemberByStudentID(ctx, pgtype.Text{String: id, Valid: true})
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				missing = append(missing, id)
+				continue
+			}
+			return nil, fmt.Errorf("look up member: %w", err)
+		}
+		members = append(members, m)
 	}
-	return gID, mID, nil
+	if len(missing) > 0 {
+		return nil, invalidf("members not found: %s", strings.Join(missing, ", "))
+	}
+	return members, nil
 }

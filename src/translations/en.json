@@ -1386,6 +1386,7 @@
   "nollu_manage_groupUpdated": "Phadder group updated",
   "nollu_manage_groupDeleted": "Phadder group deleted",
   "nollu_manage_groupNotFound": "Group not found",
+  "nollu_manage_noSeasonForYear": "There is no nollning season that year",
   "nollu_manage_memberNotFound": "Member not found",
   "nollu_manage_membersNotFound": "One or more members were not found",
   "nollu_manage_nollaAdded": "Nolla added",

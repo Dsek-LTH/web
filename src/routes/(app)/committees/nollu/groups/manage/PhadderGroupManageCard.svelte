@@ -173,14 +173,10 @@
           {#each group.phaddrar as phadder (phadder.id)}
             <form method="POST" action="?/removePhadder" use:enhance>
               <input type="hidden" name="groupId" value={group.id} />
-              <input
-                type="hidden"
-                name="studentId"
-                value={phadder.member.studentId}
-              />
+              <input type="hidden" name="studentId" value={phadder.studentId} />
               <Badge variant="outline" class="gap-1 pr-1">
-                {phadder.member.firstName}
-                {phadder.member.lastName}
+                {phadder.firstName}
+                {phadder.lastName}
                 <button
                   type="submit"
                   class="hover:text-destructive"
