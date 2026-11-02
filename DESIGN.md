@@ -1978,8 +1978,15 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     shop, expenses). Inserted before Search so Search indexes the real,
     post-sync domain set; later phases renumbered (Search 12 -> 13,
     frontend sweep 13 -> 14, audit 14 -> 15).
-    **Status: in progress (started 2026-11-02).** Decisions, all
-    user-confirmed before starting:
+    **Status: done (2026-11-02).** Every page the merge brought in loads
+    and acts through Go; `svelte-check` (0 errors), `eslint`, `pnpm
+    build`, vitest and `go test` all pass, and each domain was
+    smoke-tested in a browser and through its form actions against the
+    dev DB. Still on Prisma, unchanged by this phase and left for the
+    audit (phase 15): the code this branch had already deferred before
+    the sync (ICS feeds, `events/id/[id]`, the nollning content pages,
+    home page meetings/readme/cafe-hours, member pings, search sync).
+    Decisions, all user-confirmed before starting:
     - **Merge, not rebase or re-port**, frozen at `origin/main` `2142663c`
       (later upstream commits are a future sync, not chased mid-phase).
       One merge commit (`1d49c00a`), then one commit per domain re-wire.
