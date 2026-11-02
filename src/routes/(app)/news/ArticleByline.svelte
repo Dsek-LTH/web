@@ -7,24 +7,18 @@
   } from "$lib/news/types";
 
   let {
-    member,
-    customAuthor = null,
-    position,
-    type = "Member",
+    author,
     committee = null,
     links = true,
   }: {
-    member: ArticleAuthorSummary["member"];
-    customAuthor?: ArticleAuthorSummary["customAuthor"];
-    position?: NonNullable<ArticleAuthorSummary["mandate"]>["position"];
-    type?: ArticleAuthorSummary["type"];
+    author: ArticleAuthorSummary;
     committee?: ArticleCommitteeSummary | null;
     links?: boolean;
   } = $props();
 </script>
 
 <div class="flex min-w-0 flex-row items-center gap-2">
-  <AuthorCard {member} {customAuthor} {position} {type} {links} />
+  <AuthorCard {author} {links} />
   {#if committee}
     <div class="bg-border h-8 w-px shrink-0"></div>
     <div class="flex min-w-0 flex-row items-center gap-2">

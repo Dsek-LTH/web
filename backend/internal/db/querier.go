@@ -72,6 +72,7 @@ type Querier interface {
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
 	CreateSeason(ctx context.Context, arg CreateSeasonParams) (NollningSeason, error)
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
+	CreateTag(ctx context.Context, nameSv string) (Tag, error)
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteAdminSetting(ctx context.Context, key string) (int64, error)
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
@@ -243,6 +244,7 @@ type Querier interface {
 	// requirement at all.
 	ListAllMemberIDs(ctx context.Context, arg ListAllMemberIDsParams) ([]pgtype.UUID, error)
 	ListArticleComments(ctx context.Context, articleID pgtype.UUID) ([]ListArticleCommentsRow, error)
+	ListArticleLikers(ctx context.Context, articleID pgtype.UUID) ([]ListArticleLikersRow, error)
 	// Shared column list for the "joined article" shape: article + committee +
 	// author (member / mandate+position / custom author) + comment & like
 	// counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
@@ -474,6 +476,9 @@ type Querier interface {
 	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)
 	UpdateSeason(ctx context.Context, arg UpdateSeasonParams) (NollningSeason, error)
 	UpdateSong(ctx context.Context, arg UpdateSongParams) (Song, error)
+	// Full-replace of the editable fields (the tag admin dialog always sends
+	// all three).
+	UpdateTag(ctx context.Context, arg UpdateTagParams) (Tag, error)
 	UpsertAdminSetting(ctx context.Context, arg UpsertAdminSettingParams) (AdminSetting, error)
 	UpsertCiabatta(ctx context.Context, arg UpsertCiabattaParams) (CiabattaOfTheWeek, error)
 	UpsertExpoToken(ctx context.Context, arg UpsertExpoTokenParams) error

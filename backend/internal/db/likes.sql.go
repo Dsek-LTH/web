@@ -27,6 +27,50 @@ func (q *Queries) AddArticleLike(ctx context.Context, arg AddArticleLikeParams) 
 	return err
 }
 
+const listArticleLikers = `-- name: ListArticleLikers :many
+SELECT m.id, m.student_id, m.first_name, m.last_name, m.nickname, m.picture_path
+FROM _article_likes l
+JOIN members m ON m.id = l."B"
+WHERE l."A" = $1
+ORDER BY m.first_name
+`
+
+type ListArticleLikersRow struct {
+	ID          pgtype.UUID `json:"id"`
+	StudentID   pgtype.Text `json:"student_id"`
+	FirstName   pgtype.Text `json:"first_name"`
+	LastName    pgtype.Text `json:"last_name"`
+	Nickname    pgtype.Text `json:"nickname"`
+	PicturePath pgtype.Text `json:"picture_path"`
+}
+
+func (q *Queries) ListArticleLikers(ctx context.Context, articleID pgtype.UUID) ([]ListArticleLikersRow, error) {
+	rows, err := q.db.Query(ctx, listArticleLikers, articleID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListArticleLikersRow{}
+	for rows.Next() {
+		var i ListArticleLikersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StudentID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Nickname,
+			&i.PicturePath,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeArticleLike = `-- name: RemoveArticleLike :exec
 DELETE FROM _article_likes
 WHERE "A" = $1 AND "B" = $2

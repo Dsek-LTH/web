@@ -4,9 +4,8 @@
   import { superForm } from "$lib/utils/client/superForms";
   import type { LikeSchema } from "./likes";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import { Button } from "$lib/components/ui/button";
   import { ThumbsUp } from "@lucide/svelte";
 
@@ -15,12 +14,14 @@
     articleId,
     likeForm,
   }: {
-    likers: Array<ExtendedPrismaModel<"Member">>;
+    likers: Array<Pick<components["schemas"]["Member"], "studentId">>;
     articleId: string;
     likeForm: SuperValidated<LikeSchema>;
   } = $props();
 
-  let authorized = $derived(isAuthorized(apiNames.NEWS.LIKE, page.data.user));
+  let authorized = $derived(
+    !!page.data.user?.policies?.includes(apiNames.NEWS.LIKE),
+  );
 
   // svelte-ignore state_referenced_locally
   const { errors, constraints, enhance } = superForm(likeForm, {

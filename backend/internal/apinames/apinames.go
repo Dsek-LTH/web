@@ -14,6 +14,11 @@ const (
 	NewsArticleComment       = "news:article:comment"
 	NewsArticleCommentDelete = "news:article:comment:delete"
 
+	// TagsCreate/TagsUpdate mirror apiNames.TAGS's crud() group - the tag
+	// admin page (/news/tags, upstream #1291).
+	TagsCreate = "tags:create"
+	TagsUpdate = "tags:update"
+
 	EventCreate        = "event:create"
 	EventRead          = "event:read"
 	EventUpdate        = "event:update"
@@ -173,6 +178,8 @@ func All() []string {
 		NewsArticleLike,
 		NewsArticleComment,
 		NewsArticleCommentDelete,
+		TagsCreate,
+		TagsUpdate,
 		EventCreate,
 		EventRead,
 		EventUpdate,

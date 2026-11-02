@@ -76,6 +76,21 @@ type deleteCommentInput struct {
 	CommentID string `path:"commentId"`
 }
 
+type createTagInput struct {
+	Body struct {
+		NameSv string `json:"nameSv"`
+	}
+}
+
+type updateTagInput struct {
+	ID   string `path:"id"`
+	Body articles.TagInput
+}
+
+type tagOutput struct {
+	Body articles.Tag
+}
+
 type listTagsOutput struct {
 	Body []articles.Tag
 }
@@ -271,6 +286,33 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 			return nil, humaServiceError(err)
 		}
 		return &listTagsOutput{Body: tags}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "create-tag",
+		Method:        http.MethodPost,
+		Path:          "/tags",
+		Summary:       "Create a tag (tags:create)",
+		DefaultStatus: http.StatusCreated,
+	}, func(ctx context.Context, input *createTagInput) (*tagOutput, error) {
+		tag, err := svc.CreateTag(ctx, input.Body.NameSv)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &tagOutput{Body: *tag}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "update-tag",
+		Method:      http.MethodPatch,
+		Path:        "/tags/{id}",
+		Summary:     "Replace a tag's names and color (tags:update)",
+	}, func(ctx context.Context, input *updateTagInput) (*tagOutput, error) {
+		tag, err := svc.UpdateTag(ctx, input.ID, input.Body)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &tagOutput{Body: *tag}, nil
 	})
 
 	huma.Register(api, huma.Operation{

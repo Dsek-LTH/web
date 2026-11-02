@@ -40,7 +40,7 @@
   </div>
 
   <div class="flex flex-row flex-wrap gap-2">
-    {#each article.tags as tag (tag.id)}
+    {#each article.tags ?? [] as tag (tag.id)}
       <TagChip {tag} />
     {/each}
   </div>
@@ -51,7 +51,7 @@
     body={article.body}
     preview={isPreview}
   />
-  {#if article.imageUrls.length > 0}
+  {#if article.imageUrls?.length}
     <ImageList images={article.imageUrls} />
   {/if}
 </div>

@@ -36,6 +36,24 @@ func (q *Queries) ClearArticleTags(ctx context.Context, articleID pgtype.UUID) e
 	return err
 }
 
+const createTag = `-- name: CreateTag :one
+INSERT INTO tags (name_sv) VALUES ($1)
+RETURNING id, name_sv, name_en, color, is_default
+`
+
+func (q *Queries) CreateTag(ctx context.Context, nameSv string) (Tag, error) {
+	row := q.db.QueryRow(ctx, createTag, nameSv)
+	var i Tag
+	err := row.Scan(
+		&i.ID,
+		&i.NameSv,
+		&i.NameEn,
+		&i.Color,
+		&i.IsDefault,
+	)
+	return i, err
+}
+
 const listTags = `-- name: ListTags :many
 SELECT id, name_sv, name_en, color, is_default FROM tags ORDER BY name_sv
 `
@@ -108,4 +126,37 @@ func (q *Queries) ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUI
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateTag = `-- name: UpdateTag :one
+UPDATE tags SET name_sv = $2, name_en = $3, color = $4
+WHERE id = $1
+RETURNING id, name_sv, name_en, color, is_default
+`
+
+type UpdateTagParams struct {
+	ID     pgtype.UUID `json:"id"`
+	NameSv string      `json:"name_sv"`
+	NameEn pgtype.Text `json:"name_en"`
+	Color  pgtype.Text `json:"color"`
+}
+
+// Full-replace of the editable fields (the tag admin dialog always sends
+// all three).
+func (q *Queries) UpdateTag(ctx context.Context, arg UpdateTagParams) (Tag, error) {
+	row := q.db.QueryRow(ctx, updateTag,
+		arg.ID,
+		arg.NameSv,
+		arg.NameEn,
+		arg.Color,
+	)
+	var i Tag
+	err := row.Scan(
+		&i.ID,
+		&i.NameSv,
+		&i.NameEn,
+		&i.Color,
+		&i.IsDefault,
+	)
+	return i, err
 }

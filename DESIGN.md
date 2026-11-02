@@ -2052,6 +2052,19 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       which is what let the event detail load become a universal
       `+page.ts`. Comment content is trimmed and capped at 255 characters
       in Go too (`comments.Normalize`), not just in zod.
+    - **News** (upstream #1379/#1382/#1390/#1394, #1291's `news/tags` and
+      `news/tv`): `ArticleDetail` gained `likers` (the restored like button
+      and likers list) alongside the comment changes above; the detail
+      load stays a universal `+page.ts`, with a new `+page.server.ts`
+      holding only the like/dislike/comment/removeComment/removeArticle
+      actions (all Go calls). Tags got `POST /tags`/`PATCH /tags/{id}`
+      (`tags:create`/`tags:update`) so `/news/tags` no longer writes through
+      Prisma. `$lib/news/types.ts`/`committees.ts`/`preview.ts` (upstream's
+      shared article shapes for the editor preview, #1394) were retyped
+      against Go's schema, and their callers pass our single `author`
+      object to `AuthorCard` instead of upstream's split
+      member/position/customAuthor props. YouTube needed nothing in Go -
+      `youtubeUrl` was already stored and returned.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import { getFullName } from "$lib/utils/client/member";
   import * as m from "$paraglide/messages";
   import AuthorCard from "$lib/components/AuthorCard.svelte";
   import * as Dialog from "$lib/components/ui/dialog";
 
-  let { likers }: { likers: Array<ExtendedPrismaModel<"Member">> } = $props();
+  type Member = components["schemas"]["Member"];
 
-  const formatLikersList = (
-    likers: Array<ExtendedPrismaModel<"Member">>,
-  ): string => {
+  let { likers }: { likers: Member[] } = $props();
+
+  const formatLikersList = (likers: Member[]): string => {
     switch (likers.length) {
       case 0:
         return "";
@@ -46,12 +46,7 @@
       <ul class="flex max-h-96 flex-col overflow-y-auto">
         {#each likers as liker (liker.id)}
           <li>
-            <AuthorCard
-              lazy
-              member={liker}
-              customAuthor={null}
-              position={undefined}
-            />
+            <AuthorCard lazy author={{ type: "Member", member: liker }} />
           </li>
         {/each}
       </ul>

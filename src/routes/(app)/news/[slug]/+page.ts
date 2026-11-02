@@ -3,8 +3,12 @@ import {
   POST_REVEAL_PREFIX,
 } from "$lib/components/postReveal/types";
 import { api } from "$lib/api/client";
+import { commentSchema, removeCommentSchema } from "$lib/zod/comments";
 import * as m from "$paraglide/messages";
 import { error, redirect } from "@sveltejs/kit";
+import { superValidate } from "sveltekit-superforms";
+import { zod4 } from "sveltekit-superforms/adapters";
+import { likeSchema } from "../likes";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch, params }) => {
@@ -25,5 +29,14 @@ export const load: PageLoad = async ({ fetch, params }) => {
   // canDelete), computed server-side from the same author-or-policy check
   // Update/Delete themselves enforce - see DESIGN.md's "Principles going
   // forward" #5. Nothing here reimplements authorization.
-  return { article, canEdit: article.canEdit, canDelete: article.canDelete };
+  return {
+    article,
+    canEdit: article.canEdit,
+    canDelete: article.canDelete,
+    // Members @mentioned in the comments, resolved by Go.
+    allTaggedMembers: article.taggedMembers ?? [],
+    likeForm: await superValidate(zod4(likeSchema)),
+    commentForm: await superValidate(zod4(commentSchema)),
+    removeCommentForm: await superValidate(zod4(removeCommentSchema)),
+  };
 };

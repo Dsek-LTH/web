@@ -6,9 +6,8 @@
     tag = undefined,
     class: klass,
   }: {
-    // Matches the Go API's Tag shape - both consumers (TagSelector,
-    // Article.svelte) are article-feature, Go-backed.
-    tag: { color?: string; name: string } | undefined;
+    // Go's Tag shape; `null` color too, for the tag editor's live preview.
+    tag: { color?: string | null; name: string } | undefined;
     class?: string;
   } = $props();
 </script>

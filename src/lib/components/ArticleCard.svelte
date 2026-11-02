@@ -127,13 +127,7 @@
     </div>
   </svelte:element>
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
-    <AuthorCard
-      member={article.author.member}
-      customAuthor={article.author.customAuthor}
-      position={article.author.mandate?.position}
-      type={article.author.type}
-      links={!isPreview}
-    />
+    <AuthorCard author={article.author} links={!isPreview} />
     <span class="text-muted-foreground"
       >{dayjs(article.createdAt).format("YYYY-MM-DD")}</span
     >

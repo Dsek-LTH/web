@@ -15,3 +15,14 @@ DELETE FROM _article_tags WHERE "A" = sqlc.arg('article_id');
 INSERT INTO _article_tags ("A", "B")
 SELECT sqlc.arg('article_id'), unnest(sqlc.arg('tag_ids')::uuid[])
 ON CONFLICT ("A", "B") DO NOTHING;
+
+-- name: CreateTag :one
+INSERT INTO tags (name_sv) VALUES ($1)
+RETURNING id, name_sv, name_en, color, is_default;
+
+-- name: UpdateTag :one
+-- Full-replace of the editable fields (the tag admin dialog always sends
+-- all three).
+UPDATE tags SET name_sv = $2, name_en = $3, color = $4
+WHERE id = $1
+RETURNING id, name_sv, name_en, color, is_default;

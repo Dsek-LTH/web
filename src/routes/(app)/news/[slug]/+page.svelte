@@ -34,17 +34,11 @@
   {#snippet after()}
     <CommentSection
       type="NEWS"
-      comments={article.comments}
+      comments={article.comments ?? []}
       taggedMembers={data.allTaggedMembers}
       commentForm={data.commentForm}
       removeCommentForm={data.removeCommentForm}
     />
   {/snippet}
-  <ArticleByline
-    member={article.author.member}
-    customAuthor={article.author.customAuthor}
-    position={article.author.mandate?.position}
-    type={article.author.type}
-    committee={article.committee}
-  />
+  <ArticleByline author={article.author} committee={article.committee} />
 </Article>

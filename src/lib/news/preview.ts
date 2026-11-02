@@ -1,4 +1,8 @@
-import type { ArticleCommitteeSummary, ArticleContentData } from "./types";
+import type {
+  ArticleCommitteeSummary,
+  ArticleContentData,
+  ArticleTagSummary,
+} from "./types";
 
 export type PreviewLanguage = "sv" | "en";
 
@@ -31,7 +35,10 @@ export type PreviewForm = {
 };
 
 export type ArticlePreview = {
-  article: ArticleContentData;
+  article: ArticleContentData & {
+    tags: ArticleTagSummary[];
+    imageUrls: string[];
+  };
   committee: ArticleCommitteeSummary | null;
   cardImageUrl: string | null;
   cardPublishedAt: Date;
@@ -115,8 +122,8 @@ export const buildArticlePreview = ({
           committeeSource.nameSv,
           committeeSource.nameEn,
         ),
-        shortName: committeeSource.shortName ?? null,
-        symbolUrl: committeeSource.symbolUrl ?? null,
+        shortName: committeeSource.shortName ?? undefined,
+        symbolUrl: committeeSource.symbolUrl ?? undefined,
       }
     : null;
 

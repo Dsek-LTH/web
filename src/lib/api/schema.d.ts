@@ -1506,11 +1506,29 @@ export interface paths {
         /** List all tags */
         get: operations["list-tags"];
         put?: never;
-        post?: never;
+        /** Create a tag (tags:create) */
+        post: operations["create-tag"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/tags/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Replace a tag's names and color (tags:update) */
+        patch: operations["update-tag"];
         trace?: never;
     };
     "/uploads": {
@@ -1620,6 +1638,7 @@ export interface components {
             imageUrls?: string[] | null;
             /** Format: int64 */
             likeCount: number;
+            likers: components["schemas"]["Member"][] | null;
             nollningSeasonId?: string;
             notificationText?: string;
             /** Format: date-time */
@@ -1950,6 +1969,15 @@ export interface components {
             startDatetime?: string;
             subject: string;
             type: string;
+        };
+        CreateTagInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CreateTagInputBody.json
+             */
+            readonly $schema?: string;
+            nameSv: string;
         };
         CurrentInfo: {
             /**
@@ -2688,11 +2716,28 @@ export interface components {
             video?: string;
         };
         Tag: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Tag.json
+             */
+            readonly $schema?: string;
             color?: string;
             id: string;
             isDefault: boolean;
             name: string;
             nameEn?: string;
+            nameSv: string;
+        };
+        TagInput: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/TagInput.json
+             */
+            readonly $schema?: string;
+            color: string | null;
+            nameEn: string | null;
             nameSv: string;
         };
         UpdateCommitteeInput: {
@@ -6976,6 +7021,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Tag"][] | null;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-tag": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTagInputBody"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tag"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-tag": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TagInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tag"];
                 };
             };
             /** @description Error */

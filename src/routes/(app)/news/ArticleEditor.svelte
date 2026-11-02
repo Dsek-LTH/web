@@ -4,10 +4,9 @@
   import ArticleForm from "./ArticleForm.svelte";
   import ArticleContent from "./ArticleContent.svelte";
   import ArticleByline from "./ArticleByline.svelte";
-  import type { ArticleSchema } from "$lib/news/schema";
+  import type { ArticleSchema, AuthorOptionSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
-  import type { AuthorOption } from "$lib/news/getArticles";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import type { CommitteeOption } from "$lib/news/committees";
@@ -79,12 +78,7 @@
   );
 
   const previewCardArticle = $derived({
-    author: {
-      member: $form.author.member,
-      customAuthor: $form.author.customAuthor,
-      mandate: $form.author.mandate,
-      type: $form.author.type,
-    },
+    author: $form.author,
     slug: "",
     imageUrl: preview.cardImageUrl,
     header: preview.article.header,
@@ -111,10 +105,7 @@
         {#snippet byline()}
           <ArticleByline
             links={false}
-            member={$form.author.member}
-            position={$form.author.mandate?.position}
-            customAuthor={$form.author.customAuthor}
-            type={$form.author.type}
+            author={$form.author}
             committee={preview.committee}
           />
         {/snippet}

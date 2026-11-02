@@ -44,6 +44,7 @@ export const load: PageLoad = async ({ fetch, parent }) => {
     customAuthorsRes.data ?? [],
   );
 
+  const now = new Date();
   return {
     allTags: tagsRes.data ?? [],
     authorOptions,
@@ -56,5 +57,8 @@ export const load: PageLoad = async ({ fetch, parent }) => {
       { errors: false },
     ),
     committees: committeesRes.data ?? [],
+    // The editor preview shows the article as it would look if saved now.
+    createdAt: now,
+    now,
   };
 };

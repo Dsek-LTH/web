@@ -82,9 +82,7 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
         imageUrls: article.imageUrls ?? undefined,
         imageUrl: article.imageUrl ?? null,
         youtubeUrl: article.youtubeUrl ?? null,
-        publishTime: article.publishedAt
-          ? new Date(article.publishedAt)
-          : null,
+        publishTime: article.publishedAt ? new Date(article.publishedAt) : null,
         committeeId: article.committee?.id ?? null,
         notificationText: article.notificationText ?? null,
         sendNotification: article.sendNotification,
@@ -92,6 +90,9 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
       zod4(updateSchema),
     ),
     committees: committeesRes.data ?? [],
+    // The editor preview shows the article's own creation date.
+    createdAt: new Date(article.createdAt),
+    now: new Date(),
     // From Go (ArticleDetail.canDelete) - see the article detail page's
     // +page.ts and DESIGN.md's "Principles going forward" #5.
     canDelete: article.canDelete,

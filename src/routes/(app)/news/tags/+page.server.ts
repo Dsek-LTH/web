@@ -1,5 +1,4 @@
-import apiNames from "$lib/utils/apiNames";
-import { Prisma } from "@prisma/client";
+import { serverApi } from "$lib/server/apiClient";
 import { fail } from "@sveltejs/kit";
 import {
   message,
@@ -9,20 +8,17 @@ import {
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
-import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { prisma, user } = locals;
-  authorize(apiNames.TAGS.READ, user);
-
-  const tags = await prisma.tag.findMany({ orderBy: { nameSv: "asc" } });
-  const createForm = await superValidate(zod4(createSchema));
-  const updateForm = await superValidate(zod4(updateSchema));
+// tags:create/tags:update are enforced by Go (POST /tags, PATCH /tags/{id}).
+// Listing tags is public in Go; the page itself is only linked for
+// tags:read holders (see news/+page.svelte).
+export const load: PageServerLoad = async (event) => {
+  const res = await serverApi(event).GET("/tags", {});
   return {
-    tags,
-    createForm,
-    updateForm,
+    tags: res.data ?? [],
+    createForm: await superValidate(zod4(createSchema)),
+    updateForm: await superValidate(zod4(updateSchema)),
   };
 };
 
@@ -40,44 +36,45 @@ const updateSchema = z.object({
 export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
-  create: async ({ request, locals }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(createSchema));
+  create: async (event) => {
+    const form = await superValidate(event.request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
-    await prisma.tag.create({
-      data: {
-        nameSv: form.data.nameSv,
-      },
+    const res = await serverApi(event).POST("/tags", {
+      body: { nameSv: form.data.nameSv },
     });
+    if (res.error) {
+      return message(
+        form,
+        {
+          message: res.error.detail ?? m.news_errors_tagNotFound(),
+          type: "error",
+        },
+        { status: 400 },
+      );
+    }
     return message(form, {
       message: m.news_tags_tagCreated(),
       type: "success",
     });
   },
-  update: async ({ request, locals }) => {
-    const { prisma } = locals;
-    const form = await superValidate(request, zod4(updateSchema));
+  update: async (event) => {
+    const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
-    const { id, ...data } = form.data;
-    try {
-      await prisma.tag.update({
-        where: {
-          id,
-        },
-        data,
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        return message(
-          form,
-          {
-            message: m.news_errors_tagNotFound(),
-            type: "error",
-          },
-          { status: 400 },
-        );
-      }
-      throw error;
+    const { id, nameSv, nameEn, color } = form.data;
+    const res = await serverApi(event).PATCH("/tags/{id}", {
+      params: { path: { id } },
+      body: {
+        nameSv: nameSv ?? "",
+        nameEn: nameEn || null,
+        color: color || null,
+      },
+    });
+    if (res.error) {
+      return message(
+        form,
+        { message: m.news_errors_tagNotFound(), type: "error" },
+        { status: 400 },
+      );
     }
     return message(form, {
       message: m.news_tags_tagUpdated(),

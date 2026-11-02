@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -558,6 +559,72 @@ func (s *Service) ListTags(ctx context.Context) ([]Tag, error) {
 	return tags, nil
 }
 
+// TagInput is the editable part of a tag, for UpdateTag.
+type TagInput struct {
+	NameSv string  `json:"nameSv"`
+	NameEn *string `json:"nameEn"`
+	Color  *string `json:"color"`
+}
+
+// CreateTag makes a tag with just its Swedish name, like the tag admin
+// page's create form; the rest is filled in with UpdateTag.
+func (s *Service) CreateTag(ctx context.Context, nameSv string) (*Tag, error) {
+	if err := auth.Require(ctx, apinames.TagsCreate); err != nil {
+		return nil, err
+	}
+	nameSv = strings.TrimSpace(nameSv)
+	if nameSv == "" {
+		return nil, invalidf("tag name is required")
+	}
+	r, err := s.queries.CreateTag(ctx, nameSv)
+	if err != nil {
+		return nil, fmt.Errorf("create tag: %w", err)
+	}
+	return toTag(r.ID, r.NameSv, r.NameEn, r.Color, r.IsDefault, locale.FromContext(ctx)), nil
+}
+
+// UpdateTag replaces a tag's names and color.
+func (s *Service) UpdateTag(ctx context.Context, id string, in TagInput) (*Tag, error) {
+	if err := auth.Require(ctx, apinames.TagsUpdate); err != nil {
+		return nil, err
+	}
+	tagID, err := dbutil.ParseUUID(id)
+	if err != nil {
+		return nil, invalidf("invalid tag id: %v", err)
+	}
+	in.NameSv = strings.TrimSpace(in.NameSv)
+	if in.NameSv == "" {
+		return nil, invalidf("tag name is required")
+	}
+	r, err := s.queries.UpdateTag(ctx, db.UpdateTagParams{
+		ID:     tagID,
+		NameSv: in.NameSv,
+		NameEn: dbutil.ToText(in.NameEn),
+		Color:  dbutil.ToText(in.Color),
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("update tag: %w", err)
+	}
+	return toTag(r.ID, r.NameSv, r.NameEn, r.Color, r.IsDefault, locale.FromContext(ctx)), nil
+}
+
+func toTag(
+	id pgtype.UUID, nameSv string, nameEnT, color pgtype.Text, isDefault pgtype.Bool, loc string,
+) *Tag {
+	nameEn := dbutil.TextPtr(nameEnT)
+	return &Tag{
+		ID:        dbutil.UUIDStr(id),
+		Name:      dbutil.ResolveName(nameSv, nameEn, loc),
+		NameSv:    nameSv,
+		NameEn:    nameEn,
+		Color:     dbutil.TextPtr(color),
+		IsDefault: isDefault.Bool,
+	}
+}
+
 // ListActiveMandatesForMember lists a member's currently-active mandates
 // (see ListActiveMandatesForMember's SQL doc comment for "active") - used
 // for the "post as" author picker.
@@ -836,6 +903,22 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 		return nil, err
 	}
 
+	likerRows, err := s.queries.ListArticleLikers(ctx, row.ID)
+	if err != nil {
+		return nil, fmt.Errorf("list likers: %w", err)
+	}
+	likers := make([]Member, len(likerRows))
+	for i, m := range likerRows {
+		likers[i] = Member{
+			ID:          dbutil.UUIDStr(m.ID),
+			StudentID:   dbutil.TextPtr(m.StudentID),
+			FirstName:   dbutil.TextPtr(m.FirstName),
+			LastName:    dbutil.TextPtr(m.LastName),
+			Nickname:    dbutil.TextPtr(m.Nickname),
+			PicturePath: dbutil.TextPtr(m.PicturePath),
+		}
+	}
+
 	canEdit, canDelete := false, false
 	if identity != nil {
 		// Mirrors Update's author-or-policy bypass and Delete's
@@ -851,6 +934,7 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 		ArticleSummary: summary,
 		Comments:       articleComments,
 		TaggedMembers:  taggedMembers,
+		Likers:         likers,
 		CanEdit:        canEdit,
 		CanDelete:      canDelete,
 	}, nil

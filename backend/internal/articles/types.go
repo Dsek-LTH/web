@@ -89,6 +89,10 @@ type ArticleDetail struct {
 	// TaggedMembers are the members @mentioned in Comments - see
 	// events.EventDetail's identical field.
 	TaggedMembers []Member `json:"taggedMembers"`
+	// Likers is everyone who liked the article - the like button reads
+	// whether the viewer is among them, and the likers list names them
+	// (upstream #1390 restored both on the article page).
+	Likers []Member `json:"likers"`
 	// CanEdit/CanDelete are the acting identity's own permissions on this
 	// article, computed server-side from the exact same author-or-policy
 	// checks Update/Delete themselves enforce (see Service.detail) - the

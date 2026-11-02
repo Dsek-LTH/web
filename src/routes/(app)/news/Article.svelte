@@ -6,7 +6,7 @@
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import * as m from "$paraglide/messages";
   import type { Snippet } from "svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { components } from "$lib/api/schema";
   import LikeButton from "./LikeButton.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
   import type { LikeSchema } from "./likes";
@@ -22,10 +22,7 @@
     after,
     likeForm,
   }: {
-    article: ExtendedPrismaModel<"Article"> & {
-      tags: Array<ExtendedPrismaModel<"Tag">>;
-      likers: Array<ExtendedPrismaModel<"Member">>;
-    };
+    article: components["schemas"]["ArticleDetail"];
     canEdit: boolean;
     canDelete: boolean;
     children?: Snippet;
@@ -51,8 +48,8 @@
   </ArticleContent>
 
   <Separator class="mt-8" orientation="horizontal" />
-  <LikeButton likers={article.likers} {likeForm} articleId={article.id} />
-  <LikersList likers={article.likers} />
+  <LikeButton likers={article.likers ?? []} {likeForm} articleId={article.id} />
+  <LikersList likers={article.likers ?? []} />
   {@render after?.()}
 </article>
 
