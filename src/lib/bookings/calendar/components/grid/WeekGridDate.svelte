@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { toAppTime } from "$lib/utils/datetime";
   import * as m from "$paraglide/messages";
   import dayjs from "dayjs";
   import localeData from "dayjs/plugin/localeData";
@@ -9,10 +10,10 @@
 
   const { date }: { date: string } = $props();
 
-  const today = dayjs();
-  const dayjsDate = $derived(dayjs(date));
+  const today = toAppTime(new Date());
+  const dayjsDate = $derived(toAppTime(date));
   const currentDay = $derived(dayjs.weekdaysShort()[dayjsDate.day()]);
-  const currentWeek = $derived(dayjs().week());
+  const currentWeek = $derived(today.week());
 </script>
 
 <div class="text-center">

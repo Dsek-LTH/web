@@ -19,13 +19,14 @@
   import * as Alert from "$lib/components/ui/alert/index.js";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { getFullName } from "$lib/utils/client/member";
+  import { toAppTime } from "$lib/utils/datetime";
   import {
     getStickyBottomOffset,
     stickyBottomClass,
   } from "$lib/bookings/stickyBottom";
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
-  import dayjs, { type Dayjs } from "dayjs";
+  import type { Dayjs } from "dayjs";
   import { Badge } from "$lib/components/ui/badge";
 
   let { data }: { data: PageData } = $props();
@@ -130,8 +131,8 @@
   {/if}
 
   {#if booking?.start && booking.end}
-    {@const start = dayjs(booking.start)}
-    {@const end = dayjs(booking.end)}
+    {@const start = toAppTime(booking.start)}
+    {@const end = toAppTime(booking.end)}
     <article class="bg-muted-background flex-1 space-y-5 rounded-xl p-5">
       <header class="space-y-3">
         <h2
@@ -208,9 +209,8 @@
                   })}
                   {#if conflict.start && conflict.end}
                     <span class="block text-xs opacity-80">
-                      {dayjs(conflict.start).format("DD MMM HH:mm")} – {dayjs(
-                        conflict.end,
-                      ).format("DD MMM HH:mm")}
+                      {toAppTime(conflict.start).format("DD MMM HH:mm")} –
+                      {toAppTime(conflict.end).format("DD MMM HH:mm")}
                       · {conflict.status === "ACCEPTED"
                         ? m.booking_accepted()
                         : m.booking_pending()}
@@ -254,7 +254,7 @@
         {#if booking.created}
           <span>
             {m.booking_requestedAt({
-              date: dayjs(booking.created).format("DD MMM HH:mm"),
+              date: toAppTime(booking.created).format("DD MMM HH:mm"),
             })}
           </span>
         {/if}

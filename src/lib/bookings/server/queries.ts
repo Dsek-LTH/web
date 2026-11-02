@@ -1,6 +1,4 @@
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import { error } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -12,9 +10,7 @@ import type {
   ExtendedPrisma,
   ExtendedPrismaModel,
 } from "$lib/server/extendedPrisma";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 
 export type BookingRequestWithRelations =
   ExtendedPrismaModel<"BookingRequest"> & {
@@ -111,14 +107,10 @@ export async function getSuperValidatedBookingForm(
   const initialData = {
     name: bookingRequest.event ?? undefined,
     start: bookingRequest.start
-      ? dayjs(bookingRequest.start)
-          .tz("Europe/Stockholm")
-          .format("YYYY-MM-DDTHH:mm")
+      ? dayjs(bookingRequest.start).tz(APP_TIMEZONE).format("YYYY-MM-DDTHH:mm")
       : undefined,
     end: bookingRequest.end
-      ? dayjs(bookingRequest.end)
-          .tz("Europe/Stockholm")
-          .format("YYYY-MM-DDTHH:mm")
+      ? dayjs(bookingRequest.end).tz(APP_TIMEZONE).format("YYYY-MM-DDTHH:mm")
       : undefined,
     bookables: bookingRequest.bookables?.map((bookable) => bookable.id),
     accessDoors: bookingRequest.accessDoors?.map((door) => door.name) ?? [],
