@@ -7,11 +7,8 @@ import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 export const load = async ({ locals }) => {
   const { user, prisma } = locals;
@@ -37,14 +34,14 @@ export const load = async ({ locals }) => {
       {
         quantity: 1,
         opensAt: dayjs()
-          .tz("Europe/Stockholm")
+          .tz(APP_TIMEZONE)
           .add(1, "day")
           .hour(12)
           .minute(0)
           .second(0)
           .format("YYYY-MM-DDTHH:mm"),
         closesAt: dayjs()
-          .tz("Europe/Stockholm")
+          .tz(APP_TIMEZONE)
           .add(2, "day")
           .hour(12)
           .minute(0)
@@ -82,8 +79,8 @@ export const actions = {
     try {
       const release = await createTicketRelease(request, {
         ...form.data,
-        opensAt: dayjs.tz(form.data.opensAt, "Europe/Stockholm").toDate(),
-        closesAt: dayjs.tz(form.data.closesAt, "Europe/Stockholm").toDate(),
+        opensAt: dayjs.tz(form.data.opensAt, APP_TIMEZONE).toDate(),
+        closesAt: dayjs.tz(form.data.closesAt, APP_TIMEZONE).toDate(),
         // The release disappears once the linked event is over - never
         // client-supplied, always derived from the real event record.
         expiresAt: chosenEvent.endDatetime,
