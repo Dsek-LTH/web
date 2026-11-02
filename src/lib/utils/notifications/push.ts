@@ -1,6 +1,11 @@
 import { dev } from "$app/environment";
-import { error } from "@sveltejs/kit";
-import { Expo, type ExpoPushMessage } from "expo-server-sdk";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import {
+  Expo,
+  type ExpoPushErrorTicket,
+  type ExpoPushMessage,
+  type ExpoPushTicket,
+} from "expo-server-sdk";
 import {
   pushNotificationsMessagesTotal,
   pushNotificationsFailedMessagesTotal,
@@ -12,6 +17,18 @@ type TokenAndBadgeCount = {
   token: string;
   unreadNotifications?: number;
 };
+
+const isErrorTicket = (ticket: ExpoPushTicket): ticket is ExpoPushErrorTicket =>
+  ticket.status === "error";
+
+/** Tokens Expo reports as no longer belonging to an installed app. */
+export const getUnregisteredTokens = (tickets: ExpoPushErrorTicket[]) =>
+  tickets.flatMap(({ details }) =>
+    details?.error === "DeviceNotRegistered" && details.expoPushToken
+      ? [details.expoPushToken]
+      : [],
+  );
+
 async function sendPushNotifications(
   tokens: TokenAndBadgeCount[],
   title: string,
@@ -46,27 +63,41 @@ async function sendPushNotifications(
   const results = await Promise.allSettled(
     chunks.map((chunk) => expo.sendPushNotificationsAsync(chunk)),
   );
-
-  // Count failed chunks
-  const failedChunks = results.filter((r) => r.status === "rejected").length;
-  if (failedChunks) {
-    pushNotificationsChunksFailedTotal.inc(failedChunks);
-  }
-
-  // Count failed messages (flatten failed chunks to message arrays)
-  const failedMessages = results
-    .map((r, i) => [r, i] as const)
-    .filter(([result]) => result.status === "rejected")
-    .flatMap(([, i]) => chunks[i]).length;
-  if (failedMessages) {
-    pushNotificationsFailedMessagesTotal.inc(failedMessages);
-    console.error(`Failed to send ${failedMessages} push notifications`);
-  }
-
   endTimer();
 
-  if (failedMessages === messages.length) {
-    throw error(500, "Failed to send push notifications");
+  // A chunk is rejected as a whole, e.g. when Expo can't be reached
+  let failedMessages = 0;
+  results.forEach((result, i) => {
+    if (result.status === "rejected") {
+      pushNotificationsChunksFailedTotal.inc();
+      failedMessages += chunks[i]?.length ?? 0;
+      console.error("Failed to send push notification chunk", result.reason);
+    }
+  });
+
+  // An accepted chunk can still contain individual messages that failed
+  const errorTickets = results
+    .flatMap((result) => (result.status === "fulfilled" ? result.value : []))
+    .filter(isErrorTicket);
+  failedMessages += errorTickets.length;
+  for (const { message, details } of errorTickets) {
+    console.error(
+      `Push notification failed: ${details?.error ?? "unknown"}: ${message}`,
+    );
+  }
+
+  if (failedMessages > 0) {
+    pushNotificationsFailedMessagesTotal.inc(failedMessages);
+    console.error(
+      `Failed to send ${failedMessages}/${messages.length} push notifications`,
+    );
+  }
+
+  const unregisteredTokens = getUnregisteredTokens(errorTickets);
+  if (unregisteredTokens.length > 0) {
+    await authorizedPrismaClient.expoToken.deleteMany({
+      where: { expoToken: { in: unregisteredTokens } },
+    });
   }
 }
 

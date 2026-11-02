@@ -195,6 +195,8 @@ func handleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cancelTaskExecution(taskID)
+
 	log.Printf("Scheduled task deleted: ID %s", taskID)
 
 	w.WriteHeader(http.StatusNoContent)

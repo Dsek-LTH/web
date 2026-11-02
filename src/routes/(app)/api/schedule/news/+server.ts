@@ -1,6 +1,5 @@
 import { env } from "$env/dynamic/private";
-import { sendNewArticleNotification } from "$lib/news/server/notifications";
-import { sendNewArticleWebhook } from "$lib/news/server/webhooks";
+import { announceArticle } from "$lib/news/server/notifications";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import type { RequestHandler } from "@sveltejs/kit";
 
@@ -18,10 +17,11 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const { notificationText } = body;
 
-  await Promise.allSettled([
-    await sendNewArticleNotification(body, notificationText),
-    await sendNewArticleWebhook(body, notificationText),
-  ]);
+  // A non-2xx response makes the scheduler retry. That's safe for members, as
+  // sendNotification skips anyone who already has this notification.
+  if (!(await announceArticle(body, notificationText))) {
+    return new Response("Failed to announce article", { status: 500 });
+  }
 
   return new Response("Article created", { status: 201 });
 };
