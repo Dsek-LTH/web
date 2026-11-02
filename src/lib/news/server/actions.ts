@@ -298,12 +298,13 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       },
     });
 
-    const notificationPlan = planArticleNotification({
-      sendNotification,
-      previousPublishedAt: existingArticle?.publishedAt,
-      publishedAt,
-      now: new Date(),
-    });
+    const now = new Date();
+    const wasAlreadyLive =
+      existingArticle?.publishedAt != null &&
+      existingArticle?.publishedAt <= now;
+    if (wasAlreadyLive || !sendNotification) return "none";
+    const notificationPlan = publishedAt > now ? "schedule" : "sendNow";
+
     const shouldSchedule = notificationPlan === "schedule";
     const shouldSendNow = notificationPlan === "sendNow";
 
