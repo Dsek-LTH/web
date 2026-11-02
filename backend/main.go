@@ -38,7 +38,6 @@ import (
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
-	"github.com/dsek-lth/web/backend/internal/stocklist"
 	"github.com/dsek-lth/web/backend/internal/storage"
 )
 
@@ -169,7 +168,6 @@ func main() {
 	cafeSvc := cafe.NewService(pool)
 	doorSvc := doors.NewService(pool)
 	adminSettingsSvc := adminsettings.NewService(pool)
-	stocklistSvc := stocklist.NewService(pool)
 	linksSvc := links.NewService(os.Getenv("SHLINK_ENDPOINT"), os.Getenv("SHLINK_API_KEY"))
 	router := api.NewRouter(
 		articleSvc,
@@ -191,7 +189,6 @@ func main() {
 		cafeSvc,
 		notificationSvc,
 		adminSettingsSvc,
-		stocklistSvc,
 		linksSvc,
 		authenticator,
 		oidcClient,

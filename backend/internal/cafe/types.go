@@ -71,7 +71,7 @@ type SetShiftInput struct {
 // ShiftMutationResult is SetShift's response - Action tells the caller
 // which of the three real outcomes happened (Go doesn't own user-facing
 // copy for these; the old app's m.cafe_signed_up/m.cafe_quit_shift/etc.
-// message selection is a frontend concern, deferred to Phase 13 same as
+// message selection is a frontend concern, deferred to Phase 14 same as
 // the rest of this page's UI).
 type ShiftMutationResult struct {
 	Action string `json:"action"` // "signed_up" | "quit" | "reassigned"

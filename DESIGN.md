@@ -563,7 +563,7 @@ to be an oversight, not a considered choice):
     layer would be indirection around something already ergonomic. Only
     extract a named helper if the exact same call is genuinely duplicated
     across several call sites — after the fact, not planned up front.
-  - **Known gap, tracked for Phase 14 (found 2026-09-02, not fixed yet):**
+  - **Known gap, tracked for Phase 15 (found 2026-09-02, not fixed yet):**
     every `+page.ts` load across every phase follows the same
     `if (res.error) throw error(500, "Failed to load X")` shape - a fixed
     500 regardless of what Go actually returned. This wasn't a deliberate
@@ -579,7 +579,7 @@ to be an oversight, not a considered choice):
     `Response`) and `res.error.detail` (huma's `ErrorModel`) instead of
     hardcoding 500 and a generic string, at every `+page.ts` call site -
     but touches every phase's frontend code, so it's being tracked here
-    rather than fixed piecemeal mid-phase. Phase 14's own grep sweep
+    rather than fixed piecemeal mid-phase. Phase 15's own grep sweep
     (see its bullet in the roadmap below) should catch every instance;
     whoever does that pass should fix this as one of its findings rather
     than treating it as separately deferred.
@@ -1137,7 +1137,7 @@ ported).
    deferred (decided 2026-09-02, refined twice more the same day through
    direct conversation before landing here - no earlier draft was ever
    committed, so there's nothing to diff against; this is simply the
-   settled version).** Phases 3-12 are not "backend
+   settled version).** Phases 3-13 are not "backend
    only" in the sense of leaving SvelteKit's own `.server.ts`/`+server.ts`
    files untouched - they cover the domain's entire backend, Go and
    SvelteKit-side both:
@@ -1149,7 +1149,7 @@ ported).
      `(nollning)/nollning`'s `+page.server.ts` files in phase 2's frontend
      pass: the load/actions get ported to the Go API even though nobody
      can see the page yet, because leaving them silently broken (or
-     Prisma-drifted) until phase 13 is worse than porting logic nobody
+     Prisma-drifted) until phase 14 is worse than porting logic nobody
      renders yet. Dead old TS code this obsoletes (bespoke `+server.ts`
      endpoints, zod schemas, helper modules) gets deleted in the same
      pass once confirmed to have zero real callers.
@@ -1161,14 +1161,14 @@ ported).
      data model is already front-of-mind, so there's no reason to
      defer it.
    - **If the route is currently `<NotImplemented />`**, its `.svelte`
-     stays exactly that until phase 13. Everything *behind* the stub
+     stays exactly that until phase 14. Everything *behind* the stub
      (Go endpoints, `.server.ts`) is ported now per the bullet above -
      only the missing visual page waits. This is the actual
      context-switching concern the earlier drafts of this principle were
      reaching for: don't design/build *new* UI alongside backend porting,
      but rewiring a page that already exists isn't new UI, so it doesn't
      need to wait either.
-   - **Cannot wait for phase 13 regardless of the above**: if a phase's
+   - **Cannot wait for phase 14 regardless of the above**: if a phase's
      migration changes or drops a column/table `src/database/schema.zmodel`
      still declares, that file must be updated in the same pass as the
      migration, every time, no exceptions - an out-of-sync Prisma model
@@ -1281,7 +1281,7 @@ nollning itself needs real, deliberate design, not permanent exclusion.
 
 Each phase below covers its domain's whole backend - Go endpoints and
 SvelteKit's own `.server.ts`/`+server.ts` layer both, per principle #6
-above - not just the Go side. The only thing phases 3-12 defer to phase 13
+above - not just the Go side. The only thing phases 3-13 defer to phase 14
 is building a *visual* `.svelte` page for a route that's currently
 `<NotImplemented />`; a route that already has a real page gets that page
 updated in its own phase, same as phase 1 and phase 2 already did.
@@ -1469,7 +1469,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    - confirmed by testing the actual convention-following path (upload via
    `POST /gallery/upload`, which does produce a correctly-groupable,
    correctly-gettable album) separately, which worked. Worth the
-   attention of whoever eventually builds gallery's real UI in Phase 13.
+   attention of whoever eventually builds gallery's real UI in Phase 14.
    **Local-dev-only issue found and fixed after initial verification,
    2026-09-02**: `/documents` 403'd against the local dev DB - not a code
    bug (the exact same `apinames.FileDocumentsRead`/etc. check the old TS
@@ -1657,7 +1657,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      replicating dayjs's non-standard default-locale "week 1 contains
      Jan 1, Sunday-start" convention and its year-boundary quirks - a
      deliberate simplification accepted because nothing renders this page
-     yet (still `<NotImplemented />`, deferred to Phase 13 same as
+     yet (still `<NotImplemented />`, deferred to Phase 14 same as
      booking's five pages). Revisit only if a real frontend consumer needs
      bit-for-bit parity with specific historical week numbers the old
      dayjs algorithm would have produced.
@@ -1894,6 +1894,9 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       table. The old app's `update`/`remove` actions had no `authorize()`
       call at all - a real fix, not a replicated gap, same class of issue
       several earlier phases already found and closed.
+    - **Superseded 2026-11-02 (Phase 12, "Upstream sync"): stocklist was
+      deleted again** to match upstream removing `/admin/stocklist` - see
+      that phase. Original text kept below for history.
     - **Stocklist** (`admin/stocklist`) is the "drink inventory" half of
       this roadmap bullet's original Phase 8 description
       ("shifts + drink inventory"), deliberately deferred here when Phase
@@ -1957,15 +1960,57 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       it already called Go for `/nollning/current` (wired during Phase 2),
       and its other two data points (`PRISMA_LOG_LEVEL`, a MinIO health
       check via the still-live `src/lib/files` module) are out of scope
-      for this phase: the Meilisearch sync button is Phase 12 ("Search")'s
+      for this phase: the Meilisearch sync button is Phase 13 ("Search")'s
       job, and `fileHandler.isMinIOHealthy()` has no Go equivalent to port
       to since nothing else in Go exposes a health-check endpoint yet.
     - `src/lib/utils/stocklistUtils.ts` (`inventoryValue`/`readCSV`,
       confirmed zero remaining callers by grep) was deleted once
       `admin/stocklist/+page.server.ts` moved onto Go.
-12. **Search** - cross-entity search, deliberately last so it has
+12. **Upstream sync** - merge `origin/main` into `go-backend` and bring
+    everything it added back onto Go. Not part of the original plan:
+    `go-backend` branched from `main` at `3c35355e` (2026-09-01), and by
+    2026-11-02 `main` had gained 66 commits (~495 files) written entirely
+    against Prisma - bookings/cafe/events/news redesigns, a
+    songbook/songarchive split, a new free-ticket Go microservice
+    (`ticket-service/`), `/volunteer`, guild colour pages, the #1291
+    sweep that replaced most `<NotImplemented />` stubs with real pages,
+    lazy-loaded notifications, and removals (stocklist, `/admin/qr`, the
+    shop, expenses). Inserted before Search so Search indexes the real,
+    post-sync domain set; later phases renumbered (Search 12 -> 13,
+    frontend sweep 13 -> 14, audit 14 -> 15).
+    **Status: in progress (started 2026-11-02).** Decisions, all
+    user-confirmed before starting:
+    - **Merge, not rebase or re-port**, frozen at `origin/main` `2142663c`
+      (later upstream commits are a future sync, not chased mid-phase).
+      One merge commit (`1d49c00a`), then one commit per domain re-wire.
+    - **Conflict policy: upstream UI wins.** Where upstream redesigned a
+      page this branch had already wired to Go, upstream's `.svelte` is
+      taken as-is and its load/actions are re-wired onto Go, rather than
+      keeping our older page and re-applying the design later.
+    - **Scope: every merged page ends up on Go** (principle #6's standard,
+      applied to everything the merge brought in), not "merge now, port
+      later".
+    - **Upstream remote functions** (e.g. cafe's `times.remote.ts`) are
+      converted to the established `+page.ts` load / form-action pattern,
+      not kept as remote functions calling Go.
+    - **`ticket-service/` is folded into `backend/` as a regular domain**
+      (`internal/tickets`), behind the backend's existing auth/access
+      policies instead of its own Authentik-JWKS validator; the lottery
+      and offer-expiry sweeps stay in-process timers/pollers with Postgres
+      row locks (same as upstream), not routed through the Scheduler
+      integration. `ticket-service/`, its Dockerfile and its CI/deploy
+      steps are deleted once ported.
+    - **Stocklist is deleted to match upstream** (`internal/stocklist`, its
+      endpoints, the `drinkitem`/`drinkitembatch` `schema.sql` entries,
+      the drink-item policies, and the leftover
+      `src/routes/(app)/api/admin/stocklist` endpoint) - upstream removed
+      `/admin/stocklist` in #1291, so Phase 11's Go port of it (see that
+      entry above) no longer has a frontend. The tables themselves are
+      left in the DB, same "app-layer removal only" treatment as
+      shop/expenses.
+13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
-13. **Frontend implementation sweep** - per principle #6, phases 3-12
+14. **Frontend implementation sweep** - per principle #6, phases 3-13
     already ported every domain's Go endpoints *and* SvelteKit-side
     `.server.ts`/`+server.ts` layer, and already updated any route that
     had a real working page. This phase's only job is the one thing that
@@ -1975,7 +2020,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     alongside backend porting. Not "wire the frontend" (already done per
     phase, see principle #6) - specifically the visual/product-design work
     of replacing each remaining stub.
-14. **Principles compliance audit** - a dedicated pass confirming the
+15. **Principles compliance audit** - a dedicated pass confirming the
     SvelteKit project actually satisfies everything decided in this
     document, not just phase-by-phase spot checks. Concretely: Prisma/
     ZenStack fully removed (no `@prisma/client`/`zenstack` imports,
@@ -2004,7 +2049,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     this phase exists to close out, not leave lingering past the point its
     own comment says it should. Deliberately last: judging "is this
     `.server.ts` truly necessary" or "is this dual-shape type still
-    needed" isn't reliable until phase 13's real pages exist to check
+    needed" isn't reliable until phase 14's real pages exist to check
     against.
 
 Not a numbered phase: rebuilding the actual nollning **frontend** UI.
@@ -2013,7 +2058,7 @@ inventory below) - phase 2 is about giving whichever team eventually
 designs that UI (or the native app) a clean, non-hacky API to build on,
 not about designing the UI itself. Treat that as a separate, later
 product effort, not blocked on this backend work being "finished," only
-on it existing. **This is the exemption phase 13 (the frontend
+on it existing. **This is the exemption phase 14 (the frontend
 implementation sweep) names explicitly, not a blanket exemption for
 nollning stubs in general**: it covers specifically the `(nollning)/`
 route tree's own content (wordlist, packing lists, wellbeing info, wikia
@@ -2029,11 +2074,11 @@ principle #6, worth naming explicitly since they're already-real examples
 rather than hypothetical ones: both `.svelte` files were **already**
 `<NotImplemented />` stubs before phase 2 touched them, so only their
 `.server.ts` load/actions got ported to Go (closing the same Prisma-drift
-risk as everywhere else) - their actual UI is still owed to phase 13, not
+risk as everywhere else) - their actual UI is still owed to phase 14, not
 built early. See `backend/CLAUDE.md`'s "Nollning routes" section for what
 got done in that pass, which turned out to be a day-after-the-fact,
 organic instance of exactly what principle #6 now writes down as the
-general rule for phases 3-12 going forward.
+general rule for phases 3-13 going forward.
 
 ### Mock replacement, just-in-time
 

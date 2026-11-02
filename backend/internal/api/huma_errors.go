@@ -24,7 +24,6 @@ import (
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
-	"github.com/dsek-lth/web/backend/internal/stocklist"
 )
 
 // humaServiceError maps a domain-package error to a huma.StatusError,
@@ -49,7 +48,6 @@ func humaServiceError(err error) error {
 		errors.Is(err, notifications.ErrNotFound),
 		errors.Is(err, doors.ErrNotFound),
 		errors.Is(err, adminsettings.ErrNotFound),
-		errors.Is(err, stocklist.ErrNotFound),
 		errors.Is(err, links.ErrNotFound):
 		return huma.Error404NotFound("not found")
 	case errors.Is(err, articles.ErrInvalidInput),
@@ -67,7 +65,6 @@ func humaServiceError(err error) error {
 		errors.Is(err, notifications.ErrInvalidInput),
 		errors.Is(err, doors.ErrInvalidInput),
 		errors.Is(err, adminsettings.ErrInvalidInput),
-		errors.Is(err, stocklist.ErrInvalidInput),
 		errors.Is(err, links.ErrInvalidInput):
 		return huma.Error400BadRequest(err.Error())
 	case errors.Is(err, auth.ErrUnauthenticated):

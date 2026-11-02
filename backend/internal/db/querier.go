@@ -23,15 +23,6 @@ type Querier interface {
 	AddEventGoing(ctx context.Context, arg AddEventGoingParams) error
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
-	// Atomically applies a signed adjustment to quantity_available/nr_bottles,
-	// guarded so neither can go negative (returns zero rows, not an error, if
-	// the guard would be violated - the caller distinguishes "not found" from
-	// "insufficient stock" itself). Used by every stocklist write path that
-	// touches an item's running totals: CreateBatch (the delta itself),
-	// UpdateBatch/DeleteBatch (the net difference between old and new/removed
-	// delta) - unifying what the old app implemented as three separate
-	// ad-hoc Prisma transactions into one atomic SQL statement.
-	AdjustDrinkItemQuantity(ctx context.Context, arg AdjustDrinkItemQuantityParams) (Drinkitem, error)
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
 	ClearBookingRequestBookables(ctx context.Context, bookingRequestID pgtype.UUID) error
 	ClearEventTags(ctx context.Context, eventID pgtype.UUID) error
@@ -62,8 +53,6 @@ type Querier interface {
 	CreateBookingRequest(ctx context.Context, arg CreateBookingRequestParams) (BookingRequest, error)
 	CreateCafeShift(ctx context.Context, arg CreateCafeShiftParams) (CafeShift, error)
 	CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAccessPolicyParams) (DoorAccessPolicy, error)
-	CreateDrinkItem(ctx context.Context, arg CreateDrinkItemParams) (Drinkitem, error)
-	CreateDrinkItemBatch(ctx context.Context, arg CreateDrinkItemBatchParams) (Drinkitembatch, error)
 	CreateElection(ctx context.Context, arg CreateElectionParams) (Election, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (CreateEventRow, error)
 	CreateEventComment(ctx context.Context, arg CreateEventCommentParams) (CreateEventCommentRow, error)
@@ -89,8 +78,6 @@ type Querier interface {
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
 	DeleteCafeShift(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteDoorAccessPolicy(ctx context.Context, id pgtype.UUID) error
-	DeleteDrinkItem(ctx context.Context, id pgtype.UUID) (int64, error)
-	DeleteDrinkItemBatch(ctx context.Context, id pgtype.UUID) (int64, error)
 	// Hard delete - the elections table has no removed_at/deleted_at column at
 	// all, unlike Song/Article/GoverningDocument.
 	DeleteElection(ctx context.Context, id pgtype.UUID) (int64, error)
@@ -162,7 +149,6 @@ type Querier interface {
 	// data error, not a normal state).
 	GetCurrentSeason(ctx context.Context) (NollningSeason, error)
 	GetDoorByName(ctx context.Context, name string) (Door, error)
-	GetDrinkItemBatchByID(ctx context.Context, id pgtype.UUID) (Drinkitembatch, error)
 	// Unconstrained by expiry (unlike ListOpenElections) - the edit page looks
 	// up an election by id regardless of whether it has already expired,
 	// matching prisma.election.findFirst({where: {id}}).
@@ -257,7 +243,6 @@ type Querier interface {
 	// counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
 	// because sqlc has no macro/fragment support.
 	ListArticles(ctx context.Context, arg ListArticlesParams) ([]ListArticlesRow, error)
-	ListAvailableDrinkItems(ctx context.Context) ([]Drinkitem, error)
 	// Board positions (board_member=true, active=true) with their current
 	// holder, one row per position (LEFT JOIN LATERAL picks at most the most
 	// recently-started active mandate; NULL member fields mean vacant) - backs
@@ -316,11 +301,6 @@ type Querier interface {
 	// role is checked for exact membership).
 	ListDoorAccessPoliciesForMemberView(ctx context.Context, arg ListDoorAccessPoliciesForMemberViewParams) ([]ListDoorAccessPoliciesForMemberViewRow, error)
 	ListDoors(ctx context.Context) ([]Door, error)
-	// Every batch entry (optionally only those on/before before_date), joined
-	// with its item, newest first - matches treasury/+page.server.ts's load
-	// exactly (before_date unset = every entry).
-	ListDrinkItemBatches(ctx context.Context, beforeDate pgtype.Timestamp) ([]ListDrinkItemBatchesRow, error)
-	ListDrinkItems(ctx context.Context) ([]Drinkitem, error)
 	ListEmailAliasesForPosition(ctx context.Context, positionID string) ([]EmailAlias, error)
 	ListEventComments(ctx context.Context, eventID pgtype.UUID) ([]ListEventCommentsRow, error)
 	ListEventGoing(ctx context.Context, eventID pgtype.UUID) ([]ListEventGoingRow, error)
@@ -472,11 +452,6 @@ type Querier interface {
 	// "there's already a shift here, but not this member's" branch.
 	UpdateCafeShiftWorker(ctx context.Context, arg UpdateCafeShiftWorkerParams) (CafeShift, error)
 	UpdateCommittee(ctx context.Context, arg UpdateCommitteeParams) (Committee, error)
-	// Mirrors showproducts' updateSchema exactly - quantityType is not
-	// editable via this action (only set at creation), matching the old form's
-	// own field set.
-	UpdateDrinkItem(ctx context.Context, arg UpdateDrinkItemParams) (Drinkitem, error)
-	UpdateDrinkItemBatch(ctx context.Context, arg UpdateDrinkItemBatchParams) (Drinkitembatch, error)
 	UpdateElection(ctx context.Context, arg UpdateElectionParams) (Election, error)
 	// Full-replace of content fields (same PUT-not-PATCH convention as
 	// articles), plus this occurrence's own start/end datetime. author_id is

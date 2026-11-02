@@ -35,7 +35,6 @@ import (
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/songs"
-	"github.com/dsek-lth/web/backend/internal/stocklist"
 )
 
 // NewRouter registers every endpoint. Every request is authenticated via
@@ -64,7 +63,6 @@ func NewRouter(
 	cafeSvc *cafe.Service,
 	notificationSvc *notifications.Service,
 	adminSettingsSvc *adminsettings.Service,
-	stocklistSvc *stocklist.Service,
 	linksSvc *links.Service,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
@@ -93,7 +91,6 @@ func NewRouter(
 	registerCafeRoutes(api, cafeSvc)
 	registerNotificationRoutes(api, notificationSvc)
 	registerAdminSettingsRoutes(api, adminSettingsSvc)
-	registerStocklistRoutes(api, stocklistSvc)
 	registerLinksRoutes(api, linksSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))

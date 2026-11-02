@@ -6,7 +6,7 @@ import type { PageLoad } from "./$types";
 // Ported from +page.server.ts to a universal load calling the Go backend
 // (backend/internal/documents.Service.ListRequirements) - see
 // backend/CLAUDE.md's Phase 4 section. The .svelte here stays
-// <NotImplemented /> until Phase 13 (per DESIGN.md's Principle #6 - this
+// <NotImplemented /> until Phase 14 (per DESIGN.md's Principle #6 - this
 // route had no real page before this pass either), but the load is ported
 // now rather than left on the now-broken Prisma-less path. Delete (when a
 // real page exists) should call DELETE /documents/requirements directly

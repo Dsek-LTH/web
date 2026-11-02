@@ -158,21 +158,6 @@ const (
 	AdminShlinkCreate = "admin:shlink:create"
 	AdminShlinkUpdate = "admin:shlink:update"
 	AdminShlinkDelete = "admin:shlink:delete"
-
-	// DrinkItem{Create,Update,Delete} mirror the old apiNames.DRINKITEM
-	// crud() group - no DrinkItemRead: the old ZModel's @@allow("read", true)
-	// makes reads fully public, same "nothing real to gate" situation as
-	// ElectionRead.
-	DrinkItemCreate = "drinkitem:create"
-	DrinkItemUpdate = "drinkitem:update"
-	DrinkItemDelete = "drinkitem:delete"
-
-	// DrinkItemBatch{Create,Update,Delete} mirror the old
-	// apiNames.DRINKITEMBATCH crud() group, same no-Read situation as
-	// DrinkItem above.
-	DrinkItemBatchCreate = "drinkitembatch:create"
-	DrinkItemBatchUpdate = "drinkitembatch:update"
-	DrinkItemBatchDelete = "drinkitembatch:delete"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -249,11 +234,5 @@ func All() []string {
 		AdminShlinkCreate,
 		AdminShlinkUpdate,
 		AdminShlinkDelete,
-		DrinkItemCreate,
-		DrinkItemUpdate,
-		DrinkItemDelete,
-		DrinkItemBatchCreate,
-		DrinkItemBatchUpdate,
-		DrinkItemBatchDelete,
 	}
 }
