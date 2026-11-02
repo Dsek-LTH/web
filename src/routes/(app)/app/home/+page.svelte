@@ -134,9 +134,10 @@
       </h2>
       <HomeCalendar
         events={data.events.map((e) => ({
+          id: e.id,
           startDate: e.startDatetime,
           endDate: e.endDatetime,
-          slug: e.slug ?? "",
+          slug: e.slug,
           title: e.title,
         }))}
       />

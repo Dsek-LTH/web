@@ -1,6 +1,6 @@
 import { getEvents, type EventSpan } from "$lib/events/getEvents";
 import { getMonthRange } from "$lib/events/monthCalendar";
-import { APP_TIMEZONE } from "$lib/utils/datetime";
+import { APP_TIMEZONE, appDayStart } from "$lib/utils/datetime";
 import { interestedGoingSchema } from "$lib/events/schema";
 import { getAllTags } from "$lib/news/tags";
 import {
@@ -36,11 +36,12 @@ const eventPageLoad =
     let spanFilter: EventSpan;
 
     if (display === "week") {
-      // Keep the week view's existing server-local window unchanged for now.
-      const start = dayjs().startOf("day");
+      const todayKey = dayjs().tz(APP_TIMEZONE).format("YYYY-MM-DD");
+      const endKey = dayjs.utc(todayKey).add(7, "day").format("YYYY-MM-DD");
+
       spanFilter = {
-        startingAt: start.toDate(),
-        endingAt: start.add(1, "week").toDate(),
+        startingAt: appDayStart(todayKey),
+        endingAt: appDayStart(endKey),
       };
     } else if (display === "month") {
       const { startingAt, endingAt } = getMonthRange(monthKey);
