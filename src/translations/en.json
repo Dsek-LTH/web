@@ -775,7 +775,6 @@
   "members_errors_senderNotFound": "Sender not found",
   "members_errors_receiverNotFound": "Receiver not found",
   "members_errors_couldntPing": "Couldn't ping. Error: {e}",
-  "members_errors_alreadyPinged": "You have already pinged this person. Wait until they ping you back.",
   "members_errors_memberDoesntExist": "Member does not exist",
   "members_errors_failedToFindMember": "Failed to find member. Error: {e}",
   "members_errors_invalidPicture": "Invalid picture",

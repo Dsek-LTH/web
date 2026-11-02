@@ -775,7 +775,6 @@
   "members_errors_senderNotFound": "Kunde inte hitta avsändaren",
   "members_errors_receiverNotFound": "Kunde inte hitta mottagaren",
   "members_errors_couldntPing": "Kunde inte pinga. Fel: {e}",
-  "members_errors_alreadyPinged": "Du har redan pingat den här personen. Vänta tills personen pingar tillbaka.",
   "members_errors_memberDoesntExist": "Medlemmen existerar inte",
   "members_errors_failedToFindMember": "Mislyckades att hitta medlemmen. Fel: {e}",
   "members_errors_invalidPicture": "Ogiltig bild",

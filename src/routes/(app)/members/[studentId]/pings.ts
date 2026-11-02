@@ -38,16 +38,12 @@ export const sendPing = async (
     m.members_errors_receiverNotFound(),
   );
 
-  const previousPing = await findPreviousPing(
-    prisma,
-    sendingMember.id,
-    receivingMember.id,
-  );
-  if (previousPing && lastPingerId(previousPing) === sendingMember.id) {
-    throw error(400, m.members_errors_alreadyPinged());
-  }
-
   try {
+    const previousPing = await findPreviousPing(
+      prisma,
+      sendingMember.id,
+      receivingMember.id,
+    );
     if (previousPing === null) {
       await performInitialPing(prisma, sendingMember.id, receivingMember.id);
     } else {
@@ -109,20 +105,6 @@ const assertMemberExists = async (
   }
 };
 
-type PingTurn = Pick<
-  ExtendedPrismaModel<"Ping">,
-  "fromMemberId" | "toMemberId" | "fromSentAt" | "toSentAt"
->;
-
-/** A member can't ping again until the other member has pinged them back. */
-export const lastPingerId = ({
-  fromMemberId,
-  toMemberId,
-  fromSentAt,
-  toSentAt,
-}: PingTurn) =>
-  toSentAt !== null && toSentAt > fromSentAt ? toMemberId : fromMemberId;
-
 const findPreviousPing = (
   prisma: ExtendedPrisma,
   fromMemberId: string,
@@ -144,8 +126,6 @@ const findPreviousPing = (
     select: {
       fromMemberId: true,
       toMemberId: true,
-      fromSentAt: true,
-      toSentAt: true,
     },
   });
 

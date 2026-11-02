@@ -20,8 +20,6 @@ const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.PURCHASE_CONSUMABLE_EXPIRED,
   NotificationType.PAYMENT_STATUS,
   NotificationType.EXPENSES,
-  // Whether someone may ping is decided by sendPing, which allows re-pinging once pinged back
-  NotificationType.PING,
 ];
 
 type BaseSendNotificationProps = {
