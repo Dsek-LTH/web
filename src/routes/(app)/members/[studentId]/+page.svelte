@@ -165,6 +165,7 @@
                       compact
                       mandate={{
                         id: mandate.id,
+                        phadderIn: mandate.phadderIn,
                         position: {
                           ...mandate.position!,
                           committee: mandate.position?.committee ?? null,
@@ -381,6 +382,7 @@
                     <PositionCard
                       mandate={{
                         id: mandate.id,
+                        phadderIn: mandate.phadderIn,
                         position: {
                           ...mandate.position!,
                           committee: mandate.position?.committee ?? null,

@@ -1,6 +1,4 @@
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import { error, type RequestEvent } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -10,9 +8,7 @@ import type { components } from "$lib/api/schema";
 import { searchDocumentId } from "$lib/search/searchHelpers";
 import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
 import { serverApi } from "$lib/server/apiClient";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 
 type GoBookingRequest = components["schemas"]["BookingRequest"];
 type Member = components["schemas"]["Member"];
@@ -72,10 +68,10 @@ export function getSuperValidatedBookingForm(booking: BookingRequest) {
   const initialData = {
     name: booking.event ?? undefined,
     start: booking.start
-      ? dayjs(booking.start).tz("Europe/Stockholm").format("YYYY-MM-DDTHH:mm")
+      ? dayjs(booking.start).tz(APP_TIMEZONE).format("YYYY-MM-DDTHH:mm")
       : undefined,
     end: booking.end
-      ? dayjs(booking.end).tz("Europe/Stockholm").format("YYYY-MM-DDTHH:mm")
+      ? dayjs(booking.end).tz(APP_TIMEZONE).format("YYYY-MM-DDTHH:mm")
       : undefined,
     bookables: booking.bookables.map((bookable) => bookable.id),
     accessDoors: booking.accessDoors.map((door) => door.name),
@@ -107,4 +103,4 @@ export function toMemberSearchAttributes(
 
 /** A form's Stockholm wall-clock "YYYY-MM-DDTHH:mm" as an ISO instant. */
 export const stockholmToIso = (value: string) =>
-  dayjs.tz(value, "Europe/Stockholm").toISOString();
+  dayjs.tz(value, APP_TIMEZONE).toISOString();

@@ -75,6 +75,7 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	failed := 0
+	var unregistered []string
 	for i := 0; i < len(payload); i += expoChunkSize {
 		end := min(i+expoChunkSize, len(payload))
 		chunk := payload[i:end]
@@ -103,15 +104,62 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 			failed += len(chunk)
 			continue
 		}
-		resp.Body.Close()
 		if resp.StatusCode >= 300 {
+			resp.Body.Close()
 			log.Printf("notifications: push chunk failed with status %d", resp.StatusCode)
 			failed += len(chunk)
+			continue
 		}
+		// An accepted chunk can still hold individual messages that failed.
+		var receipt expoPushResponse
+		err = json.NewDecoder(resp.Body).Decode(&receipt)
+		resp.Body.Close()
+		if err != nil {
+			log.Printf("notifications: decode push response: %v", err)
+			continue
+		}
+		for _, ticket := range receipt.Data {
+			if ticket.Status != "error" {
+				continue
+			}
+			failed++
+			log.Printf("notifications: push failed: %s: %s", ticket.Details.Error, ticket.Message)
+		}
+		unregistered = append(unregistered, unregisteredTokens(receipt.Data)...)
 	}
-	if failed == len(payload) {
-		log.Printf("notifications: all %d push message(s) failed to send", len(payload))
-	} else if failed > 0 {
+	if failed > 0 {
 		log.Printf("notifications: %d/%d push message(s) failed to send", failed, len(payload))
 	}
+	// Tokens of uninstalled apps would only fail again next time.
+	if len(unregistered) > 0 {
+		if err := s.queries.DeleteExpoTokens(ctx, unregistered); err != nil {
+			log.Printf("notifications: delete unregistered push tokens: %v", err)
+		}
+	}
+}
+
+type expoPushTicket struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Details struct {
+		Error         string `json:"error"`
+		ExpoPushToken string `json:"expoPushToken"`
+	} `json:"details"`
+}
+
+type expoPushResponse struct {
+	Data []expoPushTicket `json:"data"`
+}
+
+// unregisteredTokens picks out the tokens Expo reports as no longer
+// belonging to an installed app.
+func unregisteredTokens(tickets []expoPushTicket) []string {
+	var tokens []string
+	for _, t := range tickets {
+		if t.Status == "error" && t.Details.Error == "DeviceNotRegistered" &&
+			t.Details.ExpoPushToken != "" {
+			tokens = append(tokens, t.Details.ExpoPushToken)
+		}
+	}
+	return tokens
 }

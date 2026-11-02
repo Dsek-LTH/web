@@ -198,6 +198,35 @@ func (w *RealWebhooker) NotifyNewArticle(
 		return fmt.Errorf("marshal discord payload: %w", err)
 	}
 
+	// An article may be announced more than once (a retried or late
+	// scheduled send, an early publish). Only whoever claims it here posts,
+	// so it never shows up twice on Discord.
+	articleID, err := dbutil.ParseUUID(a.ArticleID)
+	if err != nil {
+		return invalidf("invalid article id: %v", err)
+	}
+	claimed, err := w.svc.queries.ClaimArticleDiscordAnnouncement(ctx, articleID)
+	if err != nil {
+		return fmt.Errorf("claim discord announcement: %w", err)
+	}
+	if claimed == 0 {
+		return nil
+	}
+
+	if err := postDiscordWebhook(ctx, webhookURL, body); err != nil {
+		// Give the claim back so a retry can post it.
+		if releaseErr := w.svc.queries.ReleaseArticleDiscordAnnouncement(
+			context.WithoutCancel(ctx),
+			articleID,
+		); releaseErr != nil {
+			log.Printf("notifications: release discord claim for %s: %v", a.Slug, releaseErr)
+		}
+		return err
+	}
+	return nil
+}
+
+func postDiscordWebhook(ctx context.Context, webhookURL string, body []byte) error {
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, webhookURL, bytes.NewReader(body))
 	if err != nil {
@@ -206,12 +235,11 @@ func (w *RealWebhooker) NotifyNewArticle(
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("notifications: discord webhook request failed: %v", err)
-		return nil
+		return fmt.Errorf("discord webhook request: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
-		log.Printf("notifications: failed Discord webhook (%d)", resp.StatusCode)
+		return fmt.Errorf("discord webhook responded with %d", resp.StatusCode)
 	}
 	return nil
 }

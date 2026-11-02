@@ -1,4 +1,6 @@
 import { api } from "$lib/api/client";
+import { getMonthRange } from "$lib/events/monthCalendar";
+import { APP_TIMEZONE, appDayStart } from "$lib/utils/datetime";
 import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
@@ -10,6 +12,8 @@ import { z } from "zod";
 
 const displaySchema = z.enum(["week", "month", "upcoming", "past"]);
 export type Display = z.infer<typeof displaySchema>;
+
+const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
 
 // The week/month views list every event in the window, unpaginated - this
 // is just a ceiling well above anything a single week or month holds.
@@ -26,8 +30,13 @@ const eventPageLoad =
   (adminMode = false) =>
   async ({ fetch, url }: Pick<LoadEvent, "fetch" | "url">) => {
     const display = displaySchema.parse(
-      url.searchParams.get("display") ?? "week",
+      url.searchParams.get("display") ?? "month",
     );
+
+    const requestedMonth = monthSchema.safeParse(url.searchParams.get("month"));
+    const monthKey = requestedMonth.success
+      ? requestedMonth.data
+      : dayjs().tz(APP_TIMEZONE).format("YYYY-MM");
 
     const tagsRes = await api.GET("/tags", { fetch });
     const allTags = tagsRes.data ?? [];
@@ -49,13 +58,25 @@ const eventPageLoad =
       page: number;
       pageSize: number;
     };
-    if (display === "week" || display === "month") {
-      const from =
-        display === "week" ? dayjs().startOf("day") : dayjs().startOf("month");
+    if (display === "week") {
+      // Today and the six days after it, as calendar days in the app's
+      // timezone rather than the server's or browser's.
+      const todayKey = dayjs().tz(APP_TIMEZONE).format("YYYY-MM-DD");
+      const endKey = dayjs.utc(todayKey).add(7, "day").format("YYYY-MM-DD");
       window = {
         span: "range",
-        from: from.toISOString(),
-        to: from.add(1, display).toISOString(),
+        from: appDayStart(todayKey).toISOString(),
+        to: appDayStart(endKey).toISOString(),
+        page: 1,
+        pageSize: RANGE_PAGE_SIZE,
+      };
+    } else if (display === "month") {
+      // The whole weeks the month grid shows, not just the month itself.
+      const { startingAt, endingAt } = getMonthRange(monthKey);
+      window = {
+        span: "range",
+        from: startingAt.toISOString(),
+        to: endingAt.toISOString(),
         page: 1,
         pageSize: RANGE_PAGE_SIZE,
       };
@@ -102,6 +123,7 @@ const eventPageLoad =
       pageCount,
       allTags,
       display,
+      month: monthKey,
     };
   };
 

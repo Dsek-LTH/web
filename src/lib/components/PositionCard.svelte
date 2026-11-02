@@ -11,11 +11,11 @@
     mandate,
     compact = false,
   }: {
-    // Only `.id` and `.position` are read - `startDate`/`endDate` are
-    // deliberately omitted from this type (the caller may hold real `Date`
-    // objects there for its own grouping logic, which would otherwise
-    // clash with the generated schema's `string` dates).
-    mandate: Pick<components["schemas"]["Mandate"], "id"> & {
+    // Only `.id`, `.phadderIn` and `.position` are read - `startDate`/
+    // `endDate` are deliberately omitted from this type (the caller may hold
+    // real `Date` objects there for its own grouping logic, which would
+    // otherwise clash with the generated schema's `string` dates).
+    mandate: Pick<components["schemas"]["Mandate"], "id" | "phadderIn"> & {
       position: Omit<components["schemas"]["Position"], "committee"> & {
         committee: components["schemas"]["Committee"] | null;
       };
@@ -31,8 +31,17 @@
 >
   {#if mandate.position && mandate.position.committee}<a
       href="/committees/{mandate.position.committee.shortName}"
-      ><CommitteeSymbol size="sm" committee={mandate.position.committee} /></a
-    >{/if}
+    >
+      {#if mandate.phadderIn?.imageUrl}
+        <img
+          src={mandate.phadderIn.imageUrl}
+          alt="{mandate.phadderIn.name} logo"
+          class="size-6 rounded-sm object-contain"
+        />
+      {:else}
+        <CommitteeSymbol size="sm" committee={mandate.position.committee} />
+      {/if}
+    </a>{/if}
   <div class="flex flex-col justify-center">
     <a href={getPositionLink(mandate.position.id)}>
       {#if compact}

@@ -102,6 +102,10 @@ type ArticleDetail struct {
 	// reads of a policy array count as a forbidden reimplementation.
 	CanEdit   bool `json:"canEdit"`
 	CanDelete bool `json:"canDelete"`
+	// AnnouncementFailed is only set on a create/update response: the
+	// article was saved, but sending its notification or Discord post
+	// failed (see Service.syncNotifications).
+	AnnouncementFailed bool `json:"announcementFailed,omitempty"`
 }
 
 // AuthorInput identifies which byline to attach, on top of the acting

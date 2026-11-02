@@ -112,7 +112,16 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 				ShortName: dbutil.TextPtr(m.CommitteeShortName),
 			}
 		}
+		var phadderIn *apitypes.MandatePhadderGroup
+		if m.PhadderGroupID.Valid {
+			phadderIn = &apitypes.MandatePhadderGroup{
+				ID:       dbutil.UUIDStr(m.PhadderGroupID),
+				Name:     m.PhadderGroupName.String,
+				ImageURL: dbutil.TextPtr(m.PhadderGroupImageUrl),
+			}
+		}
 		mandates[i] = Mandate{
+			PhadderIn: phadderIn,
 			ID:        dbutil.UUIDStr(m.ID),
 			StartDate: dbutil.DatePtr(m.StartDate),
 			EndDate:   dbutil.DatePtr(m.EndDate),

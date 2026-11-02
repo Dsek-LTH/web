@@ -1935,6 +1935,7 @@ export interface components {
        * @example https://example.com/schemas/ArticleDetail.json
        */
       readonly $schema?: string;
+      announcementFailed?: boolean;
       author: components["schemas"]["Author"];
       body: string;
       bodyEn?: string;
@@ -2699,8 +2700,14 @@ export interface components {
       endDate?: string;
       id: string;
       member?: components["schemas"]["Member"];
+      phadderIn?: components["schemas"]["MandatePhadderGroup"];
       position?: components["schemas"]["Position"];
       startDate?: string;
+    };
+    MandatePhadderGroup: {
+      id: string;
+      imageUrl?: string;
+      name: string;
     };
     MarkdownContent: {
       /**

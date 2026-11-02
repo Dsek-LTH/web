@@ -160,30 +160,37 @@ const listMandatesForMember = `-- name: ListMandatesForMember :many
 SELECT m.id, m.start_date, m.end_date,
        p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
        c.id AS committee_id, c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
-       c.short_name AS committee_short_name
+       c.short_name AS committee_short_name,
+       pg.id AS phadder_group_id, pg.name AS phadder_group_name,
+       pg.image_url AS phadder_group_image_url
 FROM mandates m
 JOIN positions p ON p.id = m.position_id
 LEFT JOIN committees c ON c.id = p.committee_id
+LEFT JOIN phadder_groups pg ON pg.id = m."phadderInId"
 WHERE m.member_id = $1
 ORDER BY m.start_date DESC
 `
 
 type ListMandatesForMemberRow struct {
-	ID                 pgtype.UUID `json:"id"`
-	StartDate          pgtype.Date `json:"start_date"`
-	EndDate            pgtype.Date `json:"end_date"`
-	PositionID         string      `json:"position_id"`
-	PositionNameSv     string      `json:"position_name_sv"`
-	PositionNameEn     pgtype.Text `json:"position_name_en"`
-	CommitteeID        pgtype.UUID `json:"committee_id"`
-	CommitteeNameSv    pgtype.Text `json:"committee_name_sv"`
-	CommitteeNameEn    pgtype.Text `json:"committee_name_en"`
-	CommitteeShortName pgtype.Text `json:"committee_short_name"`
+	ID                   pgtype.UUID `json:"id"`
+	StartDate            pgtype.Date `json:"start_date"`
+	EndDate              pgtype.Date `json:"end_date"`
+	PositionID           string      `json:"position_id"`
+	PositionNameSv       string      `json:"position_name_sv"`
+	PositionNameEn       pgtype.Text `json:"position_name_en"`
+	CommitteeID          pgtype.UUID `json:"committee_id"`
+	CommitteeNameSv      pgtype.Text `json:"committee_name_sv"`
+	CommitteeNameEn      pgtype.Text `json:"committee_name_en"`
+	CommitteeShortName   pgtype.Text `json:"committee_short_name"`
+	PhadderGroupID       pgtype.UUID `json:"phadder_group_id"`
+	PhadderGroupName     pgtype.Text `json:"phadder_group_name"`
+	PhadderGroupImageUrl pgtype.Text `json:"phadder_group_image_url"`
 }
 
 // Full mandate history (not just currently-active, unlike
 // ListActiveMandatesForMember) for a member's profile page, joined to
-// position+committee for display.
+// position+committee for display, plus the phadder group a phadder
+// mandate was for (its logo replaces the committee symbol).
 func (q *Queries) ListMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListMandatesForMemberRow, error) {
 	rows, err := q.db.Query(ctx, listMandatesForMember, memberID)
 	if err != nil {
@@ -204,6 +211,9 @@ func (q *Queries) ListMandatesForMember(ctx context.Context, memberID pgtype.UUI
 			&i.CommitteeNameSv,
 			&i.CommitteeNameEn,
 			&i.CommitteeShortName,
+			&i.PhadderGroupID,
+			&i.PhadderGroupName,
+			&i.PhadderGroupImageUrl,
 		); err != nil {
 			return nil, err
 		}

@@ -151,3 +151,16 @@ LIMIT sqlc.arg(row_limit);
 -- name: CountUnreadNotificationsForMember :one
 SELECT count(*) FROM notifications
 WHERE member_id = $1 AND read_at IS NULL;
+
+-- Claims an article's one Discord announcement: affects a row only if it
+-- hasn't been posted (or claimed) yet.
+-- name: ClaimArticleDiscordAnnouncement :execrows
+UPDATE articles SET discord_announced_at = now()
+WHERE id = $1 AND discord_announced_at IS NULL;
+
+-- Gives a claim back after the post failed, so a retry can send it.
+-- name: ReleaseArticleDiscordAnnouncement :exec
+UPDATE articles SET discord_announced_at = NULL WHERE id = $1;
+
+-- name: DeleteExpoTokens :exec
+DELETE FROM expo_tokens WHERE expo_token = ANY(sqlc.arg(tokens)::text[]);

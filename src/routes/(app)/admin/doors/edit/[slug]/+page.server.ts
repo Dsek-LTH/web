@@ -5,11 +5,8 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { error, fail } from "@sveltejs/kit";
 import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 // core:access:door:create/delete (Go's apinames.DoorCreate/DoorDelete) are
 // enforced by the Go API itself - see backend/internal/doors. No
@@ -101,10 +98,10 @@ export const actions: Actions = {
           type,
           mode,
           startDatetime: startDatetime
-            ? dayjs.tz(startDatetime, "Europe/Stockholm").toISOString()
+            ? dayjs.tz(startDatetime, APP_TIMEZONE).toISOString()
             : undefined,
           endDatetime: endDatetime
-            ? dayjs.tz(endDatetime, "Europe/Stockholm").toISOString()
+            ? dayjs.tz(endDatetime, APP_TIMEZONE).toISOString()
             : undefined,
           reason,
         },

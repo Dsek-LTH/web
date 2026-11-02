@@ -388,3 +388,13 @@ This directory is a subdirectory of the larger `Dsek-LTH/web` git repository (br
 - The rebuild (`sync.go`) creates missing indexes, then for each index deletes every document, applies its settings (`indexes.go`, ported from the old `meilisearchConstants`) and re-adds everything in batches of 1000. The two document indexes are skipped (left as they were) if poppler is down. Governing documents are fetched from GitHub (`styrdokument/...`-style paths) or their URL. Meeting documents are every `.pdf` in the documents bucket, read through `storage.Backend`. Both are extracted 10 at a time, and a document that fails is logged and skipped.
 - Document ids are `meiliID` (base64 of the row id without `+/=`), identical to the old `prismaIdToMeiliId`; `MemberSelector` decodes member hit ids back into UUIDs, so don't change it.
 - Verified: `go test` (`search_test.go`: id parity with the TS output, `filterContent` parity, hit shaping, anonymous-members exclusion), a live rebuild and queries against the dev Meilisearch, PDF extraction of the real `reglemente.pdf` through the local poppler, the `/api/sync` proxy and search form action through a dev server, and `MemberSelector`'s direct client call in a headless browser. Governing documents in the dev seed have fake URLs, so that index is empty in dev; the meeting-document path was only exercised with `STORAGE_MOCK` (empty bucket).
+
+### Second upstream sync (2026-11-03, during Phase 14)
+
+`origin/main` merged again (`2142663c..8be2a555`) - see `DESIGN.md`'s Phase 14 status for the reasoning. API changes:
+
+- `POST /articles` / `PATCH /articles/{slug}` responses carry `announcementFailed` (the article saved, but its notification or Discord post failed). `articles.Service.syncNotifications` follows upstream #1401: editing an already-live article never announces; publishing a scheduled article early announces and cancels the scheduled send; announcing never fails the save. Tested in `internal/articles/notifications_test.go`.
+- `articles.discord_announced_at` (upstream migration `20261102190000`): `RealWebhooker` claims it before posting (`ClaimArticleDiscordAnnouncement`) and releases it if the post fails, so an article reaches Discord at most once.
+- Expo push reads per-message tickets, logs failures and deletes `DeviceNotRegistered` tokens (`DeleteExpoTokens`).
+- `apitypes.Mandate.phadderIn` (`MandatePhadderGroup`: `{id, name, imageUrl}`), filled on `GET /members/{studentId}` mandates only.
+- Events: no Go change. The frontend's month view asks for the month grid's whole weeks through the existing `span=range`.

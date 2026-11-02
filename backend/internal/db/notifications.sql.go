@@ -11,6 +11,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const claimArticleDiscordAnnouncement = `-- name: ClaimArticleDiscordAnnouncement :execrows
+UPDATE articles SET discord_announced_at = now()
+WHERE id = $1 AND discord_announced_at IS NULL
+`
+
+// Claims an article's one Discord announcement: affects a row only if it
+// hasn't been posted (or claimed) yet.
+func (q *Queries) ClaimArticleDiscordAnnouncement(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, claimArticleDiscordAnnouncement, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const countUnreadNotifications = `-- name: CountUnreadNotifications :one
 SELECT count(*) FROM notifications WHERE member_id = $1 AND read_at IS NULL
 `
@@ -62,6 +77,15 @@ func (q *Queries) CreateNotifications(ctx context.Context, arg CreateNotificatio
 		arg.MemberIds,
 		arg.FromAuthorID,
 	)
+	return err
+}
+
+const deleteExpoTokens = `-- name: DeleteExpoTokens :exec
+DELETE FROM expo_tokens WHERE expo_token = ANY($1::text[])
+`
+
+func (q *Queries) DeleteExpoTokens(ctx context.Context, tokens []string) error {
+	_, err := q.db.Exec(ctx, deleteExpoTokens, tokens)
 	return err
 }
 
@@ -669,6 +693,16 @@ type MarkNotificationsReadParams struct {
 
 func (q *Queries) MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error {
 	_, err := q.db.Exec(ctx, markNotificationsRead, arg.MemberID, arg.ID, arg.Ids)
+	return err
+}
+
+const releaseArticleDiscordAnnouncement = `-- name: ReleaseArticleDiscordAnnouncement :exec
+UPDATE articles SET discord_announced_at = NULL WHERE id = $1
+`
+
+// Gives a claim back after the post failed, so a retry can send it.
+func (q *Queries) ReleaseArticleDiscordAnnouncement(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, releaseArticleDiscordAnnouncement, id)
 	return err
 }
 

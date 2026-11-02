@@ -1,14 +1,18 @@
 -- name: ListMandatesForMember :many
 -- Full mandate history (not just currently-active, unlike
 -- ListActiveMandatesForMember) for a member's profile page, joined to
--- position+committee for display.
+-- position+committee for display, plus the phadder group a phadder
+-- mandate was for (its logo replaces the committee symbol).
 SELECT m.id, m.start_date, m.end_date,
        p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
        c.id AS committee_id, c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
-       c.short_name AS committee_short_name
+       c.short_name AS committee_short_name,
+       pg.id AS phadder_group_id, pg.name AS phadder_group_name,
+       pg.image_url AS phadder_group_image_url
 FROM mandates m
 JOIN positions p ON p.id = m.position_id
 LEFT JOIN committees c ON c.id = p.committee_id
+LEFT JOIN phadder_groups pg ON pg.id = m."phadderInId"
 WHERE m.member_id = $1
 ORDER BY m.start_date DESC;
 

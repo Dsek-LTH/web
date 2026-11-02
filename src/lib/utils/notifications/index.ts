@@ -164,8 +164,9 @@ const sendNotification = async ({
   try {
     await sendPush(title, message, link, receivingMembers);
   } catch (e) {
-    console.warn("Failed to create push notifications", e);
-    throw error(500, "Failed to create push notifications");
+    // The in-app notifications already exist, so failing the request here would
+    // only make the caller retry something the duplicate check then skips.
+    console.error("Failed to send push notifications", e);
   }
 };
 
@@ -238,7 +239,7 @@ const sendPush = async (
   });
 
   if (tokensAndUnreadNotificationCount.length > 0) {
-    sendPushNotifications(
+    await sendPushNotifications(
       tokensAndUnreadNotificationCount.map((token) => ({
         token: token.expoToken,
         unreadNotifications: token.member?._count.notifications,

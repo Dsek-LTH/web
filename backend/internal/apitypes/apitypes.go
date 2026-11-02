@@ -119,4 +119,15 @@ type Mandate struct {
 	EndDate   *string   `json:"endDate,omitempty"`
 	Position  *Position `json:"position,omitempty"`
 	Member    *Member   `json:"member,omitempty"`
+	// PhadderIn is the phadder group a phadder mandate was for. Only set on
+	// a member's own mandate history (GET /members/{studentId}).
+	PhadderIn *MandatePhadderGroup `json:"phadderIn,omitempty"`
+}
+
+// MandatePhadderGroup is the part of a phadder group a mandate shows: its
+// name and logo.
+type MandatePhadderGroup struct {
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	ImageURL *string `json:"imageUrl,omitempty"`
 }

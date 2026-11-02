@@ -27,6 +27,9 @@ type Querier interface {
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
 	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
+	// Claims an article's one Discord announcement: affects a row only if it
+	// hasn't been posted (or claimed) yet.
+	ClaimArticleDiscordAnnouncement(ctx context.Context, id pgtype.UUID) (int64, error)
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
 	ClearBookingDoorAccess(ctx context.Context, bookingRequestID pgtype.UUID) error
 	ClearBookingRequestAccessDoors(ctx context.Context, a pgtype.UUID) error
@@ -107,6 +110,7 @@ type Querier interface {
 	// all, unlike Song/Article/GoverningDocument.
 	DeleteElection(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
+	DeleteExpoTokens(ctx context.Context, tokens []string) error
 	DeleteMandate(ctx context.Context, id pgtype.UUID) error
 	DeleteNotifications(ctx context.Context, arg DeleteNotificationsParams) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
@@ -397,7 +401,8 @@ type Querier interface {
 	ListGoverningDocumentsForSearch(ctx context.Context) ([]ListGoverningDocumentsForSearchRow, error)
 	// Full mandate history (not just currently-active, unlike
 	// ListActiveMandatesForMember) for a member's profile page, joined to
-	// position+committee for display.
+	// position+committee for display, plus the phadder group a phadder
+	// mandate was for (its logo replaces the committee symbol).
 	ListMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListMandatesForMemberRow, error)
 	// All mandates (not just active-during-the-window ones) for a given member
 	// set, that started before the cutoff - mirrors the old app's allMandates
@@ -523,6 +528,8 @@ type Querier interface {
 	ListWaitlistFrontForUpdate(ctx context.Context, arg ListWaitlistFrontForUpdateParams) ([]TicketQueueEntry, error)
 	LockRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
 	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
+	// Gives a claim back after the post failed, so a retry can send it.
+	ReleaseArticleDiscordAnnouncement(ctx context.Context, id pgtype.UUID) error
 	RemoveArticleLike(ctx context.Context, arg RemoveArticleLikeParams) error
 	RemoveEventGoing(ctx context.Context, arg RemoveEventGoingParams) error
 	RemoveEventInterested(ctx context.Context, arg RemoveEventInterestedParams) error

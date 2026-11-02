@@ -165,6 +165,7 @@ model Article {
   shouldSendNotification Boolean?         @default(false) @map("should_send_notification")
   notificationText       String?          @map("notification_text") @db.VarChar(255)
   scheduledId            String?          @map("scheduled_id")
+  discordAnnouncedAt     DateTime?        @map("discord_announced_at") @db.Timestamptz(6)
 
   @@map("articles")
 }

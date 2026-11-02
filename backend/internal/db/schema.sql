@@ -191,7 +191,11 @@ CREATE TABLE articles (
     ),
     -- Added by migration 20260901220100_add_nollning_season_id_to_content -
     -- see DESIGN.md's "Content classification" decision.
-    nollning_season_id       UUID REFERENCES nollning_seasons (id)
+    nollning_season_id       UUID REFERENCES nollning_seasons (id),
+    -- Added by upstream's 20261102190000_add_article_discord_announced_at
+    -- (carried into internal/db/migrations): set while/once the article
+    -- has been posted to Discord, so it's only ever posted once.
+    discord_announced_at     TIMESTAMPTZ
 );
 
 CREATE TABLE article_comments (

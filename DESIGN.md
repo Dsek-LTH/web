@@ -1293,521 +1293,521 @@ is building a _visual_ `.svelte` page for a route that's currently
 `<NotImplemented />`; a route that already has a real page gets that page
 updated in its own phase, same as phase 1 and phase 2 already did.
 
-1. **Directory foundation** - full `members`/`mandates`/`positions`/
-   `committees` CRUD and profile pages, `AccessPolicy`/`EmailAlias` admin
-   management. Almost everything below displays or authorizes off member/
-   mandate/committee data, including nollning's own role derivation -
-   this has to be solid before nollning or anything else builds on it.
-   **Status: implemented 2026-09-01, backend and SvelteKit frontend wiring
-   both done** (`backend/internal/members`, `backend/internal/committees`,
-   `backend/internal/accesspolicies` - see `backend/CLAUDE.md`'s "Directory
-   routes" section for the exact endpoint list, every scope cut, and the
-   frontend-wiring notes). Verified via `svelte-check`/`eslint` (0 errors)
-   and live SSR + a real mutation round-trip against the dev DB, matching
-   the standard the articles/events ports were held to.
-   `positionToCommitteeMap` turned out not to need any change at all once
-   actually wired up - Go addresses positions by full ID, and the
-   frontend's existing short-URL scheme keeps working unmodified since
-   position IDs themselves didn't change; the anticipated "port the map or
-   switch URL schemes" fork never had to be taken. `apitypes.Committee`/
-   `Position` gained a resolved `description` field (mirroring `Name`) and
-   `Position.committee`/`Mandate.member` gained full sub-objects in the
-   specific contexts that render them (a member's mandate history; a
-   position's mandate-holder list) - gaps the backend-only pass hadn't
-   surfaced yet, found once real frontend consumers existed. Two small
-   accepted gaps remain, both pre-existing rather than introduced by this
-   pass: `nollningGroupId`/onboarding's `email` field stay on a narrow,
-   explicit direct Prisma write (see backend/CLAUDE.md); mandate
-   update/delete flash messages no longer personalize with the member's
-   name (Go has no single-mandate lookup, not worth a round-trip just for
-   a display string). Board-page porting (SEE_STABEN staben-hiding) stayed
-   deferred to Phase 2 exactly as planned below, not ported as a
-   half-hack.
-2. **Nollning redesign** (see below) - deliberately placed right after
-   foundation and before any other feature phase, so nothing built from
-   here on needs to route around nollning special-cases the way the
-   current codebase does. Depends on mandates/positions (phadder-mandate
-   detection) and access policies (`SEE_STABEN`) from phase 1.
-   **Status: backend implemented 2026-09-01, frontend wiring implemented
-   2026-09-02** (`backend/internal/nollning`, plus integration points in
-   `internal/auth`, `internal/articles`, `internal/events`,
-   `internal/committees`; SvelteKit side - board page, public/admin
-   phadder-group pages, member profile/edit/onboarding, the `(nollning)/`
-   phase-check layouts, `admin/settings`/`admin/debug` - see
-   `backend/CLAUDE.md`'s "Nollning routes" section for the exact endpoint
-   list and file list on both sides). Every "proposed" piece in the
-   subsection below was built as designed, with the two previously-open
-   questions resolved (see that subsection for both). Backend pass
-   verified via `go build`/`go vet`/`go test ./...` and a live `AUTH_MOCK`
-   smoke test against the dev DB: season create/current-phase transition,
-   `GET /board` redaction wiring (mechanism verified by inspection - the
-   mock authenticator always holds every policy including
-   `member:see_staben`, so a live "viewer without the policy sees the
-   position redacted" run wasn't possible without a second, differently-
-   privileged mock identity), and a full article `PATCH` round-trip setting
-   `nollningSeasonId` plus the resulting `GET /articles?nollningSeasonId=`
-   filter. Frontend pass verified via `svelte-check`/`eslint` (0 errors)
-   and a live SSR smoke test (both dev servers) of every rewired route.
-   The frontend pass also found and fixed a real bug the backend pass
-   introduced: `phadder_groups.year`'s removal (migrated by Go) had left
-   `src/database/schema.zmodel` still declaring it, breaking every
-   untouched `prisma.phadderGroup.*` call with no explicit `select` - see
-   `backend/CLAUDE.md`'s "Prisma schema drift" note. **Still not part of
-   any pass, deliberately**: a season picker UI on article/event
-   create/edit forms (events don't even have a create/edit `.svelte` yet;
-   articles' form sends `nollningSeasonId: null`, a valid value, until one
-   exists), and the `(nollning)/` route tree's actual product UI content
-   (unchanged, still `<NotImplemented />` stubs, including two pages whose
-   `load`/`actions` got ported to Go server-side without a matching
-   `.svelte` - same precedent as events' create/edit routes). Gallery's own
-   staben redaction remains the documented Phase 4 gap it always was.
-3. **Simple standalone CRUD** - songbook, governing documents, medals,
-   alerts. No dependencies beyond phase 1, low risk, good for keeping
-   velocity up after the heavier nollning phase.
-   **Status: backend and frontend both implemented 2026-09-02**
-   (`backend/internal/songs`, `internal/alerts`, `internal/markdown`,
-   `internal/governingdocs`, `internal/medals`, plus `internal/semesters` -
-   see `backend/CLAUDE.md`'s "Songbook routes"/"Alert routes"/"Info-pages
-   routes"/"Governing-documents routes"/"Medals routes" sections for the
-   exact endpoint list, migrations, and frontend files on both sides).
-   Scope was clarified before implementation (see the "Remaining domains"
-   correction above): "governing documents" is the `Document` model
-   (`/documents/governing`, no storage dependency), not `Markdown` (which
-   backs the unrelated `/info` CMS pages, ported alongside it here anyway
-   since it's equally simple); the MinIO-backed `/documents` file-browsing
-   family stays deferred to phase 4 as originally intended. Three
-   user-confirmed decisions going in: include `Document`/governing-docs in
-   this phase (it has no storage dependency, unlike the MinIO-backed
-   family it shares a URL prefix with); unify the old app's split Markdown
-   auth (`MARKDOWNS.CREATE`+`MARKDOWNS.PAGE(slug).UPDATE` vs. a separate
-   `MARKDOWN.CREATE` with no ACL auto-grant) into one policy pair plus a
-   per-page dynamic grant, used from both create paths; fix governing
-   documents' dead soft-delete column (schema had `deletedAt`, the old
-   delete action hard-deleted anyway) to a real soft-delete, matching
-   Song/Article/Event's existing convention. `medals` deliberately did
-   _not_ get a "fix real bugs found" treatment for its missing
-   medals-specific auth check (`apiNames.MEDALS.MANAGE` exists but was
-   never referenced by the old routes) - replicated as "must be
-   authenticated only" exactly as-is, since there was no evidence it was a
-   bug rather than an intentional design (unlike e.g. events'
-   `removeCommentAction`, which had no owner-of-comment ambiguity at all).
-   All five domains' Go services and HTTP layers were verified against the
-   live dev DB (not just `go build`/`go vet`) - including a real
-   correctness bug caught this way: `internal/medals`'s first cut of two
-   multi-param SQL queries had swapped start/end date params (sqlc names
-   positional-param struct fields by which column each `$N` binds to, not
-   by textual order in the query - easy to misread), silently producing
-   empty results until tested against real seed-data mandate histories
-   instead of just structural checks. Fixed by switching to named
-   `sqlc.arg(...)` params - see `backend/CLAUDE.md`'s Medals routes
-   section for the general lesson. `internal/medals.Service.MemberMedals`
-   (a single member's own medals) is ported and ready but not wired to any
-   route yet - its real consumer, the member profile page's inline medals
-   display, is a pre-existing, separately-documented deferral (see
-   Principles going forward's directory-foundation exceptions), not this
-   phase's job to close.
-4. **Real file storage + gallery + document uploads** - implement the
-   real `Uploader` (S3/MinIO) once something (gallery) actually needs
-   non-fake uploaded files to be useful; port document uploads at the
-   same time since it's the same storage dependency. Gallery's
-   staben-album date-filtering hack (see nollning section) gets replaced
-   with a real `nollning.Season` check here, not re-implemented as a
-   date-string folder parse.
-   **Status: backend and frontend both implemented 2026-09-02**
-   (`backend/internal/storage`, `internal/gallery`, `internal/documents` -
-   see `backend/CLAUDE.md`'s "Gallery routes" and "Documents (file-browsing)
-   routes" sections for the exact endpoint list, bucket/prefix conventions,
-   and frontend files on both sides). `internal/storage.Store` wraps
-   `github.com/minio/minio-go/v7` (new dependency - no S3/MinIO client
-   existed in `go.mod` before this) and implements
-   `internal/integrations.Uploader` directly, so article image upload
-   (`POST /uploads`) became real as a side effect of this phase, not just
-   gallery/documents. Uploads are proxied through Go (client → Go multipart
-   → MinIO), not presigned URLs, matching the existing `/uploads`
-   endpoint's shape. Two real bugs from the old app were fixed while
-   porting, not replicated: gallery upload now awaits every file upload
-   before returning (the old code pushed upload promises into a list it
-   never awaited); document/requirement delete now derives its target
-   bucket from the document type server-side, instead of always hitting
-   the `documents` bucket regardless of tab (silently broken for SRD and
-   every requirement-profile file, which live in the `files` bucket - this
-   turned out to affect the _main_ documents page's SRD tab too, not just
-   the requirements page, once traced through). Gallery's staben-album
-   redaction now uses a real `nollning.Service.Current` + `MemberSeeStaben`
-   check (same pattern as `committees.Service.ListBoard`), replacing the
-   `isNollningPeriod`/`getNollningStart` `AdminSetting`-based date-string
-   parse. **Correction discovered during implementation**: the dev `.env`'s
-   `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD` are blank placeholders, not real
-   credentials as this section's planning assumed - requiring real MinIO
-   config unconditionally would have broken `go run .`/`make dev` for
-   every contributor without those filled in (previously always worked,
-   since `MockUploader` needed nothing). Fixed by adding `STORAGE_MOCK`
-   (default off), mirroring `AUTH_MOCK`'s exact "explicit opt-in, loud in
-   the log, must never run against a real deployment" shape - `main.go`
-   requires real MinIO config unless `STORAGE_MOCK=true`, and both
-   `internal/gallery`/`internal/documents`/`internal/articles` now depend
-   on `storage.Backend` (an interface), not `*storage.Store` directly, so
-   `storage.MockBackend` can stand in. Verified end-to-end against
-   `STORAGE_MOCK=true` (every route, including a real multipart upload
-   round-trip for both gallery and documents, and confirming the bucket-fix
-   by watching the mock log target `files` vs `documents` correctly per
-   type) plus `svelte-check`/`eslint` (0 errors) and live SSR of every
-   rewired route. **Also verified live against the real MinIO sandbox**
-   (`files-sandbox.dsek.se`) once real `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD`
-   were filled in: a real gallery upload→list→get round-trip (including
-   fetching the resulting public URL directly, confirming the bucket is
-   actually publicly readable), and a real documents/requirements
-   upload→list→delete round-trip that specifically proved the bucket-fix
-   against live data - deleting a requirement-profile file via
-   `DELETE /documents/requirements` actually removed it from the `files`
-   bucket (its public URL 404s afterward), the exact case the old app's
-   bug silently failed. Test objects were cleaned up afterward via a
-   throwaway `internal/storage`-based script, not left in the shared
-   sandbox. **Real-data discovery, not a bug in this port**: the live
-   `albums` bucket's actual folders (`test3`, `test4`, `utedischot`, ...)
-   don't follow the `"{date} {name}"` convention `internal/gallery`'s
-   upload path assumes, and each contains `album/`/`cover/` subfolders -
-   `ListAlbums`' "second-to-last path segment" grouping (ported verbatim
-   from the old TS, which has the identical behavior) therefore groups by
-   `album`/`cover` across every pre-existing folder instead of by album,
-   and `GetAlbum`'s year-from-slug lookup doesn't resolve these folders at
-   all (they're not date-prefixed). This is a pre-existing property of the
-   old app's algorithm against this real data, not introduced by the port
-   - confirmed by testing the actual convention-following path (upload via
-     `POST /gallery/upload`, which does produce a correctly-groupable,
-     correctly-gettable album) separately, which worked. Worth the
-     attention of whoever eventually builds gallery's real UI in Phase 14.
-     **Local-dev-only issue found and fixed after initial verification,
-     2026-09-02**: `/documents` 403'd against the local dev DB - not a code
-     bug (the exact same `apinames.FileDocumentsRead`/etc. check the old TS
-     app enforced, byte-for-byte identical policy string), but because
-     `fileHandler:{albums,documents,files}:read` had zero grants locally
-     (prod, where `/documents` works, presumably has them). Fixed for now by
-     inserting `role='*'` rows directly, mirroring `governing_document:read`'s
-     existing pattern - see the new "DB seeding, needed eventually" section
-     above for the real fix this incident motivated (there's currently no
-     reproducible way to seed `api_access_policies`, this project-wide, not
-     specific to this phase).
-     Two small accepted gaps, both explicit decisions rather than oversights:
-     avatar/profile-picture upload (the `members` bucket) stays deferred, not
-     pulled into this phase despite sharing the same `Uploader` dependency
-     (Phase 1's own note already flagged it as Phase-4-adjacent, but the
-     roadmap bullet here only ever named gallery + documents); no server-side
-     image compression/webp conversion on upload (the old app's `sharp`-based
-     compression doesn't port this pass - files are stored as given). Gallery
-     itself never had a delete feature in the old app and doesn't gain one
-     here, and `move`/`rename` (unused by any live gallery/documents caller)
-     aren't ported either - both relevant only to a future admin MinIO
-     browser (Phase 11), not this phase's job.
-5. **Booking** - bookables + booking requests.
-   **Status: backend and frontend both implemented 2026-09-02**
-   (`backend/internal/booking` - see `backend/CLAUDE.md`'s "Booking routes"
-   section for the exact endpoint list). `bookable_categories`, `bookables`,
-   `booking_requests`, and the implicit m2m join table all pre-date this
-   Go port (part of the original copied Prisma migration history, same as
-   songs/alerts/documents in Phase 3) - `schema.sql` additions only, no new
-   migration. Three decisions confirmed with the user before implementing:
-   fix the old edit action's `isAdmin` check (it tested
-   `apiNames.BOOKABLES.UPDATE`, a bookable-_resource_ policy, instead of
-   `BOOKINGS.UPDATE`, the booking-_request_ policy the underlying write was
-   actually gated on - almost certainly a bug, not intentional); add
-   non-blocking overlap detection as a genuinely new feature (the old app
-   never checked for double-bookings at all) - surfaced as a `conflicts`
-   list on create/update's response, never rejecting the request; and
-   build real minimal CRUD for `Bookable`/`BookableCategory` themselves
-   (list/get/create/update, no delete - matching the old zmodel's own
-   create/read/update-only `@@allow` set) since the old app's generic
-   ZenStack REST endpoint that would have served this was hard-restricted
-   to GET-only, making bookable-resource management previously
-   nonfunctional end-to-end.
-   - The `BOOKINGS.UPDATE` fix has a real consequence worth flagging: once
-     the isAdmin check uses the same policy the update write is itself
-     gated on, "isAdmin" and "is allowed to update at all" become the same
-     condition - collapsing the old app's actual behavior (isAdmin was
-     checking an unrelated, likely-ungranted policy, so it was false for
-     virtually everyone who could reach this action, meaning almost every
-     edit reset status to PENDING) into "only a `booking_request:update`
-     holder can update, and their edits never reset status." To keep the
-     status-reset-to-PENDING behavior meaningful at all, `Update` also
-     extends the zmodel's delete-only owner bypass
-     (`auth().memberId == bookerId`) to update: a booker editing their own
-     request is allowed (previously only true by the old code's accident)
-     and resets status to PENDING; an admin's edit preserves it. Flagged
-     explicitly here as a judgment call, not hidden in the diff.
-   - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
-     against the dev DB: bookable/category CRUD, a real overlap-conflict
-     detection (two requests on the same bookable with overlapping times,
-     confirmed the second's response lists the first, and confirmed a
-     request never appears in its own conflict list), accept/reject
-     notifications firing (`integrations.MockNotifier`, two new methods:
-     `NotifyNewBookingRequest`/`NotifyBookingRequestStatus`), and delete.
-     Frontend verified via `svelte-check`/`eslint` (0 errors/warnings) and
-     a live round-trip through the actual SvelteKit dev server's form
-     actions (create → accept → delete) against the real Go backend, not
-     just direct-to-Go curl calls. All five `.svelte` pages were already
-     `<NotImplemented />` stubs before this phase (not introduced by it),
-     so per Principle #6 only their `.server.ts` load/action logic was
-     ported - no visual UI work was in scope.
-   - **Found and fixed while wiring this phase, but a cross-cutting bug
-     affecting every previously-ported phase, not specific to booking**:
-     every `.server.ts` file's calls to Go were silently running as an
-     anonymous caller (no session cookie forwarded, invisible under
-     `AUTH_MOCK`) - see the Auth section's "Cookie forwarding was missing
-     from every `.server.ts` file" bullet for the full writeup and fix
-     (`$lib/server/apiClient`'s `serverApi(event)`, retrofitted across
-     ~25 files spanning phases 1-4 in the same pass, at the user's
-     explicit request once the scope of the bug was clear).
-6. ~~**Expenses** - depends on phase 4's real uploader for receipts.~~
-   **Cut from scope entirely, skipped (2026-09-02)** - see "Expenses: cut
-   from scope entirely" above; moved to a separate external app, not
-   ported or mocked.
-7. **Elections** - originally described here as a "nomination/voting
-   workflow" backed by `Election`, `ItemQuestion`/`ItemQuestionOption`/
-   `ItemQuestionResponse`. **Correction (found during Phase 7
-   implementation, 2026-09-02)**: that description conflates two unrelated
-   things, similar in shape to Phase 3's Markdown/governing-documents
-   correction above.
-   - `ItemQuestion`/`ItemQuestionOption`/`ItemQuestionResponse` are not
-     part of Elections at all - they belong to `Shoppable`/`Consumable`
-     (a shop item's custom purchase-time questions, e.g. "dietary
-     restriction?"). That's the already-cut-from-scope shop/ticket domain
-     (see "Shop / tickets: cut from scope entirely" above) - no new work
-     needed, they were already out of scope by that decision; this is
-     purely a roadmap wording fix; a bit ambiguity persisted only because
-     nobody had actually opened these three models until this phase.
-   - The real "nomination" mechanism, "yrka" (`src/routes/(app)/yrka`), has
-     **no database model at all** - it's a plain `nodemailer` email send to
-     `yrka@dsek.se`, with no `authorize()` call in the old app either (its
-     `load` gates on `apiNames.YRKA.SEND`, but the actual `actions.default`
-     that sends the email has no check). Since it never touches Prisma,
-     there is nothing to "port" here in the sense every other phase in this
-     document uses that word - it stays in SvelteKit indefinitely, same as
-     any other feature with no data-layer dependency. Not touched by this
-     phase.
-   - `Election` itself (`internal/elections`, `internal/api/
+1.  **Directory foundation** - full `members`/`mandates`/`positions`/
+    `committees` CRUD and profile pages, `AccessPolicy`/`EmailAlias` admin
+    management. Almost everything below displays or authorizes off member/
+    mandate/committee data, including nollning's own role derivation -
+    this has to be solid before nollning or anything else builds on it.
+    **Status: implemented 2026-09-01, backend and SvelteKit frontend wiring
+    both done** (`backend/internal/members`, `backend/internal/committees`,
+    `backend/internal/accesspolicies` - see `backend/CLAUDE.md`'s "Directory
+    routes" section for the exact endpoint list, every scope cut, and the
+    frontend-wiring notes). Verified via `svelte-check`/`eslint` (0 errors)
+    and live SSR + a real mutation round-trip against the dev DB, matching
+    the standard the articles/events ports were held to.
+    `positionToCommitteeMap` turned out not to need any change at all once
+    actually wired up - Go addresses positions by full ID, and the
+    frontend's existing short-URL scheme keeps working unmodified since
+    position IDs themselves didn't change; the anticipated "port the map or
+    switch URL schemes" fork never had to be taken. `apitypes.Committee`/
+    `Position` gained a resolved `description` field (mirroring `Name`) and
+    `Position.committee`/`Mandate.member` gained full sub-objects in the
+    specific contexts that render them (a member's mandate history; a
+    position's mandate-holder list) - gaps the backend-only pass hadn't
+    surfaced yet, found once real frontend consumers existed. Two small
+    accepted gaps remain, both pre-existing rather than introduced by this
+    pass: `nollningGroupId`/onboarding's `email` field stay on a narrow,
+    explicit direct Prisma write (see backend/CLAUDE.md); mandate
+    update/delete flash messages no longer personalize with the member's
+    name (Go has no single-mandate lookup, not worth a round-trip just for
+    a display string). Board-page porting (SEE_STABEN staben-hiding) stayed
+    deferred to Phase 2 exactly as planned below, not ported as a
+    half-hack.
+2.  **Nollning redesign** (see below) - deliberately placed right after
+    foundation and before any other feature phase, so nothing built from
+    here on needs to route around nollning special-cases the way the
+    current codebase does. Depends on mandates/positions (phadder-mandate
+    detection) and access policies (`SEE_STABEN`) from phase 1.
+    **Status: backend implemented 2026-09-01, frontend wiring implemented
+    2026-09-02** (`backend/internal/nollning`, plus integration points in
+    `internal/auth`, `internal/articles`, `internal/events`,
+    `internal/committees`; SvelteKit side - board page, public/admin
+    phadder-group pages, member profile/edit/onboarding, the `(nollning)/`
+    phase-check layouts, `admin/settings`/`admin/debug` - see
+    `backend/CLAUDE.md`'s "Nollning routes" section for the exact endpoint
+    list and file list on both sides). Every "proposed" piece in the
+    subsection below was built as designed, with the two previously-open
+    questions resolved (see that subsection for both). Backend pass
+    verified via `go build`/`go vet`/`go test ./...` and a live `AUTH_MOCK`
+    smoke test against the dev DB: season create/current-phase transition,
+    `GET /board` redaction wiring (mechanism verified by inspection - the
+    mock authenticator always holds every policy including
+    `member:see_staben`, so a live "viewer without the policy sees the
+    position redacted" run wasn't possible without a second, differently-
+    privileged mock identity), and a full article `PATCH` round-trip setting
+    `nollningSeasonId` plus the resulting `GET /articles?nollningSeasonId=`
+    filter. Frontend pass verified via `svelte-check`/`eslint` (0 errors)
+    and a live SSR smoke test (both dev servers) of every rewired route.
+    The frontend pass also found and fixed a real bug the backend pass
+    introduced: `phadder_groups.year`'s removal (migrated by Go) had left
+    `src/database/schema.zmodel` still declaring it, breaking every
+    untouched `prisma.phadderGroup.*` call with no explicit `select` - see
+    `backend/CLAUDE.md`'s "Prisma schema drift" note. **Still not part of
+    any pass, deliberately**: a season picker UI on article/event
+    create/edit forms (events don't even have a create/edit `.svelte` yet;
+    articles' form sends `nollningSeasonId: null`, a valid value, until one
+    exists), and the `(nollning)/` route tree's actual product UI content
+    (unchanged, still `<NotImplemented />` stubs, including two pages whose
+    `load`/`actions` got ported to Go server-side without a matching
+    `.svelte` - same precedent as events' create/edit routes). Gallery's own
+    staben redaction remains the documented Phase 4 gap it always was.
+3.  **Simple standalone CRUD** - songbook, governing documents, medals,
+    alerts. No dependencies beyond phase 1, low risk, good for keeping
+    velocity up after the heavier nollning phase.
+    **Status: backend and frontend both implemented 2026-09-02**
+    (`backend/internal/songs`, `internal/alerts`, `internal/markdown`,
+    `internal/governingdocs`, `internal/medals`, plus `internal/semesters` -
+    see `backend/CLAUDE.md`'s "Songbook routes"/"Alert routes"/"Info-pages
+    routes"/"Governing-documents routes"/"Medals routes" sections for the
+    exact endpoint list, migrations, and frontend files on both sides).
+    Scope was clarified before implementation (see the "Remaining domains"
+    correction above): "governing documents" is the `Document` model
+    (`/documents/governing`, no storage dependency), not `Markdown` (which
+    backs the unrelated `/info` CMS pages, ported alongside it here anyway
+    since it's equally simple); the MinIO-backed `/documents` file-browsing
+    family stays deferred to phase 4 as originally intended. Three
+    user-confirmed decisions going in: include `Document`/governing-docs in
+    this phase (it has no storage dependency, unlike the MinIO-backed
+    family it shares a URL prefix with); unify the old app's split Markdown
+    auth (`MARKDOWNS.CREATE`+`MARKDOWNS.PAGE(slug).UPDATE` vs. a separate
+    `MARKDOWN.CREATE` with no ACL auto-grant) into one policy pair plus a
+    per-page dynamic grant, used from both create paths; fix governing
+    documents' dead soft-delete column (schema had `deletedAt`, the old
+    delete action hard-deleted anyway) to a real soft-delete, matching
+    Song/Article/Event's existing convention. `medals` deliberately did
+    _not_ get a "fix real bugs found" treatment for its missing
+    medals-specific auth check (`apiNames.MEDALS.MANAGE` exists but was
+    never referenced by the old routes) - replicated as "must be
+    authenticated only" exactly as-is, since there was no evidence it was a
+    bug rather than an intentional design (unlike e.g. events'
+    `removeCommentAction`, which had no owner-of-comment ambiguity at all).
+    All five domains' Go services and HTTP layers were verified against the
+    live dev DB (not just `go build`/`go vet`) - including a real
+    correctness bug caught this way: `internal/medals`'s first cut of two
+    multi-param SQL queries had swapped start/end date params (sqlc names
+    positional-param struct fields by which column each `$N` binds to, not
+    by textual order in the query - easy to misread), silently producing
+    empty results until tested against real seed-data mandate histories
+    instead of just structural checks. Fixed by switching to named
+    `sqlc.arg(...)` params - see `backend/CLAUDE.md`'s Medals routes
+    section for the general lesson. `internal/medals.Service.MemberMedals`
+    (a single member's own medals) is ported and ready but not wired to any
+    route yet - its real consumer, the member profile page's inline medals
+    display, is a pre-existing, separately-documented deferral (see
+    Principles going forward's directory-foundation exceptions), not this
+    phase's job to close.
+4.  **Real file storage + gallery + document uploads** - implement the
+    real `Uploader` (S3/MinIO) once something (gallery) actually needs
+    non-fake uploaded files to be useful; port document uploads at the
+    same time since it's the same storage dependency. Gallery's
+    staben-album date-filtering hack (see nollning section) gets replaced
+    with a real `nollning.Season` check here, not re-implemented as a
+    date-string folder parse.
+    **Status: backend and frontend both implemented 2026-09-02**
+    (`backend/internal/storage`, `internal/gallery`, `internal/documents` -
+    see `backend/CLAUDE.md`'s "Gallery routes" and "Documents (file-browsing)
+    routes" sections for the exact endpoint list, bucket/prefix conventions,
+    and frontend files on both sides). `internal/storage.Store` wraps
+    `github.com/minio/minio-go/v7` (new dependency - no S3/MinIO client
+    existed in `go.mod` before this) and implements
+    `internal/integrations.Uploader` directly, so article image upload
+    (`POST /uploads`) became real as a side effect of this phase, not just
+    gallery/documents. Uploads are proxied through Go (client → Go multipart
+    → MinIO), not presigned URLs, matching the existing `/uploads`
+    endpoint's shape. Two real bugs from the old app were fixed while
+    porting, not replicated: gallery upload now awaits every file upload
+    before returning (the old code pushed upload promises into a list it
+    never awaited); document/requirement delete now derives its target
+    bucket from the document type server-side, instead of always hitting
+    the `documents` bucket regardless of tab (silently broken for SRD and
+    every requirement-profile file, which live in the `files` bucket - this
+    turned out to affect the _main_ documents page's SRD tab too, not just
+    the requirements page, once traced through). Gallery's staben-album
+    redaction now uses a real `nollning.Service.Current` + `MemberSeeStaben`
+    check (same pattern as `committees.Service.ListBoard`), replacing the
+    `isNollningPeriod`/`getNollningStart` `AdminSetting`-based date-string
+    parse. **Correction discovered during implementation**: the dev `.env`'s
+    `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD` are blank placeholders, not real
+    credentials as this section's planning assumed - requiring real MinIO
+    config unconditionally would have broken `go run .`/`make dev` for
+    every contributor without those filled in (previously always worked,
+    since `MockUploader` needed nothing). Fixed by adding `STORAGE_MOCK`
+    (default off), mirroring `AUTH_MOCK`'s exact "explicit opt-in, loud in
+    the log, must never run against a real deployment" shape - `main.go`
+    requires real MinIO config unless `STORAGE_MOCK=true`, and both
+    `internal/gallery`/`internal/documents`/`internal/articles` now depend
+    on `storage.Backend` (an interface), not `*storage.Store` directly, so
+    `storage.MockBackend` can stand in. Verified end-to-end against
+    `STORAGE_MOCK=true` (every route, including a real multipart upload
+    round-trip for both gallery and documents, and confirming the bucket-fix
+    by watching the mock log target `files` vs `documents` correctly per
+    type) plus `svelte-check`/`eslint` (0 errors) and live SSR of every
+    rewired route. **Also verified live against the real MinIO sandbox**
+    (`files-sandbox.dsek.se`) once real `MINIO_ROOT_USER`/`MINIO_ROOT_PASSWORD`
+    were filled in: a real gallery upload→list→get round-trip (including
+    fetching the resulting public URL directly, confirming the bucket is
+    actually publicly readable), and a real documents/requirements
+    upload→list→delete round-trip that specifically proved the bucket-fix
+    against live data - deleting a requirement-profile file via
+    `DELETE /documents/requirements` actually removed it from the `files`
+    bucket (its public URL 404s afterward), the exact case the old app's
+    bug silently failed. Test objects were cleaned up afterward via a
+    throwaway `internal/storage`-based script, not left in the shared
+    sandbox. **Real-data discovery, not a bug in this port**: the live
+    `albums` bucket's actual folders (`test3`, `test4`, `utedischot`, ...)
+    don't follow the `"{date} {name}"` convention `internal/gallery`'s
+    upload path assumes, and each contains `album/`/`cover/` subfolders -
+    `ListAlbums`' "second-to-last path segment" grouping (ported verbatim
+    from the old TS, which has the identical behavior) therefore groups by
+    `album`/`cover` across every pre-existing folder instead of by album,
+    and `GetAlbum`'s year-from-slug lookup doesn't resolve these folders at
+    all (they're not date-prefixed). This is a pre-existing property of the
+    old app's algorithm against this real data, not introduced by the port
+    - confirmed by testing the actual convention-following path (upload via
+      `POST /gallery/upload`, which does produce a correctly-groupable,
+      correctly-gettable album) separately, which worked. Worth the
+      attention of whoever eventually builds gallery's real UI in Phase 14.
+      **Local-dev-only issue found and fixed after initial verification,
+      2026-09-02**: `/documents` 403'd against the local dev DB - not a code
+      bug (the exact same `apinames.FileDocumentsRead`/etc. check the old TS
+      app enforced, byte-for-byte identical policy string), but because
+      `fileHandler:{albums,documents,files}:read` had zero grants locally
+      (prod, where `/documents` works, presumably has them). Fixed for now by
+      inserting `role='*'` rows directly, mirroring `governing_document:read`'s
+      existing pattern - see the new "DB seeding, needed eventually" section
+      above for the real fix this incident motivated (there's currently no
+      reproducible way to seed `api_access_policies`, this project-wide, not
+      specific to this phase).
+      Two small accepted gaps, both explicit decisions rather than oversights:
+      avatar/profile-picture upload (the `members` bucket) stays deferred, not
+      pulled into this phase despite sharing the same `Uploader` dependency
+      (Phase 1's own note already flagged it as Phase-4-adjacent, but the
+      roadmap bullet here only ever named gallery + documents); no server-side
+      image compression/webp conversion on upload (the old app's `sharp`-based
+      compression doesn't port this pass - files are stored as given). Gallery
+      itself never had a delete feature in the old app and doesn't gain one
+      here, and `move`/`rename` (unused by any live gallery/documents caller)
+      aren't ported either - both relevant only to a future admin MinIO
+      browser (Phase 11), not this phase's job.
+5.  **Booking** - bookables + booking requests.
+    **Status: backend and frontend both implemented 2026-09-02**
+    (`backend/internal/booking` - see `backend/CLAUDE.md`'s "Booking routes"
+    section for the exact endpoint list). `bookable_categories`, `bookables`,
+    `booking_requests`, and the implicit m2m join table all pre-date this
+    Go port (part of the original copied Prisma migration history, same as
+    songs/alerts/documents in Phase 3) - `schema.sql` additions only, no new
+    migration. Three decisions confirmed with the user before implementing:
+    fix the old edit action's `isAdmin` check (it tested
+    `apiNames.BOOKABLES.UPDATE`, a bookable-_resource_ policy, instead of
+    `BOOKINGS.UPDATE`, the booking-_request_ policy the underlying write was
+    actually gated on - almost certainly a bug, not intentional); add
+    non-blocking overlap detection as a genuinely new feature (the old app
+    never checked for double-bookings at all) - surfaced as a `conflicts`
+    list on create/update's response, never rejecting the request; and
+    build real minimal CRUD for `Bookable`/`BookableCategory` themselves
+    (list/get/create/update, no delete - matching the old zmodel's own
+    create/read/update-only `@@allow` set) since the old app's generic
+    ZenStack REST endpoint that would have served this was hard-restricted
+    to GET-only, making bookable-resource management previously
+    nonfunctional end-to-end.
+    - The `BOOKINGS.UPDATE` fix has a real consequence worth flagging: once
+      the isAdmin check uses the same policy the update write is itself
+      gated on, "isAdmin" and "is allowed to update at all" become the same
+      condition - collapsing the old app's actual behavior (isAdmin was
+      checking an unrelated, likely-ungranted policy, so it was false for
+      virtually everyone who could reach this action, meaning almost every
+      edit reset status to PENDING) into "only a `booking_request:update`
+      holder can update, and their edits never reset status." To keep the
+      status-reset-to-PENDING behavior meaningful at all, `Update` also
+      extends the zmodel's delete-only owner bypass
+      (`auth().memberId == bookerId`) to update: a booker editing their own
+      request is allowed (previously only true by the old code's accident)
+      and resets status to PENDING; an admin's edit preserves it. Flagged
+      explicitly here as a judgment call, not hidden in the diff.
+    - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
+      against the dev DB: bookable/category CRUD, a real overlap-conflict
+      detection (two requests on the same bookable with overlapping times,
+      confirmed the second's response lists the first, and confirmed a
+      request never appears in its own conflict list), accept/reject
+      notifications firing (`integrations.MockNotifier`, two new methods:
+      `NotifyNewBookingRequest`/`NotifyBookingRequestStatus`), and delete.
+      Frontend verified via `svelte-check`/`eslint` (0 errors/warnings) and
+      a live round-trip through the actual SvelteKit dev server's form
+      actions (create → accept → delete) against the real Go backend, not
+      just direct-to-Go curl calls. All five `.svelte` pages were already
+      `<NotImplemented />` stubs before this phase (not introduced by it),
+      so per Principle #6 only their `.server.ts` load/action logic was
+      ported - no visual UI work was in scope.
+    - **Found and fixed while wiring this phase, but a cross-cutting bug
+      affecting every previously-ported phase, not specific to booking**:
+      every `.server.ts` file's calls to Go were silently running as an
+      anonymous caller (no session cookie forwarded, invisible under
+      `AUTH_MOCK`) - see the Auth section's "Cookie forwarding was missing
+      from every `.server.ts` file" bullet for the full writeup and fix
+      (`$lib/server/apiClient`'s `serverApi(event)`, retrofitted across
+      ~25 files spanning phases 1-4 in the same pass, at the user's
+      explicit request once the scope of the bug was clear).
+6.  ~~**Expenses** - depends on phase 4's real uploader for receipts.~~
+    **Cut from scope entirely, skipped (2026-09-02)** - see "Expenses: cut
+    from scope entirely" above; moved to a separate external app, not
+    ported or mocked.
+7.  **Elections** - originally described here as a "nomination/voting
+    workflow" backed by `Election`, `ItemQuestion`/`ItemQuestionOption`/
+    `ItemQuestionResponse`. **Correction (found during Phase 7
+    implementation, 2026-09-02)**: that description conflates two unrelated
+    things, similar in shape to Phase 3's Markdown/governing-documents
+    correction above.
+    - `ItemQuestion`/`ItemQuestionOption`/`ItemQuestionResponse` are not
+      part of Elections at all - they belong to `Shoppable`/`Consumable`
+      (a shop item's custom purchase-time questions, e.g. "dietary
+      restriction?"). That's the already-cut-from-scope shop/ticket domain
+      (see "Shop / tickets: cut from scope entirely" above) - no new work
+      needed, they were already out of scope by that decision; this is
+      purely a roadmap wording fix; a bit ambiguity persisted only because
+      nobody had actually opened these three models until this phase.
+    - The real "nomination" mechanism, "yrka" (`src/routes/(app)/yrka`), has
+      **no database model at all** - it's a plain `nodemailer` email send to
+      `yrka@dsek.se`, with no `authorize()` call in the old app either (its
+      `load` gates on `apiNames.YRKA.SEND`, but the actual `actions.default`
+      that sends the email has no check). Since it never touches Prisma,
+      there is nothing to "port" here in the sense every other phase in this
+      document uses that word - it stays in SvelteKit indefinitely, same as
+      any other feature with no data-layer dependency. Not touched by this
+      phase.
+    - `Election` itself (`internal/elections`, `internal/api/
 huma_elections.go`) is genuinely simple: a committee announcement
-     (`markdownSv`/`markdownEn`, an external `link` to a Google Form or
-     similar, an `expiresAt` date) - there is no in-house ballot/voting
-     mechanism anywhere in this codebase; actual voting happens entirely on
-     whatever external service `link` points to. **Backend and frontend
-     both implemented and verified** (`go build`/`go vet`, a live
-     `AUTH_MOCK` CRUD round-trip against the dev DB, `svelte-check`/`eslint`
-     at 0 errors, and a live round-trip through the actual SvelteKit dev
-     server's `create`/`update` form actions against the real Go backend,
-     same standard as every phase since Booking).
-   - `GET /elections` (public, only non-expired, soonest-closing first),
-     `GET /elections/{id}` (public, unconstrained by expiry - the edit
-     page's lookup), `POST /elections`/`PATCH /elections/{id}` (gated
-     `election:create`/`election:update` - **a real, necessary explicit
-     check Go adds**: the old app's create/update actions had no
-     `authorize()` call at all, relying purely on ZenStack's model-level
-     policy), `DELETE /elections/{id}` (gated `election:delete`, a hard
-     delete since the table has no soft-delete column). Policy strings
-     reused verbatim from the old `apiNames.ELECTION` `crud()` group so any
-     existing dev-DB grants carry over - no `ElectionRead` const exists
-     since the old ZModel's `@@allow("read", true)` never actually checked
-     one.
-   - **`DELETE` is a genuinely new capability, not a replicated gap** -
-     same call as Booking's bookable/category CRUD: the policy string
-     already existed unused in `apiNames.ts`, but no delete button exists
-     anywhere in the old app (once an election expires it simply
-     disappears from every list, including its own edit link - a pre-
-     existing UX gap replicated as-is, not fixed).
-   - **Frontend**: `elections/+page.ts` (converted from `+page.server.ts`,
-     a real working page - unlike most phases' stubs, Elections already had
-     a fully built UI before this port). `create`/`[id]/edit` keep their
-     `+page.server.ts` superforms actions (real authoring forms, same
-     "keep the action" precedent as articles/songbook) but now call Go
-     instead of Prisma; `[id]/edit`'s `expiresAt` conversion was
-     normalized to the same Stockholm-timezone end-of-day handling
-     `create`'s action already used (the old app's two actions disagreed -
-     `create` did `dayjs.tz(..., "Europe/Stockholm").utc()`, `update` did a
-     bare `dayjs(...).endOf("day")` with no explicit timezone - a small,
-     low-risk consistency fix bundled into the port, not a new behavior).
-     `$lib/server/loadHomeData.ts`'s `electionsPromise` converted the same
-     way `newsPromise` already had been (Prisma → `api.GET(...)`) -
-     **deliberate simplification**: the homepage widget now shows the same
-     soonest-closing-first order the full `/elections` page uses (sliced to 3) rather than newest-announced-first, since the Go endpoint only
-     supports one order and a second variant wasn't worth adding for a
-     3-item widget. `ElectionCard.svelte`'s prop type moved off
-     `ExtendedPrismaModel<"Election">` onto the generated Go schema type
-     directly (no dual-shape transition needed, unlike `MemberCard`/
-     `CommitteeIcon` elsewhere - Elections had exactly one old consumer
-     shape to replace, not several staggered ones) - `CommitteeIcon`'s own
-     "TEMPORARY dual-shape" comment updated to drop `home` and
-     `elections/ElectionCard` from its still-Prisma consumer list.
-8. **Cafe** - shifts + drink inventory.
-   **Status: backend and frontend both implemented 2026-09-03**
-   (`backend/internal/cafe` - see `backend/CLAUDE.md`'s "Cafe routes"
-   section for the exact endpoint list). **Scope correction, user-confirmed
-   before implementation, same shape as Phase 3's and Phase 7's own roadmap
-   corrections**: "drink inventory" turned out to mean `DrinkItem`/
-   `DrinkItemBatch`/`SexetInventoryValueLog` (the `admin/stocklist` pages -
-   overview, addproduct, showproducts, stockchange, treasury) - a genuinely
-   separate feature already listed on its own under roadmap Phase 11
-   ("Admin consolidation"). Both features were backend-only right now
-   either way (every `admin/stocklist` `.svelte` file, like
-   `committees/cafe`'s own, was already `<NotImplemented />`), so nothing
-   about UI readiness forced the split - asked the user directly, who chose
-   to scope this phase to cafe shifts/ciabatta/opening-hours only and leave
-   stocklist for Phase 11 as originally planned, rather than pull it
-   forward into this pass. `cafe_shifts`/`ciabatta_of_the_week`/the
-   `time_slots` enum pre-date this Go port (Prisma-created, part of the
-   original copied migration history) - `schema.sql` additions only, no
-   new migration, same as songs/alerts/booking/elections.
-   - The old app's local dayjs `weekOfYear`-plugin-based week arithmetic
-     (`getWeek`, and the `week`/`year` echoed back to the client) was
-     **not** ported bit-for-bit - see `backend/CLAUDE.md`'s Cafe routes
-     section for the full reasoning. `GET /cafe/schedule` uses real
-     ISO-8601 week semantics (Go's `time.Time.ISOWeek()`) instead of
-     replicating dayjs's non-standard default-locale "week 1 contains
-     Jan 1, Sunday-start" convention and its year-boundary quirks - a
-     deliberate simplification accepted because nothing renders this page
-     yet (still `<NotImplemented />`, deferred to Phase 14 same as
-     booking's five pages). Revisit only if a real frontend consumer needs
-     bit-for-bit parity with specific historical week numbers the old
-     dayjs algorithm would have produced.
-   - `PUT /cafe/shifts` collapses the old `updateSchedule` action's
-     sign-up/quit/reassign toggle logic into one endpoint, faithfully
-     replicated including its real (not obviously intentional, but
-     replicated exactly since there's no evidence it was a bug) quirk: the
-     "you already have another shift this day" guard checks the _acting_
-     identity's own shifts, not the target member's - which only matters
-     for self-signup, since every path where target ≠ actor already
-     requires `cafe:edit_workers` and bypasses this guard entirely, same
-     as the old app. One accepted simplification bundled in: the
-     "too close to cancel" cutoff is day-granular rather than the old
-     app's exact `shiftDate > dayjs().add(1, "day")` instant comparison,
-     collapsing its two distinct "too close"/"already passed" error
-     messages into one - not preserved since nothing renders this page yet
-     to show the distinction. Requires an identity - a real, necessary
-     explicit check added: the old action had none, relying on `worker`
-     ending up empty/undefined for an anonymous caller and the resulting
-     Prisma create failing incidentally.
-   - Opening-hours _reads_ get a bespoke endpoint (`GET
+      (`markdownSv`/`markdownEn`, an external `link` to a Google Form or
+      similar, an `expiresAt` date) - there is no in-house ballot/voting
+      mechanism anywhere in this codebase; actual voting happens entirely on
+      whatever external service `link` points to. **Backend and frontend
+      both implemented and verified** (`go build`/`go vet`, a live
+      `AUTH_MOCK` CRUD round-trip against the dev DB, `svelte-check`/`eslint`
+      at 0 errors, and a live round-trip through the actual SvelteKit dev
+      server's `create`/`update` form actions against the real Go backend,
+      same standard as every phase since Booking).
+    - `GET /elections` (public, only non-expired, soonest-closing first),
+      `GET /elections/{id}` (public, unconstrained by expiry - the edit
+      page's lookup), `POST /elections`/`PATCH /elections/{id}` (gated
+      `election:create`/`election:update` - **a real, necessary explicit
+      check Go adds**: the old app's create/update actions had no
+      `authorize()` call at all, relying purely on ZenStack's model-level
+      policy), `DELETE /elections/{id}` (gated `election:delete`, a hard
+      delete since the table has no soft-delete column). Policy strings
+      reused verbatim from the old `apiNames.ELECTION` `crud()` group so any
+      existing dev-DB grants carry over - no `ElectionRead` const exists
+      since the old ZModel's `@@allow("read", true)` never actually checked
+      one.
+    - **`DELETE` is a genuinely new capability, not a replicated gap** -
+      same call as Booking's bookable/category CRUD: the policy string
+      already existed unused in `apiNames.ts`, but no delete button exists
+      anywhere in the old app (once an election expires it simply
+      disappears from every list, including its own edit link - a pre-
+      existing UX gap replicated as-is, not fixed).
+    - **Frontend**: `elections/+page.ts` (converted from `+page.server.ts`,
+      a real working page - unlike most phases' stubs, Elections already had
+      a fully built UI before this port). `create`/`[id]/edit` keep their
+      `+page.server.ts` superforms actions (real authoring forms, same
+      "keep the action" precedent as articles/songbook) but now call Go
+      instead of Prisma; `[id]/edit`'s `expiresAt` conversion was
+      normalized to the same Stockholm-timezone end-of-day handling
+      `create`'s action already used (the old app's two actions disagreed -
+      `create` did `dayjs.tz(..., "Europe/Stockholm").utc()`, `update` did a
+      bare `dayjs(...).endOf("day")` with no explicit timezone - a small,
+      low-risk consistency fix bundled into the port, not a new behavior).
+      `$lib/server/loadHomeData.ts`'s `electionsPromise` converted the same
+      way `newsPromise` already had been (Prisma → `api.GET(...)`) -
+      **deliberate simplification**: the homepage widget now shows the same
+      soonest-closing-first order the full `/elections` page uses (sliced to 3) rather than newest-announced-first, since the Go endpoint only
+      supports one order and a second variant wasn't worth adding for a
+      3-item widget. `ElectionCard.svelte`'s prop type moved off
+      `ExtendedPrismaModel<"Election">` onto the generated Go schema type
+      directly (no dual-shape transition needed, unlike `MemberCard`/
+      `CommitteeIcon` elsewhere - Elections had exactly one old consumer
+      shape to replace, not several staggered ones) - `CommitteeIcon`'s own
+      "TEMPORARY dual-shape" comment updated to drop `home` and
+      `elections/ElectionCard` from its still-Prisma consumer list.
+8.  **Cafe** - shifts + drink inventory.
+    **Status: backend and frontend both implemented 2026-09-03**
+    (`backend/internal/cafe` - see `backend/CLAUDE.md`'s "Cafe routes"
+    section for the exact endpoint list). **Scope correction, user-confirmed
+    before implementation, same shape as Phase 3's and Phase 7's own roadmap
+    corrections**: "drink inventory" turned out to mean `DrinkItem`/
+    `DrinkItemBatch`/`SexetInventoryValueLog` (the `admin/stocklist` pages -
+    overview, addproduct, showproducts, stockchange, treasury) - a genuinely
+    separate feature already listed on its own under roadmap Phase 11
+    ("Admin consolidation"). Both features were backend-only right now
+    either way (every `admin/stocklist` `.svelte` file, like
+    `committees/cafe`'s own, was already `<NotImplemented />`), so nothing
+    about UI readiness forced the split - asked the user directly, who chose
+    to scope this phase to cafe shifts/ciabatta/opening-hours only and leave
+    stocklist for Phase 11 as originally planned, rather than pull it
+    forward into this pass. `cafe_shifts`/`ciabatta_of_the_week`/the
+    `time_slots` enum pre-date this Go port (Prisma-created, part of the
+    original copied migration history) - `schema.sql` additions only, no
+    new migration, same as songs/alerts/booking/elections.
+    - The old app's local dayjs `weekOfYear`-plugin-based week arithmetic
+      (`getWeek`, and the `week`/`year` echoed back to the client) was
+      **not** ported bit-for-bit - see `backend/CLAUDE.md`'s Cafe routes
+      section for the full reasoning. `GET /cafe/schedule` uses real
+      ISO-8601 week semantics (Go's `time.Time.ISOWeek()`) instead of
+      replicating dayjs's non-standard default-locale "week 1 contains
+      Jan 1, Sunday-start" convention and its year-boundary quirks - a
+      deliberate simplification accepted because nothing renders this page
+      yet (still `<NotImplemented />`, deferred to Phase 14 same as
+      booking's five pages). Revisit only if a real frontend consumer needs
+      bit-for-bit parity with specific historical week numbers the old
+      dayjs algorithm would have produced.
+    - `PUT /cafe/shifts` collapses the old `updateSchedule` action's
+      sign-up/quit/reassign toggle logic into one endpoint, faithfully
+      replicated including its real (not obviously intentional, but
+      replicated exactly since there's no evidence it was a bug) quirk: the
+      "you already have another shift this day" guard checks the _acting_
+      identity's own shifts, not the target member's - which only matters
+      for self-signup, since every path where target ≠ actor already
+      requires `cafe:edit_workers` and bypasses this guard entirely, same
+      as the old app. One accepted simplification bundled in: the
+      "too close to cancel" cutoff is day-granular rather than the old
+      app's exact `shiftDate > dayjs().add(1, "day")` instant comparison,
+      collapsing its two distinct "too close"/"already passed" error
+      messages into one - not preserved since nothing renders this page yet
+      to show the distinction. Requires an identity - a real, necessary
+      explicit check added: the old action had none, relying on `worker`
+      ending up empty/undefined for an anonymous caller and the resulting
+      Prisma create failing incidentally.
+    - Opening-hours _reads_ get a bespoke endpoint (`GET
 /cafe/opening-hours`, a prefix listing over the `markdowns` table -
-     `internal/markdown` itself only fetches one named page at a time, so
-     this doesn't belong there), but opening-hours _writes_ deliberately
-     don't - the old app's `updateHours` action already just delegated to
-     a shared `updateMarkdown` helper gated by the same `markdown:update`
-     policy Phase 3's generic `PATCH /info/{slug}` already enforces, so
-     pointing a future frontend at that existing endpoint per-page is a
-     byte-for-byte replication of the real access model, not a new
-     restriction or a functionality reduction. This let a genuinely dead
-     file be deleted: `$lib/news/markdown/mutations.server.ts`
-     (`updateMarkdown`) had exactly one real caller left (this page's
-     `updateHours` action, per Phase 3's own note) - once that switched to
-     calling Go directly, grep confirmed zero remaining callers and the
-     file was removed.
-   - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
-     against the dev DB (opening-hours against real seeded
-     `cafe:open:0`..`cafe:open:4` rows, schedule default/explicit-week
-     views, the full sign-up/quit/reassign/invalid-input matrix, ciabatta
-     upsert), plus a live SSR load through the real SvelteKit dev server
-     against the real Go backend and `svelte-check`/`eslint` (0
-     errors/warnings). Same caveat as nollning's `GET /board` redaction and
-     markdown's per-page ACL bypass: the non-admin branches
-     (`cafe:edit_workers`/`cafe:see_all_weeks`/`cafe:day_manager` all
-     _absent_) were only verified by code inspection, not a live
-     differently-privileged request - `MockAuthenticator` always grants
-     every policy to its one fixed identity. `committees/cafe/+page.svelte`
-     stays `<NotImplemented />` (a pre-existing stub before this phase),
-     only its `+page.server.ts` load/actions were ported, per Principle #6.
-9. **Real notifications + Discord webhook** - replace `Notifier`/
-   `Webhooker` mocks for real, wired into every domain that already calls
-   them (articles, events) plus whichever of phases 3-8 turned out to
-   want notifications too. Nolla-specific default subscription settings
-   (see nollning section) get their permanent home here instead of the
-   current hardcoded-cutoff-date hack.
-   **Status: backend and frontend both implemented 2026-09-03**
-   (`backend/internal/notifications` - see `backend/CLAUDE.md`'s
-   "Notifications routes" section for the exact endpoint list). `notifications`,
-   `expo_tokens`, `subscription_settings`, `admin_settings`, and the implicit
-   join table `_member_tag_subscriptions` all pre-date this Go port
-   (Prisma-created) - `schema.sql` additions only, no new migration, same as
-   every simple-CRUD phase since Phase 3. Three decisions confirmed with the
-   user before implementing: reuse the live `admin_settings` key/value table
-   for the Discord webhook's config (`discord_webhook_se`/`webhook_tags_se`
-   keys, byte-for-byte parity with the old app's admin-editable runtime
-   config) rather than a deploy-time env var; gate real Expo push sends
-   behind a `PUSH_MOCK` flag (default true/mock, mirroring `AUTH_MOCK`/
-   `STORAGE_MOCK`'s "explicit opt-in to real" shape) since this rewrite
-   shares the live dev DB's real device tokens; and port the bell/list's
-   duplicate-notification merge logic (`group.ts`'s `groupNotifications`)
-   faithfully rather than shipping ungrouped for v1.
-   - `Notifier` gained two new methods this phase, `NotifyEventGoing`/
-     `NotifyEventInterested`, closing the gap `events.Service`'s own doc
-     comment had flagged since the events port (push notifications to an
-     event's organizer on going/interested) - wired into `setAttendance`.
-     `ArticleNotification` gained an `AuthorID` field (the actual
-     `authors.id` used for the byline, not just the acting member) so the
-     real `Notifier`/`Webhooker` can attribute notifications/Discord embeds
-     to a mandate-based byline correctly, matching the old app's
-     `fromAuthor: article.author` exactly. `Notifier.NotifyLike`'s signature
-     changed from three loose strings to a `LikeNotification` struct
-     (adding `Slug`/`HeaderSv`, needed for the notification's title/link) -
-     a safe interface change since only the mock and one real call site
-     existed before this phase.
-   - **Real, necessary huma-gotcha fix caught at server startup, not
-     shipped**: the first cut named the bell/list's per-notification sender
-     DTO `Author`, which panicked huma's schema registry (`internal/articles`
-     already registers its own bare `Author` type) - renamed to
-     `NotificationAuthor`, the same fix this exact trap has required at
-     every prior phase that's hit it (see CLAUDE.md's huma gotcha note).
-   - **A real, deliberate simplification-turned-improvement, flagged
-     explicitly rather than silently picked**: `group.ts`'s
-     `groupAuthorNames` had a copy-paste bug in its exactly-3-authors
-     branch (read `secondAuthor`'s name twice instead of the third's) -
-     fixed while porting, not replicated, since it's an unambiguous typo
-     with no evidence of intent (same class of fix as songbook's minutes-
-     substring comma bug).
-   - The Discord webhook's own admin-configured URL/tag-filter, embed
-     payload shape (title/author/color/footer/truncated description), and
-     the `[NOLLNING]`-tag skip are a verbatim port of the pre-port
-     `sendNewArticleWebhook` (recovered from git history at the commit
-     before articles was ported, since the live code had already been
-     replaced with a Go call by the time this phase started) - including
-     its slightly redundant two-step description truncation, replicated
-     faithfully rather than "fixed". Real Expo push (`internal/notifications/
+      `internal/markdown` itself only fetches one named page at a time, so
+      this doesn't belong there), but opening-hours _writes_ deliberately
+      don't - the old app's `updateHours` action already just delegated to
+      a shared `updateMarkdown` helper gated by the same `markdown:update`
+      policy Phase 3's generic `PATCH /info/{slug}` already enforces, so
+      pointing a future frontend at that existing endpoint per-page is a
+      byte-for-byte replication of the real access model, not a new
+      restriction or a functionality reduction. This let a genuinely dead
+      file be deleted: `$lib/news/markdown/mutations.server.ts`
+      (`updateMarkdown`) had exactly one real caller left (this page's
+      `updateHours` action, per Phase 3's own note) - once that switched to
+      calling Go directly, grep confirmed zero remaining callers and the
+      file was removed.
+    - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
+      against the dev DB (opening-hours against real seeded
+      `cafe:open:0`..`cafe:open:4` rows, schedule default/explicit-week
+      views, the full sign-up/quit/reassign/invalid-input matrix, ciabatta
+      upsert), plus a live SSR load through the real SvelteKit dev server
+      against the real Go backend and `svelte-check`/`eslint` (0
+      errors/warnings). Same caveat as nollning's `GET /board` redaction and
+      markdown's per-page ACL bypass: the non-admin branches
+      (`cafe:edit_workers`/`cafe:see_all_weeks`/`cafe:day_manager` all
+      _absent_) were only verified by code inspection, not a live
+      differently-privileged request - `MockAuthenticator` always grants
+      every policy to its one fixed identity. `committees/cafe/+page.svelte`
+      stays `<NotImplemented />` (a pre-existing stub before this phase),
+      only its `+page.server.ts` load/actions were ported, per Principle #6.
+9.  **Real notifications + Discord webhook** - replace `Notifier`/
+    `Webhooker` mocks for real, wired into every domain that already calls
+    them (articles, events) plus whichever of phases 3-8 turned out to
+    want notifications too. Nolla-specific default subscription settings
+    (see nollning section) get their permanent home here instead of the
+    current hardcoded-cutoff-date hack.
+    **Status: backend and frontend both implemented 2026-09-03**
+    (`backend/internal/notifications` - see `backend/CLAUDE.md`'s
+    "Notifications routes" section for the exact endpoint list). `notifications`,
+    `expo_tokens`, `subscription_settings`, `admin_settings`, and the implicit
+    join table `_member_tag_subscriptions` all pre-date this Go port
+    (Prisma-created) - `schema.sql` additions only, no new migration, same as
+    every simple-CRUD phase since Phase 3. Three decisions confirmed with the
+    user before implementing: reuse the live `admin_settings` key/value table
+    for the Discord webhook's config (`discord_webhook_se`/`webhook_tags_se`
+    keys, byte-for-byte parity with the old app's admin-editable runtime
+    config) rather than a deploy-time env var; gate real Expo push sends
+    behind a `PUSH_MOCK` flag (default true/mock, mirroring `AUTH_MOCK`/
+    `STORAGE_MOCK`'s "explicit opt-in to real" shape) since this rewrite
+    shares the live dev DB's real device tokens; and port the bell/list's
+    duplicate-notification merge logic (`group.ts`'s `groupNotifications`)
+    faithfully rather than shipping ungrouped for v1.
+    - `Notifier` gained two new methods this phase, `NotifyEventGoing`/
+      `NotifyEventInterested`, closing the gap `events.Service`'s own doc
+      comment had flagged since the events port (push notifications to an
+      event's organizer on going/interested) - wired into `setAttendance`.
+      `ArticleNotification` gained an `AuthorID` field (the actual
+      `authors.id` used for the byline, not just the acting member) so the
+      real `Notifier`/`Webhooker` can attribute notifications/Discord embeds
+      to a mandate-based byline correctly, matching the old app's
+      `fromAuthor: article.author` exactly. `Notifier.NotifyLike`'s signature
+      changed from three loose strings to a `LikeNotification` struct
+      (adding `Slug`/`HeaderSv`, needed for the notification's title/link) -
+      a safe interface change since only the mock and one real call site
+      existed before this phase.
+    - **Real, necessary huma-gotcha fix caught at server startup, not
+      shipped**: the first cut named the bell/list's per-notification sender
+      DTO `Author`, which panicked huma's schema registry (`internal/articles`
+      already registers its own bare `Author` type) - renamed to
+      `NotificationAuthor`, the same fix this exact trap has required at
+      every prior phase that's hit it (see CLAUDE.md's huma gotcha note).
+    - **A real, deliberate simplification-turned-improvement, flagged
+      explicitly rather than silently picked**: `group.ts`'s
+      `groupAuthorNames` had a copy-paste bug in its exactly-3-authors
+      branch (read `secondAuthor`'s name twice instead of the third's) -
+      fixed while porting, not replicated, since it's an unambiguous typo
+      with no evidence of intent (same class of fix as songbook's minutes-
+      substring comma bug).
+    - The Discord webhook's own admin-configured URL/tag-filter, embed
+      payload shape (title/author/color/footer/truncated description), and
+      the `[NOLLNING]`-tag skip are a verbatim port of the pre-port
+      `sendNewArticleWebhook` (recovered from git history at the commit
+      before articles was ported, since the live code had already been
+      replaced with a Go call by the time this phase started) - including
+      its slightly redundant two-step description truncation, replicated
+      faithfully rather than "fixed". Real Expo push (`internal/notifications/
 push.go`) is a bespoke small HTTP client against Expo's push API
-     directly (no access token required, matching the old app's own
-     unauthenticated `new Expo()`) rather than a third-party Go SDK
-     dependency - the protocol is simple enough not to warrant one.
-   - **Accepted gap, not this phase's job to close**: pings
-     (`members/[studentId]/pings.ts`) still call the old TS `sendNotification`
-     directly - no `internal/pings` domain exists in Go, and porting the ping
-     feature itself was never in this phase's scope (the roadmap only
-     mentions "articles, events" as `Notifier`'s existing callers). Because
-     of this, `src/lib/utils/notifications/index.ts` (`sendNotification`),
-     `push.ts`, and the parts of `types.ts` that back them
-     (`NotificationType`, `SUBSCRIPTION_SETTINGS_MAP`,
-     `DUPLICATE_ALLOWED_TYPES`) are **not** dead code and were deliberately
-     kept, not deleted - confirmed via grep before making that call, the same
-     diligence this port applies before every "genuinely dead code deleted"
-     claim elsewhere. `DEFAULT_SUBSCRIPTION_SETTINGS`/
-     `NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS` in that same file are _also_ still
-     alive, for a second, unrelated reason - see the Auth section's
-     `createMember()` fallback note above, superseded but not closed by this
-     phase. `myNotifications.ts`, `nollaNotifications.ts`, and `group.ts`
-     (the bell/list's old Prisma-backed read path) had zero remaining
-     callers once `+layout.server.ts`/`(nollning)/nollning/+layout.server.ts`
-     were repointed at Go, and were deleted, along with the now-caller-less
-     `api/notifications/my/+server.ts` route (`depends("/api/notifications/my")`
-     is just a SvelteKit invalidation key, not a real fetch target - nothing
-     ever called this route over HTTP).
-   - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
-     against the dev DB: the full `Send` pipeline end-to-end (article
-     creation → tag-subscribed member notified → in-app row created →
-     mock-push fired for a registered token), event going/interested
-     notifying the organizer with correctly-formatted Swedish message text,
-     notification listing/grouping/mark-read/delete/settings CRUD, and the
-     Discord webhook's real no-op path (no `admin_settings` row configured
-     in dev). Booking's notification call sites share the exact same `Send`
-     core already proven by the article/event tests, so weren't separately
-     re-verified beyond confirming the (correct) real-world case where the
-     seeded kårhusmästare simply has no `BOOKING_REQUEST` subscription row
-     yet. Frontend verified via the Svelte MCP `svelte-autofixer` tool
-     (0 issues) on every edited component.
+      directly (no access token required, matching the old app's own
+      unauthenticated `new Expo()`) rather than a third-party Go SDK
+      dependency - the protocol is simple enough not to warrant one.
+    - **Accepted gap, not this phase's job to close**: pings
+      (`members/[studentId]/pings.ts`) still call the old TS `sendNotification`
+      directly - no `internal/pings` domain exists in Go, and porting the ping
+      feature itself was never in this phase's scope (the roadmap only
+      mentions "articles, events" as `Notifier`'s existing callers). Because
+      of this, `src/lib/utils/notifications/index.ts` (`sendNotification`),
+      `push.ts`, and the parts of `types.ts` that back them
+      (`NotificationType`, `SUBSCRIPTION_SETTINGS_MAP`,
+      `DUPLICATE_ALLOWED_TYPES`) are **not** dead code and were deliberately
+      kept, not deleted - confirmed via grep before making that call, the same
+      diligence this port applies before every "genuinely dead code deleted"
+      claim elsewhere. `DEFAULT_SUBSCRIPTION_SETTINGS`/
+      `NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS` in that same file are _also_ still
+      alive, for a second, unrelated reason - see the Auth section's
+      `createMember()` fallback note above, superseded but not closed by this
+      phase. `myNotifications.ts`, `nollaNotifications.ts`, and `group.ts`
+      (the bell/list's old Prisma-backed read path) had zero remaining
+      callers once `+layout.server.ts`/`(nollning)/nollning/+layout.server.ts`
+      were repointed at Go, and were deleted, along with the now-caller-less
+      `api/notifications/my/+server.ts` route (`depends("/api/notifications/my")`
+      is just a SvelteKit invalidation key, not a real fetch target - nothing
+      ever called this route over HTTP).
+    - Verified via `go build`/`go vet` and a live `AUTH_MOCK` smoke test
+      against the dev DB: the full `Send` pipeline end-to-end (article
+      creation → tag-subscribed member notified → in-app row created →
+      mock-push fired for a registered token), event going/interested
+      notifying the organizer with correctly-formatted Swedish message text,
+      notification listing/grouping/mark-read/delete/settings CRUD, and the
+      Discord webhook's real no-op path (no `admin_settings` row configured
+      in dev). Booking's notification call sites share the exact same `Send`
+      core already proven by the article/event tests, so weren't separately
+      re-verified beyond confirming the (correct) real-world case where the
+      seeded kårhusmästare simply has no `BOOKING_REQUEST` subscription row
+      yet. Frontend verified via the Svelte MCP `svelte-autofixer` tool
+      (0 issues) on every edited component.
 10. **Doors/Salto** - physical access control integration; kept late
     since it depends on real hardware/vendor API access, not just DB
     work, and nothing else in this list depends on it.
@@ -1830,60 +1830,60 @@ push.go`) is a bespoke small HTTP client against Expo's push API
     songs/alerts/booking/elections/cafe/notifications. Two decisions
     confirmed with the user before/during implementation:
 
-    - **A real, physical-security-relevant bug fix, confirmed explicitly
-      rather than decided silently** (unlike most "fix a real bug found
-      while porting" calls elsewhere in this doc, which the agent judged
-      unilaterally when the evidence was unambiguous and low-stakes):
-      both the old salto endpoint's role-to-position matching and the
-      admin create form's role-existence check used Prisma's
-      `startsWith: `${role}%``, which escapes `%`as a literal character
-rather than a wildcard - meaning a role-based (position-prefix)
-door policy has likely never actually granted anyone access via
-that path in production; only direct per-student policies and the`"\*"` (recent-class-year) wildcard worked. Go now does a real
-      prefix match. The user's own words on this, given the stakes
-      (getting it wrong either way means someone either can't get into a
-      room they should, or can get into one they shouldn't): "It seems
-      to actually work in prod right now, though. But regardless, port
-      it as the intended functionality." Verified live against real
-      seed-data mandate holders, not just structurally.
-    - Include the member profile page's own self-view "which doors do
-      you have access to" widget (`getCurrentDoorPoliciesForMember`) in
-      this phase rather than deferring it - it's real, working code with
-      a real page (not a stub), so Principle #6 already covers it, but
-      the added grouping/role-to-position-name-display complexity made
-      it worth confirming explicitly rather than assuming.
+        - **A real, physical-security-relevant bug fix, confirmed explicitly
+          rather than decided silently** (unlike most "fix a real bug found
+          while porting" calls elsewhere in this doc, which the agent judged
+          unilaterally when the evidence was unambiguous and low-stakes):
+          both the old salto endpoint's role-to-position matching and the
+          admin create form's role-existence check used Prisma's
+          `startsWith: `${role}%``, which escapes `%`as a literal character
 
-    Everything else - the admin door/access-policy management UI
-    (`admin/doors`), the create-form validation chain (ported verbatim
-    from the old zod `.refine()` chain, minus its async Prisma-backed
-    existence check, now server-side in Go per Principle #5) - is a
-    faithful, mechanical port. One old-app quirk was deliberately _not_
-    changed even though it looks similar to the `startsWith` bug: a
-    `door_access_policies` row's `studentId` and `role` fields are read
-    independently (not mutually exclusive), and a banned row's `role`
-    still participates in granting access to _other_ people even though
-    that row's own `studentId` is excluded - this is how
-    `parseDoorPolicies`/`parseDoorBanPolicies` actually behaved, and the
-    user's fix request was scoped specifically to the prefix-matching
-    bug, not this.
+    rather than a wildcard - meaning a role-based (position-prefix)
+    door policy has likely never actually granted anyone access via
+    that path in production; only direct per-student policies and the`"\*"` (recent-class-year) wildcard worked. Go now does a real
+    prefix match. The user's own words on this, given the stakes
+    (getting it wrong either way means someone either can't get into a
+    room they should, or can get into one they shouldn't): "It seems
+    to actually work in prod right now, though. But regardless, port
+    it as the intended functionality." Verified live against real
+    seed-data mandate holders, not just structurally. - Include the member profile page's own self-view "which doors do
+    you have access to" widget (`getCurrentDoorPoliciesForMember`) in
+    this phase rather than deferring it - it's real, working code with
+    a real page (not a stub), so Principle #6 already covers it, but
+    the added grouping/role-to-position-name-display complexity made
+    it worth confirming explicitly rather than assuming.
 
-    **The public URL itself required special handling, unlike every
-    other ported route so far**: `salto/README.md` states the
-    university's Salto hardware polls `/salto/{door}` on this app's own
-    domain directly and that URL "must not be changed." Since nothing in
-    this repo sets up a same-origin reverse proxy from the SvelteKit
-    domain to the separately-hosted Go backend, simply deleting the
-    SvelteKit-side route (the usual "fully de-Prisma-ify this domain's
-    SvelteKit layer" move per principle #6) would have silently broken
-    physical door access in production. Instead,
-    `src/routes/(app)/salto/[door]/+server.ts` became a thin proxy to
-    Go's endpoint - the same pattern `medals/download-csv/+server.ts`
-    already established for a non-JSON Go endpoint - keeping the
-    external URL, origin, and response shape completely unchanged while
-    the actual logic moved to Go. Verified live: the SvelteKit proxy and
-    the Go backend produced byte-identical output for the same door, and
-    a real form-action create/delete round-trip through the `admin/doors`
-    UI was confirmed to change what the proxy subsequently returns.
+        Everything else - the admin door/access-policy management UI
+        (`admin/doors`), the create-form validation chain (ported verbatim
+        from the old zod `.refine()` chain, minus its async Prisma-backed
+        existence check, now server-side in Go per Principle #5) - is a
+        faithful, mechanical port. One old-app quirk was deliberately _not_
+        changed even though it looks similar to the `startsWith` bug: a
+        `door_access_policies` row's `studentId` and `role` fields are read
+        independently (not mutually exclusive), and a banned row's `role`
+        still participates in granting access to _other_ people even though
+        that row's own `studentId` is excluded - this is how
+        `parseDoorPolicies`/`parseDoorBanPolicies` actually behaved, and the
+        user's fix request was scoped specifically to the prefix-matching
+        bug, not this.
+
+        **The public URL itself required special handling, unlike every
+        other ported route so far**: `salto/README.md` states the
+        university's Salto hardware polls `/salto/{door}` on this app's own
+        domain directly and that URL "must not be changed." Since nothing in
+        this repo sets up a same-origin reverse proxy from the SvelteKit
+        domain to the separately-hosted Go backend, simply deleting the
+        SvelteKit-side route (the usual "fully de-Prisma-ify this domain's
+        SvelteKit layer" move per principle #6) would have silently broken
+        physical door access in production. Instead,
+        `src/routes/(app)/salto/[door]/+server.ts` became a thin proxy to
+        Go's endpoint - the same pattern `medals/download-csv/+server.ts`
+        already established for a non-JSON Go endpoint - keeping the
+        external URL, origin, and response shape completely unchanged while
+        the actual logic moved to Go. Verified live: the SvelteKit proxy and
+        the Go backend produced byte-identical output for the same door, and
+        a real form-action create/delete round-trip through the `admin/doors`
+        UI was confirmed to change what the proxy subsequently returns.
 
 11. **Admin consolidation** - settings, links, minio browser, stocklist,
     debug - thin wrappers over domains that need to exist first.
@@ -1994,292 +1994,264 @@ build`, vitest and `go test` all pass, and each domain was
     the sync (ICS feeds, `events/id/[id]`, the nollning content pages,
     home page meetings/readme/cafe-hours, member pings, search sync).
     (**Superseded 2026-11-03**: search sync moved to Go in phase 13.)
-    Decisions, all user-confirmed before starting:
-    - **Merge, not rebase or re-port**, frozen at `origin/main` `2142663c`
-      (later upstream commits are a future sync, not chased mid-phase).
-      One merge commit (`1d49c00a`), then one commit per domain re-wire.
-    - **Conflict policy: upstream UI wins.** Where upstream redesigned a
-      page this branch had already wired to Go, upstream's `.svelte` is
-      taken as-is and its load/actions are re-wired onto Go, rather than
-      keeping our older page and re-applying the design later.
-    - **Scope: every merged page ends up on Go** (principle #6's standard,
-      applied to everything the merge brought in), not "merge now, port
-      later".
-    - **Upstream remote functions** (e.g. cafe's `times.remote.ts`) are
-      converted to the established `+page.ts` load / form-action pattern,
-      not kept as remote functions calling Go.
-    - **`ticket-service/` is folded into `backend/` as a regular domain**
-      (`internal/tickets`), behind the backend's existing auth/access
-      policies instead of its own Authentik-JWKS validator; the lottery
-      and offer-expiry sweeps stay in-process timers/pollers with Postgres
-      row locks (same as upstream), not routed through the Scheduler
-      integration. `ticket-service/`, its Dockerfile and its CI/deploy
-      steps are deleted once ported.
-    - **Stocklist is deleted to match upstream** (`internal/stocklist`, its
-      endpoints, the `drinkitem`/`drinkitembatch` `schema.sql` entries,
-      the drink-item policies, and the leftover
-      `src/routes/(app)/api/admin/stocklist` endpoint) - upstream removed
-      `/admin/stocklist` in #1291, so Phase 11's Go port of it (see that
-      entry above) no longer has a frontend. The tables themselves are
-      left in the DB, same "app-layer removal only" treatment as
-      shop/expenses.
-      **Progress, per domain:**
-    - **Schema catch-up**: upstream's 7 Prisma migrations since the branch
-      point (booking door access, `RecurringEvent` -> `recurring_event`,
-      `song_book_entries`, the ticket tables, `events.committee_id`) were
-      applied with `prisma migrate deploy` (so `_prisma_migrations` stays
-      truthful for the tables Prisma still owns) and copied into
-      `internal/db/migrations` as `.up.sql` per "DB migrations, once Prisma
-      is gone"; `migrate`'s tracking table was then `force`d to
-      `20260921212144`. `schema.sql` is updated per domain as each one is
-      ported.
-    - **Events** (upstream #1198/#1328/#1322/#1390): Go gained the
-      organizing committee (`committeeId` on input; `committee` sub-object
-      on output; `organizer` is overwritten with the committee's Swedish
-      name, matching upstream's `resolveCommittee`), a listing `span`
-      (`upcoming`/`past`/`range` with `from`/`to`, for the new week/month
-      views) plus `includeRemoved` (the admin all-events list, gated on
-      `event:update` in Go instead of a SvelteKit `authorize()`),
-      newest-first comments, and `recurring` on the detail response (the
-      series' own type/separation/end, so the edit page prefills them -
-      closing the gap the events port had left open "until a real edit UI
-      ships", which it now has). Recurrence was rewritten to mirror
-      upstream's DST fix (#1322) exactly - calendar-date + wall-clock math,
-      end placed by the template's day offset (so retiming a same-day
-      occurrence into an overnight one keeps end after start, which the
-      old Go `retimeOccurrence` got wrong), and dayjs-style end-of-month
-      clamping for MONTHLY/YEARLY - with upstream's vitest cases ported to
-      `internal/events/recurrence_test.go`. Upstream's other fix in this
-      area (a non-recurring event's FUTURE/ALL delete hitting every
-      parentless event) was already impossible in Go. Every events page
-      now loads from Go via universal `+page.ts` loads; the detail page's
-      `+page.server.ts` only holds form actions (attendance, comments,
-      delete).
-    - **Comments** (shared by events and news, upstream #1390): restored
-      UI needs two things Go didn't have. (1) The old ZModel let a
-      comment's _author_ delete it as well as moderators; the Go port had
-      only kept the moderator rule. Restored in a new `internal/comments`
-      package (`CanDelete`, plus a per-comment `canDelete` on the response
-      so the UI doesn't re-derive it) - a fidelity gap, not a new rule.
-      (2) Mentions: Go now resolves the members @mentioned in comments
-      (`taggedMembers` on article/event detail, `internal/mentions`),
-      replacing the SvelteKit-side `getAllTaggedMembers` Prisma lookup -
-      which is what let the event detail load become a universal
-      `+page.ts`. Comment content is trimmed and capped at 255 characters
-      in Go too (`comments.Normalize`), not just in zod.
-    - **News** (upstream #1379/#1382/#1390/#1394, #1291's `news/tags` and
-      `news/tv`): `ArticleDetail` gained `likers` (the restored like button
-      and likers list) alongside the comment changes above; the detail
-      load stays a universal `+page.ts`, with a new `+page.server.ts`
-      holding only the like/dislike/comment/removeComment/removeArticle
-      actions (all Go calls). Tags got `POST /tags`/`PATCH /tags/{id}`
-      (`tags:create`/`tags:update`) so `/news/tags` no longer writes through
-      Prisma. `$lib/news/types.ts`/`committees.ts`/`preview.ts` (upstream's
-      shared article shapes for the editor preview, #1394) were retyped
-      against Go's schema, and their callers pass our single `author`
-      object to `AuthorCard` instead of upstream's split
-      member/position/customAuthor props. YouTube needed nothing in Go -
-      `youtubeUrl` was already stored and returned.
-    - **Notifications** (upstream 4846a125, lazy bell): the layout now
-      only loads a cheap unread count (`GET /notifications/unread-count`)
-      and the bell fetches `GET /notifications/page?take=N` (grouped,
-      newest first, `hasMore`) once opened, 20 more per "load more" - the
-      same shape as upstream's `getMyGroupedNotificationsPage`, including
-      grouping within the page. `GET /notifications` itself is unchanged,
-      since the nollning layout still uses its full grouped list. The
-      bell keeps calling Go through `notifications/data.remote.ts`'s
-      remote functions, which predate the sync (Phase 9) - the "convert
-      remote functions" decision was about the ones the merge brought in.
-    - **Admin** (#1291's admin pages, which replaced our stubs): access
-      policies gained `POST /access-policies/bulk` (several roles and/or
-      members for one apiName, one INSERT so it's all-or-nothing, unknown
-      member rejects the batch) and `GET /access-policies/api-names` now
-      returns `{apiName, grantCount}` for the page's badges (the static
-      registry union stays client-side, `flattenApiNames`). Doors' role
-      check accepts the roles RoleSelector offers that no position backs
-      (`*`, `_`, `nolla`, `dsek.styr`, programme+year like `D24`) - the
-      same fix upstream made to its Prisma check; note Salto resolution
-      itself still only matches positions, unchanged from before.
-      `admin/settings`' nollning-period form (upstream still writes the
-      old AdminSetting keys) edits the latest nollning season instead -
-      start, **reveal** (a field added to upstream's form, since a season
-      needs it) and end - creating one for the start's year if none
-      exists. **Found and fixed while wiring links**: the Phase 11 Go
-      links proxy passed Shlink's list responses through still wrapped
-      (`{"shortUrls": {...}}`, `{"tags": {...}}`) while the page read
-      `.data` one level down - the JS SDK used to unwrap them - so the
-      links page would have shown nothing against a real Shlink; never
-      seen in dev since there's no API key. `internal/links` now unwraps
-      (tested with an `httptest` Shlink), and gained `GET /links/domains`
-      for the create form's default domain.
-    - **Songbook / song archive** (upstream #1283/#1349): upstream split
-      the old songbook into `/songarchive` (every song - what our Phase 3
-      port called the songbook) and a new `/songbook` that is the printed
-      book's page/number index (`song_book_entries`). The archive pages
-      kept our Go wiring (renamed routes; the list is newest-first now,
-      matching upstream). The book got `GET/POST /songbook` and
-      `GET/PATCH/DELETE /songbook/{page}/{numberOnPage}` in
-      `internal/songs` (same `song:*` policies), with "position taken" /
-      "song already in the book" as distinct 409s so the forms can put
-      the error on the right field. Upstream's `searchSongTitles` remote
-      function (the editor's song picker) became a direct client call to
-      `GET /songs?titleOnly=true` rather than a load/action - it's a
-      search-as-you-type widget, the same "pure proxy straight to Go"
-      shape principle #5 already allows. `mayWatchVideos` (now in
-      `$lib/songs/helpers.ts`, shared by both detail pages) tolerates a
-      null `roles`, which crashed both detail pages under mock auth.
-    - **Bookings** (upstream #1184, plus `/booking` -> `/bookings`): a
-      request now carries the doors to open and the members to let in
-      (`accessDoors`/`accessMembers`, upstream's two join tables).
-      Accepting grants exactly that: one `door_access_policies` row per
-      door x member, for the booking's window plus an hour either side,
-      tagged with `booking_request_id` so re-accepting/rejecting/editing
-      replaces or removes it and deleting the request cascades it -
-      upstream's `grantBookingDoorAccess`, moved into Go
-      (`internal/booking/access.go`) and done as one INSERT ... SELECT.
-      The review page may adjust the lists while accepting (optional body
-      on `POST /booking-requests/{id}/accept`); the quick accept/reject
-      buttons don't send one, so they keep what was requested - the same
-      split upstream made. Also new: `GET /booking-requests/review`
-      (pending requests with their conflicts) and
-      `GET /booking-requests/doors` (door names for the form, gated on
-      `booking_request:create` - upstream read doors past `door:read` for
-      the same reason, and the door _policies_ stay behind it). A
-      bookable's `door` is a real FK to `doors` now, validated in Go.
-      Notification links point at `/bookings`. All booking pages load and
-      act through Go; `$lib/bookings/server/queries.ts`'s
-      `normalizeBooking` turns Go's JSON (string dates, nullable lists)
-      into the shape upstream's components were written against.
-    - **Cafe** (upstream #1310 and its follow-ups): no Go changes - the
-      Phase 8 cafe API already covered everything the redesign does; only
-      its frontend wiring moved, since upstream split the page into the
-      committee page (with opening hours) and `/committees/cafe/schedule`
-      (shifts and ciabatta). Upstream's `times.remote.ts` (editing one
-      weekday's opening hours) became the page's `updateHours` form
-      action, per this phase's remote-function decision. Go's 400 details
-      for a refused shift change are mapped back onto the old per-rule
-      messages. `committeeActions`' params type was widened to an
-      optional `shortName` so the cafe route (which has none) type-checks,
-      as upstream did.
-    - **Nollu group management** (#1291's page): the page adds members by
-      student id, several at once, so Go's nollor/phaddrar endpoints now
-      take `{studentIds}` and address removals by `{studentId}` (nothing
-      else called the old memberId versions). Adding is all-or-nothing:
-      unknown student ids, or members without a phadder/uppdrag mandate
-      for the group's season (named in the error), reject the whole
-      batch, as upstream's Prisma version did. The page edits groups by
-      _year_; that maps onto the year's nollning season (no season, no
-      save). Group descriptions are now sanitized in Go - the old
-      SvelteKit action used to DOMPurify them before writing.
-    - **Tickets** (upstream #1325's `ticket-service/`, folded in as
-      decided): the service, lottery, scheduler and their tests moved
-      nearly verbatim into `internal/tickets`, its queries into
-      `internal/db/queries/tickets.sql` (column lists reordered to the
-      live table so sqlc reuses the model structs), and its routes into
-      `huma_tickets.go` under `/ticket-releases/...` and `/tickets/mine`.
-      Auth is the backend's own: the JWKS validator is gone; queue
-      entries are keyed by the acting identity's student id (what the
-      old service stored from `preferred_username`, so existing rows
-      keep working); creating needs `webshop:create`, editing, the
-      roster and the admin "include expired" list `webshop:manage` /
-      `webshop:create` - the policy names upstream already used, so
-      grants carry over - enforced in Go now instead of by SvelteKit
-      `authorize()` calls in front of an unprotected service. The roster
-      is joined to members in Go (it shows food preferences), and a
-      release's expiry is derived from its event's end in Go (upstream's
-      own rule, previously computed SvelteKit-side with Prisma).
-      Lottery timers and the 15s offer-expiry sweep run in-process and
-      are re-armed on startup, unchanged. `$lib/server/ticketService.ts`
-      keeps its function names as a thin Go client so the ticket pages
-      barely changed. `ticket-service/` and its three deploy-workflow
-      jobs are deleted; the root `.env`'s `TICKET_SERVICE_ENDPOINT` is
-      now unused.
-    - **The rest of #1291's pages and small upstream fixes**, wired to
-      existing Go endpoints: `documents/requirements` (Go's folder list;
-      delete is a direct client call to `DELETE /documents/requirements`,
-      the plan its load had recorded), the gallery (Go's album/picture
-      shapes - there's no separate thumbnail URL), `volunteer/apply` (Go's
-      open elections), and the home page's week of events (Go's `range`
-      listing, now an overlap check like upstream's). Onboarding follows
-      upstream's #1342 fix: the form no longer submits email, so the
-      narrow Prisma email write the Phase 1 port had kept (flagged there
-      as "may already be redundant") is gone, and because Go's member
-      update is full-replace the action carries the unsubmitted fields
-      (nickname, bio, ...) over from the current profile. Upstream's
-      onboarding unit test is ported to mock the Go client instead of
-      Prisma. `setNollningGroup` uses the student-id nollor endpoints.
-    - **Small Go-side ports of upstream fixes**: meeting documents match
-      notice/agenda/minutes by filename _prefix_ (plus "Mötesprotokoll"),
-      and position descriptions - HTML-capable since #1363 - are
-      sanitized in Go's `UpdatePosition`.
+    Decisions, all user-confirmed before starting: - **Merge, not rebase or re-port**, frozen at `origin/main` `2142663c`
+    (later upstream commits are a future sync, not chased mid-phase).
+    One merge commit (`1d49c00a`), then one commit per domain re-wire. - **Conflict policy: upstream UI wins.** Where upstream redesigned a
+    page this branch had already wired to Go, upstream's `.svelte` is
+    taken as-is and its load/actions are re-wired onto Go, rather than
+    keeping our older page and re-applying the design later. - **Scope: every merged page ends up on Go** (principle #6's standard,
+    applied to everything the merge brought in), not "merge now, port
+    later". - **Upstream remote functions** (e.g. cafe's `times.remote.ts`) are
+    converted to the established `+page.ts` load / form-action pattern,
+    not kept as remote functions calling Go. - **`ticket-service/` is folded into `backend/` as a regular domain**
+    (`internal/tickets`), behind the backend's existing auth/access
+    policies instead of its own Authentik-JWKS validator; the lottery
+    and offer-expiry sweeps stay in-process timers/pollers with Postgres
+    row locks (same as upstream), not routed through the Scheduler
+    integration. `ticket-service/`, its Dockerfile and its CI/deploy
+    steps are deleted once ported. - **Stocklist is deleted to match upstream** (`internal/stocklist`, its
+    endpoints, the `drinkitem`/`drinkitembatch` `schema.sql` entries,
+    the drink-item policies, and the leftover
+    `src/routes/(app)/api/admin/stocklist` endpoint) - upstream removed
+    `/admin/stocklist` in #1291, so Phase 11's Go port of it (see that
+    entry above) no longer has a frontend. The tables themselves are
+    left in the DB, same "app-layer removal only" treatment as
+    shop/expenses.
+    **Progress, per domain:** - **Schema catch-up**: upstream's 7 Prisma migrations since the branch
+    point (booking door access, `RecurringEvent` -> `recurring_event`,
+    `song_book_entries`, the ticket tables, `events.committee_id`) were
+    applied with `prisma migrate deploy` (so `_prisma_migrations` stays
+    truthful for the tables Prisma still owns) and copied into
+    `internal/db/migrations` as `.up.sql` per "DB migrations, once Prisma
+    is gone"; `migrate`'s tracking table was then `force`d to
+    `20260921212144`. `schema.sql` is updated per domain as each one is
+    ported. - **Events** (upstream #1198/#1328/#1322/#1390): Go gained the
+    organizing committee (`committeeId` on input; `committee` sub-object
+    on output; `organizer` is overwritten with the committee's Swedish
+    name, matching upstream's `resolveCommittee`), a listing `span`
+    (`upcoming`/`past`/`range` with `from`/`to`, for the new week/month
+    views) plus `includeRemoved` (the admin all-events list, gated on
+    `event:update` in Go instead of a SvelteKit `authorize()`),
+    newest-first comments, and `recurring` on the detail response (the
+    series' own type/separation/end, so the edit page prefills them -
+    closing the gap the events port had left open "until a real edit UI
+    ships", which it now has). Recurrence was rewritten to mirror
+    upstream's DST fix (#1322) exactly - calendar-date + wall-clock math,
+    end placed by the template's day offset (so retiming a same-day
+    occurrence into an overnight one keeps end after start, which the
+    old Go `retimeOccurrence` got wrong), and dayjs-style end-of-month
+    clamping for MONTHLY/YEARLY - with upstream's vitest cases ported to
+    `internal/events/recurrence_test.go`. Upstream's other fix in this
+    area (a non-recurring event's FUTURE/ALL delete hitting every
+    parentless event) was already impossible in Go. Every events page
+    now loads from Go via universal `+page.ts` loads; the detail page's
+    `+page.server.ts` only holds form actions (attendance, comments,
+    delete). - **Comments** (shared by events and news, upstream #1390): restored
+    UI needs two things Go didn't have. (1) The old ZModel let a
+    comment's _author_ delete it as well as moderators; the Go port had
+    only kept the moderator rule. Restored in a new `internal/comments`
+    package (`CanDelete`, plus a per-comment `canDelete` on the response
+    so the UI doesn't re-derive it) - a fidelity gap, not a new rule.
+    (2) Mentions: Go now resolves the members @mentioned in comments
+    (`taggedMembers` on article/event detail, `internal/mentions`),
+    replacing the SvelteKit-side `getAllTaggedMembers` Prisma lookup -
+    which is what let the event detail load become a universal
+    `+page.ts`. Comment content is trimmed and capped at 255 characters
+    in Go too (`comments.Normalize`), not just in zod. - **News** (upstream #1379/#1382/#1390/#1394, #1291's `news/tags` and
+    `news/tv`): `ArticleDetail` gained `likers` (the restored like button
+    and likers list) alongside the comment changes above; the detail
+    load stays a universal `+page.ts`, with a new `+page.server.ts`
+    holding only the like/dislike/comment/removeComment/removeArticle
+    actions (all Go calls). Tags got `POST /tags`/`PATCH /tags/{id}`
+    (`tags:create`/`tags:update`) so `/news/tags` no longer writes through
+    Prisma. `$lib/news/types.ts`/`committees.ts`/`preview.ts` (upstream's
+    shared article shapes for the editor preview, #1394) were retyped
+    against Go's schema, and their callers pass our single `author`
+    object to `AuthorCard` instead of upstream's split
+    member/position/customAuthor props. YouTube needed nothing in Go -
+    `youtubeUrl` was already stored and returned. - **Notifications** (upstream 4846a125, lazy bell): the layout now
+    only loads a cheap unread count (`GET /notifications/unread-count`)
+    and the bell fetches `GET /notifications/page?take=N` (grouped,
+    newest first, `hasMore`) once opened, 20 more per "load more" - the
+    same shape as upstream's `getMyGroupedNotificationsPage`, including
+    grouping within the page. `GET /notifications` itself is unchanged,
+    since the nollning layout still uses its full grouped list. The
+    bell keeps calling Go through `notifications/data.remote.ts`'s
+    remote functions, which predate the sync (Phase 9) - the "convert
+    remote functions" decision was about the ones the merge brought in. - **Admin** (#1291's admin pages, which replaced our stubs): access
+    policies gained `POST /access-policies/bulk` (several roles and/or
+    members for one apiName, one INSERT so it's all-or-nothing, unknown
+    member rejects the batch) and `GET /access-policies/api-names` now
+    returns `{apiName, grantCount}` for the page's badges (the static
+    registry union stays client-side, `flattenApiNames`). Doors' role
+    check accepts the roles RoleSelector offers that no position backs
+    (`*`, `_`, `nolla`, `dsek.styr`, programme+year like `D24`) - the
+    same fix upstream made to its Prisma check; note Salto resolution
+    itself still only matches positions, unchanged from before.
+    `admin/settings`' nollning-period form (upstream still writes the
+    old AdminSetting keys) edits the latest nollning season instead -
+    start, **reveal** (a field added to upstream's form, since a season
+    needs it) and end - creating one for the start's year if none
+    exists. **Found and fixed while wiring links**: the Phase 11 Go
+    links proxy passed Shlink's list responses through still wrapped
+    (`{"shortUrls": {...}}`, `{"tags": {...}}`) while the page read
+    `.data` one level down - the JS SDK used to unwrap them - so the
+    links page would have shown nothing against a real Shlink; never
+    seen in dev since there's no API key. `internal/links` now unwraps
+    (tested with an `httptest` Shlink), and gained `GET /links/domains`
+    for the create form's default domain. - **Songbook / song archive** (upstream #1283/#1349): upstream split
+    the old songbook into `/songarchive` (every song - what our Phase 3
+    port called the songbook) and a new `/songbook` that is the printed
+    book's page/number index (`song_book_entries`). The archive pages
+    kept our Go wiring (renamed routes; the list is newest-first now,
+    matching upstream). The book got `GET/POST /songbook` and
+    `GET/PATCH/DELETE /songbook/{page}/{numberOnPage}` in
+    `internal/songs` (same `song:*` policies), with "position taken" /
+    "song already in the book" as distinct 409s so the forms can put
+    the error on the right field. Upstream's `searchSongTitles` remote
+    function (the editor's song picker) became a direct client call to
+    `GET /songs?titleOnly=true` rather than a load/action - it's a
+    search-as-you-type widget, the same "pure proxy straight to Go"
+    shape principle #5 already allows. `mayWatchVideos` (now in
+    `$lib/songs/helpers.ts`, shared by both detail pages) tolerates a
+    null `roles`, which crashed both detail pages under mock auth. - **Bookings** (upstream #1184, plus `/booking` -> `/bookings`): a
+    request now carries the doors to open and the members to let in
+    (`accessDoors`/`accessMembers`, upstream's two join tables).
+    Accepting grants exactly that: one `door_access_policies` row per
+    door x member, for the booking's window plus an hour either side,
+    tagged with `booking_request_id` so re-accepting/rejecting/editing
+    replaces or removes it and deleting the request cascades it -
+    upstream's `grantBookingDoorAccess`, moved into Go
+    (`internal/booking/access.go`) and done as one INSERT ... SELECT.
+    The review page may adjust the lists while accepting (optional body
+    on `POST /booking-requests/{id}/accept`); the quick accept/reject
+    buttons don't send one, so they keep what was requested - the same
+    split upstream made. Also new: `GET /booking-requests/review`
+    (pending requests with their conflicts) and
+    `GET /booking-requests/doors` (door names for the form, gated on
+    `booking_request:create` - upstream read doors past `door:read` for
+    the same reason, and the door _policies_ stay behind it). A
+    bookable's `door` is a real FK to `doors` now, validated in Go.
+    Notification links point at `/bookings`. All booking pages load and
+    act through Go; `$lib/bookings/server/queries.ts`'s
+    `normalizeBooking` turns Go's JSON (string dates, nullable lists)
+    into the shape upstream's components were written against. - **Cafe** (upstream #1310 and its follow-ups): no Go changes - the
+    Phase 8 cafe API already covered everything the redesign does; only
+    its frontend wiring moved, since upstream split the page into the
+    committee page (with opening hours) and `/committees/cafe/schedule`
+    (shifts and ciabatta). Upstream's `times.remote.ts` (editing one
+    weekday's opening hours) became the page's `updateHours` form
+    action, per this phase's remote-function decision. Go's 400 details
+    for a refused shift change are mapped back onto the old per-rule
+    messages. `committeeActions`' params type was widened to an
+    optional `shortName` so the cafe route (which has none) type-checks,
+    as upstream did. - **Nollu group management** (#1291's page): the page adds members by
+    student id, several at once, so Go's nollor/phaddrar endpoints now
+    take `{studentIds}` and address removals by `{studentId}` (nothing
+    else called the old memberId versions). Adding is all-or-nothing:
+    unknown student ids, or members without a phadder/uppdrag mandate
+    for the group's season (named in the error), reject the whole
+    batch, as upstream's Prisma version did. The page edits groups by
+    _year_; that maps onto the year's nollning season (no season, no
+    save). Group descriptions are now sanitized in Go - the old
+    SvelteKit action used to DOMPurify them before writing. - **Tickets** (upstream #1325's `ticket-service/`, folded in as
+    decided): the service, lottery, scheduler and their tests moved
+    nearly verbatim into `internal/tickets`, its queries into
+    `internal/db/queries/tickets.sql` (column lists reordered to the
+    live table so sqlc reuses the model structs), and its routes into
+    `huma_tickets.go` under `/ticket-releases/...` and `/tickets/mine`.
+    Auth is the backend's own: the JWKS validator is gone; queue
+    entries are keyed by the acting identity's student id (what the
+    old service stored from `preferred_username`, so existing rows
+    keep working); creating needs `webshop:create`, editing, the
+    roster and the admin "include expired" list `webshop:manage` /
+    `webshop:create` - the policy names upstream already used, so
+    grants carry over - enforced in Go now instead of by SvelteKit
+    `authorize()` calls in front of an unprotected service. The roster
+    is joined to members in Go (it shows food preferences), and a
+    release's expiry is derived from its event's end in Go (upstream's
+    own rule, previously computed SvelteKit-side with Prisma).
+    Lottery timers and the 15s offer-expiry sweep run in-process and
+    are re-armed on startup, unchanged. `$lib/server/ticketService.ts`
+    keeps its function names as a thin Go client so the ticket pages
+    barely changed. `ticket-service/` and its three deploy-workflow
+    jobs are deleted; the root `.env`'s `TICKET_SERVICE_ENDPOINT` is
+    now unused. - **The rest of #1291's pages and small upstream fixes**, wired to
+    existing Go endpoints: `documents/requirements` (Go's folder list;
+    delete is a direct client call to `DELETE /documents/requirements`,
+    the plan its load had recorded), the gallery (Go's album/picture
+    shapes - there's no separate thumbnail URL), `volunteer/apply` (Go's
+    open elections), and the home page's week of events (Go's `range`
+    listing, now an overlap check like upstream's). Onboarding follows
+    upstream's #1342 fix: the form no longer submits email, so the
+    narrow Prisma email write the Phase 1 port had kept (flagged there
+    as "may already be redundant") is gone, and because Go's member
+    update is full-replace the action carries the unsubmitted fields
+    (nickname, bio, ...) over from the current profile. Upstream's
+    onboarding unit test is ported to mock the Go client instead of
+    Prisma. `setNollningGroup` uses the student-id nollor endpoints. - **Small Go-side ports of upstream fixes**: meeting documents match
+    notice/agenda/minutes by filename _prefix_ (plus "Mötesprotokoll"),
+    and position descriptions - HTML-capable since #1363 - are
+    sanitized in Go's `UpdatePosition`.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
     **Status: done (2026-11-03), backend and frontend both.** New
     `backend/internal/search` (`huma_search.go`); see `backend/CLAUDE.md`'s
     "Search routes" for the endpoint list. Decisions, all user-confirmed
-    before starting:
-    - **Stays on Meilisearch** (plus the existing poppler-server for PDF
-      text). Go owns both the rebuild and the query; SvelteKit no longer
-      talks to Meilisearch or poppler at all. The index names, stored
-      field names, per-index settings, federated weights and per-locale
-      searched attributes are ported unchanged, so result components and
-      existing Meilisearch data didn't need to change. Meilisearch is
-      reached through a small HTTP client (`internal/search/meili.go`),
-      not an SDK - same call as the Expo push client.
-    - **Full rebuild, same triggers as before** - not incremental updates
-      on writes. `POST /search/sync` (`core:admin`, the policy the old
-      `admin/debug` button checked - added to `apinames` as `CoreAdmin`)
-      and `POST /search/sync/password` (raw `SYNC_PASSWORD` body). Both
-      start the rebuild in the background and answer 202 (409 if one is
-      already running); the old `/api/sync` already didn't wait for it,
-      the debug action did. No periodic in-process rebuild - a fresh dev
-      environment still needs one manual sync (see `backend/CLAUDE.md`'s
-      Meilisearch note).
-    - **`/api/sync` stays as a thin SvelteKit proxy** to
-      `/search/sync/password`, like salto, since an external scheduled job
-      may call that URL (nothing in this repo does).
-    - **The members index needs a signed-in caller.** The old
-      `/api/search` had no auth check at all, so anyone could look up
-      members (name, student id, class) by search even though the member
-      directory itself requires a login. Go now leaves `members` out of an
-      anonymous search; everything else stays public. Positions stay
-      public too: they hold no member data, and `GET /positions` is
-      already public.
-      Smaller changes made while porting:
-    - Articles are indexed with the public list's visibility rule
-      (`published_datetime <= now()`). The old sync only checked
-      `publishedAt` was set, so scheduled-but-unpublished articles were
-      searchable early.
-    - Meeting documents: only `.pdf` keys are downloaded and sent to
-      poppler, read from MinIO through `internal/storage`. The old sync
-      downloaded every object over its public URL and dropped non-PDFs by
-      content type. A PDF uploaded without a `.pdf` extension is no longer
-      indexed.
-    - A member's `fullName` no longer becomes `"null Larsson"` when a name
-      part is missing.
-    - `GET /search` takes repeated `indexes` params instead of a JSON
-      array, and rejects unknown index names (422). Before, Meilisearch
-      threw and the endpoint answered 500.
-    - **Found while porting**: poppler-server rejects any upload part not
-      typed `application/pdf`, which Go's `multipart.CreateFormFile`
-      default (`application/octet-stream`) would have tripped on every
-      document. Fixed and verified against the real `reglemente.pdf`.
-      Frontend: `$lib/search/search.ts`'s `searchIndexes` (a direct client
-      call to `GET /search`) backs `MemberSelector`, `RoleSelector` and
-      comment @mentions; the search page's form action (shared by the page
-      and the command dialog) calls Go through `serverApi`. `searchTypes.ts`
-      no longer depends on Prisma: it only describes result shapes. Deleted,
-      after grepping for callers: `src/lib/search/{sync,syncDocuments,
+    before starting: - **Stays on Meilisearch** (plus the existing poppler-server for PDF
+    text). Go owns both the rebuild and the query; SvelteKit no longer
+    talks to Meilisearch or poppler at all. The index names, stored
+    field names, per-index settings, federated weights and per-locale
+    searched attributes are ported unchanged, so result components and
+    existing Meilisearch data didn't need to change. Meilisearch is
+    reached through a small HTTP client (`internal/search/meili.go`),
+    not an SDK - same call as the Expo push client. - **Full rebuild, same triggers as before** - not incremental updates
+    on writes. `POST /search/sync` (`core:admin`, the policy the old
+    `admin/debug` button checked - added to `apinames` as `CoreAdmin`)
+    and `POST /search/sync/password` (raw `SYNC_PASSWORD` body). Both
+    start the rebuild in the background and answer 202 (409 if one is
+    already running); the old `/api/sync` already didn't wait for it,
+    the debug action did. No periodic in-process rebuild - a fresh dev
+    environment still needs one manual sync (see `backend/CLAUDE.md`'s
+    Meilisearch note). - **`/api/sync` stays as a thin SvelteKit proxy** to
+    `/search/sync/password`, like salto, since an external scheduled job
+    may call that URL (nothing in this repo does). - **The members index needs a signed-in caller.** The old
+    `/api/search` had no auth check at all, so anyone could look up
+    members (name, student id, class) by search even though the member
+    directory itself requires a login. Go now leaves `members` out of an
+    anonymous search; everything else stays public. Positions stay
+    public too: they hold no member data, and `GET /positions` is
+    already public.
+    Smaller changes made while porting: - Articles are indexed with the public list's visibility rule
+    (`published_datetime <= now()`). The old sync only checked
+    `publishedAt` was set, so scheduled-but-unpublished articles were
+    searchable early. - Meeting documents: only `.pdf` keys are downloaded and sent to
+    poppler, read from MinIO through `internal/storage`. The old sync
+    downloaded every object over its public URL and dropped non-PDFs by
+    content type. A PDF uploaded without a `.pdf` extension is no longer
+    indexed. - A member's `fullName` no longer becomes `"null Larsson"` when a name
+    part is missing. - `GET /search` takes repeated `indexes` params instead of a JSON
+    array, and rejects unknown index names (422). Before, Meilisearch
+    threw and the endpoint answered 500. - **Found while porting**: poppler-server rejects any upload part not
+    typed `application/pdf`, which Go's `multipart.CreateFormFile`
+    default (`application/octet-stream`) would have tripped on every
+    document. Fixed and verified against the real `reglemente.pdf`.
+    Frontend: `$lib/search/search.ts`'s `searchIndexes` (a direct client
+    call to `GET /search`) backs `MemberSelector`, `RoleSelector` and
+    comment @mentions; the search page's form action (shared by the page
+    and the command dialog) calls Go through `serverApi`. `searchTypes.ts`
+    no longer depends on Prisma: it only describes result shapes. Deleted,
+    after grepping for callers: `src/lib/search/{sync,syncDocuments,
 syncHelpers,meilisearch}.ts`, `searchTypes.test.ts`,
-      `api/search/+server.ts`, the `meilisearch` npm dependency, and two
-      Prisma search endpoints with no callers in this repo, `api/members`
-      (`+server.ts`, `membersSearch.ts`) and `api/events`. Not changed:
-      `MemberSelector` still decodes a member hit's Meilisearch `id` back
-      into the member UUID. Go keeps the same id encoding (`meiliID`,
-      tested against the old TS output) and `searchDocumentId` in
-      `searchHelpers.ts` mirrors it for the booking pages; exposing the real
-      member id on hits would be cleaner and is left for the audit
-      (phase 15).
+    `api/search/+server.ts`, the `meilisearch` npm dependency, and two
+    Prisma search endpoints with no callers in this repo, `api/members`
+    (`+server.ts`, `membersSearch.ts`) and `api/events`. Not changed:
+    `MemberSelector` still decodes a member hit's Meilisearch `id` back
+    into the member UUID. Go keeps the same id encoding (`meiliID`,
+    tested against the old TS output) and `searchDocumentId` in
+    `searchHelpers.ts` mirrors it for the booking pages; exposing the real
+    member id on hits would be cleaner and is left for the audit
+    (phase 15).
 14. **Frontend implementation sweep** - per principle #6, phases 3-13
     already ported every domain's Go endpoints _and_ SvelteKit-side
     `.server.ts`/`+server.ts` layer, and already updated any route that
@@ -2290,6 +2262,57 @@ syncHelpers,meilisearch}.ts`, `searchTypes.test.ts`,
     alongside backend porting. Not "wire the frontend" (already done per
     phase, see principle #6) - specifically the visual/product-design work
     of replacing each remaining stub.
+    **Status: done (2026-11-03), by a second upstream sync rather than new
+    pages.** By the time this phase started, upstream's #1291 (merged in
+    phase 12) had already replaced every non-nollning `<NotImplemented />`
+    stub except the events month view, and upstream then built that too
+    (#1402/#1408). So, at the user's direction, this phase merged
+    `origin/main` again (`2142663c..8be2a555`, 8 commits) under phase 12's
+    rules unchanged (merge, upstream UI wins, every merged page ends up on
+    Go). The only stubs left are the `(nollning)/` route tree, still
+    exempt as below.
+    - **Events month view** (#1402/#1405/#1406/#1408): upstream's
+      `MonthCalendar`/`monthCalendar.ts` taken as-is, fed from Go's
+      `range` listing. The load fetches the whole weeks the month grid
+      shows (`getMonthRange`), takes a `?month=YYYY-MM` param, and the
+      week view now uses app-timezone calendar days (upstream's
+      `datetime.ts` helpers). Month is the default display, as upstream.
+      `MonthCalendar` is typed against upstream's own `MonthEvent` plus the
+      committee/organizer it shows, with Go's `startAt`/`endAt` parsed into
+      Dates at the call site, instead of Prisma's event row.
+    - **Article announcements** (#1401): upstream's rules ported into
+      `articles.Service.syncNotifications`: an article that was already
+      live never announces again on edit (even when moved to the future);
+      publishing a scheduled article early announces and cancels the
+      scheduled send (a failed cancel doesn't block it); announcing never
+      fails the save. In-app/push and Discord are tried independently, and
+      a failure is reported as `announcementFailed` on the create/update
+      response, which the news actions turn into upstream's new
+      "notifications could not be sent" flash. Discord posts at most once
+      per article: upstream's `discord_announced_at` column (migration
+      copied into `internal/db/migrations`, applied with `prisma migrate
+deploy`, `migrate` forced to `20261102190000`) is claimed atomically
+      before posting and released if the post fails; the webhook now
+      returns errors instead of only logging them. Note that scheduled
+      sends themselves still don't happen in Go (`MockScheduler`, unchanged
+      - see "Mock replacement, just-in-time"); upstream's
+        `scheduler-service` retry changes merged as-is, and its
+        `/api/schedule/news` target stays deleted on this branch.
+    - **Expo push** (#1401): Go now reads Expo's per-message tickets, logs
+      and counts the failed ones, and deletes tokens Expo reports as
+      `DeviceNotRegistered`. The TS push/pings code upstream also fixed is
+      still live (pings aren't ported) and merged as-is.
+    - **Phadder group logo** (#1409): mandates on a member's profile carry
+      `phadderIn` (`{id, name, imageUrl}`, from `mandates."phadderInId"`),
+      and `PositionCard` shows the group's logo instead of the committee
+      symbol.
+    - **Bookings refactor / timezone centralisation / alerts redesign**
+      (#1386/#1405/#1403): UI taken from upstream, loads and actions kept
+      on Go; hardcoded `"Europe/Stockholm"` in our Go-wired files replaced
+      with upstream's `APP_TIMEZONE`. Bookables needed no Go change (their
+      `category` with a resolved `name` was already served).
+    - Seen, not fixed (upstream's own, identical markup on `main`): a
+      nested `<button>` hydration warning on `/bookings/create`.
 15. **Principles compliance audit** - a dedicated pass confirming the
     SvelteKit project actually satisfies everything decided in this
     document, not just phase-by-phase spot checks. Concretely: Prisma/

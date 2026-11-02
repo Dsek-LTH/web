@@ -8,11 +8,8 @@ import { fail } from "@sveltejs/kit";
 import { redirect } from "sveltekit-flash-message/server";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 // Editing requires webshop:manage in Go.
 export const load = async (event) => {
@@ -27,7 +24,7 @@ export const load = async (event) => {
         location: release.location,
         quantity: release.quantity,
         closesAt: dayjs(release.closesAt)
-          .tz("Europe/Stockholm")
+          .tz(APP_TIMEZONE)
           .format("YYYY-MM-DDTHH:mm"),
       },
       zod4(ticketReleaseEditSchema),
@@ -45,7 +42,7 @@ export const actions = {
     try {
       await updateTicketRelease(event, params.releaseId, {
         ...form.data,
-        closesAt: dayjs.tz(form.data.closesAt, "Europe/Stockholm").toDate(),
+        closesAt: dayjs.tz(form.data.closesAt, APP_TIMEZONE).toDate(),
       });
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);

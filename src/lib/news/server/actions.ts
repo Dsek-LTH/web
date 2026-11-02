@@ -80,12 +80,16 @@ export const createArticle: Action = async (event) => {
 
   throw redirect(
     publishTimeIsInFuture ? "/news" : `/news/${created.data.slug}`,
-    {
-      message: publishTimeIsInFuture
-        ? m.news_articleScheduled()
-        : m.news_articleCreated(),
-      type: "success",
-    },
+    // The article is saved either way; Go only reports whether announcing
+    // it (notification/Discord) went through.
+    created.data.announcementFailed
+      ? { message: m.news_errors_notificationFailed(), type: "error" }
+      : {
+          message: publishTimeIsInFuture
+            ? m.news_articleScheduled()
+            : m.news_articleCreated(),
+          type: "success",
+        },
     event,
   );
 };
@@ -160,10 +164,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
 
   throw redirect(
     `/news/${publishTime && publishTime < new Date() ? event.params.slug : ""}`,
-    {
-      message: m.news_articleUpdated(),
-      type: "success",
-    },
+    updated.data.announcementFailed
+      ? { message: m.news_errors_notificationFailed(), type: "error" }
+      : { message: m.news_articleUpdated(), type: "success" },
     event,
   );
 };

@@ -239,6 +239,7 @@ type Article struct {
 	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
 	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
+	DiscordAnnouncedAt     pgtype.Timestamptz `json:"discord_announced_at"`
 }
 
 type ArticleComment struct {

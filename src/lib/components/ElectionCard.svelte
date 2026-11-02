@@ -8,13 +8,8 @@
   import * as m from "$paraglide/messages";
   import Pen from "@lucide/svelte/icons/pen";
   import type { AuthUser } from "@zenstackhq/runtime";
-  import dayjs from "dayjs";
-  import utc from "dayjs/plugin/utc";
-  import timezone from "dayjs/plugin/timezone";
   import { breakName } from "$lib/utils/committee";
-
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
+  import { toAppTime } from "$lib/utils/datetime";
 
   type Election = components["schemas"]["Election"];
 
@@ -60,7 +55,7 @@
   <div class="mt-auto flex flex-col gap-2">
     <p>
       {m.elections_close()}
-      {dayjs(election.expiresAt).tz(dayjs.tz.guess()).format("YYYY-MM-DD")}
+      {toAppTime(election.expiresAt).format("YYYY-MM-DD")}
     </p>
     <div>
       <Button

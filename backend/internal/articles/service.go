@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 	"time"
 
@@ -225,19 +226,25 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 		return nil, err
 	}
 
-	if err := s.syncNotifications(
+	announced, err := s.syncNotifications(
 		ctx,
 		created.Slug,
 		dbutil.UUIDStr(created.ID),
 		identity.MemberID,
 		dbutil.UUIDStr(authorID),
 		in,
-		nil,
-	); err != nil {
+		previousState{},
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	return s.getBySlugUnfiltered(ctx, created.Slug)
+	detail, err := s.getBySlugUnfiltered(ctx, created.Slug)
+	if err != nil {
+		return nil, err
+	}
+	detail.AnnouncementFailed = !announced
+	return detail, nil
 }
 
 // Update replaces every writable field of an article (PUT semantics, not a
@@ -330,23 +337,29 @@ func (s *Service) Update(
 		return nil, err
 	}
 
-	var prevScheduledID *string
+	prev := previousState{publishedAt: dbutil.TimePtr(current.PublishedDatetime)}
 	if current.ScheduledID.Valid {
-		prevScheduledID = &current.ScheduledID.String
+		prev.scheduledID = &current.ScheduledID.String
 	}
-	if err := s.syncNotifications(
+	announced, err := s.syncNotifications(
 		ctx,
 		updated.Slug,
 		dbutil.UUIDStr(updated.ID),
 		identity.MemberID,
 		dbutil.UUIDStr(authorID),
 		in,
-		prevScheduledID,
-	); err != nil {
+		prev,
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	return s.getBySlugUnfiltered(ctx, updated.Slug)
+	detail, err := s.getBySlugUnfiltered(ctx, updated.Slug)
+	if err != nil {
+		return nil, err
+	}
+	detail.AnnouncementFailed = !announced
+	return detail, nil
 }
 
 // Delete soft-deletes an article (sets removed_at); it does not remove the
@@ -775,18 +788,33 @@ func (s *Service) setTags(ctx context.Context, articleID pgtype.UUID, tagIDs []p
 	return nil
 }
 
+// previousState is what an article looked like before an update - zero
+// for a newly created one.
+type previousState struct {
+	publishedAt *time.Time
+	scheduledID *string
+}
+
 // syncNotifications applies a create/update request's notification intent
-// via the (mocked) scheduler/notifier/webhooker: if the article publishes
-// in the future and notifications are wanted, it (re)schedules; if
-// previously scheduled but no longer wanted, it cancels; otherwise, if
-// notifications are wanted and the article is publishing now, it notifies
-// immediately. prevScheduledID is nil for a newly-created article.
+// through the scheduler/notifier/webhooker, with the rules upstream's #1401
+// settled on:
+//   - an article that was already live never announces again, whatever the
+//     edit (including moving it to a future time);
+//   - otherwise, with notifications wanted, a future publish (re)schedules
+//     and a publish now announces right away - including publishing a
+//     scheduled article early, which also cancels its scheduled send;
+//   - a pending send that's no longer wanted is cancelled.
+//
+// Announcing never fails the save: the article exists by then, and an
+// error would only make the author submit again. The in-app/push
+// notification and the Discord post are attempted independently and
+// failures logged; announced reports whether both went through.
 func (s *Service) syncNotifications(
 	ctx context.Context,
 	slug, articleID, authorMemberID, authorID string,
 	in ArticleInput,
-	prevScheduledID *string,
-) error {
+	prev previousState,
+) (announced bool, err error) {
 	notification := integrations.ArticleNotification{
 		ArticleID:      articleID,
 		Slug:           slug,
@@ -800,41 +828,57 @@ func (s *Service) syncNotifications(
 		notification.NotificationText = *in.NotificationText
 	}
 
-	publishesInFuture := in.PublishedAt != nil && in.PublishedAt.After(time.Now())
+	now := time.Now()
+	wasAlreadyLive := prev.publishedAt != nil && !prev.publishedAt.After(now)
+	canAnnounce := in.ShouldSendNotification && !wasAlreadyLive
+	publishesInFuture := in.PublishedAt != nil && in.PublishedAt.After(now)
+	shouldSchedule := canAnnounce && publishesInFuture
+	shouldSendNow := canAnnounce && !publishesInFuture
+	hadPendingTask := prev.scheduledID != nil && prev.publishedAt != nil &&
+		prev.publishedAt.After(now)
 
-	switch {
-	case publishesInFuture && in.ShouldSendNotification:
-		if prevScheduledID != nil {
-			if err := s.scheduler.Cancel(ctx, *prevScheduledID); err != nil {
-				return fmt.Errorf("cancel previous schedule: %w", err)
+	if hadPendingTask {
+		if err := s.scheduler.Cancel(ctx, *prev.scheduledID); err != nil {
+			// Publishing early announces below regardless, so a failed
+			// cancel mustn't block it.
+			if !shouldSendNow {
+				return false, fmt.Errorf("cancel schedule: %w", err)
+			}
+			log.Printf("articles: cancel scheduled send for %s: %v", slug, err)
+		}
+		if !shouldSchedule {
+			if err := s.queries.SetArticleScheduledID(ctx, db.SetArticleScheduledIDParams{
+				Slug:        slug,
+				ScheduledID: pgtype.Text{}, // nothing is scheduled anymore
+			}); err != nil {
+				return false, fmt.Errorf("clear scheduled id: %w", err)
 			}
 		}
+	}
+
+	if shouldSchedule {
 		scheduledID, err := s.scheduler.Schedule(ctx, notification, *in.PublishedAt)
 		if err != nil {
-			return fmt.Errorf("schedule notification: %w", err)
+			return false, fmt.Errorf("schedule notification: %w", err)
 		}
 		if err := s.SetScheduledID(ctx, slug, scheduledID); err != nil {
-			return err
-		}
-	case prevScheduledID != nil:
-		if err := s.scheduler.Cancel(ctx, *prevScheduledID); err != nil {
-			return fmt.Errorf("cancel schedule: %w", err)
-		}
-		if err := s.queries.SetArticleScheduledID(ctx, db.SetArticleScheduledIDParams{
-			Slug:        slug,
-			ScheduledID: pgtype.Text{}, // clear it - nothing is scheduled anymore
-		}); err != nil {
-			return fmt.Errorf("clear scheduled id: %w", err)
-		}
-	case in.ShouldSendNotification:
-		if err := s.notifier.NotifyNewArticle(ctx, notification); err != nil {
-			return fmt.Errorf("send notification: %w", err)
-		}
-		if err := s.webhooker.NotifyNewArticle(ctx, notification); err != nil {
-			return fmt.Errorf("send webhook: %w", err)
+			return false, err
 		}
 	}
-	return nil
+
+	if !shouldSendNow {
+		return true, nil
+	}
+	announced = true
+	if err := s.notifier.NotifyNewArticle(ctx, notification); err != nil {
+		log.Printf("articles: notify about %s: %v", slug, err)
+		announced = false
+	}
+	if err := s.webhooker.NotifyNewArticle(ctx, notification); err != nil {
+		log.Printf("articles: post %s to Discord: %v", slug, err)
+		announced = false
+	}
+	return announced, nil
 }
 
 // uniqueSlug mirrors slugify + slugWithCount from the TS backend: slugify
