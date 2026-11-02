@@ -2179,6 +2179,20 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       barely changed. `ticket-service/` and its three deploy-workflow
       jobs are deleted; the root `.env`'s `TICKET_SERVICE_ENDPOINT` is
       now unused.
+    - **The rest of #1291's pages and small upstream fixes**, wired to
+      existing Go endpoints: `documents/requirements` (Go's folder list;
+      delete is a direct client call to `DELETE /documents/requirements`,
+      the plan its load had recorded), the gallery (Go's album/picture
+      shapes - there's no separate thumbnail URL), `volunteer/apply` (Go's
+      open elections), and the home page's week of events (Go's `range`
+      listing, now an overlap check like upstream's). Onboarding follows
+      upstream's #1342 fix: the form no longer submits email, so the
+      narrow Prisma email write the Phase 1 port had kept (flagged there
+      as "may already be redundant") is gone, and because Go's member
+      update is full-replace the action carries the unsubmitted fields
+      (nickname, bio, ...) over from the current profile. Upstream's
+      onboarding unit test is ported to mock the Go client instead of
+      Prisma. `setNollningGroup` uses the student-id nollor endpoints.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

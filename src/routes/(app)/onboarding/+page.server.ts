@@ -29,7 +29,10 @@ export const load: PageServerLoad = async (event) => {
   if (!profile) {
     throw error(404, m.onboarding_errors_memberNotFound());
   }
-  if (phadderGroupsResult.status === "rejected" || phadderGroupsResult.value.error)
+  if (
+    phadderGroupsResult.status === "rejected" ||
+    phadderGroupsResult.value.error
+  )
     throw error(500, "Couldn't fetch phadder groups");
   if (
     currentNollningResult.status === "rejected" ||
@@ -77,17 +80,31 @@ export const actions: Actions = {
       throw error(500, m.onboarding_errors_studentIDNotFound());
     }
 
-    const { email, nollningGroupId, foodPreference, ...profileFields } =
-      form.data;
+    const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
+    // Go's member update replaces every profile field, so the ones this
+    // form doesn't submit (nickname, bio, ...) are carried over from the
+    // current profile rather than cleared - upstream's #1342 fix, which
+    // stops onboarding from overwriting fields it doesn't show. Email isn't
+    // part of the form or this update at all; it comes from Authentik.
+    const currentRes = await api.GET("/members/{studentId}", {
+      params: { path: { studentId } },
+    });
+    if (currentRes.error) {
+      throw error(500, m.onboarding_errors_studentIDNotFound());
+    }
+    const current = currentRes.data;
     const profileRes = await api.PATCH("/members/{studentId}", {
       params: { path: { studentId } },
       body: {
         firstName: profileFields.firstName ?? "",
         lastName: profileFields.lastName ?? "",
-        nickname: profileFields.nickname ?? undefined,
+        nickname: current.nickname,
         classProgramme: profileFields.classProgramme ?? undefined,
         classYear: profileFields.classYear ?? undefined,
+        graduationYear: current.graduationYear,
+        language: current.language,
+        bio: current.bio,
       },
     });
     if (profileRes.error) {
@@ -100,15 +117,6 @@ export const actions: Actions = {
       });
     }
 
-    // email isn't part of the Go member API yet - real auth already sets
-    // it from Authentik claims at first login, see DESIGN.md's Auth
-    // section, so this form field may already be redundant (not confirmed
-    // yet). Narrow, explicit, temporary direct write, not a broader Prisma
-    // bridge for the rest of the (now Go-backed) member domain.
-    await locals.prisma.member.update({
-      where: { studentId },
-      data: { email },
-    });
     await setNollningGroup(api, studentId, nollningGroupId ?? null);
 
     return redirect(

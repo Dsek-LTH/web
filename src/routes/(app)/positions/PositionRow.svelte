@@ -12,7 +12,7 @@
     updateForm,
     canUpdate,
   }: {
-    position: { id: string; name: string; email: string | null };
+    position: { id: string; name: string; email?: string | null };
     updateForm: SuperValidated<UpdatePositionAttributeSchema>;
     canUpdate: boolean;
   } = $props();

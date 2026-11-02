@@ -1,6 +1,5 @@
 import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { env } from "$env/dynamic/private";
-import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { api } from "$lib/api/client";
 import { error } from "@sveltejs/kit";
@@ -73,18 +72,27 @@ export const loadHomeData = async ({
   const endDate = dayjs(now).add(6, "day").endOf("day").toDate();
 
   // EVENTS
-  const eventsPromise = prisma.event.findMany({
-    where: {
-      AND: [
-        BASIC_EVENT_FILTER(),
-        { startDatetime: { lt: endDate } },
-        { endDatetime: { gt: startDate } },
-      ],
-    },
-    orderBy: {
-      startDatetime: "asc",
-    },
-  });
+  // Every event overlapping this week, from Go's range listing (upstream
+  // switched this to an overlap check too).
+  const eventsPromise = api
+    .GET("/events", {
+      fetch,
+      params: {
+        query: {
+          span: "range",
+          from: startDate.toISOString(),
+          to: endDate.toISOString(),
+          pageSize: 500,
+        },
+      },
+    })
+    .then((res) =>
+      (res.data?.events ?? []).map((event) => ({
+        ...event,
+        startDatetime: new Date(event.startAt),
+        endDatetime: new Date(event.endAt),
+      })),
+    );
 
   // MEETINGS
   const upcomingMeetingPromise = prisma.meeting.findFirst({

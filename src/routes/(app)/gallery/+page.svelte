@@ -21,16 +21,16 @@
   </div>
 
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-    {#each data.albums as [album, files] (album)}
-      {@const cover = files.find((f) => f.thumbnailUrl)}
+    {#each data.albums as { key: album, pictures } (album)}
+      {@const cover = pictures?.[0]}
       <a href="/gallery/album/{album}">
         <Card class="overflow-hidden py-0">
           <div
             class="bg-muted-background flex aspect-video items-center justify-center"
           >
-            {#if cover?.thumbnailUrl}
+            {#if cover}
               <img
-                src={cover.thumbnailUrl}
+                src={cover.url}
                 alt={album}
                 class="h-full w-full object-cover"
               />
@@ -41,8 +41,10 @@
           <CardContent class="pt-0 pb-4">
             <p class="truncate font-medium">{album}</p>
             <p class="text-muted-foreground text-sm">
-              {files.length}
-              {files.length === 1 ? m.gallery_picture() : m.gallery_pictures()}
+              {pictures?.length ?? 0}
+              {pictures?.length === 1
+                ? m.gallery_picture()
+                : m.gallery_pictures()}
             </p>
           </CardContent>
         </Card>

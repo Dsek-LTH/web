@@ -58,14 +58,14 @@
 
   <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
     {#each data.pictures as picture, index (picture.id)}
-      {#if picture.thumbnailUrl}
+      {#if picture.url}
         <button
           type="button"
           class="bg-muted-background aspect-square overflow-hidden rounded-md"
           onclick={() => (selectedIndex = index)}
         >
           <img
-            src={picture.thumbnailUrl}
+            src={picture.url}
             alt={picture.name}
             class="h-full w-full object-cover transition-transform hover:scale-105"
           />
@@ -104,7 +104,7 @@
         <ChevronLeft class="h-8 w-8" />
       </Button>
       <img
-        src={data.pictures[selectedIndex]!.thumbnailUrl}
+        src={data.pictures[selectedIndex]!.url}
         alt={data.pictures[selectedIndex]!.name}
         class="max-h-[92dvh] max-w-[92vw] object-contain"
       />
