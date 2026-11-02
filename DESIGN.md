@@ -112,11 +112,11 @@ interface, since the feature itself isn't coming back to this codebase.
 Concretely:
 
 - **Go never gains an expenses schema or endpoints** - `internal/db/
-  schema.sql` never gets `expenses`/`expense_items`, same as shop/tickets
+schema.sql` never gets `expenses`/`expense_items`, same as shop/tickets
   never getting their tables.
 - **SvelteKit-side removal is immediate and complete**: `src/lib/expenses/`
   (`generatePdf.ts`, `sendToBookkeeping.ts`) and `src/routes/(app)/
-  expenses/` (list/detail/upload pages, remotes, config/helpers/types)
+expenses/` (list/detail/upload pages, remotes, config/helpers/types)
   deleted; the `EXPENSES` policy block in `apiNames.ts`, the `EXPENSES`
   `NotificationType`/`NotificationSettingType` entries (and the now-empty
   `NOTIFICATION_SETTINGS_ALWAYS_ON` mapping that only ever contained it),
@@ -129,7 +129,7 @@ Concretely:
   tickets.
 - **The nav link itself is untouched** - `routes.ts`'s "Expenses" entry
   already pointed at `https://ekonomi.dsek.se/` before this pass (that
-  external redirect is *why* the internal feature is safe to delete
+  external redirect is _why_ the internal feature is safe to delete
   outright rather than needing a mock), so `nav_expenses`/
   `nav_expenses_desc` are the only `expense`-related translation keys kept.
 - **`src/database/schema.zmodel`'s `Expense`/`ExpenseItem` models, their
@@ -143,7 +143,7 @@ Concretely:
 ## DB migrations, once Prisma is gone (decided 2026-09-01)
 
 **Status: decided, not yet implemented.** Today `internal/db/schema.sql` is
-a hand-maintained *description* of tables Prisma actually owns and
+a hand-maintained _description_ of tables Prisma actually owns and
 migrates (see "Database" in `backend/CLAUDE.md`) — kept in sync against
 `psql \d` by hand, which is exactly the drift risk that file's own doc
 comments warn about. That's fine only as long as Prisma is still the real
@@ -197,14 +197,14 @@ before that happens, not after.
     bootstrap SQL (`0_init` onward) now lives in `migrate`'s directory
     verbatim, **a brand-new Postgres instance can be created from nothing
     but `migrate up`** — today that only works via `prisma migrate
-    deploy`. That capability transfers without Prisma in the loop.
+deploy`. That capability transfers without Prisma in the loop.
 - **`internal/db/schema.sql` stays hand-maintained — tried pointing `sqlc`
   at the migrations directory instead, reverted after actually testing
   it.** The theory was the same "structurally can't drift" argument as
   above: point `sqlc.yaml`'s `sql[0].schema` at `internal/db/migrations`
   and let the migration files be the one schema source for both the live
   DB and codegen. In practice, `sqlc` has no notion of "model only these
-  tables" — it generates a Go struct for *every* table visible in whatever
+  tables" — it generates a Go struct for _every_ table visible in whatever
   it's given as schema, with no way to scope that down. Pointed at the
   full migration history, that's every table in the entire live database:
   `models.go` grew by ~800 lines, including `Order`, `Payment`, `Shoppable`,
@@ -216,7 +216,7 @@ before that happens, not after.
   `schema.sql` incrementally as more tables get ported" pattern — reverted,
   `sqlc.yaml` still points at `schema.sql`. The drift risk that motivated
   trying this is unchanged from before: `schema.sql` remains a hand-curated
-  subset, manually kept in sync against reality. What *did* land from this
+  subset, manually kept in sync against reality. What _did_ land from this
   section (the `migrate` tool itself, the converted migration files) is
   still worth having independent of this — it's the real migration story
   regardless of what sqlc reads from.
@@ -237,7 +237,7 @@ touches `api_access_policies` at all. Every row that table actually has
 locally (the `governing_document:read`/`news:article:*` wildcard grants
 referenced elsewhere in this file, plus whatever else) was added by hand,
 ad hoc, at some unrecorded point - not reproducible, not documented, and
-with no way to tell what's *supposed* to be there versus what one
+with no way to tell what's _supposed_ to be there versus what one
 developer happened to insert once.
 
 **Concrete incident that surfaced this**: Phase 4's `/documents` returned
@@ -295,8 +295,8 @@ pass was built under.
 Because the site is non-production for the duration of the rewrite, there
 is no need to keep the old Keycloak/session-based SvelteKit auth "in the
 loop" while Go's auth is unbuilt, and no need to design Go endpoints around
-being called by a trusted SvelteKit server. Instead: build the auth *shape*
-in Go now, and mock the *implementation* until real auth is ready.
+being called by a trusted SvelteKit server. Instead: build the auth _shape_
+in Go now, and mock the _implementation_ until real auth is ready.
 
 Concretely:
 
@@ -333,6 +333,7 @@ mandate is verified against the DB (`GetMandateMemberID`) - a real check,
 not mocked, since it's just our own data.
 
 **Still open (unchanged by the real-auth decision below):**
+
 - Whether the mock identity's permissions should be configurable per
   scenario (e.g. to test permission-denied paths) rather than always
   all-permissions. Not needed yet - flag if that changes.
@@ -374,7 +375,7 @@ coexistence" framing above. Concretely:
   "port the query, not the schema" treatment as `members`/`mandates` — not a
   new table Go would own) plus a query mirroring
   `hooks.server.helpers.ts`'s `getAccessPolicies` (`WHERE role IN (...) OR
-  student_id = ...`). The nollning `SEE_STABEN` default-policy injection in
+student_id = ...`). The nollning `SEE_STABEN` default-policy injection in
   that same function is **not** ported, consistent with nollning being out
   of scope elsewhere in this rewrite (see the API section below) — this is a
   known, accepted behavior gap versus the old code, not an oversight.
@@ -397,7 +398,7 @@ coexistence" framing above. Concretely:
   (not covered by a wildcard regex) once one exists — not needed yet.
 - **Sequencing**: even though the intent is one cutover (not a long-lived
   bridge), verify the Go-side login → callback → session round-trip against
-  the real `auth.dsek.se` dev instance *before* deleting Auth.js from
+  the real `auth.dsek.se` dev instance _before_ deleting Auth.js from
   `hooks.server.ts`, so SvelteKit is never left without a working login path
   mid-change. Done - verified against the real dev instance before the
   `hooks.server.ts` cutover landed.
@@ -584,7 +585,7 @@ to be an oversight, not a considered choice):
     whoever does that pass should fix this as one of its findings rather
     than treating it as separately deferred.
 - **Locale resolution moves into Go, additively.** Every translated field
-  in a response includes *both* the raw pair (`headerSv`/`headerEn`) *and*
+  in a response includes _both_ the raw pair (`headerSv`/`headerEn`) _and_
   one resolved field (`header`, chosen via `Accept-Language`/similar,
   replicating the old Prisma `translationExtension`'s fallback rule).
   Display components read the resolved field; edit forms read the raw
@@ -668,7 +669,7 @@ to be an oversight, not a considered choice):
   `member` from the acting identity unconditionally (see Auth section) -
   there's no code path left for "person B edits person A's article while
   keeping A as the byline." The edit page's author picker is therefore
-  built from the *editor's* mandates/custom-authors, not the article's
+  built from the _editor's_ mandates/custom-authors, not the article's
   original author's, and pre-selects whichever option matches the
   article's current byline type if one exists (falling back to "post as
   yourself" otherwise) - since saving will reassign authorship to the
@@ -681,7 +682,7 @@ to be an oversight, not a considered choice):
   pass gated on "is anyone logged in" (`!!data.member`) as a "closest
   meaningful placeholder" - that was still solving a problem that doesn't
   exist yet: Go's `auth.Require` is the only real gate and it's the
-  all-permissions mock, so *every* request is currently "authorized"
+  all-permissions mock, so _every_ request is currently "authorized"
   regardless of who's browsing. Approximating a signal for a check that
   always passes anyway is pointless indirection - just say `true` and mock
   it plainly, matching the rest of the mocking principle. Revisit once Go
@@ -689,7 +690,7 @@ to be an oversight, not a considered choice):
   **STALE - confirmed wrong 2026-09-01, not yet fixed.** The condition
   this bullet names for revisiting ("once Go exposes the acting identity's
   policies to the frontend for real") has been true since "Real auth"
-  below landed *the same day* this was written: `GET /me` returns real
+  below landed _the same day_ this was written: `GET /me` returns real
   resolved `policies`, and `hooks.server.ts` already stores them on
   `locals.user.policies`, propagated to every page via the root
   `+layout.server.ts` → `parent()`. Mock auth (`AUTH_MOCK=true`) is not
@@ -777,6 +778,7 @@ isn't coming back.
 **Not ported this pass** (no interface/method exists because nothing
 depends on it yet - same "extend incrementally" stance as articles' still-
 missing moderation workflow):
+
 - Push notifications to an event's organizer when a member marks
   going/interested (`sendNotification` in the old
   `src/lib/events/server/interestedGoing.ts`).
@@ -796,6 +798,7 @@ missing moderation workflow):
 **Real bugs found in the old TS implementation, fixed rather than
 replicated** (surfaced by a research pass before porting - see the git
 history around this section for the full comparison):
+
 - `removeCommentAction("EVENT")` (`src/lib/zod/comments.ts`) had **no
   authorization check at all** - any visitor could delete any comment on
   any event, despite `apiNames.EVENT.COMMENT_DELETE` existing and never
@@ -812,6 +815,7 @@ history around this section for the full comparison):
   articles' `Get`/`GetAny` split.
 
 **Deliberate behaviors preserved, not simplified away:**
+
 - **Recurring series are pre-materialized, not expanded at read time.**
   `Service.Create`, given `EventInput.Recurring`, inserts one
   `RecurringEvent` row plus one `Event` row per occurrence up front (same
@@ -836,6 +840,7 @@ history around this section for the full comparison):
   one shared slug across a series - verified in the same test.
 
 **Deliberate divergences from the articles precedent, not oversights:**
+
 - **`author_id` is never reassigned on `Update`**, unlike articles'
   documented "editing always re-attributes to whoever saves the edit."
   Events never had a mandate/custom-author byline picker to begin with -
@@ -863,13 +868,14 @@ history around this section for the full comparison):
 convention.** The old TS only kept `going`/`interested` mutually exclusive
 because exactly three fixed call sites always wrote both relations
 together - nothing in the schema or a shared write path actually enforced
-it. `PATCH /events/{slug}/attendance` is the *only* write path to either
+it. `PATCH /events/{slug}/attendance` is the _only_ write path to either
 relation, so `Service.setAttendance` enforces exclusivity structurally
 instead of by convention. Verified end-to-end (going → interested cleared
 `goingCount` and set `interestedCount`).
 
 **Two refactors extracted from `internal/articles` while porting, not
 events-specific but surfaced by needing the same logic twice:**
+
 - `internal/slug` - `Slugify`/`SlugWithCount` moved out of
   `internal/articles` verbatim (events' recurring-series slugging needed
   the same functions).
@@ -938,7 +944,7 @@ articles - see the API shape section's note on this), which needs the
 event's `comments` array as input - but that array only exists after
 fetching the event from Go. A universal `+page.ts` load has no way to
 sequence a Prisma call after a Go API call like that (server loads run
-*before* universal loads and hand data forward, never the reverse). This
+_before_ universal loads and hand data forward, never the reverse). This
 is exactly the case this doc's "Principles going forward" section already
 carved out room for: "server-only load is a stopgap for routes that can't
 do that yet, not the destination." `getAllTaggedMembers`'s own doc comment
@@ -948,6 +954,7 @@ model), so nothing there needed to change.
 
 **Two known gaps, both accepted because nothing currently renders the
 pages that would surface them**:
+
 - Push notifications to an event's organizer on going/interested aren't
   replicated client-side either, matching the backend's own "not ported
   this pass" decision - there's no member data to build the notification
@@ -987,7 +994,7 @@ realistic data; a no-op that returns success (or a placeholder value
 that's obviously a placeholder, like a fake URL) is fine. What matters is
 that:
 
-1. The *shape* is real — the Go code calls the interface exactly where and
+1. The _shape_ is real — the Go code calls the interface exactly where and
    how the finished implementation will need to be called, so wiring in a
    real implementation later is a swap behind the interface, not a rewrite
    of the caller.
@@ -1047,25 +1054,25 @@ ported).
 4. **SSR via SvelteKit universal load (`+page.ts`)** once the API supports
    client-authenticated calls; server-only load (`+page.server.ts`) is a
    stopgap for routes that can't do that yet, not the destination.
-5. **Go is the sole source of truth for both validation and authorization
-   - the frontend must never reimplement either, even client-side-only.**
-   (Decided 2026-09-01, prompted by two things found in the same
-   conversation: the articles/events like/RSVP/delete actions running
-   zod validation through a SvelteKit server action before forwarding to
-   Go, which re-validates anyway; and `canEdit`/`canDelete` being
-   hardcoded `true` on both detail pages - see the correction above -
-   because whoever would fix it reached for `isAuthorized`/`apiNames.ts`/
-   `getDerivedRoles`, a TypeScript reimplementation of policy logic Go
-   already has its own copy of.) The API is public and callable directly
-   from the browser already (see "API shape and frontend integration"
-   above), and a mobile app will call it too, going through none of
-   SvelteKit's code at all - so any validation or authorization logic
-   living in TypeScript is either (a) redundant, since Go has to enforce
-   it for real regardless of what the frontend decided, or (b) a second,
-   drifting copy of a rule the mobile app never sees and Go's tests never
-   cover. Neither is acceptable as the target shape, even though today's
-   TS-side checks are harmless in practice (Go's own enforcement doesn't
-   weaken if the frontend's copy is wrong).
+5. \*\*Go is the sole source of truth for both validation and authorization
+   - the frontend must never reimplement either, even client-side-only.\*\*
+     (Decided 2026-09-01, prompted by two things found in the same
+     conversation: the articles/events like/RSVP/delete actions running
+     zod validation through a SvelteKit server action before forwarding to
+     Go, which re-validates anyway; and `canEdit`/`canDelete` being
+     hardcoded `true` on both detail pages - see the correction above -
+     because whoever would fix it reached for `isAuthorized`/`apiNames.ts`/
+     `getDerivedRoles`, a TypeScript reimplementation of policy logic Go
+     already has its own copy of.) The API is public and callable directly
+     from the browser already (see "API shape and frontend integration"
+     above), and a mobile app will call it too, going through none of
+     SvelteKit's code at all - so any validation or authorization logic
+     living in TypeScript is either (a) redundant, since Go has to enforce
+     it for real regardless of what the frontend decided, or (b) a second,
+     drifting copy of a rule the mobile app never sees and Go's tests never
+     cover. Neither is acceptable as the target shape, even though today's
+     TS-side checks are harmless in practice (Go's own enforcement doesn't
+     weaken if the frontend's copy is wrong).
    - **Validation**: pure-proxy mutations (like/unlike, going/interested,
      delete, comment add/remove) should call the Go API directly from the
      client component - no SvelteKit server action, no zod schema for
@@ -1082,7 +1089,7 @@ ported).
      `DELETE /articles/{slug}` directly from a shared
      `src/routes/(app)/news/RemoveArticleDialog.svelte` client component
      (toast + `goto` on completion), replacing the `removeArticle`
-     SvelteKit action. Every *other* pure-proxy action
+     SvelteKit action. Every _other_ pure-proxy action
      (articles' like/dislike/comment/removeComment; events'
      comment/removeComment/removeEvent/going/interested) turned out to
      have **zero live frontend consumers** - not just under-tested, no
@@ -1106,11 +1113,11 @@ ported).
      `src/lib/news/server/actions.ts` / `src/lib/events/server/actions.ts`
      (create/update - real authoring forms with actual server-side work
      - image upload sequencing, redirect logic - not pure proxies, so
-     Principle #5 doesn't apply to them; they keep their SvelteKit
-     actions and zod). When like/comment/going-interested/event-delete UI
-     eventually gets built, it should follow `RemoveArticleDialog.svelte`'s
-     pattern (direct client call, no new SvelteKit action, no zod) rather
-     than reintroducing the deleted action files.
+       Principle #5 doesn't apply to them; they keep their SvelteKit
+       actions and zod). When like/comment/going-interested/event-delete UI
+       eventually gets built, it should follow `RemoveArticleDialog.svelte`'s
+       pattern (direct client call, no new SvelteKit action, no zod) rather
+       than reintroducing the deleted action files.
    - **Authorization**: **FIXED 2026-09-01, same day it was flagged** -
      `canEdit`/`canDelete` (articles and events detail pages) are not
      "fixed" by calling `isAuthorized(apiNames.X, user)` client-side, even
@@ -1133,7 +1140,7 @@ ported).
      still genuinely needed by the (unported) rest of the app - revisit
      once nothing else calls them.
 6. **Every phase fully de-Prisma-ifies its own domain's SvelteKit-side
-   backend; only building the *visual* UI for a currently-stub page is
+   backend; only building the _visual_ UI for a currently-stub page is
    deferred (decided 2026-09-02, refined twice more the same day through
    direct conversation before landing here - no earlier draft was ever
    committed, so there's nothing to diff against; this is simply the
@@ -1161,11 +1168,11 @@ ported).
      data model is already front-of-mind, so there's no reason to
      defer it.
    - **If the route is currently `<NotImplemented />`**, its `.svelte`
-     stays exactly that until phase 14. Everything *behind* the stub
+     stays exactly that until phase 14. Everything _behind_ the stub
      (Go endpoints, `.server.ts`) is ported now per the bullet above -
      only the missing visual page waits. This is the actual
      context-switching concern the earlier drafts of this principle were
-     reaching for: don't design/build *new* UI alongside backend porting,
+     reaching for: don't design/build _new_ UI alongside backend porting,
      but rewiring a page that already exists isn't new UI, so it doesn't
      need to wait either.
    - **Cannot wait for phase 14 regardless of the above**: if a phase's
@@ -1216,11 +1223,11 @@ needs them for real, not as a dedicated separate pass - see "Mock
 replacement, just-in-time" at the end of this section.
 
 **Explicitly out of scope, unchanged:** shop/tickets (never coming back,
-see above). **Nollning is explicitly *in* scope and high priority** -
+see above). **Nollning is explicitly _in_ scope and high priority** -
 see its own subsection below; this reverses the treatment nollning has
 gotten everywhere else in this doc so far (excluded from events'
 visibility filtering, from auth's `SEE_STABEN` port, from the API shape
-work) - those were correct calls for *not blocking* articles/events, but
+work) - those were correct calls for _not blocking_ articles/events, but
 nollning itself needs real, deliberate design, not permanent exclusion.
 
 ### Remaining domains, by rough size and current Prisma models
@@ -1228,9 +1235,9 @@ nollning itself needs real, deliberate design, not permanent exclusion.
 - **Directory/foundation**: fuller `members`/`mandates`/`positions`/
   `committees` (profile pages, editing, mandate history, committee pages)
   - partially in `schema.sql` already as an articles/events dependency,
-  but only enough columns/queries to satisfy those two features, not a
-  real member-facing feature. `AccessPolicy`, `EmailAlias` (admin-managed,
-  small).
+    but only enough columns/queries to satisfy those two features, not a
+    real member-facing feature. `AccessPolicy`, `EmailAlias` (admin-managed,
+    small).
 - **Nollning** (see below): `PhadderGroup`, nollning-specific fields on
   `Member`/`Mandate`, the `AdminSetting` nollning-period rows, and every
   scattered special-case inventoried below - not one Prisma model, a
@@ -1282,7 +1289,7 @@ nollning itself needs real, deliberate design, not permanent exclusion.
 Each phase below covers its domain's whole backend - Go endpoints and
 SvelteKit's own `.server.ts`/`+server.ts` layer both, per principle #6
 above - not just the Go side. The only thing phases 3-13 defer to phase 14
-is building a *visual* `.svelte` page for a route that's currently
+is building a _visual_ `.svelte` page for a route that's currently
 `<NotImplemented />`; a route that already has a real page gets that page
 updated in its own phase, same as phase 1 and phase 2 already did.
 
@@ -1378,7 +1385,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    documents' dead soft-delete column (schema had `deletedAt`, the old
    delete action hard-deleted anyway) to a real soft-delete, matching
    Song/Article/Event's existing convention. `medals` deliberately did
-   *not* get a "fix real bugs found" treatment for its missing
+   _not_ get a "fix real bugs found" treatment for its missing
    medals-specific auth check (`apiNames.MEDALS.MANAGE` exists but was
    never referenced by the old routes) - replicated as "must be
    authenticated only" exactly as-is, since there was no evidence it was a
@@ -1424,7 +1431,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    bucket from the document type server-side, instead of always hitting
    the `documents` bucket regardless of tab (silently broken for SRD and
    every requirement-profile file, which live in the `files` bucket - this
-   turned out to affect the *main* documents page's SRD tab too, not just
+   turned out to affect the _main_ documents page's SRD tab too, not just
    the requirements page, once traced through). Gallery's staben-album
    redaction now uses a real `nollning.Service.Current` + `MemberSeeStaben`
    check (same pattern as `committees.Service.ListBoard`), replacing the
@@ -1467,31 +1474,31 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    all (they're not date-prefixed). This is a pre-existing property of the
    old app's algorithm against this real data, not introduced by the port
    - confirmed by testing the actual convention-following path (upload via
-   `POST /gallery/upload`, which does produce a correctly-groupable,
-   correctly-gettable album) separately, which worked. Worth the
-   attention of whoever eventually builds gallery's real UI in Phase 14.
-   **Local-dev-only issue found and fixed after initial verification,
-   2026-09-02**: `/documents` 403'd against the local dev DB - not a code
-   bug (the exact same `apinames.FileDocumentsRead`/etc. check the old TS
-   app enforced, byte-for-byte identical policy string), but because
-   `fileHandler:{albums,documents,files}:read` had zero grants locally
-   (prod, where `/documents` works, presumably has them). Fixed for now by
-   inserting `role='*'` rows directly, mirroring `governing_document:read`'s
-   existing pattern - see the new "DB seeding, needed eventually" section
-   above for the real fix this incident motivated (there's currently no
-   reproducible way to seed `api_access_policies`, this project-wide, not
-   specific to this phase).
-   Two small accepted gaps, both explicit decisions rather than oversights:
-   avatar/profile-picture upload (the `members` bucket) stays deferred, not
-   pulled into this phase despite sharing the same `Uploader` dependency
-   (Phase 1's own note already flagged it as Phase-4-adjacent, but the
-   roadmap bullet here only ever named gallery + documents); no server-side
-   image compression/webp conversion on upload (the old app's `sharp`-based
-   compression doesn't port this pass - files are stored as given). Gallery
-   itself never had a delete feature in the old app and doesn't gain one
-   here, and `move`/`rename` (unused by any live gallery/documents caller)
-   aren't ported either - both relevant only to a future admin MinIO
-   browser (Phase 11), not this phase's job.
+     `POST /gallery/upload`, which does produce a correctly-groupable,
+     correctly-gettable album) separately, which worked. Worth the
+     attention of whoever eventually builds gallery's real UI in Phase 14.
+     **Local-dev-only issue found and fixed after initial verification,
+     2026-09-02**: `/documents` 403'd against the local dev DB - not a code
+     bug (the exact same `apinames.FileDocumentsRead`/etc. check the old TS
+     app enforced, byte-for-byte identical policy string), but because
+     `fileHandler:{albums,documents,files}:read` had zero grants locally
+     (prod, where `/documents` works, presumably has them). Fixed for now by
+     inserting `role='*'` rows directly, mirroring `governing_document:read`'s
+     existing pattern - see the new "DB seeding, needed eventually" section
+     above for the real fix this incident motivated (there's currently no
+     reproducible way to seed `api_access_policies`, this project-wide, not
+     specific to this phase).
+     Two small accepted gaps, both explicit decisions rather than oversights:
+     avatar/profile-picture upload (the `members` bucket) stays deferred, not
+     pulled into this phase despite sharing the same `Uploader` dependency
+     (Phase 1's own note already flagged it as Phase-4-adjacent, but the
+     roadmap bullet here only ever named gallery + documents); no server-side
+     image compression/webp conversion on upload (the old app's `sharp`-based
+     compression doesn't port this pass - files are stored as given). Gallery
+     itself never had a delete feature in the old app and doesn't gain one
+     here, and `move`/`rename` (unused by any live gallery/documents caller)
+     aren't ported either - both relevant only to a future admin MinIO
+     browser (Phase 11), not this phase's job.
 5. **Booking** - bookables + booking requests.
    **Status: backend and frontend both implemented 2026-09-02**
    (`backend/internal/booking` - see `backend/CLAUDE.md`'s "Booking routes"
@@ -1501,8 +1508,8 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    songs/alerts/documents in Phase 3) - `schema.sql` additions only, no new
    migration. Three decisions confirmed with the user before implementing:
    fix the old edit action's `isAdmin` check (it tested
-   `apiNames.BOOKABLES.UPDATE`, a bookable-*resource* policy, instead of
-   `BOOKINGS.UPDATE`, the booking-*request* policy the underlying write was
+   `apiNames.BOOKABLES.UPDATE`, a bookable-_resource_ policy, instead of
+   `BOOKINGS.UPDATE`, the booking-_request_ policy the underlying write was
    actually gated on - almost certainly a bug, not intentional); add
    non-blocking overlap detection as a genuinely new feature (the old app
    never checked for double-bookings at all) - surfaced as a `conflicts`
@@ -1578,7 +1585,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      any other feature with no data-layer dependency. Not touched by this
      phase.
    - `Election` itself (`internal/elections`, `internal/api/
-     huma_elections.go`) is genuinely simple: a committee announcement
+huma_elections.go`) is genuinely simple: a committee announcement
      (`markdownSv`/`markdownEn`, an external `link` to a Google Form or
      similar, an `expiresAt` date) - there is no in-house ballot/voting
      mechanism anywhere in this codebase; actual voting happens entirely on
@@ -1620,8 +1627,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      `$lib/server/loadHomeData.ts`'s `electionsPromise` converted the same
      way `newsPromise` already had been (Prisma → `api.GET(...)`) -
      **deliberate simplification**: the homepage widget now shows the same
-     soonest-closing-first order the full `/elections` page uses (sliced to
-     3) rather than newest-announced-first, since the Go endpoint only
+     soonest-closing-first order the full `/elections` page uses (sliced to 3) rather than newest-announced-first, since the Go endpoint only
      supports one order and a second variant wasn't worth adding for a
      3-item widget. `ElectionCard.svelte`'s prop type moved off
      `ExtendedPrismaModel<"Election">` onto the generated Go schema type
@@ -1665,7 +1671,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      sign-up/quit/reassign toggle logic into one endpoint, faithfully
      replicated including its real (not obviously intentional, but
      replicated exactly since there's no evidence it was a bug) quirk: the
-     "you already have another shift this day" guard checks the *acting*
+     "you already have another shift this day" guard checks the _acting_
      identity's own shifts, not the target member's - which only matters
      for self-signup, since every path where target ≠ actor already
      requires `cafe:edit_workers` and bypasses this guard entirely, same
@@ -1678,10 +1684,10 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      explicit check added: the old action had none, relying on `worker`
      ending up empty/undefined for an anonymous caller and the resulting
      Prisma create failing incidentally.
-   - Opening-hours *reads* get a bespoke endpoint (`GET
-     /cafe/opening-hours`, a prefix listing over the `markdowns` table -
+   - Opening-hours _reads_ get a bespoke endpoint (`GET
+/cafe/opening-hours`, a prefix listing over the `markdowns` table -
      `internal/markdown` itself only fetches one named page at a time, so
-     this doesn't belong there), but opening-hours *writes* deliberately
+     this doesn't belong there), but opening-hours _writes_ deliberately
      don't - the old app's `updateHours` action already just delegated to
      a shared `updateMarkdown` helper gated by the same `markdown:update`
      policy Phase 3's generic `PATCH /info/{slug}` already enforces, so
@@ -1702,7 +1708,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      errors/warnings). Same caveat as nollning's `GET /board` redaction and
      markdown's per-page ACL bypass: the non-admin branches
      (`cafe:edit_workers`/`cafe:see_all_weeks`/`cafe:day_manager` all
-     *absent*) were only verified by code inspection, not a live
+     _absent_) were only verified by code inspection, not a live
      differently-privileged request - `MockAuthenticator` always grants
      every policy to its one fixed identity. `committees/cafe/+page.svelte`
      stays `<NotImplemented />` (a pre-existing stub before this phase),
@@ -1763,7 +1769,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      replaced with a Go call by the time this phase started) - including
      its slightly redundant two-step description truncation, replicated
      faithfully rather than "fixed". Real Expo push (`internal/notifications/
-     push.go`) is a bespoke small HTTP client against Expo's push API
+push.go`) is a bespoke small HTTP client against Expo's push API
      directly (no access token required, matching the old app's own
      unauthenticated `new Expo()`) rather than a third-party Go SDK
      dependency - the protocol is simple enough not to warrant one.
@@ -1779,7 +1785,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      kept, not deleted - confirmed via grep before making that call, the same
      diligence this port applies before every "genuinely dead code deleted"
      claim elsewhere. `DEFAULT_SUBSCRIPTION_SETTINGS`/
-     `NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS` in that same file are *also* still
+     `NOLLA_DEFAULT_SUBSCRIPTION_SETTINGS` in that same file are _also_ still
      alive, for a second, unrelated reason - see the Auth section's
      `createMember()` fallback note above, superseded but not closed by this
      phase. `myNotifications.ts`, `nollaNotifications.ts`, and `group.ts`
@@ -1808,7 +1814,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     **Superseded:** the "depends on real hardware/vendor API access"
     reasoning above turned out to be wrong once actually implemented -
     this domain has no outbound vendor API call at all. The university's
-    own Salto door-lock hardware polls a URL *this app* serves
+    own Salto door-lock hardware polls a URL _this app_ serves
     (`GET /salto/{door}`, unauthenticated, returning a bare
     newline-separated student-ID list) to decide who may enter; there's
     nothing for Go to call out to. It was placed late in the roadmap
@@ -1823,17 +1829,17 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     history) - `schema.sql` additions only, no new migration, same as
     songs/alerts/booking/elections/cafe/notifications. Two decisions
     confirmed with the user before/during implementation:
+
     - **A real, physical-security-relevant bug fix, confirmed explicitly
       rather than decided silently** (unlike most "fix a real bug found
       while porting" calls elsewhere in this doc, which the agent judged
       unilaterally when the evidence was unambiguous and low-stakes):
       both the old salto endpoint's role-to-position matching and the
       admin create form's role-existence check used Prisma's
-      `startsWith: `${role}%``, which escapes `%` as a literal character
-      rather than a wildcard - meaning a role-based (position-prefix)
-      door policy has likely never actually granted anyone access via
-      that path in production; only direct per-student policies and the
-      `"*"` (recent-class-year) wildcard worked. Go now does a real
+      `startsWith: `${role}%``, which escapes `%`as a literal character
+rather than a wildcard - meaning a role-based (position-prefix)
+door policy has likely never actually granted anyone access via
+that path in production; only direct per-student policies and the`"\*"` (recent-class-year) wildcard worked. Go now does a real
       prefix match. The user's own words on this, given the stakes
       (getting it wrong either way means someone either can't get into a
       room they should, or can get into one they shouldn't): "It seems
@@ -1851,11 +1857,11 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     (`admin/doors`), the create-form validation chain (ported verbatim
     from the old zod `.refine()` chain, minus its async Prisma-backed
     existence check, now server-side in Go per Principle #5) - is a
-    faithful, mechanical port. One old-app quirk was deliberately *not*
+    faithful, mechanical port. One old-app quirk was deliberately _not_
     changed even though it looks similar to the `startsWith` bug: a
     `door_access_policies` row's `studentId` and `role` fields are read
     independently (not mutually exclusive), and a banned row's `role`
-    still participates in granting access to *other* people even though
+    still participates in granting access to _other_ people even though
     that row's own `studentId` is excluded - this is how
     `parseDoorPolicies`/`parseDoorBanPolicies` actually behaved, and the
     user's fix request was scoped specifically to the prefix-matching
@@ -1878,6 +1884,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     the Go backend produced byte-identical output for the same door, and
     a real form-action create/delete round-trip through the `admin/doors`
     UI was confirmed to change what the proxy subsequently returns.
+
 11. **Admin consolidation** - settings, links, minio browser, stocklist,
     debug - thin wrappers over domains that need to exist first.
     **Status: backend and frontend both implemented 2026-09-03**
@@ -1918,7 +1925,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
         history" delete-blocked message (an old-code try/catch around a
         Postgres FK-violation Prisma let propagate) is replicated as-is via
         a real Postgres error-code check (`23503`) in Go.
-      - Verified live end-to-end via `AUTH_MOCK` through the *actual*
+      - Verified live end-to-end via `AUTH_MOCK` through the _actual_
         SvelteKit dev server's real form actions (not direct Go calls):
         create a product, stock it in, confirm the running total and
         inventory value update, confirm delete is blocked while batch
@@ -1948,7 +1955,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     - **Minio browser** (`admin/minio`) - "a page to upload files to the
       server and get a link back" - turned out to be the smallest of the
       four: three new methods (`ListMisc`/`UploadMisc`/`DeleteMisc`) on the
-      *existing* `internal/documents.Service`, reusing its already-shipped
+      _existing_ `internal/documents.Service`, reusing its already-shipped
       `FileFilesRead/Create/Delete` policies verbatim (same bucket, just a
       different fixed prefix - `public/miscellaneous` - than the meeting/
       requirement-profile prefixes that package already manages). Not a
@@ -1980,12 +1987,13 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     frontend sweep 13 -> 14, audit 14 -> 15).
     **Status: done (2026-11-02).** Every page the merge brought in loads
     and acts through Go; `svelte-check` (0 errors), `eslint`, `pnpm
-    build`, vitest and `go test` all pass, and each domain was
+build`, vitest and `go test` all pass, and each domain was
     smoke-tested in a browser and through its form actions against the
     dev DB. Still on Prisma, unchanged by this phase and left for the
     audit (phase 15): the code this branch had already deferred before
     the sync (ICS feeds, `events/id/[id]`, the nollning content pages,
     home page meetings/readme/cafe-hours, member pings, search sync).
+    (**Superseded 2026-11-03**: search sync moved to Go in phase 13.)
     Decisions, all user-confirmed before starting:
     - **Merge, not rebase or re-port**, frozen at `origin/main` `2142663c`
       (later upstream commits are a future sync, not chased mid-phase).
@@ -2015,7 +2023,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       entry above) no longer has a frontend. The tables themselves are
       left in the DB, same "app-layer removal only" treatment as
       shop/expenses.
-    **Progress, per domain:**
+      **Progress, per domain:**
     - **Schema catch-up**: upstream's 7 Prisma migrations since the branch
       point (booking door access, `RecurringEvent` -> `recurring_event`,
       `song_book_entries`, the ticket tables, `events.committee_id`) were
@@ -2049,7 +2057,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       delete).
     - **Comments** (shared by events and news, upstream #1390): restored
       UI needs two things Go didn't have. (1) The old ZModel let a
-      comment's *author* delete it as well as moderators; the Go port had
+      comment's _author_ delete it as well as moderators; the Go port had
       only kept the moderator rule. Restored in a new `internal/comments`
       package (`CanDelete`, plus a per-comment `canDelete` on the response
       so the UI doesn't re-derive it) - a fidelity gap, not a new rule.
@@ -2136,7 +2144,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       (pending requests with their conflicts) and
       `GET /booking-requests/doors` (door names for the form, gated on
       `booking_request:create` - upstream read doors past `door:read` for
-      the same reason, and the door *policies* stay behind it). A
+      the same reason, and the door _policies_ stay behind it). A
       bookable's `door` is a real FK to `doors` now, validated in Go.
       Notification links point at `/bookings`. All booking pages load and
       act through Go; `$lib/bookings/server/queries.ts`'s
@@ -2160,7 +2168,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       unknown student ids, or members without a phadder/uppdrag mandate
       for the group's season (named in the error), reject the whole
       batch, as upstream's Prisma version did. The page edits groups by
-      *year*; that maps onto the year's nollning season (no season, no
+      _year_; that maps onto the year's nollning season (no season, no
       save). Group descriptions are now sanitized in Go - the old
       SvelteKit action used to DOMPurify them before writing.
     - **Tickets** (upstream #1325's `ticket-service/`, folded in as
@@ -2201,13 +2209,79 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       onboarding unit test is ported to mock the Go client instead of
       Prisma. `setNollningGroup` uses the student-id nollor endpoints.
     - **Small Go-side ports of upstream fixes**: meeting documents match
-      notice/agenda/minutes by filename *prefix* (plus "Mötesprotokoll"),
+      notice/agenda/minutes by filename _prefix_ (plus "Mötesprotokoll"),
       and position descriptions - HTML-capable since #1363 - are
       sanitized in Go's `UpdatePosition`.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
+    **Status: done (2026-11-03), backend and frontend both.** New
+    `backend/internal/search` (`huma_search.go`); see `backend/CLAUDE.md`'s
+    "Search routes" for the endpoint list. Decisions, all user-confirmed
+    before starting:
+    - **Stays on Meilisearch** (plus the existing poppler-server for PDF
+      text). Go owns both the rebuild and the query; SvelteKit no longer
+      talks to Meilisearch or poppler at all. The index names, stored
+      field names, per-index settings, federated weights and per-locale
+      searched attributes are ported unchanged, so result components and
+      existing Meilisearch data didn't need to change. Meilisearch is
+      reached through a small HTTP client (`internal/search/meili.go`),
+      not an SDK - same call as the Expo push client.
+    - **Full rebuild, same triggers as before** - not incremental updates
+      on writes. `POST /search/sync` (`core:admin`, the policy the old
+      `admin/debug` button checked - added to `apinames` as `CoreAdmin`)
+      and `POST /search/sync/password` (raw `SYNC_PASSWORD` body). Both
+      start the rebuild in the background and answer 202 (409 if one is
+      already running); the old `/api/sync` already didn't wait for it,
+      the debug action did. No periodic in-process rebuild - a fresh dev
+      environment still needs one manual sync (see `backend/CLAUDE.md`'s
+      Meilisearch note).
+    - **`/api/sync` stays as a thin SvelteKit proxy** to
+      `/search/sync/password`, like salto, since an external scheduled job
+      may call that URL (nothing in this repo does).
+    - **The members index needs a signed-in caller.** The old
+      `/api/search` had no auth check at all, so anyone could look up
+      members (name, student id, class) by search even though the member
+      directory itself requires a login. Go now leaves `members` out of an
+      anonymous search; everything else stays public. Positions stay
+      public too: they hold no member data, and `GET /positions` is
+      already public.
+      Smaller changes made while porting:
+    - Articles are indexed with the public list's visibility rule
+      (`published_datetime <= now()`). The old sync only checked
+      `publishedAt` was set, so scheduled-but-unpublished articles were
+      searchable early.
+    - Meeting documents: only `.pdf` keys are downloaded and sent to
+      poppler, read from MinIO through `internal/storage`. The old sync
+      downloaded every object over its public URL and dropped non-PDFs by
+      content type. A PDF uploaded without a `.pdf` extension is no longer
+      indexed.
+    - A member's `fullName` no longer becomes `"null Larsson"` when a name
+      part is missing.
+    - `GET /search` takes repeated `indexes` params instead of a JSON
+      array, and rejects unknown index names (422). Before, Meilisearch
+      threw and the endpoint answered 500.
+    - **Found while porting**: poppler-server rejects any upload part not
+      typed `application/pdf`, which Go's `multipart.CreateFormFile`
+      default (`application/octet-stream`) would have tripped on every
+      document. Fixed and verified against the real `reglemente.pdf`.
+      Frontend: `$lib/search/search.ts`'s `searchIndexes` (a direct client
+      call to `GET /search`) backs `MemberSelector`, `RoleSelector` and
+      comment @mentions; the search page's form action (shared by the page
+      and the command dialog) calls Go through `serverApi`. `searchTypes.ts`
+      no longer depends on Prisma: it only describes result shapes. Deleted,
+      after grepping for callers: `src/lib/search/{sync,syncDocuments,
+syncHelpers,meilisearch}.ts`, `searchTypes.test.ts`,
+      `api/search/+server.ts`, the `meilisearch` npm dependency, and two
+      Prisma search endpoints with no callers in this repo, `api/members`
+      (`+server.ts`, `membersSearch.ts`) and `api/events`. Not changed:
+      `MemberSelector` still decodes a member hit's Meilisearch `id` back
+      into the member UUID. Go keeps the same id encoding (`meiliID`,
+      tested against the old TS output) and `searchDocumentId` in
+      `searchHelpers.ts` mirrors it for the booking pages; exposing the real
+      member id on hits would be cleaner and is left for the audit
+      (phase 15).
 14. **Frontend implementation sweep** - per principle #6, phases 3-13
-    already ported every domain's Go endpoints *and* SvelteKit-side
+    already ported every domain's Go endpoints _and_ SvelteKit-side
     `.server.ts`/`+server.ts` layer, and already updated any route that
     had a real working page. This phase's only job is the one thing that
     was deliberately deferred: design and build a real `.svelte` page for
@@ -2232,7 +2306,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     do), not just leftover from before the API supported
     client-authenticated calls; no bespoke `+server.ts` endpoint
     duplicating something Go now serves directly; `src/lib/utils/
-    authorization.ts`'s `isAuthorized`/`authorize`/`getDerivedRoles` (and
+authorization.ts`'s `isAuthorized`/`authorize`/`getDerivedRoles` (and
     anything similar) deleted now that nothing should still call them (see
     principle #5's own "revisit once nothing else calls them" note - this
     is that revisit); and a grep sweep for markers like `TEMPORARY`,
@@ -2261,11 +2335,11 @@ route tree's own content (wordlist, packing lists, wellbeing info, wikia
 pages) - real content/product design work that was never a working page
 in production either, so leaving it unbuilt doesn't regress anything. It
 does **not** cover pages that already had a real, working `.svelte` before
-this phase touched them - the board page and the *public* phadder-group
+this phase touched them - the board page and the _public_ phadder-group
 listing (`committees/nollu/groups`) both did, so both got their `.svelte`
 updated the day after the backend landed (2026-09-02), matching principle
 #6's "already-working page" treatment. `committees/nollu/groups/manage`
-and `admin/settings` are a cleaner illustration of the *other* half of
+and `admin/settings` are a cleaner illustration of the _other_ half of
 principle #6, worth naming explicitly since they're already-real examples
 rather than hypothetical ones: both `.svelte` files were **already**
 `<NotImplemented />` stubs before phase 2 touched them, so only their
@@ -2338,7 +2412,7 @@ through unrelated query functions:
    typo or translation silently breaks every consumer at once.
 3. **A per-member/per-mandate relationship**: `Member.nollningGroupId` →
    `PhadderGroup` (keyed by a bare `year: Int`, not tied to the time
-   window in #1), plus `Mandate.phadderInId` and a *second*, independent
+   window in #1), plus `Mandate.phadderInId` and a _second_, independent
    phadder-detection path (`phadderMandateFilter`,
    `src/lib/nollning/groups/types.ts:19-27`) that hardcodes position IDs
    `dsek.noll.phadder`/`dsek.noll.uppdrag` plus a fixed Aug 1-Oct 1
@@ -2351,21 +2425,21 @@ group listing's `year: 2025` filter, `nollaNotifications`'s
 `createdAt > 2025-06-26` cutoff) - each one is an independent
 yearly-maintenance landmine, and several are already stale relative to
 the current date. `SEE_STABEN` is injected as a side effect inside the
-*global* access-policy-fetch hook (`hooks.server.helpers.ts`) rather than
+_global_ access-policy-fetch hook (`hooks.server.helpers.ts`) rather than
 being a visible, named part of any policy model. Phadder-group management
 (`committees/nollu/groups/manage`) lives structurally outside both
 `(nollning)/` and `admin/`, discoverable only by knowing it's there.
 
 **A fourth thing the policy alone doesn't explain: what `SEE_STABEN`
-actually hides.** The policy only controls who *has* it - the redaction
+actually hides.** The policy only controls who _has_ it - the redaction
 itself is implemented twice, independently, by whichever page needed it:
 `board/+page.server.ts` filters out any board position whose `position.id`
 starts with the string `"dsek.noll"` unless the viewer has `SEE_STABEN`
-(a *third* hardcoded `dsek.noll*`-prefix convention, alongside
+(a _third_ hardcoded `dsek.noll*`-prefix convention, alongside
 `phadderMandateFilter`'s `dsek.noll.phadder`/`dsek.noll.uppdrag` and the
 `shortName === "nollu"` matches inventoried above); `gallery/+page.server.ts`
 separately hides any photo album whose folder name parses to a date
-*before* the active season's start, unless the viewer has `SEE_STABEN` (a
+_before_ the active season's start, unless the viewer has `SEE_STABEN` (a
 date-parsed-from-a-filename heuristic, unrelated to the board page's
 mechanism even though both exist to keep the organizing committee's
 identity secret pre-reveal). Two different ad-hoc definitions of "this is
@@ -2396,7 +2470,7 @@ each domain re-deriving its own answer:
   superseding an earlier tag-flag proposal floated in this same section.**
   The earlier idea (an `is_nollning boolean` column on `tags`) was
   rejected on reflection - a tag is a lightweight, user-assignable
-  *topical* label, and nollning membership is a structural fact about a
+  _topical_ label, and nollning membership is a structural fact about a
   piece of content (which feed it belongs in, which year, what
   visibility/redirect rules apply). Conflating the two is the same
   category error the current `[NOLLNING]`-prefix convention already
@@ -2451,7 +2525,7 @@ each domain re-deriving its own answer:
 - **Staben membership becomes one real relationship, not two ad-hoc
   filters (decided 2026-09-01).** `internal/nollning` gets
   `IsStaben(ctx, memberID) bool`: true iff the member holds a currently-
-  active mandate on a position belonging to *the* nollning organizing
+  active mandate on a position belonging to _the_ nollning organizing
   committee - resolved through the existing `committees`/`positions`/
   `mandates` tables, no new string convention needed. "Which committee is
   that" is itself an explicit reference - **implemented as the first
@@ -2478,7 +2552,7 @@ each domain re-deriving its own answer:
   comparing it to the season start.
 - **Phadder-group membership becomes one function, not two independent
   ones.** `internal/nollning` owns both the `PhadderGroup`↔`Member` FK
-  *and* the position-ID-based phaddrar detection
+  _and_ the position-ID-based phaddrar detection
   (`dsek.noll.phadder`/`dsek.noll.uppdrag`), exposed as a single
   `PhadderRoleFor(ctx, memberID, season) Role` - today's two
   independently-maintained paths (`nollningGroupId` lookup vs
@@ -2504,7 +2578,7 @@ each domain re-deriving its own answer:
   `AdminSetting` rows), `GET/POST/PATCH/DELETE /nollning/groups` (phadder
   group CRUD), `GET /members/{id}/phadder-role` or similar (replacing
   `phadderMandateFilter`-based lookups like `api/members/phadders`).
-- **What this proposal deliberately does not touch**: the *frontend*
+- **What this proposal deliberately does not touch**: the _frontend_
   theme system (`nollningPostReveal` in `themes.ts`) and the native-app
   routing cookie dance stay SvelteKit-side concerns - Go's job is to be
   the one correct source for "what phase/season/role is this," not to

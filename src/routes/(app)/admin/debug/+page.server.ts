@@ -1,8 +1,7 @@
 import { env } from "$env/dynamic/private";
-import meilisearchSync from "$lib/search/sync";
 import { serverApi } from "$lib/server/apiClient";
 import { fileHandler } from "$lib/files";
-import { authorize } from "$lib/utils/authorization";
+import { fail } from "@sveltejs/kit";
 
 export const load = async (event) => {
   const currentRes = await serverApi(event).GET("/nollning/current", {});
@@ -14,8 +13,14 @@ export const load = async (event) => {
 };
 
 export const actions = {
-  meilisearchSync: async ({ locals }) => {
-    authorize("core:admin", locals.user);
-    return meilisearchSync();
+  // Starts the rebuild in the background (Go answers 202 straight away).
+  meilisearchSync: async (event) => {
+    const res = await serverApi(event).POST("/search/sync", {});
+    if (res.error) {
+      return fail(res.response.status, {
+        message: res.error.detail ?? "Sync failed",
+      });
+    }
+    return { message: "Sync started" };
   },
 };

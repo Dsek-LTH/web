@@ -306,6 +306,9 @@ type Querier interface {
 	// counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
 	// because sqlc has no macro/fragment support.
 	ListArticles(ctx context.Context, arg ListArticlesParams) ([]ListArticlesRow, error)
+	// Same visibility rule as the public article list (published, not
+	// scheduled for later, not removed).
+	ListArticlesForSearch(ctx context.Context) ([]ListArticlesForSearchRow, error)
 	// Board positions (board_member=true, active=true) with their current
 	// holder, one row per position (LEFT JOIN LATERAL picks at most the most
 	// recently-started active mandate; NULL member fields mean vacant) - backs
@@ -324,6 +327,7 @@ type Querier interface {
 	// mirroring the old updateSchedule action's single dayShifts query).
 	ListCafeShiftsInRange(ctx context.Context, arg ListCafeShiftsInRangeParams) ([]ListCafeShiftsInRangeRow, error)
 	ListClosedAlertIDsForMember(ctx context.Context, b pgtype.UUID) ([]pgtype.UUID, error)
+	ListCommitteesForSearch(ctx context.Context) ([]ListCommitteesForSearchRow, error)
 	// Full fields + currently-active mandate/unique-member counts, for the
 	// committee overview page (mirrors the old "about" page's query).
 	ListCommitteesWithCounts(ctx context.Context) ([]ListCommitteesWithCountsRow, error)
@@ -386,9 +390,11 @@ type Querier interface {
 	// CASE'd sort keys - exactly one is non-null per row, the other ties
 	// (NULL) and is ignored.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
+	ListEventsForSearch(ctx context.Context) ([]ListEventsForSearchRow, error)
 	ListExpiredGrantedForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	ListExpoTokensWithUnreadCount(ctx context.Context, memberIds []pgtype.UUID) ([]ListExpoTokensWithUnreadCountRow, error)
 	ListGoverningDocuments(ctx context.Context) ([]Document, error)
+	ListGoverningDocumentsForSearch(ctx context.Context) ([]ListGoverningDocumentsForSearchRow, error)
 	// Full mandate history (not just currently-active, unlike
 	// ListActiveMandatesForMember) for a member's profile page, joined to
 	// position+committee for display.
@@ -423,6 +429,10 @@ type Querier interface {
 	ListMembersByIDs(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListMembersByIDsRow, error)
 	// Resolves @mentions in comments (see internal/mentions).
 	ListMembersByStudentIDs(ctx context.Context, studentIds []string) ([]ListMembersByStudentIDsRow, error)
+	// Full-table reads for the Meilisearch rebuild (internal/search). Each one
+	// mirrors the Prisma findMany the old src/lib/search/sync.ts ran for that
+	// index.
+	ListMembersForSearch(ctx context.Context) ([]ListMembersForSearchRow, error)
 	ListMembersSubscribedToAnyTag(ctx context.Context, tagIds []pgtype.UUID) ([]pgtype.UUID, error)
 	// Members subscribed to settingType, optionally narrowed to a specific
 	// candidate id list (mirrors sendNotification's memberIds intersection).
@@ -464,6 +474,7 @@ type Querier interface {
 	// why this is a real prefix match, not the old app's broken literal one.
 	ListPositionIDsMatchingPrefixes(ctx context.Context, patterns []string) ([]string, error)
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
+	ListPositionsForSearch(ctx context.Context) ([]ListPositionsForSearchRow, error)
 	ListPushEnabledMemberIDs(ctx context.Context, arg ListPushEnabledMemberIDsParams) ([]pgtype.UUID, error)
 	// Backs the "*" wildcard role (see 2024-11-25's "Added support for
 	// wildcard roles in door access policies") - every member whose class year
@@ -491,6 +502,7 @@ type Querier interface {
 	// Newest first - the song archive's order since upstream #1283 (it was
 	// alphabetical when this list was the songbook itself).
 	ListSongs(ctx context.Context, arg ListSongsParams) ([]Song, error)
+	ListSongsForSearch(ctx context.Context) ([]ListSongsForSearchRow, error)
 	// Current (start_date <= today <= end_date) mandate holders of any of the
 	// given positions - the role-based half of salto's allowed-student list.
 	ListStudentIDsForActivePositions(ctx context.Context, positionIds []string) ([]pgtype.Text, error)

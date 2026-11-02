@@ -7,7 +7,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import * as m from "$paraglide/messages";
 import { bookingSchema } from "$lib/bookings/schema";
 import type { components } from "$lib/api/schema";
-import { prismaIdToMeiliId } from "$lib/search/searchHelpers";
+import { searchDocumentId } from "$lib/search/searchHelpers";
 import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
 import { serverApi } from "$lib/server/apiClient";
 
@@ -93,7 +93,7 @@ export function toMemberSearchAttributes(
   member: Member,
 ): MemberSearchReturnAttributes & { id: string } {
   return {
-    id: prismaIdToMeiliId(member.id),
+    id: searchDocumentId(member.id),
     firstName: member.firstName ?? null,
     lastName: member.lastName ?? null,
     nickname: member.nickname ?? null,

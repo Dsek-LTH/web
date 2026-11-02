@@ -34,6 +34,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
+	"github.com/dsek-lth/web/backend/internal/search"
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/tickets"
 )
@@ -67,6 +68,8 @@ func NewRouter(
 	linksSvc *links.Service,
 	ticketSvc *tickets.Service,
 	ticketScheduler *tickets.Scheduler,
+	searchSvc *search.Service,
+	syncPassword string,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
 	queries *db.Queries,
@@ -97,6 +100,7 @@ func NewRouter(
 	registerNotificationRoutes(api, notificationSvc)
 	registerAdminSettingsRoutes(api, adminSettingsSvc)
 	registerLinksRoutes(api, linksSvc)
+	registerSearchRoutes(api, searchSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))
@@ -104,6 +108,7 @@ func NewRouter(
 	// system, unauthenticated - see SaltoHandler's doc comment and
 	// src/routes/(app)/salto/README.md ("this URL must not be changed").
 	mux.HandleFunc("GET /salto/{door}", SaltoHandler(doorSvc))
+	mux.HandleFunc("POST /search/sync/password", SearchSyncPasswordHandler(searchSvc, syncPassword))
 	if oidcClient != nil {
 		mux.HandleFunc("GET /auth/login", oidcClient.LoginHandler)
 		mux.HandleFunc("GET /auth/callback", oidcClient.CallbackHandler)

@@ -1,148 +1,5 @@
-import {
-  availableSearchIndexes,
-  type SearchableArticleAttributes,
-  type SearchableCommitteeAttributes,
-  type SearchableEventAttributes,
-  type SearchableGoverningDocumentAttributes,
-  type SearchableIndex,
-  type SearchableMeetingDocumentAttributes,
-  type SearchableMemberAttributes,
-  type SearchablePositionAttributes,
-  type SearchableSongAttributes,
-} from "./searchTypes";
+import type { SearchableIndex } from "./searchTypes";
 import * as m from "$paraglide/messages";
-import type { Locale } from "$paraglide/runtime";
-
-export type SearchIndex =
-  (typeof availableSearchIndexes)[keyof typeof availableSearchIndexes];
-
-/**
- * Get the federated weight for a given index
- * This is used to give a higher weight to certain indexes
- * when searching. For example, we want members to be more
- * important than events. This is done by giving members
- * a higher weight.
- */
-export function getFederatedWeight(index: SearchableIndex): number {
-  switch (index) {
-    case "members":
-      return 1.5;
-    case "events":
-      return 1;
-    case "articles":
-      return 1;
-    case "positions":
-      return 1.5;
-    case "songs":
-      return 1;
-    case "committees":
-      return 2;
-    case "governingDocuments":
-      return 1;
-    case "meetingDocuments":
-      return 1;
-    default:
-      return 0;
-  }
-}
-
-/**
- * Get the searchable attributes for a given index and language
- * If for whatever reason the language is not supported, or our
- * systems fail to provide a language, swedish will be used as default.
- */
-export function getSearchableAttributes(
-  index: SearchableIndex,
-  language: Locale,
-) {
-  switch (index) {
-    case "members": {
-      // no language specific fields
-      const res: Array<keyof SearchableMemberAttributes> = [
-        "fullName",
-        "firstName",
-        "lastName",
-        "nickname",
-        "studentId",
-      ];
-      return res;
-    }
-    case "events": {
-      // default is swedish
-      let res: Array<keyof SearchableEventAttributes> = [
-        "titleSv",
-        "descriptionSv",
-      ];
-      if (language === "en") {
-        res = ["titleEn", "descriptionEn"];
-      }
-      return res;
-    }
-    case "articles": {
-      // default is swedish
-      let res: Array<keyof SearchableArticleAttributes> = [
-        "headerSv",
-        "bodySv",
-      ];
-      if (language === "en") {
-        res = ["headerEn", "bodyEn"];
-      }
-      return res;
-    }
-    case "positions": {
-      // default is swedish
-      let res: Array<keyof SearchablePositionAttributes> = [
-        "nameSv",
-        "descriptionSv",
-        "committeeNameSv",
-        "dsekId",
-      ];
-      if (language === "en") {
-        res = ["nameEn", "descriptionEn", "committeeNameEn", "dsekId"];
-      }
-      return res;
-    }
-    case "songs": {
-      // no language specific fields
-      const res: Array<keyof SearchableSongAttributes> = [
-        "title",
-        "lyrics",
-        "melody",
-        "category",
-      ];
-      return res;
-    }
-    case "committees": {
-      // default is swedish
-      let res: Array<keyof SearchableCommitteeAttributes> = [
-        "nameSv",
-        "descriptionSv",
-      ];
-      if (language === "en") {
-        res = ["nameEn", "descriptionEn"];
-      }
-      return res;
-    }
-    case "governingDocuments": {
-      // no language specific fields
-      const res: Array<keyof SearchableGoverningDocumentAttributes> = [
-        "title",
-        "content",
-      ];
-      return res;
-    }
-    case "meetingDocuments": {
-      // no language specific fields
-      const res: Array<keyof SearchableMeetingDocumentAttributes> = [
-        "title",
-        "content",
-      ];
-      return res;
-    }
-    default:
-      return [];
-  }
-}
 
 export function mapIndexToMessage(index: SearchableIndex) {
   switch (index) {
@@ -175,17 +32,17 @@ function bytesToBase64(bytes: ArrayLike<number>): string {
 }
 
 /**
- * Meilisearch has constraints on the id field:
- * it can only contain alphanumeric characters (a-z, A-Z, 0-9), hyphens (-), and underscores (_).
- * So we need to convert the prisma id to a meilisearch id.
- * As of now, the Positions table has a prisma id that is not compatible with meilisearch.
- * It contains dots (.) and possibly swedish characters (åäö).
+ * The id a database row gets as a Meilisearch document: the base64 of its
+ * UTF-8 bytes without the characters Meilisearch doesn't allow in ids.
+ * Must match the Go backend's internal/search meiliID - MemberSelector
+ * decodes a member hit's id back into the member's UUID, so member values
+ * built outside a search (e.g. a booking's existing access list) need the
+ * same encoding.
  */
-export function prismaIdToMeiliId(id: string) {
+export function searchDocumentId(id: string) {
   // btoa cannot handle characters larger than 1 byte
   // https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa#exceptions
-  const result = bytesToBase64(new TextEncoder().encode(id))
+  return bytesToBase64(new TextEncoder().encode(id))
     .replace(/[^a-zA-Z0-9_-]/g, "")
     .trim();
-  return result;
 }

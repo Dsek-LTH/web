@@ -170,6 +170,10 @@ const (
 	AdminShlinkCreate = "admin:shlink:create"
 	AdminShlinkUpdate = "admin:shlink:update"
 	AdminShlinkDelete = "admin:shlink:delete"
+
+	// CoreAdmin gates triggering a search-index rebuild - the policy the
+	// old admin/debug page's Meilisearch sync button checked.
+	CoreAdmin = "core:admin"
 )
 
 // All lists every policy this API currently checks - used to build the
@@ -250,5 +254,6 @@ func All() []string {
 		AdminShlinkCreate,
 		AdminShlinkUpdate,
 		AdminShlinkDelete,
+		CoreAdmin,
 	}
 }

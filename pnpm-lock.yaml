@@ -134,9 +134,6 @@ importers:
       marked:
         specifier: ^15.0.3
         version: 15.0.3
-      meilisearch:
-        specifier: ^0.45.0
-        version: 0.45.0
       minecraft-server-ping:
         specifier: ^0.3.3
         version: 0.3.3(@avanio/logger-like@0.2.12)(@luolapeikko/result-option@1.0.7)(@types/varint@6.0.3)(varint@6.0.0)
@@ -4677,9 +4674,6 @@ packages:
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
-
-  meilisearch@0.45.0:
-    resolution: {integrity: sha512-+zCzEqE+CumY4icB0Vox180adZqaNtnr60hJWGiEdmol5eWmksfY8rYsTcz87styXC2ZOg+2yF56gdH6oyIBTA==}
 
   memoize-weak@1.0.2:
     resolution: {integrity: sha512-gj39xkrjEw7nCn4nJ1M5ms6+MyMlyiGmttzsqAUsAKn6bYKwuTHh/AO3cKPF8IBrTIYTxb0wWXFs3E//Y8VoWQ==}
@@ -11693,8 +11687,6 @@ snapshots:
   mdurl@2.0.0: {}
 
   media-typer@0.3.0: {}
-
-  meilisearch@0.45.0: {}
 
   memoize-weak@1.0.2: {}
 

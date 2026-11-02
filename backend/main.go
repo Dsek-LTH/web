@@ -38,6 +38,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
+	"github.com/dsek-lth/web/backend/internal/search"
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/storage"
 	"github.com/dsek-lth/web/backend/internal/tickets"
@@ -181,6 +182,20 @@ func main() {
 		log.Fatalf("restore ticket lotteries: %v", err)
 	}
 	go ticketScheduler.RunSweepLoop(context.Background(), 15*time.Second)
+
+	// Search runs on Meilisearch; without MEILISEARCH_HOST every search
+	// call answers 503 rather than the backend refusing to start.
+	meiliHost := os.Getenv("MEILISEARCH_HOST")
+	if meiliHost == "" {
+		log.Println("MEILISEARCH_HOST is not set - search is disabled")
+	}
+	searchSvc := search.NewService(pool, store, search.Config{
+		MeiliHost:      meiliHost,
+		MeiliAPIKey:    os.Getenv("MEILISEARCH_MASTER_KEY"),
+		PopplerURL:     os.Getenv("POPPLER_SERVER_URL"),
+		DocumentBucket: mustEnv("PUBLIC_BUCKETS_DOCUMENTS"),
+	})
+
 	router := api.NewRouter(
 		articleSvc,
 		eventSvc,
@@ -204,6 +219,8 @@ func main() {
 		linksSvc,
 		ticketSvc,
 		ticketScheduler,
+		searchSvc,
+		os.Getenv("SYNC_PASSWORD"),
 		authenticator,
 		oidcClient,
 		queries,

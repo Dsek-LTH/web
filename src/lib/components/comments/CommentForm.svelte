@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { searchIndexes } from "$lib/search/search";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { Button } from "$lib/components/ui/button";
   import * as Popover from "$lib/components/ui/popover";
@@ -52,23 +53,10 @@
     }
     isSearching = true;
     try {
-      const url = new URL("/api/search", window.location.origin);
-      url.searchParams.set("query", query);
-      url.searchParams.set("indexes", JSON.stringify(["members"]));
-      url.searchParams.set("limit", "8");
-      url.searchParams.set("offset", "0");
-      const response = await fetch(url);
-      if (!response.ok) {
-        results = [];
-        return;
-      }
-      const found = (await response.json()) as Array<{
-        type: string;
-        data: MemberSearchReturnAttributes;
-      }>;
-      results = found
-        .filter((result) => result.type === "members")
-        .map((result) => result.data);
+      const found = await searchIndexes(query, ["members"], 8);
+      results = found.flatMap((result) =>
+        result.type === "members" ? [result.data] : [],
+      );
       activeIndex = 0;
     } catch {
       results = [];

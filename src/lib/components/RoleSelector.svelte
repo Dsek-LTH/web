@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { searchIndexes } from "$lib/search/search";
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import * as m from "$paraglide/messages";
@@ -117,13 +118,7 @@
   );
 
   const debouncedSearch = debounce(async (searchQuery: string) => {
-    const url = new URL("/api/search", window.location.origin);
-    url.searchParams.set("query", searchQuery);
-    url.searchParams.set("indexes", JSON.stringify(["positions"]));
-    url.searchParams.set("limit", "10");
-    url.searchParams.set("offset", "0");
-    const response = await fetch(url, { method: "GET" });
-    positionResults = response.ok ? [...(await response.json())] : [];
+    positionResults = await searchIndexes(searchQuery, ["positions"], 10);
     isSearching = false;
   }, 200);
 

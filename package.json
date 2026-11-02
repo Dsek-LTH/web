@@ -143,7 +143,6 @@
     "isomorphic-dompurify": "^2.18.0",
     "markdown-to-txt": "^2.0.1",
     "marked": "^15.0.3",
-    "meilisearch": "^0.45.0",
     "minecraft-server-ping": "^0.3.3",
     "minio": "^8.0.2",
     "mode-watcher": "^1.1.0",

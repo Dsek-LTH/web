@@ -3,8 +3,11 @@ import {
   availableSearchIndexes,
   type SearchDataWithType,
 } from "$lib/search/searchTypes";
+import { serverApi } from "$lib/server/apiClient";
 import { fail } from "@sveltejs/kit";
 
+// Kept as a form action (rather than a client call) because the search
+// page and the command dialog both submit to it with use:enhance.
 export const actions = {
   default: async (event) => {
     const data = await event.request.formData();
@@ -21,40 +24,28 @@ export const actions = {
     const indexes = availableSearchIndexes.filter(
       (index) => data.get(index) === "on",
     );
+    if (indexes.length === 0) {
+      return {
+        results: [] satisfies SearchDataWithType[],
+      };
+    }
 
-    // Check how many total results to return
-    const limit: number = Number.parseInt(
-      data.get("limit")?.toString() ?? "20",
-    );
+    const limit = Number.parseInt(data.get("limit")?.toString() ?? "20");
+    const offset = Number.parseInt(data.get("offset")?.toString() ?? "0");
 
-    // Check which offset to start from
-    const offset: number = Number.parseInt(
-      data.get("offset")?.toString() ?? "0",
-    );
-
-    const url = new URL("/api/search", event.request.url);
-    url.searchParams.set("query", query);
-    url.searchParams.set("indexes", JSON.stringify(indexes));
-    url.searchParams.set("limit", limit.toString());
-    url.searchParams.set("offset", offset.toString());
-    console.log("Searching with url", url.toString());
-    const response = await event.fetch(url);
-    if (!response.ok) {
-      const responseText = await response.text();
-      console.log(
-        "Error in search request",
-        response.status,
-        response.statusText,
-        responseText,
-      );
-      return fail(response.status, {
-        statusDescription: response.statusText,
-        message: responseText,
+    const res = await serverApi(event).GET("/search", {
+      params: { query: { query, indexes, limit, offset } },
+    });
+    if (!res.data) {
+      return fail(res.response.status, {
+        statusDescription: res.response.statusText,
+        message: res.error?.detail ?? "Search failed",
       });
     }
-    const json: SearchDataWithType[] = await response.json();
     return {
-      results: json,
+      // Go types each hit's data as a plain object; searchTypes.ts
+      // describes what each index stores.
+      results: res.data as unknown as SearchDataWithType[],
     };
   },
 } satisfies Actions;
