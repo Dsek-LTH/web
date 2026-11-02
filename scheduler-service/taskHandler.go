@@ -81,7 +81,7 @@ func stopTaskTimer(taskID uint) {
 
 // cancelTaskExecution stops the timer of a task deleted through the API, so that it doesn't fire.
 func cancelTaskExecution(taskID string) {
-	id, err := strconv.ParseUint(taskID, 10, 64)
+	id, err := strconv.ParseUint(taskID, 10, strconv.IntSize)
 	if err != nil {
 		log.Printf("Invalid task ID %q: %v", taskID, err)
 
