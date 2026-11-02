@@ -1,4 +1,5 @@
 import * as m from "$paraglide/messages";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import { createBookingEvent } from "./createBookingEvent";
 import type { BookingCalendarEvent, BookingStatus } from "./eventTypes";
 
@@ -24,7 +25,7 @@ type BookingSource = {
 export const toStockholmTime = (date: Date | string) =>
   Temporal.Instant.from(
     date instanceof Date ? date.toISOString() : date,
-  ).toZonedDateTimeISO("Europe/Stockholm");
+  ).toZonedDateTimeISO(APP_TIMEZONE);
 
 export const getBookerName = (booking: BookingSource): string => {
   const fullName = [booking.booker?.firstName, booking.booker?.lastName]

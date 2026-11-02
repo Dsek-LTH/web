@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import { generateOccurrences, retimeOccurrence } from "./recurrence";
 
 // Independent of dayjs: read the Stockholm wall clock straight from Intl
 const stockholm = new Intl.DateTimeFormat("sv-SE", {
-  timeZone: "Europe/Stockholm",
+  timeZone: APP_TIMEZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
