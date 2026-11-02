@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import type Mail from "nodemailer/lib/mailer";
 
 const { SMTP_HOST, SMTP_PORT } = env;

@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { authorize } from "$lib/utils/authorization";
 
 const transporter = nodemailer.createTransport({

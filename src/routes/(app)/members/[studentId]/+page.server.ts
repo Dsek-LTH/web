@@ -15,7 +15,7 @@ import { z } from "zod";
 import { sendPing } from "./pings";
 import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
-import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { fileHandler } from "$lib/files";
 import sharp from "sharp";
 import { withFiles } from "sveltekit-superforms/server";
@@ -219,7 +219,7 @@ export const actions: Actions = {
         .toBuffer();
       const putUrl = await fileHandler.getPresignedPutUrl(
         locals.user,
-        PUBLIC_BUCKETS_MEMBERS,
+        publicEnv.PUBLIC_BUCKETS_MEMBERS,
         `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}.webp`,
       );
       const res = await fetch(putUrl, {
@@ -264,7 +264,7 @@ export const actions: Actions = {
         locals.user,
       );
     } else {
-      await fileHandler.remove(locals.user, PUBLIC_BUCKETS_MEMBERS, [
+      await fileHandler.remove(locals.user, publicEnv.PUBLIC_BUCKETS_MEMBERS, [
         `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}`,
       ]);
     }

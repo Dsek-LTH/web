@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import type { PageServerLoad } from "./$types";
@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   let pictures: FileData[] = await fileHandler
     .getInBucket(
       user,
-      PUBLIC_BUCKETS_ALBUMS,
+      publicEnv.PUBLIC_BUCKETS_ALBUMS,
       "public/" + album.split("-")[0] + "/" + album,
       true,
     )

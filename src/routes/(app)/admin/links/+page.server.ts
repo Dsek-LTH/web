@@ -1,7 +1,7 @@
 import type { PageServerLoad } from "./$types";
 import { ShlinkApiClient } from "@shlinkio/shlink-js-sdk";
 import type { ProblemDetailsError } from "@shlinkio/shlink-js-sdk/api-contract";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { NodeHttpClient } from "@shlinkio/shlink-js-sdk/node";
 import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";

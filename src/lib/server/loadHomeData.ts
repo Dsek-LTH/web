@@ -1,5 +1,5 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
-import { env } from "$env/dynamic/private";
+import { publicEnv } from "$lib/env/public";
+import { env } from "$lib/server/env";
 import { BASIC_EVENT_FILTER } from "$lib/events/events";
 import { fileHandler } from "$lib/files";
 import { BASIC_ARTICLE_FILTER } from "$lib/news/articles";
@@ -26,7 +26,12 @@ export const loadHomeData = async ({
   const now = new Date();
   const year = now.getFullYear();
   const files = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_DOCUMENTS, "public/" + year + "/", true)
+    .getInBucket(
+      user,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
+      "public/" + year + "/",
+      true,
+    )
     .catch((err) => {
       console.error("Error fetching files", err);
       return [];

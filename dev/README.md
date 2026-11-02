@@ -17,3 +17,4 @@ The `setup.ts` script located here will take you through an interactive setup pr
 ## What does it do?
 
 It guides you in setting up a local PostgreSQL database and creates a `.env.local` file with the correct values for your local environment.
+

@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { sendNewArticleNotification } from "$lib/news/server/notifications";
 import { sendNewArticleWebhook } from "$lib/news/server/webhooks";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";

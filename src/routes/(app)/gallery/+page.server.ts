@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import {
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const { user } = locals;
 
   const files: FileData[] = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_ALBUMS, "public/", true)
+    .getInBucket(user, publicEnv.PUBLIC_BUCKETS_ALBUMS, "public/", true)
     .catch((err) => {
       console.error("Error fetching files", err);
       return [];

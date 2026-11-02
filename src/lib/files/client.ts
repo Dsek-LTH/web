@@ -1,5 +1,5 @@
-import { PUBLIC_MINIO_BASE_URL } from "$env/static/public";
-export const MINIO_BASE_URL = PUBLIC_MINIO_BASE_URL + "/";
+import { publicEnv } from "$lib/env/public";
+export const MINIO_BASE_URL = publicEnv.PUBLIC_MINIO_BASE_URL + "/";
 
 export const getFileUrl = (imageUrl: string | null | undefined) => {
   if (!imageUrl) return imageUrl;

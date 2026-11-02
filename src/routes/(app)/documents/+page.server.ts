@@ -1,7 +1,4 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_BUCKETS_FILES,
-} from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import { error, fail } from "@sveltejs/kit";
@@ -43,7 +40,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const files: FileData[] = await fileHandler
     .getInBucket(
       user,
-      PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       "public/" + year + "/" + (prefixByType[type] ?? ""),
       true,
     )
@@ -52,7 +49,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       return [];
     });
   const SRDfiles = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
+    .getInBucket(
+      user,
+      publicEnv.PUBLIC_BUCKETS_FILES,
+      "public/srd/" + year,
+      true,
+    )
     .catch((err) => {
       console.error("Error fetching files", err);
       return [];
@@ -144,7 +146,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
-    await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
+    await fileHandler.remove(user, publicEnv.PUBLIC_BUCKETS_DOCUMENTS, [id]);
     return message(form, {
       message: m.documents_fileDeleted(),
       type: "success",

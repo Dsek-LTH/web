@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 
 export const passOnTransactionFee =
   env.PURCHASE_PASS_ON_TRANSACTION_FEE === "true";

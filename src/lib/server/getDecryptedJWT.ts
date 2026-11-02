@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { getToken, type JWT } from "@auth/core/jwt";
 
 /**
@@ -15,6 +15,6 @@ export const getDecryptedJWT = async (req: Request): Promise<JWT | null> => {
   return await getToken({
     req,
     secret: env.AUTH_SECRET,
-    secureCookie: env["NODE_ENV"] === "production",
+    secureCookie: process.env["NODE_ENV"] === "production",
   });
 };

@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/public";
+import { publicEnv } from "$lib/env/public";
 import { getUnreadNotificationCount } from "$lib/utils/notifications/myNotifications";
 import { emptySchema, notificationSchema } from "$lib/zod/schemas";
 import { loadFlash } from "sveltekit-flash-message/server";
@@ -43,4 +43,5 @@ export const load = loadFlash(async ({ locals, depends }) => {
 
 export type GlobalAppLoadData = Awaited<ReturnType<typeof load>>;
 
-export const ssr = env.PUBLIC_DISABLE_SSR_GLOBALLY === "true" ? false : true;
+export const ssr =
+  publicEnv.PUBLIC_DISABLE_SSR_GLOBALLY === "true" ? false : true;

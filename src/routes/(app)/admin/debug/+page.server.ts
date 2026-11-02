@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import meilisearchSync from "$lib/search/sync";
 import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
 import { fileHandler } from "$lib/files";
