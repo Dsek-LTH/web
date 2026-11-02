@@ -96,7 +96,7 @@
   </Card.Root>
 
   {#if data.alert.length > 0}
-    <Table.Root>
+    <Table.Root class="mt-4">
       <Table.Header>
         <Table.Row>
           <Table.Head>{m.admin_alerts_severity()}</Table.Head>
