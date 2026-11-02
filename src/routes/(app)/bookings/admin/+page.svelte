@@ -181,7 +181,7 @@
           <Table.Head>{m.booking_until()}</Table.Head>
           <Table.Head>{m.booking_event()}</Table.Head>
           <Table.Head>{m.booking_responsible()}</Table.Head>
-          <Table.Head>{m.booking_status()}</Table.Head>
+          <Table.Head class="w-[8%]">{m.booking_status()}</Table.Head>
           <Table.Head></Table.Head>
         </Table.Row>
       </Table.Header>

@@ -20,7 +20,7 @@
 
 <div class="flex w-full justify-center">
   <nav
-    style="bottom:{(page.data.appInfo?.insets.bottom ?? 0) + 3 * 4}px"
+    style="bottom:{(page.data.appInfo?.insets.bottom ?? 0) - 3 * 4}px"
     class="bg-muted-background fixed bottom-0 z-500 flex h-16 w-[95%] flex-row items-center justify-around rounded-lg border-[1px] px-4 shadow-lg *:size-full"
   >
     {#each PAGES as item (item.title)}
