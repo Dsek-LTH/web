@@ -11,6 +11,58 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countMembersByStudentIDs = `-- name: CountMembersByStudentIDs :one
+SELECT count(*) FROM members WHERE student_id = ANY($1::text[])
+`
+
+func (q *Queries) CountMembersByStudentIDs(ctx context.Context, studentIds []string) (int64, error) {
+	row := q.db.QueryRow(ctx, countMembersByStudentIDs, studentIds)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createAccessPoliciesBulk = `-- name: CreateAccessPoliciesBulk :many
+INSERT INTO api_access_policies (api_name, role, student_id)
+SELECT $1::text, r, NULL FROM unnest($2::text[]) AS r
+UNION ALL
+SELECT $1::text, NULL, s FROM unnest($3::text[]) AS s
+RETURNING id, api_name, role, student_id, created_at
+`
+
+type CreateAccessPoliciesBulkParams struct {
+	ApiName    string   `json:"api_name"`
+	Roles      []string `json:"roles"`
+	StudentIds []string `json:"student_ids"`
+}
+
+// One statement, so a batch is all-or-nothing.
+func (q *Queries) CreateAccessPoliciesBulk(ctx context.Context, arg CreateAccessPoliciesBulkParams) ([]ApiAccessPolicy, error) {
+	rows, err := q.db.Query(ctx, createAccessPoliciesBulk, arg.ApiName, arg.Roles, arg.StudentIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ApiAccessPolicy{}
+	for rows.Next() {
+		var i ApiAccessPolicy
+		if err := rows.Scan(
+			&i.ID,
+			&i.ApiName,
+			&i.Role,
+			&i.StudentID,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const createAccessPolicy = `-- name: CreateAccessPolicy :one
 INSERT INTO api_access_policies (api_name, role, student_id)
 VALUES ($1, $2, $3)
@@ -43,6 +95,40 @@ DELETE FROM api_access_policies WHERE id = $1
 func (q *Queries) DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteAccessPolicy, id)
 	return err
+}
+
+const listAPINameGrantCounts = `-- name: ListAPINameGrantCounts :many
+SELECT api_name, count(*)::int AS grant_count
+FROM api_access_policies
+GROUP BY api_name
+ORDER BY api_name
+`
+
+type ListAPINameGrantCountsRow struct {
+	ApiName    string `json:"api_name"`
+	GrantCount int32  `json:"grant_count"`
+}
+
+// Every apiName with at least one grant, and how many - the admin access
+// page's per-apiName badges (upstream #1291).
+func (q *Queries) ListAPINameGrantCounts(ctx context.Context) ([]ListAPINameGrantCountsRow, error) {
+	rows, err := q.db.Query(ctx, listAPINameGrantCounts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAPINameGrantCountsRow{}
+	for rows.Next() {
+		var i ListAPINameGrantCountsRow
+		if err := rows.Scan(&i.ApiName, &i.GrantCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listAccessPolicies = `-- name: ListAccessPolicies :many
@@ -87,30 +173,6 @@ func (q *Queries) ListAccessPolicies(ctx context.Context, apiName pgtype.Text) (
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listDistinctAPINames = `-- name: ListDistinctAPINames :many
-SELECT DISTINCT api_name FROM api_access_policies ORDER BY api_name
-`
-
-func (q *Queries) ListDistinctAPINames(ctx context.Context) ([]string, error) {
-	rows, err := q.db.Query(ctx, listDistinctAPINames)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []string{}
-	for rows.Next() {
-		var api_name string
-		if err := rows.Scan(&api_name); err != nil {
-			return nil, err
-		}
-		items = append(items, api_name)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

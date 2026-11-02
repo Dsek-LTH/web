@@ -359,3 +359,6 @@ Things to know if you're touching either side of this boundary:
 ## Repo context
 
 This directory is a subdirectory of the larger `Dsek-LTH/web` git repository (branch `go-backend`), not its own git repo. The repository root (one level up) is a SvelteKit/TypeScript/Prisma/ZenStack project — see `../README.md` and `../AGENTS.md` for that project's context. Do not assume this Go backend shares any of that project's tooling (pnpm, ESLint, Prettier, etc.); it is built and run independently. `go build` output binaries (e.g. `./backend`) are gitignored — don't commit them.
+
+
+**Phase 12 (upstream sync) changes**: `POST /access-policies/bulk` (`{apiName, roles[], studentIds[]}`, all-or-nothing) and `GET /access-policies/api-names` returning `[{apiName, grantCount}]`; `GET /links/domains`; `internal/links` now unwraps Shlink's `{"shortUrls"|"tags"|"domains": {...}}` responses (a Phase 11 bug - see `DESIGN.md`'s Phase 12 "Admin" bullet); doors accept position-less roles (`*`, `_`, `nolla`, `dsek.styr`, programme codes) in the role-exists check. `auth.ContextWithIdentity` exists for other packages' tests.

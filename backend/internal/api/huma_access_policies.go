@@ -20,8 +20,16 @@ type listAccessPoliciesOutput struct {
 	Body []accesspolicies.AccessPolicy
 }
 
+type bulkCreateAccessPoliciesInput struct {
+	Body accesspolicies.BulkCreateInput
+}
+
+type bulkAccessPoliciesOutput struct {
+	Body []accesspolicies.AccessPolicy
+}
+
 type listAPINamesOutput struct {
-	Body []string
+	Body []accesspolicies.APINameCount
 }
 
 type createAccessPolicyInput struct {
@@ -58,13 +66,27 @@ func registerAccessPolicyRoutes(api huma.API, svc *accesspolicies.Service) {
 		OperationID: "list-access-policy-api-names",
 		Method:      http.MethodGet,
 		Path:        "/access-policies/api-names",
-		Summary:     "List the distinct apiName values already in use",
+		Summary:     "List the apiNames already in use, with their grant counts",
 	}, func(ctx context.Context, _ *struct{}) (*listAPINamesOutput, error) {
-		names, err := svc.ListDistinctAPINames(ctx)
+		names, err := svc.ListAPINames(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
 		return &listAPINamesOutput{Body: names}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "create-access-policies-bulk",
+		Method:        http.MethodPost,
+		Path:          "/access-policies/bulk",
+		Summary:       "Grant an apiName to several roles and/or members at once (all or nothing)",
+		DefaultStatus: http.StatusCreated,
+	}, func(ctx context.Context, input *bulkCreateAccessPoliciesInput) (*bulkAccessPoliciesOutput, error) {
+		policies, err := svc.CreateBulk(ctx, input.Body)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &bulkAccessPoliciesOutput{Body: policies}, nil
 	})
 
 	huma.Register(api, huma.Operation{

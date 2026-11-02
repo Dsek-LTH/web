@@ -49,8 +49,11 @@ func NewService(endpoint, apiKey string) *Service {
 }
 
 // List proxies GET /short-urls, returning Shlink's own {data, pagination}
-// body verbatim - see the package doc comment for why this isn't
-// decoded into a Go struct.
+// object - see the package doc comment for why this isn't decoded into a
+// Go struct. Shlink wraps it as {"shortUrls": {...}}; unwrapped here the
+// way the JS SDK's listShortUrls does (the first Go port passed the
+// wrapper through, so the admin page's `.data` read came back empty -
+// unnoticed then since there's no dev API key to see a live response).
 func (s *Service) List(ctx context.Context, p ListParams) (json.RawMessage, error) {
 	if err := auth.Require(ctx, apinames.AdminShlinkRead); err != nil {
 		return nil, err
@@ -69,7 +72,7 @@ func (s *Service) List(ctx context.Context, p ListParams) (json.RawMessage, erro
 	if p.Search != "" {
 		q.Set("searchTerm", p.Search)
 	}
-	return s.client.get(ctx, "/short-urls", q)
+	return s.getUnwrapped(ctx, "/short-urls", q, "shortUrls")
 }
 
 // ListTags proxies GET /tags?withStats=true, matching the JS SDK's
@@ -80,7 +83,38 @@ func (s *Service) ListTags(ctx context.Context) (json.RawMessage, error) {
 		return nil, err
 	}
 	q := url.Values{"withStats": {"true"}}
-	return s.client.get(ctx, "/tags", q)
+	return s.getUnwrapped(ctx, "/tags", q, "tags")
+}
+
+// ListDomains proxies GET /domains, unwrapped one level the way the JS
+// SDK's listDomains does: Shlink answers {"domains": {"data": [...],
+// "defaultRedirects": ...}}, this returns the inner object. The admin links
+// page pre-fills its create form with the default domain (upstream #1291).
+func (s *Service) ListDomains(ctx context.Context) (json.RawMessage, error) {
+	if err := auth.Require(ctx, apinames.AdminShlinkRead); err != nil {
+		return nil, err
+	}
+	return s.getUnwrapped(ctx, "/domains", nil, "domains")
+}
+
+// getUnwrapped GETs path and returns the object Shlink nests under key -
+// every Shlink v3 list response is wrapped like {"<key>": {"data": ...}}.
+func (s *Service) getUnwrapped(
+	ctx context.Context, path string, query url.Values, key string,
+) (json.RawMessage, error) {
+	body, err := s.client.get(ctx, path, query)
+	if err != nil {
+		return nil, err
+	}
+	var wrapped map[string]json.RawMessage
+	if err := json.Unmarshal(body, &wrapped); err != nil {
+		return nil, fmt.Errorf("links: decode %s: %w", path, err)
+	}
+	inner, ok := wrapped[key]
+	if !ok {
+		return nil, fmt.Errorf("links: %s response has no %q", path, key)
+	}
+	return inner, nil
 }
 
 func (s *Service) Create(ctx context.Context, in CreateLinkInput) (json.RawMessage, error) {

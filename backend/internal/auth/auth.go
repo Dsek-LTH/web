@@ -48,6 +48,12 @@ func withIdentity(ctx context.Context, id *Identity) context.Context {
 }
 
 // FromContext returns the request's Identity, as attached by Middleware.
+// ContextWithIdentity is withIdentity for other packages' tests, which
+// need an acting identity without going through Middleware.
+func ContextWithIdentity(ctx context.Context, id *Identity) context.Context {
+	return withIdentity(ctx, id)
+}
+
 func FromContext(ctx context.Context) (*Identity, bool) {
 	id, ok := ctx.Value(ctxKey{}).(*Identity)
 	return id, ok

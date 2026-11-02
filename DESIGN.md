@@ -2075,6 +2075,28 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       bell keeps calling Go through `notifications/data.remote.ts`'s
       remote functions, which predate the sync (Phase 9) - the "convert
       remote functions" decision was about the ones the merge brought in.
+    - **Admin** (#1291's admin pages, which replaced our stubs): access
+      policies gained `POST /access-policies/bulk` (several roles and/or
+      members for one apiName, one INSERT so it's all-or-nothing, unknown
+      member rejects the batch) and `GET /access-policies/api-names` now
+      returns `{apiName, grantCount}` for the page's badges (the static
+      registry union stays client-side, `flattenApiNames`). Doors' role
+      check accepts the roles RoleSelector offers that no position backs
+      (`*`, `_`, `nolla`, `dsek.styr`, programme+year like `D24`) - the
+      same fix upstream made to its Prisma check; note Salto resolution
+      itself still only matches positions, unchanged from before.
+      `admin/settings`' nollning-period form (upstream still writes the
+      old AdminSetting keys) edits the latest nollning season instead -
+      start, **reveal** (a field added to upstream's form, since a season
+      needs it) and end - creating one for the start's year if none
+      exists. **Found and fixed while wiring links**: the Phase 11 Go
+      links proxy passed Shlink's list responses through still wrapped
+      (`{"shortUrls": {...}}`, `{"tags": {...}}`) while the page read
+      `.data` one level down - the JS SDK used to unwrap them - so the
+      links page would have shown nothing against a real Shlink; never
+      seen in dev since there's no API key. `internal/links` now unwraps
+      (tested with an `httptest` Shlink), and gained `GET /links/domains`
+      for the create form's default domain.
 13. **Search** - cross-entity search, deliberately last so it has
     something real to search across.
 14. **Frontend implementation sweep** - per principle #6, phases 3-13

@@ -40,10 +40,13 @@ type Querier interface {
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
+	CountMembersByStudentIDs(ctx context.Context, studentIds []string) (int64, error)
 	CountSongSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountSongs(ctx context.Context, arg CountSongsParams) (int64, error)
 	CountUnreadNotifications(ctx context.Context, memberID pgtype.UUID) (int64, error)
 	CountUnreadNotificationsForMember(ctx context.Context, memberID pgtype.UUID) (int64, error)
+	// One statement, so a batch is all-or-nothing.
+	CreateAccessPoliciesBulk(ctx context.Context, arg CreateAccessPoliciesBulkParams) ([]ApiAccessPolicy, error)
 	CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error)
 	CreateAlert(ctx context.Context, arg CreateAlertParams) (Alert, error)
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
@@ -215,6 +218,9 @@ type Querier interface {
 	// Backs IsStaben: does memberID hold a mandate, active today, on a position
 	// belonging to committeeID.
 	IsMemberActiveOnCommittee(ctx context.Context, arg IsMemberActiveOnCommitteeParams) (bool, error)
+	// Every apiName with at least one grant, and how many - the admin access
+	// page's per-apiName badges (upstream #1291).
+	ListAPINameGrantCounts(ctx context.Context) ([]ListAPINameGrantCountsRow, error)
 	// Optional apiName filter; joins member first/last name for studentId-scoped
 	// rows (role-scoped rows have no member to join).
 	ListAccessPolicies(ctx context.Context, apiName pgtype.Text) ([]ListAccessPoliciesRow, error)
@@ -289,7 +295,6 @@ type Querier interface {
 	// roles exist.
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
 	ListDefaultTagIDs(ctx context.Context) ([]pgtype.UUID, error)
-	ListDistinctAPINames(ctx context.Context) ([]string, error)
 	ListDistinctSongCategories(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
 	ListDistinctSongMelodies(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
 	// The admin edit-door page's own list: every non-expired policy for a

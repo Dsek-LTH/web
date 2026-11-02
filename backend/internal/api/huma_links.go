@@ -71,6 +71,19 @@ func registerLinksRoutes(api huma.API, svc *links.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
+		OperationID: "list-link-domains",
+		Method:      http.MethodGet,
+		Path:        "/links/domains",
+		Summary:     "List Shlink domains ({data, defaultRedirects}, proxied)",
+	}, func(ctx context.Context, input *struct{}) (*rawJSONOutput, error) {
+		body, err := svc.ListDomains(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &rawJSONOutput{Body: body}, nil
+	})
+
+	huma.Register(api, huma.Operation{
 		OperationID:   "create-link",
 		Method:        http.MethodPost,
 		Path:          "/links",

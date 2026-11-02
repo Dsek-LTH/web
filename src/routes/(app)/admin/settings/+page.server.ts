@@ -5,12 +5,10 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
 
-// This page's +page.svelte is still <NotImplemented /> (no real admin UI
-// built yet) - the load/actions below are still ported to the Go backend
-// regardless, same "port the server logic even without a page.svelte"
-// precedent as committees/nollu/groups/manage (see its +page.server.ts's
-// own comment) - keeps this server code correct instead of leaving it on
-// the now-superseded AdminSetting-backed nollning_start/nollning_end keys.
+// The nollning period form edits the latest nollning season (Phase 2's
+// nollning_seasons, which replaced the old nollning_start/nollning_end
+// AdminSetting keys this form used to write): its start, reveal and end.
+// Saving with no season yet creates one for the start date's year.
 //
 // admin:settings:read/update/delete (Go's apinames.AdminSettings*) are
 // enforced by Go itself now (internal/adminsettings) - no authorize() call
@@ -23,11 +21,19 @@ export const load: PageServerLoad = async (event) => {
   const settingsRes = await api.GET("/admin-settings", {});
   const seasonsRes = await api.GET("/nollning/seasons", {});
 
+  const latest = latestSeason(seasonsRes.data ?? []);
+
   return {
     settings: settingsRes.data ?? [],
-    nollningSeasons: seasonsRes.data ?? [],
+    nollning: latest
+      ? {
+          start: new Date(latest.nollaStartAt),
+          reveal: new Date(latest.revealAt),
+          end: new Date(latest.endAt),
+        }
+      : null,
     updateForm: await superValidate(zod4(updateSchema)),
-    createNollningSeasonForm: await superValidate(zod4(seasonSchema)),
+    updateNollningForm: await superValidate(zod4(updateNollningPeriodSchema)),
   };
 };
 
@@ -38,14 +44,18 @@ const updateSchema = z.object({
 const removeSchema = z.object({
   key: z.string().min(1),
 });
-const seasonSchema = z.object({
-  id: z.string().uuid().optional(),
-  year: z.number().int(),
-  nollaStartAt: z.date(),
-  revealAt: z.date(),
-  endAt: z.date(),
-  organizingCommitteeId: z.string().uuid().nullable().optional(),
+const updateNollningPeriodSchema = z.object({
+  start: z.date(),
+  reveal: z.date(),
+  end: z.date(),
 });
+
+type Season = { id: string; year: number } & Record<string, unknown>;
+const latestSeason = <T extends Season>(seasons: T[]): T | undefined =>
+  seasons.reduce<T | undefined>(
+    (latest, s) => (!latest || s.year > latest.year ? s : latest),
+    undefined,
+  );
 
 export const actions = {
   async update(event) {
@@ -73,20 +83,25 @@ export const actions = {
       type: "success",
     });
   },
-  async upsertNollningSeason(event) {
+  async updateNollning(event) {
     const api = serverApi(event);
-    const form = await superValidate(event.request, zod4(seasonSchema));
+    const form = await superValidate(
+      event.request,
+      zod4(updateNollningPeriodSchema),
+    );
     if (!form.valid) return fail(400, { form });
+    const seasonsRes = await api.GET("/nollning/seasons", {});
+    const latest = latestSeason(seasonsRes.data ?? []);
     const body = {
-      year: form.data.year,
-      nollaStartAt: form.data.nollaStartAt.toISOString(),
-      revealAt: form.data.revealAt.toISOString(),
-      endAt: form.data.endAt.toISOString(),
-      organizingCommitteeId: form.data.organizingCommitteeId ?? null,
+      year: latest?.year ?? form.data.start.getFullYear(),
+      nollaStartAt: form.data.start.toISOString(),
+      revealAt: form.data.reveal.toISOString(),
+      endAt: form.data.end.toISOString(),
+      organizingCommitteeId: latest?.organizingCommitteeId ?? null,
     };
-    const res = form.data.id
+    const res = latest
       ? await api.PATCH("/nollning/seasons/{id}", {
-          params: { path: { id: form.data.id } },
+          params: { path: { id: latest.id } },
           body,
         })
       : await api.POST("/nollning/seasons", { body });

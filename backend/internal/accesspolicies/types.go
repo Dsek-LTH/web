@@ -14,6 +14,18 @@ type AccessPolicy struct {
 	MemberLastName  *string `json:"memberLastName,omitempty"`
 }
 
+type APINameCount struct {
+	APIName    string `json:"apiName"`
+	GrantCount int    `json:"grantCount"`
+}
+
+// BulkCreateInput grants APIName to each of Roles and each of StudentIDs.
+type BulkCreateInput struct {
+	APIName    string   `json:"apiName"`
+	Roles      []string `json:"roles"`
+	StudentIDs []string `json:"studentIds"`
+}
+
 // CreateInput grants apiName to exactly one of Role or StudentID - enforced
 // both here (app-level, for a clean 400 instead of a raw constraint-
 // violation error) and by a DB CHECK constraint (defense in depth against

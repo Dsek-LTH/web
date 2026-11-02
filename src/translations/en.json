@@ -1360,6 +1360,7 @@
   "admin_settings_save": "Save",
   "admin_settings_nollningPeriod": "Nollning period",
   "admin_settings_nollningStart": "Start",
+  "admin_settings_nollningReveal": "Reveal",
   "admin_settings_nollningEnd": "End",
   "admin_minio_pageTitle": "Files",
   "admin_minio_uploadTitle": "Upload a file",

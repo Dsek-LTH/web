@@ -121,18 +121,18 @@
       {#each data.policies as policy (policy.id)}
         {@const subject =
           policy.role ??
-          (policy.member
-            ? `${policy.member.firstName} ${policy.member.lastName}`
+          (policy.memberFirstName
+            ? `${policy.memberFirstName} ${policy.memberLastName ?? ""}`
             : policy.studentId)}
         <div class="flex items-center justify-between gap-4 py-3">
           <div>
             {#if policy.role}
               <p class="font-medium">{m.admin_access_role()}: {policy.role}</p>
             {/if}
-            {#if policy.member}
+            {#if policy.memberFirstName}
               <p class="font-medium">
-                {policy.member.firstName}
-                {policy.member.lastName} ({policy.studentId})
+                {policy.memberFirstName}
+                {policy.memberLastName} ({policy.studentId})
               </p>
             {:else if policy.studentId}
               <p class="font-medium">{policy.studentId}</p>

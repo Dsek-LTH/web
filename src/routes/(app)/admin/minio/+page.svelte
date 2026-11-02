@@ -82,7 +82,7 @@
       {#each data.files as file (file.id)}
         <div class="flex items-center justify-between gap-4 py-3">
           <a
-            href={file.thumbnailUrl}
+            href={file.url}
             target="_blank"
             class="flex items-center gap-2 hover:underline"
           >

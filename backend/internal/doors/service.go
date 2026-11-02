@@ -181,7 +181,7 @@ func (s *Service) CreateAccessPolicy(
 			}
 			return nil, fmt.Errorf("look up member: %w", err)
 		}
-	} else if in.Subject != "*" {
+	} else if !isVirtualRole(in.Subject) {
 		exists, err := s.queries.ExistsPositionWithPrefix(ctx, in.Subject+"%")
 		if err != nil {
 			return nil, fmt.Errorf("look up position: %w", err)
@@ -470,4 +470,28 @@ func (s *Service) MemberAccess(ctx context.Context, studentID string) ([]MemberA
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out, nil
+}
+
+// virtualRoles are the roles not backed by any position (see
+// auth.DerivedRoles): everyone, signed-in, this year's nollor, the board.
+var virtualRoles = map[string]bool{"*": true, "_": true, "nolla": true, "dsek.styr": true}
+
+// programmeIDs mirrors src/lib/utils/programmes.ts's ids - a role starting
+// with one is a programme(+year) role like "D24", also not a position.
+var programmeIDs = []string{"D", "C", "VR/AR", "E", "BME", "Dokt", "?"}
+
+// isVirtualRole reports whether role is one that RoleSelector offers but
+// no position backs, so the "does this role exist" check must not look it
+// up among positions - upstream's #1291 fix to the same check in the old
+// create form.
+func isVirtualRole(role string) bool {
+	if virtualRoles[role] {
+		return true
+	}
+	for _, p := range programmeIDs {
+		if strings.HasPrefix(role, p) {
+			return true
+		}
+	}
+	return false
 }

@@ -1360,6 +1360,7 @@
   "admin_settings_save": "Spara",
   "admin_settings_nollningPeriod": "Nollningsperiod",
   "admin_settings_nollningStart": "Start",
+  "admin_settings_nollningReveal": "Avslöjande",
   "admin_settings_nollningEnd": "Slut",
   "admin_minio_pageTitle": "Filer",
   "admin_minio_uploadTitle": "Ladda upp en fil",

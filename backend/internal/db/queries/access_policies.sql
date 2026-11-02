@@ -8,8 +8,24 @@ LEFT JOIN members m ON m.student_id = ap.student_id
 WHERE sqlc.narg('api_name')::text IS NULL OR ap.api_name = sqlc.narg('api_name')::text
 ORDER BY ap.api_name, ap.created_at;
 
--- name: ListDistinctAPINames :many
-SELECT DISTINCT api_name FROM api_access_policies ORDER BY api_name;
+-- name: ListAPINameGrantCounts :many
+-- Every apiName with at least one grant, and how many - the admin access
+-- page's per-apiName badges (upstream #1291).
+SELECT api_name, count(*)::int AS grant_count
+FROM api_access_policies
+GROUP BY api_name
+ORDER BY api_name;
+
+-- name: CountMembersByStudentIDs :one
+SELECT count(*) FROM members WHERE student_id = ANY(sqlc.arg(student_ids)::text[]);
+
+-- name: CreateAccessPoliciesBulk :many
+-- One statement, so a batch is all-or-nothing.
+INSERT INTO api_access_policies (api_name, role, student_id)
+SELECT sqlc.arg(api_name)::text, r, NULL FROM unnest(sqlc.arg(roles)::text[]) AS r
+UNION ALL
+SELECT sqlc.arg(api_name)::text, NULL, s FROM unnest(sqlc.arg(student_ids)::text[]) AS s
+RETURNING id, api_name, role, student_id, created_at;
 
 -- name: CreateAccessPolicy :one
 INSERT INTO api_access_policies (api_name, role, student_id)

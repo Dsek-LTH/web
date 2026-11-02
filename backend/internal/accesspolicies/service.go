@@ -56,15 +56,79 @@ func (s *Service) List(ctx context.Context, apiName *string) ([]AccessPolicy, er
 	return policies, nil
 }
 
-func (s *Service) ListDistinctAPINames(ctx context.Context) ([]string, error) {
+// ListAPINames lists every apiName with at least one grant, with its
+// grant count.
+func (s *Service) ListAPINames(ctx context.Context) ([]APINameCount, error) {
 	if err := auth.Require(ctx, apinames.AccessPolicyRead); err != nil {
 		return nil, err
 	}
-	names, err := s.queries.ListDistinctAPINames(ctx)
+	rows, err := s.queries.ListAPINameGrantCounts(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("list distinct api names: %w", err)
+		return nil, fmt.Errorf("list api names: %w", err)
+	}
+	names := make([]APINameCount, len(rows))
+	for i, r := range rows {
+		names[i] = APINameCount{APIName: r.ApiName, GrantCount: int(r.GrantCount)}
 	}
 	return names, nil
+}
+
+// CreateBulk grants in.APIName to every role in in.Roles and every member
+// in in.StudentIDs at once - the admin access page adds several subjects
+// in one submit (upstream #1291). All-or-nothing: an unknown student ID
+// rejects the whole batch, and the inserts are a single statement.
+func (s *Service) CreateBulk(ctx context.Context, in BulkCreateInput) ([]AccessPolicy, error) {
+	if err := auth.Require(ctx, apinames.AccessPolicyCreate); err != nil {
+		return nil, err
+	}
+	if in.APIName == "" {
+		return nil, invalidf("apiName is required")
+	}
+	roles := nonEmptyUnique(in.Roles)
+	studentIDs := nonEmptyUnique(in.StudentIDs)
+	if len(roles)+len(studentIDs) == 0 {
+		return nil, invalidf("no roles or studentIds given")
+	}
+	if len(studentIDs) > 0 {
+		n, err := s.queries.CountMembersByStudentIDs(ctx, studentIDs)
+		if err != nil {
+			return nil, fmt.Errorf("look up members: %w", err)
+		}
+		if int(n) != len(studentIDs) {
+			return nil, invalidf("one or more members not found")
+		}
+	}
+	rows, err := s.queries.CreateAccessPoliciesBulk(ctx, db.CreateAccessPoliciesBulkParams{
+		ApiName:    in.APIName,
+		Roles:      roles,
+		StudentIds: studentIDs,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create access policies: %w", err)
+	}
+	policies := make([]AccessPolicy, len(rows))
+	for i, r := range rows {
+		policies[i] = AccessPolicy{
+			ID:        dbutil.UUIDStr(r.ID),
+			APIName:   r.ApiName,
+			Role:      dbutil.TextPtr(r.Role),
+			StudentID: dbutil.TextPtr(r.StudentID),
+			CreatedAt: r.CreatedAt.Time,
+		}
+	}
+	return policies, nil
+}
+
+func nonEmptyUnique(values []string) []string {
+	seen := map[string]bool{}
+	out := []string{}
+	for _, v := range values {
+		if v != "" && !seen[v] {
+			seen[v] = true
+			out = append(out, v)
+		}
+	}
+	return out
 }
 
 // Create grants in.APIName to exactly one of in.Role/in.StudentID. Mirrors

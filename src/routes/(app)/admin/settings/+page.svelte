@@ -54,6 +54,16 @@
           />
         </div>
         <div class="flex flex-col gap-1.5">
+          <Label>{m.admin_settings_nollningReveal()}</Label>
+          <DatePicker
+            name="reveal"
+            iso
+            value={data.nollning?.reveal.toISOString().split("T")[0] ??
+              $form.reveal?.toISOString().split("T")[0]}
+            error={!!$errors.reveal}
+          />
+        </div>
+        <div class="flex flex-col gap-1.5">
           <Label>{m.admin_settings_nollningEnd()}</Label>
           <DatePicker
             name="end"

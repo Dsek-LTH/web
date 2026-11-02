@@ -1,4 +1,9 @@
 import type { PageServerLoad } from "./$types";
+import type {
+  ShlinkDomainsList,
+  ShlinkShortUrlsList,
+  ShlinkTagsList,
+} from "@shlinkio/shlink-js-sdk/api-contract";
 import { serverApi } from "$lib/server/apiClient";
 import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
 import { z } from "zod";
@@ -55,20 +60,12 @@ const deleteLinksSchema = z.object({
   deleting: z.string().array().min(1),
 });
 
-// Shlink's own response shapes, proxied through Go verbatim as `unknown` -
-// see internal/links' package doc comment for why these aren't part of the
-// generated openapi schema. Only the fields this page's load actually
-// reads are declared.
-type ShortUrlsList = {
-  data: unknown[];
-  pagination: unknown;
-};
-type DomainsList = {
-  data: Array<{ domain: string; isDefault: boolean }>;
-};
-type TagsList = {
-  data: unknown[];
-};
+// Shlink's own response shapes - Go proxies them as raw JSON (`unknown` in
+// the generated schema, see internal/links' package doc comment), so they
+// are typed here with the Shlink SDK's own type definitions instead.
+type ShortUrlsList = ShlinkShortUrlsList;
+type DomainsList = ShlinkDomainsList;
+type TagsList = ShlinkTagsList;
 
 export const load: PageServerLoad = async (event) => {
   const { url } = event;
