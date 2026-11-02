@@ -14,3 +14,6 @@ src/database/seed/.snaplet
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+# Hand-wrapped design docs - Prettier rewrites their nested list formatting
+DESIGN.md
+backend/CLAUDE.md
