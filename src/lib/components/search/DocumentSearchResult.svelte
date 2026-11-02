@@ -14,11 +14,7 @@
   } = $props();
 </script>
 
-<Command.LinkItem
-  class="flex flex-row justify-between"
-  href={data.url}
-  data-search-result
->
+<Command.LinkItem class="flex flex-row justify-between" href={data.url}>
   <div class="flex flex-row items-center gap-2">
     <FileText />
     <div class="flex flex-col">

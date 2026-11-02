@@ -2,7 +2,13 @@
 
 import { serverApi } from "$lib/server/apiClient";
 import * as m from "$paraglide/messages";
-import { fail, message, superValidate, withFiles } from "sveltekit-superforms";
+import {
+  fail,
+  message,
+  superValidate,
+  withFiles,
+  type Infer,
+} from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
@@ -40,6 +46,7 @@ const uploadSchema = z.object({
   fileUrl: z.string().url().nullable().default(null),
   prefix: z.string().default("/"),
 });
+export type UploadSchema = Infer<typeof uploadSchema>;
 const deleteSchema = z.object({
   id: z.string(),
 });

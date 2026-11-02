@@ -4,6 +4,7 @@ import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
 import { z } from "zod";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
+import * as m from "$paraglide/messages";
 
 // admin:shlink:read/create/update/delete (Go's apinames.AdminShlink*) are
 // enforced by Go itself now (internal/links, a thin wrapper around Shlink's
@@ -62,6 +63,9 @@ type ShortUrlsList = {
   data: unknown[];
   pagination: unknown;
 };
+type DomainsList = {
+  data: Array<{ domain: string; isDefault: boolean }>;
+};
 type TagsList = {
   data: unknown[];
 };
@@ -93,10 +97,20 @@ export const load: PageServerLoad = async (event) => {
   const tagsRes = await api.GET("/links/tags", {});
   const tags = (tagsRes.data as TagsList | undefined)?.data ?? [];
 
+  // Pre-fills the create dialog's domain with Shlink's own default.
+  const domainsRes = await api.GET("/links/domains", {});
+  const shlinkDomains =
+    (domainsRes.data as DomainsList | undefined)?.data ?? [];
+  const defaultDomain =
+    shlinkDomains.find((d) => d.isDefault)?.domain ??
+    shlinkDomains[0]?.domain ??
+    null;
+
   return {
     domains: domains.data,
     pagination: domains.pagination,
     tags,
+    defaultDomain,
     createLinksForm: await superValidate(zod4(createLinksSchema), {
       id: "create",
     }),
@@ -130,7 +144,7 @@ export const actions: Actions = {
     }
 
     return message(createForm, {
-      message: "Link successfully created",
+      message: m.admin_links_created_success(),
       type: "success",
     });
   },
@@ -155,7 +169,7 @@ export const actions: Actions = {
     }
 
     return message(updateForm, {
-      message: "Link successfully updated",
+      message: m.admin_links_updated_success(),
       type: "success",
     });
   },
@@ -180,7 +194,7 @@ export const actions: Actions = {
     }
 
     return message(deleteForm, {
-      message: "Link(s) successfully removed",
+      message: m.admin_links_removed_success(),
       type: "success",
     });
   },

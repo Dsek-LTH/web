@@ -24,6 +24,9 @@
   data={data.form}
   superform={superform as unknown as SuperForm<ArticleSchema>}
   committees={data.committees}
+  createdAt={data.createdAt}
+  now={data.now}
+  isEditing
   formAction="?/update"
 />
 

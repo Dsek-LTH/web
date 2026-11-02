@@ -6,6 +6,7 @@
   import { Button } from "$lib/components/ui/button";
   import Pagination from "$lib/components/Pagination.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
+  import apiNames from "$lib/utils/apiNames";
 
   let { data } = $props();
 </script>
@@ -25,11 +26,12 @@
   <div class="flex-1 gap-2 md:flex-row md:items-end">
     <NewsSearch />
   </div>
-  <!-- Go's mock auth currently authorizes every request as if creating were
-       always allowed (see backend/CLAUDE.md's Auth section) - this button
-       is unconditional to match, rather than gating on the SvelteKit-side
-       Keycloak session this feature no longer reads. -->
-  <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
+  {#if data.user?.policies?.includes(apiNames.TAGS.READ)}
+    <a href="/news/tags"><Button variant="outline">{m.news_tags()}</Button></a>
+  {/if}
+  {#if data.user?.policies?.includes(apiNames.NEWS.CREATE)}
+    <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
+  {/if}
 </div>
 <Pagination pageCount={data.pageCount} class="pb-2" />
 <div class="space-y-4">

@@ -1,6 +1,7 @@
 import { isFileImage } from "$lib/files/utils";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
+import { getYoutubeVideoId } from "$lib/utils/youtube";
 
 // Mirrors the Go API's Author shape directly (flat `position`, not a
 // nested `mandate.position`) - see backend/CLAUDE.md and
@@ -44,7 +45,13 @@ export const articleSchema = z.object({
   tags: z.array(z.object({ id: z.uuid() })).default([]),
   imageUrls: z.string().array().optional(),
   imageUrl: z.string().optional().nullable(),
-  youtubeUrl: z.string().optional().nullable(),
+  youtubeUrl: z
+    .string()
+    .optional()
+    .nullable()
+    .refine((value) => !value || getYoutubeVideoId(value) !== null, {
+      message: "Invalid YouTube URL",
+    }),
   publishTime: z.date().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z

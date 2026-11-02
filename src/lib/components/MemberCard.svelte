@@ -12,6 +12,7 @@
     class: clazz,
     member,
     links = true,
+    nickname = true,
     showId = false,
     showClass = false,
     children = undefined,
@@ -35,6 +36,7 @@
     type?: ExtendedPrismaModel<"Author">["type"];
     links?: boolean;
     showId?: boolean;
+    nickname?: boolean;
     showClass?: boolean;
     children?: Snippet;
   } = $props();
@@ -66,7 +68,7 @@
       <h6
         class="overflow-wrap-anywhere m-0 text-left break-words whitespace-normal"
       >
-        {getFullName(member)}
+        {getFullName(member, { hideNickname: !nickname })}
       </h6>
     </a>
   </div>

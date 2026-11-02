@@ -66,7 +66,7 @@ export const loadHomeData = async ({
   // the old query - these only diverge for an article edited well after a
   // scheduled publish, which doesn't matter for a 3-item homepage widget.
   const newsPromise = api
-    .GET("/articles", { fetch, params: { query: { pageSize: 3 } } })
+    .GET("/articles", { fetch, params: { query: { pageSize: 4 } } })
     .then((res) => res.data?.articles ?? []);
 
   const startDate = dayjs(now).startOf("day").toDate();
@@ -75,20 +75,10 @@ export const loadHomeData = async ({
   // EVENTS
   const eventsPromise = prisma.event.findMany({
     where: {
-      ...BASIC_EVENT_FILTER(),
-      OR: [
-        {
-          startDatetime: {
-            gt: startDate,
-            lt: endDate,
-          },
-        },
-        {
-          endDatetime: {
-            gt: startDate,
-            lt: endDate,
-          },
-        },
+      AND: [
+        BASIC_EVENT_FILTER(),
+        { startDatetime: { lt: endDate } },
+        { endDatetime: { gt: startDate } },
       ],
     },
     orderBy: {

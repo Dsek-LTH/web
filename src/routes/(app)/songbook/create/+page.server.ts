@@ -1,50 +1,56 @@
 import { fail } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms/server";
+import { setError, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { createSongSchema } from "../schema";
+import { createSongBookEntrySchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
+import { authorize } from "$lib/utils/authorization";
 import * as m from "$paraglide/messages";
 import { redirect } from "sveltekit-flash-message/server";
 import { serverApi } from "$lib/server/apiClient";
 
-// Slug generation, sanitization, and the song:create check itself all
-// happen server-side in the Go API (backend/internal/songs) now - this
-// file just validates the form (instant-feedback UX only, per DESIGN.md's
-// Principle #5 - Go's own auth.Require/validation is what actually
-// decides whether the save succeeds) and forwards the result.
-export const load: PageServerLoad = async (event) => {
-  const api = serverApi(event);
-  const [categoriesRes, melodiesRes] = await Promise.all([
-    api.GET("/songs/categories", { params: { query: { includeDeleted: false } } }),
-    api.GET("/songs/melodies", { params: { query: { includeDeleted: false } } }),
-  ]);
+export const load: PageServerLoad = async ({ locals: { user } }) => {
+  authorize(apiNames.SONG.CREATE, user);
+
   return {
-    form: await superValidate(zod4(createSongSchema)),
-    existingCategories: categoriesRes.data ?? [],
-    existingMelodies: melodiesRes.data ?? [],
+    form: await superValidate(zod4(createSongBookEntrySchema)),
   };
 };
 
 export const actions: Actions = {
   create: async (event) => {
-    const { request } = event;
-    const form = await superValidate(request, zod4(createSongSchema));
-    if (!form.valid) return fail(400, { form });
-    const { title, melody, category, lyrics, video } = form.data;
+    const { request, locals } = event;
+    const { prisma, user } = locals;
+    authorize(apiNames.SONG.CREATE, user);
 
-    const created = await serverApi(event).POST("/songs", {
-      body: {
-        title,
-        lyrics,
-        melody: melody.trim() || undefined,
-        category: category.trim() || undefined,
-        video: video?.trim() || undefined,
+    const form = await superValidate(request, zod4(createSongBookEntrySchema));
+    if (!form.valid) return fail(400, { form });
+    const { songId, page, numberOnPage } = form.data;
+
+    if (
+      (await prisma.songBookEntry.count({ where: { page, numberOnPage } })) > 0
+    ) {
+      return setError(
+        form,
+        "numberOnPage",
+        m.songbook_compositeKeyDuplicateError(),
+      );
+    }
+
+    if ((await prisma.songBookEntry.count({ where: { songId } })) > 0) {
+      return setError(form, "songId", m.songbook_songIdDuplicateError());
+    }
+
+    const result = await prisma.songBookEntry.create({
+      data: {
+        songId,
+        page,
+        numberOnPage,
       },
     });
     if (created.error) throw new Error("Failed to create song");
 
     throw redirect(
-      `/songbook/${created.data.slug}`,
+      `/songbook/${result.page}/${result.numberOnPage}`,
       {
         message: m.songbook_songCreated(),
         type: "success",

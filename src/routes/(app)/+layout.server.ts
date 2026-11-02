@@ -27,15 +27,20 @@ export const load = loadFlash(async (event) => {
   // during SSR too, not just after client-side hydration re-fetches with
   // real cookies.
   const api = serverApi(event);
-  const notificationsPromise = user?.memberId
-    ? api.GET("/notifications", {}).then((res) => res.data ?? [])
+  // Only the cheap unread count is loaded up front (streamed, never
+  // blocking render) - NotificationBell fetches the actual list lazily,
+  // paginated, once it's opened (see notifications/data.remote.ts).
+  const unreadCountPromise = user?.memberId
+    ? api
+        .GET("/notifications/unread-count", {})
+        .then((res) => res.data?.count ?? 0)
     : undefined;
 
   const alertsRes = await api.GET("/alerts", {});
 
   return {
     alerts: alertsRes.data ?? [],
-    notificationsPromise,
+    unreadCountPromise,
   };
 });
 

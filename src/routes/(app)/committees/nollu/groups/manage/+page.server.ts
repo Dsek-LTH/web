@@ -55,7 +55,12 @@ const updatePhadderGroupSchema = phadderGroupSchema;
 const deletePhadderGroupSchema = phadderGroupSchema.pick({ id: true });
 
 const personSchema = z.object({
-  memberId: z.string().uuid(),
+  studentId: z.string(),
+  groupId: z.string().uuid(),
+});
+
+const addPersonSchema = z.object({
+  studentId: z.array(z.string()).min(1),
   groupId: z.string().uuid(),
 });
 
@@ -72,7 +77,7 @@ export const actions = {
     });
     if (res.error) return fail(400, { form });
     return message(form, {
-      message: "Phaddergruppen skapades",
+      message: m.nollu_manage_groupCreated(),
       type: "success",
     });
   },
@@ -89,7 +94,7 @@ export const actions = {
     });
     if (res.error) return fail(400, { form });
     return message(form, {
-      message: "Phaddergruppen uppdaterad",
+      message: m.nollu_manage_groupUpdated(),
       type: "success",
     });
   },
@@ -102,7 +107,7 @@ export const actions = {
     });
     if (res.error) return fail(400, { form });
     return message(form, {
-      message: "Phaddergruppen borttagen",
+      message: m.nollu_manage_groupDeleted(),
       type: "success",
     });
   },
@@ -116,7 +121,7 @@ export const actions = {
     });
     if (res.error) return setError(form, "memberId", res.error.detail ?? "");
     return message(form, {
-      message: "Nolla tillagd",
+      message: m.nollu_manage_nollaAdded(),
       type: "success",
     });
   },
@@ -129,7 +134,7 @@ export const actions = {
     });
     if (res.error) return setError(form, "memberId", res.error.detail ?? "");
     return message(form, {
-      message: "Nolla borttagen",
+      message: m.nollu_manage_nollaRemoved(),
       type: "success",
     });
   },
@@ -148,7 +153,7 @@ export const actions = {
         res.error.detail ?? "Personen hittas inte som phadder det året",
       );
     return message(form, {
-      message: "Phadder tillagd",
+      message: m.nollu_manage_phadderAdded(),
       type: "success",
     });
   },
@@ -161,7 +166,7 @@ export const actions = {
     });
     if (res.error) return setError(form, "memberId", res.error.detail ?? "");
     return message(form, {
-      message: "Phadder borttagen",
+      message: m.nollu_manage_phadderRemoved(),
       type: "success",
     });
   },

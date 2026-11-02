@@ -16,10 +16,12 @@ export const load: PageServerLoad = async (event) => {
   const positions = res.data ?? [];
 
   const updateForms = Object.fromEntries(
-    positions.map((pos) => [
-      pos.id,
-      superValidate(pos, zod4(updateSchema), { id: pos.id }),
-    ]),
+    await Promise.all(
+      positions.map(async (pos) => [
+        pos.id,
+        await superValidate(pos, zod4(updateSchema), { id: pos.id }),
+      ]),
+    ),
   );
 
   return {

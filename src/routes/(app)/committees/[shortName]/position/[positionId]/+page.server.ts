@@ -13,6 +13,7 @@ import { getLocale } from "$paraglide/runtime";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { redirect } from "sveltekit-flash-message/server";
+import DOMPurify from "isomorphic-dompurify";
 import {
   committeeToPositionMap,
   getPositionLink,

@@ -5,6 +5,7 @@ export type ToastNotification = {
   message: string;
   type: "success" | "error" | "info" | "warning" | "primary" | "hidden";
   id: string;
+  removing?: boolean;
 };
 
 export const toasts = writable<ToastNotification[]>([]);
@@ -40,9 +41,15 @@ export function toast(
 }
 
 function removeToast() {
-  toasts.update((state) => {
-    return state.slice(1);
-  });
+  toasts.update((state) => state.map((t) => ({ ...t, removing: true })));
+
+  setTimeout(
+    () =>
+      toasts.update((state) => {
+        return state.slice(1);
+      }),
+    300,
+  );
 }
 
 type RemoteFormResult = {

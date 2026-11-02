@@ -1,5 +1,7 @@
-<script>
-  import NotImplemented from "$lib/components/NotImplemented.svelte";
+<script lang="ts">
+  import EventList from "../EventList.svelte";
+
+  const { data } = $props();
 </script>
 
-<NotImplemented />
+<EventList {data} />

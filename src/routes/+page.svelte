@@ -14,8 +14,6 @@
   import Heart from "@lucide/svelte/icons/heart";
   import Link from "@lucide/svelte/icons/link";
 
-  const { data } = $props();
-
   const SECTIONS = [
     {
       title: m.landing_party_title(),
@@ -81,7 +79,7 @@
 </script>
 
 <div class="contents">
-  <Header isApp={data.isApp} />
+  <Header />
 </div>
 
 <main>

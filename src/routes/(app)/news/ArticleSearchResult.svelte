@@ -11,7 +11,6 @@
 <a href={`/news/${data.slug}`}>
   <div
     class="flex w-full flex-row justify-between border-t-[1px] border-b-[1px] p-4"
-    data-search-result
   >
     <div class="flex w-full flex-col">
       <div class="flex w-full flex-row justify-between">

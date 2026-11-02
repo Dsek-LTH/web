@@ -8,11 +8,6 @@ import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 
 const deletePolicySchema = z.object({ policyId: z.string() });
-const createPolicySchema = z.object({
-  position: z.string().nullable(),
-  apiName: z.string(),
-  studentId: z.string().nullable(),
-});
 
 export const load: PageServerLoad = async (event) => {
   const { locals } = event;
@@ -35,9 +30,8 @@ export const load: PageServerLoad = async (event) => {
       ]);
     }
   });
-  const createForm = await superValidate(zod4(createPolicySchema));
   const deleteForm = await superValidate(zod4(deletePolicySchema));
-  return { posToAccessPolicies, createForm, deleteForm };
+  return { posToAccessPolicies, deleteForm };
 };
 
 export const actions: Actions = {
@@ -46,17 +40,6 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     await serverApi(event).DELETE("/access-policies/{id}", {
       params: { path: { id: form.data.policyId } },
-    });
-  },
-  createPolicy: async (event) => {
-    const form = await superValidate(event.request, zod4(createPolicySchema));
-    if (!form.valid) return fail(400, { form });
-    await serverApi(event).POST("/access-policies", {
-      body: {
-        apiName: form.data.apiName,
-        role: form.data.position ?? undefined,
-        studentId: form.data.studentId ?? undefined,
-      },
     });
   },
 };

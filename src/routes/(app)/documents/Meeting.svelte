@@ -3,12 +3,14 @@
   import FileText from "@lucide/svelte/icons/file-text";
   import Trash from "@lucide/svelte/icons/trash";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
-  import FileLink from "./FileLink.svelte";
+  import FileLink from "$lib/components/files/FileLink.svelte";
   import { api } from "$lib/api/client";
   import { invalidateAll } from "$app/navigation";
   import { toast } from "$lib/stores/toast";
   import * as m from "$paraglide/messages";
   import type { components } from "$lib/api/schema";
+
+  import { cn } from "$lib/utils";
 
   type Meeting = components["schemas"]["Meeting"];
 
@@ -113,9 +115,12 @@
       {#each meeting.files ?? [] as file (file.id)}
         <div class="flex items-center gap-0">
           <FileLink
-            class={isEditing
-              ? "rounded-full! rounded-r-none! border-[1px] border-r-0"
-              : ""}
+            class={cn(
+              isEditing
+                ? "rounded-full! rounded-r-none! border-[1px] border-r-0"
+                : "",
+              "*:shrink-0",
+            )}
             name={file.name}
             url={file.url}
             full

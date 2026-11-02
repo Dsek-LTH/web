@@ -1,6 +1,6 @@
-<script>
-  import AuthorCard from "$lib/components/AuthorCard.svelte";
-  import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
+<script lang="ts">
+  import CommentSection from "$lib/components/comments/CommentSection.svelte";
+  import ArticleByline from "../ArticleByline.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import Article from "../Article.svelte";
@@ -25,15 +25,26 @@
   }}
 />
 
-<Article {article} canEdit={data.canEdit} canDelete={data.canDelete}
-  ><div class="flex flex-row items-center gap-2">
-    <AuthorCard author={article.author} />{#if article.committee}<div
-        class="bg-border h-8 w-px"
-      ></div>
-      <div class="flex flex-row items-center gap-2">
-        <CommitteeSymbol committee={article.committee} /><span
-          class="text-muted-foreground">{article.committee.name}</span
-        >
-      </div>{/if}
-  </div></Article
+<Article
+  {article}
+  likeForm={data.likeForm}
+  canEdit={data.canEdit}
+  canDelete={data.canDelete}
 >
+  {#snippet after()}
+    <CommentSection
+      type="NEWS"
+      comments={article.comments}
+      taggedMembers={data.allTaggedMembers}
+      commentForm={data.commentForm}
+      removeCommentForm={data.removeCommentForm}
+    />
+  {/snippet}
+  <ArticleByline
+    member={article.author.member}
+    customAuthor={article.author.customAuthor}
+    position={article.author.mandate?.position}
+    type={article.author.type}
+    committee={article.committee}
+  />
+</Article>

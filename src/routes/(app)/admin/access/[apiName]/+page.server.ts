@@ -12,20 +12,10 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
 
-const createSchema = z
-  .object({
-    role: z.string().nullable(),
-    studentId: z.string().nullable(),
-  })
-  .refine(
-    (data) =>
-      (data.role !== null && data.studentId === null) ||
-      (data.role === null && data.studentId !== null),
-    {
-      path: ["role"],
-      message: "Either 'role' or 'studentId' must be defined",
-    },
-  );
+const createSchema = z.object({
+  type: z.enum(["member", "role"]),
+  subjects: z.array(z.string()).min(1),
+});
 
 const deleteSchema = z.object({
   id: z.string().uuid(),
@@ -56,16 +46,20 @@ export const actions: Actions = {
     const { params, request } = event;
     const form = await superValidate(request, zod4(createSchema));
     if (!form.valid) return fail(400, { form });
+    const { type, subjects } = form.data;
 
-    const res = await serverApi(event).POST("/access-policies", {
+    // One request for every selected subject, so a single unknown member
+    // fails the whole batch in Go (one transaction) instead of leaving a
+    // partial set of grants behind.
+    const res = await serverApi(event).POST("/access-policies/bulk", {
       body: {
         apiName: params.apiName,
-        role: form.data.role ?? undefined,
-        studentId: form.data.studentId ?? undefined,
+        roles: type === "role" ? subjects : [],
+        studentIds: type === "member" ? subjects : [],
       },
     });
     if (res.error) {
-      return setError(form, "studentId", "Medlem hittades inte");
+      return setError(form, "", "En eller flera medlemmar hittades inte");
     }
     return message(form, {
       message: "Access policy skapad",

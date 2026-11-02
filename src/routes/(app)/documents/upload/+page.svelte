@@ -37,7 +37,7 @@
       case "requirement":
         return "Øverphøs, Aktivitetsansvarig...";
       case "srd":
-        return "SRD67, Möte 2";
+        return "SRD67";
       default:
         return "S18, HTM1, VTM-extra...";
     }

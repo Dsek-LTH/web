@@ -18,6 +18,7 @@ declare global {
   };
   namespace App {
     type AppInfo = {
+      os?: string;
       insets: {
         top: number;
         bottom: number;

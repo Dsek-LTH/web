@@ -9,7 +9,11 @@
 
   type NotificationGroup = components["schemas"]["Group"];
 
-  const { notification }: { notification: NotificationGroup } = $props();
+  const {
+    notification,
+    onDismissed,
+  }: { notification: NotificationGroup; onDismissed?: (id: number) => void } =
+    $props();
 
   const authors = $derived(notification.authors ?? []);
   const individualIds = $derived(notification.individualIds ?? []);
@@ -62,7 +66,14 @@
       </span>
     </div>
   </a>
-  <form {...enhanceWithToast(deleteNotification.for(notification.id))}>
+  <form
+    {...enhanceWithToast(
+      deleteNotification.for(notification.id),
+      async (helpers) => {
+        if (await helpers.submit()) onDismissed?.(notification.id);
+      },
+    )}
+  >
     {#if individualIds.length > 1}
       <input
         type="hidden"

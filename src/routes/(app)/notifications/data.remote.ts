@@ -1,4 +1,4 @@
-import { form, getRequestEvent } from "$app/server";
+import { form, getRequestEvent, query } from "$app/server";
 import { m } from "$paraglide/messages";
 import z from "zod";
 import { serverApi } from "$lib/server/apiClient";
@@ -7,6 +7,22 @@ import { serverApi } from "$lib/server/apiClient";
 // /notifications (backend/internal/api/huma_notifications.go) instead of
 // prisma.notification.* directly - see backend/CLAUDE.md's "Notifications
 // routes" section.
+
+// Lazily fetched by NotificationBell once opened, `take` grows by one page
+// per "load more" - Go returns the grouped page plus whether more exist.
+export const getNotifications = query(
+  z.object({ take: z.number().int().positive() }),
+  async ({ take }) => {
+    const event = getRequestEvent();
+    if (!event.locals.user?.memberId) {
+      return { notifications: [], hasMore: false };
+    }
+    const res = await serverApi(event).GET("/notifications", {
+      params: { query: { take } },
+    });
+    return res.data ?? { notifications: [], hasMore: false };
+  },
+);
 
 export const readAllNotifications = form(z.object({}), async () => {
   const event = getRequestEvent();

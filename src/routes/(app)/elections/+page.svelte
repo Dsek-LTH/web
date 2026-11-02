@@ -7,7 +7,7 @@
   import utc from "dayjs/plugin/utc";
   import timezone from "dayjs/plugin/timezone";
   import { Button } from "$lib/components/ui/button";
-  import ElectionCard from "./ElectionCard.svelte";
+  import ElectionCard from "$lib/components/ElectionCard.svelte";
 
   let { data }: { data: PageData } = $props();
 

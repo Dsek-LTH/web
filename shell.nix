@@ -1,23 +1,39 @@
-{ pkgs ? import <nixpkgs> {} }:
+{
+  pkgs ? import <nixpkgs> { },
+}:
 let
-  oldPkgs = import (builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/21808d22b1cda1898b71cf1a1beb524a97add2c4.tar.gz";
-  }) {};
+  oldPkgs = import (pkgs.fetchFromGitHub {
+    owner = "nixos";
+    repo = "nixpkgs";
+    rev = "21808d22b1cda1898b71cf1a1beb524a97add2c4";
+    hash = "sha256-j4HeaLw1LZxkCvuOxdO1xTnPYLSOQuzOjGEuCK80X2w=";
+  }) { };
+  inherit (pkgs) nodejs pnpm;
   inherit (oldPkgs) prisma prisma-engines;
-in pkgs.mkShell {
-  packages = with pkgs; [
+in
+pkgs.mkShell {
+  packages = [
     nodejs
     pnpm
-  ] ++ [
     prisma
     prisma-engines
   ];
 
   shellHook = ''
+    onExit() {
+      docker compose down
+
+      # nix specific
+      _nix_shell_clean_tmpdir
+      exitHandler
+    }
+
     if ! type "docker" > /dev/null; then
       echo "install docker and try again: https://wiki.nixos.org/wiki/Docker"
       exit 1
     fi
+
+    trap onExit EXIT
 
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
     export PRISMA_SCHEMA_ENGINE_BINARY="${prisma-engines}/bin/schema-engine"
@@ -25,13 +41,6 @@ in pkgs.mkShell {
     export PRISMA_QUERY_ENGINE_LIBRARY="${prisma-engines}/lib/libquery_engine.node"
     export PRISMA_FMT_BINARY="${prisma-engines}/bin/prisma-fmt"
 
-    if docker start dsek-db > /dev/null; then
-      docker start dsek-meilisearch > /dev/null
-      docker start dsek-poppler > /dev/null
-    else
-      docker rm -f dsek-db dsek-meilisearch dsek-poppler 2> /dev/null
-      pnpm install
-      ${pkgs.bash}/bin/bash ./dev/setup_db.sh
-    fi
+    docker compose up -d
   '';
 }

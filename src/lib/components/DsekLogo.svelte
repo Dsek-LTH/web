@@ -10,6 +10,8 @@
     focusable="false"
     aria-hidden="true"
     viewBox="0 0 24 24"
+    width="100%"
+    height="100%"
     style="font-size:20px"
     fill="currentColor"
   >
@@ -41,6 +43,8 @@
     viewBox="0 0 1672.1 1672.1"
     xml:space="preserve"
     fill="currentColor"
+    width="100%"
+    height="100%"
   >
     <circle
       cx="836"

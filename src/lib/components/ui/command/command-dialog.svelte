@@ -14,6 +14,7 @@
     value = $bindable(""),
     title = "Command Palette",
     description = "Search for a command to run",
+    inset = 0,
     portalProps,
     children,
     ...restProps
@@ -23,6 +24,7 @@
       children: Snippet;
       title?: string;
       description?: string;
+      inset?: number;
     } = $props();
 </script>
 
@@ -32,7 +34,8 @@
     <Dialog.Description>{description}</Dialog.Description>
   </Dialog.Header>
   <Dialog.Content
-    class="top-16 max-h-[calc(100vh-8rem)] translate-y-0 overflow-hidden p-0"
+    style="top:{16 * 4 + inset + 'px'}"
+    class="max-h-[calc(100vh-8rem)] translate-y-0 overflow-hidden p-0"
     {portalProps}
   >
     <Command
