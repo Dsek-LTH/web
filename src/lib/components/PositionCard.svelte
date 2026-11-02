@@ -5,6 +5,7 @@
 
   let {
     mandate,
+    logoUrl,
     compact = false,
   }: {
     mandate: ExtendedPrismaModel<"Mandate"> & {
@@ -13,6 +14,7 @@
         committee: ExtendedPrismaModel<"Committee"> | null;
       };
     };
+    logoUrl?: string;
     compact?: boolean;
   } = $props();
 </script>
@@ -31,6 +33,8 @@
           alt="{mandate.phadderIn.name} logo"
           class="size-6 rounded-sm object-contain"
         />
+      {:else if logoUrl}
+        <img src={logoUrl} alt="" class="size-6 rounded-sm object-contain" />
       {:else}
         <CommitteeSymbol size="sm" committee={mandate.position.committee} />
       {/if}
