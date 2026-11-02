@@ -12,9 +12,11 @@
   let {
     article,
     index,
+    isPreview = false,
   }: {
     article: ArticleCardData;
     index: number;
+    isPreview?: boolean;
   } = $props();
 
   const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
@@ -60,7 +62,11 @@
   class="hover:bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] border-border flex flex-col rounded-xl border-[1px] p-4 duration-300"
   style="animation-delay:{index * 50}ms"
 >
-  <a href={articleUrl} class="group block">
+  <svelte:element
+    this={isPreview ? "div" : "a"}
+    href={isPreview ? undefined : articleUrl}
+    class="group block"
+  >
     <!-- The placeholder stays underneath: a broken image paints nothing,
          and this also covers failures before hydration. -->
     <div
@@ -119,13 +125,14 @@
       <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
       {@html previewMarked.parse(article.body)}
     </div>
-  </a>
+  </svelte:element>
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
     <AuthorCard
       member={article.author.member}
       customAuthor={article.author.customAuthor}
       position={article.author.mandate?.position}
       type={article.author.type}
+      links={!isPreview}
     />
     <span class="text-muted-foreground"
       >{dayjs(article.createdAt).format("YYYY-MM-DD")}</span

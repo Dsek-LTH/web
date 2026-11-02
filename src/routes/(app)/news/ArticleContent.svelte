@@ -11,10 +11,12 @@
     article,
     headerActions,
     byline,
+    isPreview = false,
   }: {
     article: ArticleContentData;
     headerActions?: Snippet;
     byline?: Snippet;
+    isPreview?: boolean;
   } = $props();
 </script>
 
@@ -47,6 +49,7 @@
   <MarkdownBody
     class="article-body text-foreground min-w-0 overflow-x-auto break-words"
     body={article.body}
+    preview={isPreview}
   />
   {#if article.imageUrls.length > 0}
     <ImageList images={article.imageUrls} />
