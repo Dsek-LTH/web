@@ -6,14 +6,14 @@ ENV NODE_ENV=production
 RUN apk add --no-cache poppler-utils
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@12.16.1
 
 # Set the working directory inside the container
 WORKDIR /app
 
 # Copy the package.json and install dependencies
 COPY ./package.json ./pnpm-lock.yaml ./
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # Copy the web service's code
 COPY . .
