@@ -9,6 +9,7 @@
   import UsersRound from "@lucide/svelte/icons/users-round";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
   import Cake from "@lucide/svelte/icons/cake";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
   import { m } from "$paraglide/messages";
   import { toAppTime } from "$lib/utils/datetime";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
@@ -179,13 +180,27 @@
             <li>
               <a
                 {href}
-                class="border-rosa-200/80 bg-background/80 hover:border-rosa-400 hover:bg-rosa-50 dark:border-rosa-800/80 dark:hover:border-rosa-600 dark:hover:bg-rosa-950/40 flex items-center gap-2 rounded-full border-[1px] py-1 pr-3 pl-1 shadow-sm transition-colors"
+                class="border-rosa-200/80 bg-background/80 hover:border-rosa-400 hover:bg-rosa-50 dark:border-rosa-800/80 dark:hover:border-rosa-600 dark:hover:bg-rosa-950/40 group relative flex items-center gap-2 rounded-full border-[1px] py-1 pr-3 pl-1 shadow-sm transition-colors"
               >
                 <MemberAvatar
                   member={birthday}
                   class="ring-rosa-200 dark:ring-rosa-800 size-7 ring-2"
                 />
                 <span class="font-medium">{getFullName(birthday)}</span>
+                <span
+                  class="pointer-events-none absolute -top-2 -right-1.5"
+                  aria-hidden="true"
+                >
+                  <Sparkles
+                    class="text-rosa-400 size-3.5 opacity-0 transition-all duration-200 group-hover:scale-110 group-hover:opacity-100"
+                  />
+                  <Sparkles
+                    class="text-lila-400 absolute -top-2 -left-3 size-2.5 opacity-0 transition-all delay-75 duration-200 group-hover:-translate-y-1 group-hover:opacity-100"
+                  />
+                  <Sparkles
+                    class="text-rosa-300 absolute top-2 -right-2 size-2 opacity-0 transition-all delay-150 duration-200 group-hover:translate-x-1 group-hover:opacity-100"
+                  />
+                </span>
               </a>
             </li>
           {/each}
