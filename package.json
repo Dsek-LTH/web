@@ -122,7 +122,7 @@
     "isomorphic-dompurify": "^4.6.0",
     "markdown-to-txt": "^2.0.1",
     "marked": "^18.1.2",
-    "meilisearch": "^0.45.0",
+    "meilisearch": "^0.62.0",
     "minecraft-server-ping": "^0.3.4",
     "minio": "^8.0.7",
     "mode-watcher": "^1.1.0",
