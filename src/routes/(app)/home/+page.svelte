@@ -8,9 +8,11 @@
   import Coffee from "@lucide/svelte/icons/coffee";
   import UsersRound from "@lucide/svelte/icons/users-round";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Cake from "@lucide/svelte/icons/cake";
   import { m } from "$paraglide/messages";
   import { toAppTime } from "$lib/utils/datetime";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
+  import { getFullName } from "$lib/utils/client/member";
   import Documents from "./Documents.svelte";
   const { data } = $props();
 </script>
@@ -96,6 +98,22 @@
       </div>
     {/if}
   </div>
+
+  {#if data.birthdays.length > 0}
+    <section
+      class="border-border bg-muted-background rounded-md border-[1px] p-4"
+    >
+      <h2 class="flex items-center gap-2 text-lg">
+        <Cake class="text-rosa-400 size-5" />
+        {m.home_birthdaysToday()}
+      </h2>
+      <ul class="mt-2 flex flex-col gap-1">
+        {#each data.birthdays as birthday (birthday.id)}
+          <li>{getFullName(birthday)}</li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 
   <div>
     <h2>

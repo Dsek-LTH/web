@@ -53,6 +53,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 const updateSchema = memberSchema.pick({
   firstName: true,
   lastName: true,
+  birthDate: true,
   foodPreference: true,
   classProgramme: true,
   classYear: true,

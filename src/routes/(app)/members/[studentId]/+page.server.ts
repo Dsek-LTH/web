@@ -162,6 +162,7 @@ const updateSchema = memberSchema
     firstName: true,
     lastName: true,
     nickname: true,
+    birthDate: true,
     foodPreference: true,
     classProgramme: true,
     classYear: true,

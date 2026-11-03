@@ -9,8 +9,17 @@
   import { getLocale } from "$paraglide/runtime";
   import { toast } from "$lib/stores/toast";
   import { page } from "$app/state";
+  import ParticleRain from "$lib/components/ParticleRain.svelte";
 
   const { children, data } = $props();
+
+  const birthdayColors = [
+    "#f280a1",
+    "#9966cc",
+    "#ffd166",
+    "#7dd3fc",
+    "#86efac",
+  ];
 
   dayjs.locale(getLocale());
   let pageTitle = writable("D-sektionen");
@@ -24,6 +33,9 @@
 </script>
 
 <ModeWatcher />
+{#if data.isBirthday}
+  <ParticleRain colors={birthdayColors} />
+{/if}
 <svelte:head>
   {#if data.isApp}
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />
