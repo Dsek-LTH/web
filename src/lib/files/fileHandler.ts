@@ -181,7 +181,7 @@ export const removeFilesWithoutAccessCheck = async (
     );
   } catch (e) {
     if (e instanceof Error)
-      throw new Error(`Could not remove file, ${e.message}`);
+      throw new Error(`Could not remove file, ${e.message}`, { cause: e });
     throw e;
   }
   return deleted;

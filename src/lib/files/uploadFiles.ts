@@ -59,7 +59,7 @@ export const uploadFile = async (
       );
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : String(e);
-      throw new Error(`Could not compress image: ${errMsg}`);
+      throw new Error(`Could not compress image: ${errMsg}`, { cause: e });
     }
   }
 
@@ -84,6 +84,8 @@ export const uploadFile = async (
   } catch (e) {
     console.error(e);
     const errMsg = e instanceof Error ? e.message : String(e);
-    throw new Error(`${m.members_errors_couldntUploadFile()}: ${errMsg}`);
+    throw new Error(`${m.members_errors_couldntUploadFile()}: ${errMsg}`, {
+      cause: e,
+    });
   }
 };
