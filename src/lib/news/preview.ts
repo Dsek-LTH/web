@@ -1,3 +1,4 @@
+import type { components } from "$lib/api/schema";
 import type {
   ArticleCommitteeSummary,
   ArticleContentData,
@@ -6,20 +7,15 @@ import type {
 
 export type PreviewLanguage = "sv" | "en";
 
-export type PreviewTagSource = {
-  id: string;
-  nameSv: string;
-  nameEn?: string | null;
-  color?: string | null;
-};
+export type PreviewTagSource = Pick<
+  components["schemas"]["Tag"],
+  "id" | "nameSv" | "nameEn" | "color"
+>;
 
-export type PreviewCommitteeSource = {
-  id: string;
-  nameSv: string;
-  nameEn?: string | null;
-  shortName?: string | null;
-  symbolUrl?: string | null;
-};
+export type PreviewCommitteeSource = Pick<
+  components["schemas"]["Committee"],
+  "id" | "nameSv" | "nameEn" | "shortName" | "symbolUrl"
+>;
 
 export type PreviewForm = {
   headerSv: string;
@@ -39,8 +35,8 @@ export type ArticlePreview = {
     tags: ArticleTagSummary[];
     imageUrls: string[];
   };
-  committee: ArticleCommitteeSummary | null;
-  cardImageUrl: string | null;
+  committee: ArticleCommitteeSummary | undefined;
+  cardImageUrl: string | undefined;
   cardPublishedAt: Date;
 };
 
@@ -105,7 +101,7 @@ export const buildArticlePreview = ({
           {
             id: tag.id,
             name: localized(language, tag.nameSv, tag.nameEn),
-            color: tag.color ?? null,
+            color: tag.color,
           },
         ]
       : [];
@@ -122,18 +118,18 @@ export const buildArticlePreview = ({
           committeeSource.nameSv,
           committeeSource.nameEn,
         ),
-        shortName: committeeSource.shortName ?? undefined,
-        symbolUrl: committeeSource.symbolUrl ?? undefined,
+        shortName: committeeSource.shortName,
+        symbolUrl: committeeSource.symbolUrl,
       }
-    : null;
+    : undefined;
 
   const existingImageUrls = form.imageUrls ?? [];
   const imageUrls = isEditing
     ? [...existingImageUrls, ...uploadedImageUrls]
     : [...uploadedImageUrls];
   const cardImageUrl = isEditing
-    ? (form.imageUrl ?? null)
-    : (uploadedImageUrls[0] ?? form.imageUrl ?? null);
+    ? (form.imageUrl ?? undefined)
+    : (uploadedImageUrls[0] ?? form.imageUrl ?? undefined);
 
   return {
     article: {
@@ -142,7 +138,7 @@ export const buildArticlePreview = ({
       createdAt,
       imageUrls,
       tags: previewTags,
-      youtubeUrl: form.youtubeUrl ?? null,
+      youtubeUrl: form.youtubeUrl ?? undefined,
     },
     committee,
     cardImageUrl,

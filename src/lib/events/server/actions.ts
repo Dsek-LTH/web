@@ -5,7 +5,7 @@ import { error, type Action } from "@sveltejs/kit";
 import { z } from "zod";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { api } from "$lib/api/client";
+import { api, multipart } from "$lib/api/client";
 import type { components } from "$lib/api/schema";
 
 type EventInput = components["schemas"]["EventInput"];
@@ -18,11 +18,7 @@ type EventInput = components["schemas"]["EventInput"];
 // ../../../DESIGN.md's events section.
 
 async function uploadImage(file: File): Promise<string> {
-  const form = new FormData();
-  form.append("file", file);
-  const res = await api.POST("/uploads", {
-    body: form as unknown as { file: string },
-  });
+  const res = await api.POST("/uploads", { body: { file }, ...multipart });
   if (res.error) throw new Error("Failed to upload image");
   return res.data.url;
 }

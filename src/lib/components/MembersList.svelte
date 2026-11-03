@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { components } from "$lib/api/schema";
   import MemberCard from "$lib/components/MemberCard.svelte";
   import {
     buttonVariants,
@@ -15,20 +16,18 @@
     title,
     variant = "rosa",
   }: {
-    // Loosened to MemberCard's own dual-shape (Prisma `| null` vs Go API
-    // `| undefined`) - see MemberCard.svelte's identical comment. Narrow
-    // to `string | undefined` once every consumer of this component is
-    // Go-backed.
     members: Array<
-      { id: string } & {
-        firstName?: string | null;
-        lastName?: string | null;
-        nickname?: string | null;
-        studentId?: string | null;
-        picturePath?: string | null;
-        classProgramme?: string | null;
-        classYear?: number | null;
-      }
+      Pick<
+        components["schemas"]["Member"],
+        | "id"
+        | "firstName"
+        | "lastName"
+        | "nickname"
+        | "studentId"
+        | "picturePath"
+        | "classProgramme"
+        | "classYear"
+      >
     >;
     class?: string;
     children?: Snippet;

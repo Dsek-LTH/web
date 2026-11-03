@@ -1,17 +1,9 @@
-// TEMPORARY dual-shape type, not a design goal: all optional so this
-// accepts both Prisma's Member (`firstName: string | null`) and the Go
-// API's Member (`firstName?: string`) - see backend/CLAUDE.md. This is a
-// pure type-level widening (no conversion function/logic), kept only
-// because MemberAvatar/getFullName/getInitials have ~20 consumers and only
-// one (AuthorCard) is Go-backed today. Narrow this back to the Go-only
-// shape (drop `| null`) once the rest of those consumers - bookings,
-// notifications, navbar, committees, board, member profile, etc.
-// - are ported off Prisma; don't let this linger past that point.
-export type MemberNames = {
-  firstName?: string | null;
-  lastName?: string | null;
-  nickname?: string | null;
-};
+import type { components } from "$lib/api/schema";
+
+export type MemberNames = Pick<
+  components["schemas"]["Member"],
+  "firstName" | "lastName" | "nickname"
+>;
 type Options = {
   hideNickname?: boolean;
 };

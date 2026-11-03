@@ -1,6 +1,7 @@
 // Page to upload files to the server and get a link back
 
 import { serverApi } from "$lib/server/apiClient";
+import { multipart } from "$lib/api/client";
 import * as m from "$paraglide/messages";
 import {
   fail,
@@ -60,12 +61,9 @@ export const actions = {
 
     const { file, fileName, prefix } = form.data;
 
-    const body = new FormData();
-    body.append("file", file);
-    body.append("name", fileName);
-    body.append("prefix", prefix);
     const res = await serverApi(event).POST("/admin/files", {
-      body: body as unknown as { file: string; name: string; prefix: string },
+      body: { file, name: fileName, prefix },
+      ...multipart,
     });
     if (res.error) {
       return message(

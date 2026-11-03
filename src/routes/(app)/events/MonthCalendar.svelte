@@ -18,8 +18,8 @@
   // Go's event summaries with their start/end parsed into Dates (see
   // EventList.svelte).
   type CalendarEvent = MonthEvent & {
-    committee?: { name: string } | null;
-    organizer?: string | null;
+    committee?: { name: string };
+    organizer?: string;
   };
 
   let { events, month }: { events: CalendarEvent[]; month: string } = $props();

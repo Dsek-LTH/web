@@ -20,12 +20,10 @@ type BookingStatus = "ACCEPTED" | "PENDING" | "DENIED";
  */
 export const normalizeBooking = (booking: GoBookingRequest) => ({
   ...booking,
-  start: booking.start ? new Date(booking.start) : null,
-  end: booking.end ? new Date(booking.end) : null,
-  created: booking.created ? new Date(booking.created) : null,
-  event: booking.event ?? null,
+  start: booking.start ? new Date(booking.start) : undefined,
+  end: booking.end ? new Date(booking.end) : undefined,
+  created: booking.created ? new Date(booking.created) : undefined,
   status: booking.status as BookingStatus,
-  booker: booking.booker ?? null,
   bookables: booking.bookables ?? [],
   accessDoors: booking.accessDoors ?? [],
   accessMembers: booking.accessMembers ?? [],
@@ -90,13 +88,13 @@ export function toMemberSearchAttributes(
 ): MemberSearchReturnAttributes & { id: string } {
   return {
     id: searchDocumentId(member.id),
-    firstName: member.firstName ?? null,
-    lastName: member.lastName ?? null,
-    nickname: member.nickname ?? null,
-    studentId: member.studentId ?? null,
-    picturePath: member.picturePath ?? null,
-    classYear: member.classYear ?? null,
-    classProgramme: member.classProgramme ?? null,
+    firstName: member.firstName,
+    lastName: member.lastName,
+    nickname: member.nickname,
+    studentId: member.studentId,
+    picturePath: member.picturePath,
+    classYear: member.classYear,
+    classProgramme: member.classProgramme,
     fullName: `${member.firstName ?? ""} ${member.lastName ?? ""}`,
   };
 }

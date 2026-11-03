@@ -38,7 +38,7 @@ export const load: PageLoad = async ({ fetch }) => {
     api.GET("/committees", { fetch }).then((res) => res.data ?? []),
   ]);
   const committee = (shortName: string) =>
-    committees.find((c) => c.shortName === shortName) ?? null;
+    committees.find((c) => c.shortName === shortName);
 
   return {
     vordf,

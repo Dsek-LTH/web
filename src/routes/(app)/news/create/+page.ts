@@ -32,11 +32,11 @@ export const load: PageLoad = async ({ fetch, parent }) => {
 
   const self = {
     id: member.id,
-    studentId: member.studentId ?? undefined,
-    firstName: member.firstName ?? undefined,
-    lastName: member.lastName ?? undefined,
-    nickname: member.nickname ?? undefined,
-    picturePath: member.picturePath ?? undefined,
+    studentId: member.studentId,
+    firstName: member.firstName,
+    lastName: member.lastName,
+    nickname: member.nickname,
+    picturePath: member.picturePath,
   };
   const authorOptions = buildAuthorOptions(
     self,

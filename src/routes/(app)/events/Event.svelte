@@ -10,17 +10,17 @@
    */
   export type EventView = {
     title: string;
-    shortDescription?: string | null;
+    shortDescription?: string;
     description: string;
-    imageUrl?: string | null;
-    location?: string | null;
-    link?: string | null;
+    imageUrl?: string;
+    location?: string;
+    link?: string;
     /** The old free text organizer, only shown for events without a committee. */
     organizer: string;
-    committee?: EventCommittee | null;
+    committee?: EventCommittee;
     startAt: Date | string;
     endAt: Date | string;
-    isCancelled?: boolean | null;
+    isCancelled?: boolean;
     tags: Array<components["schemas"]["Tag"]> | null;
   };
 </script>

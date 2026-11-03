@@ -3,10 +3,6 @@
   import { getPositionLink } from "$lib/utils/positions";
   import type { components } from "$lib/api/schema";
 
-  // Sole consumer is the (Go-backed) member profile page - typed against
-  // the generated Go API shapes directly rather than
-  // ExtendedPrismaModel<...>, unlike CommitteeSymbol (which still has other
-  // Prisma consumers and keeps a TEMPORARY dual-shape - see its comment).
   let {
     mandate,
     compact = false,
@@ -16,9 +12,7 @@
     // real `Date` objects there for its own grouping logic, which would
     // otherwise clash with the generated schema's `string` dates).
     mandate: Pick<components["schemas"]["Mandate"], "id" | "phadderIn"> & {
-      position: Omit<components["schemas"]["Position"], "committee"> & {
-        committee: components["schemas"]["Committee"] | null;
-      };
+      position: components["schemas"]["Position"];
     };
     compact?: boolean;
   } = $props();

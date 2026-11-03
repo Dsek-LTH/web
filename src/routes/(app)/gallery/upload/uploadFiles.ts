@@ -1,4 +1,4 @@
-import { api } from "$lib/api/client";
+import { api, multipart } from "$lib/api/client";
 import type { UploadSchema } from "./types";
 
 // Forwards to the Go backend (backend/internal/gallery.Service.UploadAlbum)
@@ -6,13 +6,9 @@ import type { UploadSchema } from "./types";
 // section. Go now awaits every file upload before returning, fixing the
 // old fire-and-forget bug this function used to have.
 export const uploadAlbumFiles = async (data: UploadSchema) => {
-  const form = new FormData();
-  form.append("name", data.name);
-  form.append("date", data.date);
-  Array.from(data.files).forEach((file) => form.append("files", file));
-
   const res = await api.POST("/gallery/upload", {
-    body: form as unknown as { name: string; date: string; files: string[] },
+    body: { name: data.name, date: data.date, files: Array.from(data.files) },
+    ...multipart,
   });
   if (res.error) throw new Error("Failed to upload album");
 };

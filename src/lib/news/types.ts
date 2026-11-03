@@ -8,7 +8,7 @@ import type { ComponentProps } from "svelte";
 export type ArticleTagSummary = {
   id: string;
   name: string;
-  color?: string | null;
+  color?: string;
 };
 
 export type ArticleCommitteeSummary = Pick<
@@ -23,27 +23,28 @@ export type ArticleContentData = {
   header: string;
   body: string;
   createdAt: Date | string;
+  // Go sends null for an empty list.
   imageUrls?: string[] | null;
   tags?: ArticleTagSummary[] | null;
-  youtubeUrl?: string | null;
+  youtubeUrl?: string;
 };
 
 export type ArticleCardData = {
   author: ArticleAuthorSummary;
   slug: string;
-  imageUrl?: string | null;
+  imageUrl?: string;
   header: string;
   body: string;
   createdAt: Date | string;
-  committee?: ArticleCommitteeSummary | null;
-  youtubeUrl?: string | null;
+  committee?: ArticleCommitteeSummary;
+  youtubeUrl?: string;
 };
 
 export type ArticleSmallCardData = {
   slug: string;
-  imageUrl?: string | null;
+  imageUrl?: string;
   header: string;
-  publishedAt?: Date | string | null;
-  committee?: ArticleCommitteeSummary | null;
-  youtubeUrl?: string | null;
+  publishedAt?: Date | string;
+  committee?: ArticleCommitteeSummary;
+  youtubeUrl?: string;
 };

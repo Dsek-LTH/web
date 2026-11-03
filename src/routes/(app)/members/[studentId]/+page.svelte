@@ -94,7 +94,7 @@
 {#snippet mobile(klass: string)}
   <div class={klass}>
     <CommitteePlaceholder
-      committee={null}
+      committee={undefined}
       class="h-44"
       imageOverride="https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/{logoUrl[
         member.classProgramme as keyof typeof logoUrl
@@ -164,10 +164,7 @@
                       mandate={{
                         id: mandate.id,
                         phadderIn: mandate.phadderIn,
-                        position: {
-                          ...mandate.position!,
-                          committee: mandate.position?.committee ?? null,
-                        },
+                        position: mandate.position!,
                       }}
                     />
                   {/each}
@@ -212,7 +209,7 @@
           <h3 class="my-4 self-center">{m.medals()}</h3>
           {#each medals as medal (medal.medal)}
             <div class="inline-flex flex-col items-center gap-2">
-              <CommitteeIcon class="size-32" committee={null} />
+              <CommitteeIcon class="size-32" committee={undefined} />
               <div class="flex flex-col items-center justify-center">
                 <a href={getMedalLink(medal.after)}
                   ><h6 class="hover:text-muted-foreground transition-all">
@@ -280,7 +277,7 @@
             <div
               class="inline-flex min-w-10/12 flex-row items-center gap-4 rounded-md border-[1px] p-3 pr-4"
             >
-              <CommitteeIcon class="size-8" committee={null} />
+              <CommitteeIcon class="size-8" committee={undefined} />
               <div class="flex flex-col justify-center">
                 <a href={getMedalLink(medal.after)}
                   ><h6 class="hover:text-muted-foreground transition-all">
@@ -381,10 +378,7 @@
                       mandate={{
                         id: mandate.id,
                         phadderIn: mandate.phadderIn,
-                        position: {
-                          ...mandate.position!,
-                          committee: mandate.position?.committee ?? null,
-                        },
+                        position: mandate.position!,
                       }}
                     />
                   {/each}

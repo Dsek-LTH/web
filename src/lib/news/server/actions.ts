@@ -6,6 +6,7 @@ import { type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import { serverApi } from "$lib/server/apiClient";
+import { multipart } from "$lib/api/client";
 import type { components } from "$lib/api/schema";
 
 type ArticleInput = components["schemas"]["ArticleInput"];
@@ -14,11 +15,7 @@ async function uploadImage(
   api: ReturnType<typeof serverApi>,
   file: File,
 ): Promise<string> {
-  const form = new FormData();
-  form.append("file", file);
-  const res = await api.POST("/uploads", {
-    body: form as unknown as { file: string },
-  });
+  const res = await api.POST("/uploads", { body: { file }, ...multipart });
   if (res.error) throw new Error("Failed to upload image");
   return res.data.url;
 }

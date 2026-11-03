@@ -85,7 +85,7 @@
     body: preview.article.body,
     createdAt: preview.article.createdAt,
     committee: preview.committee,
-    youtubeUrl: $form.youtubeUrl ?? null,
+    youtubeUrl: $form.youtubeUrl ?? undefined,
   });
 </script>
 
@@ -134,7 +134,7 @@
               publishedAt: preview.cardPublishedAt,
               imageUrl: preview.cardImageUrl,
               committee: preview.committee,
-              youtubeUrl: $form.youtubeUrl ?? null,
+              youtubeUrl: $form.youtubeUrl ?? undefined,
             }}
             isPreview={true}
           />

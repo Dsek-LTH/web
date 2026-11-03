@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { components } from "$lib/api/schema";
   import { getFileUrl } from "$lib/files/client";
   import { cn } from "$lib/utils";
   import type { EventHandler } from "svelte/elements";
@@ -9,18 +10,12 @@
     class: klass,
     override,
   }: {
-    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) - pure
-    // type widening, no conversion logic. Still-Prisma consumers: contact,
-    // search result components. Narrow to `string | undefined` once those
-    // are ported too - see CommitteeSymbol's identical note. (home and
-    // elections/ElectionCard were on this list until the Elections phase
-    // ported both off Prisma - 2026-09-02.)
-    committee: Partial<
-      Record<
-        "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv",
-        string | null
-      >
-    > | null;
+    committee:
+      | Pick<
+          components["schemas"]["Committee"],
+          "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"
+        >
+      | undefined;
     useMono?: boolean;
     class?: string;
     override?: "light" | "dark";

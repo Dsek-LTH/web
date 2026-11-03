@@ -72,6 +72,26 @@ func TestToHit(t *testing.T) {
 	}
 }
 
+func TestToHitDropsNulls(t *testing.T) {
+	raw := map[string]any{
+		"_federation": map[string]any{"indexUid": "articles"},
+		"headerSv":    "Rubrik",
+		"headerEn":    nil,
+		"header":      "Rubrik",
+		"author":      map[string]any{"firstName": "A", "nickname": nil},
+	}
+	en := toHit(raw, "en")
+	if _, ok := en.Data["headerEn"]; ok {
+		t.Error("null fields should be dropped")
+	}
+	if en.Data["header"] != "Rubrik" {
+		t.Errorf("header = %v; an unset English value must not replace it", en.Data["header"])
+	}
+	if _, ok := en.Data["author"].(map[string]any)["nickname"]; ok {
+		t.Error("null fields in nested objects should be dropped")
+	}
+}
+
 // fakeMeili answers /multi-search with no hits and records the request.
 func fakeMeili(t *testing.T, got *multiSearchRequest) *httptest.Server {
 	t.Helper()

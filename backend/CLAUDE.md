@@ -410,9 +410,14 @@ See `DESIGN.md`'s Phase 15 status for the reasoning. Added:
 - `GET /members/{studentId}/medals` - `medals.Service.MemberMedals` (now by student id), as of last semester.
 - `PUT /members/{studentId}/picture` (multipart `image`), `DELETE /members/{studentId}/picture` - self or `core:member:update`. Stores the (browser-cropped) picture in `PUBLIC_BUCKETS_MEMBERS` under `public/{studentId}/profile-picture/` and sets/clears `members.picture_path`, deleting the replaced picture if this service stored it. `members.NewService` takes the storage backend and bucket now.
 - `PATCH /members/{studentId}/language` (`{"language": "sv"|"en"}`).
-- `GET /me` returns `member` (the signed-in member's own profile fields, `null` when anonymous) instead of the flat `givenName`/`familyName`/`classYear`/... fields.
+- `GET /me` returns `member` (the signed-in member's own profile fields, `null` when anonymous) instead of the flat `givenName`/`familyName`/`classYear`/... fields. Unset member fields are omitted (Phase 16).
 - Plain (non-huma) handlers: `GET /calendar/events.ics`, `GET /calendar/nollning.ics` (`events.Service.CalendarICS`), `GET /alarm` (`"true"`/`"false"`), `GET /files/miscellaneous/{name}` (signed-in members, raw bytes, `documents.Service.GetMisc`). Kept under their own prefixes so they can't shadow an event slug.
 - `GET /events/by-id/{id}` (`{slug}`, backfilling a missing slug) and `GET /readmes/{year}/{number}` (`internal/readme`).
 - CORS now allows `PUT`.
 - `storage.ErrNotFound` from `Backend.Get` for a missing key.
+
+### Phase 16 (type tightening) notes
+
+- Regenerate the frontend's types with `pnpm generate:api` from the repo root while this backend runs (`dev/generate_api_types.ts`; defaults to `http://localhost:8090/openapi.json`). It maps `format: binary` to `Blob`, so huma `FormFile` fields are typed as files - send them with `...multipart` from `$lib/api/client.ts`.
+- Unset fields are omitted, never `null`, everywhere the frontend reads them: keep new DTO pointer fields `omitempty`. Search hits drop null fields in `toHit` for the same reason.
 

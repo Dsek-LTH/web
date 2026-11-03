@@ -29,7 +29,7 @@ export const scheduleLoad = async (event: PageServerLoadEvent) => {
     if (scheduleRes.response.status === 403) {
       error(403, { message: m.cafe_error_no_week_viewing_perms() });
     }
-    error((scheduleRes.response.status as NumericRange<400, 599>) ?? 500, {
+    error(scheduleRes.response.status as NumericRange<400, 599>, {
       message: "Failed to load cafe schedule",
     });
   }

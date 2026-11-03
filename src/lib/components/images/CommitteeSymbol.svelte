@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { components } from "$lib/api/schema";
   import { getFileUrl } from "$lib/files/client";
   import { cn } from "$lib/utils";
 
@@ -11,16 +12,10 @@
     size = "default",
     class: klass,
   }: {
-    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) -
-    // pure type widening, no conversion logic. Still-Prisma consumers:
-    // PositionCard, contact/+page.svelte. Narrow to `string | undefined`
-    // once those are ported (or their call sites coerce null->undefined
-    // themselves).
-    committee?: {
-      symbolUrl?: string | null;
-      shortName?: string | null;
-      name: string;
-    };
+    committee?: Pick<
+      components["schemas"]["Committee"],
+      "symbolUrl" | "shortName" | "name"
+    >;
     size?: "default" | "sm";
     class?: string;
   } = $props();

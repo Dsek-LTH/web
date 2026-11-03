@@ -4,8 +4,7 @@
 
   const {
     members,
-  }: { members: Array<MemberNames & { picturePath: string | null }> } =
-    $props();
+  }: { members: Array<MemberNames & { picturePath?: string }> } = $props();
 </script>
 
 {#if members.length === 1}

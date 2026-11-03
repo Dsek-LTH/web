@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { components } from "$lib/api/schema";
   import * as Avatar from "$lib/components/ui/avatar";
   import { getInitials, type MemberNames } from "$lib/utils/client/member";
 
@@ -7,10 +8,7 @@
     class: klass,
     lazy,
   }: {
-    // TEMPORARY dual-shape (Prisma `| null` + Go `| undefined`) - see the
-    // comment on MemberNames in $lib/utils/client/member.ts for why and
-    // when to narrow this back to Go-only.
-    member: MemberNames & { picturePath?: string | null | undefined };
+    member: MemberNames & Pick<components["schemas"]["Member"], "picturePath">;
     class?: string;
     lazy?: boolean;
   } = $props();

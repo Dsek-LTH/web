@@ -150,10 +150,11 @@ func (s *Service) Search(ctx context.Context, q Query) ([]Hit, error) {
 }
 
 // toHit shapes one raw Meilisearch hit the way the old /api/search did:
-// for English, every fooEn field is also exposed as foo; every string
-// that isn't used as a link is cut to truncateAt characters. Meilisearch's
-// own underscore-prefixed fields are dropped, apart from reading the
-// index name out of _federation.
+// for English, every fooEn field that is set is also exposed as foo; every
+// string that isn't used as a link is cut to truncateAt characters.
+// Meilisearch's own underscore-prefixed fields are dropped, apart from
+// reading the index name out of _federation, and so are null fields (at
+// any depth), so an unset field is absent like everywhere else in the API.
 func toHit(raw map[string]any, lang string) Hit {
 	var index string
 	if fed, ok := raw["_federation"].(map[string]any); ok {
@@ -167,17 +168,30 @@ func toHit(raw map[string]any, lang string) Hit {
 	}
 	if lang == "en" {
 		for key, value := range raw {
-			if base, ok := strings.CutSuffix(key, "En"); ok && base != "" {
+			if base, ok := strings.CutSuffix(key, "En"); ok && base != "" && value != nil {
 				data[base] = value
 			}
 		}
 	}
+	dropNulls(data)
 	for key, value := range data {
 		if str, ok := value.(string); ok && !linkAttributes[key] {
 			data[key] = truncate(str, truncateAt)
 		}
 	}
 	return Hit{Type: index, Data: data}
+}
+
+// dropNulls removes null fields from m and from any objects nested in it.
+func dropNulls(m map[string]any) {
+	for key, value := range m {
+		switch v := value.(type) {
+		case nil:
+			delete(m, key)
+		case map[string]any:
+			dropNulls(v)
+		}
+	}
 }
 
 func truncate(s string, n int) string {

@@ -13,7 +13,7 @@
       checked: boolean;
       title: string;
       value: string;
-      color?: string | null;
+      color?: string;
     }>;
     name: string;
   } = $props();
@@ -37,7 +37,7 @@
     <div class="flex w-full flex-1 flex-col gap-2 overflow-scroll px-4">
       {#each selected as selectedItem, i (`selected-${i}`)}
         <div class="flex flex-row items-center justify-between gap-2">
-          <Badge color={selectedItem.color ?? undefined}>
+          <Badge color={selectedItem.color}>
             {selectedItem.title}
           </Badge>
           <Button.Root
@@ -77,7 +77,7 @@
             <ArrowLeft />
           </Button.Root>
 
-          <Badge color={unSelectedItem.color ?? undefined}>
+          <Badge color={unSelectedItem.color}>
             {unSelectedItem.title}
           </Badge>
         </div>

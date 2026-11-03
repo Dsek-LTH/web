@@ -11,7 +11,7 @@
   import Trash from "@lucide/svelte/icons/trash";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
-  import { api } from "$lib/api/client";
+  import { api, multipart } from "$lib/api/client";
   import { invalidateAll } from "$app/navigation";
   import { toast } from "$lib/stores/toast";
 
@@ -99,11 +99,13 @@
     if (!image || !member.studentId) return;
     uploading = true;
     try {
-      const form = new FormData();
-      form.append("image", await croppedPicture(image), "picture.webp");
+      const picture = new File([await croppedPicture(image)], "picture.webp", {
+        type: "image/webp",
+      });
       const res = await api.PUT("/members/{studentId}/picture", {
         params: { path: { studentId: member.studentId } },
-        body: form as unknown as { image: string },
+        body: { image: picture },
+        ...multipart,
       });
       if (res.error) {
         uploadError = `${m.members_errors_couldntUploadFile()}: ${res.error.detail ?? res.response.statusText}`;

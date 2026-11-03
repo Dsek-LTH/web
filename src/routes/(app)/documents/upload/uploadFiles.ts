@@ -1,4 +1,4 @@
-import { api } from "$lib/api/client";
+import { api, multipart } from "$lib/api/client";
 import type { UploadSchema } from "./types";
 
 // Forwards to the Go backend (backend/internal/documents.Service.Upload)
@@ -9,21 +9,9 @@ import type { UploadSchema } from "./types";
 export const uploadDocumentsFile = async (data: UploadSchema) => {
   const { folder, name, year, type, file } = data;
 
-  const form = new FormData();
-  form.append("type", type);
-  form.append("year", String(year));
-  form.append("folder", folder);
-  form.append("name", name);
-  form.append("file", file);
-
   const res = await api.POST("/documents/upload", {
-    body: form as unknown as {
-      type: string;
-      year: number;
-      folder: string;
-      name: string;
-      file: string;
-    },
+    body: { type, year, folder, name, file },
+    ...multipart,
   });
   if (res.error) throw new Error("Failed to upload document");
 };

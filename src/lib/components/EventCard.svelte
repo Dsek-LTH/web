@@ -32,7 +32,7 @@
       >
         <div class="absolute inset-0" aria-hidden="true">
           <CommitteePlaceholder
-            committee={event.committee ?? null}
+            committee={event.committee}
             class="absolute inset-0"
           />
         </div>

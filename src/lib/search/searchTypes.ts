@@ -3,8 +3,9 @@
  * indexes, their settings and the rebuild) lives in the Go backend's
  * internal/search; it returns `{ type, data }` hits whose `data` is the
  * stored document with long strings cut to 60 characters. Go types `data`
- * as an untyped object, so these describe what each index stores. For
- * English, every `fooEn` field is also exposed as `foo`.
+ * as an untyped object, so these describe what each index stores. Unset
+ * fields are left out (Go drops nulls). For English, every set `fooEn`
+ * field is also exposed as `foo`.
  */
 
 export const availableSearchIndexes = [
@@ -23,76 +24,76 @@ export type MemberSearchReturnAttributes = {
   /** The Meilisearch document id - see searchHelpers' searchDocumentId. */
   id?: string;
   fullName: string;
-  firstName: string | null;
-  lastName: string | null;
-  nickname: string | null;
-  studentId: string | null;
-  picturePath: string | null;
-  classYear: number | null;
-  classProgramme: string | null;
+  firstName?: string;
+  lastName?: string;
+  nickname?: string;
+  studentId?: string;
+  picturePath?: string;
+  classYear?: number;
+  classProgramme?: string;
 };
 
 export type EventSearchReturnAttributes = {
   titleSv: string;
-  titleEn: string | null;
+  titleEn?: string;
   descriptionSv: string;
-  descriptionEn: string | null;
-  slug: string | null;
-  location: string | null;
+  descriptionEn?: string;
+  slug?: string;
+  location?: string;
   startDatetime: string;
   endDatetime: string;
 };
 
 export type ArticleSearchReturnAttributes = {
   headerSv: string;
-  headerEn: string | null;
+  headerEn?: string;
   bodySv: string;
-  bodyEn: string | null;
+  bodyEn?: string;
   slug: string;
   publishedAt: string;
   author: {
-    firstName: string | null;
-    lastName: string | null;
-    nickname: string | null;
-    picturePath: string | null;
+    firstName?: string;
+    lastName?: string;
+    nickname?: string;
+    picturePath?: string;
   };
 };
 
 export type PositionSearchReturnAttributes = {
   dsekId: string;
   nameSv: string;
-  nameEn: string | null;
-  descriptionSv: string | null;
-  descriptionEn: string | null;
+  nameEn?: string;
+  descriptionSv?: string;
+  descriptionEn?: string;
   committeeNameSv: string;
   committeeNameEn: string;
-  committee: {
+  committee?: {
     id: string;
-    shortName: string | null;
+    shortName?: string;
     nameSv: string;
-    nameEn: string | null;
-    darkImageUrl: string | null;
-    lightImageUrl: string | null;
-    monoImageUrl: string | null;
-  } | null;
+    nameEn?: string;
+    darkImageUrl?: string;
+    lightImageUrl?: string;
+    monoImageUrl?: string;
+  };
 };
 
 export type CommitteeSearchReturnAttributes = {
-  shortName: string | null;
+  shortName?: string;
   nameSv: string;
-  nameEn: string | null;
-  descriptionSv: string | null;
-  descriptionEn: string | null;
-  darkImageUrl: string | null;
-  lightImageUrl: string | null;
-  monoImageUrl: string | null;
+  nameEn?: string;
+  descriptionSv?: string;
+  descriptionEn?: string;
+  darkImageUrl?: string;
+  lightImageUrl?: string;
+  monoImageUrl?: string;
 };
 
 export type SongSearchReturnAttributes = {
   title: string;
   lyrics: string;
-  melody: string | null;
-  category: string | null;
+  melody?: string;
+  category?: string;
   slug: string;
 };
 

@@ -5,21 +5,21 @@ import type { BookingCalendarEvent, BookingStatus } from "./eventTypes";
 
 type BookingSource = {
   id: string;
-  event: string | null;
+  event?: string;
   status: BookingStatus;
-  start: Date | string | null;
-  end: Date | string | null;
+  start?: Date | string;
+  end?: Date | string;
   bookables: Array<{
-    name?: string | null;
-    nameSv?: string | null;
-    nameEn?: string | null;
+    name?: string;
+    nameSv?: string;
+    nameEn?: string;
   }>;
-  booker: {
-    firstName?: string | null;
-    lastName?: string | null;
-    studentId?: string | null;
-    picturePath?: string | null;
-  } | null;
+  booker?: {
+    firstName?: string;
+    lastName?: string;
+    studentId?: string;
+    picturePath?: string;
+  };
 };
 
 export const toStockholmTime = (date: Date | string) =>

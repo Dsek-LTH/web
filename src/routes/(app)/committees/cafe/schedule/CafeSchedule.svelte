@@ -141,13 +141,13 @@
     worker: components["schemas"]["Member"],
   ): Member => ({
     id: worker.id,
-    firstName: worker.firstName ?? null,
-    lastName: worker.lastName ?? null,
-    nickname: worker.nickname ?? null,
-    studentId: worker.studentId ?? null,
-    picturePath: worker.picturePath ?? null,
-    classYear: worker.classYear ?? null,
-    classProgramme: worker.classProgramme ?? null,
+    firstName: worker.firstName,
+    lastName: worker.lastName,
+    nickname: worker.nickname,
+    studentId: worker.studentId,
+    picturePath: worker.picturePath,
+    classYear: worker.classYear,
+    classProgramme: worker.classProgramme,
   });
 
   let memberMap: Record<string, Member | undefined> = $state({});

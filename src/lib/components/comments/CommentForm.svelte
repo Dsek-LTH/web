@@ -20,7 +20,7 @@
     commentForm,
     mentionRequest = null,
   }: {
-    author: MemberNames & { picturePath?: string | null };
+    author: MemberNames & { picturePath?: string };
     commentForm: SuperValidated<CommentSchema>;
     mentionRequest?: MentionRequest | null;
   } = $props();

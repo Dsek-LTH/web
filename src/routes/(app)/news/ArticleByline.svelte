@@ -8,11 +8,11 @@
 
   let {
     author,
-    committee = null,
+    committee,
     links = true,
   }: {
     author: ArticleAuthorSummary;
-    committee?: ArticleCommitteeSummary | null;
+    committee?: ArticleCommitteeSummary;
     links?: boolean;
   } = $props();
 </script>

@@ -20,11 +20,11 @@ export const loadRoster = async (event: RequestEvent, releaseId: string) => {
       entry.firstName || entry.lastName
         ? {
             studentId: entry.studentId,
-            firstName: entry.firstName ?? null,
-            lastName: entry.lastName ?? null,
-            nickname: entry.nickname ?? null,
-            picturePath: entry.picturePath ?? null,
-            foodPreference: entry.foodPreference ?? null,
+            firstName: entry.firstName,
+            lastName: entry.lastName,
+            nickname: entry.nickname,
+            picturePath: entry.picturePath,
+            foodPreference: entry.foodPreference,
           }
         : null,
   }));

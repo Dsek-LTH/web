@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { components } from "$lib/api/schema";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { Badge } from "$lib/components/ui/badge";
   import { getBadgeVariantFromProgramme } from "$lib/components/ui/badge/badge.svelte";
@@ -17,21 +18,17 @@
     children = undefined,
   }: {
     class?: string;
-    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) - pure
-    // type widening, no conversion logic. Still-Prisma consumers:
-    // MemberSelector.svelte, MembersList.svelte. Narrow to
-    // `string | undefined` once those are ported too - see
-    // CommitteeSymbol's identical note.
-    member: {
-      firstName?: string | null;
-      lastName?: string | null;
-      nickname?: string | null;
-      studentId?: string | null;
-      picturePath?: string | null;
-      classProgramme?: string | null;
-      classYear?: number | null;
-    };
-    type?: "Member" | "Mandate" | "Custom";
+    member: Pick<
+      components["schemas"]["Member"],
+      | "firstName"
+      | "lastName"
+      | "nickname"
+      | "studentId"
+      | "picturePath"
+      | "classProgramme"
+      | "classYear"
+    >;
+    type?: components["schemas"]["Author"]["type"];
     links?: boolean;
     showId?: boolean;
     nickname?: boolean;
@@ -83,7 +80,7 @@
     <div class="ml-0 shrink-0 gap-2">
       <Badge
         class="shrink-0"
-        variant={getBadgeVariantFromProgramme(member.classProgramme ?? null)}
+        variant={getBadgeVariantFromProgramme(member.classProgramme)}
       >
         {`${member.classProgramme}${member.classYear?.toString().slice(2)}`}
       </Badge>

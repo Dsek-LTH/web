@@ -42,7 +42,7 @@
 >
   <div class="absolute inset-0" aria-hidden="true">
     <CommitteePlaceholder
-      committee={article.committee ?? null}
+      committee={article.committee}
       class="absolute inset-0"
     />
   </div>
@@ -79,7 +79,7 @@
   {/if}
   {#if coverReady}
     <div class="absolute top-2 right-2 size-14 p-3">
-      <CommitteeSymbol committee={article.committee ?? undefined} class="h-8" />
+      <CommitteeSymbol committee={article.committee} class="h-8" />
     </div>
     <div
       class="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black/95 via-black/60 to-transparent"

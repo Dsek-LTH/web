@@ -67,20 +67,18 @@
     <Event
       event={{
         title: localized($form.titleSv, $form.titleEn ?? undefined),
-        shortDescription: localized(
-          $form.shortDescriptionSv,
-          $form.shortDescriptionEn,
-        ),
+        shortDescription:
+          localized($form.shortDescriptionSv, $form.shortDescriptionEn) ??
+          undefined,
         description: localized($form.descriptionSv, $form.descriptionEn ?? ""),
-        imageUrl: uploadedImageUrl ?? $form.imageUrl,
-        location: $form.location,
-        link: $form.link,
+        imageUrl: uploadedImageUrl ?? $form.imageUrl ?? undefined,
+        location: $form.location ?? undefined,
+        link: $form.link ?? undefined,
         organizer: $form.organizer,
-        committee:
-          committees.find(({ id }) => id === $form.committeeId) ?? null,
+        committee: committees.find(({ id }) => id === $form.committeeId),
         startAt: $form.startDatetime,
         endAt: $form.endDatetime,
-        isCancelled: $form.isCancelled,
+        isCancelled: $form.isCancelled ?? undefined,
         tags: allTags.filter((tag) => selectedTagIds.includes(tag.id)),
       }}
     />

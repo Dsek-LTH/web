@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { components } from "$lib/api/schema";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
 
@@ -8,18 +9,11 @@
     imageOverride,
     children,
   }: {
-    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) -
-    // pure type widening, no conversion logic. Still-Prisma consumers:
-    // committees/+layout.svelte, about/+page.svelte. Narrow to
-    // `string | undefined` once those are ported (or their call sites
-    // coerce null->undefined themselves).
     committee:
-      | {
-          shortName?: string | null;
-          symbolUrl?: string | null;
-          name: string;
-        }
-      | null
+      | Pick<
+          components["schemas"]["Committee"],
+          "shortName" | "symbolUrl" | "name"
+        >
       | undefined;
     class?: string;
     /** An image url to use instead of a committee*/

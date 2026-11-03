@@ -135,7 +135,8 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
         transformPageChunk: ({ html }) => {
           return html.replace(
             "%lang%",
-            (event.locals.member?.language as "sv" | "en") ?? locale,
+            (event.locals.member?.language as "sv" | "en" | undefined) ??
+              locale,
           );
         },
       });

@@ -5,7 +5,6 @@ const member = {
   studentId: "ad1234lo-s",
   firstName: "Ada",
   lastName: "Lovelace",
-  nickname: null,
 };
 
 describe("replaceCommentTags", () => {

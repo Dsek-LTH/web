@@ -2542,6 +2542,46 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     gone. Phase 15's marker sweep finds the commented ones; this phase
     also covers the uncommented ones (search for `| null | undefined`,
     `as unknown as`, `Partial<`, and `Pick<` over two types).
+    **Status: done (2026-11-03).** The rule applied throughout: Go omits
+    an unset field (`undefined`), so a type describing Go data is the
+    generated `components["schemas"][...]` (or a `Pick` of it) with no
+    `| null`. The exception is Go slices, which marshal as `null` when
+    empty (`imageUrls`, `tags`) - those stay `| null` until phase 17
+    decides whether Go should send `[]`. Form values are a different
+    thing: the zod schemas use `.nullable()`, so `?? undefined` at the
+    form-to-API or form-to-preview boundary is a real conversion and stays.
+    - The nine `TEMPORARY dual-shape` props (`MemberCard`, `MembersList`,
+      `MemberAvatar`, `ProgrammeBadge`, `CommitteeIcon`,
+      `CommitteePlaceholder`, `CommitteeSymbol`, `PositionCard`,
+      `MemberNames`) are now `Pick`s of the generated types, comments
+      removed.
+    - Uncommented widenings, found by narrowing and letting svelte-check
+      point at every caller still producing `null`: `?? null` conversions
+      of Go data (bookings, cafe schedule, ticket roster, news preview,
+      member profile, contact), Prisma-era view types (`news/types.ts`,
+      `bookings/mappers.ts`, `Event.svelte`, `MonthCalendar`,
+      `ArticleByline`, `HomeCalendar`, `DualSelect`, the settings page's
+      tag list), and test fixtures written in Prisma's shape.
+    - Redundant coalescings found with typescript-eslint's
+      `no-unnecessary-condition` (run once with a throwaway type-aware
+      config - the project's lint config isn't type-aware). One was a real
+      bug: `hooks.server.ts` cast `member?.language` to `"sv" | "en"`,
+      hiding that it can be unset.
+    - Go side: `/me`'s member fields are `omitempty` like the rest of the
+      API, and search hits drop null fields (at any depth). The latter
+      also fixes a bug: for English, an unset `fooEn` overwrote `foo` with
+      null, so an article without an English header came back without a
+      header at all. Tested in `search_test.go`.
+    - Uploads: `pnpm generate:api` (`dev/generate_api_types.ts`, new -
+      there was no committed way to regenerate `schema.d.ts`) maps
+      `format: binary` to `Blob`, and `multipart` in `$lib/api/client.ts`
+      serialises a typed body as FormData. That removed every
+      `form as unknown as {...}` cast on the five upload endpoints.
+      Verified with a browser upload and a server-side action upload.
+    - Left as they are, deliberately: superforms' generic casts
+      (`superform as unknown as SuperForm<...>`, a library typing issue,
+      not rewrite widening), and search hits' `data` (typed `unknown` by
+      Go - typing it per index belongs to phase 17's API pass).
 17. **API naming and documentation** (added 2026-11-03, at the user's
     request) - make the Go API consistent and well documented now that it
     is complete:

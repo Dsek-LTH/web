@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { components } from "$lib/api/schema";
   import { Badge } from "$lib/components/ui/badge";
   import type { BadgeSize } from "$lib/components/ui/badge/badge.svelte";
 
@@ -7,15 +8,10 @@
     size,
     class: klass,
   }: {
-    // TEMPORARY dual-shape (Prisma `| null` vs Go API `| undefined`) - pure
-    // type widening, no conversion logic. Still-Prisma consumers:
-    // Mandate.svelte (committees position page). Narrow to
-    // `string | undefined` once that's ported too - see CommitteeSymbol's
-    // identical note.
-    member: {
-      classProgramme?: string | null;
-      classYear?: number | null;
-    };
+    member: Pick<
+      components["schemas"]["Member"],
+      "classProgramme" | "classYear"
+    >;
     size?: BadgeSize;
     class?: string;
   } = $props();

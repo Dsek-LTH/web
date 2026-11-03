@@ -19,12 +19,12 @@ export type AuthUser = {
 export type SignedInMember = {
   id: string;
   studentId: string;
-  firstName: string | null;
-  nickname: string | null;
-  lastName: string | null;
-  email: string | null;
-  picturePath: string | null;
-  classProgramme: string | null;
-  classYear: number | null;
-  language: string | null;
+  firstName?: string;
+  nickname?: string;
+  lastName?: string;
+  email?: string;
+  picturePath?: string;
+  classProgramme?: string;
+  classYear?: number;
+  language?: string;
 };

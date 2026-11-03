@@ -56,3 +56,23 @@ api.use({
     return request;
   },
 });
+
+/**
+ * Request options for a multipart (file upload) endpoint: pass the body as
+ * a plain object, typed by the generated schema, and it is sent as
+ * FormData. Arrays become repeated fields.
+ *
+ *   api.POST("/uploads", { body: { file }, ...multipart })
+ */
+export const multipart = {
+  bodySerializer(body: object | undefined) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(body ?? {})) {
+      for (const item of Array.isArray(value) ? value : [value]) {
+        if (item === undefined || item === null) continue;
+        form.append(key, item instanceof Blob ? item : String(item));
+      }
+    }
+    return form;
+  },
+};

@@ -93,14 +93,7 @@
             <Table.Row>
               <Table.Cell>
                 <div class="flex items-center gap-3">
-                  <MemberAvatar
-                    class="h-8 w-8"
-                    member={entry.member ?? {
-                      picturePath: null,
-                      firstName: null,
-                      lastName: null,
-                    }}
-                  />
+                  <MemberAvatar class="h-8 w-8" member={entry.member ?? {}} />
                   <span class="font-medium">
                     {entry.member ? getFullName(entry.member) : entry.memberId}
                   </span>

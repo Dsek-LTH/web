@@ -41,12 +41,12 @@
   {/if}
 
   <div class="w-5/12 self-center text-center">
-    <CommitteeIcon committee={election.committee ?? null} />
+    <CommitteeIcon committee={election.committee} />
   </div>
 
   <h3 class="text-center">
     <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
-    {@html breakName(election.committee?.name ?? "")}
+    {@html breakName(election.committee.name)}
   </h3>
 
   <MarkdownBody class="self-start" body={election.markdown} />

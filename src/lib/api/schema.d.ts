@@ -3828,7 +3828,7 @@ export interface operations {
       content: {
         "multipart/form-data": {
           /** Format: binary */
-          file: string;
+          file: Blob;
           /** @description defaults to a random name if omitted */
           name: string;
           prefix: string;
@@ -5299,7 +5299,7 @@ export interface operations {
       content: {
         "multipart/form-data": {
           /** Format: binary */
-          file: string;
+          file: Blob;
           folder: string;
           name: string;
           /** @description one of meeting, srd, requirement */
@@ -5963,7 +5963,7 @@ export interface operations {
       content: {
         "multipart/form-data": {
           date: string;
-          files: string[];
+          files: Blob[];
           name: string;
         };
       };
@@ -6869,7 +6869,7 @@ export interface operations {
       content: {
         "multipart/form-data": {
           /** Format: binary */
-          image: string;
+          image: Blob;
         };
       };
     };
@@ -8725,7 +8725,7 @@ export interface operations {
       content: {
         "multipart/form-data": {
           /** Format: binary */
-          file: string;
+          file: Blob;
         };
       };
     };

@@ -13,7 +13,7 @@
       startDate: Date;
       endDate: Date;
       title: string;
-      slug: string | null;
+      slug?: string;
     }>;
   } = $props();
 

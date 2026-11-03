@@ -11,7 +11,7 @@ const now = new Date("2026-03-04T10:00:00Z");
 
 const tags = [
   { id: "tag-1", nameSv: "Nollning", nameEn: "Orientation", color: "#fff" },
-  { id: "tag-2", nameSv: "Sektionen", nameEn: null, color: null },
+  { id: "tag-2", nameSv: "Sektionen" },
 ];
 
 const committees = [
@@ -91,9 +91,9 @@ describe("buildArticlePreview", () => {
       imageUrls: [],
       tags: [
         { id: "tag-1", name: "Orientation", color: "#fff" },
-        { id: "tag-2", name: "Sektionen", color: null },
+        { id: "tag-2", name: "Sektionen", color: undefined },
       ],
-      youtubeUrl: null,
+      youtubeUrl: undefined,
     });
     expect(preview.committee?.name).toBe("The Study Council");
   });
@@ -148,7 +148,7 @@ describe("buildArticlePreview", () => {
     expect(preview.article.tags).toEqual([]);
   });
 
-  it("returns a null committee when none is selected or it is missing", () => {
+  it("returns no committee when none is selected or it is missing", () => {
     const withoutSelection = buildArticlePreview({
       form: { ...baseForm, committeeId: null },
       tags,
@@ -166,8 +166,8 @@ describe("buildArticlePreview", () => {
       now,
     });
 
-    expect(withoutSelection.committee).toBeNull();
-    expect(withMissingCommittee.committee).toBeNull();
+    expect(withoutSelection.committee).toBeUndefined();
+    expect(withMissingCommittee.committee).toBeUndefined();
   });
 
   it("previews uploaded images and uses the first as cover when creating", () => {

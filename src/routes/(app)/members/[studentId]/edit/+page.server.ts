@@ -111,7 +111,7 @@ export const actions: Actions = {
       return message(
         form,
         { message: m.members_errors_couldntFetchMember(), type: "error" },
-        { status: (res.response.status as NumericRange<400, 599>) ?? 500 },
+        { status: res.response.status as NumericRange<400, 599> },
       );
 
     await setNollningGroup(api, studentId, nollningGroupId ?? null);

@@ -15,7 +15,7 @@
   let items: Array<{
     title: string;
     checked: boolean;
-    color: string | null | undefined;
+    color?: string;
     value: string;
   }> = $derived(
     data.tags.map((tag) => ({
