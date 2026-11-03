@@ -651,7 +651,7 @@ model Member {
     classProgramme          String?                 @map("class_programme") @db.VarChar(255)
     classYear               Int?                    @map("class_year")
     graduationYear          Int?                    @map("graduation_year")
-    birthDate               DateTime?               @map("birth_date") @db.Date @allow("read", auth().memberId == id || has(auth().policies, "core:member:update"))
+    birthDate               DateTime?               @map("birth_date") @db.Date @allow("read", has(auth().policies, "member:user"))
     visible                 Boolean                 @default(true)
     foodPreference          String?                 @map("food_preference") @db.VarChar(255) @allow("read", (auth().memberId == id) || (has(auth().policies, "webshop:manage")) || has(auth().policies, "core:member:update"))
     language                String?                 @map("language") @db.VarChar(255)

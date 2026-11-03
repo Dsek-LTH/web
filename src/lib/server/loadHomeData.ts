@@ -10,7 +10,6 @@ import * as m from "$paraglide/messages";
 import { pingUri } from "minecraft-server-ping";
 import { wikiDataCache } from "./wiki/wiki";
 import dayjs from "dayjs";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { isBirthdayOn } from "$lib/utils/birthdays";
 
 type Fetch = typeof fetch;
@@ -175,7 +174,7 @@ export const loadHomeData = async ({
 
   // BIRTHDAYS
   const birthdaysPromise = locals.user?.memberId
-    ? authorizedPrismaClient.member
+    ? prisma.member
         .findMany({
           where: { birthDate: { not: null }, visible: true },
           select: {

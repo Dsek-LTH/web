@@ -26,7 +26,6 @@ import { deletePictureSchema, uploadPictureSchema } from "./types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
 import DOMPurify from "isomorphic-dompurify";
 import { formatBirthday, isBirthdayOn } from "$lib/utils/birthdays";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
@@ -104,15 +103,8 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
 
   const member = memberResult.value;
 
-  // Read the date directly so profiles can show month/day without exposing the year.
-  const birthDate = locals.user?.memberId
-    ? (
-        await authorizedPrismaClient.member.findUnique({
-          where: { studentId },
-          select: { birthDate: true },
-        })
-      )?.birthDate
-    : null;
+  // The field policy limits birthDate reads to signed-in members.
+  const birthDate = member.birthDate;
   const birthday = birthDate ? formatBirthday(birthDate, getLocale()) : null;
   const birthdayToday = isBirthdayOn(birthDate, new Date());
 
