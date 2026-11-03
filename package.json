@@ -39,11 +39,11 @@
     "config": "src/database/seed/seed.config.ts"
   },
   "devDependencies": {
-    "@clack/prompts": "^0.8.2",
+    "@clack/prompts": "^1.8.1",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.8.1",
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^9.39.5",
-    "@faker-js/faker": "^9.3.0",
+    "@faker-js/faker": "^10.6.0",
     "@inlang/paraglide-js": "^2.29.3",
     "@internationalized/date": "^3.12.4",
     "@lucide/svelte": "^1.66.0",
@@ -88,7 +88,7 @@
     "typescript": "^5.9.3",
     "vaul-svelte": "1.0.0-next.7",
     "vite": "^7.3.7",
-    "vite-node": "^5.3.0",
+    "vite-node": "^6.0.0",
     "vitest": "^4.1.12",
     "vitest-mock-extended": "^2.0.2",
     "zenstack": "^2.10.0",

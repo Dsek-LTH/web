@@ -318,7 +318,7 @@ export const models: SeedClientOptions["models"] = {
     data: {
       nameSv: () => faker.lorem.word(),
       nameEn: () => faker.lorem.word(),
-      color: () => faker.internet.color(),
+      color: () => faker.color.rgb(),
     },
   },
   readme: {
