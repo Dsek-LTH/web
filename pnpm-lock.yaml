@@ -175,10 +175,10 @@ importers:
     dependencies:
       '@auth/core':
         specifier: ^0.41.3
-        version: 0.41.3(nodemailer@6.9.16)
+        version: 0.41.3(nodemailer@10.3.1)
       '@auth/sveltekit':
         specifier: ^1.11.3
-        version: 1.11.3(@sveltejs/kit@2.63.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@5.0.1(supports-color@10.2.2)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@5.9.3)(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(nodemailer@6.9.16)(svelte@5.57.3(@typescript-eslint/types@8.72.1))
+        version: 1.11.3(@sveltejs/kit@2.63.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@5.0.1(supports-color@10.2.2)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@5.9.3)(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(nodemailer@10.3.1)(svelte@5.57.3(@typescript-eslint/types@8.72.1))
       '@opentelemetry/auto-instrumentations-node':
         specifier: ^0.67.3
         version: 0.67.3(@opentelemetry/api@1.9.1)(@opentelemetry/core@2.3.0(@opentelemetry/api@1.9.1))(supports-color@10.2.2)
@@ -264,8 +264,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.57.3(@typescript-eslint/types@8.72.1))
       nodemailer:
-        specifier: ^6.9.16
-        version: 6.9.16
+        specifier: ^10.3.1
+        version: 10.3.1
       preact:
         specifier: ^10.29.0
         version: 10.29.0
@@ -346,8 +346,8 @@ importers:
         specifier: ^24.19.2
         version: 24.19.2
       '@types/nodemailer':
-        specifier: ^6.4.17
-        version: 6.4.17
+        specifier: ^8.0.2
+        version: 8.0.2
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.72.1
         version: 8.72.1(@typescript-eslint/parser@8.72.1(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
@@ -2280,8 +2280,8 @@ packages:
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
 
-  '@types/nodemailer@6.4.17':
-    resolution: {integrity: sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==}
+  '@types/nodemailer@8.0.2':
+    resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
 
   '@types/oracledb@6.5.2':
     resolution: {integrity: sha512-kK1eBS/Adeyis+3OlBDMeQQuasIDLUYXsi2T15ccNJ0iyUpQ4xDF7svFu3+bGVrI0CMBUclPciz+lsQR3JX3TQ==}
@@ -4289,9 +4289,9 @@ packages:
       encoding:
         optional: true
 
-  nodemailer@6.9.16:
-    resolution: {integrity: sha512-psAuZdTIRN08HKVd/E8ObdV6NO7NTBY3KsC30F7M4H1OnmLCUNaS56FpYxyb26zWLSyYF9Ozch9KYHhHegsiOQ==}
-    engines: {node: '>=6.0.0'}
+  nodemailer@10.3.1:
+    resolution: {integrity: sha512-uF0AFsJC07Y1vdW7p580DKAnh7rAO+4UPSSB3mDCPNDufoiaOebV6JmrzpxB14OjEEEiBsNdYoM2Y+fN8M7BBA==}
+    engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -5850,7 +5850,7 @@ snapshots:
   '@ark/util@0.56.8':
     optional: true
 
-  '@auth/core@0.41.3(nodemailer@6.9.16)':
+  '@auth/core@0.41.3(nodemailer@10.3.1)':
     dependencies:
       '@panva/hkdf': 1.2.1
       jose: 6.0.12
@@ -5858,16 +5858,16 @@ snapshots:
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
     optionalDependencies:
-      nodemailer: 6.9.16
+      nodemailer: 10.3.1
 
-  '@auth/sveltekit@1.11.3(@sveltejs/kit@2.63.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@5.0.1(supports-color@10.2.2)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@5.9.3)(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(nodemailer@6.9.16)(svelte@5.57.3(@typescript-eslint/types@8.72.1))':
+  '@auth/sveltekit@1.11.3(@sveltejs/kit@2.63.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@5.0.1(supports-color@10.2.2)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@5.9.3)(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(nodemailer@10.3.1)(svelte@5.57.3(@typescript-eslint/types@8.72.1))':
     dependencies:
-      '@auth/core': 0.41.3(nodemailer@6.9.16)
+      '@auth/core': 0.41.3(nodemailer@10.3.1)
       '@sveltejs/kit': 2.63.1(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@5.0.1(supports-color@10.2.2)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@5.9.3)(vite@7.3.7(@types/node@24.19.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.6.1))
       set-cookie-parser: 2.7.1
       svelte: 5.57.3(@typescript-eslint/types@8.72.1)
     optionalDependencies:
-      nodemailer: 6.9.16
+      nodemailer: 10.3.1
 
   '@babel/runtime@7.28.4':
     optional: true
@@ -7852,7 +7852,7 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
-  '@types/nodemailer@6.4.17':
+  '@types/nodemailer@8.0.2':
     dependencies:
       '@types/node': 24.19.2
 
@@ -10053,7 +10053,7 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
-  nodemailer@6.9.16: {}
+  nodemailer@10.3.1: {}
 
   normalize-path@3.0.0: {}
 
