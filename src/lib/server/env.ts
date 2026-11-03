@@ -28,10 +28,10 @@ const envSpec = {
   MEILISEARCH_MASTER_KEY: { feature: "search" },
   POPPLER_SERVER_URL: { feature: "search in documents" },
 
-  SHLINK_ENDPOINT: { feature: "link shortener" },
+  SHLINK_ENDPOINT: { default: "https://link.dsek.se" },
   SHLINK_API_KEY: { feature: "link shortener" },
 
-  MEDIAWIKI_ENDPOINT: { feature: "wiki" },
+  MEDIAWIKI_ENDPOINT: { default: "https://dwiki.se/api.php" },
   MEDIAWIKI_USERNAME: { feature: "wiki" },
   MEDIAWIKI_PASSWORD: { feature: "wiki" },
 
@@ -39,7 +39,7 @@ const envSpec = {
   SCHEDULER_PASSWORD: { feature: "scheduled news" },
   TICKET_SERVICE_ENDPOINT: { feature: "tickets" },
   SYNC_PASSWORD: { feature: "search sync endpoint" },
-  MINECRAFT_URL: { feature: "minecraft status" },
+  MINECRAFT_URL: { default: "minecraft://minecraft.dsek.se" },
 
   ORIGIN: { default: "http://localhost:5173" },
   MOCK_IS_APP: {},

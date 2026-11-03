@@ -8,7 +8,9 @@ import { defineEnv, type EnvSpec } from "./define";
  */
 export const publicEnvSpec = {
   PUBLIC_AUTH_AUTHENTIK_ISSUER: { required: true },
-  PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT: { feature: "login" },
+  PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT: {
+    default: "https://auth.dsek.se/application/o/token/",
+  },
 
   PUBLIC_MINIO_BASE_URL: { feature: "file storage" },
   PUBLIC_BUCKETS_ALBUMS: { default: "albums" },

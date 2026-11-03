@@ -15,7 +15,7 @@ register(
 // This file runs before the SvelteKit server is initialized, when `$env/dynamic/*`
 // is still empty, so it has to read `process.env` directly.
 const sdk = new NodeSDK({
-  serviceName: process.env["PUBLIC_OTLP_SERVICE_NAME"],
+  serviceName: process.env["PUBLIC_OTLP_SERVICE_NAME"] || "dsek.se",
   traceExporter: new OTLPTraceExporter({
     url: process.env["PUBLIC_OTLP_TRACE_EXPORT_URL"],
   }),
