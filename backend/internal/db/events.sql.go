@@ -11,6 +11,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const anyAlarmActiveEventNow = `-- name: AnyAlarmActiveEventNow :one
+SELECT EXISTS (
+    SELECT 1 FROM events
+    WHERE alarm_active AND start_datetime <= now() AND end_datetime > now()
+)
+`
+
+func (q *Queries) AnyAlarmActiveEventNow(ctx context.Context) (bool, error) {
+	row := q.db.QueryRow(ctx, anyAlarmActiveEventNow)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const countEventSlugsWithPrefix = `-- name: CountEventSlugsWithPrefix :one
 SELECT count(*) FROM events WHERE slug LIKE $1 || '%'
 `
@@ -455,6 +469,25 @@ func (q *Queries) GetEventRowBySlug(ctx context.Context, slug pgtype.Text) (GetE
 	return i, err
 }
 
+const getEventSlugByID = `-- name: GetEventSlugByID :one
+SELECT id, slug, title_sv FROM events
+WHERE id = $1 AND (removed_at IS NULL OR removed_at > now())
+`
+
+type GetEventSlugByIDRow struct {
+	ID      pgtype.UUID `json:"id"`
+	Slug    pgtype.Text `json:"slug"`
+	TitleSv string      `json:"title_sv"`
+}
+
+// Non-removed only, like the event pages themselves.
+func (q *Queries) GetEventSlugByID(ctx context.Context, id pgtype.UUID) (GetEventSlugByIDRow, error) {
+	row := q.db.QueryRow(ctx, getEventSlugByID, id)
+	var i GetEventSlugByIDRow
+	err := row.Scan(&i.ID, &i.Slug, &i.TitleSv)
+	return i, err
+}
+
 const getRecurringEvent = `-- name: GetRecurringEvent :one
 SELECT id, separation_count, recurring_type, author_id, start_datetime, end_datetime
 FROM recurring_event
@@ -719,6 +752,90 @@ func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]ListE
 		return nil, err
 	}
 	return items, nil
+}
+
+const listEventsForCalendar = `-- name: ListEventsForCalendar :many
+SELECT id, title_sv, title_en, description_sv, description_en, location,
+    start_datetime, end_datetime, number_of_updates
+FROM events
+WHERE (removed_at IS NULL OR removed_at > now())
+  AND start_datetime >= $1
+  AND ($2::timestamptz IS NULL OR end_datetime <= $2::timestamptz)
+  AND ($3::uuid IS NULL OR nollning_season_id = $3::uuid)
+  AND (NOT $4::bool OR nollning_season_id IS NULL)
+ORDER BY start_datetime
+`
+
+type ListEventsForCalendarParams struct {
+	StartsAfter      pgtype.Timestamptz `json:"starts_after"`
+	EndsBefore       pgtype.Timestamptz `json:"ends_before"`
+	NollningSeasonID pgtype.UUID        `json:"nollning_season_id"`
+	ExcludeNollning  bool               `json:"exclude_nollning"`
+}
+
+type ListEventsForCalendarRow struct {
+	ID              pgtype.UUID        `json:"id"`
+	TitleSv         string             `json:"title_sv"`
+	TitleEn         pgtype.Text        `json:"title_en"`
+	DescriptionSv   string             `json:"description_sv"`
+	DescriptionEn   pgtype.Text        `json:"description_en"`
+	Location        pgtype.Text        `json:"location"`
+	StartDatetime   pgtype.Timestamptz `json:"start_datetime"`
+	EndDatetime     pgtype.Timestamptz `json:"end_datetime"`
+	NumberOfUpdates pgtype.Int4        `json:"number_of_updates"`
+}
+
+// The ICS subscribe feeds: non-removed events starting after starts_after
+// (and, if given, ending before ends_before). nollning_season_id narrows
+// to one season's events; exclude_nollning drops every season's events
+// (the general feed - what BASIC_EVENT_FILTER(false) did with tags).
+func (q *Queries) ListEventsForCalendar(ctx context.Context, arg ListEventsForCalendarParams) ([]ListEventsForCalendarRow, error) {
+	rows, err := q.db.Query(ctx, listEventsForCalendar,
+		arg.StartsAfter,
+		arg.EndsBefore,
+		arg.NollningSeasonID,
+		arg.ExcludeNollning,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventsForCalendarRow{}
+	for rows.Next() {
+		var i ListEventsForCalendarRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.TitleSv,
+			&i.TitleEn,
+			&i.DescriptionSv,
+			&i.DescriptionEn,
+			&i.Location,
+			&i.StartDatetime,
+			&i.EndDatetime,
+			&i.NumberOfUpdates,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const setEventSlug = `-- name: SetEventSlug :exec
+UPDATE events SET slug = $2 WHERE id = $1
+`
+
+type SetEventSlugParams struct {
+	ID   pgtype.UUID `json:"id"`
+	Slug pgtype.Text `json:"slug"`
+}
+
+func (q *Queries) SetEventSlug(ctx context.Context, arg SetEventSlugParams) error {
+	_, err := q.db.Exec(ctx, setEventSlug, arg.ID, arg.Slug)
+	return err
 }
 
 const softDeleteEvent = `-- name: SoftDeleteEvent :exec

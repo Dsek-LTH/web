@@ -37,6 +37,8 @@ import (
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
+	"github.com/dsek-lth/web/backend/internal/pings"
+	"github.com/dsek-lth/web/backend/internal/readme"
 	"github.com/dsek-lth/web/backend/internal/search"
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/storage"
@@ -153,7 +155,7 @@ func main() {
 	// replaces the external scheduler-service.
 	go articleSvc.RunAnnouncementLoop(context.Background(), time.Minute)
 	eventSvc := events.NewService(pool, realNotifier)
-	memberSvc := members.NewService(pool)
+	memberSvc := members.NewService(pool, store, mustEnv("PUBLIC_BUCKETS_MEMBERS"))
 	committeeSvc := committees.NewService(pool, nollningSvc)
 	accessPolicySvc := accesspolicies.NewService(pool)
 	songSvc := songs.NewService(pool)
@@ -173,6 +175,8 @@ func main() {
 	doorSvc := doors.NewService(pool)
 	adminSettingsSvc := adminsettings.NewService(pool)
 	linksSvc := links.NewService(os.Getenv("SHLINK_ENDPOINT"), os.Getenv("SHLINK_API_KEY"))
+	pingSvc := pings.NewService(pool, realNotifier)
+	readmeSvc := readme.NewService(pool)
 
 	// Ticket releases' lottery and offer-expiry sweeps run in-process (see
 	// internal/tickets' Scheduler): lottery timers don't survive a restart,
@@ -218,6 +222,8 @@ func main() {
 		notificationSvc,
 		adminSettingsSvc,
 		linksSvc,
+		pingSvc,
+		readmeSvc,
 		ticketSvc,
 		ticketScheduler,
 		searchSvc,

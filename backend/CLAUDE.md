@@ -23,7 +23,8 @@ Runs on **`:8090`**, not `:8080` — originally because the SvelteKit app's `sch
 - Regenerate DB code after editing `internal/db/schema.sql` or `internal/db/queries/*.sql`: `make generate` (runs `go tool sqlc generate`, config in `sqlc.yaml`)
 - Apply/inspect DB migrations: `go tool migrate up` / `go tool migrate down [n]` / `go tool migrate force <version>` / `go tool migrate version` — see "Database migrations" below. Run from `backend/` like everything else here.
 - Vet: `go vet ./...`
-- Test (once tests exist): `go test ./...`; a single test: `go test ./... -run TestName`
+- Test: `go test ./...`; a single test: `go test ./... -run TestName`
+- Seed a **local** dev database (wipes it first): `go tool seed` (`cmd/seed`; `pnpm seed` from the repo root runs it). Deterministic fake data, every `apinames.All()` policy granted to `role='*'`, and the current year's nollning season. Refuses a non-local `POSTGRES_URL` host or an SSH-tunnelled port (colima/lima's own SSH port forwarding is allowed).
 
 Module path: `github.com/dsek-lth/web/backend`, Go 1.26.0.
 
@@ -35,7 +36,7 @@ Data access is **pgx + sqlc**, chosen to replace `../src/database/schema.zmodel`
 
 **This backend connects to the same live Postgres database the SvelteKit app uses** (`POSTGRES_URL`), not a fresh one it owns migrations for. `internal/db/schema.sql` is a *description* of tables that already exist — it is never run as a migration. Consequently:
 
-- Prisma/ZenStack (`../src/database/`) remains the source of truth for the actual DB schema and migrations for now. If a table changes there, `internal/db/schema.sql` has to be updated by hand to match — nothing keeps them in sync automatically.
+- ~~Prisma/ZenStack (`../src/database/`) remains the source of truth for the actual DB schema and migrations for now.~~ **Superseded 2026-11-03 (Phase 15): Prisma is gone.** `internal/db/migrations` is the only migration history; `schema.sql` is still hand-synced against it (and `psql \d`), as described below.
 - Only the tables articles need were ported so far (articles, authors, members, committees, positions, mandates, phadder_groups, custom_authors, custom_author_roles, tags, article_comments, article_requests, plus the two implicit join tables `_article_tags`/`_article_likes`). Extend `schema.sql` with more tables as more features get ported — don't feel obligated to port everything at once.
 - `schema.sql` was written by cross-checking `\d <table>` against the live dev DB, not just transcribed from `schema.prisma` — several columns actually differ from what the Prisma file implies (e.g. `mandates."phadderInId"` and `phadder_groups."createdAt"` are camelCase with no snake_case mapping; `authors.type` is a generated/stored column). If a discrepancy shows up again, trust `psql \d`, not `schema.prisma`.
 - **Column order in `schema.sql` must match the live table.** sqlc resolves `SELECT *` / `RETURNING *` positionally against the schema — if `schema.sql`'s column order drifts from the real table, generated code silently scans values into the wrong struct fields. The queries in `internal/db/queries/` avoid this by never using `*`; keep doing that in new queries rather than re-verifying column order every time.
@@ -47,7 +48,7 @@ Data access is **pgx + sqlc**, chosen to replace `../src/database/schema.zmodel`
 
 `internal/db/migrations/` is a real `golang-migrate` migration directory (plain versioned `.sql` files, `<timestamp>_<description>.up.sql`), applied via `go tool migrate` (`cmd/migrate/main.go` — a minimal wrapper around the `golang-migrate` library, not the stock CLI binary; see that file's doc comment for why: the stock binary selects DB/source drivers via build tags, and `go tool` has no way to pass build tags through). See `DESIGN.md`'s "DB migrations, once Prisma is gone" section for the full decision, but the practical points:
 
-- The directory currently holds a **copy** of Prisma's entire migration history (`../src/database/prisma/migrations/*/migration.sql`, copied not moved — Prisma is still the live, active migration path for every table Go hasn't ported, so its own directory has to stay intact and operative). The two histories are expected to diverge from here: Prisma keeps gaining migrations for tables Go doesn't own, Go gains migrations only for tables it does.
+- **Superseded 2026-11-03 (Phase 15):** Prisma's own directory is deleted (every migration was confirmed byte-identical here first), so this is the only history, and `go tool migrate up` builds a fresh database from nothing (verified). Original note: the directory currently holds a **copy** of Prisma's entire migration history (`../src/database/prisma/migrations/*/migration.sql`, copied not moved — Prisma is still the live, active migration path for every table Go hasn't ported, so its own directory has to stay intact and operative). The two histories are expected to diverge from here: Prisma keeps gaining migrations for tables Go doesn't own, Go gains migrations only for tables it does.
 - The live dev DB already has all of Prisma's migrations applied, so `migrate`'s own tracking table (`schema_migrations`, distinct from and non-conflicting with Prisma's `_prisma_migrations`) was bootstrapped via `force`, not replayed.
 - **`sqlc` still reads from the hand-maintained `internal/db/schema.sql`, not from this migrations directory** — tried pointing it at `internal/db/migrations` instead (same "single source of truth" reasoning as adopting `migrate` in the first place) and reverted after testing: `sqlc` has no way to model only a subset of tables, so pointed at the full migration history it generated a Go struct for *every* table in the live DB, including the shop/ticket/order/payment tables this project has decided not to model in Go at all (see `DESIGN.md`'s "Shop / tickets: cut from scope entirely"). `schema.sql`'s existing hand-sync-against-`psql \d` workflow (see below) is unchanged by any of this.
 - New migrations for tables Go owns should include a real `.down.sql` alongside the `.up.sql` — the migrations copied from Prisma don't have one (Prisma never generated down migrations), but that's a property of the old history, not a pattern to continue.
@@ -400,3 +401,18 @@ This directory is a subdirectory of the larger `Dsek-LTH/web` git repository (br
 - Events: no Go change. The frontend's month view asks for the month grid's whole weeks through the existing `span=range`.
 - `DESIGN.md` and this file are in `.prettierignore`: Prettier rewrites their list formatting.
 - **Scheduled announcements (2026-11-03, after the sync)**: the scheduler mock is replaced by `articles.Service`'s own sweep (`announcements.go`, `articles.announced_at`) - see the superseded "Scheduling is still mocked" note above. `notifications_test.go` there is the first test in this module that uses the dev DB: it runs inside a transaction that's rolled back, and skips when `POSTGRES_URL` is unset or unreachable.
+
+### Phase 15 routes (Prisma removal)
+
+See `DESIGN.md`'s Phase 15 status for the reasoning. Added:
+
+- `POST /members/{studentId}/ping` (`core:member:ping`, `internal/pings`) - one `pings` row per pair, notifies via `Notifier.NotifyPing`.
+- `GET /members/{studentId}/medals` - `medals.Service.MemberMedals` (now by student id), as of last semester.
+- `PUT /members/{studentId}/picture` (multipart `image`), `DELETE /members/{studentId}/picture` - self or `core:member:update`. Stores the (browser-cropped) picture in `PUBLIC_BUCKETS_MEMBERS` under `public/{studentId}/profile-picture/` and sets/clears `members.picture_path`, deleting the replaced picture if this service stored it. `members.NewService` takes the storage backend and bucket now.
+- `PATCH /members/{studentId}/language` (`{"language": "sv"|"en"}`).
+- `GET /me` returns `member` (the signed-in member's own profile fields, `null` when anonymous) instead of the flat `givenName`/`familyName`/`classYear`/... fields.
+- Plain (non-huma) handlers: `GET /calendar/events.ics`, `GET /calendar/nollning.ics` (`events.Service.CalendarICS`), `GET /alarm` (`"true"`/`"false"`), `GET /files/miscellaneous/{name}` (signed-in members, raw bytes, `documents.Service.GetMisc`). Kept under their own prefixes so they can't shadow an event slug.
+- `GET /events/by-id/{id}` (`{slug}`, backfilling a missing slug) and `GET /readmes/{year}/{number}` (`internal/readme`).
+- CORS now allows `PUT`.
+- `storage.ErrNotFound` from `Backend.Get` for a missing key.
+

@@ -26,6 +26,7 @@ type Querier interface {
 	AddEventGoing(ctx context.Context, arg AddEventGoingParams) error
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
+	AnyAlarmActiveEventNow(ctx context.Context) (bool, error)
 	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
 	// Claims an article's one go-live announcement: affects the row only if
 	// it hasn't been announced (or deliberately skipped) yet.
@@ -94,6 +95,7 @@ type Querier interface {
 	// shape as AddArticleTags.
 	CreateNotifications(ctx context.Context, arg CreateNotificationsParams) error
 	CreatePhadderGroup(ctx context.Context, arg CreatePhadderGroupParams) (PhadderGroup, error)
+	CreatePing(ctx context.Context, arg CreatePingParams) error
 	CreateRecurringEvent(ctx context.Context, arg CreateRecurringEventParams) (pgtype.UUID, error)
 	// Free-ticket releases (upstream #1325's ticket-service, folded into this
 	// backend during the Phase 12 upstream sync - see internal/tickets).
@@ -134,6 +136,8 @@ type Querier interface {
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
+	// The pair's row, whichever direction the first ping went.
+	FindPingBetween(ctx context.Context, arg FindPingBetweenParams) (FindPingBetweenRow, error)
 	GetAdminSettings(ctx context.Context, keys []string) ([]GetAdminSettingsRow, error)
 	// Unconstrained by type, unlike GetGoverningDocumentByID above - the list
 	// page's delete action operates on any document by id regardless of type
@@ -205,6 +209,8 @@ type Querier interface {
 	// create/update, and by GetAny for callers - like an edit page - that need
 	// to load an event regardless of soft-delete status.
 	GetEventRowBySlug(ctx context.Context, slug pgtype.Text) (GetEventRowBySlugRow, error)
+	// Non-removed only, like the event pages themselves.
+	GetEventSlugByID(ctx context.Context, id pgtype.UUID) (GetEventSlugByIDRow, error)
 	// Constrained to POLICY/GUIDELINE, matching the old app's edit-lookup
 	// query - the other enum values have no create/edit UI anywhere.
 	GetGoverningDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error)
@@ -223,6 +229,7 @@ type Querier interface {
 	// Backs PhadderRoleFor's "phadder" branch: which group (if any) this
 	// member holds an active phadder/uppdrag mandate pointed at.
 	GetMemberPhadderGroupID(ctx context.Context, memberID pgtype.UUID) (pgtype.UUID, error)
+	GetMemberPicturePath(ctx context.Context, studentID pgtype.Text) (pgtype.Text, error)
 	// Full column set for a member's own profile page, unlike
 	// GetMemberByStudentID's minimal projection (built only for author
 	// resolution).
@@ -233,6 +240,9 @@ type Querier interface {
 	// request.
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
 	GetQueueEntry(ctx context.Context, arg GetQueueEntryParams) (TicketQueueEntry, error)
+	// (year, number) isn't unique in the table; the old page took the first
+	// match, so this does too, deterministically.
+	GetReadmeIssue(ctx context.Context, arg GetReadmeIssueParams) (GetReadmeIssueRow, error)
 	GetRecurringEvent(ctx context.Context, id pgtype.UUID) (RecurringEvent, error)
 	// Not filtered by expires_at - old releases are kept in the database (not
 	// purged) and stay reachable directly, e.g. for an admin reviewing a past
@@ -399,6 +409,11 @@ type Querier interface {
 	// CASE'd sort keys - exactly one is non-null per row, the other ties
 	// (NULL) and is ignored.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
+	// The ICS subscribe feeds: non-removed events starting after starts_after
+	// (and, if given, ending before ends_before). nollning_season_id narrows
+	// to one season's events; exclude_nollning drops every season's events
+	// (the general feed - what BASIC_EVENT_FILTER(false) did with tags).
+	ListEventsForCalendar(ctx context.Context, arg ListEventsForCalendarParams) ([]ListEventsForCalendarRow, error)
 	ListEventsForSearch(ctx context.Context) ([]ListEventsForSearchRow, error)
 	ListExpiredGrantedForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	ListExpoTokensWithUnreadCount(ctx context.Context, memberIds []pgtype.UUID) ([]ListExpoTokensWithUnreadCountRow, error)
@@ -533,6 +548,9 @@ type Querier interface {
 	ListWaitlistFrontForUpdate(ctx context.Context, arg ListWaitlistFrontForUpdateParams) ([]TicketQueueEntry, error)
 	LockRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
 	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
+	// sent_by_from_member says which direction this ping went relative to the
+	// row's own from_member.
+	RecordPing(ctx context.Context, arg RecordPingParams) error
 	// Gives a claim back after the announcement failed, so the sweep retries.
 	ReleaseArticleAnnouncement(ctx context.Context, id pgtype.UUID) error
 	// Gives a claim back after the post failed, so a retry can send it.
@@ -543,8 +561,10 @@ type Querier interface {
 	ReplaceSubscribedTags(ctx context.Context, a pgtype.UUID) error
 	ReplaceSubscriptionSettings(ctx context.Context, memberID pgtype.UUID) error
 	RestoreSong(ctx context.Context, id pgtype.UUID) error
+	SetEventSlug(ctx context.Context, arg SetEventSlugParams) error
 	SetMandatePhadderGroup(ctx context.Context, arg SetMandatePhadderGroupParams) error
 	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
+	SetMemberPicturePath(ctx context.Context, arg SetMemberPicturePathParams) (int64, error)
 	SetReleaseStatus(ctx context.Context, arg SetReleaseStatusParams) error
 	SoftDeleteAlert(ctx context.Context, id pgtype.UUID) error
 	SoftDeleteArticle(ctx context.Context, slug string) error
@@ -586,6 +606,7 @@ type Querier interface {
 	UpdateGoverningDocument(ctx context.Context, arg UpdateGoverningDocumentParams) (Document, error)
 	UpdateMandate(ctx context.Context, arg UpdateMandateParams) (UpdateMandateRow, error)
 	UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemberFoodPreferenceParams) (UpdateMemberFoodPreferenceRow, error)
+	UpdateMemberLanguage(ctx context.Context, arg UpdateMemberLanguageParams) (int64, error)
 	UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfileParams) (UpdateMemberProfileRow, error)
 	UpdatePhadderGroup(ctx context.Context, arg UpdatePhadderGroupParams) (PhadderGroup, error)
 	UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error)

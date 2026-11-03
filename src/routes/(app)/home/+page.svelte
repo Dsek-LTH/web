@@ -148,5 +148,5 @@
     />
   </div>
 
-  <Documents files={data.files} />
+  <Documents meetings={data.boardMeetings} />
 </div>

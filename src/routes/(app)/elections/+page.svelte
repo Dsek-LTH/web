@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
-  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { Button } from "$lib/components/ui/button";
   import ElectionCard from "$lib/components/ElectionCard.svelte";
@@ -12,7 +11,7 @@
 <div class="layout-container">
   <div class="flex flex-row">
     <h1>{m.openElections()}</h1>
-    {#if isAuthorized(apiNames.ELECTION.CREATE, data.user)}
+    {#if data.user?.policies.includes(apiNames.ELECTION.CREATE)}
       <Button href="/elections/create" class="ml-auto"
         >+ {m.elections_new()}</Button
       >

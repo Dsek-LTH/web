@@ -2,6 +2,7 @@ package documents
 
 import (
 	"context"
+	"errors"
 	"path"
 	"strconv"
 	"strings"
@@ -366,6 +367,27 @@ func (s *Service) ListMisc(ctx context.Context) ([]DocumentFile, error) {
 		out[i] = toDocumentFile(f)
 	}
 	return out, nil
+}
+
+// GetMisc returns one file under miscPrefix, for pages that serve a file
+// from there to signed-in members only (e.g. /dcompassen/2026). Any
+// signed-in member, like the old route's check.
+func (s *Service) GetMisc(ctx context.Context, name string) ([]byte, error) {
+	identity, ok := auth.FromContext(ctx)
+	if !ok || identity.MemberID == "" {
+		return nil, auth.ErrUnauthenticated
+	}
+	if name == "" || strings.Contains(name, "..") {
+		return nil, invalidf("invalid file name")
+	}
+	data, err := s.store.Get(ctx, s.filesBucket, miscPrefix+"/"+name)
+	if errors.Is(err, storage.ErrNotFound) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 // miscUploadKey mirrors admin/minio's upload action: `prefix` (default

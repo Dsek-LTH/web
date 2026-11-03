@@ -3,7 +3,7 @@
   import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
   import * as m from "$paraglide/messages";
-  import { type ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+  import type { PositionHolder } from "./+page";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
 
   let { data }: { data: PageData } = $props();
@@ -132,15 +132,7 @@
   </div>
 </div>
 
-{#snippet positionCard(
-  position:
-    | (ExtendedPrismaModel<"Mandate"> & {
-        position: ExtendedPrismaModel<"Position">;
-        member: ExtendedPrismaModel<"Member">;
-      })
-    | null,
-  description: string,
-)}
+{#snippet positionCard(position: PositionHolder | null, description: string)}
   {#if position}
     <div class="flex h-full flex-col rounded-md border-[1px] p-4">
       <MemberAvatar

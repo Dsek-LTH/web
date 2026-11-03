@@ -14,15 +14,19 @@ import (
 	"github.com/dsek-lth/web/backend/internal/booking"
 	"github.com/dsek-lth/web/backend/internal/cafe"
 	"github.com/dsek-lth/web/backend/internal/committees"
+	"github.com/dsek-lth/web/backend/internal/documents"
 	"github.com/dsek-lth/web/backend/internal/doors"
 	"github.com/dsek-lth/web/backend/internal/elections"
 	"github.com/dsek-lth/web/backend/internal/events"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/links"
 	"github.com/dsek-lth/web/backend/internal/markdown"
+	"github.com/dsek-lth/web/backend/internal/medals"
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
+	"github.com/dsek-lth/web/backend/internal/pings"
+	"github.com/dsek-lth/web/backend/internal/readme"
 	"github.com/dsek-lth/web/backend/internal/songs"
 )
 
@@ -48,7 +52,11 @@ func humaServiceError(err error) error {
 		errors.Is(err, notifications.ErrNotFound),
 		errors.Is(err, doors.ErrNotFound),
 		errors.Is(err, adminsettings.ErrNotFound),
-		errors.Is(err, links.ErrNotFound):
+		errors.Is(err, links.ErrNotFound),
+		errors.Is(err, pings.ErrNotFound),
+		errors.Is(err, medals.ErrNotFound),
+		errors.Is(err, documents.ErrNotFound),
+		errors.Is(err, readme.ErrNotFound):
 		return huma.Error404NotFound("not found")
 	case errors.Is(err, articles.ErrInvalidInput),
 		errors.Is(err, events.ErrInvalidInput),
@@ -65,7 +73,9 @@ func humaServiceError(err error) error {
 		errors.Is(err, notifications.ErrInvalidInput),
 		errors.Is(err, doors.ErrInvalidInput),
 		errors.Is(err, adminsettings.ErrInvalidInput),
-		errors.Is(err, links.ErrInvalidInput):
+		errors.Is(err, links.ErrInvalidInput),
+		errors.Is(err, pings.ErrInvalidInput),
+		errors.Is(err, members.ErrInvalidInput):
 		return huma.Error400BadRequest(err.Error())
 	case errors.Is(err, songs.ErrPositionTaken),
 		errors.Is(err, songs.ErrAlreadyInSongBook):

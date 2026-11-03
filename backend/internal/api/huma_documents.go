@@ -181,3 +181,23 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		return nil, nil
 	})
 }
+
+// MiscFileHandler returns one file from the miscellaneous folder to a
+// signed-in member, as raw bytes. Plain handler, not huma: the body is the
+// file itself. SvelteKit's /dcompassen/2026 proxies here and sets its own
+// headers (content type, CSP sandbox).
+func MiscFileHandler(svc *documents.Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data, err := svc.GetMisc(r.Context(), r.PathValue("name"))
+		if err != nil {
+			status := http.StatusInternalServerError
+			if statusErr, ok := humaServiceError(err).(huma.StatusError); ok {
+				status = statusErr.GetStatus()
+			}
+			http.Error(w, http.StatusText(status), status)
+			return
+		}
+		w.Header().Set("Content-Type", "application/octet-stream")
+		_, _ = w.Write(data)
+	}
+}

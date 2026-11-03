@@ -5,6 +5,7 @@ go 1.26.0
 tool (
 	github.com/air-verse/air
 	github.com/dsek-lth/web/backend/cmd/migrate
+	github.com/dsek-lth/web/backend/cmd/seed
 	github.com/golangci/golines
 	github.com/sqlc-dev/sqlc/cmd/sqlc
 	golang.org/x/tools/cmd/goimports
@@ -12,6 +13,7 @@ tool (
 )
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.18.1
 	github.com/coreos/go-oidc/v3 v3.20.0
 	github.com/danielgtaylor/huma/v2 v2.39.1
 	github.com/go-jose/go-jose/v4 v4.1.4
@@ -21,6 +23,8 @@ require (
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/joho/godotenv v1.5.1
 	github.com/microcosm-cc/bluemonday v1.0.27
+	github.com/minio/minio-go/v7 v7.3.0
+	golang.org/x/image v0.45.0
 	golang.org/x/oauth2 v0.36.0
 	golang.org/x/sync v0.22.0
 	golang.org/x/text v0.41.0
@@ -69,7 +73,6 @@ require (
 	github.com/mattn/go-isatty v0.0.23 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/minio/minio-go/v7 v7.3.0 // indirect
 	github.com/ncruces/go-sqlite3 v0.32.0 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect

@@ -28,7 +28,28 @@ func parseSemesterParam(raw string) (semesters.Semester, error) {
 	return semesters.Parse(raw)
 }
 
+type listMemberMedalsInput struct {
+	StudentID string `path:"studentId"`
+}
+
+type listMemberMedalsOutput struct {
+	Body []medals.MemberMedal
+}
+
 func registerMedalRoutes(api huma.API, svc *medals.Service) {
+	huma.Register(api, huma.Operation{
+		OperationID: "list-member-medals",
+		Method:      http.MethodGet,
+		Path:        "/members/{studentId}/medals",
+		Summary:     "List the medals a member has earned up to last semester",
+	}, func(ctx context.Context, input *listMemberMedalsInput) (*listMemberMedalsOutput, error) {
+		items, err := svc.MemberMedals(ctx, input.StudentID, semesters.FromDate(time.Now())-1)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &listMemberMedalsOutput{Body: items}, nil
+	})
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-medal-recipients",
 		Method:      http.MethodGet,

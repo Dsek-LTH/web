@@ -1,8 +1,4 @@
-import type { recurringType } from "@prisma/client";
-
-// Vite doesn't support importing prisma enums into the browser, so we have to do this "hack" to use the following object as an enum.
-
-export type RecurringType = recurringType;
+export type RecurringType = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
 export const recurringTypeValues: Record<RecurringType, RecurringType> = {
   DAILY: "DAILY",
   WEEKLY: "WEEKLY",

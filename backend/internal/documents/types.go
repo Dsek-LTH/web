@@ -36,7 +36,10 @@ const (
 	UploadRequirement = "requirement"
 )
 
-var ErrInvalidInput = errors.New("documents: invalid input")
+var (
+	ErrInvalidInput = errors.New("documents: invalid input")
+	ErrNotFound     = errors.New("documents: not found")
+)
 
 func invalidf(format string, args ...any) error {
 	return fmt.Errorf("%w: "+format, append([]any{ErrInvalidInput}, args...)...)

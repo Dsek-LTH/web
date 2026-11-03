@@ -26,7 +26,6 @@ const config = {
 
     alias: {
       $paraglide: "./src/translations/paraglide", // same as outdir for paraglide in vite.config.ts
-      $database: "./src/database",
     },
     version: version ? { name: version } : {},
     experimental: {

@@ -4,10 +4,9 @@
   import { Button } from "$lib/components/ui/button";
   import type { components } from "$lib/api/schema";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import Pen from "@lucide/svelte/icons/pen";
-  import type { AuthUser } from "@zenstackhq/runtime";
+  import type { AuthUser } from "$lib/auth/types";
   import { breakName } from "$lib/utils/committee";
   import { toAppTime } from "$lib/utils/datetime";
 
@@ -31,7 +30,7 @@
   class="bg-muted-background animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] relative flex flex-col items-center gap-1 rounded-md border-[1px] p-4 duration-300"
   style="animation-delay:{(index ?? 0) * 50}ms"
 >
-  {#if isAuthorized(apiNames.ELECTION.UPDATE, user)}
+  {#if user?.policies.includes(apiNames.ELECTION.UPDATE)}
     <Button
       href={"/elections/" + election.id + "/edit"}
       class="absolute top-2 right-2"

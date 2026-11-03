@@ -67,6 +67,14 @@ type BookingRequestNotification struct {
 	Status            string
 }
 
+// PingNotification is what Notifier.NotifyPing needs: who pinged whom, and
+// the sender's student id for the link back to their profile.
+type PingNotification struct {
+	FromMemberID  string
+	FromStudentID string
+	ToMemberID    string
+}
+
 // Notifier sends push notifications (e.g. to subscribed members' devices).
 type Notifier interface {
 	NotifyNewArticle(ctx context.Context, notification ArticleNotification) error
@@ -75,6 +83,7 @@ type Notifier interface {
 	NotifyBookingRequestStatus(ctx context.Context, notification BookingRequestNotification) error
 	NotifyEventGoing(ctx context.Context, notification EventNotification) error
 	NotifyEventInterested(ctx context.Context, notification EventNotification) error
+	NotifyPing(ctx context.Context, notification PingNotification) error
 }
 
 // Webhooker posts announcements to external chat systems (Discord).

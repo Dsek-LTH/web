@@ -23,7 +23,11 @@ export const load: PageLoad = async ({ fetch, url }) => {
       ? rawProgramme
       : "all";
 
-  const { data, error: err } = await api.GET("/members", {
+  const {
+    data,
+    error: err,
+    response,
+  } = await api.GET("/members", {
     fetch,
     params: {
       query: {
@@ -36,7 +40,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
       },
     },
   });
-  if (err) throw error(500, "Failed to load members");
+  if (err) error(response.status, err.detail ?? "Failed to load members");
 
   const members =
     classProgramme === "all"

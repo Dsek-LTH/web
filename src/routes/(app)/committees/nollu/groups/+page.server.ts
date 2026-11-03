@@ -16,7 +16,11 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
   // phadder_groups.year (dropped - see backend's Phase 2 nollning
   // redesign). No season for the requested year just means an empty list.
   const seasonsRes = await api.GET("/nollning/seasons", { fetch });
-  if (seasonsRes.error) throw error(500, "Failed to load nollning seasons");
+  if (seasonsRes.error)
+    error(
+      seasonsRes.response.status,
+      seasonsRes.error.detail ?? "Failed to load nollning seasons",
+    );
   const season = (seasonsRes.data ?? []).find((s) => s.year === year);
 
   const summariesRes = season
@@ -25,7 +29,11 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
         params: { query: { seasonId: season.id } },
       })
     : undefined;
-  if (summariesRes?.error) throw error(500, "Failed to load phadder groups");
+  if (summariesRes?.error)
+    error(
+      summariesRes.response.status,
+      summariesRes.error.detail ?? "Failed to load phadder groups",
+    );
   const summaries = summariesRes?.data ?? [];
 
   // ListGroups only returns counts, not full nollor/phaddrar - fetch each

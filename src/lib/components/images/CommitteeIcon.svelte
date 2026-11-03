@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getFileUrl } from "$lib/files/client";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
   import type { EventHandler } from "svelte/elements";
 
@@ -16,13 +15,12 @@
     // are ported too - see CommitteeSymbol's identical note. (home and
     // elections/ElectionCard were on this list until the Elections phase
     // ported both off Prisma - 2026-09-02.)
-    committee:
-      | {
-          [K in "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv"]?:
-            | ExtendedPrismaModel<"Committee">[K]
-            | undefined;
-        }
-      | null;
+    committee: Partial<
+      Record<
+        "darkImageUrl" | "lightImageUrl" | "monoImageUrl" | "nameSv",
+        string | null
+      >
+    > | null;
     useMono?: boolean;
     class?: string;
     override?: "light" | "dark";

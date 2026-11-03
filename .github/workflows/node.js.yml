@@ -44,8 +44,6 @@ jobs:
           node-version: lts/*
           cache: "pnpm"
       - run: pnpm i
-      - run: pnpm prisma migrate deploy
-      - run: pnpm snaplet-seed sync
       - run: pnpm run lint --max-warnings 0
       - run: pnpm run format
       - run: pnpm run test

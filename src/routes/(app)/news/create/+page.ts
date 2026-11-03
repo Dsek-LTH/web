@@ -21,14 +21,14 @@ export const load: PageLoad = async ({ fetch, parent }) => {
       api.GET("/committees", { fetch }),
       api.GET("/tags", { fetch }),
     ]);
-  if (
-    mandatesRes.error ||
-    customAuthorsRes.error ||
-    committeesRes.error ||
-    tagsRes.error
-  ) {
-    throw error(500, "Failed to load author/committee/tag options");
-  }
+  const failed = [mandatesRes, customAuthorsRes, committeesRes, tagsRes].find(
+    (res) => res.error,
+  );
+  if (failed?.error)
+    error(
+      failed.response.status,
+      failed.error.detail ?? "Failed to load author/committee/tag options",
+    );
 
   const self = {
     id: member.id,

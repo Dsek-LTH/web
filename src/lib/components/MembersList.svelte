@@ -5,7 +5,6 @@
     type ButtonVariant,
   } from "$lib/components/ui/button";
   import * as Dialog from "$lib/components/ui/dialog";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
   import type { Snippet } from "svelte";
 
@@ -22,14 +21,13 @@
     // Go-backed.
     members: Array<
       { id: string } & {
-        [K in
-          | "firstName"
-          | "lastName"
-          | "nickname"
-          | "studentId"
-          | "picturePath"
-          | "classProgramme"
-          | "classYear"]?: ExtendedPrismaModel<"Member">[K] | undefined;
+        firstName?: string | null;
+        lastName?: string | null;
+        nickname?: string | null;
+        studentId?: string | null;
+        picturePath?: string | null;
+        classProgramme?: string | null;
+        classYear?: number | null;
       }
     >;
     class?: string;

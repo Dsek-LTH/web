@@ -9,6 +9,6 @@ done
 # Sometimes the database is not ready yet even though pg_isready returns true
 sleep 0.5
 
-# Setup migrations for prisma and seed database
+# Apply migrations and seed the database (both run Go tools in backend/)
 pnpm migrate
 pnpm seed

@@ -1,17 +1,11 @@
+import { serverApi } from "$lib/server/apiClient";
 import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async ({ locals, params }) => {
-  const { studentId } = params;
-  const { prisma } = locals;
-
-  const userInfo = await prisma.member.findUnique({
-    where: {
-      studentId,
-    },
-    select: {
-      picturePath: true,
-    },
+// A member's avatar URL, as { picture } (undefined if they have none or
+// can't be looked up).
+export const GET: RequestHandler = async (event) => {
+  const res = await serverApi(event).GET("/members/{studentId}", {
+    params: { path: { studentId: event.params.studentId } },
   });
-
-  return new Response(JSON.stringify({ picture: userInfo?.picturePath }));
+  return new Response(JSON.stringify({ picture: res.data?.picturePath }));
 };

@@ -13,7 +13,11 @@ export const load: PageLoad = async ({ fetch, url }) => {
     fetch,
     params: { query: { semester: semesterToString(semester) } },
   });
-  if (res.error) throw error(500, "Failed to load medal recipients");
+  if (res.error)
+    error(
+      res.response.status,
+      res.error.detail ?? "Failed to load medal recipients",
+    );
 
   return {
     recipients: res.data ?? [],

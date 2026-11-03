@@ -1,7 +1,6 @@
 import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 import { serverApi } from "$lib/server/apiClient";
-import type { RequestEvent } from "@sveltejs/kit";
+import { error, type RequestEvent } from "@sveltejs/kit";
 import { fail, message, setError, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
@@ -16,14 +15,25 @@ import * as m from "$paraglide/messages";
 // year picks that year's season.
 
 export const load = async (event) => {
-  const { locals } = event;
+  // Listing groups is public in Go; this page is for managing them, so it's
+  // only shown to those who can (Go enforces the actions themselves).
+  if (
+    !event.locals.user?.policies.includes(
+      apiNames.NOLLNING.MANAGE_PHADDER_GROUPS,
+    )
+  )
+    error(403, m.errors_missingPermissions());
   const api = serverApi(event);
-  authorize(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, locals.user);
 
   const [summariesRes, seasonsRes] = await Promise.all([
     api.GET("/nollning/groups", {}),
     api.GET("/nollning/seasons", {}),
   ]);
+  if (summariesRes.error)
+    error(
+      summariesRes.response.status,
+      summariesRes.error.detail ?? "Failed to load phadder groups",
+    );
   const seasons = seasonsRes.data ?? [];
   const yearOf = (seasonId: string) =>
     seasons.find((season) => season.id === seasonId)?.year ??

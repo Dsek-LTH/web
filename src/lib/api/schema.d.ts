@@ -778,6 +778,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/events/by-id/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Look up an event's slug from its id (for legacy /events/id/{id} links) */
+    get: operations["get-event-slug-by-id"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/events/{slug}": {
     parameters: {
       query?: never;
@@ -1146,6 +1163,40 @@ export interface paths {
     patch: operations["update-member-food-preference"];
     trace?: never;
   };
+  "/members/{studentId}/language": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Set a member's preferred site language */
+    patch: operations["update-member-language"];
+    trace?: never;
+  };
+  "/members/{studentId}/medals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List the medals a member has earned up to last semester */
+    get: operations["list-member-medals"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/members/{studentId}/phadder-role": {
     parameters: {
       query?: never;
@@ -1157,6 +1208,44 @@ export interface paths {
     get: operations["get-phadder-role"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/members/{studentId}/picture": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Upload a member's profile picture and make it their avatar
+     * @description The image should already be cropped (the web app crops to 400x400 WebP). Replaces and deletes the previous picture.
+     */
+    put: operations["upload-member-picture"];
+    post?: never;
+    /** Remove a member's profile picture */
+    delete: operations["delete-member-picture"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/members/{studentId}/ping": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Ping a member as the signed-in member */
+    post: operations["ping-member"];
     delete?: never;
     options?: never;
     head?: never;
@@ -1470,6 +1559,23 @@ export interface paths {
     put?: never;
     /** Create a mandate on this position for each of the given memberIds */
     post: operations["create-mandates"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/readmes/{year}/{number}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get one issue of the README newsletter */
+    get: operations["get-readme-issue"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -2563,6 +2669,15 @@ export interface components {
       titleEn: string | null;
       titleSv: string;
     };
+    EventSlugByIDOutputBody: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/EventSlugByIDOutputBody.json
+       */
+      readonly $schema?: string;
+      slug: string;
+    };
     EventSummary: {
       alarmActive: boolean;
       author: components["schemas"]["Member"];
@@ -2731,6 +2846,19 @@ export interface components {
       /** Format: date-time */
       startDatetime?: string;
       verboseName: string;
+    };
+    MemberMedal: {
+      after: string;
+      medal: string;
+    };
+    MemberPictureOutputBody: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/MemberPictureOutputBody.json
+       */
+      readonly $schema?: string;
+      picturePath: string;
     };
     MemberProfile: {
       /**
@@ -2914,6 +3042,23 @@ export interface components {
       startMonth?: number;
       /** Format: int32 */
       year?: number;
+    };
+    ReadmeIssue: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/ReadmeIssue.json
+       */
+      readonly $schema?: string;
+      id: string;
+      /** Format: int32 */
+      number: number;
+      /** Format: date-time */
+      publishedAt?: string;
+      title: string;
+      url: string;
+      /** Format: int32 */
+      year: number;
     };
     RecurringInput: {
       /** Format: date-time */
@@ -3270,6 +3415,16 @@ export interface components {
        */
       readonly $schema?: string;
       foodPreference?: string;
+    };
+    UpdateLanguageInputBody: {
+      /**
+       * Format: uri
+       * @description A URL to the JSON Schema for this object.
+       * @example https://example.com/schemas/UpdateLanguageInputBody.json
+       */
+      readonly $schema?: string;
+      /** @enum {string} */
+      language: "sv" | "en";
     };
     UpdateLinkInput: {
       /**
@@ -5535,6 +5690,37 @@ export interface operations {
       };
     };
   };
+  "get-event-slug-by-id": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EventSlugByIDOutputBody"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "get-event": {
     parameters: {
       query?: {
@@ -6575,6 +6761,70 @@ export interface operations {
       };
     };
   };
+  "update-member-language": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateLanguageInputBody"];
+      };
+    };
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "list-member-medals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MemberMedal"][] | null;
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "get-phadder-role": {
     parameters: {
       query?: never;
@@ -6594,6 +6844,102 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["PhadderRoleInfo"];
         };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "upload-member-picture": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        "multipart/form-data": {
+          /** Format: binary */
+          image: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MemberPictureOutputBody"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-member-picture": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "ping-member": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Error */
       default: {
@@ -7377,6 +7723,38 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Mandate"][] | null;
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "get-readme-issue": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        year: number;
+        number: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReadmeIssue"];
         };
       };
       /** @description Error */

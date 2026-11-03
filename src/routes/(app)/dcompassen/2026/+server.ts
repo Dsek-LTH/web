@@ -1,31 +1,32 @@
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
-import minio from "$lib/files/minio";
+import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
 import { error, redirect } from "@sveltejs/kit";
-import { S3Error } from "minio";
-import { buffer } from "node:stream/consumers";
 import type { RequestHandler } from "./$types";
 
-const DCOMPASSEN_PATH = "public/miscellaneous/Dcompassen2026.html";
+const DCOMPASSEN_FILE = "Dcompassen2026.html";
 
-export const GET: RequestHandler = async ({ locals }) => {
+// Serves the file from Go (signed-in members only) with headers that keep
+// its scripts sandboxed.
+export const GET: RequestHandler = async ({ locals, cookies, fetch }) => {
   // Endpoint errors don't render +error.svelte, so let /dcompassen show the 401
   if (!locals.user?.memberId) {
     redirect(302, "/dcompassen");
   }
 
-  let html: Buffer;
-  try {
-    html = await buffer(
-      await minio.getObject(PUBLIC_BUCKETS_FILES, DCOMPASSEN_PATH),
-    );
-  } catch (e) {
-    if (e instanceof S3Error && e.code === "NoSuchKey") {
-      error(404, "Not Found");
-    }
-    throw e;
-  }
+  const res = await fetch(
+    new URL(`/files/miscellaneous/${DCOMPASSEN_FILE}`, PUBLIC_GO_BACKEND_URL),
+    {
+      headers: {
+        cookie: cookies
+          .getAll()
+          .map(({ name, value }) => `${name}=${value}`)
+          .join("; "),
+      },
+    },
+  );
+  if (res.status === 404) error(404, "Not Found");
+  if (!res.ok) error(res.status, await res.text());
 
-  return new Response(html, {
+  return new Response(res.body, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       // Only behind login, so keep it out of shared caches

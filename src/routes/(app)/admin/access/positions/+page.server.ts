@@ -4,19 +4,16 @@ import { serverApi } from "$lib/server/apiClient";
 import type { Actions, PageServerLoad } from "./$types";
 import { z } from "zod";
 import { zod4 } from "sveltekit-superforms/adapters";
-import apiNames from "$lib/utils/apiNames";
-import { authorize } from "$lib/utils/authorization";
 
 const deletePolicySchema = z.object({ policyId: z.string() });
 
 export const load: PageServerLoad = async (event) => {
-  const { locals } = event;
-  const { user } = locals;
-
-  authorize(apiNames.ACCESS_POLICY.CREATE, user);
-
   const res = await serverApi(event).GET("/access-policies", {});
-  if (res.error) throw error(500, "Failed to load access policies");
+  if (res.error)
+    error(
+      res.response.status,
+      res.error.detail ?? "Failed to load access policies",
+    );
 
   const posToAccessPolicies = new Map<
     string,

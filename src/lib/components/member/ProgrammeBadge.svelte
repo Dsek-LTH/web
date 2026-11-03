@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Badge } from "$lib/components/ui/badge";
   import type { BadgeSize } from "$lib/components/ui/badge/badge.svelte";
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 
   let {
     member,
@@ -14,10 +13,8 @@
     // `string | undefined` once that's ported too - see CommitteeSymbol's
     // identical note.
     member: {
-      classProgramme?:
-        | ExtendedPrismaModel<"Member">["classProgramme"]
-        | undefined;
-      classYear?: ExtendedPrismaModel<"Member">["classYear"] | undefined;
+      classProgramme?: string | null;
+      classYear?: number | null;
     };
     size?: BadgeSize;
     class?: string;

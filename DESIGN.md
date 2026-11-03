@@ -142,7 +142,11 @@ Concretely:
 
 ## DB migrations, once Prisma is gone (decided 2026-09-01)
 
-**Status: decided, not yet implemented.** Today `internal/db/schema.sql` is
+**Status: decided, not yet implemented.** (**Superseded
+2026-11-03, phase 15:** implemented, and Prisma is now gone. Every Prisma
+migration was confirmed byte-identical in `internal/db/migrations` before
+`src/database/` was deleted, and `go tool migrate up` was verified to
+build a brand-new database from nothing. `pnpm migrate` now runs it.) Today `internal/db/schema.sql` is
 a hand-maintained *description* of tables Prisma actually owns and
 migrates (see "Database" in `backend/CLAUDE.md`) — kept in sync against
 `psql \d` by hand, which is exactly the drift risk that file's own doc
@@ -229,6 +233,8 @@ before that happens, not after.
 ## DB seeding, needed eventually (flagged 2026-09-02, not yet designed)
 
 **Status: identified as a real gap, not yet scoped or scheduled a phase.**
+(**Superseded 2026-11-03:** scheduled into phase 15 as a Go seed
+command, user-confirmed - see that phase's entry in the roadmap.)
 There is currently **no reproducible way to seed a fresh local dev DB with
 the `api_access_policies` rows real usage depends on** — `src/database/
 seed/main.ts`/`data.ts` (the existing Prisma-based seed script, still the
@@ -522,6 +528,11 @@ coexistence" framing above. Concretely:
   scope for a notifications-focused phase. Revisit together with whatever
   phase finally removes that fallback entirely (tracked nowhere formally
   yet - flag if it resurfaces).
+  **Closed 2026-11-03 (phase 15):** the TS `createMember()` fallback is
+  deleted. `hooks.server.ts` no longer creates members at all - Go's
+  `/auth/callback` is the only place a member row is created - and
+  `locals.member` comes from Go's `/me` (which now returns the member's
+  own profile fields) instead of a Prisma lookup.
 
 ## API shape and frontend integration
 
@@ -1136,6 +1147,13 @@ ported).
      `isAuthorized`/`authorize`/`getDerivedRoles` are **not** deleted yet -
      still genuinely needed by the (unported) rest of the app - revisit
      once nothing else calls them.
+     **Superseded 2026-11-03 (phase 15):** deleted. UI visibility checks
+     read `user.policies.includes(...)` directly; page-load gates that
+     duplicated Go's checks were removed in favour of Go's own 403s. The
+     two checks that remain in SvelteKit are deliberate: `/yrka` (sends an
+     email from SvelteKit, no Go call to gate) and the nollu group
+     *manage* page (listing groups is public in Go, so the management page
+     needs its own visibility check).
 6. **Every phase fully de-Prisma-ifies its own domain's SvelteKit-side
    backend; only building the *visual* UI for a currently-stub page is
    deferred (decided 2026-09-02, refined twice more the same day through
@@ -1487,6 +1505,7 @@ updated in its own phase, same as phase 1 and phase 2 already did.
    specific to this phase).
    Two small accepted gaps, both explicit decisions rather than oversights:
    avatar/profile-picture upload (the `members` bucket) stays deferred, not
+   (**closed in phase 15** - see its status in the roadmap)
    pulled into this phase despite sharing the same `Uploader` dependency
    (Phase 1's own note already flagged it as Phase-4-adjacent, but the
    roadmap bullet here only ever named gallery + documents); no server-side
@@ -1771,7 +1790,9 @@ updated in its own phase, same as phase 1 and phase 2 already did.
      directly (no access token required, matching the old app's own
      unauthenticated `new Expo()`) rather than a third-party Go SDK
      dependency - the protocol is simple enough not to warrant one.
-   - **Accepted gap, not this phase's job to close**: pings
+   - **Accepted gap, not this phase's job to close**: pings (**closed in
+     phase 15**: `internal/pings`, and the TS notification sender, push code
+     and `types.ts` are deleted)
      (`members/[studentId]/pings.ts`) still call the old TS `sendNotification`
      directly - no `internal/pings` domain exists in Go, and porting the ping
      feature itself was never in this phase's scope (the roadmap only
@@ -2374,7 +2395,183 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     own comment says it should. Deliberately last: judging "is this
     `.server.ts` truly necessary" or "is this dual-shape type still
     needed" isn't reliable until phase 14's real pages exist to check
-    against.
+    against. (**Superseded 2026-11-03:** no longer the last phase -
+    phases 16-18 were added after it. It still has to come after 14 for
+    the reason above.)
+    **Prisma inventory and decisions (2026-11-03, user-confirmed).** 41
+    files under `src/` still import Prisma/ZenStack. What happens to the
+    features behind them:
+    - **Port to Go**: pings (`members/[studentId]/pings.ts`; also frees
+      `utils/notifications/index.ts`/`push.ts`, whose only caller it is),
+      the two ICS subscribe feeds (`events/subscribe`,
+      `(nollning)/nollning/events/subscribe`, via
+      `lib/server/ics/calendar.ts` - their URLs must keep working, since
+      external calendar apps subscribe to them), profile-picture
+      upload/removal (`files/photos/profilePictures.ts`, plus the rest of
+      `src/lib/files`: the home page's document list in `loadHomeData.ts`
+      and `admin/debug`'s MinIO health check), `GET /api/alarm` (is an
+      `alarm_active` event running right now), the legacy
+      `events/id/[id]` redirect to the slug URL, and readme issues
+      (`readme/[year]/[number]` - Go has no `readme` table yet).
+    - **Switch to existing Go endpoints**: a member's medals (expose
+      `medals.Service.MemberMedals` as a route), the nollning messages
+      page (`GET /articles?nollningSeasonId=`), `hooks.server.ts`'s
+      member lookup/onboarding redirect/`createMember` fallback (have
+      `/me` return what it needs), and every `isAuthorized` caller.
+    - **Drop**: the ZenStack `/api/model` RPC handler in `hooks.server.ts`
+      (read-only, no callers in this repo).
+    - **Delete outright, no callers**: `utils/softDelete.ts`,
+      `utils/committee-ordering/sort.ts`, the server-side
+      `utils/commentTagging.ts`, `utils/adminSettings/nollning.ts`; the
+      Prisma client wrappers and extensions follow once the above is done.
+    - **Go seed command** replaces `src/database/seed` (which goes away
+      with `src/database/`), resolving "DB seeding, needed eventually"
+      above: a `go tool`/`go run` command that fills a fresh database with
+      dev data and the baseline `api_access_policies` grants every route
+      assumes. Its exact scope (faker-style data volume, which tables) is
+      decided when it is built.
+    - **Grant the `nollning:` policies to real roles** (added 2026-11-03,
+      at the user's request). `nollning:season:manage` and
+      `nollning:content:associate` were introduced in phase 2 with no
+      grants at all, so nobody can manage seasons or associate content
+      with one. `nollning:phaddrar:groups:manage` and `member:see_staben`
+      are only granted to `role='*'` in the dev DB, which isn't a real
+      production grant. Decide which positions get each (likely the
+      season's organizing committee, `dsek.noll...`, and the board),
+      then ship the grants as a Go-owned migration so production gets
+      them, and add them to the seed command too.
+      **Superseded 2026-11-03, the same day:** no migration. The user
+      will grant these in production by hand (via `admin/access`) once
+      the new backend goes live. The seed command still grants them for
+      dev, so they can be used locally.
+    **Status: done (2026-11-03).** Prisma, ZenStack and snaplet are gone
+    from the SvelteKit app - no imports, no `src/database/`, no
+    dependencies (`pnpm-lock.yaml` lost ~4,900 lines), no Prisma steps in
+    the Dockerfile, CI, `shell.nix` or dev scripts. What happened to each
+    leftover feature:
+    - **Ported to Go**: pings (`internal/pings`, `POST /members/{studentId}/ping`,
+      notifying through a new `Notifier.NotifyPing`); a member's medals
+      (`GET /members/{studentId}/medals`); the ICS feeds
+      (`GET /calendar/events.ics`, `GET /calendar/nollning.ics` - the
+      general feed leaves out events tied to a nollning season, the
+      season-based equivalent of the old `[NOLLNING]` tag filter; the
+      nollning feed shows the current season's events once it's
+      revealed, as `REVEAL_LAUNCH_DATE` did); `GET /alarm`;
+      `GET /events/by-id/{id}` for the legacy redirect (still backfills a
+      missing slug); readme issues (`internal/readme`,
+      `GET /readmes/{year}/{number}`); the `dcompassen` file
+      (`GET /files/miscellaneous/{name}`, signed-in members only). The
+      SvelteKit URLs external clients use (`/events/subscribe`,
+      `/nollning/events/subscribe`, `/api/alarm`, `/api/openapi.json`,
+      `/api/members/picture/{studentId}`) are kept as thin proxies.
+    - **Profile pictures, fixed rather than replicated (user-confirmed)**:
+      upstream's upload stored the file but never set `picture_path`, and
+      its delete form never sent the file name, so neither worked.
+      `PUT`/`DELETE /members/{studentId}/picture` now store/delete the
+      picture *and* set/clear `picture_path`, replacing (and deleting) the
+      previous stored picture. Cropping moved to the browser
+      (user-confirmed): `PictureSelector` crops to at most 400x400 WebP on
+      a canvas and uploads straight to Go, which only checks it's an
+      image of a sane size (`golang.org/x/image` for WebP decoding) - no
+      `sharp`, no image processing in Go.
+    - **`/me` returns the member** (`member: {id, names, email,
+      picturePath, classProgramme, classYear, language}`), which is what
+      `hooks.server.ts` now uses for `locals.member`, the onboarding
+      redirect and the locale - the last Prisma reads there. New
+      `PATCH /members/{studentId}/language` for the language switcher
+      (the profile `PATCH` is full-replace).
+    - **Dropped**: the ZenStack `/api/model` RPC handler (user-confirmed);
+      the home page's `meetings`/`hasActiveMandate`/`readmeIssues` data,
+      which nothing rendered (the `meetings` table is empty and nothing
+      ever wrote to it); `admin/debug`'s Prisma log level.
+    - **Small moves**: the MinIO health check is a plain fetch of MinIO's
+      public liveness URL in `admin/debug`'s load (no Go endpoint - it
+      never needed credentials); the home page's board-meeting files come
+      from `GET /documents`, and `loadHomeData` now uses `serverApi`
+      (it was calling Go through the shared client, i.e. anonymously,
+      from the server); the nollning pages' loads use Go
+      (`nollning/events`' weeks come from the current season's dates
+      instead of hardcoded 2025 dates).
+    - **Seed**: `go tool seed` (`backend/cmd/seed`, `pnpm seed` runs it) -
+      wipes and refills a *local* database deterministically (refuses a
+      non-local host, or a port that is an SSH tunnel; colima/lima's own
+      SSH port forwarding is recognised and allowed), grants every
+      `apinames.All()` policy to `role='*'`, and adds the current year's
+      nollning season. Verified on a scratch database built with
+      `migrate up`, never run against the shared dev database.
+    - **Authorization**: `authorization.ts` deleted (see principle #5's
+      superseded note).
+    - **Load errors**: universal and server loads pass on Go's real status
+      and `detail` instead of a hardcoded 500 (the "known gap" in the API
+      section), and a few `error(505, ...)` typos are now 500.
+    - **Server-only loads**: every remaining load-only `.server.ts` was
+      checked. Three that only fetched from Go moved to universal loads
+      (`admin/access`, `nolla` layout, `nollning`); `admin/doors`' layout
+      stays server-side because `edit/[slug]/+page.server.ts` reads it
+      through `parent()` (a server load only sees server layouts). The
+      rest read `locals`/cookies (redirects, app detection) or share
+      server modules with actions, so they stay.
+    - **Markers**: the `TEMPORARY dual-shape` comments' condition ("once
+      the Prisma consumers are ported") is now true everywhere - narrowing
+      those types is phase 16's job, deliberately left to it. The other
+      hits are upstream's own product TODOs, not rewrite markers.
+    - **Bug found while testing**: Go's CORS preflight didn't allow `PUT`
+      (no browser code had sent one before) - added.
+    - **Found, not fixed (needs a decision)**: every page that errors is
+      sent with HTTP 200, though the right error page renders. SvelteKit
+      2.63 builds a *streamed* response without its status
+      (`runtime/server/page/render.js`), and the `(app)` layout always
+      streams `unreadCountPromise`, so every page streams. Fixing it means
+      awaiting the unread count instead of streaming it, or a SvelteKit
+      fix.
+    - **Deployment not covered here**: nothing in this repo builds or
+      deploys the Go backend yet (the deploy workflows only build the
+      SvelteKit image), and anything outside the repo that ran
+      `pnpm migrate:deploy`/`pnpm seed` in the SvelteKit image must now
+      run `go tool migrate up` from `backend/` instead.
+16. **Type tightening** (added 2026-11-03, at the user's request) - every
+    type that was widened so it could hold both a Prisma value and a Go
+    API value during the rewrite gets narrowed back to the Go-generated
+    `components["schemas"][...]` type alone. Examples: the "TEMPORARY
+    dual-shape" props in `MemberCard`/`MembersList`/`ProgrammeBadge`/
+    `CommitteeIcon`, `MemberNames` in `$lib/utils/client/member.ts`,
+    `X | null | undefined` unions and `?? ""` fallbacks that only exist
+    because one side sent `null` and the other omitted the field, and
+    `as unknown as` casts at the boundary. Comes after 15 because each
+    widening can only be removed once its last Prisma-shaped consumer is
+    gone. Phase 15's marker sweep finds the commented ones; this phase
+    also covers the uncommented ones (search for `| null | undefined`,
+    `as unknown as`, `Partial<`, and `Pick<` over two types).
+17. **API naming and documentation** (added 2026-11-03, at the user's
+    request) - make the Go API consistent and well documented now that it
+    is complete:
+    - Consistent route naming (plural nouns, one id style per resource,
+      e.g. slug vs id vs studentId), consistent verbs for actions
+      (`/accept`, `/close`, `/restore`, `/attendance`), and consistent
+      query parameter names (`page`/`pageSize`, `includeRemoved` vs
+      `showDeleted` vs `status=any`).
+    - Every huma operation gets an `OperationID`, `Summary`,
+      `Description` and `Tags`, and every DTO field a `doc:` tag, so
+      `/docs` reads as real reference documentation.
+    - Consistent DTO names (now that `apitypes` and the huma
+      "duplicate name" renames have accumulated).
+    - Regenerate `schema.d.ts` and update every frontend call site in the
+      same pass, since renames break the generated client.
+    - Exceptions: URLs that external systems call stay as they are, e.g.
+      `GET /salto/{door}` (polled by the university's door hardware) and
+      the native app's token upload.
+18. **Move the frontend into its own directory** (added 2026-11-03, at
+    the user's request) - the SvelteKit app moves out of the repository
+    root into a sibling of `backend/` (e.g. `frontend/`), so the repo
+    root holds only the two projects plus shared config. Covers
+    `package.json`/pnpm, `svelte.config.js`/`vite.config.ts`, `.env`
+    loading (`backend/main.go` falls back to `../.env`), the Dockerfile
+    and deploy workflows, `docker-compose.yml`, ESLint/Prettier configs
+    and `.prettierignore`, and every doc path in this file and
+    `backend/CLAUDE.md`. Deliberately last: it is a mechanical move that
+    touches nearly every path, so doing it after 15-17 keeps it from
+    conflicting with their edits. After phase 15, `src/database/` is
+    gone, so there is no Prisma migration directory to move.
 
 Not a numbered phase: rebuilding the actual nollning **frontend** UI.
 Every `(nollning)/` page is currently a `<NotImplemented />` stub (see

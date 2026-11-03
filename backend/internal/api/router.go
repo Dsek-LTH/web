@@ -34,6 +34,8 @@ import (
 	"github.com/dsek-lth/web/backend/internal/members"
 	"github.com/dsek-lth/web/backend/internal/nollning"
 	"github.com/dsek-lth/web/backend/internal/notifications"
+	"github.com/dsek-lth/web/backend/internal/pings"
+	"github.com/dsek-lth/web/backend/internal/readme"
 	"github.com/dsek-lth/web/backend/internal/search"
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/tickets"
@@ -66,6 +68,8 @@ func NewRouter(
 	notificationSvc *notifications.Service,
 	adminSettingsSvc *adminsettings.Service,
 	linksSvc *links.Service,
+	pingSvc *pings.Service,
+	readmeSvc *readme.Service,
 	ticketSvc *tickets.Service,
 	ticketScheduler *tickets.Scheduler,
 	searchSvc *search.Service,
@@ -80,6 +84,7 @@ func NewRouter(
 	registerArticleRoutes(api, articleSvc)
 	registerDirectoryRoutes(api, articleSvc)
 	registerEventRoutes(api, eventSvc)
+	registerEventLegacyRoutes(api, eventSvc)
 	registerMemberRoutes(api, memberSvc)
 	registerCommitteeRoutes(api, committeeSvc)
 	registerAccessPolicyRoutes(api, accessPolicySvc)
@@ -100,10 +105,16 @@ func NewRouter(
 	registerNotificationRoutes(api, notificationSvc)
 	registerAdminSettingsRoutes(api, adminSettingsSvc)
 	registerLinksRoutes(api, linksSvc)
+	registerPingRoutes(api, pingSvc)
+	registerReadmeRoutes(api, readmeSvc)
 	registerSearchRoutes(api, searchSvc)
 
 	mux.HandleFunc("GET /me", auth.MeHandler(queries))
 	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))
+	mux.HandleFunc("GET /calendar/events.ics", EventCalendarHandler(eventSvc))
+	mux.HandleFunc("GET /calendar/nollning.ics", NollningCalendarHandler(eventSvc, nollningSvc))
+	mux.HandleFunc("GET /alarm", EventAlarmHandler(eventSvc))
+	mux.HandleFunc("GET /files/miscellaneous/{name}", MiscFileHandler(documentSvc))
 	// This exact path is polled by the university's own Salto door-lock
 	// system, unauthenticated - see SaltoHandler's doc comment and
 	// src/routes/(app)/salto/README.md ("this URL must not be changed").
@@ -140,7 +151,7 @@ func withCORS(allowedOrigin string) func(http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Vary", "Origin")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept-Language")
 			if r.Method == http.MethodOptions {
 				w.WriteHeader(http.StatusNoContent)

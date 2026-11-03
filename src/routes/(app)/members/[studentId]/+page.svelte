@@ -20,10 +20,8 @@
   import Copy from "@lucide/svelte/icons/copy";
 
   import { cn } from "$lib/utils";
-  import { toString, type Semester } from "$lib/utils/semesters";
   import { getFullName } from "$lib/utils/client/member";
   import SEO from "$lib/seo/SEO.svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
   import * as m from "$paraglide/messages";
@@ -51,14 +49,14 @@
   });
 
   const medals = $derived(data.medals);
-  const getMedalLink = (semester: Semester) =>
-    `/medals?semester=${toString(semester)}`;
+  const getMedalLink = (semester: string) =>
+    `/medals?semester=${encodeURIComponent(semester)}`;
 
   let doorAccess = $derived(data.doorAccess);
 
   let canEdit = $derived(
     page.data.user?.studentId === member.studentId ||
-      isAuthorized(apiNames.MEMBER.UPDATE, page.data.user),
+      !!page.data.user?.policies.includes(apiNames.MEMBER.UPDATE),
   );
 
   const logoUrl = { D: "datateknik", C: "infocom", "VR/AR": "vr_ar" } as const;
@@ -222,7 +220,7 @@
                   </h6></a
                 >
                 <p class="text-muted-foreground mt-0">
-                  {m.medals_since() + " " + toString(medal.after)}
+                  {m.medals_since() + " " + medal.after}
                 </p>
               </div>
             </div>
@@ -290,7 +288,7 @@
                   </h6></a
                 >
                 <p class="text-muted-foreground mt-0">
-                  {m.medals_since() + " " + toString(medal.after)}
+                  {m.medals_since() + " " + medal.after}
                 </p>
               </div>
             </div>

@@ -15,6 +15,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -39,6 +40,9 @@ const folderPreserverObject = "_folder-preserver"
 // internal/articles actually depend on - *Store's real implementation, or
 // MockBackend for local dev without MinIO credentials (see main.go's
 // STORAGE_MOCK).
+// ErrNotFound is returned by Get for a key that doesn't exist.
+var ErrNotFound = errors.New("storage: not found")
+
 type Backend interface {
 	Put(ctx context.Context, bucket, key string, data io.Reader, size int64) (string, error)
 	List(ctx context.Context, bucket, prefix string, recursive bool) ([]Object, error)
@@ -154,6 +158,9 @@ func (s *Store) Get(ctx context.Context, bucket, key string) ([]byte, error) {
 	defer obj.Close()
 	data, err := io.ReadAll(obj)
 	if err != nil {
+		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
+			return nil, fmt.Errorf("storage: %s/%s: %w", bucket, key, ErrNotFound)
+		}
 		return nil, fmt.Errorf("storage: read %s/%s: %w", bucket, key, err)
 	}
 	return data, nil
@@ -295,7 +302,12 @@ func (MockBackend) List(_ context.Context, bucket, prefix string, _ bool) ([]Obj
 
 func (MockBackend) Get(_ context.Context, bucket, key string) ([]byte, error) {
 	log.Printf("storage: STORAGE_MOCK - pretending to read %s/%s", bucket, key)
-	return nil, fmt.Errorf("storage: STORAGE_MOCK has no object %s/%s", bucket, key)
+	return nil, fmt.Errorf(
+		"storage: STORAGE_MOCK has no object %s/%s: %w",
+		bucket,
+		key,
+		ErrNotFound,
+	)
 }
 
 func (MockBackend) Remove(_ context.Context, bucket string, keys []string) error {

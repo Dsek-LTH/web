@@ -1,31 +1,11 @@
 import "temporal-polyfill/global";
 import { env } from "$env/dynamic/private";
-import { createMember } from "$lib/utils/member";
 import { themes, type Theme } from "$lib/utils/themes";
-import {
-  cookieName,
-  defineCustomServerStrategy,
-  getLocale,
-} from "$paraglide/runtime";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { cookieName, defineCustomServerStrategy } from "$paraglide/runtime";
 import { fetchIdentity } from "$lib/server/goAuth";
-import { serverApi } from "$lib/server/apiClient";
-import {
-  error,
-  redirect,
-  type Handle,
-  type HandleServerError,
-} from "@sveltejs/kit";
+import { redirect, type Handle, type HandleServerError } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
-import { enhance } from "@zenstackhq/runtime";
-import RPCApiHandler from "@zenstackhq/server/api/rpc";
-import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientValidationError,
-} from "@prisma/client/runtime/library";
-import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 import { paraglideMiddleware } from "$paraglide/server";
 import { getRequestEvent } from "$app/server";
 import {
@@ -34,16 +14,15 @@ import {
   inflightRequests,
 } from "$lib/server/metrics";
 
-// Identity/session resolution (login, refresh, roles/policies) is now owned
-// entirely by the Go backend (backend/internal/auth) - see
-// backend/DESIGN.md's Auth section. This handle just asks Go who the caller
-// is (via the shared dsek_session cookie) and builds locals.user/locals.prisma
-// from that, the same shape the old Auth.js-based version produced.
-const databaseHandle: Handle = async ({ event, resolve }) => {
+// Identity/session resolution (login, refresh, roles/policies) is owned
+// entirely by the Go backend (backend/internal/auth) - see DESIGN.md's Auth
+// section. This handle asks Go who the caller is (via the shared
+// dsek_session cookie) and sets locals.user/locals.member from the answer.
+// Go's /auth/callback creates the member row on first login.
+const identityHandle: Handle = async ({ event, resolve }) => {
   const identity = await fetchIdentity(event);
 
-  if (!identity.studentId) {
-    const prisma = getExtendedPrismaClient(getLocale(), undefined);
+  if (!identity.studentId || !identity.member) {
     let externalCode = event.cookies.get("externalCode"); // Retrieve the externalCode from cookies
     if (!externalCode) {
       // Generate a new externalCode if it doesn't exist
@@ -54,74 +33,30 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
         secure: process.env["NODE_ENV"] === "production", // Only send cookie over HTTPS in production
       });
     }
-    const user = {
-      studentId: undefined,
-      memberId: undefined,
+    event.locals.user = {
       policies: identity.policies,
-      externalCode: externalCode, // For anonymous users
       roles: identity.roles,
+      externalCode,
     };
-    event.locals.prisma = enhance(prisma, {
-      user,
-    });
-    event.locals.user = user;
   } else {
-    const prisma = getExtendedPrismaClient(getLocale(), identity.studentId);
-    const existingMember = await authorizedPrismaClient.member.findUnique({
-      where: { studentId: identity.studentId },
-    });
-    // Go's /auth/callback already resolves-or-creates the Member row on
-    // login (see backend/internal/auth's resolveOrCreateMember, which as of
-    // Phase 9 also seeds default subscription settings/tag subscriptions via
-    // notifications.Service.SeedDefaults - no longer a "minimal" port) -
-    // this fallback only matters if that's ever bypassed (e.g. AUTH_MOCK).
-    // Still calls the full TS createMember (its own subscription-defaults/
-    // tag-subscription logic) rather than being trimmed to a bare insert,
-    // since this is a rare-path backstop, not Phase 9's job to redesign -
-    // see DESIGN.md's Auth section for the (now narrower) gap this leaves.
-    const member =
-      existingMember ||
-      (await createMember(
-        prisma,
-        {
-          studentId: identity.studentId,
-          firstName: identity.givenName,
-          lastName: identity.familyName,
-          email: identity.email,
-        },
-        serverApi(event),
-      ));
-
+    const { member } = identity;
     if (
       event.url.pathname != "/onboarding" &&
       (!member.classProgramme || !member.classYear) // consider adding email here, but make sure to fix onboarding as well
     ) {
       redirect(302, "/onboarding");
     }
-
-    const user = {
+    event.locals.user = {
       studentId: identity.studentId,
       memberId: identity.memberId,
       policies: identity.policies,
       roles: identity.roles,
     };
-
-    event.locals.prisma = enhance(prisma, { user });
-    event.locals.user = user;
-    event.locals.member = member!;
+    event.locals.member = member;
   }
 
   return resolve(event);
 };
-
-const apiHandle = zenstack.SvelteKitHandler({
-  prefix: "/api/model",
-  getPrisma: (event) => event.locals.prisma,
-  handler: (req) => {
-    if (req.method !== "GET") error(403); // until we have proper field-level policies, only allow reads
-    return RPCApiHandler()(req);
-  },
-});
 
 const APP_INSETS_REGEX = /APP-INSETS\s*\(([^)]*)\)/;
 const appHandle: Handle = async ({ event, resolve }) => {
@@ -163,18 +98,6 @@ const themeHandle: Handle = async ({ event, resolve }) => {
 };
 
 export const handleError: HandleServerError = ({ error }) => {
-  if (error instanceof PrismaClientKnownRequestError) {
-    const { message, name, code } = error;
-    console.log("prisma known request error", { message, name, code });
-    return {
-      message: message,
-    };
-  } else if (error instanceof PrismaClientValidationError) {
-    console.error("prisma validation error", error.message, error.name);
-    return {
-      message: "Database validation error, see logs for more info",
-    };
-  }
   return {
     message: error instanceof Error ? error.message : `${error}`,
   };
@@ -188,7 +111,7 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 
       try {
         // A cheap presence check, not a full identity resolution (that's
-        // databaseHandle's job, running after this) - just enough to know
+        // identityHandle's job, running after this) - just enough to know
         // whether to sync the locale cookie for a logged-in visitor.
         const hasSession = event.cookies.get("dsek_session") !== undefined;
         const existing = event.cookies.get(cookieName);
@@ -222,20 +145,13 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 defineCustomServerStrategy("custom-userPreference", {
   getLocale: async () => {
     const event = getRequestEvent();
-    // Same fetchIdentity call databaseHandle makes further down the chain -
+    // Same fetchIdentity call identityHandle makes further down the chain -
     // duplicated here since this strategy fires from inside paraglideHandle,
-    // which runs before databaseHandle populates locals.user. Not cached
-    // across the two; an accepted minor inefficiency, not a correctness gap
+    // which runs before identityHandle populates locals. Not cached across
+    // the two; an accepted minor inefficiency, not a correctness gap
     // (fetchIdentity's Set-Cookie forwarding is idempotent either way).
     const identity = await fetchIdentity(event);
-    if (identity.studentId) {
-      const lang = await authorizedPrismaClient.member.findFirst({
-        where: { studentId: identity.studentId },
-        select: { language: true },
-      });
-      return lang?.language ?? undefined;
-    }
-    return undefined;
+    return identity.member?.language ?? undefined;
   },
 });
 
@@ -272,8 +188,7 @@ export const handle = sequence(
     }
   },
   paraglideHandle,
-  databaseHandle,
-  apiHandle,
+  identityHandle,
   appHandle,
   themeHandle,
 );

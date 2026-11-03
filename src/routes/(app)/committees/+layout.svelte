@@ -15,14 +15,15 @@
   import * as m from "$paraglide/messages";
   import LinksDialog from "./LinksDialog.svelte";
   import { Marked } from "marked";
-  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
 
   let { data, children }: { data: CommitteeLoadData; children: Snippet } =
     $props();
 
-  let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
+  let canEdit = $state(
+    !!page.data.user?.policies.includes(apiNames.COMMITTEE.UPDATE),
+  );
 
   let committee = $derived(data.committee);
   let failedBannerUrl = $state<string | null>(null);

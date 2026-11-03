@@ -540,6 +540,16 @@ type PhadderGroup struct {
 	SeasonID    pgtype.UUID      `json:"season_id"`
 }
 
+type Ping struct {
+	ID         pgtype.UUID        `json:"id"`
+	FromMember pgtype.UUID        `json:"from_member"`
+	ToMember   pgtype.UUID        `json:"to_member"`
+	FromSentAt pgtype.Timestamptz `json:"from_sent_at"`
+	ToSentAt   pgtype.Timestamptz `json:"to_sent_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	Count      pgtype.Int4        `json:"count"`
+}
+
 type Position struct {
 	ID            string      `json:"id"`
 	NameSv        string      `json:"name_sv"`
@@ -552,6 +562,17 @@ type Position struct {
 	DescriptionEn pgtype.Text `json:"description_en"`
 	EndMonth      int32       `json:"end_month"`
 	StartMonth    int32       `json:"start_month"`
+}
+
+type Readme struct {
+	ID          pgtype.UUID        `json:"id"`
+	Title       string             `json:"title"`
+	Url         string             `json:"url"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	Year        int32              `json:"year"`
+	Number      int32              `json:"number"`
+	PublishedAt pgtype.Timestamptz `json:"published_at"`
 }
 
 type RecurringEvent struct {

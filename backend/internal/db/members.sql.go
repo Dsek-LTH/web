@@ -111,6 +111,17 @@ func (q *Queries) GetMemberByStudentID(ctx context.Context, studentID pgtype.Tex
 	return i, err
 }
 
+const getMemberPicturePath = `-- name: GetMemberPicturePath :one
+SELECT picture_path FROM members WHERE student_id = $1
+`
+
+func (q *Queries) GetMemberPicturePath(ctx context.Context, studentID pgtype.Text) (pgtype.Text, error) {
+	row := q.db.QueryRow(ctx, getMemberPicturePath, studentID)
+	var picture_path pgtype.Text
+	err := row.Scan(&picture_path)
+	return picture_path, err
+}
+
 const getMemberProfile = `-- name: GetMemberProfile :one
 SELECT id, student_id, first_name, nickname, last_name, picture_path, class_programme,
        class_year, visible, food_preference, bio, email, graduation_year, language
@@ -217,6 +228,23 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]Lis
 	return items, nil
 }
 
+const setMemberPicturePath = `-- name: SetMemberPicturePath :execrows
+UPDATE members SET picture_path = $1 WHERE student_id = $2
+`
+
+type SetMemberPicturePathParams struct {
+	PicturePath pgtype.Text `json:"picture_path"`
+	StudentID   pgtype.Text `json:"student_id"`
+}
+
+func (q *Queries) SetMemberPicturePath(ctx context.Context, arg SetMemberPicturePathParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setMemberPicturePath, arg.PicturePath, arg.StudentID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const updateMemberFoodPreference = `-- name: UpdateMemberFoodPreference :one
 UPDATE members
 SET food_preference = $2
@@ -267,6 +295,23 @@ func (q *Queries) UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemb
 		&i.Language,
 	)
 	return i, err
+}
+
+const updateMemberLanguage = `-- name: UpdateMemberLanguage :execrows
+UPDATE members SET language = $1 WHERE student_id = $2
+`
+
+type UpdateMemberLanguageParams struct {
+	Language  pgtype.Text `json:"language"`
+	StudentID pgtype.Text `json:"student_id"`
+}
+
+func (q *Queries) UpdateMemberLanguage(ctx context.Context, arg UpdateMemberLanguageParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateMemberLanguage, arg.Language, arg.StudentID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateMemberProfile = `-- name: UpdateMemberProfile :one

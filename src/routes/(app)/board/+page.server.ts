@@ -11,7 +11,8 @@ import type { PageServerLoad } from "./$types";
 // too, not just after client-side hydration re-fetches with real cookies.
 export const load: PageServerLoad = async (event) => {
   const res = await serverApi(event).GET("/board", {});
-  if (res.error) throw error(500, "Failed to load board");
+  if (res.error)
+    error(res.response.status, res.error.detail ?? "Failed to load board");
   return {
     boardPositions: res.data,
   };

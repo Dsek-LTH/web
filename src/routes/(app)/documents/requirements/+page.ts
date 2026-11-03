@@ -17,7 +17,11 @@ export const load: PageLoad = async ({ fetch, url }) => {
     fetch,
     params: { query: { year } },
   });
-  if (res.error) throw error(500, "Failed to load requirement profiles");
+  if (res.error)
+    error(
+      res.response.status,
+      res.error.detail ?? "Failed to load requirement profiles",
+    );
 
   return {
     folders: res.data ?? [],

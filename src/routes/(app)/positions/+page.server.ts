@@ -12,7 +12,8 @@ import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async (event) => {
   const res = await serverApi(event).GET("/positions", {});
-  if (res.error) throw error(500, "Failed to load positions");
+  if (res.error)
+    error(res.response.status, res.error.detail ?? "Failed to load positions");
   const positions = res.data ?? [];
 
   const updateForms = Object.fromEntries(

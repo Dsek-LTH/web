@@ -1,13 +1,13 @@
 import apiNames from "$lib/utils/apiNames";
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { getFullName } from "$lib/utils/client/member";
 import nodemailer from "nodemailer";
+import * as m from "$paraglide/messages";
 import { env } from "$env/dynamic/private";
-import { authorize } from "$lib/utils/authorization";
 
 const transporter = nodemailer.createTransport({
   host: "mailmaster.blossom.dsek.se",
@@ -20,8 +20,10 @@ const transporter = nodemailer.createTransport({
 });
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { user } = locals;
-  authorize(apiNames.YRKA.SEND, user);
+  // Sending a motion is an email from this server, not a Go call, so this
+  // is the one permission check that stays here.
+  if (!locals.user?.policies.includes(apiNames.YRKA.SEND))
+    error(403, `${m.errors_missingPermissions()} ${apiNames.YRKA.SEND}`);
   return {
     form: await superValidate(zod4(createSchema)),
   };

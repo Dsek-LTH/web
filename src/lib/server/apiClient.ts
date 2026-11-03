@@ -21,7 +21,7 @@ import type { paths } from "$lib/api/schema";
  * `.server.ts` file calls.
  *
  * By the time any route's load/action runs, hooks.server.ts's
- * databaseHandle has already called fetchIdentity() once for this same
+ * identityHandle has already called fetchIdentity() once for this same
  * request (and, via forwardSetCookies, already rewritten event.cookies if
  * Go silently refreshed the session) - so reading from event.cookies here
  * rather than the raw incoming request header always sees that freshest

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "prepare": "svelte-kit sync && zenstack generate && prisma generate && pnpm paraglide && pnpm snaplet-seed generate",
+    "prepare": "svelte-kit sync && pnpm paraglide",
     "setup-dev": "vite-node dev/setup.ts",
     "ci-check": "concurrently 'pnpm:lint --max-warnings 0' 'pnpm:format' 'pnpm:test' 'pnpm:check --fail-on-warnings' 'pnpm:check-translations' --prefix-colors 'auto' --group",
     "dev": "vite dev",
@@ -18,24 +18,10 @@
     "test": "pnpm test:unit",
     "test:integration": "playwright test",
     "test:unit": "vitest run --retry 2",
-    "generate": "zenstack generate && prisma generate",
-    "migrate": "zenstack generate && prisma migrate dev && snaplet-seed sync",
-    "migrate:deploy": "prisma migrate deploy",
-    "migrate:seed": "prisma migrate deploy && prisma db seed",
-    "seed": "prisma db seed",
-    "prisma-case-format": "prisma-case-format -f src/database/prisma/schema.prisma",
+    "migrate": "cd backend && go tool migrate up",
+    "seed": "cd backend && go tool seed",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",
     "check-translations": "./dev/check_translations.sh"
-  },
-  "zenstack": {
-    "schema": "src/database/schema.zmodel"
-  },
-  "prisma": {
-    "schema": "src/database/prisma/schema.prisma",
-    "seed": "vite-node src/database/seed/main.ts"
-  },
-  "@snaplet/seed": {
-    "config": "src/database/seed/seed.config.ts"
   },
   "devDependencies": {
     "@clack/prompts": "^0.8.2",
@@ -43,14 +29,11 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.39.1",
     "@event-calendar/core": "^4.5.2",
-    "@faker-js/faker": "^9.3.0",
     "@iconify-json/flag": "^1.2.2",
     "@iconify-json/mdi": "^1.2.1",
     "@inlang/paraglide-js": "2.9.1",
     "@internationalized/date": "^3.12.1",
     "@lucide/svelte": "^0.561.0",
-    "@snaplet/copycat": "^5.1.0",
-    "@snaplet/seed": "0.98.0",
     "@sveltejs/adapter-node": "^5.4.0",
     "@sveltejs/adapter-vercel": "^6.1.1",
     "@sveltejs/kit": "^2.63.1",
@@ -60,12 +43,10 @@
     "@tanstack/table-core": "^8.21.3",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.10.1",
-    "@types/node-schedule": "^2.1.7",
     "@types/nodemailer": "^6.4.17",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
-    "@zenstackhq/openapi": "^2.10.0",
     "bits-ui": "^2.18.0",
     "clsx": "^2.1.1",
     "concurrently": "^9.1.0",
@@ -82,8 +63,6 @@
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "prisma": "^6.0.1",
-    "prisma-case-format": "^2.2.1",
     "svelte": "^5.56.3",
     "svelte-check": "^4.3.4",
     "sveltekit-flash-message": "^2.4.6",
@@ -99,7 +78,6 @@
     "vite-node": "^5.3.0",
     "vitest": "^4.0.18",
     "vitest-mock-extended": "^2.0.2",
-    "zenstack": "^2.10.0",
     "zod": "^4.3.5"
   },
   "type": "module",
@@ -109,14 +87,12 @@
     "@fontsource/lexend": "^5.1.1",
     "@fullcalendar/core": "^6.1.17",
     "@fullcalendar/daygrid": "^6.1.17",
-    "@goauthentik/api": "2025.6.3-1751754396",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@opentelemetry/auto-instrumentations-node": "^0.67.3",
     "@opentelemetry/exporter-trace-otlp-http": "^0.209.0",
     "@opentelemetry/sdk-node": "^0.209.0",
     "@playwright/test": "^1.49.0",
     "@preact/signals": "^2.8.2",
-    "@prisma/client": "^6.0.1",
     "@schedule-x/calendar": "^3.0.0",
     "@schedule-x/calendar-controls": "^4.3.1",
     "@schedule-x/current-time": "^4.3.1",
@@ -130,13 +106,8 @@
     "@tiptap/pm": "^2.10.3",
     "@tiptap/starter-kit": "^2.10.3",
     "@vercel/speed-insights": "^1.1.0",
-    "@zenstackhq/runtime": "^2.10.0",
-    "@zenstackhq/server": "^2.10.0",
-    "browser-image-compression": "^2.0.2",
-    "croppie": "^2.6.5",
     "dayjs": "^1.11.19",
     "embla-carousel-autoplay": "^8.5.1",
-    "expo-server-sdk": "^3.13.0",
     "express": "^4.21.1",
     "ics": "^3.8.1",
     "import-in-the-middle": "^2.0.1",
@@ -144,29 +115,21 @@
     "markdown-to-txt": "^2.0.1",
     "marked": "^15.0.3",
     "minecraft-server-ping": "^0.3.3",
-    "minio": "^8.0.2",
     "mode-watcher": "^1.1.0",
-    "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.16",
     "preact": "^10.29.0",
     "prom-client": "^14.2.0",
-    "sharp": "^0.33.5",
     "simple-icons": "^15.21.0",
     "svelte-easy-crop": "^3.0.1",
     "temporal-polyfill": "0.3.0",
     "tiptap-markdown": "^0.8.10",
-    "uuid": "^11.0.3",
-    "vite-plugin-cjs-interop": "^2.1.6"
+    "uuid": "^11.0.3"
   },
   "engines": {
     "node": "<=26"
   },
   "packageManager": "pnpm@9.14.4",
   "pnpm": {
-    "overrides": {
-      "@prisma/generator-helper@5.14.0-dev.34": "^6.0.0",
-      "@prisma/internals@5.14.0-dev.34": "^6.0.0"
-    },
     "patchedDependencies": {
       "devalue@5.8.1": "patches/devalue@5.8.1.patch"
     }

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { Button } from "$lib/components/ui/button";
-  import { isAuthorized } from "$lib/utils/authorization";
   import { ArrowRight, LogIn, LogOut, Settings, User } from "@lucide/svelte";
   import { getRoutes } from "../../../routes";
   import { m } from "$paraglide/messages";
@@ -13,7 +12,8 @@
   let { data }: { data: PageData } = $props();
 
   const canAccess = (accessRequired: string | null) =>
-    accessRequired === null || isAuthorized(accessRequired, page.data.user);
+    accessRequired === null ||
+    !!page.data.user?.policies.includes(accessRequired);
 
   const disallowedTitles: string[] = [m.applicant()];
 

@@ -53,3 +53,12 @@ RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_p
 INSERT INTO members (student_id, first_name, last_name, email, class_year)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, student_id, first_name, last_name, email, class_year, class_programme;
+
+-- name: GetMemberPicturePath :one
+SELECT picture_path FROM members WHERE student_id = $1;
+
+-- name: SetMemberPicturePath :execrows
+UPDATE members SET picture_path = sqlc.narg('picture_path') WHERE student_id = sqlc.arg('student_id');
+
+-- name: UpdateMemberLanguage :execrows
+UPDATE members SET language = sqlc.arg('language') WHERE student_id = sqlc.arg('student_id');

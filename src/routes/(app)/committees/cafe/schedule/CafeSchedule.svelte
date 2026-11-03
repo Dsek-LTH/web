@@ -3,12 +3,11 @@
   import { enhance } from "$app/forms";
   import { goto } from "$app/navigation";
   import { SvelteURLSearchParams } from "svelte/reactivity";
-  import type { AuthUser } from "@zenstackhq/runtime";
+  import type { AuthUser } from "$lib/auth/types";
   import type { components } from "$lib/api/schema";
   import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
   import { cn } from "$lib/utils";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import { getFullName } from "$lib/utils/client/member";
 
   import dayjs from "dayjs";
@@ -119,15 +118,17 @@
   const now = dayjs();
   const year = now.year();
   const weeksInYear = dayjs().isoWeeksInYear();
-  const isDayManager = $derived(isAuthorized(apiNames.CAFE.DAY_MANAGER, user));
+  const isDayManager = $derived(
+    !!user?.policies.includes(apiNames.CAFE.DAY_MANAGER),
+  );
   const canEditWorkers = $derived(
-    isAuthorized(apiNames.CAFE.EDIT_WORKERS, user),
+    !!user?.policies.includes(apiNames.CAFE.EDIT_WORKERS),
   );
   const canEditCiabattas = $derived(
-    isAuthorized(apiNames.CAFE.EDIT_CIABATTAS, user),
+    !!user?.policies.includes(apiNames.CAFE.EDIT_CIABATTAS),
   );
   const canSeeAllWeeks = $derived(
-    isAuthorized(apiNames.CAFE.SEE_ALL_WEEKS, user),
+    !!user?.policies.includes(apiNames.CAFE.SEE_ALL_WEEKS),
   );
 
   let editing: boolean = $state(false);

@@ -1,22 +1,7 @@
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
 import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async () => {
-  const currentDate = new Date().toISOString();
-
-  const alarmActiveEvent = await authorizedPrismaClient.event.findFirst({
-    where: {
-      alarmActive: true,
-      startDatetime: {
-        lte: currentDate,
-      },
-      endDatetime: {
-        gt: currentDate,
-      },
-    },
-  });
-
-  const alarmOn = alarmActiveEvent == null ? "false" : "true";
-
-  return new Response(alarmOn);
-};
+// A thin proxy to Go's GET /alarm: "true" while an alarm-flagged event is
+// running, else "false". Kept at this URL for whatever polls it.
+export const GET: RequestHandler = async ({ fetch }) =>
+  fetch(new URL("/alarm", PUBLIC_GO_BACKEND_URL));

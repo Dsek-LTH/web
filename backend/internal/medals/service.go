@@ -7,9 +7,11 @@ package medals
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/backend/internal/apitypes"
@@ -42,6 +44,9 @@ func committeeMedalName(nameSv string, nameEn *string, loc string) string {
 	return medalName("committee", loc) + " — " + dbutil.ResolveName(nameSv, nameEn, loc)
 }
 
+// ErrNotFound is returned for a student id with no member.
+var ErrNotFound = errors.New("medals: not found")
+
 type Service struct {
 	queries *db.Queries
 }
@@ -63,22 +68,25 @@ func requireMember(ctx context.Context) (*auth.Identity, error) {
 	return identity, nil
 }
 
-// MemberMedals mirrors memberMedals: which medals a specific member earned
-// (and after which semester), evaluated as of `after`.
+// MemberMedals mirrors memberMedals: which medals the member with
+// studentID earned (and after which semester), evaluated as of `after`.
 func (s *Service) MemberMedals(
 	ctx context.Context,
-	memberID string,
+	studentID string,
 	after semesters.Semester,
 ) ([]MemberMedal, error) {
 	if _, err := requireMember(ctx); err != nil {
 		return nil, err
 	}
-	id, err := dbutil.ParseUUID(memberID)
+	member, err := s.queries.GetMemberByStudentID(ctx, pgtype.Text{String: studentID, Valid: true})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
 	if err != nil {
-		return nil, fmt.Errorf("invalid member id: %w", err)
+		return nil, fmt.Errorf("get member: %w", err)
 	}
 
-	rows, err := s.queries.ListMemberMandatesWithPosition(ctx, id)
+	rows, err := s.queries.ListMemberMandatesWithPosition(ctx, member.ID)
 	if err != nil {
 		return nil, fmt.Errorf("list member mandates: %w", err)
 	}

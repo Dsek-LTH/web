@@ -11,7 +11,6 @@
   import SEO from "$lib/seo/SEO.svelte";
   import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./[shortName]/$types";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import * as Avatar from "$lib/components/ui/avatar";
@@ -24,7 +23,9 @@
 
   let activeTab = $state("sv");
   let committee = $derived(data.committee);
-  let canEdit = $state(isAuthorized(apiNames.COMMITTEE.UPDATE, page.data.user));
+  let canEdit = $state(
+    !!page.data.user?.policies.includes(apiNames.COMMITTEE.UPDATE),
+  );
 
   let previewPositions = $derived(
     data.positions?.filter((p) => (p.mandates ?? []).length == 1).slice(0, 3),

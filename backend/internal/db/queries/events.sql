@@ -274,3 +274,32 @@ WHERE id = $1;
 -- Events store the chosen organizing committee's Swedish name in the
 -- free-text organizer column too (see Service.resolveCommittee).
 SELECT name_sv FROM committees WHERE id = $1;
+
+-- name: ListEventsForCalendar :many
+-- The ICS subscribe feeds: non-removed events starting after starts_after
+-- (and, if given, ending before ends_before). nollning_season_id narrows
+-- to one season's events; exclude_nollning drops every season's events
+-- (the general feed - what BASIC_EVENT_FILTER(false) did with tags).
+SELECT id, title_sv, title_en, description_sv, description_en, location,
+    start_datetime, end_datetime, number_of_updates
+FROM events
+WHERE (removed_at IS NULL OR removed_at > now())
+  AND start_datetime >= sqlc.arg('starts_after')
+  AND (sqlc.narg('ends_before')::timestamptz IS NULL OR end_datetime <= sqlc.narg('ends_before')::timestamptz)
+  AND (sqlc.narg('nollning_season_id')::uuid IS NULL OR nollning_season_id = sqlc.narg('nollning_season_id')::uuid)
+  AND (NOT sqlc.arg('exclude_nollning')::bool OR nollning_season_id IS NULL)
+ORDER BY start_datetime;
+
+-- name: AnyAlarmActiveEventNow :one
+SELECT EXISTS (
+    SELECT 1 FROM events
+    WHERE alarm_active AND start_datetime <= now() AND end_datetime > now()
+);
+
+-- name: GetEventSlugByID :one
+-- Non-removed only, like the event pages themselves.
+SELECT id, slug, title_sv FROM events
+WHERE id = $1 AND (removed_at IS NULL OR removed_at > now());
+
+-- name: SetEventSlug :exec
+UPDATE events SET slug = $2 WHERE id = $1;

@@ -25,7 +25,11 @@ export const settingsLoad = async (event: ServerLoadEvent) => {
     api.GET("/notification-settings", {}),
     api.GET("/tags", {}),
   ]);
-  if (settingsRes.error) error(500, "Failed to load notification settings");
+  if (settingsRes.error)
+    error(
+      settingsRes.response.status,
+      settingsRes.error.detail ?? "Failed to load notification settings",
+    );
 
   return {
     tags: tagsRes.data ?? [],

@@ -3,7 +3,6 @@
   import { Badge } from "$lib/components/ui/badge";
   import { getBadgeVariantFromProgramme } from "$lib/components/ui/badge/badge.svelte";
 
-  import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
   import { getFullName } from "$lib/utils/client/member";
   import type { Snippet } from "svelte";
@@ -24,16 +23,15 @@
     // `string | undefined` once those are ported too - see
     // CommitteeSymbol's identical note.
     member: {
-      [K in
-        | "firstName"
-        | "lastName"
-        | "nickname"
-        | "studentId"
-        | "picturePath"
-        | "classProgramme"
-        | "classYear"]?: ExtendedPrismaModel<"Member">[K] | undefined;
+      firstName?: string | null;
+      lastName?: string | null;
+      nickname?: string | null;
+      studentId?: string | null;
+      picturePath?: string | null;
+      classProgramme?: string | null;
+      classYear?: number | null;
     };
-    type?: ExtendedPrismaModel<"Author">["type"];
+    type?: "Member" | "Mandate" | "Custom";
     links?: boolean;
     showId?: boolean;
     nickname?: boolean;

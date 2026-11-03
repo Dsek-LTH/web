@@ -1,14 +1,19 @@
-import { env } from "$env/dynamic/private";
+import { MINIO_BASE_URL } from "$lib/files/client";
 import { serverApi } from "$lib/server/apiClient";
-import { fileHandler } from "$lib/files";
 import { fail } from "@sveltejs/kit";
+
+// MinIO's own liveness probe, on its public URL:
+// https://min.io/docs/minio/linux/operations/monitoring/healthcheck-probe.html
+const isMinIOHealthy = (fetch: typeof globalThis.fetch) =>
+  fetch(`${MINIO_BASE_URL}minio/health/live`, { cache: "reload" })
+    .then((res) => res.ok)
+    .catch(() => false);
 
 export const load = async (event) => {
   const currentRes = await serverApi(event).GET("/nollning/current", {});
   return {
     isNollning: currentRes.data?.phase !== "off",
-    prismaLogLevel: env.PRISMA_LOG_LEVEL,
-    minIOHealthy: await fileHandler.isMinIOHealthy(),
+    minIOHealthy: await isMinIOHealthy(event.fetch),
   };
 };
 

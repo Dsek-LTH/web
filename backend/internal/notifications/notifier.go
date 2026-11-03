@@ -151,6 +151,23 @@ func (n *RealNotifier) NotifyEventInterested(
 	return n.notifyEventRSVP(ctx, e, TypeEventInterested, "är intresserad av ditt event.")
 }
 
+// NotifyPing mirrors pings.ts's sendNotification call.
+func (n *RealNotifier) NotifyPing(ctx context.Context, p integrations.PingNotification) error {
+	senderName, err := n.svc.memberFullName(ctx, p.FromMemberID)
+	if err != nil {
+		return err
+	}
+	fromMemberID := p.FromMemberID
+	return n.svc.Send(ctx, SendParams{
+		Title:        "PING!",
+		Message:      senderName + " har pingat dig!",
+		Type:         TypePing,
+		Link:         "/members/" + p.FromStudentID,
+		MemberIDs:    []string{p.ToMemberID},
+		FromMemberID: &fromMemberID,
+	})
+}
+
 func (n *RealNotifier) notifyEventRSVP(
 	ctx context.Context,
 	e integrations.EventNotification,

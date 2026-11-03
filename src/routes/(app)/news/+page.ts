@@ -56,7 +56,11 @@ export const load: PageLoad = async ({ fetch, url }) => {
     // DESIGN.md's mocking principle.
     api.GET("/tags", { fetch }),
   ]);
-  if (articlesRes.error) throw error(500, "Failed to load articles");
+  if (articlesRes.error)
+    error(
+      articlesRes.response.status,
+      articlesRes.error.detail ?? "Failed to load articles",
+    );
   const { articles, pageCount } = articlesRes.data;
 
   if (pageCount > 0 && page > pageCount) {

@@ -8,8 +8,6 @@ node_modules
 !.env.example
 /.vscode
 src/translations/paraglide
-src/routes/api/openapi.json/openapi.json
-src/database/seed/.snaplet
 # Ignore files for PNPM, NPM and YARN
 pnpm-lock.yaml
 package-lock.json
@@ -17,3 +15,8 @@ yarn.lock
 # Hand-wrapped design docs - Prettier rewrites their nested list formatting
 DESIGN.md
 backend/CLAUDE.md
+
+# Inserted into the database as-is by the seed command
+backend/cmd/seed/pages/
+# Backend scratch output (gitignored)
+backend/tmp/

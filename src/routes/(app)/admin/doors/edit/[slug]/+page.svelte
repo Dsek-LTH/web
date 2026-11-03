@@ -37,7 +37,6 @@
   } from "$lib/components/ui/alert-dialog";
   import * as m from "$paraglide/messages";
   import { untrack } from "svelte";
-  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
 
@@ -77,7 +76,7 @@
 </script>
 
 <div class="space-y-6">
-  {#if isAuthorized(apiNames.DOOR.UPDATE, page.data.user)}
+  {#if page.data.user?.policies.includes(apiNames.DOOR.UPDATE)}
     <!-- Form -->
     <Card>
       <CardHeader>
@@ -271,7 +270,7 @@
                   </p>
                 {/if}
               </div>
-              {#if isAuthorized(apiNames.DOOR.DELETE, page.data.user)}
+              {#if page.data.user?.policies.includes(apiNames.DOOR.DELETE)}
                 <Button
                   type="submit"
                   size="icon"

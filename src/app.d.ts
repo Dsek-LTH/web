@@ -1,11 +1,7 @@
 import type { ToastNotification } from "$lib/stores/toast";
 import type { Theme } from "$lib/utils/themes";
 import type { AvailableLanguageTag } from "$paraglide/runtime";
-import type { AuthUser } from "@zenstackhq/runtime";
-import type {
-  ExtendedPrisma,
-  ExtendedPrismaModel,
-} from "$lib/server/extendedPrisma";
+import type { AuthUser, SignedInMember } from "$lib/auth/types";
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
@@ -32,8 +28,7 @@ declare global {
     }
     interface Locals {
       user: AuthUser;
-      member?: ExtendedPrismaModel<"Member">;
-      prisma: ExtendedPrisma;
+      member?: SignedInMember;
       isApp: boolean;
       appInfo?: AppInfo;
       theme: Theme;
@@ -41,7 +36,7 @@ declare global {
     }
     interface PageData {
       user?: AuthUser;
-      member?: ExtendedPrismaModel<"Member">;
+      member?: SignedInMember;
       flash?: Message;
       isApp: boolean;
       appInfo?: AppInfo;

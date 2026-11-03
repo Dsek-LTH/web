@@ -26,14 +26,14 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
       api.GET("/tags", { fetch }),
     ]);
   if (articleRes.error) throw error(404, m.news_errors_articleNotFound());
-  if (
-    mandatesRes.error ||
-    customAuthorsRes.error ||
-    committeesRes.error ||
-    tagsRes.error
-  ) {
-    throw error(500, "Failed to load author/committee/tag options");
-  }
+  const failed = [mandatesRes, customAuthorsRes, committeesRes, tagsRes].find(
+    (res) => res.error,
+  );
+  if (failed?.error)
+    error(
+      failed.response.status,
+      failed.error.detail ?? "Failed to load author/committee/tag options",
+    );
   const article = articleRes.data;
 
   const self = {

@@ -1,24 +1,8 @@
-import { REVEAL_LAUNCH_DATE } from "$lib/components/postReveal/types";
-import { BASIC_EVENT_FILTER } from "$lib/events/events";
-import { generateICS } from "$lib/server/ics/calendar";
-import dayjs from "dayjs";
+import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
+import type { RequestHandler } from "./$types";
 
-export const GET = async ({ locals, setHeaders }) => {
-  const { prisma } = locals;
-
-  const revealTheme = REVEAL_LAUNCH_DATE <= new Date();
-
-  const events = await prisma.event.findMany({
-    where: {
-      ...BASIC_EVENT_FILTER(revealTheme),
-      startDatetime: {
-        gte: dayjs().subtract(1, "month").toDate(),
-      },
-      endDatetime: {
-        lte: dayjs().add(3, "months").toDate(),
-      },
-    },
-  });
-
-  return generateICS(events, setHeaders);
-};
+// A thin proxy to Go's nollning ICS feed (backend/internal/events'
+// CalendarICS). Calendar apps subscribe to this URL, so it must keep
+// working here.
+export const GET: RequestHandler = async ({ fetch }) =>
+  fetch(new URL("/calendar/nollning.ics", PUBLIC_GO_BACKEND_URL));

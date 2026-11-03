@@ -3,7 +3,7 @@ import { z } from "zod";
 import * as m from "$paraglide/messages";
 import type { Infer } from "sveltekit-superforms";
 import { isFileImage } from "$lib/files/utils";
-import { recurringTypesList, recurringTypeValues } from "$lib/utils/events"; // we cannot use the enum from @prisma/client due to vite not supporting enums in client code
+import { recurringTypesList, recurringTypeValues } from "$lib/utils/events";
 
 export const eventSchema = z
   .object({

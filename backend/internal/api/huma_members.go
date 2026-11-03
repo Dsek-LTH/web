@@ -5,6 +5,7 @@ package api
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -104,4 +105,76 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 		}
 		return &memberOutput{Body: *member}, nil
 	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "update-member-language",
+		Method:        http.MethodPatch,
+		Path:          "/members/{studentId}/language",
+		Summary:       "Set a member's preferred site language",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, input *updateLanguageInput) (*struct{}, error) {
+		if err := svc.UpdateLanguage(ctx, input.StudentID, input.Body.Language); err != nil {
+			return nil, humaServiceError(err)
+		}
+		return nil, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "upload-member-picture",
+		Method:      http.MethodPut,
+		Path:        "/members/{studentId}/picture",
+		Summary:     "Upload a member's profile picture and make it their avatar",
+		Description: "The image should already be cropped (the web app crops to 400x400 WebP). " +
+			"Replaces and deletes the previous picture.",
+	}, func(ctx context.Context, input *uploadMemberPictureInput) (*memberPictureOutput, error) {
+		f := input.RawBody.Data().Image
+		data, err := io.ReadAll(io.LimitReader(f, members.MaxPictureSize+1))
+		if err != nil {
+			return nil, huma.Error400BadRequest("could not read the picture")
+		}
+		url, err := svc.UploadPicture(ctx, input.StudentID, data)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		out := &memberPictureOutput{}
+		out.Body.PicturePath = url
+		return out, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "delete-member-picture",
+		Method:        http.MethodDelete,
+		Path:          "/members/{studentId}/picture",
+		Summary:       "Remove a member's profile picture",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, input *studentIDPathInput) (*struct{}, error) {
+		if err := svc.RemovePicture(ctx, input.StudentID); err != nil {
+			return nil, humaServiceError(err)
+		}
+		return nil, nil
+	})
+}
+
+type uploadMemberPictureInput struct {
+	StudentID string `path:"studentId"`
+	RawBody   huma.MultipartFormFiles[struct {
+		Image huma.FormFile `form:"image" required:"true"`
+	}]
+}
+
+type memberPictureOutput struct {
+	Body struct {
+		PicturePath string `json:"picturePath"`
+	}
+}
+
+type updateLanguageInput struct {
+	StudentID string `path:"studentId"`
+	Body      struct {
+		Language string `json:"language" enum:"sv,en"`
+	}
+}
+
+type studentIDPathInput struct {
+	StudentID string `path:"studentId"`
 }

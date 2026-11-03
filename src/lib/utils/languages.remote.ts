@@ -1,19 +1,16 @@
 import { command, getRequestEvent } from "$app/server";
+import { serverApi } from "$lib/server/apiClient";
 import { setLocale } from "$paraglide/runtime";
 import z from "zod";
 
-export const setLanguage = command(
-  z.string().refine((s) => s === "sv" || s === "en"),
-  async (lang) => {
-    const {
-      locals: { prisma, user },
-    } = getRequestEvent();
-    if (user.studentId) {
-      await prisma.member.update({
-        where: { studentId: user?.studentId },
-        data: { language: lang },
-      });
-    }
-    setLocale(lang);
-  },
-);
+export const setLanguage = command(z.enum(["sv", "en"]), async (lang) => {
+  const event = getRequestEvent();
+  const studentId = event.locals.user?.studentId;
+  if (studentId) {
+    await serverApi(event).PATCH("/members/{studentId}/language", {
+      params: { path: { studentId } },
+      body: { language: lang },
+    });
+  }
+  setLocale(lang);
+});

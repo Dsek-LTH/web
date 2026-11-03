@@ -1,8 +1,7 @@
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
 import { env } from "$env/dynamic/private";
-import { fileHandler } from "$lib/files";
-import { api } from "$lib/api/client";
-import { error } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
+import type { components } from "$lib/api/schema";
+import { error, type RequestEvent } from "@sveltejs/kit";
 // eslint-disable-next-line no-restricted-imports -- problem with lib and api, feels unnecessary to create a bunch of helper files just to structure this one thing
 import type { GetCommitDataResponse } from "../../routes/(app)/api/home/+server";
 import * as m from "$paraglide/messages";
@@ -10,62 +9,54 @@ import { pingUri } from "minecraft-server-ping";
 import { wikiDataCache } from "./wiki/wiki";
 import dayjs from "dayjs";
 
-type Fetch = typeof fetch;
-export const loadHomeData = async ({
-  locals,
-  fetch,
-}: {
-  locals: App.Locals;
-  fetch: Fetch;
-}) => {
-  const { prisma, user } = locals;
+type Meeting = components["schemas"]["Meeting"];
+
+export type BoardMeetingFiles = {
+  name: string;
+  files: Array<components["schemas"]["DocumentFile"]>;
+};
+
+const boardMeetingFiles = (meeting: Meeting): BoardMeetingFiles => ({
+  name: meeting.name,
+  files: [
+    meeting.notice,
+    meeting.agenda,
+    meeting.minutes,
+    ...(meeting.files ?? []),
+  ].filter((file) => file !== undefined),
+});
+
+export const loadHomeData = async (event: RequestEvent) => {
+  const { fetch } = event;
+  const api = serverApi(event);
 
   /* files - subject to change */
 
   const now = new Date();
   const year = now.getFullYear();
-  const files = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_DOCUMENTS, "public/" + year + "/", true)
-    .catch((err) => {
-      console.error("Error fetching files", err);
-      return [];
-    });
-
-  const boardMeetingFileNameRegex = /^S\d+$/;
-  const boardMeetings = Array.from(
-    new Set(
-      files
-        .map((obj) => obj.id.split("/")[2])
-        .filter((str) => boardMeetingFileNameRegex.test(str!))
-        .map((str) => parseInt(str!.substring(1)))
-        .sort((a, b) => a - b),
-    ),
-  );
-
+  // This year's board meetings (folders named S01, S02, ...): the highest
+  // number is the next meeting, the one before it the last.
+  const boardMeetings = await api
+    .GET("/documents", {
+      params: { query: { type: "board-meeting", year } },
+    })
+    .then((res) =>
+      (res.data ?? [])
+        .filter((meeting) => /^S\d+$/.test(meeting.name))
+        .sort(
+          (a, b) =>
+            parseInt(a.name.substring(1)) - parseInt(b.name.substring(1)),
+        ),
+    );
   const nextBoardMeeting = boardMeetings.pop();
   const lastBoardMeeting = boardMeetings.pop();
-
-  function filterFilesByBoardMeeting(boardMeeting: number | undefined) {
-    return boardMeeting === undefined
-      ? []
-      : files.filter(
-          (obj) =>
-            obj.id.split("/")[2] ===
-            "S" + (boardMeeting < 10 ? "0" : "") + boardMeeting,
-        );
-  }
-
-  const nextBoardMeetingFiles = filterFilesByBoardMeeting(nextBoardMeeting);
-  const lastBoardMeetingFiles = filterFilesByBoardMeeting(lastBoardMeeting);
-
-  /* files ends */
 
   // NEWS
   // Ordered by publishedAt (the Go API's only order), not createdAt like
   // the old query - these only diverge for an article edited well after a
   // scheduled publish, which doesn't matter for a 3-item homepage widget.
   const newsPromise = api
-    .GET("/articles", { fetch, params: { query: { pageSize: 4 } } })
+    .GET("/articles", { params: { query: { pageSize: 4 } } })
     .then((res) => res.data?.articles ?? []);
 
   const startDate = dayjs(now).startOf("day").toDate();
@@ -76,7 +67,6 @@ export const loadHomeData = async ({
   // switched this to an overlap check too).
   const eventsPromise = api
     .GET("/events", {
-      fetch,
       params: {
         query: {
           span: "range",
@@ -94,34 +84,12 @@ export const loadHomeData = async ({
       })),
     );
 
-  // MEETINGS
-  const upcomingMeetingPromise = prisma.meeting.findFirst({
-    where: {
-      date: {
-        gt: now,
-      },
-    },
-    orderBy: {
-      date: "asc",
-    },
-  });
-  const previousMeetingPromise = prisma.meeting.findFirst({
-    where: {
-      date: {
-        lt: now,
-      },
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
-
   // CAFE OPENING TIMES
-  const cafeOpenPromise = prisma.markdown.findFirst({
-    where: {
-      name: `cafe:open:${now.getDay() - 1}`, // we assign monday to 0, not sunday
-    },
-  });
+  const cafeOpenPromise = api.GET("/cafe/opening-hours").then((res) =>
+    (res.data ?? []).find(
+      (hours) => hours.name === `cafe:open:${now.getDay() - 1}`, // we assign monday to 0, not sunday
+    ),
+  );
 
   // COMMIT DATA
   const commitPromise = fetch(`/api/home`).then((res) =>
@@ -137,27 +105,6 @@ export const loadHomeData = async ({
     m.home_change(),
   ].at(Math.floor(Math.random() * 5))!;
 
-  // ACTIVE MANDATE?
-  const hasActiveMandatePromise = prisma.mandate
-    .findFirst({
-      where: {
-        startDate: { lte: now },
-        endDate: { gte: now },
-        memberId: locals.user?.memberId,
-      },
-      select: {
-        id: true,
-      },
-    })
-    .then((res) => res !== null);
-
-  const readmePromise = prisma.readme.findMany({
-    orderBy: {
-      publishedAt: "desc",
-    },
-    take: 4,
-  });
-
   // Elections
   // Ordered soonest-closing first (the Go API's only order for this list),
   // not newest-announced first like the old query - a deliberate
@@ -165,53 +112,28 @@ export const loadHomeData = async ({
   // second order variant to the endpoint (see DESIGN.md's "Elections"
   // section).
   const electionsPromise = api
-    .GET("/elections", { fetch })
+    .GET("/elections")
     .then((res) => (res.data ?? []).slice(0, 3));
 
-  const [
-    news,
-    events,
-    upcomingMeeting,
-    previousMeeting,
-    cafeOpen,
-    commitData,
-    hasActiveMandate,
-    readme,
-    elections,
-  ] = await Promise.allSettled([
-    newsPromise,
-    eventsPromise,
-    upcomingMeetingPromise,
-    previousMeetingPromise,
-    cafeOpenPromise,
-    commitPromise,
-    hasActiveMandatePromise,
-    readmePromise,
-    electionsPromise,
-  ]);
+  const [news, events, cafeOpen, commitData, elections] =
+    await Promise.allSettled([
+      newsPromise,
+      eventsPromise,
+      cafeOpenPromise,
+      commitPromise,
+      electionsPromise,
+    ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
   }
   if (events.status === "rejected") {
     throw error(500, "Failed to fetch events");
   }
-  if (upcomingMeeting.status === "rejected") {
-    throw error(500, "Failed to fetch upcoming meeting");
-  }
-  if (previousMeeting.status === "rejected") {
-    throw error(500, "Failed to fetch previous meeting");
-  }
   if (cafeOpen.status === "rejected") {
     throw error(500, "Failed to fetch cafe open");
   }
   if (commitData.status === "rejected") {
     throw error(500, "Failed to fetch commit data");
-  }
-  if (hasActiveMandate.status === "rejected") {
-    throw error(500, "Failed to fetch mandate data");
-  }
-  if (readme.status === "rejected") {
-    throw error(500, "Failed to fetch readme");
   }
   if (elections.status === "rejected") {
     throw error(500, "Failed to fetch elections");
@@ -230,18 +152,15 @@ export const loadHomeData = async ({
 
   return {
     wellbeing: wellbeing_random_sentence,
-    files: { next: nextBoardMeetingFiles, last: lastBoardMeetingFiles },
+    boardMeetings: {
+      next: nextBoardMeeting && boardMeetingFiles(nextBoardMeeting),
+      last: lastBoardMeeting && boardMeetingFiles(lastBoardMeeting),
+    },
     news: news.value,
     events: events.value,
-    meetings: {
-      upcoming: upcomingMeeting.value,
-      previous: previousMeeting.value,
-    },
     cafeOpen: cafeOpen.value,
     commitCount: commitData.value.commitCount,
     latestCommit: commitData.value.latestCommit,
-    hasActiveMandate: hasActiveMandate.value,
-    readmeIssues: readme.value,
     wikiData: await wikiDataCache.get(),
     minecraftStatus: minecraftStatus(),
     elections: elections.value,

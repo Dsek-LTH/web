@@ -19,17 +19,34 @@ import (
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/dbutil"
 	"github.com/dsek-lth/web/backend/internal/locale"
+	"github.com/dsek-lth/web/backend/internal/storage"
 )
 
-var ErrNotFound = errors.New("members: not found")
+var (
+	ErrNotFound     = errors.New("members: not found")
+	ErrInvalidInput = errors.New("members: invalid input")
+)
 
-type Service struct {
-	queries   *db.Queries
-	sanitizer *bluemonday.Policy
+func invalidf(format string, args ...any) error {
+	return fmt.Errorf("%w: "+format, append([]any{ErrInvalidInput}, args...)...)
 }
 
-func NewService(dbtx db.DBTX) *Service {
-	return &Service{queries: db.New(dbtx), sanitizer: bluemonday.UGCPolicy()}
+type Service struct {
+	queries       *db.Queries
+	sanitizer     *bluemonday.Policy
+	storage       storage.Backend
+	membersBucket string
+}
+
+// NewService takes the storage backend and bucket profile pictures live in
+// (PUBLIC_BUCKETS_MEMBERS).
+func NewService(dbtx db.DBTX, store storage.Backend, membersBucket string) *Service {
+	return &Service{
+		queries:       db.New(dbtx),
+		sanitizer:     bluemonday.UGCPolicy(),
+		storage:       store,
+		membersBucket: membersBucket,
+	}
 }
 
 // requireMember returns the acting identity, or ErrUnauthenticated if the
@@ -217,6 +234,28 @@ func (s *Service) UpdateFoodPreference(
 		return nil, fmt.Errorf("update food preference: %w", err)
 	}
 	return s.Profile(ctx, dbutil.StringOr(dbutil.TextPtr(row.StudentID), studentID))
+}
+
+// UpdateLanguage sets the member's preferred site language, "sv" or "en"
+// (what the language switcher saves). Self or core:member:update.
+func (s *Service) UpdateLanguage(ctx context.Context, studentID, language string) error {
+	if language != "sv" && language != "en" {
+		return invalidf("language must be \"sv\" or \"en\"")
+	}
+	if err := s.authorizeSelfOrUpdate(ctx, studentID); err != nil {
+		return err
+	}
+	n, err := s.queries.UpdateMemberLanguage(ctx, db.UpdateMemberLanguageParams{
+		StudentID: dbutil.ToText(&studentID),
+		Language:  dbutil.ToText(&language),
+	})
+	if err != nil {
+		return fmt.Errorf("update language: %w", err)
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 func (s *Service) authorizeSelfOrUpdate(ctx context.Context, studentID string) error {

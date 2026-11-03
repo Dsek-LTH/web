@@ -59,6 +59,15 @@ func (MockNotifier) NotifyEventInterested(_ context.Context, n EventNotification
 	return nil
 }
 
+func (MockNotifier) NotifyPing(_ context.Context, n PingNotification) error {
+	log.Printf(
+		"integrations: mock notifier - pretending to tell %s that %s pinged them",
+		n.ToMemberID,
+		n.FromMemberID,
+	)
+	return nil
+}
+
 // MockWebhooker never posts to Discord.
 type MockWebhooker struct{}
 

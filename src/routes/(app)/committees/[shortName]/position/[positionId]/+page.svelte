@@ -1,6 +1,5 @@
 <script lang="ts">
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import AddMandateForm from "./AddMandateForm.svelte";
   import UpdatePositionForm from "./UpdatePositionForm.svelte";
@@ -100,7 +99,7 @@
     <div class="flex w-full flex-wrap items-center justify-between gap-x-2">
       <h3>{data.position.name}</h3>
       <div class="mt-2 flex flex-row gap-2 lg:mt-0">
-        {#if isAuthorized(apiNames.MANDATE.CREATE, data.user)}
+        {#if data.user?.policies.includes(apiNames.MANDATE.CREATE)}
           <Button
             size="sm"
             variant="rosa"
@@ -111,7 +110,7 @@
             {isAdding ? m.positions_cancel() : m.positions_addMandate()}
           </Button>
         {/if}
-        {#if isAuthorized(apiNames.POSITION.UPDATE, data.user)}
+        {#if data.user?.policies.includes(apiNames.POSITION.UPDATE)}
           <Dialog.Root>
             <Dialog.Trigger
               class={cn(buttonVariants({ size: "sm", variant: "lila" }))}

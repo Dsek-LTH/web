@@ -35,6 +35,7 @@ const (
 
 	MemberUpdate   = "core:member:update"
 	MemberSeeEmail = "member:see_email"
+	MemberPing     = "core:member:ping"
 	// MemberSeeStaben mirrors the old apiNames.MEMBER.SEE_STABEN exactly -
 	// granted to everyone outside a nollning season, opt-in only during one
 	// (see internal/nollning.Service.InjectStabenPolicy).
@@ -201,6 +202,7 @@ func All() []string {
 		EventCommentDelete,
 		MemberUpdate,
 		MemberSeeEmail,
+		MemberPing,
 		MemberSeeStaben,
 		CommitteeUpdate,
 		PositionUpdate,

@@ -22,9 +22,6 @@ FROM dependencies AS build
 
 COPY . .
 
-RUN pnpm run generate \
-  && pnpm snaplet-seed generate
-
 ARG PUBLIC_MINIO_BASE_URL
 ENV PUBLIC_MINIO_BASE_URL="${PUBLIC_MINIO_BASE_URL}"
 

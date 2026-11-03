@@ -15,7 +15,11 @@ export const load: PageLoad = async ({ fetch, parent }) => {
     api.GET("/tags", { fetch }),
     getEventCommitteeOptions(fetch),
   ]);
-  if (tagsRes.error) throw error(500, "Failed to load tags");
+  if (tagsRes.error)
+    error(
+      tagsRes.response.status,
+      tagsRes.error.detail ?? "Failed to load tags",
+    );
 
   return {
     allTags: tagsRes.data ?? [],

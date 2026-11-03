@@ -1,18 +1,7 @@
-import { BASIC_EVENT_FILTER } from "$lib/events/events";
-import { generateICS } from "$lib/server/ics/calendar";
-import dayjs from "dayjs";
+import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
+import type { RequestHandler } from "./$types";
 
-export const GET = async ({ locals, setHeaders }) => {
-  const { prisma } = locals;
-
-  const events = await prisma.event.findMany({
-    where: {
-      ...BASIC_EVENT_FILTER(false),
-      startDatetime: {
-        gte: dayjs().subtract(1, "month").toDate(),
-      },
-    },
-  });
-
-  return generateICS(events, setHeaders);
-};
+// A thin proxy to Go's ICS feed (backend/internal/events' CalendarICS).
+// Calendar apps subscribe to this URL, so it must keep working here.
+export const GET: RequestHandler = async ({ fetch }) =>
+  fetch(new URL("/calendar/events.ics", PUBLIC_GO_BACKEND_URL));

@@ -47,7 +47,6 @@
   import type { SubmitFunction } from "@sveltejs/kit";
   import { page } from "$app/state";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
   import { cn } from "$lib/utils";
   import DOMPurify from "isomorphic-dompurify";
 
@@ -66,7 +65,9 @@
   );
 
   const currentUser = $derived(page.data.user);
-  const isAdmin = $derived(isAuthorized(apiNames.BOOKINGS.UPDATE, currentUser));
+  const isAdmin = $derived(
+    !!currentUser?.policies.includes(apiNames.BOOKINGS.UPDATE),
+  );
   const isOwner = $derived(
     !!currentUser?.studentId &&
       currentUser.studentId === bookingEvent.bookerStudentId,

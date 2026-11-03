@@ -3,7 +3,6 @@
   import { type PageData } from "./$types";
   import PhadderGroup from "./PhadderGroup.svelte";
   import { Button } from "$lib/components/ui/button";
-  import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import * as m from "$paraglide/messages";
 
@@ -15,7 +14,7 @@
 >
   <h2>{m.phadderGroups()}</h2>
   <div class="flex items-center gap-2">
-    {#if isAuthorized(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, data.user)}
+    {#if data.user?.policies.includes(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS)}
       <Button href="/committees/nollu/groups/manage" variant="outline">
         {m.nollu_manage_pageTitle()}
       </Button>

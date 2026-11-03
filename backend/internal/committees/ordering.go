@@ -150,3 +150,16 @@ func SortCommitteePositions[T any](positions []T, committeeShortName string, id 
 	}
 	sortByOrder(positions, order, id)
 }
+
+// CommitteePositionIDs returns the position ids listed for a committee in
+// display order (empty for an unknown short name). Used by cmd/seed to give
+// each committee its real positions.
+func CommitteePositionIDs(committeeShortName string) []string {
+	return append([]string(nil), committeeOrder[committeeShortName]...)
+}
+
+// BoardPositionIDs returns the board's position ids in display order. Used
+// by cmd/seed to flag board positions.
+func BoardPositionIDs() []string {
+	return append([]string(nil), boardOrder...)
+}

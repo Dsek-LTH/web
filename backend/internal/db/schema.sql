@@ -617,3 +617,28 @@ CREATE TABLE ticket_queue_entry (
     updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (release_id, member_id)
 );
+
+-- One row per pair of members, keeping the direction of the first ping;
+-- from_sent_at/to_sent_at record the latest ping in each direction.
+CREATE TABLE pings (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    from_member  UUID REFERENCES members (id) ON DELETE CASCADE,
+    to_member    UUID REFERENCES members (id) ON DELETE CASCADE,
+    from_sent_at TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    to_sent_at   TIMESTAMPTZ(6),
+    created_at   TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
+    count        INTEGER DEFAULT 1,
+    UNIQUE (from_member, to_member)
+);
+
+-- Issues of the README newsletter; each links out to its PDF.
+CREATE TABLE readme (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title        TEXT NOT NULL,
+    url          TEXT NOT NULL,
+    created_at   TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMPTZ(6) NOT NULL,
+    year         INTEGER NOT NULL,
+    number       INTEGER NOT NULL,
+    published_at TIMESTAMPTZ(6)
+);

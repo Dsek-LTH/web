@@ -28,7 +28,11 @@ export const load: PageLoad = async ({ fetch, url }) => {
       params: { query: { includeDeleted: showDeleted } },
     }),
   ]);
-  if (songsRes.error) throw error(500, "Failed to load songs");
+  if (songsRes.error)
+    error(
+      songsRes.response.status,
+      songsRes.error.detail ?? "Failed to load songs",
+    );
 
   const categoryMap = categoryMapRes.data ?? {};
 

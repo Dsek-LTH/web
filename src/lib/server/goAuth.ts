@@ -1,22 +1,18 @@
 import { error, type Cookies, type RequestEvent } from "@sveltejs/kit";
 import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
+import type { SignedInMember } from "$lib/auth/types";
 
 /**
- * The Go backend's GET /me response (backend/internal/auth/me.go) - the
- * resolved Identity plus the profile fields it doesn't carry. See
- * backend/DESIGN.md's Auth section: Go is now the OIDC/session authority,
- * not @auth/sveltekit.
+ * The Go backend's GET /me response (backend/internal/auth/me.go). Go is
+ * the OIDC/session authority - see backend/DESIGN.md's Auth section.
  */
 export interface GoIdentity {
   studentId: string;
   memberId: string;
   policies: string[];
   roles: string[];
-  givenName: string;
-  familyName: string;
-  email: string;
-  classYear: number | null;
-  classProgramme: string | null;
+  /** Null for an anonymous caller. */
+  member: SignedInMember | null;
 }
 
 /**

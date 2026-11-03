@@ -9,7 +9,8 @@ import type { PageLoad } from "./$types";
 // isNollningPeriod/getNollningStart AdminSetting-based date hack.
 export const load: PageLoad = async ({ fetch }) => {
   const res = await api.GET("/gallery", { fetch });
-  if (res.error) throw error(500, "Failed to load albums");
+  if (res.error)
+    error(res.response.status, res.error.detail ?? "Failed to load albums");
 
   return {
     albums: res.data ?? [],

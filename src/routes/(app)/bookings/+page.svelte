@@ -25,12 +25,11 @@
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import apiNames from "$lib/utils/apiNames";
-  import { isAuthorized } from "$lib/utils/authorization";
 
   let { data }: { data: PageData } = $props();
 
   const isAdmin = $derived(
-    isAuthorized(apiNames.BOOKINGS.UPDATE, page.data.user),
+    !!page.data.user?.policies.includes(apiNames.BOOKINGS.UPDATE),
   );
 
   const reviewQueueCount = $derived(
