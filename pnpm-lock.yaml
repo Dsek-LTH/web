@@ -222,8 +222,8 @@ importers:
         specifier: ^3.0.0
         version: 3.7.3
       '@shlinkio/shlink-js-sdk':
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^3.2.1
+        version: 3.2.1
       '@zenstackhq/runtime':
         specifier: ^2.10.0
         version: 2.10.0(@prisma/client@6.0.1(prisma@6.0.1))
@@ -2233,8 +2233,8 @@ packages:
   '@schedule-x/theme-default@3.7.3':
     resolution: {integrity: sha512-suJs+AyQT6OhTq7e752Psg5IwaGE4EzPOSBhp7L8e9FgmluxOvnzlfbWod2i9mfYAsdkzX+WMIlCfBFkRu1o1A==}
 
-  '@shlinkio/shlink-js-sdk@1.3.0':
-    resolution: {integrity: sha512-apkKzyAVY2cD0MUOZTtu3wO3sHT2dncE8KTgYFj+HKIbf/F455W32F2VydwM0R3KFH1P5X7mNfLn0m8HPPTiBA==}
+  '@shlinkio/shlink-js-sdk@3.2.1':
+    resolution: {integrity: sha512-XtgiOsJfpGhGN2MyZJ4gy2zqgzHS70z/36M+ceKpVgNzhevHXU0QVIcpE7JGixnqHBqRVn8dI5O3L1DMgSnIIQ==}
 
   '@sideway/address@4.1.5':
     resolution: {integrity: sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==}
@@ -7885,7 +7885,7 @@ snapshots:
 
   '@schedule-x/theme-default@3.7.3': {}
 
-  '@shlinkio/shlink-js-sdk@1.3.0': {}
+  '@shlinkio/shlink-js-sdk@3.2.1': {}
 
   '@sideway/address@4.1.5':
     dependencies:

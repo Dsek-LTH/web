@@ -1,6 +1,10 @@
 import type { PageServerLoad } from "./$types";
 import { ShlinkApiClient } from "@shlinkio/shlink-js-sdk";
-import type { ProblemDetailsError } from "@shlinkio/shlink-js-sdk/api-contract";
+import type {
+  ProblemDetailsError,
+  ShlinkDomain,
+  ShlinkTagsStats,
+} from "@shlinkio/shlink-js-sdk/api-contract";
 import { env } from "$env/dynamic/private";
 import { NodeHttpClient } from "@shlinkio/shlink-js-sdk/node";
 import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
@@ -81,7 +85,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
   const tags = await apiClient.listTags();
   const shlinkDomains = await apiClient.listDomains();
   const defaultDomain =
-    shlinkDomains.data.find((d) => d.isDefault)?.domain ??
+    shlinkDomains.data.find((d: ShlinkDomain) => d.isDefault)?.domain ??
     shlinkDomains.data[0]?.domain ??
     null;
 
@@ -135,10 +139,13 @@ export const actions: Actions = {
       return fail(400, { updateForm });
     }
     try {
-      await apiClient.updateShortUrl(updateForm.data.slug, undefined, {
-        longUrl: updateForm.data.url,
-        tags: updateForm.data.tags,
-      });
+      await apiClient.updateShortUrl(
+        { shortCode: updateForm.data.slug },
+        {
+          longUrl: updateForm.data.url,
+          tags: updateForm.data.tags,
+        },
+      );
     } catch (_e) {
       const e = _e as ProblemDetailsError;
       return message(
@@ -165,14 +172,16 @@ export const actions: Actions = {
 
     try {
       await Promise.all(
-        deleteForm.data.deleting.map((t) => apiClient.deleteShortUrl(t)),
+        deleteForm.data.deleting.map((shortCode) =>
+          apiClient.deleteShortUrl({ shortCode }),
+        ),
       );
 
       // Delete tags without any links
       await apiClient.deleteTags(
         (await apiClient.tagsStats()).data
-          .filter((t) => t.shortUrlsCount === 0)
-          .map((t) => t.tag),
+          .filter((t: ShlinkTagsStats) => t.shortUrlsCount === 0)
+          .map((t: ShlinkTagsStats) => t.tag),
       );
     } catch (_e) {
       const e = _e as ProblemDetailsError;
