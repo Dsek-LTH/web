@@ -6,13 +6,13 @@ ENV PATH="${PNPM_HOME}:${PATH}"
 RUN apt-get update \
   && apt-get install --yes --no-install-recommends openssl lsof \
   && rm -rf /var/lib/apt/lists/* \
-  && npm install --global pnpm@9.14.4
+  && npm install --global pnpm@12.16.1
 
 WORKDIR /app
 
 FROM base AS dependencies
 
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
@@ -55,6 +55,7 @@ COPY --chown=1001:0 --from=build /app/build ./build
 COPY --chown=1001:0 --from=build /app/node_modules ./node_modules
 COPY --chown=1001:0 --from=build /app/package.json ./package.json
 COPY --chown=1001:0 --from=build /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --chown=1001:0 --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --chown=1001:0 --from=build /app/prod ./prod
 COPY --chown=1001:0 --from=build /app/src ./src
 COPY --chown=1001:0 --from=build /app/project.inlang ./project.inlang

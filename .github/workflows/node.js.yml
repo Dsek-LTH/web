@@ -35,9 +35,7 @@ jobs:
         with:
           # fetch-tags: true # This should be enough, see https://github.com/actions/checkout/issues/1471
           fetch-depth: 0
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
+      - uses: pnpm/action-setup@v6
       - name: Use Node.js latest LTS
         uses: actions/setup-node@v3
         with:
