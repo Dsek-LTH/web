@@ -70,10 +70,9 @@ type ModelFields = {
 };
 
 type ComputedModelFields<Model extends Models> = {
-  [Field in RemoveSuffix<
-    Extract<Fields<Model>, `${string}Sv`>,
-    "Sv"
-  >]: MostPrecise<
+  [
+    Field in RemoveSuffix<Extract<Fields<Model>, `${string}Sv`>, "Sv">
+  ]: MostPrecise<
     FieldTypeLang<Model, Field, "Sv">,
     FieldTypeLang<Model, Field, "En">
   >;
