@@ -163,7 +163,7 @@
         aria-hidden="true"
       ></div>
       <div class="relative">
-        <h2 class="flex items-center gap-2 text-lg">
+        <h2 class="flex items-center gap-2 text-xl">
           <span
             class="birthday-cake bg-rosa-400/15 inline-flex rounded-full p-1.5"
           >
