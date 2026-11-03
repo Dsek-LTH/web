@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { isBirthdayOn } from "./birthdays";
+import { formatBirthday, isBirthdayOn } from "./birthdays";
 
 test("matches birthdays by month and day", () => {
   expect(
@@ -30,4 +30,16 @@ test("compares dates in the app timezone", () => {
 
 test("returns false when no birthday is set", () => {
   expect(isBirthdayOn(null, new Date("2026-11-03T12:00:00Z"))).toBe(false);
+});
+
+test("formats Swedish birthdays with a lowercase month", () => {
+  expect(formatBirthday(new Date("1990-11-03T00:00:00Z"), "sv")).toBe(
+    "3 november",
+  );
+});
+
+test("keeps English month capitalization", () => {
+  expect(formatBirthday(new Date("1990-11-03T00:00:00Z"), "en")).toBe(
+    "3 November",
+  );
 });

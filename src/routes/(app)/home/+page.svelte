@@ -152,33 +152,18 @@
 
   {#if data.birthdays.length > 0}
     <section
-      class="border-rosa-200 dark:border-rosa-900 from-rosa-50 via-background to-lila-100 dark:from-rosa-950/40 dark:to-lila-950/40 relative overflow-hidden rounded-xl border bg-linear-to-br p-5"
+      class="border-rosa-200/70 from-rosa-50/70 to-lila-50/70 dark:border-rosa-900/60 dark:from-rosa-950/20 dark:to-lila-950/20 relative overflow-hidden rounded-md border-[1px] bg-linear-to-r p-4"
     >
-      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <span
-          class="birthday-float absolute top-3 left-6 text-xl"
-          style:animation-delay="0ms">🎈</span
-        >
-        <span
-          class="birthday-float absolute top-5 right-8 text-lg"
-          style:animation-delay="600ms">🎉</span
-        >
-        <span
-          class="birthday-float absolute bottom-2 left-1/3 text-lg"
-          style:animation-delay="1200ms">✨</span
-        >
-        <span
-          class="birthday-float absolute right-1/4 bottom-4 text-lg"
-          style:animation-delay="1800ms">🎂</span
-        >
-      </div>
+      <div
+        class="bg-rosa-400/10 pointer-events-none absolute -top-10 -right-10 size-32 rounded-full blur-2xl"
+        aria-hidden="true"
+      ></div>
       <div class="relative">
         <h2 class="flex items-center gap-2 text-lg">
-          <Cake class="text-rosa-500 size-5" />
+          <span class="birthday-cake inline-flex">
+            <Cake class="text-rosa-400 size-5" />
+          </span>
           {m.home_birthdaysToday()}
-          <span class="bg-rosa-500 rounded-full px-2 py-0.5 text-xs text-white"
-            >🎉</span
-          >
         </h2>
         <ul class="mt-3 flex flex-wrap gap-2">
           {#each data.birthdays as birthday (birthday.id)}
@@ -188,13 +173,10 @@
             <li>
               <a
                 {href}
-                class="border-rosa-200/70 bg-background/80 hover:border-rosa-400 dark:border-rosa-800 group flex items-center gap-2 rounded-full border px-2 py-1 pr-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                class="border-border bg-background/80 hover:border-rosa-300 hover:bg-rosa-50 dark:hover:border-rosa-800 dark:hover:bg-rosa-950/30 flex items-center gap-2 rounded-full border-[1px] py-1 pr-3 pl-1 transition-colors"
               >
                 <MemberAvatar member={birthday} class="size-7" />
                 <span class="font-medium">{getFullName(birthday)}</span>
-                <span class="transition-transform group-hover:rotate-12"
-                  >🎂</span
-                >
               </a>
             </li>
           {/each}
@@ -207,22 +189,32 @@
 </div>
 
 <style>
-  .birthday-float {
-    animation: birthday-float 4s ease-in-out infinite;
+  .birthday-cake {
+    transform-origin: 50% 80%;
+    animation: birthday-cake 3.2s ease-in-out infinite;
   }
 
-  @keyframes birthday-float {
+  @keyframes birthday-cake {
     0%,
     100% {
-      transform: translateY(0) rotate(-6deg);
+      transform: rotate(0);
     }
-    50% {
-      transform: translateY(-8px) rotate(6deg);
+    20% {
+      transform: rotate(-8deg);
+    }
+    40% {
+      transform: rotate(8deg);
+    }
+    60% {
+      transform: rotate(-4deg);
+    }
+    80% {
+      transform: rotate(4deg);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .birthday-float {
+    .birthday-cake {
       animation: none;
     }
   }

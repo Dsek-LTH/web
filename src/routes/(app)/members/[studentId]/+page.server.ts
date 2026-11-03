@@ -24,8 +24,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "./types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
 import DOMPurify from "isomorphic-dompurify";
-import { APP_TIMEZONE } from "$lib/utils/datetime";
-import { isBirthdayOn } from "$lib/utils/birthdays";
+import { formatBirthday, isBirthdayOn } from "$lib/utils/birthdays";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
@@ -114,11 +113,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       )?.birthDate
     : null;
   const birthday = birthDate
-    ? new Intl.DateTimeFormat(locals.language === "sv" ? "sv-SE" : "en-GB", {
-        day: "numeric",
-        month: "long",
-        timeZone: APP_TIMEZONE,
-      }).format(birthDate)
+    ? formatBirthday(birthDate, locals.language)
     : null;
   const birthdayToday = isBirthdayOn(birthDate, new Date());
 
