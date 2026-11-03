@@ -117,7 +117,7 @@
     "express": "^4.22.3",
     "ics": "^3.12.1",
     "import-in-the-middle": "^2.0.1",
-    "isomorphic-dompurify": "^2.18.0",
+    "isomorphic-dompurify": "^4.6.0",
     "markdown-to-txt": "^2.0.1",
     "marked": "^18.1.2",
     "meilisearch": "^0.45.0",
