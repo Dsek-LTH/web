@@ -18,15 +18,18 @@ test("uses the app timezone for Saint Patrick's Day", () => {
   expect(getSeasonalEffect(new Date("2027-03-16T23:30:00Z"))).toBe("clover");
 });
 
-test("shows darts through the likely DÖMD window", () => {
-  expect(getSeasonalEffect(new Date("2026-03-20T12:00:00Z"))).toBe("darts");
-  expect(getSeasonalEffect(new Date("2026-04-15T12:00:00Z"))).toBe("darts");
-  expect(getSeasonalEffect(new Date("2026-04-30T12:00:00Z"))).toBe("darts");
+test("shows darts on the guessed DÖMD dates", () => {
+  expect(getSeasonalEffect(new Date("2026-04-17T12:00:00Z"))).toBe("darts");
+  expect(getSeasonalEffect(new Date("2027-04-16T12:00:00Z"))).toBe("darts");
 });
 
-test("does not show darts outside the likely DÖMD window", () => {
-  expect(getSeasonalEffect(new Date("2026-03-19T12:00:00Z"))).toBeNull();
-  expect(getSeasonalEffect(new Date("2026-05-01T12:00:00Z"))).toBeNull();
+test("does not show darts outside the guessed DÖMD dates", () => {
+  expect(getSeasonalEffect(new Date("2026-04-15T12:00:00Z"))).toBeNull();
+  expect(getSeasonalEffect(new Date("2026-04-19T12:00:00Z"))).toBeNull();
+});
+
+test("uses the app timezone for DÖMD dates", () => {
+  expect(getSeasonalEffect(new Date("2026-04-15T23:30:00Z"))).toBe("darts");
 });
 
 test("returns null when no seasonal effect is active", () => {
