@@ -4,6 +4,7 @@ import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
+import { getLocale } from "$paraglide/runtime";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import {
@@ -113,7 +114,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       )?.birthDate
     : null;
   const birthday = birthDate
-    ? formatBirthday(birthDate, locals.language)
+    ? formatBirthday(birthDate, getLocale())
     : null;
   const birthdayToday = isBirthdayOn(birthDate, new Date());
 
