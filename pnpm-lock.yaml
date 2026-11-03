@@ -18,11 +18,11 @@ importers:
   .:
     dependencies:
       '@auth/core':
-        specifier: ^0.40.0
-        version: 0.40.0(nodemailer@6.9.16)
+        specifier: ^0.41.3
+        version: 0.41.3(nodemailer@6.9.16)
       '@auth/sveltekit':
-        specifier: ^1.10.0
-        version: 1.10.0(@sveltejs/kit@2.63.1(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.56.3(@typescript-eslint/types@8.46.3))(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.56.3(@typescript-eslint/types@8.46.3))(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(nodemailer@6.9.16)(svelte@5.56.3(@typescript-eslint/types@8.46.3))
+        specifier: ^1.11.3
+        version: 1.11.3(@sveltejs/kit@2.63.1(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.56.3(@typescript-eslint/types@8.46.3))(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.56.3(@typescript-eslint/types@8.46.3))(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(nodemailer@6.9.16)(svelte@5.56.3(@typescript-eslint/types@8.46.3))
       '@opentelemetry/auto-instrumentations-node':
         specifier: ^0.67.3
         version: 0.67.3(@opentelemetry/api@1.4.1)(@opentelemetry/core@2.3.0(@opentelemetry/api@1.4.1))
@@ -307,12 +307,12 @@ packages:
   '@ark/util@0.56.0':
     resolution: {integrity: sha512-BghfRC8b9pNs3vBoDJhcta0/c1J1rsoS1+HgVUreMFPdhz/CRAKReAu57YEllNaSy98rWAdY1gE+gFup7OXpgA==}
 
-  '@auth/core@0.40.0':
-    resolution: {integrity: sha512-n53uJE0RH5SqZ7N1xZoMKekbHfQgjd0sAEyUbE+IYJnmuQkbvuZnXItCU7d+i7Fj8VGOgqvNO7Mw4YfBTlZeQw==}
+  '@auth/core@0.41.3':
+    resolution: {integrity: sha512-sJ3JMHHkXMD3aOjopv7mOBTO1Ocw4b0fAEXJBz6k7YHLpYQI6C40jCUPc5fNvUKxXRXNE1/sRISA15UrwWJBTw==}
     peerDependencies:
       '@simplewebauthn/browser': ^9.0.1
       '@simplewebauthn/server': ^9.0.2
-      nodemailer: ^6.8.0
+      nodemailer: ^7.0.7 || ^8.0.5
     peerDependenciesMeta:
       '@simplewebauthn/browser':
         optional: true
@@ -321,13 +321,13 @@ packages:
       nodemailer:
         optional: true
 
-  '@auth/sveltekit@1.10.0':
-    resolution: {integrity: sha512-nTKS3FoFvgdqUwb7a8HZpLxDlx+pHndygcodM16J/iFHbe/0wha0MUCuTkVeUYZuKwL63L2ujmMAC1WEoki2+g==}
+  '@auth/sveltekit@1.11.3':
+    resolution: {integrity: sha512-nfI/CFHD9hpJG4W+u+xtMrw9XSrA1k6kbgbGc9PvbiEf67oPMuzLAvLDj6/3yd98kFz+51Rq04JLBckKp8T5Kg==}
     peerDependencies:
       '@simplewebauthn/browser': ^9.0.1
       '@simplewebauthn/server': ^9.0.3
       '@sveltejs/kit': ^1.0.0 || ^2.0.0
-      nodemailer: ^6.6.5
+      nodemailer: ^7.0.7 || ^8.0.5
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-0
     peerDependenciesMeta:
       '@simplewebauthn/browser':
@@ -5533,7 +5533,7 @@ snapshots:
   '@ark/util@0.56.0':
     optional: true
 
-  '@auth/core@0.40.0(nodemailer@6.9.16)':
+  '@auth/core@0.41.3(nodemailer@6.9.16)':
     dependencies:
       '@panva/hkdf': 1.2.1
       jose: 6.0.12
@@ -5543,9 +5543,9 @@ snapshots:
     optionalDependencies:
       nodemailer: 6.9.16
 
-  '@auth/sveltekit@1.10.0(@sveltejs/kit@2.63.1(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.56.3(@typescript-eslint/types@8.46.3))(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.56.3(@typescript-eslint/types@8.46.3))(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(nodemailer@6.9.16)(svelte@5.56.3(@typescript-eslint/types@8.46.3))':
+  '@auth/sveltekit@1.11.3(@sveltejs/kit@2.63.1(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.56.3(@typescript-eslint/types@8.46.3))(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.56.3(@typescript-eslint/types@8.46.3))(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(nodemailer@6.9.16)(svelte@5.56.3(@typescript-eslint/types@8.46.3))':
     dependencies:
-      '@auth/core': 0.40.0(nodemailer@6.9.16)
+      '@auth/core': 0.41.3(nodemailer@6.9.16)
       '@sveltejs/kit': 2.63.1(@opentelemetry/api@1.4.1)(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.56.3(@typescript-eslint/types@8.46.3))(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1)))(svelte@5.56.3(@typescript-eslint/types@8.46.3))(typescript@5.7.2)(vite@7.3.1(@types/node@22.10.1)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.6.1))
       set-cookie-parser: 2.7.1
       svelte: 5.56.3(@typescript-eslint/types@8.46.3)
