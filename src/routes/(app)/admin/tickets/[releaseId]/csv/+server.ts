@@ -1,10 +1,7 @@
 import { loadRoster } from "../loadRoster";
 import { getFullName } from "$lib/utils/client/member";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 // RFC 4180: quote every field, doubling any embedded quotes.
 const csvField = (value: string) => `"${value.replaceAll('"', '""')}"`;
@@ -36,9 +33,7 @@ export const GET = async ({ params, locals, request }) => {
       csvField(entry.memberId),
       csvField(foodPreference),
       csvField(
-        dayjs(entry.updatedAt)
-          .tz("Europe/Stockholm")
-          .format("YYYY-MM-DD HH:mm:ss"),
+        dayjs(entry.updatedAt).tz(APP_TIMEZONE).format("YYYY-MM-DD HH:mm:ss"),
       ),
     ].join(",");
     csv += "\r\n";

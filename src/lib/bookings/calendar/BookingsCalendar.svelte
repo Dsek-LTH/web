@@ -21,6 +21,7 @@
   import WeekGridDate from "./components/grid/WeekGridDate.svelte";
   import HeaderContent from "./components/header/HeaderContent.svelte";
   import EventModal from "./components/modal/EventModal.svelte";
+  import { APP_TIMEZONE } from "$lib/utils/datetime";
   import { calendarStatusCategoriesCSS } from "./config";
 
   let {
@@ -33,7 +34,7 @@
     plugins?: Array<PluginBase<string>>;
   } = $props();
 
-  const now = Temporal.Now.zonedDateTimeISO("Europe/Stockholm");
+  const now = Temporal.Now.zonedDateTimeISO(APP_TIMEZONE);
 
   $effect(() => {
     if (calendarApp) {
@@ -51,7 +52,7 @@
             .toPlainTime()
             .with({
               hour: Math.max(
-                Temporal.Now.plainTimeISO("Europe/Stockholm").hour - 2,
+                Temporal.Now.plainTimeISO(APP_TIMEZONE).hour - 2,
                 0,
               ),
             })
@@ -63,7 +64,7 @@
       ]),
       isDark: mode.current === "dark",
       locale: "sv-SE",
-      timezone: "Europe/Stockholm",
+      timezone: APP_TIMEZONE,
       defaultView: viewWeek.name,
       showWeekNumbers: true,
       calendars: calendarStatusCategoriesCSS,

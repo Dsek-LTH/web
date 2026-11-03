@@ -16,9 +16,8 @@ import {
   scheduleExecution,
   type ScheduleSuccess,
 } from "$lib/server/scheduleExecution";
-import { sendNewArticleNotification } from "./notifications";
+import { announceArticle } from "./notifications";
 import { env } from "$lib/server/env";
-import { sendNewArticleWebhook } from "./webhooks";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
@@ -176,31 +175,17 @@ export const createArticle: Action = async (event) => {
     throw redirectFunction();
   }
 
-  // fetch the created author,
-  if (shouldSendNotification) {
-    console.log("send notifications");
-    await sendNewArticleNotification(
-      {
-        ...result,
-        tags,
-      },
-      notificationText,
-    );
-    await sendNewArticleWebhook(
-      {
-        ...result,
-        tags,
-      },
-      notificationText,
-    );
-  }
+  // The article exists at this point, so a failed announcement must not look like
+  // a failed publish: the author would submit again and create a duplicate.
+  const announced =
+    !shouldSendNotification ||
+    (await announceArticle({ ...result, tags }, notificationText));
 
   throw redirect(
     pubishTimeIsInFuture ? "/news" : `/news/${result.slug}`,
-    {
-      message: m.news_articleCreated(),
-      type: "success",
-    },
+    announced
+      ? { message: m.news_articleCreated(), type: "success" }
+      : { message: m.news_errors_notificationFailed(), type: "error" },
     event,
   );
 };
@@ -247,6 +232,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       ? newImages
       : [...rest.imageUrls, ...newImages];
 
+  let announced = true;
   try {
     const existingArticle = await prisma.article.findUnique({
       where: { slug },
@@ -311,21 +297,28 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
       },
     });
 
-    const shouldSchedule =
-      sendNotification && publishTime != null && publishTime > new Date();
+    const now = new Date();
+    const wasAlreadyLive =
+      existingArticle?.publishedAt != null &&
+      existingArticle?.publishedAt <= now;
+    // Only an article that isn't live yet can be announced, so editing an
+    // already published article never notifies anyone again.
+    const canAnnounce = sendNotification && !wasAlreadyLive;
+    const shouldSchedule = canAnnounce && publishedAt > now;
+    const shouldSendNow = canAnnounce && publishedAt <= now;
 
     const hadPendingTask =
       existingArticle?.scheduledId != null &&
       existingArticle.publishedAt != null &&
       existingArticle.publishedAt > new Date();
 
-    if (shouldSchedule || hadPendingTask) {
-      const notificationPayload = {
-        ...updatedArticle,
-        tags,
-        notificationText,
-      };
+    const notificationPayload = {
+      ...updatedArticle,
+      tags,
+      notificationText,
+    };
 
+    if (shouldSchedule || hadPendingTask) {
       if (shouldSchedule && !hadPendingTask) {
         const scheduleResult = await scheduleExecution(
           request,
@@ -392,19 +385,26 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
             ).ok;
           }
         } catch (error) {
-          throw redirect(
-            `/news/${slug}/edit`,
-            {
-              message: `${m.news_errors_schedulingFailed()}: ${
-                error instanceof Error ? error.message : String(error)
-              }`,
-              type: "error",
-            },
-            event,
-          );
+          // Publishing early announces below regardless, so it can't be blocked here
+          if (shouldSendNow) {
+            console.error(`Failed to cancel task for article ${slug}:`, error);
+          } else {
+            throw redirect(
+              `/news/${slug}/edit`,
+              {
+                message: `${m.news_errors_schedulingFailed()}: ${
+                  error instanceof Error ? error.message : String(error)
+                }`,
+                type: "error",
+              },
+              event,
+            );
+          }
         }
 
-        if (!ok) {
+        if (!ok && shouldSendNow) {
+          console.error(`Failed to cancel task for article ${slug}`);
+        } else if (!ok) {
           throw redirect(
             `/news/${slug}/edit`,
             {
@@ -423,6 +423,13 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         }
       }
     }
+
+    if (shouldSendNow) {
+      announced = await announceArticle(
+        { ...updatedArticle, tags },
+        notificationText,
+      );
+    }
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       return message(
@@ -439,10 +446,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
 
   throw redirect(
     `/news/${publishedAt < new Date() ? event.params.slug : ""}`,
-    {
-      message: m.news_articleUpdated(),
-      type: "success",
-    },
+    announced
+      ? { message: m.news_articleUpdated(), type: "success" }
+      : { message: m.news_errors_notificationFailed(), type: "error" },
     event,
   );
 };

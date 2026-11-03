@@ -3,16 +3,10 @@
   import * as m from "$paraglide/messages";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
-  import dayjs from "dayjs";
-  import utc from "dayjs/plugin/utc";
-  import timezone from "dayjs/plugin/timezone";
   import { Button } from "$lib/components/ui/button";
   import ElectionCard from "$lib/components/ElectionCard.svelte";
 
   let { data }: { data: PageData } = $props();
-
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
 </script>
 
 <div class="layout-container">

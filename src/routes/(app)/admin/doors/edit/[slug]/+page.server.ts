@@ -8,11 +8,8 @@ import { authorize } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { programmes } from "$lib/utils/programmes";
 import * as m from "$paraglide/messages";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params, parent }) => {
   const { prisma, user } = locals;
@@ -115,9 +112,9 @@ export const actions: Actions = {
       data: {
         doorName,
         startDatetime:
-          startDatetime && dayjs.tz(startDatetime, "Europe/Stockholm").toDate(),
+          startDatetime && dayjs.tz(startDatetime, APP_TIMEZONE).toDate(),
         endDatetime:
-          endDatetime && dayjs.tz(endDatetime, "Europe/Stockholm").toDate(),
+          endDatetime && dayjs.tz(endDatetime, APP_TIMEZONE).toDate(),
         isBan: mode === "deny",
         information: reason,
         ...(type === "member" ? { studentId: subject } : { role: subject }),

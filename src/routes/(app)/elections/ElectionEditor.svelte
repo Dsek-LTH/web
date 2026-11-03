@@ -9,14 +9,9 @@
   import { Button } from "$lib/components/ui/button";
   import { Spinner } from "$lib/components/ui/spinner";
   import ElectionCard from "$lib/components/ElectionCard.svelte";
-  import dayjs from "dayjs";
-  import utc from "dayjs/plugin/utc";
-  import timezone from "dayjs/plugin/timezone";
+  import { toAppTime } from "$lib/utils/datetime";
   import type { PageData as CreatePageData } from "./create/$types";
   import type { PageData as EditPageData } from "./[id]/edit/$types";
-
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
 
   let {
     data,
@@ -140,7 +135,7 @@
           markdown: $form.markdownSv || "",
           markdownSv: $form.markdownSv || "",
           markdownEn: $form.markdownEn || "",
-          expiresAt: dayjs($form.expiresAt).tz(dayjs.tz.guess()).toDate(),
+          expiresAt: toAppTime($form.expiresAt).toDate(),
           committeeId: $form.committeeId,
           link: $form.link,
           committee: selectedCommittee,

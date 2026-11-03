@@ -7,11 +7,8 @@
   import CircleUserRound from "@lucide/svelte/icons/circle-user-round";
   import Coffee from "@lucide/svelte/icons/coffee";
 
-  import dayjs from "dayjs";
   import { signIn } from "$lib/utils/auth";
 
-  import utc from "dayjs/plugin/utc";
-  import timezone from "dayjs/plugin/timezone";
   import { m } from "$paraglide/messages";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
   import { Spinner } from "$lib/components/ui/spinner";
@@ -19,8 +16,6 @@
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
   const { data } = $props();
 
   let isLoggingIn = $state(false);
@@ -139,9 +134,10 @@
       </h2>
       <HomeCalendar
         events={data.events.map((e) => ({
+          id: e.id,
           startDate: e.startDatetime,
           endDate: e.endDatetime,
-          slug: e.slug ?? "",
+          slug: e.slug,
           title: e.title,
         }))}
       />

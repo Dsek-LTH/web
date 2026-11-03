@@ -122,12 +122,30 @@ export const sendNewArticleWebhook = async (
     ],
   };
 
-  const res = await fetch(settings["discord_webhook_se"], {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+  // An article can be announced more than once, e.g. when the scheduler retries
+  // or fires after the article was published early. Only whoever claims the
+  // article here gets to post, so it never appears twice on Discord.
+  const { count } = await authorizedPrismaClient.article.updateMany({
+    where: { id: article.id, discordAnnouncedAt: null },
+    data: { discordAnnouncedAt: new Date() },
   });
-  if (res.status != 204) {
-    console.log(`notifications: failed Discord webhook (${res.status})`);
+  if (count === 0) return;
+
+  try {
+    const res = await fetch(settings["discord_webhook_se"], {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.status != 204) {
+      throw new Error(`Discord webhook responded with ${res.status}`);
+    }
+  } catch (e) {
+    // Release the claim so that a retry can post it
+    await authorizedPrismaClient.article.update({
+      where: { id: article.id },
+      data: { discordAnnouncedAt: null },
+    });
+    throw e;
   }
 };
