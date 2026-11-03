@@ -276,8 +276,8 @@ importers:
         specifier: ^0.35.5
         version: 0.35.5(@types/node@24.19.2)
       simple-icons:
-        specifier: ^15.21.0
-        version: 15.21.0
+        specifier: ^16.36.0
+        version: 16.36.0
       svelte-easy-crop:
         specifier: ^3.0.1
         version: 3.0.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))
@@ -4966,8 +4966,8 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  simple-icons@15.21.0:
-    resolution: {integrity: sha512-xEKtyjl3bmmnyxZIsxNlN4RnN/BaP2tecQCSxOj1C6llJKt0TG4u+ZNJKSA82yBGrkO0CWW10UBTFMkH6tVKzQ==}
+  simple-icons@16.36.0:
+    resolution: {integrity: sha512-+VNPPkqSOLidFeSgBKUWX4n50WPpDC09hav+BgS26anIF1oQOlGBb8LvwGR+6fYRjo+B6CiKzNBceMPkSVXANQ==}
     engines: {node: '>=0.12.18'}
 
   siphash@1.1.0:
@@ -10779,7 +10779,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  simple-icons@15.21.0: {}
+  simple-icons@16.36.0: {}
 
   siphash@1.1.0: {}
 
