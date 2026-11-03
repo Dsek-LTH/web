@@ -99,22 +99,6 @@
     {/if}
   </div>
 
-  {#if data.birthdays.length > 0}
-    <section
-      class="border-border bg-muted-background rounded-md border-[1px] p-4"
-    >
-      <h2 class="flex items-center gap-2 text-lg">
-        <Cake class="text-rosa-400 size-5" />
-        {m.home_birthdaysToday()}
-      </h2>
-      <ul class="mt-2 flex flex-col gap-1">
-        {#each data.birthdays as birthday (birthday.id)}
-          <li>{getFullName(birthday)}</li>
-        {/each}
-      </ul>
-    </section>
-  {/if}
-
   <div>
     <h2>
       <a class="hover:text-muted-foreground transition-colors" href="/news"
@@ -166,5 +150,80 @@
     />
   </div>
 
+  {#if data.birthdays.length > 0}
+    <section
+      class="border-rosa-200 dark:border-rosa-900 from-rosa-50 via-background to-lila-100 dark:from-rosa-950/40 dark:to-lila-950/40 relative overflow-hidden rounded-xl border bg-linear-to-br p-5"
+    >
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <span
+          class="birthday-float absolute top-3 left-6 text-xl"
+          style:animation-delay="0ms">🎈</span
+        >
+        <span
+          class="birthday-float absolute top-5 right-8 text-lg"
+          style:animation-delay="600ms">🎉</span
+        >
+        <span
+          class="birthday-float absolute bottom-2 left-1/3 text-lg"
+          style:animation-delay="1200ms">✨</span
+        >
+        <span
+          class="birthday-float absolute right-1/4 bottom-4 text-lg"
+          style:animation-delay="1800ms">🎂</span
+        >
+      </div>
+      <div class="relative">
+        <h2 class="flex items-center gap-2 text-lg">
+          <Cake class="text-rosa-500 size-5" />
+          {m.home_birthdaysToday()}
+          <span class="bg-rosa-500 rounded-full px-2 py-0.5 text-xs text-white"
+            >🎉</span
+          >
+        </h2>
+        <ul class="mt-3 flex flex-wrap gap-2">
+          {#each data.birthdays as birthday (birthday.id)}
+            {@const href = birthday.studentId
+              ? `/members/${birthday.studentId}`
+              : "/members"}
+            <li>
+              <a
+                {href}
+                class="border-rosa-200/70 bg-background/80 hover:border-rosa-400 dark:border-rosa-800 group flex items-center gap-2 rounded-full border px-2 py-1 pr-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <MemberAvatar member={birthday} class="size-7" />
+                <span class="font-medium">{getFullName(birthday)}</span>
+                <span class="transition-transform group-hover:rotate-12"
+                  >🎂</span
+                >
+              </a>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    </section>
+  {/if}
+
   <Documents files={data.files} />
 </div>
+
+<style>
+  .birthday-float {
+    animation: birthday-float 4s ease-in-out infinite;
+  }
+
+  @keyframes birthday-float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-6deg);
+    }
+    50% {
+      transform: translateY(-8px) rotate(6deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .birthday-float {
+      animation: none;
+    }
+  }
+</style>

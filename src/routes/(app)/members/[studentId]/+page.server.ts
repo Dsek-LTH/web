@@ -24,6 +24,9 @@ import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "./types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
 import DOMPurify from "isomorphic-dompurify";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
+import { isBirthdayOn } from "$lib/utils/birthdays";
+import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
@@ -101,6 +104,24 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
 
   const member = memberResult.value;
 
+  // Read the date directly so profiles can show month/day without exposing the year.
+  const birthDate = locals.user?.memberId
+    ? (
+        await authorizedPrismaClient.member.findUnique({
+          where: { studentId },
+          select: { birthDate: true },
+        })
+      )?.birthDate
+    : null;
+  const birthday = birthDate
+    ? new Intl.DateTimeFormat(locals.language === "sv" ? "sv-SE" : "en-GB", {
+        day: "numeric",
+        month: "long",
+        timeZone: APP_TIMEZONE,
+      }).format(birthDate)
+    : null;
+  const birthdayToday = isBirthdayOn(birthDate, new Date());
+
   const showPhadderGroupModal =
     member.nollningGroupId === null &&
     cookies.get("phadder_group_modal_skipped") !== "1" &&
@@ -123,6 +144,8 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       pingForm: await superValidate(zod4(emptySchema)),
       phadderGroupForm: await superValidate(member, zod4(phadderGroupSchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
+      birthday,
+      birthdayToday,
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
       email,

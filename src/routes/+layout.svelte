@@ -10,16 +10,9 @@
   import { toast } from "$lib/stores/toast";
   import { page } from "$app/state";
   import ParticleRain from "$lib/components/ParticleRain.svelte";
+  import { BIRTHDAY_COLORS } from "$lib/utils/birthdays";
 
   const { children, data } = $props();
-
-  const birthdayColors = [
-    "#f280a1",
-    "#9966cc",
-    "#ffd166",
-    "#7dd3fc",
-    "#86efac",
-  ];
 
   dayjs.locale(getLocale());
   let pageTitle = writable("D-sektionen");
@@ -34,7 +27,7 @@
 
 <ModeWatcher />
 {#if data.isBirthday}
-  <ParticleRain colors={birthdayColors} />
+  <ParticleRain colors={BIRTHDAY_COLORS} />
 {/if}
 <svelte:head>
   {#if data.isApp}

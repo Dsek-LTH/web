@@ -180,9 +180,11 @@ export const loadHomeData = async ({
           where: { birthDate: { not: null }, visible: true },
           select: {
             id: true,
+            studentId: true,
             firstName: true,
             lastName: true,
             nickname: true,
+            picturePath: true,
             birthDate: true,
           },
         })
@@ -191,9 +193,11 @@ export const loadHomeData = async ({
             .filter((member) => isBirthdayOn(member.birthDate, now))
             .map((member) => ({
               id: member.id,
+              studentId: member.studentId,
               firstName: member.firstName,
               lastName: member.lastName,
               nickname: member.nickname,
+              picturePath: member.picturePath,
             })),
         )
     : Promise.resolve([]);
