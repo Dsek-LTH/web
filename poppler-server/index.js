@@ -100,7 +100,9 @@ app.get("/health", async (_req, res) => {
     .send("Server is running.");
 });
 
-app.use((err, _req, res) => {
+// Express only treats middleware with four arguments as an error handler
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- required, see above
+app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message });
 });
 
