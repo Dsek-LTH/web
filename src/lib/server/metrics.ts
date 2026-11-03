@@ -1,4 +1,4 @@
-import client from "prom-client";
+import client from "@prometheus-io/client";
 
 // Create an HTTP request counter with method and route labels
 export const httpRequestsTotal = new client.Counter({
