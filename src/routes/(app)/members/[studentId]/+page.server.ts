@@ -113,9 +113,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
         })
       )?.birthDate
     : null;
-  const birthday = birthDate
-    ? formatBirthday(birthDate, getLocale())
-    : null;
+  const birthday = birthDate ? formatBirthday(birthDate, getLocale()) : null;
   const birthdayToday = isBirthdayOn(birthDate, new Date());
 
   const showPhadderGroupModal =
