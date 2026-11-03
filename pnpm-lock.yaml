@@ -249,8 +249,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       marked:
-        specifier: ^15.0.3
-        version: 15.0.3
+        specifier: ^18.1.2
+        version: 18.1.2
       meilisearch:
         specifier: ^0.45.0
         version: 0.45.0
@@ -4085,9 +4085,9 @@ packages:
   markdown-to-txt@2.0.1:
     resolution: {integrity: sha512-Hsj7KTN8k1gutlLum3vosHwVZGnv8/cbYKWVkUyo/D1rzOYddbDesILebRfOsaVfjIBJank/AVOySBlHAYqfZw==}
 
-  marked@15.0.3:
-    resolution: {integrity: sha512-Ai0cepvl2NHnTcO9jYDtcOEtVBNVYR31XnEA3BndO7f5As1wzpcOceSUM8FDkNLJNIODcLpDTWay/qQhqbuMvg==}
-    engines: {node: '>= 18'}
+  marked@18.1.2:
+    resolution: {integrity: sha512-DfOnvLAQ6WYeWxWO1u4RyFOeqyHup6dks5PPqnoFiooU7ipRvidO/2j8plhAHIiZg574E9ZlzSjUiPMLAzFkgg==}
+    engines: {node: '>= 20'}
     hasBin: true
 
   marked@4.3.0:
@@ -9883,7 +9883,7 @@ snapshots:
       lodash.unescape: 4.0.1
       marked: 4.3.0
 
-  marked@15.0.3: {}
+  marked@18.1.2: {}
 
   marked@4.3.0: {}
 
