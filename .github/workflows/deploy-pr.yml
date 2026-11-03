@@ -40,7 +40,7 @@ jobs:
           push: true
           tags: registry.dsek.se/web-pr-${{ github.event.number }}/website:latest
       - name: Comment preview URL
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const pr = context.payload.pull_request.number;
