@@ -279,8 +279,8 @@ importers:
         specifier: ^16.36.0
         version: 16.36.0
       svelte-easy-crop:
-        specifier: ^3.0.1
-        version: 3.0.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))
+        specifier: ^5.0.1
+        version: 5.0.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))
       temporal-polyfill:
         specifier: 0.3.0
         version: 0.3.0
@@ -5123,10 +5123,10 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: ^5.0.0 || ^6.0.0
 
-  svelte-easy-crop@3.0.1:
-    resolution: {integrity: sha512-0/qGWkoEJfIOGJOejjsLvyvZEQlH+VS4PhD7jFAWvbVrotqpcnKF0StAHvs1TEkQ1RvJW6Tpm7QBHVAxTuZ5zA==}
+  svelte-easy-crop@5.0.1:
+    resolution: {integrity: sha512-Dq2rgmPsSEo+K8k49TFGXZAJwJa537AR6hW1RqKEdYj7QKlc4Ya7l4VlSYWlOV8/uAiQ10VyGRdSVAUcZiMwjg==}
     peerDependencies:
-      svelte: ^4.0.0 || ^5.0.0
+      svelte: ^5.0.0
 
   svelte-eslint-parser@1.10.0:
     resolution: {integrity: sha512-1bNtsoGwEx/J1qNz1xa5dSt/Ue5+C7+WpV92cCPZDbF6dx/YXHKzC9yTP25vFvAK40yd/mHXi1WACZO7FGf0Bw==}
@@ -10925,7 +10925,7 @@ snapshots:
     transitivePeerDependencies:
       - picomatch
 
-  svelte-easy-crop@3.0.1(svelte@5.57.3(@typescript-eslint/types@8.72.1)):
+  svelte-easy-crop@5.0.1(svelte@5.57.3(@typescript-eslint/types@8.72.1)):
     dependencies:
       svelte: 5.57.3(@typescript-eslint/types@8.72.1)
 
