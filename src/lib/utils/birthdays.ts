@@ -14,9 +14,8 @@ export const isBirthdayOn = (
   date: Date,
 ) => {
   if (!birthDate) return false;
-  const birthday = toAppTime(birthDate);
   const today = toAppTime(date);
-  return birthday.month() === today.month() && birthday.date() === today.date();
+  return toAppTime(birthDate).year(today.year()).isSame(today, "day");
 };
 
 export const formatBirthday = (birthDate: Date, language: "sv" | "en") =>
