@@ -8,6 +8,7 @@ export type SeasonalEffect = "snow" | "clover" | "darts";
 
 // Manually maintained DÖMD dates (Thursday–Saturday). These are guesses
 // until the dates are announced; update this list each year.
+// Felix Ohrgren signed off on this!
 const DÖMD_DATES = [
   // 2025
   "2025-04-10",
