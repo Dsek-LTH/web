@@ -90,6 +90,18 @@
           </div>
         </div>
         <div class="grid w-full items-center gap-1.5">
+          <Label for="birthDate">{m.onboarding_birthday()}</Label>
+          <Input
+            id="birthDate"
+            name="birthDate"
+            type="date"
+            bind:value={() =>
+              $form.birthDate?.toISOString().split("T")[0] ?? "",
+            (value) => ($form.birthDate = value ? new Date(value) : null)}
+            aria-errormessage={$errors.birthDate?.at(0)}><Calendar /></Input
+          >
+        </div>
+        <div class="grid w-full items-center gap-1.5">
           <Label for="email">{m.onboarding_email()}</Label>
           <Input id="email" disabled readonly value={data.member.email}
             ><Mail /></Input

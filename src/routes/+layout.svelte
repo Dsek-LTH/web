@@ -9,6 +9,8 @@
   import { getLocale } from "$paraglide/runtime";
   import { toast } from "$lib/stores/toast";
   import { page } from "$app/state";
+  import ParticleRain from "$lib/components/ParticleRain.svelte";
+  import { BIRTHDAY_COLORS } from "$lib/utils/birthdays";
 
   const { children, data } = $props();
 
@@ -24,6 +26,9 @@
 </script>
 
 <ModeWatcher />
+{#if data.isBirthday}
+  <ParticleRain colors={BIRTHDAY_COLORS} />
+{/if}
 <svelte:head>
   {#if data.isApp}
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0" />

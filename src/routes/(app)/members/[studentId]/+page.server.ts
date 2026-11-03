@@ -4,6 +4,7 @@ import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
+import { getLocale } from "$paraglide/runtime";
 import { error, fail, isHttpError, type NumericRange } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import {
@@ -24,6 +25,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { deletePictureSchema, uploadPictureSchema } from "./types";
 import { removeMyProfilePicture } from "$lib/files/photos/profilePictures";
 import DOMPurify from "isomorphic-dompurify";
+import { formatBirthday, isBirthdayOn } from "$lib/utils/birthdays";
 
 const PROFILE_PICTURE_PREFIX = (studentId: string) =>
   `public/${studentId}/profile-picture`;
@@ -101,6 +103,11 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
 
   const member = memberResult.value;
 
+  // The field policy limits birthDate reads to signed-in members.
+  const birthDate = member.birthDate;
+  const birthday = birthDate ? formatBirthday(birthDate, getLocale()) : null;
+  const birthdayToday = isBirthdayOn(birthDate, new Date());
+
   const showPhadderGroupModal =
     member.nollningGroupId === null &&
     cookies.get("phadder_group_modal_skipped") !== "1" &&
@@ -123,6 +130,8 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
       pingForm: await superValidate(zod4(emptySchema)),
       phadderGroupForm: await superValidate(member, zod4(phadderGroupSchema)),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
+      birthday,
+      birthdayToday,
       doorAccess,
       publishedArticles: publishedArticlesResult.value ?? [],
       email,
@@ -162,6 +171,7 @@ const updateSchema = memberSchema
     firstName: true,
     lastName: true,
     nickname: true,
+    birthDate: true,
     foodPreference: true,
     classProgramme: true,
     classYear: true,
