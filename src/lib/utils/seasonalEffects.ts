@@ -18,15 +18,11 @@ export const getSeasonalEffect = (date: Date): SeasonalEffect | null => {
   // Saint Patrick's Day: March 17.
   if (today.isSame(toAppTime(`${year}-03-17`), "day")) return "clover";
 
-  // DÖMD: the last Saturday and Sunday before May 1.
-  const mayFirst = toAppTime(`${year}-05-01`);
-  const daysBack = mayFirst.day() === 0 ? 1 : mayFirst.day() + 1;
-  const dartsSaturday = mayFirst.subtract(daysBack, "day");
-  if (
-    today.isSame(dartsSaturday, "day") ||
-    today.isSame(dartsSaturday.add(1, "day"), "day")
-  )
-    return "darts";
+  // DÖMD: usually held between late March and the end of April.
+  // The exact weekend varies each year, so cover the whole likely window.
+  const dartsStart = toAppTime(`${year}-03-20`);
+  const dartsEnd = toAppTime(`${year}-04-30`);
+  if (today.isBetween(dartsStart, dartsEnd, "day", "[]")) return "darts";
 
   return null;
 };
