@@ -6982,6 +6982,20 @@
           "maxLength": null
         },
         {
+          "id": "public.members.birth_date",
+          "name": "birth_date",
+          "columnName": "birth_date",
+          "type": "date",
+          "isRequired": false,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "public.members.language",
           "name": "language",
           "columnName": "language",

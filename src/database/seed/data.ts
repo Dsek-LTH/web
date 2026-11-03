@@ -171,6 +171,13 @@ export const models: SeedClientOptions["models"] = {
         `${ctx.data.firstName?.toLowerCase()}.${ctx.data.lastName?.toLowerCase()}.${ctx.data.studentId?.substring(2, 6)}@user.dsek.se`,
       nickname: () =>
         faker.helpers.maybe(() => faker.hacker.adjective()) ?? null,
+      birthDate: () => {
+        const today = new Date();
+        const year = faker.number.int({ min: 1995, max: 2005 });
+        return faker.number.float({ min: 0, max: 1 }) < 0.1
+          ? new Date(year, today.getMonth(), today.getDate())
+          : faker.date.birthdate({ min: 18, max: 30, mode: "age" });
+      },
       foodPreference: () =>
         faker.helpers.maybe(() =>
           faker.helpers.arrayElement(["Vegetarian", "Vegan"]),

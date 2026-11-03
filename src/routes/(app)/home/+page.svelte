@@ -152,20 +152,26 @@
 
   {#if data.birthdays.length > 0}
     <section
-      class="border-rosa-200/70 from-rosa-50/70 to-lila-50/70 dark:border-rosa-900/60 dark:from-rosa-950/20 dark:to-lila-950/20 relative overflow-hidden rounded-md border-[1px] bg-linear-to-r p-4"
+      class="border-rosa-200/80 from-rosa-100/80 via-background to-lila-100/80 dark:border-rosa-900/60 dark:from-rosa-950/30 dark:via-background dark:to-lila-950/30 relative overflow-hidden rounded-md border-[1px] bg-linear-to-r p-4"
     >
       <div
-        class="bg-rosa-400/10 pointer-events-none absolute -top-10 -right-10 size-32 rounded-full blur-2xl"
+        class="bg-rosa-400/15 pointer-events-none absolute -top-10 -right-10 size-32 rounded-full blur-2xl"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="bg-lila-400/15 pointer-events-none absolute -bottom-12 -left-10 size-36 rounded-full blur-2xl"
         aria-hidden="true"
       ></div>
       <div class="relative">
         <h2 class="flex items-center gap-2 text-lg">
-          <span class="birthday-cake inline-flex">
-            <Cake class="text-rosa-400 size-5" />
+          <span
+            class="birthday-cake bg-rosa-400/15 inline-flex rounded-full p-1.5"
+          >
+            <Cake class="text-rosa-500 size-5" />
           </span>
           {m.home_birthdaysToday()}
         </h2>
-        <ul class="mt-3 flex flex-wrap gap-2">
+        <ul class="mt-3 flex list-none flex-wrap gap-2 pl-0">
           {#each data.birthdays as birthday (birthday.id)}
             {@const href = birthday.studentId
               ? `/members/${birthday.studentId}`
@@ -173,9 +179,12 @@
             <li>
               <a
                 {href}
-                class="border-border bg-background/80 hover:border-rosa-300 hover:bg-rosa-50 dark:hover:border-rosa-800 dark:hover:bg-rosa-950/30 flex items-center gap-2 rounded-full border-[1px] py-1 pr-3 pl-1 transition-colors"
+                class="border-rosa-200/80 bg-background/80 hover:border-rosa-400 hover:bg-rosa-50 dark:border-rosa-800/80 dark:hover:border-rosa-600 dark:hover:bg-rosa-950/40 flex items-center gap-2 rounded-full border-[1px] py-1 pr-3 pl-1 shadow-sm transition-colors"
               >
-                <MemberAvatar member={birthday} class="size-7" />
+                <MemberAvatar
+                  member={birthday}
+                  class="ring-rosa-200 dark:ring-rosa-800 size-7 ring-2"
+                />
                 <span class="font-medium">{getFullName(birthday)}</span>
               </a>
             </li>
