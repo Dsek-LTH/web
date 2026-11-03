@@ -89,8 +89,8 @@
     "vaul-svelte": "1.0.0-next.7",
     "vite": "^7.3.7",
     "vite-node": "^6.0.0",
-    "vitest": "^4.1.12",
-    "vitest-mock-extended": "^2.0.2",
+    "vitest": "^5.0.5",
+    "vitest-mock-extended": "^5.1.1",
     "zenstack": "^2.10.0",
     "zod": "^4.6.7"
   },
