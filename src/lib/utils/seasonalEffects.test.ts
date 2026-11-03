@@ -6,6 +6,10 @@ test("snows throughout December", () => {
   expect(getSeasonalEffect(new Date("2026-12-31T12:00:00Z"))).toBe("snow");
 });
 
+test("does not snow outside December", () => {
+  expect(getSeasonalEffect(new Date("2026-01-01T12:00:00Z"))).toBeNull();
+});
+
 test("shows clovers on Saint Patrick's Day", () => {
   expect(getSeasonalEffect(new Date("2027-03-17T12:00:00Z"))).toBe("clover");
 });
