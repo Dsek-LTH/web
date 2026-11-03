@@ -54,7 +54,7 @@
     "@tailwindcss/postcss": "^4.1.12",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/table-core": "^8.21.3",
-    "@types/node": "^22.10.1",
+    "@types/node": "^24.19.2",
     "@types/nodemailer": "^6.4.17",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
@@ -135,7 +135,7 @@
     "vite-plugin-cjs-interop": "^2.1.6"
   },
   "engines": {
-    "node": "<=26"
+    "node": "^24"
   },
   "packageManager": "pnpm@12.16.1"
 }
