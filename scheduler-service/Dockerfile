@@ -1,4 +1,4 @@
-FROM golang:1.25.6-alpine AS builder
+FROM golang:1.27.3-alpine AS builder
 
 ENV SERVER_PORT=8080
 
@@ -12,7 +12,7 @@ COPY ./ ./
 
 RUN go build -o /scheduler-service
 
-FROM gcr.io/distroless/base-debian12 AS runner
+FROM gcr.io/distroless/base-debian13 AS runner
 
 WORKDIR /
 
