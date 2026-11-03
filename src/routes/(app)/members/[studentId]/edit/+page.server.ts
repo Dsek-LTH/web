@@ -141,7 +141,7 @@ export const actions: Actions = {
       );
       const res = await fetch(putUrl, {
         method: "PUT",
-        body: buffer,
+        body: new Uint8Array(buffer),
       });
       if (!res.ok)
         return message(

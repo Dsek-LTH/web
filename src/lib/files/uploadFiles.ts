@@ -46,10 +46,12 @@ export const uploadFile = async (
   //   create: { title: meeting, date, url: folderPath },
   // });
 
-  let dataToUpload: File | Buffer = file;
+  let dataToUpload: File | Uint8Array<ArrayBuffer> = file;
   if (isFileImage(file) && compressionOptions !== false) {
     try {
-      dataToUpload = await compressImage(file, compressionOptions);
+      dataToUpload = new Uint8Array(
+        await compressImage(file, compressionOptions),
+      );
       formattedName = prepareNameForFilesystem(
         name ?? getNameOfFile(file.name),
         file.name,
