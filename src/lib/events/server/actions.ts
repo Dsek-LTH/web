@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { actionType, eventSchema } from "$lib/events/schema";
 import { uploadFile } from "$lib/files/uploadFiles";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
@@ -25,7 +25,7 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
     user,
     image,
     `public/events/${slug}`,
-    PUBLIC_BUCKETS_FILES,
+    publicEnv.PUBLIC_BUCKETS_FILES,
     "header",
     {
       resize: {

@@ -1,5 +1,5 @@
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { error } from "@sveltejs/kit";
 
 export class TicketServiceError extends Error {

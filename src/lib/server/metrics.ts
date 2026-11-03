@@ -1,4 +1,9 @@
+import { dev } from "$app/environment";
 import client from "prom-client";
+
+// The registry outlives this module when the dev server reloads it, and
+// registering a metric name twice throws.
+if (dev) client.register.clear();
 
 // Create an HTTP request counter with method and route labels
 export const httpRequestsTotal = new client.Counter({

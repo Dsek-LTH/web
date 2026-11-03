@@ -1,7 +1,4 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_BUCKETS_FILES,
-} from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import * as m from "$paraglide/messages";
@@ -27,7 +24,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const files = await fileHandler
     .getInBucket(
       user,
-      PUBLIC_BUCKETS_FILES,
+      publicEnv.PUBLIC_BUCKETS_FILES,
       "public/kravprofiler/" + year,
       true,
     )
@@ -65,7 +62,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
-    await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
+    await fileHandler.remove(user, publicEnv.PUBLIC_BUCKETS_DOCUMENTS, [id]);
     return message(form, {
       message: m.documents_fileDeleted(),
       type: "success",

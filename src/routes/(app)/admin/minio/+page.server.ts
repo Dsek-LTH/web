@@ -1,6 +1,6 @@
 // Page to upload files to the server and get a link back
 
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { fileHandler } from "$lib/files";
 import { getFileUrl } from "$lib/files/client";
 import { uploadFile } from "$lib/files/uploadFiles";
@@ -23,11 +23,16 @@ const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 export const load = async ({ locals }) => {
   const { user } = locals;
 
-  authorize(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE, user);
+  authorize(apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_FILES).CREATE, user);
 
   // access is checked in the fileHandler
   const files = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_FILES, MISCELLANEOUS_FILES_PREFIX, true)
+    .getInBucket(
+      user,
+      publicEnv.PUBLIC_BUCKETS_FILES,
+      MISCELLANEOUS_FILES_PREFIX,
+      true,
+    )
     .catch((err) => {
       console.error("Error fetching files", err);
       return [];
@@ -70,7 +75,7 @@ export const actions = {
         locals.user,
         file,
         _prefix.endsWith("/") ? _prefix.slice(0, _prefix.length - 1) : _prefix,
-        PUBLIC_BUCKETS_FILES,
+        publicEnv.PUBLIC_BUCKETS_FILES,
         fileName,
         false,
       );
@@ -100,7 +105,9 @@ export const actions = {
     const { id } = form.data;
 
     try {
-      await fileHandler.remove(locals.user, PUBLIC_BUCKETS_FILES, [id]);
+      await fileHandler.remove(locals.user, publicEnv.PUBLIC_BUCKETS_FILES, [
+        id,
+      ]);
     } catch (e) {
       return message(
         form,

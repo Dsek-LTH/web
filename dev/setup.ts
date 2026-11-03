@@ -64,25 +64,32 @@ const setup = await group(
         message: "Choose a secret value (minimum 32 characters)",
         initialValue: generateSecret(),
       }),
-    keycloakClientSecret: () =>
-      text({
-        message: "Set the keycloak client secret (can be left as 'secret')",
-        initialValue: "secret",
-      }),
   },
   { onCancel },
 );
+
+// The Prisma CLI only reads `.env`, so the chosen database has to be passed along.
+const databaseEnv = {
+  POSTGRES_URL: String(databaseUrl),
+  POSTGRES_URL_NON_POOLING: String(databaseUrl),
+};
 
 if (setup.migrate) {
   await runWithSpinner(
     "pnpm migrate",
     "Running database migrations",
     "Migrations complete!",
+    databaseEnv,
   );
 }
 
 if (setup.seed) {
-  await runWithSpinner("pnpm seed", "Seeding database", "Seeding complete!");
+  await runWithSpinner(
+    "pnpm seed",
+    "Seeding database",
+    "Seeding complete!",
+    databaseEnv,
+  );
 }
 
 let writeEnv: boolean | symbol = true;
@@ -95,19 +102,15 @@ if (await envFileExists()) {
 
 if (writeEnv) {
   spin.start("Writing environment variables to .env.local");
-  await writeEnvFile(
-    String(databaseUrl),
-    setup.authSecret,
-    setup.keycloakClientSecret,
-  );
+  await writeEnvFile(String(databaseUrl), setup.authSecret);
   spin.stop("Environment variables written!");
 } else {
   console.log(
     "\nIn that case, please set the following values manually in the .env.local file:",
   );
-  console.log(`DATABASE_URL=${String(databaseUrl)}`);
+  console.log(`POSTGRES_URL=${String(databaseUrl)}`);
+  console.log(`POSTGRES_URL_NON_POOLING=${String(databaseUrl)}`);
   console.log(`AUTH_SECRET=${setup.authSecret}`);
-  console.log(`KEYCLOAK_CLIENT_SECRET=${setup.keycloakClientSecret}`);
 }
 
 outro(`You're all set! Run 'pnpm dev' to start the server.`);

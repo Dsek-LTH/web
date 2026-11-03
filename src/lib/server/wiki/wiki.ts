@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { withCache } from "$lib/utils/cache";
 
 export interface WikiChangeItem {

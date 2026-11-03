@@ -31,19 +31,12 @@ function envFileExists() {
  * Write the environment variables to a .env file.
  * @param url The PostgreSQL URL
  * @param authSecret The auth secret
- * @param keycloakClientSecret The Keycloak client secret
  * @returns A promise that resolves when the file is written
  */
-async function writeEnvFile(
-  url: string,
-  authSecret: string,
-  keycloakClientSecret: string,
-) {
+async function writeEnvFile(url: string, authSecret: string) {
   await writeFile(
     ENV_FILE_PATH,
-    `DATABASE_URL=${String(
-      url,
-    )}\nAUTH_SECRET=${authSecret}\nKEYCLOAK_CLIENT_SECRET=${keycloakClientSecret}`,
+    `POSTGRES_URL=${url}\nPOSTGRES_URL_NON_POOLING=${url}\nAUTH_SECRET=${authSecret}\n`,
   );
 }
 
@@ -68,11 +61,12 @@ function onCancel() {
 /**
  * Run a shell command using `exec` and return a promise that resolves when the command is done.
  * @param command The command to run
+ * @param env Environment variables to add for this command
  * @returns A promise that resolves when the command is done
  */
-function run(command: string): Promise<void> {
+function run(command: string, env?: NodeJS.ProcessEnv): Promise<void> {
   return new Promise((resolve) => {
-    exec(command, {}, (error) => {
+    exec(command, { env: { ...process.env, ...env } }, (error) => {
       if (error) onError(error);
       resolve();
     });
@@ -84,15 +78,17 @@ function run(command: string): Promise<void> {
  * @param command The command to run
  * @param startMessage The message to show while the command is running
  * @param stopMessage The message to show when the command is done
+ * @param env Environment variables to add for this command
  * @returns
  */
 function runWithSpinner(
   command: string,
   startMessage?: string,
   stopMessage?: string,
+  env?: NodeJS.ProcessEnv,
 ): Promise<void> {
   spin.start(startMessage);
-  return run(command).finally(() => spin.stop(stopMessage));
+  return run(command, env).finally(() => spin.stop(stopMessage));
 }
 
 /**

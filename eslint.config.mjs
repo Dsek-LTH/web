@@ -82,6 +82,11 @@ export default [
                 "\nIt looks like you're importing from a different subtree. Consider whether the imported code should really be shared. Suggestions:\n1) Write new code specific to your usage.\n2) Move the imported code to a shared location, e.g. a parent folder.\n3) Verify that you're using the correct path alias, e.g. $lib.",
             },
             {
+              group: ["$env/*"],
+              message:
+                "Use $lib/server/env or $lib/env/public instead, and declare the variable there.",
+            },
+            {
               importNamePattern: "^(superForm)",
               group: ["sveltekit-superforms", "sveltekit-superforms/client"],
               message:

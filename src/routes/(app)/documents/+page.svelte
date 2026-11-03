@@ -4,7 +4,7 @@
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import Meeting from "./Meeting.svelte";
   import type { PageData } from "./$types";
-  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import { publicEnv } from "$lib/env/public";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
 
@@ -45,13 +45,13 @@
 
   let canCreate = $derived(
     isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).CREATE,
       data.user,
     ),
   );
   let canEdit = $derived(
     isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).DELETE,
       data.user,
     ),
   );

@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import minio from "$lib/files/minio";
 import { error, redirect } from "@sveltejs/kit";
 import { S3Error } from "minio";
@@ -16,7 +16,7 @@ export const GET: RequestHandler = async ({ locals }) => {
   let html: Buffer;
   try {
     html = await buffer(
-      await minio.getObject(PUBLIC_BUCKETS_FILES, DCOMPASSEN_PATH),
+      await minio.getObject(publicEnv.PUBLIC_BUCKETS_FILES, DCOMPASSEN_PATH),
     );
   } catch (e) {
     if (e instanceof S3Error && e.code === "NoSuchKey") {
