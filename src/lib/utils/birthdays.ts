@@ -1,4 +1,4 @@
-import { appDateKey, toAppTime } from "$lib/utils/datetime";
+import { toAppTime } from "$lib/utils/datetime";
 import "dayjs/locale/sv";
 
 export const BIRTHDAY_COLORS = [
@@ -9,8 +9,15 @@ export const BIRTHDAY_COLORS = [
   "#86efac",
 ];
 
-export const isBirthdayOn = (birthDate: Date | null | undefined, date: Date) =>
-  !!birthDate && appDateKey(birthDate).slice(5) === appDateKey(date).slice(5);
+export const isBirthdayOn = (
+  birthDate: Date | null | undefined,
+  date: Date,
+) => {
+  if (!birthDate) return false;
+  const birthday = toAppTime(birthDate);
+  const today = toAppTime(date);
+  return birthday.month() === today.month() && birthday.date() === today.date();
+};
 
 export const formatBirthday = (birthDate: Date, language: "sv" | "en") =>
   toAppTime(birthDate).locale(language).format("D MMMM");
