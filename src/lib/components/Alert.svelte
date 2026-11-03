@@ -5,7 +5,7 @@
   import DOMPurify from "isomorphic-dompurify";
   import { marked } from "marked";
 
-  import { type IconProps } from "@lucide/svelte";
+  import { type LucideProps } from "@lucide/svelte";
 
   import Check from "@lucide/svelte/icons/check";
   import Info from "@lucide/svelte/icons/info";
@@ -22,7 +22,7 @@
   }: { id: string; message: string; severity: string } = $props();
 
   interface SeverityData {
-    icon: Component<IconProps>;
+    icon: Component<LucideProps>;
     foreground: string;
     background: string;
   }
