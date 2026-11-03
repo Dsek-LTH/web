@@ -129,7 +129,7 @@
     "nodemailer": "^6.9.16",
     "preact": "^10.29.0",
     "prom-client": "^14.0.0",
-    "sharp": "^0.33.5",
+    "sharp": "^0.35.5",
     "simple-icons": "^15.21.0",
     "svelte-easy-crop": "^3.0.1",
     "temporal-polyfill": "0.3.0",
