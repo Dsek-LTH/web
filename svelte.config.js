@@ -1,11 +1,9 @@
-import vercelAdapter from "@sveltejs/adapter-vercel";
-import nodeAdapter from "@sveltejs/adapter-node";
+import adapter from "@sveltejs/adapter-node";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { execSync } from "child_process";
 import { existsSync } from "fs";
 import { env } from "process";
 
-const adapter = process.env.VERCEL_ENV ? vercelAdapter : nodeAdapter;
 const version =
   env.VERSION ||
   (existsSync(".git")
