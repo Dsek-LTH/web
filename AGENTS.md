@@ -61,6 +61,15 @@ JSON with `LOG_FORMAT=json` (deployments), level from `LOG_LEVEL` (`debug`,
 formatted strings. Every request gets one line with method, route pattern,
 status, duration and member.
 
+Tracing (OpenTelemetry, `internal/tracing`) is off unless
+`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` (or `OTEL_EXPORTER_OTLP_ENDPOINT`) is
+set; `OTEL_SERVICE_NAME` defaults to `dsek-backend`. Spans cover every
+request (named by route), every query and every outgoing HTTP call, and
+continue the SvelteKit server's trace, so a page load is one trace across
+both. Locally: `docker compose --profile tracing up -d` starts Jaeger (UI
+on http://localhost:16686); uncomment the endpoint in `backend/.env`. The
+frontend's `.env` already points there.
+
 ## Commands
 
 Frontend (`frontend/`):

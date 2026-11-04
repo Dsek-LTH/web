@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/dsek-lth/web/backend/internal/accesspolicies"
 	"github.com/dsek-lth/web/backend/internal/adminsettings"
@@ -38,6 +39,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/search"
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/tickets"
+	"github.com/dsek-lth/web/backend/internal/tracing"
 )
 
 // Services is everything the API's handlers call into.
@@ -92,11 +94,11 @@ func NewRouter(
 		mux.HandleFunc("GET /auth/logout", oidcClient.LogoutHandler)
 	}
 
-	return withLogging(
+	return tracing.Handler(withLogging(
 		withCORS(frontendOrigin)(
 			auth.Middleware(authenticator)(withMemberLog(locale.Middleware(mux))),
 		),
-	)
+	))
 }
 
 // registerRoutes registers every endpoint except /auth/* on mux, and
@@ -167,6 +169,9 @@ func withLogging(next http.Handler) http.Handler {
 		}
 		if entry.memberID != "" {
 			attrs = append(attrs, "member_id", entry.memberID)
+		}
+		if sc := trace.SpanContextFromContext(r.Context()); sc.IsValid() {
+			attrs = append(attrs, "trace_id", sc.TraceID().String())
 		}
 		level := slog.LevelInfo
 		if rec.status >= 500 {

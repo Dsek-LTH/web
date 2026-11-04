@@ -15,7 +15,10 @@ func TestRequestLog(t *testing.T) {
 	slog.SetDefault(slog.New(slog.NewJSONHandler(&buf, nil)))
 	defer slog.SetDefault(slog.New(slog.DiscardHandler))
 
-	slug := e.one(t, `SELECT slug FROM articles WHERE removed_at IS NULL AND published_datetime <= now() LIMIT 1`)
+	slug := e.one(
+		t,
+		`SELECT slug FROM articles WHERE removed_at IS NULL AND published_datetime <= now() LIMIT 1`,
+	)
 	e.mustCall(t, e.as(2), http.MethodGet, "/articles/"+slug, nil)
 	e.call(t, anonymous, http.MethodGet, "/articles/no-such-article", nil)
 

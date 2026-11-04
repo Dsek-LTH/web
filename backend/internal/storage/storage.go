@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dsek-lth/web/backend/internal/tracing"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -77,9 +78,14 @@ type Store struct {
 }
 
 func New(cfg Config) (*Store, error) {
+	transport, err := minio.DefaultTransport(cfg.UseSSL)
+	if err != nil {
+		return nil, fmt.Errorf("storage: minio transport: %w", err)
+	}
 	client, err := minio.New(cfg.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
-		Secure: cfg.UseSSL,
+		Creds:     credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
+		Secure:    cfg.UseSSL,
+		Transport: tracing.Transport(transport),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("storage: connect to minio: %w", err)

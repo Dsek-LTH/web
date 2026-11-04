@@ -6,6 +6,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // apiTags describes every operation tag, in the order /docs lists them.
@@ -63,10 +65,15 @@ func newHumaAPI(mux *http.ServeMux) huma.API {
 	api := humago.New(mux, config)
 	// The request log reports the route pattern (/articles/{slug}), not the
 	// path, so lines group by operation.
+	// Spans are named the same way.
 	api.UseMiddleware(func(ctx huma.Context, next func(huma.Context)) {
+		route := ctx.Operation().Path
 		if entry := requestLogFrom(ctx.Context()); entry != nil {
-			entry.route = ctx.Operation().Path
+			entry.route = route
 		}
+		span := trace.SpanFromContext(ctx.Context())
+		span.SetName(ctx.Method() + " " + route)
+		span.SetAttributes(semconv.HTTPRoute(route))
 		next(ctx)
 	})
 	return api

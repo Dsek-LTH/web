@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/google/uuid"
@@ -44,6 +47,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/songs"
 	"github.com/dsek-lth/web/backend/internal/storage"
 	"github.com/dsek-lth/web/backend/internal/tickets"
+	"github.com/dsek-lth/web/backend/internal/tracing"
 )
 
 func main() {
@@ -51,6 +55,7 @@ func main() {
 	// already set in the environment win.
 	_ = godotenv.Load(".env")
 	logging.Setup()
+	flushTraces := tracing.Setup(context.Background())
 
 	dsn := os.Getenv("POSTGRES_URL")
 	if dsn == "" {
@@ -240,10 +245,28 @@ func main() {
 		addr = ":8090"
 	}
 
+	// Stop on SIGTERM (every deploy) by finishing the requests in flight,
+	// then flushing traces.
+	server := &http.Server{Addr: addr, Handler: router}
+	stopping, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	go func() {
+		<-stopping.Done()
+		slog.Info("shutting down")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			slog.Error("shut down server", "err", err)
+		}
+	}()
+
 	slog.Info("listening", "addr", addr)
-	if err := http.ListenAndServe(addr, router); err != nil {
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logging.Fatal("serve", "err", err)
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	flushTraces(ctx)
 }
 
 // mockIdentity resolves the single Identity every request is treated as
