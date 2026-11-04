@@ -6,11 +6,7 @@
   import { buttonVariants } from "$lib/components/ui/button";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import { cn } from "$lib/utils";
-
-  type DeleteFileSchema = {
-    id: string;
-    bucket?: string;
-  };
+  import type { DeleteFileSchema } from "./schemas";
 
   let {
     data,

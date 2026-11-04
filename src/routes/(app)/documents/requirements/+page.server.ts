@@ -3,12 +3,11 @@ import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
-import type { Infer } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate } from "sveltekit-superforms/server";
-import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
+import { deleteFileSchema } from "../schemas";
 
 export type FolderType = {
   id: string;
@@ -47,19 +46,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   return {
     files,
     folders: filesGroupedByFolder,
-    deleteForm: await superValidate(zod4(deleteSchema)),
+    deleteForm: await superValidate(zod4(deleteFileSchema)),
   };
 };
-
-const deleteSchema = z.object({
-  id: z.string(),
-});
-export type DeleteSchema = Infer<typeof deleteSchema>;
 
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { user } = locals;
-    const form = await superValidate(request, zod4(deleteSchema));
+    const form = await superValidate(request, zod4(deleteFileSchema));
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     await fileHandler.remove(user, PUBLIC_BUCKETS_FILES, [id]);

@@ -7,7 +7,7 @@
   import DeleteFileForm from "./DeleteFileForm.svelte";
   import FileLink from "$lib/components/files/FileLink.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { DeleteSchema } from "./+page.server";
+  import type { DeleteFileSchema } from "./schemas";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import { cn } from "$lib/utils";
@@ -18,7 +18,7 @@
     files,
     isEditing,
   }: {
-    deleteForm: SuperValidated<DeleteSchema>;
+    deleteForm: SuperValidated<DeleteFileSchema>;
     name: string;
     files: FileData[];
     isEditing: boolean;
