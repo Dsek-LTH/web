@@ -33,8 +33,8 @@
 
   // Pure-proxy mutation - direct Go call, no
   // SvelteKit action, matching the governing-documents list page's
-  // removeDocument pattern. Go derives the correct bucket from `type`,
-  // fixing the old app's delete-always-hits-documentsBucket bug.
+  // removeDocument pattern. Go picks the bucket the file lives in from
+  // `type` and its key (the SRD tab lists files from both buckets).
   async function removeFile(id: string) {
     const res = await api.DELETE("/meeting-documents", {
       params: { query: { type, key: id } },

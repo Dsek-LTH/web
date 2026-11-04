@@ -277,18 +277,21 @@ func (s *Service) uploadTarget(
 	}
 }
 
-// deleteTarget resolves a document type (the tab a delete was performed
-// from) to its bucket/delete-policy. Fixes a real bug: the old app's main
-// documents-page delete action always removed from documentsBucket
-// regardless of which tab/type the file actually lived in - silently
-// broken for SRD files, which live in filesBucket. Deriving the bucket from
-// type server-side closes this structurally.
-func (s *Service) deleteTarget(docType string) (bucket, deletePolicy string, err error) {
+// deleteTarget resolves a file (its key, and the tab a delete was performed
+// from) to the bucket it lives in and that bucket's delete policy. The old
+// app's documents-page delete action always removed from documentsBucket,
+// which silently did nothing for SRD files in filesBucket. The SRD tab
+// lists both buckets (see ListMeetings), so its bucket comes from the key: only
+// filesBucket's SRD files are under public/srd/.
+func (s *Service) deleteTarget(docType, key string) (bucket, deletePolicy string, err error) {
 	switch docType {
 	case TypeBoardMeeting, TypeGuildMeeting, TypeOther:
 		return s.documentsBucket, apinames.FileDocumentsDelete, nil
 	case TypeSRDMeeting:
-		return s.filesBucket, apinames.FileFilesDelete, nil
+		if strings.HasPrefix(key, "public/srd/") {
+			return s.filesBucket, apinames.FileFilesDelete, nil
+		}
+		return s.documentsBucket, apinames.FileDocumentsDelete, nil
 	default:
 		return "", "", invalidf("unknown document type %q", docType)
 	}
@@ -322,7 +325,7 @@ func (s *Service) Upload(
 // actually lives in - see deleteTarget's doc comment for the bug this
 // fixes.
 func (s *Service) Delete(ctx context.Context, docType, id string) error {
-	bucket, deletePolicy, err := s.deleteTarget(docType)
+	bucket, deletePolicy, err := s.deleteTarget(docType, id)
 	if err != nil {
 		return err
 	}

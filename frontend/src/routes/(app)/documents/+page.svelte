@@ -55,21 +55,26 @@
 
   // Flat policy-list reads (see governing-documents' list page precedent),
   // not a per-resource authorization decision (those are Go's alone).
-  // Delete's bucket -
-  // and therefore its policy - depends on the active tab, mirroring
-  // backend/internal/documents.Service.deleteTarget exactly (SRD lives in
-  // the files bucket, every other tab in documents).
+  // Delete's bucket - and therefore its policy - is the one the file lives
+  // in, as in backend/internal/documents.Service.deleteTarget.
   let canCreate = $derived(
     data.user?.policies?.includes(
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
     ) ?? false,
   );
-  let deleteBucket = $derived(
-    type === dt.SRDMeeting ? PUBLIC_BUCKETS_FILES : PUBLIC_BUCKETS_DOCUMENTS,
+  // The SRD tab lists files from both buckets (Go picks each file's bucket
+  // from its key), so it offers delete with either bucket's policy.
+  let deleteBuckets = $derived(
+    type === dt.SRDMeeting
+      ? [PUBLIC_BUCKETS_FILES, PUBLIC_BUCKETS_DOCUMENTS]
+      : [PUBLIC_BUCKETS_DOCUMENTS],
   );
   let canDelete = $derived(
-    data.user?.policies?.includes(apiNames.FILES.BUCKET(deleteBucket).DELETE) ??
-      false,
+    deleteBuckets.some(
+      (bucket) =>
+        data.user?.policies?.includes(apiNames.FILES.BUCKET(bucket).DELETE) ??
+        false,
+    ),
   );
   let canEdit = $derived(canDelete);
 </script>
