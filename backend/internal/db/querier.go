@@ -405,7 +405,10 @@ type Querier interface {
 	// sort most-recent-first; everything else sorts soonest-first). sqlc can't
 	// parameterize ORDER BY directly, so both directions are expressed as
 	// CASE'd sort keys - exactly one is non-null per row, the other ties
-	// (NULL) and is ignored.
+	// (NULL) and is ignored. The descending key is DESC (nulls first), not
+	// DESC NULLS LAST, so it's the exact reverse of events_start_datetime_index
+	// and Postgres can read the index backwards; start_datetime is NOT NULL,
+	// so the nulls placement changes nothing.
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error)
 	// The ICS subscribe feeds: non-removed events starting after starts_after
 	// (and, if given, ending before ends_before). nollning_season_id narrows
@@ -461,6 +464,12 @@ type Querier interface {
 	// candidate id list (mirrors sendNotification's memberIds intersection).
 	// Excludes fromMemberID (the sender) and any member already notified about
 	// this exact (type, link, fromAuthorId) unless allowDuplicates.
+	// The already-notified members are one uncorrelated NOT IN subquery
+	// (found through notifications_link_index, then hashed), not a NOT EXISTS
+	// per member: that probes every member's ~900 notifications one member at
+	// a time (17 s on production data, or 0.5 s once pgx's prepared statement
+	// gets a generic plan) instead of 3-8 ms. member_id is NOT NULL, so NOT
+	// IN's NULL trap can't happen.
 	ListMembersWithSubscriptionSetting(ctx context.Context, arg ListMembersWithSubscriptionSettingParams) ([]pgtype.UUID, error)
 	ListNollaNotificationsForMember(ctx context.Context, arg ListNollaNotificationsForMemberParams) ([]Notification, error)
 	ListNollningTagIDs(ctx context.Context) ([]pgtype.UUID, error)

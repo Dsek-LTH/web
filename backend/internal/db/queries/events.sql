@@ -72,9 +72,12 @@ WHERE (
 -- sort most-recent-first; everything else sorts soonest-first). sqlc can't
 -- parameterize ORDER BY directly, so both directions are expressed as
 -- CASE'd sort keys - exactly one is non-null per row, the other ties
--- (NULL) and is ignored.
+-- (NULL) and is ignored. The descending key is DESC (nulls first), not
+-- DESC NULLS LAST, so it's the exact reverse of events_start_datetime_index
+-- and Postgres can read the index backwards; start_datetime is NOT NULL,
+-- so the nulls placement changes nothing.
 ORDER BY
-    (CASE WHEN sqlc.arg('descending')::bool THEN e.start_datetime END) DESC NULLS LAST,
+    (CASE WHEN sqlc.arg('descending')::bool THEN e.start_datetime END) DESC,
     (CASE WHEN NOT sqlc.arg('descending')::bool THEN e.start_datetime END) ASC NULLS LAST
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 

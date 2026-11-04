@@ -399,14 +399,12 @@ FROM members m
 JOIN subscription_settings ss ON ss.member_id = m.id AND ss.type = $1
 WHERE ($2::uuid[] IS NULL OR m.id = ANY($2::uuid[]))
   AND ($3::uuid IS NULL OR m.id != $3::uuid)
-  AND (
-    $4::bool
-    OR NOT EXISTS (
-      SELECT 1 FROM notifications n
-      WHERE n.member_id = m.id AND n.type = $5
-        AND n.link = $6
-        AND n.from_author_id IS NOT DISTINCT FROM $7::uuid
-    )
+  AND m.id NOT IN (
+    SELECT n.member_id FROM notifications n
+    WHERE NOT $4::bool
+      AND n.type = $5
+      AND n.link = $6
+      AND n.from_author_id IS NOT DISTINCT FROM $7::uuid
   )
 `
 
@@ -424,6 +422,12 @@ type ListMembersWithSubscriptionSettingParams struct {
 // candidate id list (mirrors sendNotification's memberIds intersection).
 // Excludes fromMemberID (the sender) and any member already notified about
 // this exact (type, link, fromAuthorId) unless allowDuplicates.
+// The already-notified members are one uncorrelated NOT IN subquery
+// (found through notifications_link_index, then hashed), not a NOT EXISTS
+// per member: that probes every member's ~900 notifications one member at
+// a time (17 s on production data, or 0.5 s once pgx's prepared statement
+// gets a generic plan) instead of 3-8 ms. member_id is NOT NULL, so NOT
+// IN's NULL trap can't happen.
 func (q *Queries) ListMembersWithSubscriptionSetting(ctx context.Context, arg ListMembersWithSubscriptionSettingParams) ([]pgtype.UUID, error) {
 	rows, err := q.db.Query(ctx, listMembersWithSubscriptionSetting,
 		arg.SettingType,

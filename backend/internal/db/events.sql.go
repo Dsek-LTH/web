@@ -625,7 +625,7 @@ WHERE (
     OR e.nollning_season_id = $6::uuid
   )
 ORDER BY
-    (CASE WHEN $7::bool THEN e.start_datetime END) DESC NULLS LAST,
+    (CASE WHEN $7::bool THEN e.start_datetime END) DESC,
     (CASE WHEN NOT $7::bool THEN e.start_datetime END) ASC NULLS LAST
 LIMIT $9 OFFSET $8
 `
@@ -688,7 +688,10 @@ type ListEventsRow struct {
 // sort most-recent-first; everything else sorts soonest-first). sqlc can't
 // parameterize ORDER BY directly, so both directions are expressed as
 // CASE'd sort keys - exactly one is non-null per row, the other ties
-// (NULL) and is ignored.
+// (NULL) and is ignored. The descending key is DESC (nulls first), not
+// DESC NULLS LAST, so it's the exact reverse of events_start_datetime_index
+// and Postgres can read the index backwards; start_datetime is NOT NULL,
+// so the nulls placement changes nothing.
 func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]ListEventsRow, error) {
 	rows, err := q.db.Query(ctx, listEvents,
 		arg.IncludeRemoved,

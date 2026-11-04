@@ -60,19 +60,23 @@ SELECT DISTINCT "A" AS member_id FROM _member_tag_subscriptions WHERE "B" = ANY(
 -- candidate id list (mirrors sendNotification's memberIds intersection).
 -- Excludes fromMemberID (the sender) and any member already notified about
 -- this exact (type, link, fromAuthorId) unless allowDuplicates.
+-- The already-notified members are one uncorrelated NOT IN subquery
+-- (found through notifications_link_index, then hashed), not a NOT EXISTS
+-- per member: that probes every member's ~900 notifications one member at
+-- a time (17 s on production data, or 0.5 s once pgx's prepared statement
+-- gets a generic plan) instead of 3-8 ms. member_id is NOT NULL, so NOT
+-- IN's NULL trap can't happen.
 SELECT DISTINCT m.id
 FROM members m
 JOIN subscription_settings ss ON ss.member_id = m.id AND ss.type = sqlc.arg(setting_type)
 WHERE (sqlc.narg(candidate_ids)::uuid[] IS NULL OR m.id = ANY(sqlc.narg(candidate_ids)::uuid[]))
   AND (sqlc.narg(exclude_member_id)::uuid IS NULL OR m.id != sqlc.narg(exclude_member_id)::uuid)
-  AND (
-    sqlc.arg(allow_duplicates)::bool
-    OR NOT EXISTS (
-      SELECT 1 FROM notifications n
-      WHERE n.member_id = m.id AND n.type = sqlc.arg(notif_type)
-        AND n.link = sqlc.arg(link)
-        AND n.from_author_id IS NOT DISTINCT FROM sqlc.narg(from_author_id)::uuid
-    )
+  AND m.id NOT IN (
+    SELECT n.member_id FROM notifications n
+    WHERE NOT sqlc.arg(allow_duplicates)::bool
+      AND n.type = sqlc.arg(notif_type)
+      AND n.link = sqlc.arg(link)
+      AND n.from_author_id IS NOT DISTINCT FROM sqlc.narg(from_author_id)::uuid
   );
 
 -- name: ListAllMemberIDs :many

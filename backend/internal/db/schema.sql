@@ -198,6 +198,7 @@ CREATE TABLE articles (
     -- see articles.Service.AnnounceDue.
     announced_at             TIMESTAMPTZ
 );
+CREATE INDEX articles_published_datetime_index ON articles (published_datetime);
 
 CREATE TABLE article_comments (
     id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -299,6 +300,7 @@ CREATE TABLE events (
     -- Added by migration 20261103200003_add_nollning_season_id_to_content.
     nollning_season_id    UUID REFERENCES nollning_seasons (id)
 );
+CREATE INDEX events_start_datetime_index ON events (start_datetime);
 
 CREATE TABLE event_comments (
     id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -493,6 +495,9 @@ CREATE TABLE notifications (
     from_author_id  UUID REFERENCES authors (id) ON DELETE SET NULL
 );
 CREATE INDEX notifications_member_id_created_at_index ON notifications (member_id, created_at DESC);
+CREATE INDEX notifications_link_index ON notifications (link);
+CREATE INDEX notifications_member_id_unread_index ON notifications (member_id)
+    WHERE read_at IS NULL;
 
 CREATE TABLE expo_tokens (
     id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
