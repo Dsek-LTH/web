@@ -48,9 +48,7 @@ var forForetagEn string
 const randomSeed = 1
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
-		_ = godotenv.Load("../.env")
-	}
+	_ = godotenv.Load(".env")
 	dsn := os.Getenv("POSTGRES_URL")
 	if dsn == "" {
 		log.Fatal("POSTGRES_URL is not set")

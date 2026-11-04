@@ -6,7 +6,7 @@ import { env } from "process";
 
 const version =
   env.VERSION ||
-  (existsSync(".git")
+  (existsSync("../.git")
     ? execSync("git describe --tags").toString().trim()
     : undefined);
 

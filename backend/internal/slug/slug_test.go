@@ -2,7 +2,7 @@ package slug
 
 import "testing"
 
-// Cases taken from ../../../src/lib/utils/slugify.test.ts to keep parity
+// Cases taken from ../../../frontend/src/lib/utils/slugify.test.ts to keep parity
 // with the TS implementation this replaces.
 func TestSlugify(t *testing.T) {
 	cases := map[string]string{

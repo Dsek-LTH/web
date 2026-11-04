@@ -42,11 +42,8 @@ func main() {
 		usageAndExit()
 	}
 
-	// Mirrors main.go's own env loading: prefer backend/.env, fall back to
-	// the SvelteKit app's ../.env so both backends share dev credentials.
-	if err := godotenv.Load(".env"); err != nil {
-		_ = godotenv.Load("../.env")
-	}
+	// Same env loading as main.go: backend/.env, if present.
+	_ = godotenv.Load(".env")
 
 	dsn := os.Getenv("POSTGRES_URL")
 	if dsn == "" {

@@ -1,5 +1,5 @@
 // Package apinames declares the authorization policy strings this API
-// checks, mirroring ../../../src/lib/utils/apiNames.ts's NEWS block. Kept
+// checks, mirroring ../../../frontend/src/lib/utils/apiNames.ts's NEWS block. Kept
 // as plain string constants (not a richer type) to match that file
 // directly - a diff against it is how you'd notice these drifting.
 package apinames

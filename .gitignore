@@ -1,17 +1,2 @@
 .DS_Store
-node_modules
-/build
-/.svelte-kit
-/package
-*.local
-!.env.example
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-project.inlang/project_id
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
 .idea/
-# Sentry Config File
-.env.sentry-build-plugin

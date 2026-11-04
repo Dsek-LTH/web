@@ -46,13 +46,9 @@ import (
 )
 
 func main() {
-	// Best-effort: a local backend/.env, falling back to the SvelteKit
-	// app's .env one level up so both backends can share dev credentials.
-	// godotenv.Load errors out on the first missing file rather than
-	// trying the next, so each candidate is loaded individually.
-	if err := godotenv.Load(".env"); err != nil {
-		_ = godotenv.Load("../.env")
-	}
+	// Best-effort: the tracked dev settings in backend/.env. Variables
+	// already set in the environment win.
+	_ = godotenv.Load(".env")
 
 	dsn := os.Getenv("POSTGRES_URL")
 	if dsn == "" {
@@ -97,7 +93,7 @@ func main() {
 	// deployment MUST set PUBLIC_FRONTEND_URL to its real origin for
 	// login redirects/CORS to work at all (see internal/api.withCORS), so
 	// it can't accidentally still say "localhost" there the way an
-	// inherited AUTH_MOCK=true from the shared, git-tracked ../.env could
+	// inherited AUTH_MOCK=true from the git-tracked .env could
 	// accidentally still say "true" - see DESIGN.md's Auth section for
 	// the AUTH_MOCK-defaults-on-in-.env decision this backstops.
 	frontendURL, err := url.Parse(frontendOrigin)

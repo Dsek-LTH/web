@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-// Cases taken from ../../../src/lib/utils/authorization.test.ts to keep
-// parity with the TS implementation this replaces.
+// Cases taken from the TypeScript role derivation this replaced, to keep
+// parity with it.
 func TestDerivedRoles(t *testing.T) {
 	cases := []struct {
 		name      string

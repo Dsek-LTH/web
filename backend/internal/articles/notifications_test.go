@@ -54,7 +54,7 @@ type harness struct {
 
 func newHarness(t *testing.T) *harness {
 	t.Helper()
-	_ = godotenv.Load("../../../.env")
+	_ = godotenv.Load("../../.env")
 	dsn := os.Getenv("POSTGRES_URL")
 	if dsn == "" {
 		t.Skip("POSTGRES_URL not set")
