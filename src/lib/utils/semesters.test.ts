@@ -4,6 +4,10 @@ import {
   startDate,
   endDate,
   parseSemesterFromString,
+  dateToSemester,
+  FIRST_MEDALS_SEMESTER,
+  isMedalsSemester,
+  semesterFromYearAndTerm,
 } from "./semesters";
 
 import { describe, expect, it } from "vitest";
@@ -61,5 +65,29 @@ describe("parseSemester", () => {
     expect(() => parseSemesterFromString("VT", () => new Error())).toThrow();
     expect(() => parseSemesterFromString("2024", () => new Error())).toThrow();
     expect(() => parseSemesterFromString("", () => new Error())).toThrow();
+  });
+});
+
+describe("isMedalsSemester", () => {
+  const now = new Date(2026, 10, 4); // November 2026, HT 2026
+
+  it("accepts the guild's first semester and the current semester", () => {
+    expect(isMedalsSemester(FIRST_MEDALS_SEMESTER, now)).toBe(true);
+    expect(isMedalsSemester(dateToSemester(now), now)).toBe(true);
+  });
+
+  it("rejects semesters before the guild existed", () => {
+    expect(isMedalsSemester(semesterFromYearAndTerm(1981, "HT"), now)).toBe(
+      false,
+    );
+  });
+
+  it("rejects future semesters so crawlers cannot walk forever", () => {
+    expect(isMedalsSemester(semesterFromYearAndTerm(2027, "VT"), now)).toBe(
+      false,
+    );
+    expect(isMedalsSemester(semesterFromYearAndTerm(2332, "VT"), now)).toBe(
+      false,
+    );
   });
 });
