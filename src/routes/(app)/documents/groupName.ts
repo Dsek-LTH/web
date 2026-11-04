@@ -8,6 +8,9 @@ export const groupNameSchema = z
   .refine(
     (value) =>
       value === "" ||
-      (!value.includes("/") && !value.includes("\\") && !value.includes("..")),
+      (value !== "." &&
+        !value.includes("/") &&
+        !value.includes("\\") &&
+        !value.includes("..")),
     { message: m.documents_errors_invalidGroup() },
   );

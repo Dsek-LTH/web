@@ -33,6 +33,7 @@
 <AlertDialog.Root>
   <AlertDialog.Trigger
     class={cn(klass, buttonVariants({ size: "icon", variant: "outline" }))}
+    aria-label={m.documents_deleteFile()}
   >
     <Trash />
   </AlertDialog.Trigger>

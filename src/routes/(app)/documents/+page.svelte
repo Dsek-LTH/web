@@ -121,6 +121,12 @@
 <div class="layout-container">
   <p class="text-muted-foreground max-w-3xl text-sm">{typeProse}</p>
 
+  {#if data.loadError}
+    <p class="text-destructive mt-2 text-sm">
+      {m.documents_errors_loadFailed()}
+    </p>
+  {/if}
+
   <div class="mt-4 flex flex-col gap-3">
     <div
       class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"

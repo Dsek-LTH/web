@@ -39,6 +39,8 @@
 
   const formData = {
     ...initial.data,
+    valid: true,
+    errors: {},
     data: {
       ...initial.data.data,
       id: initial.fileId,
@@ -68,6 +70,7 @@
       "size-7 shrink-0",
       klass,
     )}
+    aria-label={m.documents_editFile()}
   >
     <Pen class="size-3.5" />
   </Dialog.Trigger>

@@ -669,6 +669,7 @@
   "documents_errors_invalidFileName": "Invalid file name",
   "documents_errors_fileExists": "A file with that name already exists in the group.",
   "documents_errors_oldSrdGroup": "Old SRD files cannot be moved to a group.",
+  "documents_errors_loadFailed": "Could not load the documents. Try again later.",
   "documents_uncategorized": "Other documents",
   "documents_allDocuments": "All documents",
   "documents_selectMeeting": "Select a meeting",

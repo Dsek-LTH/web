@@ -10,7 +10,10 @@ export const uploadDocumentsFile = async (
   const { folder, group, name, year, type, file } = data;
 
   const { path, bucket } = typeToPath[type];
-  const prefix = group ? `${path(year, folder)}/${group}` : path(year, folder);
+  const effectiveGroup = type === "requirement" ? "" : group;
+  const prefix = effectiveGroup
+    ? `${path(year, folder)}/${effectiveGroup}`
+    : path(year, folder);
   // await prisma.meeting.upsert({
   //   where: { url: folderPath },
   //   update: {},

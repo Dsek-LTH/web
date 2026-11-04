@@ -90,6 +90,52 @@ export function groupDocuments(
     }));
 }
 
+export function mergeMeetings(meetings: DocumentMeeting[]): DocumentMeeting[] {
+  const merged = new Map<string, DocumentMeeting>();
+
+  for (const meeting of meetings) {
+    const existing = merged.get(meeting.name);
+    if (!existing) {
+      merged.set(meeting.name, {
+        name: meeting.name,
+        files: [...meeting.files],
+        groups: meeting.groups.map((group) => ({
+          ...group,
+          files: [...group.files],
+        })),
+      });
+      continue;
+    }
+
+    existing.files.push(...meeting.files);
+    for (const group of meeting.groups) {
+      const existingGroup = existing.groups.find(
+        (candidate) => candidate.name === group.name,
+      );
+      if (existingGroup) {
+        existingGroup.files.push(...group.files);
+      } else {
+        existing.groups.push({ ...group, files: [...group.files] });
+      }
+    }
+  }
+
+  for (const meeting of merged.values()) {
+    for (const group of meeting.groups) {
+      group.files.sort((a, b) => a.name.localeCompare(b.name, "sv"));
+    }
+    meeting.groups.sort((a, b) => {
+      if (a.name === null) return 1;
+      if (b.name === null) return -1;
+      return a.name.localeCompare(b.name, "sv");
+    });
+  }
+
+  return [...merged.values()].sort((a, b) =>
+    a.name.localeCompare(b.name, "sv"),
+  );
+}
+
 export function findLatestFile(
   files: FileData[],
   prefixes: string[],

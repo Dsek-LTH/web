@@ -4,6 +4,7 @@ import {
 } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
+import { fileExists } from "$lib/files/helpers";
 import { error, fail, isHttpError } from "@sveltejs/kit";
 import {
   message,
@@ -19,6 +20,7 @@ import {
   getMeetingFolder,
   getTargetFolder,
   groupDocuments,
+  mergeMeetings,
   type DocumentMeeting,
 } from "./grouping";
 import { DocumentTypes as dt } from "./types";
@@ -48,6 +50,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     throw error(400, m.documents_errors_invalidType());
   }
 
+  let loadError = false;
   const documentsFiles: FileData[] = await fileHandler
     .getInBucket(
       user,
@@ -57,6 +60,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     )
     .catch((err) => {
       console.error("Error fetching files", err);
+      loadError = true;
       return [];
     });
 
@@ -76,6 +80,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
         .catch((err) => {
           console.error("Error fetching files", err);
+          loadError = true;
           return [];
         });
       const srdMeetings = groupDocuments(srdFiles, `public/srd/${year}/`, {
@@ -103,53 +108,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   return {
     meetings,
+    loadError,
     deleteForm: await superValidate(zod4(deleteSchema)),
     editForm: await superValidate(zod4(editFileSchema)),
   };
 };
-
-function mergeMeetings(meetings: DocumentMeeting[]): DocumentMeeting[] {
-  const merged = new Map<string, DocumentMeeting>();
-
-  for (const meeting of meetings) {
-    const existing = merged.get(meeting.name);
-    if (!existing) {
-      merged.set(meeting.name, {
-        name: meeting.name,
-        files: [...meeting.files],
-        groups: meeting.groups.map((group) => ({
-          ...group,
-          files: [...group.files],
-        })),
-      });
-      continue;
-    }
-
-    existing.files.push(...meeting.files);
-    for (const group of meeting.groups) {
-      const existingGroup = existing.groups.find(
-        (candidate) => candidate.name === group.name,
-      );
-      if (existingGroup) {
-        existingGroup.files.push(...group.files);
-      } else {
-        existing.groups.push({ ...group, files: [...group.files] });
-      }
-    }
-  }
-
-  for (const meeting of merged.values()) {
-    meeting.groups.sort((a, b) => {
-      if (a.name === null) return 1;
-      if (b.name === null) return -1;
-      return a.name.localeCompare(b.name, "sv");
-    });
-  }
-
-  return [...merged.values()].sort((a, b) =>
-    a.name.localeCompare(b.name, "sv"),
-  );
-}
 
 const documentBuckets = [
   PUBLIC_BUCKETS_DOCUMENTS,
@@ -172,7 +135,10 @@ const editFileSchema = z.object({
     .max(200)
     .refine(
       (value) =>
-        !value.includes("/") && !value.includes("\\") && !value.includes(".."),
+        value !== "." &&
+        !value.includes("/") &&
+        !value.includes("\\") &&
+        !value.includes(".."),
       { message: m.documents_errors_invalidFileName() },
     ),
   group: groupNameSchema.default(""),
@@ -228,7 +194,16 @@ export const actions: Actions = {
     const currentFolder = id.split("/").slice(0, -1).join("/");
     const currentName = id.split("/").at(-1)!;
     const targetFolder = getTargetFolder(meetingFolder, group);
+    const targetFileId = `${targetFolder}/${name}`;
     let currentId = id;
+
+    if (targetFileId !== id && (await fileExists(bucket, targetFileId))) {
+      return message(
+        form,
+        { message: m.documents_errors_fileExists(), type: "error" },
+        { status: 409 },
+      );
+    }
 
     try {
       if (targetFolder !== currentFolder) {

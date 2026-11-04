@@ -5,6 +5,7 @@ import {
   getMeetingFolder,
   getTargetFolder,
   groupDocuments,
+  mergeMeetings,
   splitDocumentPath,
 } from "./grouping";
 
@@ -140,6 +141,34 @@ describe("findLatestFile", () => {
     expect(findLatestFile([file("Protokoll.pdf")], ["Kallelse"])).toBe(
       undefined,
     );
+  });
+});
+
+describe("mergeMeetings", () => {
+  it("sorts files again after merging groups", () => {
+    const documents = groupDocuments(
+      [
+        file("public/2026/Möte 1/Group/A.pdf"),
+        file("public/2026/Möte 1/Group/C.pdf"),
+      ],
+      "public/2026/",
+    );
+    const srd = groupDocuments(
+      [
+        file("public/srd/2026/Möte 1/Group/B.pdf"),
+        file("public/srd/2026/Möte 1/Group/D.pdf"),
+      ],
+      "public/srd/2026/",
+    );
+
+    const merged = mergeMeetings([...documents, ...srd]);
+
+    expect(merged[0]!.groups[0]!.files.map((entry) => entry.name)).toEqual([
+      "A.pdf",
+      "B.pdf",
+      "C.pdf",
+      "D.pdf",
+    ]);
   });
 });
 

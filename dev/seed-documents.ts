@@ -37,14 +37,27 @@ const year =
 
 const documentsBucket = getEnv("PUBLIC_BUCKETS_DOCUMENTS");
 const filesBucket = getEnv("PUBLIC_BUCKETS_FILES");
+const endpoint = getEnv("MINIO_ENDPOINT");
 const useSSL = getEnv("MINIO_USE_SSL") === "true";
 const port = Number.parseInt(
   getEnv("MINIO_PORT") || (useSSL ? "443" : "80"),
   10,
 );
 
+const isLocalOrSandbox =
+  endpoint.includes("sandbox") ||
+  endpoint === "localhost" ||
+  endpoint === "127.0.0.1";
+if (!isLocalOrSandbox && getEnv("ALLOW_DOCUMENT_SEED") !== "true") {
+  console.error(
+    `Refusing to write document seed data to ${endpoint}. ` +
+      "Set ALLOW_DOCUMENT_SEED=true to override.",
+  );
+  process.exit(1);
+}
+
 const minio = new Client({
-  endPoint: getEnv("MINIO_ENDPOINT"),
+  endPoint: endpoint,
   port,
   useSSL,
   accessKey: getEnv("MINIO_ROOT_USER"),
@@ -144,6 +157,8 @@ startxref
 `);
 
 async function main() {
+  console.log(`Target MinIO: ${endpoint} (${documentsBucket}, ${filesBucket})`);
+
   if (process.argv.includes("--clean")) {
     for (const { bucket, key } of entries) {
       await minio.removeObject(bucket, key);
