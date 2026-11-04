@@ -31,8 +31,8 @@
   // Pure-proxy mutation straight to Go (DESIGN.md's Principle #5), like
   // Meeting.svelte's file delete.
   async function removeFile(id: string) {
-    const res = await api.DELETE("/documents/requirements", {
-      params: { query: { id } },
+    const res = await api.DELETE("/requirement-profiles", {
+      params: { query: { key: id } },
     });
     if (res.error) {
       toast(res.error.detail ?? m.documents_fileDeleted(), "error");

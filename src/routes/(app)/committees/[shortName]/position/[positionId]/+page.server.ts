@@ -153,7 +153,7 @@ export const actions: Actions = {
     const current = currentRes.data;
 
     const isSv = getLocale() === "sv";
-    const res = await api.PATCH("/positions/{id}", {
+    const res = await api.PUT("/positions/{id}", {
       params: { path: { id: searchId } },
       body: {
         nameSv: isSv ? (form.data.name ?? "") : (current.nameSv ?? ""),
@@ -184,8 +184,8 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(addMandateSchema));
     if (!form.valid) return fail(400, { form });
 
-    const res = await api.POST("/positions/{positionId}/mandates", {
-      params: { path: { positionId: searchId } },
+    const res = await api.POST("/positions/{id}/mandates", {
+      params: { path: { id: searchId } },
       body: {
         memberIds: form.data.memberIds,
         startDate: toDateString(form.data.startDate),
@@ -210,7 +210,7 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     if (!form.data.startDate || !form.data.endDate) return fail(400, { form });
 
-    const res = await api.PATCH("/mandates/{id}", {
+    const res = await api.PUT("/mandates/{id}", {
       params: { path: { id: form.data.mandateId } },
       body: {
         startDate: toDateString(form.data.startDate),

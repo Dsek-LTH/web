@@ -7,7 +7,7 @@
   import { twMerge } from "tailwind-merge";
   import type { components } from "$lib/api/schema";
 
-  type Author = components["schemas"]["Author"];
+  type Author = components["schemas"]["ArticleAuthor"];
 
   let {
     class: klass,

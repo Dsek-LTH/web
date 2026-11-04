@@ -15,33 +15,46 @@ type Mandate = apitypes.Mandate
 // needs the extra fields, and widening the shared byline type for every
 // article/event response would be unnecessary bloat there.
 type MemberProfile struct {
-	ID             string    `json:"id"`
-	StudentID      *string   `json:"studentId,omitempty"`
-	FirstName      *string   `json:"firstName,omitempty"`
-	Nickname       *string   `json:"nickname,omitempty"`
-	LastName       *string   `json:"lastName,omitempty"`
-	PicturePath    *string   `json:"picturePath,omitempty"`
-	ClassProgramme *string   `json:"classProgramme,omitempty"`
-	ClassYear      *int32    `json:"classYear,omitempty"`
-	Visible        bool      `json:"visible"`
-	FoodPreference *string   `json:"foodPreference,omitempty"`
-	Bio            *string   `json:"bio,omitempty"`
-	GraduationYear *int32    `json:"graduationYear,omitempty"`
-	Language       *string   `json:"language,omitempty"`
-	Email          *string   `json:"email,omitempty"`
-	Mandates       []Mandate `json:"mandates,omitempty"`
+	ID             string             `json:"id"`
+	StudentID      *string            `json:"studentId,omitempty"`
+	FirstName      *string            `json:"firstName,omitempty"`
+	Nickname       *string            `json:"nickname,omitempty"`
+	LastName       *string            `json:"lastName,omitempty"`
+	PicturePath    *string            `json:"picturePath,omitempty"    doc:"Public URL of the profile picture."`
+	ClassProgramme *string            `json:"classProgramme,omitempty" doc:"Programme code, e.g. D or C."`
+	ClassYear      *int32             `json:"classYear,omitempty"      doc:"Year the member started."`
+	Visible        bool               `json:"visible"`
+	FoodPreference *string            `json:"foodPreference,omitempty" doc:"Free text, e.g. allergies."`
+	Bio            *string            `json:"bio,omitempty"            doc:"HTML, sanitized on save."`
+	GraduationYear *int32             `json:"graduationYear,omitempty"`
+	Language       *apitypes.Language `json:"language,omitempty"       doc:"Preferred UI language."`
+	Email          *string            `json:"email,omitempty"          doc:"Only for the member themselves, or with member:see_email."`
+	Mandates       []Mandate          `json:"mandates,omitempty"       doc:"Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}."`
 }
 
-// UpdateProfileInput is the full-replace body for PATCH /members/{studentId}
-// - every field is resent on every save, matching articles/events' PATCH
-// convention (see backend/DESIGN.md).
-type UpdateProfileInput struct {
-	FirstName      string  `json:"firstName"`
-	LastName       string  `json:"lastName"`
-	Nickname       *string `json:"nickname,omitempty"`
-	ClassProgramme *string `json:"classProgramme,omitempty"`
-	ClassYear      *int32  `json:"classYear,omitempty"`
-	GraduationYear *int32  `json:"graduationYear,omitempty"`
-	Language       *string `json:"language,omitempty"`
-	Bio            *string `json:"bio,omitempty"`
+// ProfileInput is the full-replace body for PUT /members/{studentId}.
+type ProfileInput struct {
+	FirstName      string             `json:"firstName"`
+	LastName       string             `json:"lastName"`
+	Nickname       *string            `json:"nickname,omitempty"`
+	ClassProgramme *string            `json:"classProgramme,omitempty"`
+	ClassYear      *int32             `json:"classYear,omitempty"`
+	GraduationYear *int32             `json:"graduationYear,omitempty"`
+	Language       *apitypes.Language `json:"language,omitempty"`
+	Bio            *string            `json:"bio,omitempty"            doc:"HTML, sanitized on save."`
+}
+
+// FoodPreferenceInput replaces a member's food preference.
+type FoodPreferenceInput struct {
+	FoodPreference *string `json:"foodPreference,omitempty" doc:"Free text. Omit to clear it."`
+}
+
+// LanguageInput sets a member's UI language.
+type LanguageInput struct {
+	Language apitypes.Language `json:"language"`
+}
+
+// MemberPicture is where a newly uploaded profile picture is.
+type MemberPicture struct {
+	PicturePath string `json:"picturePath" doc:"Public URL of the new picture."`
 }

@@ -15,11 +15,14 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
     await Promise.all([
       api.GET("/articles/{slug}", {
         fetch,
-        params: { path: { slug: params.slug }, query: { status: "any" } },
+        params: {
+          path: { slug: params.slug },
+          query: { includeDeleted: true, includeUnpublished: true },
+        },
       }),
-      api.GET("/members/{id}/mandates", {
+      api.GET("/members/{studentId}/mandates", {
         fetch,
-        params: { path: { id: member.id } },
+        params: { path: { studentId: member.studentId } },
       }),
       api.GET("/custom-authors", { fetch }),
       api.GET("/committees", { fetch }),

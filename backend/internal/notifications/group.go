@@ -9,7 +9,7 @@ import (
 // its resolved sender - the input to groupNotifications, mirroring
 // ExpandedNotification.
 type rawNotification struct {
-	Group
+	NotificationGroup
 	fromAuthor *NotificationAuthor
 }
 
@@ -46,7 +46,7 @@ func groupAuthorNames(authors []NotificationAuthor) string {
 // true (see mergeNotifications below), matching the old switch's coverage
 // exactly (it panics on an unhandled type; NEW_ARTICLE/COMMENT/etc. never
 // reach here since they never merge).
-func getGroupTexts(g Group) (title, message string) {
+func getGroupTexts(g NotificationGroup) (title, message string) {
 	names := groupAuthorNames(g.Authors)
 	switch NotificationType(g.Type) {
 	case TypeNewsLike:
@@ -70,7 +70,7 @@ func getGroupTexts(g Group) (title, message string) {
 	}
 }
 
-func mergeGroup(notifications []rawNotification) Group {
+func mergeGroup(notifications []rawNotification) NotificationGroup {
 	most := notifications[0]
 	seen := make(map[string]bool)
 	var authors []NotificationAuthor
@@ -92,7 +92,7 @@ func mergeGroup(notifications []rawNotification) Group {
 	for i, n := range notifications {
 		individualIDs[i] = n.ID
 	}
-	group := Group{
+	group := NotificationGroup{
 		ID:            most.ID,
 		Title:         most.Title,
 		Message:       most.Message,
@@ -109,12 +109,12 @@ func mergeGroup(notifications []rawNotification) Group {
 	return group
 }
 
-func toGroup(n rawNotification) Group {
+func toGroup(n rawNotification) NotificationGroup {
 	var authors []NotificationAuthor
 	if n.fromAuthor != nil {
 		authors = []NotificationAuthor{*n.fromAuthor}
 	}
-	return Group{
+	return NotificationGroup{
 		ID:            n.ID,
 		Title:         n.Title,
 		Message:       n.Message,
@@ -130,35 +130,35 @@ func toGroup(n rawNotification) Group {
 // mergeNotifications mirrors mergeNotifications: a same-(type,link) bucket
 // either collapses into one Group (if shouldMergeNotifications[type]) or
 // stays as one Group per notification.
-func mergeNotifications(bucket []rawNotification) []Group {
+func mergeNotifications(bucket []rawNotification) []NotificationGroup {
 	if len(bucket) == 1 {
-		return []Group{toGroup(bucket[0])}
+		return []NotificationGroup{toGroup(bucket[0])}
 	}
 	if !shouldMergeNotifications[NotificationType(bucket[0].Type)] {
-		groups := make([]Group, len(bucket))
+		groups := make([]NotificationGroup, len(bucket))
 		for i, n := range bucket {
 			groups[i] = toGroup(n)
 		}
 		return groups
 	}
-	return []Group{mergeGroup(bucket)}
+	return []NotificationGroup{mergeGroup(bucket)}
 }
 
 // groupNotifications mirrors groupNotifications - buckets by (type, link),
 // merges each bucket, then re-sorts every resulting Group latest-first
 // (bucketing loses the original ordering, same as the old Object-keyed
 // implementation).
-func groupNotifications(notifications []rawNotification) []Group {
+func groupNotifications(notifications []rawNotification) []NotificationGroup {
 	order := make([]string, 0)
 	buckets := make(map[string][]rawNotification)
 	for _, n := range notifications {
-		key := n.Type + ";" + n.Link
+		key := string(n.Type) + ";" + n.Link
 		if _, ok := buckets[key]; !ok {
 			order = append(order, key)
 		}
 		buckets[key] = append(buckets[key], n)
 	}
-	var groups []Group
+	var groups []NotificationGroup
 	for _, key := range order {
 		groups = append(groups, mergeNotifications(buckets[key])...)
 	}

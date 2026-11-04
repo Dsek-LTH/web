@@ -33,7 +33,7 @@ export const actions: Actions = {
       return setError(form, "melody", m.songbook_missingMelody());
     }
 
-    const updated = await serverApi(event).PATCH("/songs/{slug}", {
+    const updated = await serverApi(event).PUT("/songs/{slug}", {
       params: { path: { slug: params.slug } },
       body: {
         title: data.title.trim(),

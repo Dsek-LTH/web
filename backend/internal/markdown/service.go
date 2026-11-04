@@ -1,5 +1,5 @@
 // Package markdown is the generic named-page CMS domain behind the old
-// /info/{slug} routes - see DESIGN.md's Phase 3 ("Simple standalone CRUD")
+// /info-pages/{slug} routes - see DESIGN.md's Phase 3 ("Simple standalone CRUD")
 // section. Ported from src/routes/(app)/info/[slug] and admin/info,
 // unifying their two previously-divergent create paths/policy groups into
 // one (see backend/CLAUDE.md's Markdown routes section for the full
@@ -53,7 +53,7 @@ func NewService(dbtx db.DBTX) *Service {
 }
 
 // Get is a public read (matches the old ZModel's @@allow("read", true)).
-func (s *Service) Get(ctx context.Context, name string) (*Page, error) {
+func (s *Service) Get(ctx context.Context, name string) (*InfoPage, error) {
 	row, err := s.queries.GetMarkdown(ctx, name)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -89,7 +89,7 @@ func canEditPage(ctx context.Context, name string) bool {
 // MarkdownCreate, not a new access-policy-management action the caller is
 // separately asking for, so it goes straight through db.Queries like
 // internal/committees already does for its own read of this same table.
-func (s *Service) Create(ctx context.Context, name string, in PageInput) (*Page, error) {
+func (s *Service) Create(ctx context.Context, name string, in InfoPageInput) (*InfoPage, error) {
 	if err := auth.Require(ctx, apinames.MarkdownCreate); err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (s *Service) Create(ctx context.Context, name string, in PageInput) (*Page,
 // page-scoped grant from Create above - mirrors articles'/events' "own
 // resource or policy" bypass pattern, just with a dynamic per-page string
 // instead of an author-id comparison.
-func (s *Service) Update(ctx context.Context, name string, in PageInput) (*Page, error) {
+func (s *Service) Update(ctx context.Context, name string, in InfoPageInput) (*InfoPage, error) {
 	if err := auth.Require(ctx, apinames.MarkdownUpdate); err != nil {
 		identity, ok := auth.FromContext(ctx)
 		if !ok || !identity.Has(pageUpdatePolicy(name)) {
@@ -163,8 +163,8 @@ func (s *Service) Update(ctx context.Context, name string, in PageInput) (*Page,
 	return page, nil
 }
 
-func toPage(row db.Markdown, loc string) *Page {
-	return &Page{
+func toPage(row db.Markdown, loc string) *InfoPage {
+	return &InfoPage{
 		Name:       row.Name,
 		Markdown:   dbutil.ResolveName(row.MarkdownSv, dbutil.TextPtr(row.MarkdownEn), loc),
 		MarkdownSv: row.MarkdownSv,

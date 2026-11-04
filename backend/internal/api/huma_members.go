@@ -1,6 +1,3 @@
-// See huma_articles.go's package doc comment - same huma/code-first
-// pattern, applied to the member directory/profile (backend/DESIGN.md's
-// roadmap "Phase 1: directory foundation").
 package api
 
 import (
@@ -13,46 +10,29 @@ import (
 	"github.com/dsek-lth/web/backend/internal/members"
 )
 
-type listMembersInput struct {
-	ClassYear      int32  `query:"classYear"`
-	ClassProgramme string `query:"classProgramme"`
-}
-
-type listMembersOutput struct {
-	Body []members.MemberProfile
-}
-
-type getMemberInput struct {
-	StudentID string `path:"studentId"`
+type StudentIDPath struct {
+	StudentID string `path:"studentId" doc:"LU student id, e.g. ab1234cd-s."`
 }
 
 type memberOutput struct {
 	Body members.MemberProfile
 }
 
-type updateMemberProfileInput struct {
-	StudentID string `path:"studentId"`
-	Body      members.UpdateProfileInput
-}
-
-type updateFoodPreferenceInput struct {
-	StudentID string `path:"studentId"`
-	Body      struct {
-		FoodPreference *string `json:"foodPreference,omitempty"`
-	}
-}
-
-// registerMemberRoutes registers the member directory/profile endpoints.
-// Deliberately not here (see backend/DESIGN.md's roadmap): avatar upload,
-// medals, ping, door access, subscription settings, and the board page
-// (Phase 2, bundled with the nollning staben redesign).
 func registerMemberRoutes(api huma.API, svc *members.Service) {
+	tags := []string{"Members"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-members",
 		Method:      http.MethodGet,
 		Path:        "/members",
-		Summary:     "List members, optionally filtered by classYear/classProgramme",
-	}, func(ctx context.Context, input *listMembersInput) (*listMembersOutput, error) {
+		Tags:        tags,
+		Summary:     "List members",
+		Description: "Signed-in members only.",
+	}, func(ctx context.Context, input *struct {
+		ClassYear      int32  `query:"classYear"      doc:"Only members who started this year."`
+		ClassProgramme string `query:"classProgramme" doc:"Only members in this programme, e.g. D."`
+	},
+	) (*struct{ Body []members.MemberProfile }, error) {
 		params := members.ListParams{}
 		if input.ClassYear != 0 {
 			params.ClassYear = &input.ClassYear
@@ -64,15 +44,17 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listMembersOutput{Body: items}, nil
+		return &struct{ Body []members.MemberProfile }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-member",
 		Method:      http.MethodGet,
 		Path:        "/members/{studentId}",
-		Summary:     "Get a member's full profile",
-	}, func(ctx context.Context, input *getMemberInput) (*memberOutput, error) {
+		Tags:        tags,
+		Summary:     "Get a member",
+		Description: "The full profile with mandate history. Signed-in members only.",
+	}, func(ctx context.Context, input *StudentIDPath) (*memberOutput, error) {
 		member, err := svc.Profile(ctx, input.StudentID)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -81,11 +63,18 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-member-profile",
-		Method:      http.MethodPatch,
+		OperationID: "replace-member-profile",
+		Method:      http.MethodPut,
 		Path:        "/members/{studentId}",
-		Summary:     "Replace a member's profile fields (full-replace, not a partial patch)",
-	}, func(ctx context.Context, input *updateMemberProfileInput) (*memberOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a member's profile",
+		Description: "Every profile field except food preference, email and picture. " +
+			"The member themselves, or core:member:update.",
+	}, func(ctx context.Context, input *struct {
+		StudentIDPath
+		Body members.ProfileInput
+	},
+	) (*memberOutput, error) {
 		member, err := svc.UpdateProfile(ctx, input.StudentID, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -94,11 +83,17 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-member-food-preference",
-		Method:      http.MethodPatch,
+		OperationID: "set-member-food-preference",
+		Method:      http.MethodPut,
 		Path:        "/members/{studentId}/food-preference",
-		Summary:     "Replace a member's food preference",
-	}, func(ctx context.Context, input *updateFoodPreferenceInput) (*memberOutput, error) {
+		Tags:        tags,
+		Summary:     "Set a member's food preference",
+		Description: "The member themselves, or core:member:update.",
+	}, func(ctx context.Context, input *struct {
+		StudentIDPath
+		Body members.FoodPreferenceInput
+	},
+	) (*memberOutput, error) {
 		member, err := svc.UpdateFoodPreference(ctx, input.StudentID, input.Body.FoodPreference)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -107,26 +102,43 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "update-member-language",
-		Method:        http.MethodPatch,
+		OperationID:   "set-member-language",
+		Method:        http.MethodPut,
 		Path:          "/members/{studentId}/language",
-		Summary:       "Set a member's preferred site language",
+		Tags:          tags,
+		Summary:       "Set a member's UI language",
+		Description:   "What the language switcher saves. The member themselves, or core:member:update.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *updateLanguageInput) (*struct{}, error) {
-		if err := svc.UpdateLanguage(ctx, input.StudentID, input.Body.Language); err != nil {
+	}, func(ctx context.Context, input *struct {
+		StudentIDPath
+		Body members.LanguageInput
+	},
+	) (*struct{}, error) {
+		if err := svc.UpdateLanguage(
+			ctx,
+			input.StudentID,
+			string(input.Body.Language),
+		); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "upload-member-picture",
+		OperationID: "set-member-picture",
 		Method:      http.MethodPut,
 		Path:        "/members/{studentId}/picture",
-		Summary:     "Upload a member's profile picture and make it their avatar",
+		Tags:        tags,
+		Summary:     "Set a member's profile picture",
 		Description: "The image should already be cropped (the web app crops to 400x400 WebP). " +
-			"Replaces and deletes the previous picture.",
-	}, func(ctx context.Context, input *uploadMemberPictureInput) (*memberPictureOutput, error) {
+			"Replaces and deletes the previous picture. The member themselves, or core:member:update.",
+	}, func(ctx context.Context, input *struct {
+		StudentIDPath
+		RawBody huma.MultipartFormFiles[struct {
+			Image huma.FormFile `form:"image" required:"true" doc:"The cropped picture, at most 8 MB."`
+		}]
+	},
+	) (*struct{ Body members.MemberPicture }, error) {
 		f := input.RawBody.Data().Image
 		data, err := io.ReadAll(io.LimitReader(f, members.MaxPictureSize+1))
 		if err != nil {
@@ -136,45 +148,23 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		out := &memberPictureOutput{}
-		out.Body.PicturePath = url
-		return out, nil
+		return &struct{ Body members.MemberPicture }{
+			Body: members.MemberPicture{PicturePath: url},
+		}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "delete-member-picture",
 		Method:        http.MethodDelete,
 		Path:          "/members/{studentId}/picture",
+		Tags:          tags,
 		Summary:       "Remove a member's profile picture",
+		Description:   "The member themselves, or core:member:update.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *studentIDPathInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *StudentIDPath) (*struct{}, error) {
 		if err := svc.RemovePicture(ctx, input.StudentID); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
 	})
-}
-
-type uploadMemberPictureInput struct {
-	StudentID string `path:"studentId"`
-	RawBody   huma.MultipartFormFiles[struct {
-		Image huma.FormFile `form:"image" required:"true"`
-	}]
-}
-
-type memberPictureOutput struct {
-	Body struct {
-		PicturePath string `json:"picturePath"`
-	}
-}
-
-type updateLanguageInput struct {
-	StudentID string `path:"studentId"`
-	Body      struct {
-		Language string `json:"language" enum:"sv,en"`
-	}
-}
-
-type studentIDPathInput struct {
-	StudentID string `path:"studentId"`
 }

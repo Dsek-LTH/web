@@ -7,7 +7,7 @@ import { updateSongBookEntrySchema } from "../../schema";
 import type { LayoutLoad } from "./$types";
 
 export const load: LayoutLoad = async ({ fetch, params }) => {
-  const res = await api.GET("/songbook/{page}/{numberOnPage}", {
+  const res = await api.GET("/songbook-entries/{page}/{numberOnPage}", {
     fetch,
     params: {
       path: {

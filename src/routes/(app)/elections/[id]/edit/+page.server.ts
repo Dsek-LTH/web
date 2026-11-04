@@ -53,7 +53,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(electionSchema));
     if (!form.valid) return fail(400, { form });
     const { markdownSv, markdownEn, link, expiresAt, committeeId } = form.data;
-    const updated = await serverApi(event).PATCH("/elections/{id}", {
+    const updated = await serverApi(event).PUT("/elections/{id}", {
       params: { path: { id: params.id } },
       body: {
         markdownSv,

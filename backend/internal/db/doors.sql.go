@@ -62,13 +62,22 @@ func (q *Queries) CreateDoorAccessPolicy(ctx context.Context, arg CreateDoorAcce
 	return i, err
 }
 
-const deleteDoorAccessPolicy = `-- name: DeleteDoorAccessPolicy :exec
-DELETE FROM door_access_policies WHERE id = $1
+const deleteDoorAccessPolicy = `-- name: DeleteDoorAccessPolicy :execrows
+DELETE FROM door_access_policies
+WHERE id = $1 AND door_name = $2
 `
 
-func (q *Queries) DeleteDoorAccessPolicy(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteDoorAccessPolicy, id)
-	return err
+type DeleteDoorAccessPolicyParams struct {
+	ID       pgtype.UUID `json:"id"`
+	DoorName string      `json:"door_name"`
+}
+
+func (q *Queries) DeleteDoorAccessPolicy(ctx context.Context, arg DeleteDoorAccessPolicyParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteDoorAccessPolicy, arg.ID, arg.DoorName)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const existsPositionWithPrefix = `-- name: ExistsPositionWithPrefix :one

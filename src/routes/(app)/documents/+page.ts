@@ -2,7 +2,7 @@ import { api } from "$lib/api/client";
 import { error } from "@sveltejs/kit";
 import { getYearOrThrowSvelteError } from "$lib/utils/url";
 import type { PageLoad } from "./$types";
-import { DocumentTypes as dt } from "./types";
+import { DocumentTypes as dt, isMeetingType } from "./types";
 
 // Ported from +page.server.ts to a universal load calling the Go backend
 // (backend/internal/documents.Service.ListMeetings) - see
@@ -11,9 +11,10 @@ import { DocumentTypes as dt } from "./types";
 // server-side in Go instead of here.
 export const load: PageLoad = async ({ fetch, url }) => {
   const year = getYearOrThrowSvelteError(url);
-  const type = url.searchParams.get("type") || dt.boardMeeting;
+  const requested = url.searchParams.get("type");
+  const type = isMeetingType(requested) ? requested : dt.boardMeeting;
 
-  const res = await api.GET("/documents", {
+  const res = await api.GET("/meeting-documents", {
     fetch,
     params: { query: { type, year } },
   });

@@ -10,7 +10,7 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 
-// tags:create/tags:update are enforced by Go (POST /tags, PATCH /tags/{id}).
+// tags:create/tags:update are enforced by Go (POST /tags, PUT /tags/{id}).
 // Listing tags is public in Go; the page itself is only linked for
 // tags:read holders (see news/+page.svelte).
 export const load: PageServerLoad = async (event) => {
@@ -61,12 +61,12 @@ export const actions: Actions = {
     const form = await superValidate(event.request, zod4(updateSchema));
     if (!form.valid) return fail(400, { form });
     const { id, nameSv, nameEn, color } = form.data;
-    const res = await serverApi(event).PATCH("/tags/{id}", {
+    const res = await serverApi(event).PUT("/tags/{id}", {
       params: { path: { id } },
       body: {
         nameSv: nameSv ?? "",
-        nameEn: nameEn || null,
-        color: color || null,
+        nameEn: nameEn || undefined,
+        color: color || undefined,
       },
     });
     if (res.error) {

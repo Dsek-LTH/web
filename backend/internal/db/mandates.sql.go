@@ -55,7 +55,8 @@ const listActiveMandatesForMember = `-- name: ListActiveMandatesForMember :many
 SELECT m.id, p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en
 FROM mandates m
 JOIN positions p ON p.id = m.position_id
-WHERE m.member_id = $1
+JOIN members mem ON mem.id = m.member_id
+WHERE mem.student_id = $1
   AND m.start_date <= CURRENT_DATE
   AND m.end_date >= CURRENT_DATE
 ORDER BY p.name_sv
@@ -69,9 +70,9 @@ type ListActiveMandatesForMemberRow struct {
 }
 
 // "Active" mirrors the old TS backend's author-options query: currently
-// within the mandate's start/end date range.
-func (q *Queries) ListActiveMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListActiveMandatesForMemberRow, error) {
-	rows, err := q.db.Query(ctx, listActiveMandatesForMember, memberID)
+// within the mandate's start/end date range. $1 is the member's student id.
+func (q *Queries) ListActiveMandatesForMember(ctx context.Context, studentID pgtype.Text) ([]ListActiveMandatesForMemberRow, error) {
+	rows, err := q.db.Query(ctx, listActiveMandatesForMember, studentID)
 	if err != nil {
 		return nil, err
 	}

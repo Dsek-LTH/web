@@ -5,7 +5,13 @@
 // implementations every other domain's mocked calls become real through.
 package notifications
 
-import "time"
+import (
+	"time"
+
+	"github.com/danielgtaylor/huma/v2"
+
+	"github.com/dsek-lth/web/backend/internal/apitypes"
+)
 
 // NotificationType is the internal, fine-grained event kind - mirrors
 // src/lib/utils/notifications/types.ts's NotificationType enum exactly,
@@ -30,6 +36,25 @@ const (
 	TypePing                 NotificationType = "PING"
 )
 
+func (NotificationType) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(
+		r,
+		"NotificationType",
+		"NEWS_LIKE",
+		"EVENT_LIKE",
+		"COMMENT",
+		"EVENT_COMMENT",
+		"ARTICLE_REQUEST_UPDATE",
+		"MENTION",
+		"NEW_ARTICLE",
+		"EVENT_GOING",
+		"EVENT_INTERESTED",
+		"CREATE_MANDATE",
+		"BOOKING_REQUEST",
+		"PING",
+	)
+}
+
 // SettingType is the coarser, user-facing toggle shown in /settings -
 // mirrors NotificationSettingType. alwaysOnSetting ("DEFAULT" in the old
 // app) is a sentinel, not a real toggle: every member "has" it without a
@@ -48,6 +73,21 @@ const (
 
 	alwaysOnSetting SettingType = "DEFAULT"
 )
+
+func (SettingType) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(
+		r,
+		"NotificationSettingType",
+		"LIKE",
+		"COMMENT",
+		"MENTION",
+		"NEW_ARTICLE",
+		"EVENT_GOING",
+		"CREATE_MANDATE",
+		"BOOKING_REQUEST",
+		"PING",
+	)
+}
 
 // AllSettingTypes drives the settings page's dynamic per-type form fields,
 // mirroring Object.values(NotificationSettingType) in settings.remote.ts.
@@ -143,32 +183,48 @@ var NollaDefaultSubscriptionSettings = []SettingDefault{
 // type) - see backend/CLAUDE.md's huma gotcha note.
 type NotificationAuthor struct {
 	ID         string  `json:"id"`
-	Name       string  `json:"name"`
-	PictureURL *string `json:"pictureUrl,omitempty"`
+	Name       string  `json:"name"                 doc:"Display name."`
+	PictureURL *string `json:"pictureUrl,omitempty" doc:"Profile picture URL."`
 }
 
-// Group is one row of the notification bell/list - either a single
+// NotificationGroup is one row of the notification bell/list - either a single
 // notification or several merged ones (see group.go's mergeNotifications).
 // ID is the most recent individual notification's id, matching the old
 // TS's "...notifications[0]" spread.
-type Group struct {
-	ID            int32                `json:"id"`
-	Title         string               `json:"title"`
-	Message       string               `json:"message"`
-	Type          string               `json:"type"`
-	Link          string               `json:"link"`
-	ReadAt        *time.Time           `json:"readAt,omitempty"`
+type NotificationGroup struct {
+	ID            int32                `json:"id"               doc:"The newest notification's id."`
+	Title         string               `json:"title"            doc:"Notification title, merged for a group."`
+	Message       string               `json:"message"          doc:"Notification text, merged for a group (e.g. \"A, B and 3 others liked ...\")."`
+	Type          NotificationType     `json:"type"`
+	Link          string               `json:"link"             doc:"Where the notification leads, a site path."`
+	ReadAt        *time.Time           `json:"readAt,omitempty" doc:"Unset while unread."`
 	CreatedAt     time.Time            `json:"createdAt"`
-	Authors       []NotificationAuthor `json:"authors"`
-	IndividualIDs []int32              `json:"individualIds"`
+	Authors       []NotificationAuthor `json:"authors"          doc:"Who caused it, newest first."`
+	IndividualIDs []int32              `json:"individualIds"    doc:"Every notification merged into this group; pass them to mark-read or delete."`
 }
 
-// Settings is a member's full subscription-settings shape - GET/PUT
+// NotificationSettings is a member's full subscription-settings shape - GET/PUT
 // /notification-settings, mirroring settingsLoad's return shape
 // (subscriptions/pushSubscriptions/subscribedTags) minus the "tags" list
 // itself (the caller already has GET /tags for that).
-type Settings struct {
-	Subscriptions     []SettingType `json:"subscriptions"`
-	PushSubscriptions []SettingType `json:"pushSubscriptions"`
-	SubscribedTagIDs  []string      `json:"subscribedTagIds"`
+type NotificationSettings struct {
+	Subscriptions     []SettingType `json:"subscriptions"     doc:"What to get notifications about."`
+	PushSubscriptions []SettingType `json:"pushSubscriptions" doc:"Which of those to also get as push notifications."`
+	SubscribedTagIDs  []string      `json:"subscribedTagIds"  doc:"Tags whose new articles to be notified about."`
+}
+
+// NotificationList is the acting member's notifications, grouped.
+type NotificationList struct {
+	Notifications []NotificationGroup `json:"notifications" doc:"Newest first."`
+	HasMore       bool                `json:"hasMore"       doc:"Whether older notifications exist past this page."`
+}
+
+// UnreadCount is how many unread notifications the acting member has.
+type UnreadCount struct {
+	Count int64 `json:"count"`
+}
+
+// PushTokenInput is a device's Expo push token.
+type PushTokenInput struct {
+	Token string `json:"token" doc:"An Expo push token, ExponentPushToken[...]."`
 }

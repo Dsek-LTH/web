@@ -3,6 +3,7 @@ package events
 import (
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/backend/internal/apitypes"
@@ -29,51 +30,51 @@ type (
 // split articles' ArticleSummary/ArticleDetail already established.
 type EventSummary struct {
 	ID                 string    `json:"id"`
-	Slug               string    `json:"slug"`
-	Title              string    `json:"title"`
+	Slug               string    `json:"slug"                         doc:"URL key."`
+	Title              string    `json:"title"                        doc:"titleEn or titleSv, resolved from Accept-Language."`
 	TitleSv            string    `json:"titleSv"`
 	TitleEn            *string   `json:"titleEn,omitempty"`
-	Description        string    `json:"description"`
+	Description        string    `json:"description"                  doc:"descriptionEn or descriptionSv, resolved from Accept-Language. Markdown."`
 	DescriptionSv      string    `json:"descriptionSv"`
 	DescriptionEn      *string   `json:"descriptionEn,omitempty"`
-	ShortDescription   *string   `json:"shortDescription,omitempty"`
+	ShortDescription   *string   `json:"shortDescription,omitempty"   doc:"shortDescriptionEn or shortDescriptionSv, resolved from Accept-Language."`
 	ShortDescriptionSv *string   `json:"shortDescriptionSv,omitempty"`
 	ShortDescriptionEn *string   `json:"shortDescriptionEn,omitempty"`
-	Link               *string   `json:"link,omitempty"`
+	Link               *string   `json:"link,omitempty"               doc:"External link, e.g. a sign-up form."`
 	Location           *string   `json:"location,omitempty"`
-	Organizer          string    `json:"organizer"`
+	Organizer          string    `json:"organizer"                    doc:"Free text; the committee's Swedish name when committeeId is set."`
 	ImageURL           *string   `json:"imageUrl,omitempty"`
 	StartAt            time.Time `json:"startAt"`
 	EndAt              time.Time `json:"endAt"`
-	AlarmActive        bool      `json:"alarmActive"`
+	AlarmActive        bool      `json:"alarmActive"                  doc:"Sets off the alarm (GET /alarm) while the event runs."`
 	IsCancelled        bool      `json:"isCancelled"`
-	RecurringParentID  *string   `json:"recurringParentId,omitempty"`
-	Author             Member    `json:"author"`
+	RecurringParentID  *string   `json:"recurringParentId,omitempty"  doc:"The recurring series this event is an occurrence of."`
+	Author             Member    `json:"author"                       doc:"Who created the event."`
 	Tags               []Tag     `json:"tags"`
 	// CommitteeID/Committee are the organizing committee picked in the
 	// event form (upstream #1198) - Organizer still carries its Swedish
 	// name as text (see Service.resolveCommittee). Committee is a minimal
 	// sub-object (id, name, shortName, symbolUrl), nil without one.
-	CommitteeID     *string    `json:"committeeId,omitempty"`
-	Committee       *Committee `json:"committee,omitempty"`
+	CommitteeID     *string    `json:"committeeId,omitempty" doc:"The organizing committee."`
+	Committee       *Committee `json:"committee,omitempty"   doc:"The organizing committee: id, name, shortName and symbolUrl only."`
 	CommentCount    int        `json:"commentCount"`
 	GoingCount      int        `json:"goingCount"`
 	InterestedCount int        `json:"interestedCount"`
 	// NollningSeasonID associates this event with a nollning season - see
 	// articles.ArticleSummary's identical field and DESIGN.md's nollning
 	// section.
-	NollningSeasonID *string `json:"nollningSeasonId,omitempty"`
+	NollningSeasonID *string `json:"nollningSeasonId,omitempty" doc:"The nollning season the event belongs to."`
 }
 
 type EventDetail struct {
 	EventSummary
-	Comments []Comment `json:"comments"`
+	Comments []Comment `json:"comments" doc:"Newest first."`
 	// TaggedMembers are the members @mentioned in Comments (by the
 	// "[@Name](/members/<studentId>)" markdown the comment form inserts),
 	// so the frontend can render each mention with the member's current
 	// name - replaces the old SvelteKit-side getAllTaggedMembers Prisma
 	// lookup the event/article detail pages used to run after the fact.
-	TaggedMembers []Member `json:"taggedMembers"`
+	TaggedMembers []Member `json:"taggedMembers" doc:"Members @mentioned in the comments, with their current names."`
 	Going         []Member `json:"going"`
 	Interested    []Member `json:"interested"`
 	// CanEdit/CanDelete are the acting identity's own permissions on this
@@ -84,12 +85,18 @@ type EventDetail struct {
 	// See articles.ArticleDetail's identical fields and DESIGN.md's
 	// "Principles going forward" #5 for why the frontend must read these
 	// rather than recompute them.
-	CanEdit   bool `json:"canEdit"`
-	CanDelete bool `json:"canDelete"`
+	CanEdit   bool `json:"canEdit"   doc:"Whether the caller may edit the event (its author, or event:update)."`
+	CanDelete bool `json:"canDelete" doc:"Whether the caller may delete the event (event:delete)."`
 	// Recurring is the series this event belongs to (its type, separation
 	// and last day), nil for a one-off event - so the edit form can show
 	// the series' own settings instead of form defaults.
-	Recurring *RecurringInput `json:"recurring,omitempty"`
+	Recurring *Recurrence `json:"recurring,omitempty" doc:"The series this event belongs to. Omitted for a one-off event."`
+}
+
+// EventList is one page of events.
+type EventList struct {
+	Events    []EventSummary `json:"events"`
+	PageCount int            `json:"pageCount" doc:"Number of pages at this pageSize."`
 }
 
 // EditScope selects how a write to one occurrence of a recurring series
@@ -104,13 +111,23 @@ const (
 	EditScopeAll    EditScope = "ALL"
 )
 
-// RecurringInput describes a new recurring series - only read on Create,
-// and only when non-nil. EndAt is the series' last day (inclusive); Type is
-// one of DAILY/WEEKLY/MONTHLY/YEARLY.
-type RecurringInput struct {
-	Type            string    `json:"type"`
-	SeparationCount int       `json:"separationCount"`
-	EndAt           time.Time `json:"endAt"`
+func (EditScope) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(r, "EventEditScope", "THIS", "FUTURE", "ALL")
+}
+
+// RecurringType is how often a series repeats (the recurring_type enum).
+type RecurringType string
+
+func (RecurringType) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(r, "RecurringType", "DAILY", "WEEKLY", "MONTHLY", "YEARLY")
+}
+
+// Recurrence describes a recurring series: on Create (when non-nil) the
+// series to make, on EventDetail the series an event belongs to.
+type Recurrence struct {
+	Type            RecurringType `json:"type"`
+	SeparationCount int           `json:"separationCount" doc:"Repeat every separationCount+1 periods; 0 is every period."`
+	EndAt           time.Time     `json:"endAt"           doc:"The series' last day (inclusive)."`
 }
 
 // EventInput is the writable shape of an event, shared by create and
@@ -118,24 +135,36 @@ type RecurringInput struct {
 // articles.ArticleInput - see its doc comment). Recurring is only
 // meaningful on Create; Update/Delete take EditScope instead.
 type EventInput struct {
-	TitleSv            string          `json:"titleSv"`
-	TitleEn            *string         `json:"titleEn"`
-	DescriptionSv      string          `json:"descriptionSv"`
-	DescriptionEn      *string         `json:"descriptionEn"`
-	ShortDescriptionSv *string         `json:"shortDescriptionSv"`
-	ShortDescriptionEn *string         `json:"shortDescriptionEn"`
-	Link               *string         `json:"link"`
-	Location           *string         `json:"location"`
-	Organizer          string          `json:"organizer"`
-	ImageURL           *string         `json:"imageUrl"`
-	StartAt            time.Time       `json:"startAt"`
-	EndAt              time.Time       `json:"endAt"`
-	AlarmActive        bool            `json:"alarmActive"`
-	IsCancelled        bool            `json:"isCancelled"`
-	TagIDs             []string        `json:"tagIds"`
-	CommitteeID        *string         `json:"committeeId"`
-	Recurring          *RecurringInput `json:"recurring,omitempty"`
-	NollningSeasonID   *string         `json:"nollningSeasonId"`
+	TitleSv            string      `json:"titleSv"`
+	TitleEn            *string     `json:"titleEn"`
+	DescriptionSv      string      `json:"descriptionSv"       doc:"Markdown."`
+	DescriptionEn      *string     `json:"descriptionEn"       doc:"Markdown."`
+	ShortDescriptionSv *string     `json:"shortDescriptionSv"`
+	ShortDescriptionEn *string     `json:"shortDescriptionEn"`
+	Link               *string     `json:"link"`
+	Location           *string     `json:"location"`
+	Organizer          string      `json:"organizer"           doc:"Overwritten with the committee's Swedish name when committeeId is set."`
+	ImageURL           *string     `json:"imageUrl"`
+	StartAt            time.Time   `json:"startAt"`
+	EndAt              time.Time   `json:"endAt"`
+	AlarmActive        bool        `json:"alarmActive"`
+	IsCancelled        bool        `json:"isCancelled"`
+	TagIDs             []string    `json:"tagIds"`
+	CommitteeID        *string     `json:"committeeId"`
+	Recurring          *Recurrence `json:"recurring,omitempty" doc:"Create only: make a whole series, one event per occurrence."`
+	NollningSeasonID   *string     `json:"nollningSeasonId"    doc:"Setting or changing it needs nollning:content:associate."`
+}
+
+// AttendanceStatus is the signed-in member's RSVP to an event.
+type AttendanceStatus string
+
+func (AttendanceStatus) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(r, "EventAttendanceStatus", "going", "interested", "none")
+}
+
+// AttendanceInput sets the signed-in member's RSVP.
+type AttendanceInput struct {
+	Status AttendanceStatus `json:"status" doc:"going and interested are mutually exclusive; none clears both."`
 }
 
 // Span selects which time window ListParams covers: upcoming (ends after
@@ -149,6 +178,10 @@ const (
 	SpanPast     Span = "past"
 	SpanRange    Span = "range"
 )
+
+func (Span) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(r, "EventSpan", "upcoming", "past", "range")
+}
 
 type ListParams struct {
 	Search           *string

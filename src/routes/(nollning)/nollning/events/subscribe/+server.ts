@@ -5,4 +5,4 @@ import type { RequestHandler } from "./$types";
 // CalendarICS). Calendar apps subscribe to this URL, so it must keep
 // working here.
 export const GET: RequestHandler = async ({ fetch }) =>
-  fetch(new URL("/calendar/nollning.ics", PUBLIC_GO_BACKEND_URL));
+  fetch(new URL("/nollning/events.ics", PUBLIC_GO_BACKEND_URL));

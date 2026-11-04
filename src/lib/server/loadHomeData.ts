@@ -13,7 +13,7 @@ type Meeting = components["schemas"]["Meeting"];
 
 export type BoardMeetingFiles = {
   name: string;
-  files: Array<components["schemas"]["DocumentFile"]>;
+  files: Array<components["schemas"]["StoredFile"]>;
 };
 
 const boardMeetingFiles = (meeting: Meeting): BoardMeetingFiles => ({
@@ -37,7 +37,7 @@ export const loadHomeData = async (event: RequestEvent) => {
   // This year's board meetings (folders named S01, S02, ...): the highest
   // number is the next meeting, the one before it the last.
   const boardMeetings = await api
-    .GET("/documents", {
+    .GET("/meeting-documents", {
       params: { query: { type: "board-meeting", year } },
     })
     .then((res) =>

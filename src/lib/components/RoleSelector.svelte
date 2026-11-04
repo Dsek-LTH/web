@@ -102,7 +102,7 @@
   let filteredPositionRoles: RoleOption[] = $derived(
     positionResults.flatMap((result) => {
       if (result.type !== "positions") return [];
-      const data = result.data as PositionSearchReturnAttributes;
+      const data = result.data;
       const role: RoleOption = {
         id: data.dsekId,
         label:

@@ -51,7 +51,7 @@
     data: {
       form: SuperValidated<Infer<BookingSchema>>;
       bookables: Array<components["schemas"]["Bookable"]>;
-      doors: Array<components["schemas"]["AccessDoor"]>;
+      doors: Array<components["schemas"]["BookingDoor"]>;
       currentMemberSearchAttributes?:
         | (MemberSearchReturnAttributes & { id: string })
         | null;

@@ -7,7 +7,7 @@
   import { deleteNotification } from "./data.remote";
   import { enhanceWithToast } from "$lib/stores/toast";
 
-  type NotificationGroup = components["schemas"]["Group"];
+  type NotificationGroup = components["schemas"]["NotificationGroup"];
 
   const {
     notification,

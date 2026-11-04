@@ -9,15 +9,15 @@ import { songBookConflictField } from "../../../conflicts";
 import type { Actions } from "./$types";
 
 // song:update/song:delete and the duplicate-position/duplicate-song checks
-// are all Go's (PATCH/DELETE /songbook/{page}/{numberOnPage}).
+// are all Go's (PUT/DELETE /songbook-entries/{page}/{numberOnPage}).
 export const actions: Actions = {
   update: async (event) => {
     const { request, params } = event;
     const form = await superValidate(request, zod4(updateSongBookEntrySchema));
     if (!form.valid) return fail(400, { form });
 
-    const res = await serverApi(event).PATCH(
-      "/songbook/{page}/{numberOnPage}",
+    const res = await serverApi(event).PUT(
+      "/songbook-entries/{page}/{numberOnPage}",
       {
         params: {
           path: {
@@ -57,7 +57,7 @@ export const actions: Actions = {
   delete: async (event) => {
     const { params } = event;
     const res = await serverApi(event).DELETE(
-      "/songbook/{page}/{numberOnPage}",
+      "/songbook-entries/{page}/{numberOnPage}",
       {
         params: {
           path: {

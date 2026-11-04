@@ -28,7 +28,7 @@ const customAuthorSchema = z.object({
   imageUrl: z.string().optional(),
 });
 export const authorOptionSchema = z.object({
-  type: z.string(),
+  type: z.enum(["Member", "Mandate", "Custom"]),
   member: memberSchema,
   position: positionSchema.optional(),
   customAuthor: customAuthorSchema.optional(),

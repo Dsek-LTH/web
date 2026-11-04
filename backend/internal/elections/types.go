@@ -18,22 +18,22 @@ import (
 type Election struct {
 	ID          string             `json:"id"`
 	CommitteeID string             `json:"committeeId"`
-	Committee   apitypes.Committee `json:"committee"`
-	Markdown    string             `json:"markdown"`
+	Committee   apitypes.Committee `json:"committee"            doc:"The committee holding the election."`
+	Markdown    string             `json:"markdown"             doc:"markdownEn or markdownSv, resolved from Accept-Language."`
 	MarkdownSv  string             `json:"markdownSv"`
 	MarkdownEn  *string            `json:"markdownEn,omitempty"`
-	Link        string             `json:"link"`
+	Link        string             `json:"link"                 doc:"Where to nominate or vote (an external form)."`
 	CreatedAt   time.Time          `json:"createdAt"`
-	ExpiresAt   time.Time          `json:"expiresAt"`
+	ExpiresAt   time.Time          `json:"expiresAt"            doc:"When nominations close; the election is hidden from the list after."`
 }
 
-// ElectionInput is the create/update body - full-replace, same PUT-dressed
+// ElectionInput is the create/update body - full-replace, same full-replace (PUT)
 // -as-PATCH convention as articles/events/songs/booking (every field must
 // be resent on update, including expiresAt).
 type ElectionInput struct {
 	CommitteeID string    `json:"committeeId"`
 	MarkdownSv  string    `json:"markdownSv"`
 	MarkdownEn  *string   `json:"markdownEn,omitempty"`
-	Link        string    `json:"link"`
-	ExpiresAt   time.Time `json:"expiresAt"`
+	Link        string    `json:"link"                 doc:"Where to nominate or vote (an external form)."`
+	ExpiresAt   time.Time `json:"expiresAt"            doc:"When nominations close."`
 }

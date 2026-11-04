@@ -14,8 +14,8 @@ const likeAction =
     const api = serverApi(event);
     const params = { path: { slug: event.params.slug } };
     const res = like
-      ? await api.POST("/articles/{slug}/likes", { params })
-      : await api.DELETE("/articles/{slug}/likes", { params });
+      ? await api.PUT("/articles/{slug}/like", { params })
+      : await api.DELETE("/articles/{slug}/like", { params });
     if (res.error) {
       error(res.response.status === 404 ? 404 : 403, {
         message: m.news_errors_articleNotFound(),

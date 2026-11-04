@@ -100,7 +100,7 @@ export const actions = {
       organizingCommitteeId: latest?.organizingCommitteeId ?? null,
     };
     const res = latest
-      ? await api.PATCH("/nollning/seasons/{id}", {
+      ? await api.PUT("/nollning/seasons/{id}", {
           params: { path: { id: latest.id } },
           body,
         })

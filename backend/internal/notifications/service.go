@@ -224,31 +224,45 @@ func (s *Service) resolveSelfAuthor(ctx context.Context, memberID string) (pgtyp
 	return created, nil
 }
 
-// List returns the acting member's notifications, grouped - mirrors
-// getMyGroupedNotifications. If nolla is true, mirrors
+// List returns the acting member's notifications, newest first and
+// grouped - mirrors getMyGroupedNotifications. With nolla, mirrors
 // getNollaGroupedNotifications instead: filtered to the current season's
 // NollaStartAt cutoff (replacing the old hardcoded 2025-06-26 date) and to
-// NEW_ARTICLE/`/nollning`-linked notifications; returns an empty list if no
-// season is currently active, since "nolla notifications" has no meaning
-// outside one.
-func (s *Service) List(ctx context.Context, nolla bool) ([]Group, error) {
+// NEW_ARTICLE/`/nollning`-linked notifications; empty if no season is
+// currently active, since "nolla notifications" has no meaning outside one.
+//
+// pageSize 0 returns everything. Otherwise it's one page of individual
+// notifications (the bell's lazily-loaded dropdown, upstream #4846a125),
+// grouped within the page - so a group can split across a page boundary,
+// same as upstream's getMyGroupedNotificationsPage - and hasMore says
+// whether older ones exist.
+func (s *Service) List(
+	ctx context.Context,
+	nolla bool,
+	page, pageSize int,
+) ([]NotificationGroup, bool, error) {
 	identity, ok := auth.FromContext(ctx)
 	if !ok {
-		return nil, auth.ErrUnauthenticated
+		return nil, false, auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
 	if err != nil {
-		return nil, invalidf("invalid member id: %v", err)
+		return nil, false, invalidf("invalid member id: %v", err)
+	}
+	page = max(page, 1)
+	if pageSize < 0 {
+		return nil, false, invalidf("pageSize must not be negative")
 	}
 
 	var rows []db.Notification
-	if nolla {
+	switch {
+	case nolla:
 		season, err := s.nollning.Current(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("get current season: %w", err)
+			return nil, false, fmt.Errorf("get current season: %w", err)
 		}
 		if season == nil {
-			return []Group{}, nil
+			return []NotificationGroup{}, false, nil
 		}
 		rows, err = s.queries.ListNollaNotificationsForMember(
 			ctx,
@@ -258,54 +272,42 @@ func (s *Service) List(ctx context.Context, nolla bool) ([]Group, error) {
 			},
 		)
 		if err != nil {
-			return nil, fmt.Errorf("list nolla notifications: %w", err)
+			return nil, false, fmt.Errorf("list nolla notifications: %w", err)
 		}
-	} else {
+	case pageSize > 0:
+		// Everything up to and including this page, plus one to tell
+		// whether there's more.
+		rows, err = s.queries.ListNotificationsPageForMember(
+			ctx,
+			db.ListNotificationsPageForMemberParams{
+				MemberID: memberUUID,
+				RowLimit: int32(page*pageSize + 1),
+			},
+		)
+		if err != nil {
+			return nil, false, fmt.Errorf("list notifications page: %w", err)
+		}
+	default:
 		rows, err = s.queries.ListNotificationsForMember(ctx, memberUUID)
 		if err != nil {
-			return nil, fmt.Errorf("list notifications: %w", err)
+			return nil, false, fmt.Errorf("list notifications: %w", err)
 		}
 	}
 
-	return s.group(ctx, rows)
-}
-
-// Page is one page of the acting member's notifications for the bell's
-// lazily-loaded dropdown (upstream #4846a125): the newest `take`
-// notifications, grouped, and whether older ones exist. Grouping happens
-// within the page, so a group can split across a page boundary - same as
-// upstream's getMyGroupedNotificationsPage.
-func (s *Service) Page(ctx context.Context, take int) ([]Group, bool, error) {
-	identity, ok := auth.FromContext(ctx)
-	if !ok {
-		return nil, false, auth.ErrUnauthenticated
-	}
-	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
-	if err != nil {
-		return nil, false, invalidf("invalid member id: %v", err)
-	}
-	if take < 1 {
-		return nil, false, invalidf("take must be positive")
-	}
-	rows, err := s.queries.ListNotificationsPageForMember(
-		ctx,
-		db.ListNotificationsPageForMemberParams{
-			MemberID: memberUUID,
-			RowLimit: int32(take + 1),
-		},
-	)
-	if err != nil {
-		return nil, false, fmt.Errorf("list notifications page: %w", err)
-	}
-	hasMore := len(rows) > take
-	if hasMore {
-		rows = rows[:take]
+	hasMore := false
+	if pageSize > 0 {
+		start, end := (page-1)*pageSize, page*pageSize
+		hasMore = len(rows) > end
+		rows = rows[min(start, len(rows)):min(end, len(rows))]
 	}
 	groups, err := s.group(ctx, rows)
-	if groups == nil {
-		groups = []Group{}
+	if err != nil {
+		return nil, false, err
 	}
-	return groups, hasMore, err
+	if groups == nil {
+		groups = []NotificationGroup{}
+	}
+	return groups, hasMore, nil
 }
 
 // UnreadCount is the acting member's number of unread notifications - the
@@ -329,7 +331,7 @@ func (s *Service) UnreadCount(ctx context.Context) (int64, error) {
 
 // group resolves each notification's author and groups duplicates (see
 // groupNotifications).
-func (s *Service) group(ctx context.Context, rows []db.Notification) ([]Group, error) {
+func (s *Service) group(ctx context.Context, rows []db.Notification) ([]NotificationGroup, error) {
 	var err error
 	authorCache := make(map[string]*NotificationAuthor)
 	loc := locale.FromContext(ctx)
@@ -349,11 +351,11 @@ func (s *Service) group(ctx context.Context, rows []db.Notification) ([]Group, e
 			}
 		}
 		raw[i] = rawNotification{
-			Group: Group{
+			NotificationGroup: NotificationGroup{
 				ID:        r.ID,
 				Title:     r.Title,
 				Message:   r.Message,
-				Type:      r.Type,
+				Type:      NotificationType(r.Type),
 				Link:      r.Link,
 				ReadAt:    dbutil.TimePtr(r.ReadAt),
 				CreatedAt: r.CreatedAt.Time,
@@ -482,7 +484,7 @@ func (s *Service) UpsertExpoToken(ctx context.Context, token string) error {
 
 // GetSettings mirrors settingsLoad's subscriptions/pushSubscriptions/
 // subscribedTags shape.
-func (s *Service) GetSettings(ctx context.Context) (*Settings, error) {
+func (s *Service) GetSettings(ctx context.Context) (*NotificationSettings, error) {
 	identity, ok := auth.FromContext(ctx)
 	if !ok {
 		return nil, auth.ErrUnauthenticated
@@ -494,12 +496,18 @@ func (s *Service) GetSettings(ctx context.Context) (*Settings, error) {
 	return s.getSettings(ctx, memberUUID)
 }
 
-func (s *Service) getSettings(ctx context.Context, memberUUID pgtype.UUID) (*Settings, error) {
+func (s *Service) getSettings(
+	ctx context.Context,
+	memberUUID pgtype.UUID,
+) (*NotificationSettings, error) {
 	rows, err := s.queries.GetSubscriptionSettingsForMember(ctx, memberUUID)
 	if err != nil {
 		return nil, fmt.Errorf("get subscription settings: %w", err)
 	}
-	settings := &Settings{Subscriptions: []SettingType{}, PushSubscriptions: []SettingType{}}
+	settings := &NotificationSettings{
+		Subscriptions:     []SettingType{},
+		PushSubscriptions: []SettingType{},
+	}
 	for _, r := range rows {
 		settings.Subscriptions = append(settings.Subscriptions, SettingType(r.Type))
 		if r.PushNotification {
@@ -523,7 +531,7 @@ func (s *Service) getSettings(ctx context.Context, memberUUID pgtype.UUID) (*Set
 // transaction across both, same as the old settings.remote.ts, which
 // commits the subscription-settings transaction and the tag update as two
 // separate statements too).
-func (s *Service) PutSettings(ctx context.Context, in Settings) error {
+func (s *Service) PutSettings(ctx context.Context, in NotificationSettings) error {
 	identity, ok := auth.FromContext(ctx)
 	if !ok {
 		return auth.ErrUnauthenticated

@@ -1,6 +1,3 @@
-// See huma_articles.go's package doc comment - same huma/code-first
-// pattern, applied to committees/positions/mandates (backend/DESIGN.md's
-// roadmap "Phase 1: directory foundation").
 package api
 
 import (
@@ -12,82 +9,17 @@ import (
 	"github.com/dsek-lth/web/backend/internal/committees"
 )
 
-type listCommitteesOutput struct {
-	Body []committees.Committee
+type ShortNamePath struct {
+	ShortName string `path:"shortName" doc:"The committee's short name, e.g. cafe."`
 }
 
-type getCommitteeInput struct {
-	ShortName string `path:"shortName"`
-	Year      int32  `                 query:"year" doc:"defaults to the current year"`
-}
-
-type committeeDetailOutput struct {
-	Body committees.CommitteeDetail
-}
-
-type updateCommitteeInput struct {
-	ShortName string `path:"shortName"`
-	Body      committees.UpdateCommitteeInput
-}
-
-type committeeOutput struct {
-	Body committees.Committee
-}
-
-type updateMarkdownInput struct {
-	ShortName string `path:"shortName"`
-	Body      committees.UpdateMarkdownInput
-}
-
-type markdownOutput struct {
-	Body committees.MarkdownContent
-}
-
-type listPositionsOutput struct {
-	Body []committees.Position
-}
-
-type listBoardOutput struct {
-	Body []committees.BoardPosition
-}
-
-type getPositionInput struct {
+type IDPath struct {
 	ID string `path:"id"`
 }
 
-type positionDetailOutput struct {
-	Body committees.PositionDetail
-}
-
-type updatePositionInput struct {
-	ID   string `path:"id"`
-	Body committees.UpdatePositionInput
-}
-
-type positionOutput struct {
-	Body committees.Position
-}
-
-type createMandatesInput struct {
-	PositionID string `path:"positionId"`
-	Body       committees.CreateMandateInput
-}
-
-type mandatesOutput struct {
-	Body []committees.Mandate
-}
-
-type updateMandateInput struct {
-	ID   string `path:"id"`
-	Body committees.UpdateMandateInput
-}
-
-type mandateOutput struct {
-	Body committees.Mandate
-}
-
-type deleteMandateInput struct {
-	ID string `path:"id"`
+type committeeMarkdownInput struct {
+	ShortNamePath
+	Body committees.CommitteeMarkdownInput
 }
 
 func yearOrCurrent(year int32) int32 {
@@ -97,163 +29,206 @@ func yearOrCurrent(year int32) int32 {
 	return year
 }
 
-// registerCommitteeRoutes registers every committee/position/mandate
-// operation. Deliberately not here (see backend/DESIGN.md's roadmap): the
-// board page and its SEE_STABEN staben-hiding logic - Phase 2, bundled
-// with the nollning redesign.
 func registerCommitteeRoutes(api huma.API, svc *committees.Service) {
+	tags := []string{"Committees"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-committees",
 		Method:      http.MethodGet,
 		Path:        "/committees",
-		Summary:     "List committees with descriptions/images and currently-active mandate/member counts",
-	}, func(ctx context.Context, _ *struct{}) (*listCommitteesOutput, error) {
+		Tags:        tags,
+		Summary:     "List committees",
+		Description: "Every committee, with how many active mandates and members it has.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []committees.Committee }, error) {
 		items, err := svc.ListCommittees(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listCommitteesOutput{Body: items}, nil
+		return &struct{ Body []committees.Committee }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-committee",
 		Method:      http.MethodGet,
 		Path:        "/committees/{shortName}",
-		Summary:     "Get a committee's positions (for the given year, default current), mandates, and about/links content",
-	}, func(ctx context.Context, input *getCommitteeInput) (*committeeDetailOutput, error) {
+		Tags:        tags,
+		Summary:     "Get a committee",
+		Description: "The committee page: its positions and their mandates for one year, and its about and links text.",
+	}, func(ctx context.Context, input *struct {
+		ShortNamePath
+		Year int32 `query:"year" doc:"Defaults to the current year."`
+	},
+	) (*struct{ Body committees.CommitteeDetail }, error) {
 		detail, err := svc.GetByShortName(ctx, input.ShortName, yearOrCurrent(input.Year))
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &committeeDetailOutput{Body: *detail}, nil
+		return &struct{ Body committees.CommitteeDetail }{Body: *detail}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-committee",
-		Method:      http.MethodPatch,
+		OperationID: "replace-committee",
+		Method:      http.MethodPut,
 		Path:        "/committees/{shortName}",
-		Summary:     "Replace a committee's descriptions/images/banner",
-	}, func(ctx context.Context, input *updateCommitteeInput) (*committeeOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a committee",
+		Description: "Names, descriptions, images and banner. Needs core:committee:update.",
+	}, func(ctx context.Context, input *struct {
+		ShortNamePath
+		Body committees.CommitteeInput
+	},
+	) (*struct{ Body committees.Committee }, error) {
 		committee, err := svc.UpdateCommittee(ctx, input.ShortName, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &committeeOutput{Body: *committee}, nil
+		return &struct{ Body committees.Committee }{Body: *committee}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-committee-markdown",
+		OperationID: "replace-committee-about",
 		Method:      http.MethodPut,
-		Path:        "/committees/{shortName}/markdown",
-		Summary:     "Replace a committee's about-text",
-	}, func(ctx context.Context, input *updateMarkdownInput) (*markdownOutput, error) {
+		Path:        "/committees/{shortName}/about",
+		Tags:        tags,
+		Summary:     "Replace a committee's about text",
+		Description: "Needs core:committee:update.",
+	}, func(ctx context.Context, input *committeeMarkdownInput) (*struct{ Body committees.CommitteeMarkdown }, error) {
 		content, err := svc.UpdateCommitteeMarkdown(ctx, input.ShortName, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &markdownOutput{Body: *content}, nil
+		return &struct{ Body committees.CommitteeMarkdown }{Body: *content}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-committee-links",
+		OperationID: "replace-committee-links",
 		Method:      http.MethodPut,
 		Path:        "/committees/{shortName}/links",
-		Summary:     "Replace a committee's sidebar links content",
-	}, func(ctx context.Context, input *updateMarkdownInput) (*markdownOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a committee's sidebar links",
+		Description: "Markdown. Needs core:committee:update.",
+	}, func(ctx context.Context, input *committeeMarkdownInput) (*struct{ Body committees.CommitteeMarkdown }, error) {
 		content, err := svc.UpdateCommitteeLinks(ctx, input.ShortName, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &markdownOutput{Body: *content}, nil
+		return &struct{ Body committees.CommitteeMarkdown }{Body: *content}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-positions",
 		Method:      http.MethodGet,
 		Path:        "/positions",
-		Summary:     "List every position",
-	}, func(ctx context.Context, _ *struct{}) (*listPositionsOutput, error) {
+		Tags:        tags,
+		Summary:     "List positions",
+		Description: "Every position, active or not.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []committees.Position }, error) {
 		items, err := svc.ListPositions(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listPositionsOutput{Body: items}, nil
+		return &struct{ Body []committees.Position }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-board",
 		Method:      http.MethodGet,
 		Path:        "/board",
-		Summary:     "List board-flagged positions with their current holder",
-		Description: "Replaces the old board page's own Prisma query - positions belonging to the current nollning season's organizing committee are omitted unless the caller holds member:see_staben (see backend/DESIGN.md's nollning section).",
-	}, func(ctx context.Context, _ *struct{}) (*listBoardOutput, error) {
+		Tags:        tags,
+		Summary:     "List the board",
+		Description: "Every active board position with its current holder, in display order. " +
+			"During a nollning season, the organizing committee's positions are left out " +
+			"unless the caller has member:see_staben.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []committees.BoardPosition }, error) {
 		items, err := svc.ListBoard(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listBoardOutput{Body: items}, nil
+		return &struct{ Body []committees.BoardPosition }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-position",
 		Method:      http.MethodGet,
 		Path:        "/positions/{id}",
-		Summary:     "Get a position's full mandate history and email aliases",
-	}, func(ctx context.Context, input *getPositionInput) (*positionDetailOutput, error) {
+		Tags:        tags,
+		Summary:     "Get a position",
+		Description: "With its full mandate history and email aliases.",
+	}, func(ctx context.Context, input *IDPath) (*struct{ Body committees.PositionDetail }, error) {
 		detail, err := svc.GetPosition(ctx, input.ID)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &positionDetailOutput{Body: *detail}, nil
+		return &struct{ Body committees.PositionDetail }{Body: *detail}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-position",
-		Method:      http.MethodPatch,
+		OperationID: "replace-position",
+		Method:      http.MethodPut,
 		Path:        "/positions/{id}",
-		Summary:     "Replace a position's fields and active/boardMember flags",
-	}, func(ctx context.Context, input *updatePositionInput) (*positionOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a position",
+		Description: "Needs core:position:update.",
+	}, func(ctx context.Context, input *struct {
+		IDPath
+		Body committees.PositionInput
+	},
+	) (*struct{ Body committees.Position }, error) {
 		position, err := svc.UpdatePosition(ctx, input.ID, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &positionOutput{Body: *position}, nil
+		return &struct{ Body committees.Position }{Body: *position}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "create-mandates",
 		Method:        http.MethodPost,
-		Path:          "/positions/{positionId}/mandates",
-		Summary:       "Create a mandate on this position for each of the given memberIds",
+		Path:          "/positions/{id}/mandates",
+		Tags:          tags,
+		Summary:       "Create mandates",
+		Description:   "One mandate on this position per member. Needs core:mandate:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createMandatesInput) (*mandatesOutput, error) {
-		mandates, err := svc.CreateMandates(ctx, input.PositionID, input.Body)
+	}, func(ctx context.Context, input *struct {
+		IDPath
+		Body committees.MandatesInput
+	},
+	) (*struct{ Body []committees.Mandate }, error) {
+		mandates, err := svc.CreateMandates(ctx, input.ID, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &mandatesOutput{Body: mandates}, nil
+		return &struct{ Body []committees.Mandate }{Body: mandates}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-mandate",
-		Method:      http.MethodPatch,
+		OperationID: "replace-mandate-dates",
+		Method:      http.MethodPut,
 		Path:        "/mandates/{id}",
-		Summary:     "Replace a mandate's start/end dates",
-	}, func(ctx context.Context, input *updateMandateInput) (*mandateOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a mandate's dates",
+		Description: "Needs core:mandate:update.",
+	}, func(ctx context.Context, input *struct {
+		IDPath
+		Body committees.MandateDatesInput
+	},
+	) (*struct{ Body committees.Mandate }, error) {
 		mandate, err := svc.UpdateMandate(ctx, input.ID, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &mandateOutput{Body: *mandate}, nil
+		return &struct{ Body committees.Mandate }{Body: *mandate}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "delete-mandate",
 		Method:        http.MethodDelete,
 		Path:          "/mandates/{id}",
+		Tags:          tags,
 		Summary:       "Delete a mandate",
+		Description:   "Needs core:mandate:delete.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *deleteMandateInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *IDPath) (*struct{}, error) {
 		if err := svc.DeleteMandate(ctx, input.ID); err != nil {
 			return nil, humaServiceError(err)
 		}

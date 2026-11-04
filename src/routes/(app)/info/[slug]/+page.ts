@@ -3,7 +3,7 @@ import { api } from "$lib/api/client";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch, params }) => {
-  const res = await api.GET("/info/{slug}", {
+  const res = await api.GET("/info-pages/{slug}", {
     fetch,
     params: { path: { slug: params.slug } },
   });

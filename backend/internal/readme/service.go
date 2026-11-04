@@ -20,10 +20,10 @@ var ErrNotFound = errors.New("readme: not found")
 type ReadmeIssue struct {
 	ID          string     `json:"id"`
 	Title       string     `json:"title"`
-	URL         string     `json:"url"`
+	URL         string     `json:"url"                   doc:"Where the issue is, usually a PDF."`
 	Year        int32      `json:"year"`
-	Number      int32      `json:"number"`
-	PublishedAt *time.Time `json:"publishedAt,omitempty"`
+	Number      int32      `json:"number"                doc:"Issue number within the year."`
+	PublishedAt *time.Time `json:"publishedAt,omitempty" doc:"Unset for an issue not out yet."`
 }
 
 type Service struct {

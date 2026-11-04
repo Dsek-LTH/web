@@ -8,16 +8,9 @@
 // dependency, don't rebuild it" precedent already used for the Discord
 // webhook and Expo push (see internal/notifications).
 //
-// Read responses (list short URLs, tags) are passed through as raw JSON
-// rather than decoded into a hand-modeled Go struct - Shlink's exact
-// response shape (e.g. whether visit counts nest under "visitsSummary" or
-// sit flat) varies across the versions this project's dependency pins
-// have tracked, and SHLINK_API_KEY is blank in the shared dev .env (see
-// backend/CLAUDE.md's Admin routes section), so there is no way to
-// exercise a live response here and confirm a hand-modeled shape against
-// it. Write request bodies (create/update) are fully typed instead - they
-// mirror the old app's own zod schemas exactly, which are a much smaller,
-// stable surface this package fully controls either way.
+// Read responses are decoded into this package's own types (ShortLink,
+// LinkDomain) rather than passed through, so the API documents them; only
+// the fields admin/links uses are kept.
 package links
 
 import (
@@ -48,13 +41,9 @@ func NewService(endpoint, apiKey string) *Service {
 	return &Service{client: newClient(endpoint, apiKey)}
 }
 
-// List proxies GET /short-urls, returning Shlink's own {data, pagination}
-// object - see the package doc comment for why this isn't decoded into a
-// Go struct. Shlink wraps it as {"shortUrls": {...}}; unwrapped here the
-// way the JS SDK's listShortUrls does (the first Go port passed the
-// wrapper through, so the admin page's `.data` read came back empty -
-// unnoticed then since there's no dev API key to see a live response).
-func (s *Service) List(ctx context.Context, p ListParams) (json.RawMessage, error) {
+// List proxies GET /short-urls, 20 per page. Shlink wraps the list as
+// {"shortUrls": {"data": [...], "pagination": {...}}}.
+func (s *Service) List(ctx context.Context, p ListParams) (*ShortLinkList, error) {
 	if err := auth.Require(ctx, apinames.AdminShlinkRead); err != nil {
 		return nil, err
 	}
@@ -72,80 +61,119 @@ func (s *Service) List(ctx context.Context, p ListParams) (json.RawMessage, erro
 	if p.Search != "" {
 		q.Set("searchTerm", p.Search)
 	}
-	return s.getUnwrapped(ctx, "/short-urls", q, "shortUrls")
+	var resp struct {
+		ShortURLs struct {
+			Data       []shlinkShortURL `json:"data"`
+			Pagination struct {
+				PagesCount int `json:"pagesCount"`
+			} `json:"pagination"`
+		} `json:"shortUrls"`
+	}
+	if err := s.getJSON(ctx, "/short-urls", q, &resp); err != nil {
+		return nil, err
+	}
+	out := &ShortLinkList{
+		Links:     make([]ShortLink, len(resp.ShortURLs.Data)),
+		PageCount: resp.ShortURLs.Pagination.PagesCount,
+	}
+	for i, u := range resp.ShortURLs.Data {
+		out.Links[i] = u.toShortLink()
+	}
+	return out, nil
 }
 
-// ListTags proxies GET /tags?withStats=true, matching the JS SDK's
-// listTags exactly (including the withStats query param it still sets
-// "until Shlink 3.0 is no longer supported").
-func (s *Service) ListTags(ctx context.Context) (json.RawMessage, error) {
+// ListTags proxies GET /tags?withStats=true (matching the JS SDK's
+// listTags), answering {"tags": {"data": ["name", ...]}}.
+func (s *Service) ListTags(ctx context.Context) ([]string, error) {
 	if err := auth.Require(ctx, apinames.AdminShlinkRead); err != nil {
 		return nil, err
 	}
-	q := url.Values{"withStats": {"true"}}
-	return s.getUnwrapped(ctx, "/tags", q, "tags")
+	var resp struct {
+		Tags struct {
+			Data []string `json:"data"`
+		} `json:"tags"`
+	}
+	if err := s.getJSON(ctx, "/tags", url.Values{"withStats": {"true"}}, &resp); err != nil {
+		return nil, err
+	}
+	return resp.Tags.Data, nil
 }
 
-// ListDomains proxies GET /domains, unwrapped one level the way the JS
-// SDK's listDomains does: Shlink answers {"domains": {"data": [...],
-// "defaultRedirects": ...}}, this returns the inner object. The admin links
-// page pre-fills its create form with the default domain (upstream #1291).
-func (s *Service) ListDomains(ctx context.Context) (json.RawMessage, error) {
+// ListDomains proxies GET /domains ({"domains": {"data": [...]}}). The
+// admin links page pre-fills its create form with the default domain
+// (upstream #1291).
+func (s *Service) ListDomains(ctx context.Context) ([]LinkDomain, error) {
 	if err := auth.Require(ctx, apinames.AdminShlinkRead); err != nil {
 		return nil, err
 	}
-	return s.getUnwrapped(ctx, "/domains", nil, "domains")
+	var resp struct {
+		Domains struct {
+			Data []LinkDomain `json:"data"`
+		} `json:"domains"`
+	}
+	if err := s.getJSON(ctx, "/domains", nil, &resp); err != nil {
+		return nil, err
+	}
+	return resp.Domains.Data, nil
 }
 
-// getUnwrapped GETs path and returns the object Shlink nests under key -
-// every Shlink v3 list response is wrapped like {"<key>": {"data": ...}}.
-func (s *Service) getUnwrapped(
-	ctx context.Context, path string, query url.Values, key string,
-) (json.RawMessage, error) {
+func (s *Service) getJSON(ctx context.Context, path string, query url.Values, into any) error {
 	body, err := s.client.get(ctx, path, query)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var wrapped map[string]json.RawMessage
-	if err := json.Unmarshal(body, &wrapped); err != nil {
-		return nil, fmt.Errorf("links: decode %s: %w", path, err)
+	if err := json.Unmarshal(body, into); err != nil {
+		return fmt.Errorf("links: decode %s: %w", path, err)
 	}
-	inner, ok := wrapped[key]
-	if !ok {
-		return nil, fmt.Errorf("links: %s response has no %q", path, key)
-	}
-	return inner, nil
+	return nil
 }
 
-func (s *Service) Create(ctx context.Context, in CreateLinkInput) (json.RawMessage, error) {
+func decodeShortURL(body json.RawMessage) (*ShortLink, error) {
+	var u shlinkShortURL
+	if err := json.Unmarshal(body, &u); err != nil {
+		return nil, fmt.Errorf("links: decode short URL: %w", err)
+	}
+	link := u.toShortLink()
+	return &link, nil
+}
+
+func (s *Service) Create(ctx context.Context, in CreateLinkInput) (*ShortLink, error) {
 	if err := auth.Require(ctx, apinames.AdminShlinkCreate); err != nil {
 		return nil, err
 	}
 	if in.URL == "" || in.Slug == "" || len(in.Tags) == 0 {
 		return nil, invalidf("url, slug, and at least one tag are required")
 	}
-	return s.client.post(ctx, "/short-urls", map[string]any{
+	body, err := s.client.post(ctx, "/short-urls", map[string]any{
 		"longUrl":    in.URL,
 		"customSlug": in.Slug,
 		"tags":       in.Tags,
 	})
+	if err != nil {
+		return nil, err
+	}
+	return decodeShortURL(body)
 }
 
 func (s *Service) Update(
 	ctx context.Context,
 	shortCode string,
 	in UpdateLinkInput,
-) (json.RawMessage, error) {
+) (*ShortLink, error) {
 	if err := auth.Require(ctx, apinames.AdminShlinkUpdate); err != nil {
 		return nil, err
 	}
 	if in.URL == "" {
 		return nil, invalidf("url is required")
 	}
-	return s.client.patch(ctx, "/short-urls/"+url.PathEscape(shortCode), map[string]any{
+	body, err := s.client.patch(ctx, "/short-urls/"+url.PathEscape(shortCode), map[string]any{
 		"longUrl": in.URL,
 		"tags":    in.Tags,
 	})
+	if err != nil {
+		return nil, err
+	}
+	return decodeShortURL(body)
 }
 
 // tagStats is the subset of Shlink's /tags/stats response this package

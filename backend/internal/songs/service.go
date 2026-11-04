@@ -62,7 +62,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]Song, int, err
 	if pageSize < 1 {
 		pageSize = defaultPageSize
 	}
-	showDeleted := params.ShowDeleted && canSeeDeleted(ctx)
+	showDeleted := params.OnlyDeleted && canSeeDeleted(ctx)
 
 	search := dbutil.TextOrInvalid(params.Search)
 	var categories []string

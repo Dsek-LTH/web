@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humago"
 
 	"github.com/dsek-lth/web/backend/internal/accesspolicies"
 	"github.com/dsek-lth/web/backend/internal/adminsettings"
@@ -41,6 +40,38 @@ import (
 	"github.com/dsek-lth/web/backend/internal/tickets"
 )
 
+// Services is everything the API's handlers call into.
+type Services struct {
+	Articles        *articles.Service
+	Events          *events.Service
+	Members         *members.Service
+	Committees      *committees.Service
+	AccessPolicies  *accesspolicies.Service
+	Nollning        *nollning.Service
+	Songs           *songs.Service
+	Alerts          *alerts.Service
+	Markdown        *markdown.Service
+	GoverningDocs   *governingdocs.Service
+	Medals          *medals.Service
+	Gallery         *gallery.Service
+	Documents       *documents.Service
+	Doors           *doors.Service
+	Booking         *booking.Service
+	Elections       *elections.Service
+	Cafe            *cafe.Service
+	Notifications   *notifications.Service
+	AdminSettings   *adminsettings.Service
+	Links           *links.Service
+	Pings           *pings.Service
+	Readme          *readme.Service
+	Tickets         *tickets.Service
+	TicketScheduler *tickets.Scheduler
+	Search          *search.Service
+	Queries         *db.Queries
+	// SyncPassword guards POST /search/sync/password (SYNC_PASSWORD).
+	SyncPassword string
+}
+
 // NewRouter registers every endpoint. Every request is authenticated via
 // authenticator before reaching a handler; handlers and Service methods
 // read "who is doing this" from the request context (see internal/auth),
@@ -48,78 +79,13 @@ import (
 // (see main.go) - /auth/login, /auth/callback, /auth/logout are simply not
 // registered in that case, same as a real deployment never mocking auth.
 func NewRouter(
-	articleSvc *articles.Service,
-	eventSvc *events.Service,
-	memberSvc *members.Service,
-	committeeSvc *committees.Service,
-	accessPolicySvc *accesspolicies.Service,
-	nollningSvc *nollning.Service,
-	songSvc *songs.Service,
-	alertSvc *alerts.Service,
-	markdownSvc *markdown.Service,
-	governingDocSvc *governingdocs.Service,
-	medalSvc *medals.Service,
-	gallerySvc *gallery.Service,
-	documentSvc *documents.Service,
-	doorSvc *doors.Service,
-	bookingSvc *booking.Service,
-	electionSvc *elections.Service,
-	cafeSvc *cafe.Service,
-	notificationSvc *notifications.Service,
-	adminSettingsSvc *adminsettings.Service,
-	linksSvc *links.Service,
-	pingSvc *pings.Service,
-	readmeSvc *readme.Service,
-	ticketSvc *tickets.Service,
-	ticketScheduler *tickets.Scheduler,
-	searchSvc *search.Service,
-	syncPassword string,
+	s Services,
 	authenticator auth.Authenticator,
 	oidcClient *auth.OIDCClient,
-	queries *db.Queries,
 	frontendOrigin string,
 ) http.Handler {
 	mux := http.NewServeMux()
-	api := humago.New(mux, huma.DefaultConfig("Dsek Articles API", "0.1.0"))
-	registerArticleRoutes(api, articleSvc)
-	registerDirectoryRoutes(api, articleSvc)
-	registerEventRoutes(api, eventSvc)
-	registerEventLegacyRoutes(api, eventSvc)
-	registerMemberRoutes(api, memberSvc)
-	registerCommitteeRoutes(api, committeeSvc)
-	registerAccessPolicyRoutes(api, accessPolicySvc)
-	registerNollningRoutes(api, nollningSvc)
-	registerSongRoutes(api, songSvc)
-	registerSongBookRoutes(api, songSvc)
-	registerTicketRoutes(api, ticketSvc, ticketScheduler)
-	registerAlertRoutes(api, alertSvc)
-	registerMarkdownRoutes(api, markdownSvc)
-	registerGoverningDocumentRoutes(api, governingDocSvc)
-	registerMedalRoutes(api, medalSvc)
-	registerGalleryRoutes(api, gallerySvc)
-	registerDocumentRoutes(api, documentSvc)
-	registerDoorRoutes(api, doorSvc)
-	registerBookingRoutes(api, bookingSvc)
-	registerElectionRoutes(api, electionSvc)
-	registerCafeRoutes(api, cafeSvc)
-	registerNotificationRoutes(api, notificationSvc)
-	registerAdminSettingsRoutes(api, adminSettingsSvc)
-	registerLinksRoutes(api, linksSvc)
-	registerPingRoutes(api, pingSvc)
-	registerReadmeRoutes(api, readmeSvc)
-	registerSearchRoutes(api, searchSvc)
-
-	mux.HandleFunc("GET /me", auth.MeHandler(queries))
-	mux.HandleFunc("GET /medals/download-csv", MedalsCSVHandler(medalSvc))
-	mux.HandleFunc("GET /calendar/events.ics", EventCalendarHandler(eventSvc))
-	mux.HandleFunc("GET /calendar/nollning.ics", NollningCalendarHandler(eventSvc, nollningSvc))
-	mux.HandleFunc("GET /alarm", EventAlarmHandler(eventSvc))
-	mux.HandleFunc("GET /files/miscellaneous/{name}", MiscFileHandler(documentSvc))
-	// This exact path is polled by the university's own Salto door-lock
-	// system, unauthenticated - see SaltoHandler's doc comment and
-	// src/routes/(app)/salto/README.md ("this URL must not be changed").
-	mux.HandleFunc("GET /salto/{door}", SaltoHandler(doorSvc))
-	mux.HandleFunc("POST /search/sync/password", SearchSyncPasswordHandler(searchSvc, syncPassword))
+	registerRoutes(mux, s)
 	if oidcClient != nil {
 		mux.HandleFunc("GET /auth/login", oidcClient.LoginHandler)
 		mux.HandleFunc("GET /auth/callback", oidcClient.CallbackHandler)
@@ -129,6 +95,51 @@ func NewRouter(
 	return withLogging(
 		withCORS(frontendOrigin)(auth.Middleware(authenticator)(locale.Middleware(mux))),
 	)
+}
+
+// registerRoutes registers every endpoint except /auth/* on mux, and
+// returns the huma API (for tests, which read its OpenAPI document).
+func registerRoutes(mux *http.ServeMux, s Services) huma.API {
+	api := newHumaAPI(mux)
+	registerMeRoutes(api, s.Queries)
+	registerArticleRoutes(api, s.Articles)
+	registerEventRoutes(api, s.Events)
+	registerEventFeedRoutes(api, s.Events, s.Nollning)
+	registerMemberRoutes(api, s.Members)
+	registerCommitteeRoutes(api, s.Committees)
+	registerAccessPolicyRoutes(api, s.AccessPolicies)
+	registerNollningRoutes(api, s.Nollning)
+	registerSongRoutes(api, s.Songs)
+	registerSongBookRoutes(api, s.Songs)
+	registerTicketRoutes(api, s.Tickets, s.TicketScheduler)
+	registerAlertRoutes(api, s.Alerts)
+	registerMarkdownRoutes(api, s.Markdown)
+	registerGoverningDocumentRoutes(api, s.GoverningDocs)
+	registerMedalRoutes(api, s.Medals)
+	registerGalleryRoutes(api, s.Gallery)
+	registerDocumentRoutes(api, s.Documents)
+	registerDoorRoutes(api, s.Doors)
+	registerBookingRoutes(api, s.Booking)
+	registerElectionRoutes(api, s.Elections)
+	registerCafeRoutes(api, s.Cafe)
+	registerNotificationRoutes(api, s.Notifications)
+	registerAdminSettingsRoutes(api, s.AdminSettings)
+	registerLinksRoutes(api, s.Links)
+	registerPingRoutes(api, s.Pings)
+	registerReadmeRoutes(api, s.Readme)
+	registerSearchRoutes(api, s.Search)
+
+	// Plain handlers: their responses aren't JSON, or (Salto, the password
+	// sync) they take a raw body. They're still behind the same middleware.
+	// This exact path is polled by the university's own Salto door-lock
+	// system, unauthenticated - see SaltoHandler's doc comment and
+	// src/routes/(app)/salto/README.md ("this URL must not be changed").
+	mux.HandleFunc("GET /salto/{door}", SaltoHandler(s.Doors))
+	mux.HandleFunc(
+		"POST /search/sync/password",
+		SearchSyncPasswordHandler(s.Search, s.SyncPassword),
+	)
+	return api
 }
 
 func withLogging(next http.Handler) http.Handler {

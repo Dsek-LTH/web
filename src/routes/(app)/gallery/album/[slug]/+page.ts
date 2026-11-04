@@ -7,7 +7,7 @@ import type { PageLoad } from "./$types";
 // Phase 4 section. album.json metadata parsing now happens server-side in
 // Go instead of an HTTP round-trip through the object's own public URL.
 export const load: PageLoad = async ({ fetch, params }) => {
-  const res = await api.GET("/gallery/{slug}", {
+  const res = await api.GET("/albums/{slug}", {
     fetch,
     params: { path: { slug: params.slug } },
   });

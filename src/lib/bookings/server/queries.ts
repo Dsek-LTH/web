@@ -53,7 +53,7 @@ export async function getBookingFormOptions(event: RequestEvent) {
   const api = serverApi(event);
   const [bookablesRes, doorsRes] = await Promise.all([
     api.GET("/bookables", {}),
-    api.GET("/booking-requests/doors", {}),
+    api.GET("/booking-doors", {}),
   ]);
   return {
     bookables: bookablesRes.data ?? [],

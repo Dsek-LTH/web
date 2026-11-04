@@ -3,7 +3,11 @@ import { z } from "zod";
 import * as m from "$paraglide/messages";
 import type { Infer } from "sveltekit-superforms";
 import { isFileImage } from "$lib/files/utils";
-import { recurringTypesList, recurringTypeValues } from "$lib/utils/events";
+import {
+  recurringTypesList,
+  recurringTypeValues,
+  type RecurringType,
+} from "$lib/utils/events";
 
 export const eventSchema = z
   .object({
@@ -52,7 +56,7 @@ export const eventSchema = z
     isRecurring: z.boolean().default(false),
     // see comment above and in utils/events.ts why we do it like this
     recurringType: z
-      .enum([recurringTypesList[0]!, ...recurringTypesList.slice(1)]) // type is [string, ...string[]]
+      .enum(recurringTypesList as [RecurringType, ...RecurringType[]])
       .default(recurringTypeValues.WEEKLY),
     separationCount: z.number().default(0),
     recurringEndDatetime: z

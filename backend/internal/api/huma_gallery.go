@@ -9,68 +9,68 @@ import (
 	"github.com/dsek-lth/web/backend/internal/gallery"
 )
 
-type listAlbumsOutput struct {
-	Body []gallery.Album
-}
-
-type albumSlugInput struct {
-	Slug string `path:"slug"`
-}
-
-type albumOutput struct {
-	Body gallery.AlbumDetail
-}
-
-type uploadAlbumInput struct {
-	RawBody huma.MultipartFormFiles[struct {
-		Name  string          `form:"name" required:"true"`
-		Date  string          `form:"date" required:"true"`
-		Files []huma.FormFile `form:"files" required:"true"`
-	}]
-}
-
 func registerGalleryRoutes(api huma.API, svc *gallery.Service) {
+	tags := []string{"Gallery"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-albums",
 		Method:      http.MethodGet,
-		Path:        "/gallery",
-		Summary:     "List gallery albums",
-	}, func(ctx context.Context, input *struct{}) (*listAlbumsOutput, error) {
+		Path:        "/albums",
+		Tags:        tags,
+		Summary:     "List albums",
+		Description: "Every album with its pictures. During a nollning season, albums from before it " +
+			"started are hidden unless the caller has member:see_staben. Needs fileHandler:albums:read.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []gallery.Album }, error) {
 		albums, err := svc.ListAlbums(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listAlbumsOutput{Body: albums}, nil
+		return &struct{ Body []gallery.Album }{Body: albums}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-album",
 		Method:      http.MethodGet,
-		Path:        "/gallery/{slug}",
-		Summary:     "Get one gallery album's pictures and metadata",
-	}, func(ctx context.Context, input *albumSlugInput) (*albumOutput, error) {
+		Path:        "/albums/{slug}",
+		Tags:        tags,
+		Summary:     "Get an album",
+		Description: "Its pictures and album.json metadata. Needs fileHandler:albums:read.",
+	}, func(ctx context.Context, input *struct {
+		Slug string `path:"slug" doc:"The album's key."`
+	},
+	) (*struct{ Body gallery.AlbumDetail }, error) {
 		album, err := svc.GetAlbum(ctx, input.Slug)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &albumOutput{Body: *album}, nil
+		return &struct{ Body gallery.AlbumDetail }{Body: *album}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "upload-album",
+		OperationID:   "upload-album-pictures",
 		Method:        http.MethodPost,
-		Path:          "/gallery/upload",
-		Summary:       "Upload one or more pictures to a gallery album",
+		Path:          "/albums",
+		Tags:          tags,
+		Summary:       "Upload pictures to an album",
+		Description:   "Creates the album \"{date} {name}\" if it doesn't exist. Needs fileHandler:albums:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *uploadAlbumInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *struct {
+		RawBody huma.MultipartFormFiles[struct {
+			Name  string          `form:"name"  required:"true" doc:"Album name."`
+			Date  string          `form:"date"  required:"true" doc:"Album date, YYYY-MM-DD."`
+			Files []huma.FormFile `form:"files" required:"true" doc:"The pictures."`
+		}]
+	},
+	) (*struct{ Body gallery.UploadedAlbum }, error) {
 		data := input.RawBody.Data()
 		files := make([]gallery.UploadFile, len(data.Files))
 		for i, f := range data.Files {
 			files[i] = gallery.UploadFile{Filename: f.Filename, Data: f}
 		}
-		if err := svc.UploadAlbum(ctx, data.Name, data.Date, files); err != nil {
+		key, err := svc.UploadAlbum(ctx, data.Name, data.Date, files)
+		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return nil, nil
+		return &struct{ Body gallery.UploadedAlbum }{Body: gallery.UploadedAlbum{Key: key}}, nil
 	})
 }

@@ -7,7 +7,7 @@ export const setLanguage = command(z.enum(["sv", "en"]), async (lang) => {
   const event = getRequestEvent();
   const studentId = event.locals.user?.studentId;
   if (studentId) {
-    await serverApi(event).PATCH("/members/{studentId}/language", {
+    await serverApi(event).PUT("/members/{studentId}/language", {
       params: { path: { studentId } },
       body: { language: lang },
     });

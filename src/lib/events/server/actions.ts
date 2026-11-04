@@ -18,7 +18,7 @@ type EventInput = components["schemas"]["EventInput"];
 // ../../../DESIGN.md's events section.
 
 async function uploadImage(file: File): Promise<string> {
-  const res = await api.POST("/uploads", { body: { file }, ...multipart });
+  const res = await api.POST("/images", { body: { file }, ...multipart });
   if (res.error) throw new Error("Failed to upload image");
   return res.data.url;
 }
@@ -97,7 +97,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     ? await uploadImage(form.data.image)
     : (form.data.imageUrl ?? null);
 
-  const updated = await api.PATCH("/events/{slug}", {
+  const updated = await api.PUT("/events/{slug}", {
     params: { path: { slug }, query: { scope: form.data.editType } },
     body: toEventInput(form.data, imageUrl),
   });

@@ -13,9 +13,9 @@ export const load: PageLoad = async ({ fetch, parent }) => {
 
   const [mandatesRes, customAuthorsRes, committeesRes, tagsRes] =
     await Promise.all([
-      api.GET("/members/{id}/mandates", {
+      api.GET("/members/{studentId}/mandates", {
         fetch,
-        params: { path: { id: member.id } },
+        params: { path: { studentId: member.studentId } },
       }),
       api.GET("/custom-authors", { fetch }),
       api.GET("/committees", { fetch }),

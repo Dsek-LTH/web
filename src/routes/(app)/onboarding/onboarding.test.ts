@@ -19,7 +19,7 @@ const current = {
 
 const api = {
   GET: vi.fn(async () => ({ data: current })),
-  PATCH: vi.fn(async () => ({ data: {} })),
+  PUT: vi.fn(async () => ({ data: {} })),
 };
 
 vi.mock("$lib/server/apiClient", () => ({ serverApi: () => api }));
@@ -29,7 +29,7 @@ const { actions } = await import("./+page.server");
 
 beforeEach(() => {
   api.GET.mockClear();
-  api.PATCH.mockClear();
+  api.PUT.mockClear();
 });
 
 const submitOnboarding = async (fields: Record<string, string>) => {
@@ -49,7 +49,7 @@ const submitOnboarding = async (fields: Record<string, string>) => {
   await expect(actions["update"]!(event)).rejects.toMatchObject({
     status: 303,
   });
-  const profileCall = (api.PATCH.mock.calls as unknown[][]).find(
+  const profileCall = (api.PUT.mock.calls as unknown[][]).find(
     ([path]) => path === "/members/{studentId}",
   );
   expect(profileCall).toBeDefined();
@@ -89,7 +89,7 @@ test("onboarding saves the submitted fields", async () => {
     classProgramme: "D",
     classYear: new Date().getFullYear(),
   });
-  expect(api.PATCH).toHaveBeenCalledWith(
+  expect(api.PUT).toHaveBeenCalledWith(
     "/members/{studentId}/food-preference",
     expect.objectContaining({ body: { foodPreference: "Vegetarian" } }),
   );

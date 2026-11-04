@@ -110,7 +110,7 @@ type Querier interface {
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
 	DeleteCafeShift(ctx context.Context, id pgtype.UUID) (int64, error)
-	DeleteDoorAccessPolicy(ctx context.Context, id pgtype.UUID) error
+	DeleteDoorAccessPolicy(ctx context.Context, arg DeleteDoorAccessPolicyParams) (int64, error)
 	// Hard delete - the elections table has no removed_at/deleted_at column at
 	// all, unlike Song/Article/GoverningDocument.
 	DeleteElection(ctx context.Context, id pgtype.UUID) (int64, error)
@@ -296,8 +296,8 @@ type Querier interface {
 	// own filter exactly.
 	ListActiveDoorAccessPoliciesForSalto(ctx context.Context, doorName string) ([]ListActiveDoorAccessPoliciesForSaltoRow, error)
 	// "Active" mirrors the old TS backend's author-options query: currently
-	// within the mandate's start/end date range.
-	ListActiveMandatesForMember(ctx context.Context, memberID pgtype.UUID) ([]ListActiveMandatesForMemberRow, error)
+	// within the mandate's start/end date range. $1 is the member's student id.
+	ListActiveMandatesForMember(ctx context.Context, studentID pgtype.Text) ([]ListActiveMandatesForMemberRow, error)
 	// Backs the member profile page's own "which doors do I have access to"
 	// widget (self-view only) - a member's currently-held positions, used to
 	// both derive candidate door-policy roles and to display position names

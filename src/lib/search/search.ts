@@ -9,12 +9,10 @@ import type { SearchDataWithType, SearchableIndex } from "./searchTypes";
 export async function searchIndexes(
   query: string,
   indexes: SearchableIndex[],
-  limit = 20,
+  pageSize = 20,
 ): Promise<SearchDataWithType[]> {
   const res = await api.GET("/search", {
-    params: { query: { query, indexes, limit } },
+    params: { query: { query, indexes, pageSize } },
   });
-  // Go types each hit's data as a plain object; searchTypes.ts describes
-  // what each index stores.
-  return (res.data ?? []) as unknown as SearchDataWithType[];
+  return res.data ?? [];
 }

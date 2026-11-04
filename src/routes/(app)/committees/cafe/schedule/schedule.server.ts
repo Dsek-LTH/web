@@ -8,7 +8,7 @@ import { TimeSlot, editWeeklyCiabattaSchema, scheduleForm } from "../types";
 
 // Week math, the cafe:see_all_weeks viewing window, and every shift rule
 // (day managers, sign-up/quit deadlines, editing others' shifts) are Go's
-// (GET /cafe/schedule, PUT /cafe/shifts, PUT /cafe/ciabatta - see
+// (GET /cafe/schedule, POST /cafe/shifts/toggle, PUT /cafe/ciabattas/{year}/{week} - see
 // backend/CLAUDE.md's Cafe routes section). The committee itself comes
 // from the committees layout.
 export const scheduleLoad = async (event: PageServerLoadEvent) => {
@@ -44,7 +44,7 @@ export const scheduleLoad = async (event: PageServerLoadEvent) => {
 export type ScheduleLoadData = Awaited<ReturnType<typeof scheduleLoad>>;
 
 export const scheduleActions = (): Actions => ({
-  // Go's PUT /cafe/shifts collapses sign-up/quit/reassign into one
+  // Go's POST /cafe/shifts/toggle collapses sign-up/quit/reassign into one
   // toggle-based endpoint (see internal/cafe.Service.SetShift's doc
   // comment) - this action just translates its result into the same
   // message keys the old prisma-based version used.
@@ -56,7 +56,7 @@ export const scheduleActions = (): Actions => ({
     const { date, worker, timeSlot } = form.data;
     const targetStudentId = worker || locals.user?.studentId || "";
 
-    const res = await serverApi(event).PUT("/cafe/shifts", {
+    const res = await serverApi(event).POST("/cafe/shifts/toggle", {
       body: { date, timeSlot, studentId: worker || undefined },
     });
 
@@ -70,7 +70,7 @@ export const scheduleActions = (): Actions => ({
           type: "error",
         });
       }
-      // Go's 400 details name the broken rule; map them back onto the
+      // Go's 422 details name the broken rule; map them back onto the
       // old messages.
       const detail = res.error.detail ?? "";
       const msg = detail.includes("does not exist")
@@ -109,8 +109,10 @@ export const scheduleActions = (): Actions => ({
     );
     if (!form.valid) return fail(400, { form });
 
-    const res = await serverApi(event).PUT("/cafe/ciabatta", {
-      body: form.data,
+    const { year, week, name } = form.data;
+    const res = await serverApi(event).PUT("/cafe/ciabattas/{year}/{week}", {
+      params: { path: { year, week } },
+      body: { name },
     });
     if (res.error) {
       return message(form, {

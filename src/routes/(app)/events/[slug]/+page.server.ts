@@ -20,7 +20,7 @@ const attendanceAction =
   async (event) => {
     // The event comes from the URL; InterestedGoingButtons' hidden eventId
     // field isn't needed.
-    const res = await serverApi(event).PATCH("/events/{slug}/attendance", {
+    const res = await serverApi(event).PUT("/events/{slug}/attendance", {
       params: { path: { slug: event.params.slug } },
       body: { status },
     });

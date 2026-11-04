@@ -32,8 +32,8 @@ var meetingPrefixByType = map[string]string{
 	TypeOther:        "",
 }
 
-func toDocumentFile(o storage.Object) DocumentFile {
-	return DocumentFile{
+func toDocumentFile(o storage.Object) StoredFile {
+	return StoredFile{
 		ID:           o.Key,
 		Name:         o.Name,
 		URL:          o.URL,
@@ -219,7 +219,10 @@ func findFile(files []storage.Object, prefixes ...string) *storage.Object {
 // between "public/kravprofiler" and the filename, which includes the year
 // itself, matching the old slice(2, length-1).join("/") exactly despite its
 // comment claiming the year is excluded).
-func (s *Service) ListRequirements(ctx context.Context, year int) ([]RequirementFolder, error) {
+func (s *Service) ListRequirements(
+	ctx context.Context,
+	year int,
+) ([]RequirementProfileFolder, error) {
 	if err := auth.Require(ctx, apinames.FileFilesRead); err != nil {
 		return nil, err
 	}
@@ -243,13 +246,13 @@ func (s *Service) ListRequirements(ctx context.Context, year int) ([]Requirement
 		groups[folder] = append(groups[folder], f)
 	}
 
-	folders := make([]RequirementFolder, 0, len(order))
+	folders := make([]RequirementProfileFolder, 0, len(order))
 	for _, name := range order {
-		files := make([]DocumentFile, 0, len(groups[name]))
+		files := make([]StoredFile, 0, len(groups[name]))
 		for _, f := range groups[name] {
 			files = append(files, toDocumentFile(f))
 		}
-		folders = append(folders, RequirementFolder{Name: name, Files: files})
+		folders = append(folders, RequirementProfileFolder{Name: name, Files: files})
 	}
 	return folders, nil
 }
@@ -299,19 +302,20 @@ func (s *Service) Upload(
 	year int,
 	folder, name string,
 	file UploadFile,
-) error {
+) (*StoredFile, error) {
 	bucket, prefix, createPolicy, err := s.uploadTarget(uploadType, year, folder)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := auth.Require(ctx, createPolicy); err != nil {
-		return err
+		return nil, err
 	}
 	key := prefix + "/" + storage.PreparedFilename(name, file.Filename)
-	if _, err := s.store.Put(ctx, bucket, key, file.Data, -1); err != nil {
-		return invalidf("upload %s: %w", key, err)
+	url, err := s.store.Put(ctx, bucket, key, file.Data, -1)
+	if err != nil {
+		return nil, invalidf("upload %s: %w", key, err)
 	}
-	return nil
+	return &StoredFile{ID: key, Name: path.Base(key), URL: url}, nil
 }
 
 // Delete removes one meeting-document file, gated on the bucket its docType
@@ -354,7 +358,7 @@ const miscPrefix = "public/miscellaneous"
 // whose only real purpose is uploading, not replicated as a second
 // requirement here since the real enforced check inside fileHandler was
 // always just READ).
-func (s *Service) ListMisc(ctx context.Context) ([]DocumentFile, error) {
+func (s *Service) ListMisc(ctx context.Context) ([]StoredFile, error) {
 	if err := auth.Require(ctx, apinames.FileFilesRead); err != nil {
 		return nil, err
 	}
@@ -362,7 +366,7 @@ func (s *Service) ListMisc(ctx context.Context) ([]DocumentFile, error) {
 	if err != nil {
 		return nil, invalidf("list misc files: %w", err)
 	}
-	out := make([]DocumentFile, len(files))
+	out := make([]StoredFile, len(files))
 	for i, f := range files {
 		out[i] = toDocumentFile(f)
 	}
@@ -406,7 +410,7 @@ func (s *Service) UploadMisc(
 	ctx context.Context,
 	prefix, name string,
 	file UploadFile,
-) (*DocumentFile, error) {
+) (*StoredFile, error) {
 	if err := auth.Require(ctx, apinames.FileFilesCreate); err != nil {
 		return nil, err
 	}
@@ -418,7 +422,7 @@ func (s *Service) UploadMisc(
 	if err != nil {
 		return nil, invalidf("upload %s: %w", key, err)
 	}
-	return &DocumentFile{ID: key, Name: path.Base(key), URL: url}, nil
+	return &StoredFile{ID: key, Name: path.Base(key), URL: url}, nil
 }
 
 // DeleteMisc removes one file from admin/minio's browser, gated on

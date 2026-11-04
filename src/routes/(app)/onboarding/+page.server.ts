@@ -19,7 +19,7 @@ export const load: PageServerLoad = async (event) => {
       api.GET("/members/{studentId}", {
         params: { path: { studentId } },
       }),
-      api.GET("/nollning/groups", {}),
+      api.GET("/nollning/phadder-groups", {}),
       api.GET("/nollning/current", {}),
     ]);
   if (memberRes.status === "rejected" || memberRes.value.error) {
@@ -94,7 +94,7 @@ export const actions: Actions = {
       throw error(500, m.onboarding_errors_studentIDNotFound());
     }
     const current = currentRes.data;
-    const profileRes = await api.PATCH("/members/{studentId}", {
+    const profileRes = await api.PUT("/members/{studentId}", {
       params: { path: { studentId } },
       body: {
         firstName: profileFields.firstName ?? "",
@@ -111,7 +111,7 @@ export const actions: Actions = {
       throw error(500, m.onboarding_errors_studentIDNotFound());
     }
     if (foodPreference !== null) {
-      await api.PATCH("/members/{studentId}/food-preference", {
+      await api.PUT("/members/{studentId}/food-preference", {
         params: { path: { studentId } },
         body: { foodPreference },
       });

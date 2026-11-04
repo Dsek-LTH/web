@@ -17,7 +17,7 @@ export const actions: Actions = {
 
   // One weekday's opening hours - a plain form action now, it used to be a
   // remote function (upstream's times.remote.ts). Goes through the generic
-  // /info/{slug} markdown endpoint, which enforces markdown:update, with
+  // /info-pages/{slug} markdown endpoint, which enforces markdown:update, with
   // the same text for both languages like upstream did.
   updateHours: async (event) => {
     const formData = Object.fromEntries(await event.request.formData());
@@ -26,7 +26,7 @@ export const actions: Actions = {
       return fail(400, { message: m.committees_cafe_opening_updated() });
     }
     const { markdownSlug, markdownSv } = parsed.data;
-    const res = await serverApi(event).PATCH("/info/{slug}", {
+    const res = await serverApi(event).PUT("/info-pages/{slug}", {
       params: { path: { slug: markdownSlug } },
       body: { markdownSv, markdownEn: markdownSv },
     });

@@ -28,7 +28,7 @@
       | "classProgramme"
       | "classYear"
     >;
-    type?: components["schemas"]["Author"]["type"];
+    type?: components["schemas"]["ArticleAuthor"]["type"];
     links?: boolean;
     showId?: boolean;
     nickname?: boolean;

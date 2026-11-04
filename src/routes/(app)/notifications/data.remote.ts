@@ -3,13 +3,14 @@ import { m } from "$paraglide/messages";
 import z from "zod";
 import { serverApi } from "$lib/server/apiClient";
 
-// All three now proxy to Go's PATCH /notifications/read / DELETE
+// All three now proxy to Go's POST /notifications/mark-read / DELETE
 // /notifications (backend/internal/api/huma_notifications.go) instead of
 // prisma.notification.* directly - see backend/CLAUDE.md's "Notifications
 // routes" section.
 
 // Lazily fetched by NotificationBell once opened, `take` grows by one page
-// per "load more" - Go returns the grouped page plus whether more exist.
+// per "load more" - Go returns the newest `take` notifications, grouped,
+// plus whether more exist.
 export const getNotifications = query(
   z.object({ take: z.number().int().positive() }),
   async ({ take }) => {
@@ -17,8 +18,8 @@ export const getNotifications = query(
     if (!event.locals.user?.memberId) {
       return { notifications: [], hasMore: false };
     }
-    const res = await serverApi(event).GET("/notifications/page", {
-      params: { query: { take } },
+    const res = await serverApi(event).GET("/notifications", {
+      params: { query: { page: 1, pageSize: take } },
     });
     return res.data ?? { notifications: [], hasMore: false };
   },
@@ -32,7 +33,7 @@ export const readAllNotifications = form(z.object({}), async () => {
       type: "error" as const,
     };
   }
-  await serverApi(event).PATCH("/notifications/read", {});
+  await serverApi(event).POST("/notifications/mark-read", {});
   return {
     message: m.notifications_notificationsRead(),
     type: "hidden" as const,
@@ -78,7 +79,7 @@ export const deleteNotification = form(
       };
     } else if (data.notificationId) {
       await api.DELETE("/notifications", {
-        params: { query: { id: data.notificationId } },
+        params: { query: { ids: [data.notificationId] } },
       });
       return {
         message: m.notifications_notificationRemoved(),

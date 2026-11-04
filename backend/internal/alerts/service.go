@@ -70,7 +70,7 @@ func (s *Service) List(ctx context.Context) ([]Alert, error) {
 		id := dbutil.UUIDStr(row.ID)
 		out[i] = Alert{
 			ID:         id,
-			Severity:   row.Severity,
+			Severity:   Severity(row.Severity),
 			Message:    dbutil.ResolveName(row.MessageSv, &row.MessageEn, loc),
 			MessageSv:  row.MessageSv,
 			MessageEn:  row.MessageEn,
@@ -85,7 +85,7 @@ func (s *Service) Create(ctx context.Context, in AlertInput) (*Alert, error) {
 	if err := auth.Require(ctx, apinames.AlertManage); err != nil {
 		return nil, err
 	}
-	if !validSeverities[in.Severity] {
+	if !validSeverities[string(in.Severity)] {
 		return nil, invalidf("invalid severity %q", in.Severity)
 	}
 	if in.MessageSv == "" || in.MessageEn == "" {
@@ -93,7 +93,7 @@ func (s *Service) Create(ctx context.Context, in AlertInput) (*Alert, error) {
 	}
 
 	row, err := s.queries.CreateAlert(ctx, db.CreateAlertParams{
-		Severity:  in.Severity,
+		Severity:  string(in.Severity),
 		MessageSv: in.MessageSv,
 		MessageEn: in.MessageEn,
 	})
@@ -104,7 +104,7 @@ func (s *Service) Create(ctx context.Context, in AlertInput) (*Alert, error) {
 	loc := locale.FromContext(ctx)
 	return &Alert{
 		ID:        dbutil.UUIDStr(row.ID),
-		Severity:  row.Severity,
+		Severity:  Severity(row.Severity),
 		Message:   dbutil.ResolveName(row.MessageSv, &row.MessageEn, loc),
 		MessageSv: row.MessageSv,
 		MessageEn: row.MessageEn,

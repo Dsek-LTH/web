@@ -1,4 +1,6 @@
-export type RecurringType = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
+import type { components } from "$lib/api/schema";
+
+export type RecurringType = components["schemas"]["RecurringType"];
 export const recurringTypeValues: Record<RecurringType, RecurringType> = {
   DAILY: "DAILY",
   WEEKLY: "WEEKLY",
@@ -11,7 +13,9 @@ export const recurringTypes: Record<RecurringType, string> = {
   MONTHLY: "Månadsvis",
   YEARLY: "Årsvis",
 };
-export const recurringTypesList = Object.keys(recurringTypeValues);
+export const recurringTypesList = Object.keys(
+  recurringTypeValues,
+) as RecurringType[];
 export function isRecurringType(str: string): str is RecurringType {
   return !!recurringTypesList.find((recurringType) => str === recurringType);
 }

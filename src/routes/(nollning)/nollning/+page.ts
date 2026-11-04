@@ -12,7 +12,7 @@ export const load = async (event) => {
   const seasonId = currentRes.data?.season?.id;
 
   const summariesRes = seasonId
-    ? await api.GET("/nollning/groups", {
+    ? await api.GET("/nollning/phadder-groups", {
         fetch: event.fetch,
         params: { query: { seasonId } },
       })
@@ -23,7 +23,7 @@ export const load = async (event) => {
     await Promise.all(
       summaries.map((g) =>
         api
-          .GET("/nollning/groups/{id}", {
+          .GET("/nollning/phadder-groups/{id}", {
             fetch: event.fetch,
             params: { path: { id: g.id } },
           })

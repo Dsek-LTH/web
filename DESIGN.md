@@ -1228,7 +1228,8 @@ everything else.
 sqlc + `ServeMux`, `internal/<domain>` service layer wrapping
 `*db.Queries`, shared DTOs go in `internal/apitypes` (check new struct
 names against every existing domain package first - see the huma gotcha
-above), full-replace PATCH not partial-patch, acting identity from
+above), full-replace PATCH not partial-patch (**superseded by phase
+17:** full replaces are PUT now), acting identity from
 `auth.Require`/context never from the request body, `+page.ts` +
 `+page.server.ts`-actions-only on the frontend, no validation or
 authorization logic re-implemented in TypeScript (Principle #5). Mocks
@@ -2547,6 +2548,8 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     generated `components["schemas"][...]` (or a `Pick` of it) with no
     `| null`. The exception is Go slices, which marshal as `null` when
     empty (`imageUrls`, `tags`) - those stay `| null` until phase 17
+    (**superseded by phase 17:** Go always sends `[]` now and the
+    `| null` is gone)
     decides whether Go should send `[]`. Form values are a different
     thing: the zod schemas use `.nullable()`, so `?? undefined` at the
     form-to-API or form-to-preview boundary is a real conversion and stays.
@@ -2581,7 +2584,8 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     - Left as they are, deliberately: superforms' generic casts
       (`superform as unknown as SuperForm<...>`, a library typing issue,
       not rewrite widening), and search hits' `data` (typed `unknown` by
-      Go - typing it per index belongs to phase 17's API pass).
+      Go - typing it per index belongs to phase 17's API pass;
+      **superseded by phase 17:** hits are typed per index now).
 17. **API naming and documentation** (added 2026-11-03, at the user's
     request) - make the Go API consistent and well documented now that it
     is complete:
@@ -2600,6 +2604,136 @@ updated in its own phase, same as phase 1 and phase 2 already did.
     - Exceptions: URLs that external systems call stay as they are, e.g.
       `GET /salto/{door}` (polled by the university's door hardware) and
       the native app's token upload.
+    **Status: done (2026-11-03).** Every decision below was confirmed with
+    the user before implementing. Route names in the earlier phase entries
+    are left as they were at the time; the rename list here maps them.
+    - **Conventions.** Plural kebab-case paths, nested only for
+      sub-resources. One key per resource: `{slug}` for articles, events
+      and songs, `{studentId}` for members, `{shortName}` for committees,
+      `{name}` for doors, `{id}` for everything else. POST on a
+      collection creates (201 + the resource), PUT replaces (200 + the
+      resource), DELETE removes (204); every former full-replace PATCH is
+      a PUT, and no PATCH is left. Other state changes are
+      `POST /{resource}/{key}/{verb}` (`accept`, `reject`, `restore`,
+      `dismiss`, `ping`, `mark-read`, `toggle`); the viewer's own toggles
+      are nouns taking PUT/DELETE (`/articles/{slug}/like`,
+      `/events/{slug}/attendance`, `/ticket-releases/{id}/request`).
+      `page`/`pageSize` everywhere; `includeDeleted` (union),
+      `onlyDeleted` (trash view) and `includeUnpublished` for hidden
+      items, whatever the DB column is called; repeated `ids`.
+    - **Renames** (old → new): every full-replace `PATCH` → `PUT`;
+      `/articles/{slug}/likes` → `/like` (PUT/DELETE); `?status=any` →
+      `?includeDeleted` (+ `includeUnpublished` on articles);
+      `/events?includeRemoved` → `includeDeleted`;
+      `/songs?showDeleted` → `onlyDeleted`; `/members/{id}/mandates` (a
+      UUID) → `/members/{studentId}/mandates`;
+      `/positions/{positionId}/mandates` → `/positions/{id}/mandates`;
+      `/committees/{shortName}/markdown` → `/about`; `/gallery`,
+      `/gallery/{slug}`, `POST /gallery/upload` → `/albums`,
+      `/albums/{slug}`, `POST /albums`; `/documents` →
+      `/meeting-documents`; `/documents/requirements` →
+      `/requirement-profiles`; `POST /documents/upload` → split into
+      `POST /meeting-documents` and `POST /requirement-profiles`;
+      `/admin/files` → `/files` and `GET /files/miscellaneous/{name}` →
+      `GET /files/{name}`; `POST /uploads` → `POST /images`;
+      `/info/{slug}` → `/info-pages/{slug}`; `/songbook...` →
+      `/songbook-entries...`; `/nollning/groups...` →
+      `/nollning/phadder-groups...`; `DELETE /door-access-policies/{id}`
+      → `DELETE /doors/{name}/access-policies/{id}` (404 if the policy
+      isn't that door's); `/booking-requests/review` → `/review-queue`;
+      `/booking-requests/doors` → `/booking-doors`;
+      `/alerts/{id}/close` → `/dismiss`; `PUT /cafe/ciabatta` →
+      `PUT /cafe/ciabattas/{year}/{week}`; `PUT /cafe/shifts` →
+      `POST /cafe/shifts/toggle`; `/notifications?nolla` and
+      `/notifications/page?take` → one
+      `GET /notifications?nollning&page&pageSize` (no pageSize: all);
+      `PATCH /notifications/read?id&ids` →
+      `POST /notifications/mark-read?ids`; `DELETE /notifications?id` →
+      `?ids`; `POST /notifications/token` →
+      `PUT /notifications/push-token`; `/ticket-releases/{id}/status` →
+      `GET /ticket-releases/{id}/request`; `/tickets/mine` →
+      `/me/tickets`; `/search?limit&offset` → `page&pageSize`;
+      `/medals/download-csv` → `/medals.csv`; `/calendar/events.ics` and
+      `/calendar/nollning.ics` → `/events.ics`, `/nollning/events.ics`.
+      The SvelteKit URLs external systems use are unchanged (the proxies
+      were repointed), as are `/salto/{door}`, `/auth/*` and `/me`.
+    - **DTO names**: domain-prefixed whenever the bare name was generic
+      (`GoverningDocument`, `InfoPage`, `NotificationGroup`,
+      `NotificationSettings`, `AdminSetting`, `NollningSeason`,
+      `NollningStatus`, `SearchHit`, `CafeSchedule`/`CafeShift`/...,
+      `BookingReviewItem`, `BookingDoor`, `AlbumPicture`, `StoredFile`,
+      `MemberDoorAccess`, `MemberPhadderRole`, `ArticleAuthor`, ...);
+      request bodies are `<Thing>Input`; every huma-generated
+      `*OutputBody`/`*InputBody` got a named type (`ArticleList`,
+      `EventList`, `SongList`, `SongBookEntryList`, `NotificationList`,
+      `BookingRequestResult`, `UnreadCount`, `UploadedImage`, ...). The
+      two comment bodies and two tag bodies became one `CommentInput` and
+      one `TagInput` (`POST /tags` takes the whole thing now).
+    - **Errors**: one mapping (`humaServiceError`). Domain validation
+      answers 422 like huma's own; 404s name what wasn't found ("article
+      not found"); state conflicts 409; 503 when search isn't configured.
+      Every response is an RFC 9457 problem, the plain handlers excepted.
+    - **Documentation**: every operation has an OperationID, Summary,
+      Description (including the policy it needs) and exactly one tag
+      (25 tags, `apiTags` in `internal/api/config.go`). Every DTO field
+      has a `doc` tag except names that explain themselves (`id`,
+      `nameSv`, `createdAt`, ... - the `selfExplanatory` list in
+      `router_test.go`; a deliberate choice over filler docs). Title
+      "D-sektionen API" 1.0.0. `router_test.go` enforces all of this, and
+      registering every route in `go test` also catches huma's
+      duplicate-schema-name panic before the server starts.
+    - **Responses**: no `$schema` field (DefaultConfig's link transformer
+      is dropped); arrays are never null - `DefaultArrayNullable = false`
+      for the schema and a `nonNilSlices` response transformer that turns
+      every nil slice into `[]` at any depth, so no DTO has to remember to.
+      Upload creates return what they created (`StoredFile`, the album
+      key); `PUT /notification-settings` returns the settings.
+    - **Plain handlers moved into huma**: `/me` (same URL), `/alarm`
+      (`{active}` JSON; `/api/alarm` still answers `true`/`false` text),
+      the ICS feeds, the medals CSV and the misc-file download (raw
+      bodies, documented with their content types). Still plain:
+      `/salto/{door}` (kept byte-for-byte), `POST /search/sync/password`
+      (raw body) and `/auth/*` (redirects).
+    - **Enums** are named schemas (`apitypes.EnumSchema`, a
+      `huma.SchemaProvider` on each Go string type): recurrence type, edit
+      scope, event span, attendance, article author type and status,
+      alert severity, governing-document type, meeting type, booking
+      status, cafe time slot and shift action, nollning phase, phadder
+      role, notification type and setting type, door policy subject and
+      mode, ticket release/request status, search index, language. The
+      frontend's own `RecurringType`, `NotificationSettingType` and
+      document-type unions now derive from them.
+    - **Search hits are typed**: `SearchHit` is a `oneOf` keyed on `type`
+      with one document schema per index (`internal/search/hits.go`,
+      describing what `sync.go` stores). `searchTypes.ts` re-exports them
+      and every cast is gone.
+    - **Shlink responses are typed** (`ShortLink`, `ShortLinkList`,
+      `LinkDomain`; tags are strings), so `@shlinkio/shlink-js-sdk` was
+      removed from the frontend.
+    - **Fixed while doing this**: `GET /articles/{slug}?status=any` and
+      `GET /events/{slug}?status=any` returned drafts and deleted items to
+      anyone, signed in or not; a hidden article/event is now only
+      returned to someone who may edit it. Door policy delete ignored the
+      door in the URL (now 404 if it doesn't match).
+    - **Left as is, deliberately**: request bodies still reference members
+      by member id (`memberIds`, `accessMemberIds`) where the pickers hand
+      over ids; path keys are student ids. The notification list pages by
+      `hasMore`, not `pageCount`: grouping makes a page count meaningless.
+    - **Found, not fixed**: the requirement-profiles page shows its delete
+      button for the documents bucket's delete policy, but Go deletes from
+      the files bucket (`fileHandler:files:delete`); `/bookings/create`
+      logs a button-inside-button hydration warning (markup untouched by
+      this phase); Shlink errors (e.g. no API key in dev) surface as 422.
+    - **Verified**: `go build`/`vet`/`test`, svelte-check, eslint,
+      prettier, `pnpm test`, `pnpm build`, and a headless-browser pass
+      against a dev server with `AUTH_MOCK`/`STORAGE_MOCK`/`PUSH_MOCK`:
+      about 40 pages load without page errors, and article
+      like/unlike/comment, event attendance, alert create/dismiss/delete,
+      the notification bell, the language switch, member search, both edit
+      pages, door policy create/delete and cafe ciabatta/shift
+      toggle/opening hours work through the real pages and actions. The
+      upload routes, ICS/CSV feeds and `/api/alarm` were checked with curl.
+      Test data was removed afterwards.
 18. **Move the frontend into its own directory** (added 2026-11-03, at
     the user's request) - the SvelteKit app moves out of the repository
     root into a sibling of `backend/` (e.g. `frontend/`), so the repo

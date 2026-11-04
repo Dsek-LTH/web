@@ -7,7 +7,7 @@
   let {
     group,
   }: {
-    // Go-backed (GET /nollning/groups/{id}) - phaddrar is already a flat
+    // Go-backed (GET /nollning/phadder-groups/{id}) - phaddrar is already a flat
     // Member[] (Go's ListPhaddrarForGroup returns the distinct members
     // themselves, not mandate+member pairs), unlike the old Prisma shape.
     group: components["schemas"]["PhadderGroup"];

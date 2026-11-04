@@ -9,7 +9,7 @@
     PUBLIC_BUCKETS_FILES,
   } from "$env/static/public";
   import apiNames from "$lib/utils/apiNames";
-  import { DocumentTypes as dt } from "./types";
+  import { DocumentTypes as dt, isMeetingType } from "./types";
 
   import * as m from "$paraglide/messages";
   import { Button } from "$lib/components/ui/button";
@@ -26,7 +26,10 @@
     return `?${searchParams.toString()}`;
   }
 
-  let type = $derived(page.url.searchParams.get("type") ?? dt.boardMeeting);
+  let type = $derived.by(() => {
+    const requested = page.url.searchParams.get("type");
+    return isMeetingType(requested) ? requested : dt.boardMeeting;
+  });
 
   // Sort order stays a display-only concern (not authorization/validation,
   // so Principle #5 doesn't apply) - ported verbatim from the old

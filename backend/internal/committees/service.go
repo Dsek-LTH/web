@@ -177,16 +177,16 @@ func (s *Service) GetByShortName(
 	}, nil
 }
 
-func (s *Service) markdown(ctx context.Context, name string) (MarkdownContent, error) {
+func (s *Service) markdown(ctx context.Context, name string) (CommitteeMarkdown, error) {
 	row, err := s.queries.GetMarkdown(ctx, name)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return MarkdownContent{}, nil
+			return CommitteeMarkdown{}, nil
 		}
-		return MarkdownContent{}, fmt.Errorf("get markdown %q: %w", name, err)
+		return CommitteeMarkdown{}, fmt.Errorf("get markdown %q: %w", name, err)
 	}
 	markdownEn := dbutil.TextPtr(row.MarkdownEn)
-	return MarkdownContent{
+	return CommitteeMarkdown{
 		Markdown:   dbutil.ResolveName(row.MarkdownSv, markdownEn, locale.FromContext(ctx)),
 		MarkdownSv: row.MarkdownSv,
 		MarkdownEn: markdownEn,
@@ -196,7 +196,7 @@ func (s *Service) markdown(ctx context.Context, name string) (MarkdownContent, e
 func (s *Service) UpdateCommittee(
 	ctx context.Context,
 	shortName string,
-	in UpdateCommitteeInput,
+	in CommitteeInput,
 ) (*Committee, error) {
 	if err := auth.Require(ctx, apinames.CommitteeUpdate); err != nil {
 		return nil, err
@@ -242,24 +242,24 @@ func (s *Service) UpdateCommittee(
 func (s *Service) UpdateCommitteeMarkdown(
 	ctx context.Context,
 	shortName string,
-	in UpdateMarkdownInput,
-) (*MarkdownContent, error) {
+	in CommitteeMarkdownInput,
+) (*CommitteeMarkdown, error) {
 	return s.upsertMarkdown(ctx, shortName, in)
 }
 
 func (s *Service) UpdateCommitteeLinks(
 	ctx context.Context,
 	shortName string,
-	in UpdateMarkdownInput,
-) (*MarkdownContent, error) {
+	in CommitteeMarkdownInput,
+) (*CommitteeMarkdown, error) {
 	return s.upsertMarkdown(ctx, shortName+"_links", in)
 }
 
 func (s *Service) upsertMarkdown(
 	ctx context.Context,
 	name string,
-	in UpdateMarkdownInput,
-) (*MarkdownContent, error) {
+	in CommitteeMarkdownInput,
+) (*CommitteeMarkdown, error) {
 	if err := auth.Require(ctx, apinames.CommitteeUpdate); err != nil {
 		return nil, err
 	}
@@ -272,7 +272,7 @@ func (s *Service) upsertMarkdown(
 		return nil, fmt.Errorf("upsert markdown %q: %w", name, err)
 	}
 	markdownEn := dbutil.TextPtr(row.MarkdownEn)
-	return &MarkdownContent{
+	return &CommitteeMarkdown{
 		Markdown:   dbutil.ResolveName(row.MarkdownSv, markdownEn, locale.FromContext(ctx)),
 		MarkdownSv: row.MarkdownSv,
 		MarkdownEn: markdownEn,
@@ -459,7 +459,7 @@ func (s *Service) GetPosition(ctx context.Context, id string) (*PositionDetail, 
 func (s *Service) UpdatePosition(
 	ctx context.Context,
 	id string,
-	in UpdatePositionInput,
+	in PositionInput,
 ) (*Position, error) {
 	if err := auth.Require(ctx, apinames.PositionUpdate); err != nil {
 		return nil, err
@@ -548,7 +548,7 @@ func (s *Service) emailAliasesForPosition(
 func (s *Service) CreateMandates(
 	ctx context.Context,
 	positionID string,
-	in CreateMandateInput,
+	in MandatesInput,
 ) ([]Mandate, error) {
 	if err := auth.Require(ctx, apinames.MandateCreate); err != nil {
 		return nil, err
@@ -589,7 +589,7 @@ func (s *Service) CreateMandates(
 func (s *Service) UpdateMandate(
 	ctx context.Context,
 	id string,
-	in UpdateMandateInput,
+	in MandateDatesInput,
 ) (*Mandate, error) {
 	if err := auth.Require(ctx, apinames.MandateUpdate); err != nil {
 		return nil, err

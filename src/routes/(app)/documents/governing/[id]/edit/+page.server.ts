@@ -38,7 +38,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(governingDocumentSchema));
     if (!form.valid) return fail(400, { form });
     const { url, title, type } = form.data;
-    const updated = await serverApi(event).PATCH("/governing-documents/{id}", {
+    const updated = await serverApi(event).PUT("/governing-documents/{id}", {
       params: { path: { id: params.id } },
       body: { url, title, type },
     });

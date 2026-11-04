@@ -24,7 +24,7 @@ export const load: PageServerLoad = async (event) => {
       api.GET("/members/{studentId}", {
         params: { path: { studentId } },
       }),
-      api.GET("/nollning/groups", {}),
+      api.GET("/nollning/phadder-groups", {}),
       api.GET("/nollning/current", {}),
     ]);
   if (memberRes.status === "rejected")
@@ -88,7 +88,7 @@ export const actions: Actions = {
     const { studentId } = params;
     const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
-    const res = await api.PATCH("/members/{studentId}", {
+    const res = await api.PUT("/members/{studentId}", {
       params: { path: { studentId } },
       body: {
         firstName: profileFields.firstName ?? "",
@@ -102,7 +102,7 @@ export const actions: Actions = {
       },
     });
     if (foodPreference !== undefined) {
-      await api.PATCH("/members/{studentId}/food-preference", {
+      await api.PUT("/members/{studentId}/food-preference", {
         params: { path: { studentId } },
         body: { foodPreference: foodPreference ?? undefined },
       });

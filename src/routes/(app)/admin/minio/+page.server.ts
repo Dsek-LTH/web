@@ -22,7 +22,7 @@ const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 // Principle #5.
 
 export const load = async (event) => {
-  const res = await serverApi(event).GET("/admin/files", {});
+  const res = await serverApi(event).GET("/files", {});
   if (res.error) {
     // Matches the old load's own fileHandler.getInBucket(...).catch(...) -
     // a storage error shouldn't fail the whole page, just leave the list
@@ -61,7 +61,7 @@ export const actions = {
 
     const { file, fileName, prefix } = form.data;
 
-    const res = await serverApi(event).POST("/admin/files", {
+    const res = await serverApi(event).POST("/files", {
       body: { file, name: fileName, prefix },
       ...multipart,
     });
@@ -85,8 +85,8 @@ export const actions = {
     const form = await superValidate(event.request, zod4(deleteSchema));
     if (!form.valid) return fail(400, form);
 
-    const res = await serverApi(event).DELETE("/admin/files", {
-      params: { query: { id: form.data.id } },
+    const res = await serverApi(event).DELETE("/files", {
+      params: { query: { key: form.data.id } },
     });
     if (res.error) {
       return message(

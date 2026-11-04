@@ -102,7 +102,7 @@ const eventPageLoad =
               ...window,
               search: url.searchParams.get("search") || undefined,
               tags: tagIds,
-              includeRemoved: adminMode,
+              includeDeleted: adminMode,
             },
           },
         });

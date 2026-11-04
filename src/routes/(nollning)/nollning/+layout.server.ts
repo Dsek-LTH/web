@@ -12,12 +12,12 @@ export const load = async (event) => {
   const current = currentRes.data;
   const revealTheme = current?.phase === "post_reveal";
   // Replaces getNollaGroupedNotifications' hardcoded 2025-06-26 cutoff with
-  // Go's GET /notifications?nolla=true, which filters on the current
+  // Go's GET /notifications?nollning=true, which filters on the current
   // season's real nollaStartAt instead - see backend/CLAUDE.md's
   // "Notifications routes" section and DESIGN.md's Phase 9 entry.
   const notificationsPromise = serverApi(event)
-    .GET("/notifications", { params: { query: { nolla: true } } })
-    .then((res) => res.data ?? []);
+    .GET("/notifications", { params: { query: { nollning: true } } })
+    .then((res) => res.data?.notifications ?? []);
   // The member's nolla group in the current season, if any - Go's
   // phadder-role lookup does the season check.
   const phadderGroup = locals.user?.studentId
@@ -28,9 +28,12 @@ export const load = async (event) => {
         .then(async (res) => {
           const groupId = res.data?.role === "nolla" ? res.data.groupId : null;
           if (!groupId) return null;
-          const group = await serverApi(event).GET("/nollning/groups/{id}", {
-            params: { path: { id: groupId } },
-          });
+          const group = await serverApi(event).GET(
+            "/nollning/phadder-groups/{id}",
+            {
+              params: { path: { id: groupId } },
+            },
+          );
           return group.data ? { name: group.data.name } : null;
         })
     : null;

@@ -32,7 +32,7 @@ export const committeeActions = (
             params: { path: { shortName: sn } },
             body,
           })
-        : await api.PUT("/committees/{shortName}/markdown", {
+        : await api.PUT("/committees/{shortName}/about", {
             params: { path: { shortName: sn } },
             body,
           });
@@ -54,7 +54,7 @@ export const committeeActions = (
     });
     if (!form.valid) return fail(400, withFiles({ form }));
 
-    const res = await api.PATCH("/committees/{shortName}", {
+    const res = await api.PUT("/committees/{shortName}", {
       params: { path: { shortName: sn } },
       body: {
         nameSv: form.data.nameSv ?? "",

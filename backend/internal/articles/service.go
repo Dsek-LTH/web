@@ -28,7 +28,7 @@ import (
 var ErrNotFound = errors.New("articles: not found")
 
 // ErrInvalidInput is wrapped into errors caused by malformed caller input
-// (e.g. a UUID that doesn't parse), so the API layer can map them to 400
+// (e.g. a UUID that doesn't parse), so the API layer can map them to 422
 // instead of 500.
 var ErrInvalidInput = errors.New("articles: invalid input")
 
@@ -143,11 +143,35 @@ func (s *Service) Get(ctx context.Context, slug string) (*ArticleDetail, error) 
 	return s.detail(ctx, db.ListArticlesRow(row))
 }
 
-// GetAny returns an article by slug regardless of publish/removed status -
-// for an author loading their own draft or scheduled article before it's
-// public (e.g. the edit page).
-func (s *Service) GetAny(ctx context.Context, slug string) (*ArticleDetail, error) {
-	return s.getBySlugUnfiltered(ctx, slug)
+// GetHidden returns an article by slug like Get, but can also return one
+// Get hides: a soft-deleted one (includeDeleted) or one that isn't
+// published yet (includeUnpublished) - for an author loading their own
+// draft or scheduled article (e.g. the edit page). A hidden article is only
+// returned to someone who may edit it.
+func (s *Service) GetHidden(
+	ctx context.Context, slug string, includeDeleted, includeUnpublished bool,
+) (*ArticleDetail, error) {
+	row, err := s.queries.GetArticleRowBySlug(ctx, slug)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get article: %w", err)
+	}
+	now := time.Now()
+	deleted := row.RemovedAt.Valid && !row.RemovedAt.Time.After(now)
+	unpublished := !row.PublishedDatetime.Valid || row.PublishedDatetime.Time.After(now)
+	if (deleted && !includeDeleted) || (unpublished && !includeUnpublished) {
+		return nil, ErrNotFound
+	}
+	detail, err := s.detail(ctx, db.ListArticlesRow(row))
+	if err != nil {
+		return nil, err
+	}
+	if (deleted || unpublished) && !detail.CanEdit {
+		return nil, ErrNotFound
+	}
+	return detail, nil
 }
 
 func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, error) {
@@ -544,28 +568,33 @@ func (s *Service) ListTags(ctx context.Context) ([]Tag, error) {
 	return tags, nil
 }
 
-// TagInput is the editable part of a tag, for UpdateTag.
-type TagInput struct {
-	NameSv string  `json:"nameSv"`
-	NameEn *string `json:"nameEn"`
-	Color  *string `json:"color"`
-}
-
-// CreateTag makes a tag with just its Swedish name, like the tag admin
-// page's create form; the rest is filled in with UpdateTag.
-func (s *Service) CreateTag(ctx context.Context, nameSv string) (*Tag, error) {
+// CreateTag makes a tag. The tag admin page's create form only sends
+// nameSv; nameEn and color can be set here or later with UpdateTag.
+func (s *Service) CreateTag(ctx context.Context, in TagInput) (*Tag, error) {
 	if err := auth.Require(ctx, apinames.TagsCreate); err != nil {
 		return nil, err
 	}
-	nameSv = strings.TrimSpace(nameSv)
-	if nameSv == "" {
+	in.NameSv = strings.TrimSpace(in.NameSv)
+	if in.NameSv == "" {
 		return nil, invalidf("tag name is required")
 	}
-	r, err := s.queries.CreateTag(ctx, nameSv)
+	r, err := s.queries.CreateTag(ctx, in.NameSv)
 	if err != nil {
 		return nil, fmt.Errorf("create tag: %w", err)
 	}
-	return toTag(r.ID, r.NameSv, r.NameEn, r.Color, r.IsDefault, locale.FromContext(ctx)), nil
+	if in.NameEn == nil && in.Color == nil {
+		return toTag(r.ID, r.NameSv, r.NameEn, r.Color, r.IsDefault, locale.FromContext(ctx)), nil
+	}
+	u, err := s.queries.UpdateTag(ctx, db.UpdateTagParams{
+		ID:     r.ID,
+		NameSv: in.NameSv,
+		NameEn: dbutil.ToText(in.NameEn),
+		Color:  dbutil.ToText(in.Color),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create tag: %w", err)
+	}
+	return toTag(u.ID, u.NameSv, u.NameEn, u.Color, u.IsDefault, locale.FromContext(ctx)), nil
 }
 
 // UpdateTag replaces a tag's names and color.
@@ -615,13 +644,9 @@ func toTag(
 // for the "post as" author picker.
 func (s *Service) ListActiveMandatesForMember(
 	ctx context.Context,
-	memberID string,
+	studentID string,
 ) ([]Mandate, error) {
-	memberUUID, err := dbutil.ParseUUID(memberID)
-	if err != nil {
-		return nil, invalidf("invalid member id: %v", err)
-	}
-	rows, err := s.queries.ListActiveMandatesForMember(ctx, memberUUID)
+	rows, err := s.queries.ListActiveMandatesForMember(ctx, dbutil.ToText(&studentID))
 	if err != nil {
 		return nil, fmt.Errorf("list mandates: %w", err)
 	}

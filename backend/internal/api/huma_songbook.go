@@ -9,36 +9,13 @@ import (
 	"github.com/dsek-lth/web/backend/internal/songs"
 )
 
-type listSongBookInput struct {
-	Search   string `query:"search"   doc:"a page number, or text to search song titles for"`
-	Page     int    `query:"page"     doc:"1-based"`
-	PageSize int    `query:"pageSize"`
-}
-
-type listSongBookOutput struct {
-	Body struct {
-		Entries   []songs.SongBookEntry `json:"entries"`
-		PageCount int                   `json:"pageCount"`
-	}
-}
-
-type songBookPositionInput struct {
-	Page         int `path:"page"`
-	NumberOnPage int `path:"numberOnPage"`
+type SongBookPosition struct {
+	Page         int `path:"page"         doc:"Page in the printed songbook."`
+	NumberOnPage int `path:"numberOnPage" doc:"The song's number on that page."`
 }
 
 type songBookEntryOutput struct {
 	Body songs.SongBookEntry
-}
-
-type createSongBookEntryInput struct {
-	Body songs.SongBookEntryInput
-}
-
-type updateSongBookEntryInput struct {
-	Page         int `path:"page"`
-	NumberOnPage int `path:"numberOnPage"`
-	Body         songs.SongBookEntryInput
 }
 
 // registerSongBookRoutes registers the printed songbook's entries (which
@@ -46,12 +23,20 @@ type updateSongBookEntryInput struct {
 // managed through /songs. A position or song that's already in the book
 // answers 409, with "position" or "song" in the detail.
 func registerSongBookRoutes(api huma.API, svc *songs.Service) {
+	tags := []string{"Songs"}
+
 	huma.Register(api, huma.Operation{
-		OperationID: "list-songbook",
+		OperationID: "list-songbook-entries",
 		Method:      http.MethodGet,
-		Path:        "/songbook",
-		Summary:     "List songbook entries in page order",
-	}, func(ctx context.Context, input *listSongBookInput) (*listSongBookOutput, error) {
+		Path:        "/songbook-entries",
+		Tags:        tags,
+		Summary:     "List songbook entries",
+		Description: "The printed songbook's index, in page order. Needs song:read. pageSize defaults to 20.",
+	}, func(ctx context.Context, input *struct {
+		Search string `query:"search" doc:"A page number, or text to search song titles for."`
+		Paging
+	},
+	) (*struct{ Body songs.SongBookEntryList }, error) {
 		entries, pageCount, err := svc.ListSongBook(ctx, songs.SongBookListParams{
 			Search:   input.Search,
 			Page:     input.Page,
@@ -60,18 +45,19 @@ func registerSongBookRoutes(api huma.API, svc *songs.Service) {
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		out := &listSongBookOutput{}
-		out.Body.Entries = entries
-		out.Body.PageCount = pageCount
-		return out, nil
+		return &struct{ Body songs.SongBookEntryList }{
+			Body: songs.SongBookEntryList{Entries: entries, PageCount: pageCount},
+		}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-songbook-entry",
 		Method:      http.MethodGet,
-		Path:        "/songbook/{page}/{numberOnPage}",
-		Summary:     "Get the songbook entry at a page and number",
-	}, func(ctx context.Context, input *songBookPositionInput) (*songBookEntryOutput, error) {
+		Path:        "/songbook-entries/{page}/{numberOnPage}",
+		Tags:        tags,
+		Summary:     "Get a songbook entry",
+		Description: "The song at a page and number. Needs song:read.",
+	}, func(ctx context.Context, input *SongBookPosition) (*songBookEntryOutput, error) {
 		entry, err := svc.GetSongBookEntry(ctx, input.Page, input.NumberOnPage)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -82,10 +68,12 @@ func registerSongBookRoutes(api huma.API, svc *songs.Service) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "create-songbook-entry",
 		Method:        http.MethodPost,
-		Path:          "/songbook",
-		Summary:       "Put a song in the songbook (song:create)",
+		Path:          "/songbook-entries",
+		Tags:          tags,
+		Summary:       "Put a song in the songbook",
+		Description:   "Needs song:create. 409 if the position is taken or the song is already in the book.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createSongBookEntryInput) (*songBookEntryOutput, error) {
+	}, func(ctx context.Context, input *struct{ Body songs.SongBookEntryInput }) (*songBookEntryOutput, error) {
 		entry, err := svc.CreateSongBookEntry(ctx, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -94,11 +82,17 @@ func registerSongBookRoutes(api huma.API, svc *songs.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-songbook-entry",
-		Method:      http.MethodPatch,
-		Path:        "/songbook/{page}/{numberOnPage}",
-		Summary:     "Move a songbook entry and/or change its song (song:update)",
-	}, func(ctx context.Context, input *updateSongBookEntryInput) (*songBookEntryOutput, error) {
+		OperationID: "replace-songbook-entry",
+		Method:      http.MethodPut,
+		Path:        "/songbook-entries/{page}/{numberOnPage}",
+		Tags:        tags,
+		Summary:     "Replace a songbook entry",
+		Description: "Move it and/or change its song. Needs song:update. 409 as for create.",
+	}, func(ctx context.Context, input *struct {
+		SongBookPosition
+		Body songs.SongBookEntryInput
+	},
+	) (*songBookEntryOutput, error) {
 		entry, err := svc.UpdateSongBookEntry(ctx, input.Page, input.NumberOnPage, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -109,10 +103,12 @@ func registerSongBookRoutes(api huma.API, svc *songs.Service) {
 	huma.Register(api, huma.Operation{
 		OperationID:   "delete-songbook-entry",
 		Method:        http.MethodDelete,
-		Path:          "/songbook/{page}/{numberOnPage}",
-		Summary:       "Take a song out of the songbook (song:delete)",
+		Path:          "/songbook-entries/{page}/{numberOnPage}",
+		Tags:          tags,
+		Summary:       "Take a song out of the songbook",
+		Description:   "The song itself stays in the archive. Needs song:delete.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *songBookPositionInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *SongBookPosition) (*struct{}, error) {
 		if err := svc.DeleteSongBookEntry(ctx, input.Page, input.NumberOnPage); err != nil {
 			return nil, humaServiceError(err)
 		}

@@ -1,19 +1,13 @@
 import { error, type Cookies, type RequestEvent } from "@sveltejs/kit";
 import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
-import type { SignedInMember } from "$lib/auth/types";
+import type { components } from "$lib/api/schema";
 
 /**
- * The Go backend's GET /me response (backend/internal/auth/me.go). Go is
- * the OIDC/session authority - see backend/DESIGN.md's Auth section.
+ * The Go backend's GET /me response (backend/internal/api/huma_me.go). Go
+ * is the OIDC/session authority - see backend/DESIGN.md's Auth section.
+ * member is omitted for an anonymous caller.
  */
-export interface GoIdentity {
-  studentId: string;
-  memberId: string;
-  policies: string[];
-  roles: string[];
-  /** Null for an anonymous caller. */
-  member: SignedInMember | null;
-}
+export type GoIdentity = components["schemas"]["Me"];
 
 /**
  * Calls Go's GET /me, forwarding this request's cookies there and forwarding

@@ -105,7 +105,7 @@
   >(
     results.flatMap((result) => {
       if (result.type !== "members") return [];
-      const data = result.data as MemberSearchReturnAttributes;
+      const data = result.data;
       return selectedMembers.some((m) => m.studentId === data.studentId)
         ? []
         : [data];

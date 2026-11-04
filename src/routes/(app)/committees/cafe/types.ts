@@ -4,8 +4,8 @@ import type { components } from "$lib/api/schema";
 
 export type Ciabatta = components["schemas"]["Ciabatta"];
 /** A cafe shift, always with its worker (Go joins it). */
-export type ShiftWithWorker = components["schemas"]["Shift"];
-export type OpeningHour = components["schemas"]["OpeningHour"];
+export type ShiftWithWorker = components["schemas"]["CafeShift"];
+export type OpeningHour = components["schemas"]["CafeOpeningHours"];
 
 export const updateTimeSchema = z.object({
   markdownSlug: z.string(),

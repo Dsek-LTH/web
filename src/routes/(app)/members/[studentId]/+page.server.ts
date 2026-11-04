@@ -47,7 +47,7 @@ export const load: PageServerLoad = async (event) => {
             (article) => article.author.type !== "Custom",
           ) ?? [],
       ),
-    api.GET("/nollning/groups", {}),
+    api.GET("/nollning/phadder-groups", {}),
     api.GET("/members/{studentId}/phadder-role", {
       params: { path: { studentId } },
     }),
@@ -194,7 +194,7 @@ export const actions: Actions = {
     );
     if (!form.valid) return fail(400, { form });
     const { studentId } = params;
-    const res = await serverApi(event).PATCH(
+    const res = await serverApi(event).PUT(
       "/members/{studentId}/food-preference",
       {
         params: { path: { studentId } },
@@ -252,7 +252,7 @@ export const actions: Actions = {
     const { studentId } = params;
     const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
-    const res = await api.PATCH("/members/{studentId}", {
+    const res = await api.PUT("/members/{studentId}", {
       params: { path: { studentId } },
       body: {
         firstName: profileFields.firstName ?? "",
@@ -266,7 +266,7 @@ export const actions: Actions = {
       },
     });
     if (foodPreference !== undefined) {
-      await api.PATCH("/members/{studentId}/food-preference", {
+      await api.PUT("/members/{studentId}/food-preference", {
         params: { path: { studentId } },
         body: { foodPreference: foodPreference ?? undefined },
       });

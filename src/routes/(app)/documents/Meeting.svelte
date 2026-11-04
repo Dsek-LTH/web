@@ -13,6 +13,7 @@
   import { cn } from "$lib/utils";
 
   type Meeting = components["schemas"]["Meeting"];
+  type MeetingType = components["schemas"]["MeetingType"];
 
   let {
     meeting,
@@ -21,7 +22,7 @@
     canDelete,
   }: {
     meeting: Meeting;
-    type: string;
+    type: MeetingType;
     isEditing: boolean;
     canDelete: boolean;
   } = $props();
@@ -36,8 +37,8 @@
   // removeDocument pattern. Go derives the correct bucket from `type`,
   // fixing the old app's delete-always-hits-documentsBucket bug.
   async function removeFile(id: string) {
-    const res = await api.DELETE("/documents", {
-      params: { query: { type, id } },
+    const res = await api.DELETE("/meeting-documents", {
+      params: { query: { type, key: id } },
     });
     if (res.error) {
       toast(m.documents_fileDeleted(), "error");

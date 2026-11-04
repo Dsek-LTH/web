@@ -26,7 +26,7 @@ export const load = async (event) => {
   const api = serverApi(event);
 
   const [summariesRes, seasonsRes] = await Promise.all([
-    api.GET("/nollning/groups", {}),
+    api.GET("/nollning/phadder-groups", {}),
     api.GET("/nollning/seasons", {}),
   ]);
   if (summariesRes.error)
@@ -41,7 +41,7 @@ export const load = async (event) => {
 
   const groups = await Promise.all(
     (summariesRes.data ?? []).map(async (summary) => {
-      const detailRes = await api.GET("/nollning/groups/{id}", {
+      const detailRes = await api.GET("/nollning/phadder-groups/{id}", {
         params: { path: { id: summary.id } },
       });
       const group = detailRes.data ?? summary;
@@ -121,7 +121,7 @@ export const actions = {
     if (!seasonId) {
       return setError(form, "year", m.nollu_manage_noSeasonForYear());
     }
-    const res = await serverApi(event).POST("/nollning/groups", {
+    const res = await serverApi(event).POST("/nollning/phadder-groups", {
       body: {
         name: form.data.name,
         description: form.data.description,
@@ -145,7 +145,7 @@ export const actions = {
     if (!seasonId) {
       return setError(form, "year", m.nollu_manage_noSeasonForYear());
     }
-    const res = await serverApi(event).PATCH("/nollning/groups/{id}", {
+    const res = await serverApi(event).PUT("/nollning/phadder-groups/{id}", {
       params: { path: { id: form.data.id } },
       body: {
         name: form.data.name,
@@ -166,7 +166,7 @@ export const actions = {
       zod4(deletePhadderGroupSchema),
     );
     if (!form.valid) return fail(400, { form });
-    const res = await serverApi(event).DELETE("/nollning/groups/{id}", {
+    const res = await serverApi(event).DELETE("/nollning/phadder-groups/{id}", {
       params: { path: { id: form.data.id } },
     });
     if (res.error) return fail(400, { form });
@@ -178,10 +178,13 @@ export const actions = {
   addNolla: async (event) => {
     const form = await superValidate(event.request, zod4(addPersonSchema));
     if (!form.valid) return fail(400, { form });
-    const res = await serverApi(event).POST("/nollning/groups/{id}/nollor", {
-      params: { path: { id: form.data.groupId } },
-      body: { studentIds: form.data.studentId },
-    });
+    const res = await serverApi(event).POST(
+      "/nollning/phadder-groups/{id}/nollor",
+      {
+        params: { path: { id: form.data.groupId } },
+        body: { studentIds: form.data.studentId },
+      },
+    );
     if (res.error) return setError(form, membersError(res.error.detail));
     return message(form, {
       message: m.nollu_manage_nollaAdded(),
@@ -192,7 +195,7 @@ export const actions = {
     const form = await superValidate(event.request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const res = await serverApi(event).DELETE(
-      "/nollning/groups/{id}/nollor/{studentId}",
+      "/nollning/phadder-groups/{id}/nollor/{studentId}",
       {
         params: {
           path: { id: form.data.groupId, studentId: form.data.studentId },
@@ -210,10 +213,13 @@ export const actions = {
   addPhadder: async (event) => {
     const form = await superValidate(event.request, zod4(addPersonSchema));
     if (!form.valid) return fail(400, { form });
-    const res = await serverApi(event).POST("/nollning/groups/{id}/phaddrar", {
-      params: { path: { id: form.data.groupId } },
-      body: { studentIds: form.data.studentId },
-    });
+    const res = await serverApi(event).POST(
+      "/nollning/phadder-groups/{id}/phaddrar",
+      {
+        params: { path: { id: form.data.groupId } },
+        body: { studentIds: form.data.studentId },
+      },
+    );
     if (res.error) return setError(form, membersError(res.error.detail));
     return message(form, {
       message: m.nollu_manage_phadderAdded(),
@@ -224,7 +230,7 @@ export const actions = {
     const form = await superValidate(event.request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const res = await serverApi(event).DELETE(
-      "/nollning/groups/{id}/phaddrar/{studentId}",
+      "/nollning/phadder-groups/{id}/phaddrar/{studentId}",
       {
         params: {
           path: { id: form.data.groupId, studentId: form.data.studentId },

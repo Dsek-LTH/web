@@ -1,6 +1,3 @@
-// See huma_articles.go's package doc comment - same huma/code-first
-// pattern, applied to the small admin CRUD over api_access_policies
-// (backend/DESIGN.md's roadmap "Phase 1: directory foundation").
 package api
 
 import (
@@ -12,45 +9,20 @@ import (
 	"github.com/dsek-lth/web/backend/internal/accesspolicies"
 )
 
-type listAccessPoliciesInput struct {
-	APIName string `query:"apiName"`
-}
-
-type listAccessPoliciesOutput struct {
-	Body []accesspolicies.AccessPolicy
-}
-
-type bulkCreateAccessPoliciesInput struct {
-	Body accesspolicies.BulkCreateInput
-}
-
-type bulkAccessPoliciesOutput struct {
-	Body []accesspolicies.AccessPolicy
-}
-
-type listAPINamesOutput struct {
-	Body []accesspolicies.APINameCount
-}
-
-type createAccessPolicyInput struct {
-	Body accesspolicies.CreateInput
-}
-
-type accessPolicyOutput struct {
-	Body accesspolicies.AccessPolicy
-}
-
-type deleteAccessPolicyInput struct {
-	ID string `path:"id"`
-}
-
 func registerAccessPolicyRoutes(api huma.API, svc *accesspolicies.Service) {
+	tags := []string{"Access policies"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-access-policies",
 		Method:      http.MethodGet,
 		Path:        "/access-policies",
-		Summary:     "List access policy grants, optionally filtered by apiName",
-	}, func(ctx context.Context, input *listAccessPoliciesInput) (*listAccessPoliciesOutput, error) {
+		Tags:        tags,
+		Summary:     "List access policies",
+		Description: "Needs core:access:api:read.",
+	}, func(ctx context.Context, input *struct {
+		APIName string `query:"apiName" doc:"Only grants of this policy."`
+	},
+	) (*struct{ Body []accesspolicies.AccessPolicy }, error) {
 		var apiName *string
 		if input.APIName != "" {
 			apiName = &input.APIName
@@ -59,57 +31,76 @@ func registerAccessPolicyRoutes(api huma.API, svc *accesspolicies.Service) {
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listAccessPoliciesOutput{Body: items}, nil
+		return &struct{ Body []accesspolicies.AccessPolicy }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-access-policy-api-names",
 		Method:      http.MethodGet,
 		Path:        "/access-policies/api-names",
-		Summary:     "List the apiNames already in use, with their grant counts",
-	}, func(ctx context.Context, _ *struct{}) (*listAPINamesOutput, error) {
+		Tags:        tags,
+		Summary:     "List granted policies",
+		Description: "Every policy that has at least one grant, with how many. Needs core:access:api:read.",
+	}, func(ctx context.Context, _ *struct{}) (*struct {
+		Body []accesspolicies.AccessPolicyAPIName
+	}, error,
+	) {
 		names, err := svc.ListAPINames(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listAPINamesOutput{Body: names}, nil
+		return &struct {
+			Body []accesspolicies.AccessPolicyAPIName
+		}{Body: names}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "create-access-policies-bulk",
 		Method:        http.MethodPost,
 		Path:          "/access-policies/bulk",
-		Summary:       "Grant an apiName to several roles and/or members at once (all or nothing)",
+		Tags:          tags,
+		Summary:       "Grant a policy to several roles and members",
+		Description:   "All or nothing. Needs core:access:api:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *bulkCreateAccessPoliciesInput) (*bulkAccessPoliciesOutput, error) {
+	}, func(ctx context.Context, input *struct {
+		Body accesspolicies.AccessPolicyBulkInput
+	},
+	) (*struct{ Body []accesspolicies.AccessPolicy }, error) {
 		policies, err := svc.CreateBulk(ctx, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &bulkAccessPoliciesOutput{Body: policies}, nil
+		return &struct{ Body []accesspolicies.AccessPolicy }{Body: policies}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "create-access-policy",
 		Method:        http.MethodPost,
 		Path:          "/access-policies",
-		Summary:       "Grant an apiName to a role or a specific member (exactly one)",
+		Tags:          tags,
+		Summary:       "Grant a policy",
+		Description:   "To a role or to one member. Needs core:access:api:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createAccessPolicyInput) (*accessPolicyOutput, error) {
+	}, func(ctx context.Context, input *struct {
+		Body accesspolicies.AccessPolicyInput
+	},
+	) (*struct{ Body accesspolicies.AccessPolicy }, error) {
 		policy, err := svc.Create(ctx, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &accessPolicyOutput{Body: *policy}, nil
+		return &struct{ Body accesspolicies.AccessPolicy }{Body: *policy}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "delete-access-policy",
 		Method:        http.MethodDelete,
 		Path:          "/access-policies/{id}",
-		Summary:       "Revoke an access policy grant",
+		Tags:          tags,
+		Summary:       "Revoke a policy grant",
+		Description:   "Needs core:access:api:delete.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *deleteAccessPolicyInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *IDPath) (*struct{}, error) {
 		if err := svc.Delete(ctx, input.ID); err != nil {
 			return nil, humaServiceError(err)
 		}

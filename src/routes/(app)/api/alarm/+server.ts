@@ -1,7 +1,14 @@
-import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
+import { api } from "$lib/api/client";
+import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
-// A thin proxy to Go's GET /alarm: "true" while an alarm-flagged event is
-// running, else "false". Kept at this URL for whatever polls it.
-export const GET: RequestHandler = async ({ fetch }) =>
-  fetch(new URL("/alarm", PUBLIC_GO_BACKEND_URL));
+// A thin proxy to Go's GET /alarm. Kept at this URL, answering "true" while
+// an alarm-flagged event is running and "false" otherwise, for whatever
+// polls it.
+export const GET: RequestHandler = async ({ fetch }) => {
+  const res = await api.GET("/alarm", { fetch });
+  if (res.error) error(res.response.status, res.error.detail ?? "");
+  return new Response(String(res.data.active), {
+    headers: { "content-type": "text/plain; charset=utf-8" },
+  });
+};

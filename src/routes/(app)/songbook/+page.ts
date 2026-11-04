@@ -8,7 +8,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
   const search = url.searchParams.get("search") || "";
   const page = parseInt(url.searchParams.get("page") || "1", 10);
 
-  const res = await api.GET("/songbook", {
+  const res = await api.GET("/songbook-entries", {
     fetch,
     params: { query: { search: search || undefined, page, pageSize: 20 } },
   });

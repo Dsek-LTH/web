@@ -13,13 +13,13 @@ type (
 	Member    = apitypes.Member
 )
 
-// MarkdownContent is a piece of named markdown content (see
+// CommitteeMarkdown is a piece of named markdown content (see
 // internal/db/schema.sql's markdowns table doc comment). Markdown is
 // MarkdownEn if resolved-locale is "en" and set, MarkdownSv otherwise -
 // same resolution rule as Name/Description elsewhere in this package;
 // display code reads Markdown, edit forms read the Sv/En pair.
-type MarkdownContent struct {
-	Markdown   string  `json:"markdown"`
+type CommitteeMarkdown struct {
+	Markdown   string  `json:"markdown"             doc:"markdownEn or markdownSv, resolved from Accept-Language."`
 	MarkdownSv string  `json:"markdownSv"`
 	MarkdownEn *string `json:"markdownEn,omitempty"`
 }
@@ -29,10 +29,10 @@ type MarkdownContent struct {
 // and email aliases), and the about/links markdown content.
 type CommitteeDetail struct {
 	Committee
-	Year          int32            `json:"year"`
-	Positions     []PositionDetail `json:"positions"`
-	AboutMarkdown MarkdownContent  `json:"aboutMarkdown"`
-	LinksMarkdown MarkdownContent  `json:"linksMarkdown"`
+	Year          int32             `json:"year"          doc:"The year positions and mandates are shown for."`
+	Positions     []PositionDetail  `json:"positions"     doc:"Positions active that year or with mandates that year, in display order."`
+	AboutMarkdown CommitteeMarkdown `json:"aboutMarkdown" doc:"The committee page's main text."`
+	LinksMarkdown CommitteeMarkdown `json:"linksMarkdown" doc:"The committee page's sidebar links."`
 }
 
 // PositionDetail is a single position with its mandates and email aliases
@@ -41,15 +41,15 @@ type CommitteeDetail struct {
 // position's full, unscoped mandate history instead of a single year.
 type PositionDetail struct {
 	Position
-	Year     int32     `json:"year,omitempty"`
-	Mandates []Mandate `json:"mandates"`
+	Year     int32     `json:"year,omitempty" doc:"Only in a committee's positions: the year the mandates are for."`
+	Mandates []Mandate `json:"mandates"       doc:"Mandates, each with its member. In a committee, that year's; from GET /positions/{id}, every one."`
 }
 
-// UpdateCommitteeInput is the full-replace body for PATCH
+// CommitteeInput is the full-replace body for PUT
 // /committees/{shortName} - the committee-details form specifically, one of
 // three independently-submitted forms on the old committee page (see
 // UpdateMarkdownInput/UpdateLinksInput for the other two).
-type UpdateCommitteeInput struct {
+type CommitteeInput struct {
 	NameSv            string  `json:"nameSv"`
 	NameEn            *string `json:"nameEn,omitempty"`
 	DescriptionSv     *string `json:"descriptionSv,omitempty"`
@@ -59,41 +59,41 @@ type UpdateCommitteeInput struct {
 	MonoImageURL      *string `json:"monoImageUrl,omitempty"`
 	SymbolURL         *string `json:"symbolUrl,omitempty"`
 	BannerURL         *string `json:"bannerUrl,omitempty"`
-	IsBannerTextLight bool    `json:"isBannerTextLight"`
+	IsBannerTextLight bool    `json:"isBannerTextLight"       doc:"Whether text over the banner should be light."`
 	PreviewURL        *string `json:"previewUrl,omitempty"`
 }
 
-type UpdateMarkdownInput struct {
+type CommitteeMarkdownInput struct {
 	MarkdownSv string  `json:"markdownSv"`
 	MarkdownEn *string `json:"markdownEn,omitempty"`
 }
 
-// UpdatePositionInput is the full-replace body for PATCH /positions/{id} -
+// PositionInput is the full-replace body for PUT /positions/{id} -
 // deliberately combines the old TS app's two separate actions (field edits;
 // active/boardMember toggles) into one endpoint, since positions have few
 // fields and the flags-toggle UI doesn't exist in TS yet (see
 // backend/DESIGN.md's roadmap for the reasoning).
-type UpdatePositionInput struct {
+type PositionInput struct {
 	NameSv        string  `json:"nameSv"`
 	NameEn        *string `json:"nameEn,omitempty"`
 	Email         *string `json:"email,omitempty"`
 	DescriptionSv *string `json:"descriptionSv,omitempty"`
 	DescriptionEn *string `json:"descriptionEn,omitempty"`
-	Active        bool    `json:"active"`
-	BoardMember   bool    `json:"boardMember"`
+	Active        bool    `json:"active"                  doc:"Inactive positions are kept for history but no longer filled."`
+	BoardMember   bool    `json:"boardMember"             doc:"Whether the position is on the board."`
 }
 
-// CreateMandateInput supports multiple memberIds at once (one mandate row
+// MandatesInput supports multiple memberIds at once (one mandate row
 // created per member), matching the old TS addMandate action.
-type CreateMandateInput struct {
-	MemberIDs []string `json:"memberIds"`
-	StartDate string   `json:"startDate"`
-	EndDate   string   `json:"endDate"`
+type MandatesInput struct {
+	MemberIDs []string `json:"memberIds" doc:"Member ids (UUIDs); one mandate is created per member."`
+	StartDate string   `json:"startDate" doc:"First day, YYYY-MM-DD."`
+	EndDate   string   `json:"endDate"   doc:"Last day, YYYY-MM-DD."`
 }
 
-type UpdateMandateInput struct {
-	StartDate string `json:"startDate"`
-	EndDate   string `json:"endDate"`
+type MandateDatesInput struct {
+	StartDate string `json:"startDate" doc:"First day, YYYY-MM-DD."`
+	EndDate   string `json:"endDate"   doc:"Last day, YYYY-MM-DD."`
 }
 
 // BoardPosition is one board-flagged, active position with its current
@@ -104,5 +104,5 @@ type UpdateMandateInput struct {
 // both.
 type BoardPosition struct {
 	Position Position `json:"position"`
-	Member   *Member  `json:"member,omitempty"`
+	Member   *Member  `json:"member,omitempty" doc:"The current holder. Omitted when vacant."`
 }

@@ -10,151 +10,186 @@ import (
 	"github.com/dsek-lth/web/backend/internal/documents"
 )
 
-type listMeetingsInput struct {
-	Type string `query:"type" required:"true" doc:"one of board-meeting, guild-meeting, SRD-meeting, other"`
-	Year int    `query:"year" required:"true"`
-}
-
-type listMeetingsOutput struct {
-	Body []documents.Meeting
-}
-
-type listRequirementsInput struct {
-	Year int `query:"year" required:"true"`
-}
-
-type listRequirementsOutput struct {
-	Body []documents.RequirementFolder
-}
-
-type uploadDocumentInput struct {
-	RawBody huma.MultipartFormFiles[struct {
-		Type   string        `form:"type"   required:"true" doc:"one of meeting, srd, requirement"`
-		Year   int           `form:"year"   required:"true"`
-		Folder string        `form:"folder"`
-		Name   string        `form:"name"`
-		File   huma.FormFile `form:"file"   required:"true"`
-	}]
-}
-
-type deleteDocumentInput struct {
-	Type string `query:"type" required:"true" doc:"one of board-meeting, guild-meeting, SRD-meeting, other"`
-	ID   string `query:"id"   required:"true"`
-}
-
-type deleteRequirementInput struct {
-	ID string `query:"id" required:"true"`
-}
-
-type listMiscFilesOutput struct {
-	Body []documents.DocumentFile
-}
-
-type uploadMiscFileInput struct {
-	RawBody huma.MultipartFormFiles[struct {
-		Prefix string        `form:"prefix"`
-		Name   string        `form:"name"  doc:"defaults to a random name if omitted"`
-		File   huma.FormFile `form:"file"  required:"true"`
-	}]
-}
-
-type miscFileOutput struct {
-	Body documents.DocumentFile
-}
-
-type deleteMiscFileInput struct {
-	ID string `query:"id" required:"true"`
+type storedFileOutput struct {
+	Body documents.StoredFile
 }
 
 func registerDocumentRoutes(api huma.API, svc *documents.Service) {
+	tags := []string{"Documents"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-meetings",
 		Method:      http.MethodGet,
-		Path:        "/documents",
-		Summary:     "List meeting documents (board/guild/SRD/other) for a year",
-	}, func(ctx context.Context, input *listMeetingsInput) (*listMeetingsOutput, error) {
-		meetings, err := svc.ListMeetings(ctx, input.Type, input.Year)
+		Path:        "/meeting-documents",
+		Tags:        tags,
+		Summary:     "List meeting documents",
+		Description: "One year's meetings of one kind, each with its notice, agenda and minutes picked out. " +
+			"Needs fileHandler:documents:read (fileHandler:files:read for SRD).",
+	}, func(ctx context.Context, input *struct {
+		Type documents.MeetingType `query:"type" required:"true"`
+		Year int                   `query:"year" required:"true"`
+	},
+	) (*struct{ Body []documents.Meeting }, error) {
+		meetings, err := svc.ListMeetings(ctx, string(input.Type), input.Year)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listMeetingsOutput{Body: meetings}, nil
+		return &struct{ Body []documents.Meeting }{Body: meetings}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "upload-meeting-document",
+		Method:        http.MethodPost,
+		Path:          "/meeting-documents",
+		Tags:          tags,
+		Summary:       "Upload a meeting document",
+		Description:   "Into public/{year}/{folder} (SRD: public/srd/{year}/{folder}). Needs fileHandler:documents:create (fileHandler:files:create for SRD).",
+		DefaultStatus: http.StatusCreated,
+	}, func(ctx context.Context, input *struct {
+		RawBody huma.MultipartFormFiles[struct {
+			Type   documents.MeetingUploadType `form:"type"   required:"true"`
+			Year   int                         `form:"year"   required:"true"`
+			Folder string                      `form:"folder" doc:"The meeting folder, e.g. S01."`
+			Name   string                      `form:"name"   doc:"File name without extension; the uploaded file's extension is kept."`
+			File   huma.FormFile               `form:"file"   required:"true"`
+		}]
+	},
+	) (*storedFileOutput, error) {
+		data := input.RawBody.Data()
+		file := documents.UploadFile{Filename: data.File.Filename, Data: data.File}
+		stored, err := svc.Upload(ctx, string(data.Type), data.Year, data.Folder, data.Name, file)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &storedFileOutput{Body: *stored}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID:   "delete-meeting-document",
+		Method:        http.MethodDelete,
+		Path:          "/meeting-documents",
+		Tags:          tags,
+		Summary:       "Delete a meeting document",
+		Description:   "The bucket is picked from type. Needs fileHandler:documents:delete (fileHandler:files:delete for SRD).",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, input *struct {
+		Type documents.MeetingType `query:"type" required:"true"`
+		Key  string                `query:"key"  required:"true" doc:"The file's id."`
+	},
+	) (*struct{}, error) {
+		if err := svc.Delete(ctx, string(input.Type), input.Key); err != nil {
+			return nil, humaServiceError(err)
+		}
+		return nil, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-requirement-profiles",
 		Method:      http.MethodGet,
-		Path:        "/documents/requirements",
-		Summary:     "List position/committee requirement-profile documents for a year",
-	}, func(ctx context.Context, input *listRequirementsInput) (*listRequirementsOutput, error) {
+		Path:        "/requirement-profiles",
+		Tags:        tags,
+		Summary:     "List requirement profiles",
+		Description: "One year's requirement profiles (kravprofiler), by folder. Needs fileHandler:files:read.",
+	}, func(ctx context.Context, input *struct {
+		Year int `query:"year" required:"true"`
+	},
+	) (*struct {
+		Body []documents.RequirementProfileFolder
+	}, error,
+	) {
 		folders, err := svc.ListRequirements(ctx, input.Year)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listRequirementsOutput{Body: folders}, nil
+		return &struct {
+			Body []documents.RequirementProfileFolder
+		}{Body: folders}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "upload-document",
+		OperationID:   "upload-requirement-profile",
 		Method:        http.MethodPost,
-		Path:          "/documents/upload",
-		Summary:       "Upload a meeting/SRD/requirement-profile document",
+		Path:          "/requirement-profiles",
+		Tags:          tags,
+		Summary:       "Upload a requirement profile",
+		Description:   "Into public/kravprofiler/{year}/{folder}. Needs fileHandler:files:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *uploadDocumentInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *struct {
+		RawBody huma.MultipartFormFiles[struct {
+			Year   int           `form:"year"   required:"true"`
+			Folder string        `form:"folder" doc:"Usually the committee or position."`
+			Name   string        `form:"name"   doc:"File name without extension; the uploaded file's extension is kept."`
+			File   huma.FormFile `form:"file"   required:"true"`
+		}]
+	},
+	) (*storedFileOutput, error) {
 		data := input.RawBody.Data()
 		file := documents.UploadFile{Filename: data.File.Filename, Data: data.File}
-		err := svc.Upload(ctx, data.Type, data.Year, data.Folder, data.Name, file)
+		stored, err := svc.Upload(
+			ctx,
+			documents.UploadRequirement,
+			data.Year,
+			data.Folder,
+			data.Name,
+			file,
+		)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return nil, nil
-	})
-
-	huma.Register(api, huma.Operation{
-		OperationID:   "delete-document",
-		Method:        http.MethodDelete,
-		Path:          "/documents",
-		Summary:       "Delete a meeting document",
-		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *deleteDocumentInput) (*struct{}, error) {
-		if err := svc.Delete(ctx, input.Type, input.ID); err != nil {
-			return nil, humaServiceError(err)
-		}
-		return nil, nil
+		return &storedFileOutput{Body: *stored}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "delete-requirement-profile",
 		Method:        http.MethodDelete,
-		Path:          "/documents/requirements",
-		Summary:       "Delete a requirement-profile document",
+		Path:          "/requirement-profiles",
+		Tags:          tags,
+		Summary:       "Delete a requirement profile",
+		Description:   "Needs fileHandler:files:delete.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *deleteRequirementInput) (*struct{}, error) {
-		if err := svc.DeleteRequirement(ctx, input.ID); err != nil {
+	}, func(ctx context.Context, input *struct {
+		Key string `query:"key" required:"true" doc:"The file's id."`
+	},
+	) (*struct{}, error) {
+		if err := svc.DeleteRequirement(ctx, input.Key); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
 	})
 
+	files := []string{"Files"}
+
 	huma.Register(api, huma.Operation{
-		OperationID: "list-misc-files",
+		OperationID: "list-files",
 		Method:      http.MethodGet,
-		Path:        "/admin/files",
-		Summary:     "List admin/minio's miscellaneous-file browser",
-	}, func(ctx context.Context, input *struct{}) (*listMiscFilesOutput, error) {
-		files, err := svc.ListMisc(ctx)
+		Path:        "/files",
+		Tags:        files,
+		Summary:     "List miscellaneous files",
+		Description: "Files under public/miscellaneous in the files bucket (the admin file browser). Needs fileHandler:files:read.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []documents.StoredFile }, error) {
+		all, err := svc.ListMisc(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listMiscFilesOutput{Body: files}, nil
+		return &struct{ Body []documents.StoredFile }{Body: all}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "upload-misc-file",
+		OperationID:   "upload-file",
 		Method:        http.MethodPost,
-		Path:          "/admin/files",
-		Summary:       "Upload a file to admin/minio's miscellaneous-file browser",
+		Path:          "/files",
+		Tags:          files,
+		Summary:       "Upload a miscellaneous file",
+		Description:   "Needs fileHandler:files:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *uploadMiscFileInput) (*miscFileOutput, error) {
+	}, func(ctx context.Context, input *struct {
+		RawBody huma.MultipartFormFiles[struct {
+			Prefix string        `form:"prefix" required:"false" doc:"Subfolder under public/miscellaneous; / if empty."`
+			Name   string        `form:"name" required:"false"   doc:"File name; a random one if empty."`
+			File   huma.FormFile `form:"file"   required:"true"`
+		}]
+	},
+	) (*storedFileOutput, error) {
 		data := input.RawBody.Data()
 		name := data.Name
 		if name == "" {
@@ -165,39 +200,45 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &miscFileOutput{Body: *result}, nil
+		return &storedFileOutput{Body: *result}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "delete-misc-file",
+		OperationID:   "delete-file",
 		Method:        http.MethodDelete,
-		Path:          "/admin/files",
-		Summary:       "Delete a file from admin/minio's miscellaneous-file browser",
+		Path:          "/files",
+		Tags:          files,
+		Summary:       "Delete a miscellaneous file",
+		Description:   "Needs fileHandler:files:delete.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *deleteMiscFileInput) (*struct{}, error) {
-		if err := svc.DeleteMisc(ctx, input.ID); err != nil {
+	}, func(ctx context.Context, input *struct {
+		Key string `query:"key" required:"true" doc:"The file's id."`
+	},
+	) (*struct{}, error) {
+		if err := svc.DeleteMisc(ctx, input.Key); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
 	})
-}
 
-// MiscFileHandler returns one file from the miscellaneous folder to a
-// signed-in member, as raw bytes. Plain handler, not huma: the body is the
-// file itself. SvelteKit's /dcompassen/2026 proxies here and sets its own
-// headers (content type, CSP sandbox).
-func MiscFileHandler(svc *documents.Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := svc.GetMisc(r.Context(), r.PathValue("name"))
+	// SvelteKit's /dcompassen/2026 proxies here and sets its own headers
+	// (content type, CSP sandbox).
+	huma.Register(api, huma.Operation{
+		OperationID: "get-file",
+		Method:      http.MethodGet,
+		Path:        "/files/{name}",
+		Tags:        files,
+		Summary:     "Download a miscellaneous file",
+		Description: "The raw bytes of public/miscellaneous/{name}. Signed-in members only.",
+		Responses:   rawResponses("application/octet-stream", "The file."),
+	}, func(ctx context.Context, input *struct {
+		Name string `path:"name" doc:"File name directly under public/miscellaneous."`
+	},
+	) (*rawOutput, error) {
+		data, err := svc.GetMisc(ctx, input.Name)
 		if err != nil {
-			status := http.StatusInternalServerError
-			if statusErr, ok := humaServiceError(err).(huma.StatusError); ok {
-				status = statusErr.GetStatus()
-			}
-			http.Error(w, http.StatusText(status), status)
-			return
+			return nil, humaServiceError(err)
 		}
-		w.Header().Set("Content-Type", "application/octet-stream")
-		_, _ = w.Write(data)
-	}
+		return &rawOutput{ContentType: "application/octet-stream", Body: data}, nil
+	})
 }

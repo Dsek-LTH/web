@@ -125,7 +125,7 @@ func (s *Service) ListAccessPolicies(
 func (s *Service) CreateAccessPolicy(
 	ctx context.Context,
 	doorName string,
-	in CreatePolicyInput,
+	in DoorAccessPolicyInput,
 ) (*DoorAccessPolicy, error) {
 	if err := auth.Require(ctx, apinames.DoorCreate); err != nil {
 		return nil, err
@@ -220,7 +220,7 @@ func (s *Service) CreateAccessPolicy(
 	}, nil
 }
 
-func (s *Service) DeleteAccessPolicy(ctx context.Context, id string) error {
+func (s *Service) DeleteAccessPolicy(ctx context.Context, door, id string) error {
 	if err := auth.Require(ctx, apinames.DoorDelete); err != nil {
 		return err
 	}
@@ -228,8 +228,14 @@ func (s *Service) DeleteAccessPolicy(ctx context.Context, id string) error {
 	if err != nil {
 		return invalidf("invalid id: %v", err)
 	}
-	if err := s.queries.DeleteDoorAccessPolicy(ctx, policyID); err != nil {
+	n, err := s.queries.DeleteDoorAccessPolicy(ctx, db.DeleteDoorAccessPolicyParams{
+		ID: policyID, DoorName: door,
+	})
+	if err != nil {
 		return fmt.Errorf("delete door access policy: %w", err)
+	}
+	if n == 0 {
+		return ErrNotFound
 	}
 	return nil
 }
@@ -351,10 +357,10 @@ func (s *Service) resolveAllowedStudentIDs(ctx context.Context, doorName string)
 // asking about someone else's studentId silently gets an empty list back,
 // never an error - matches the old ternary's `: []` branch exactly, not a
 // 403 (this is a display widget, not the access-granting mechanism itself).
-func (s *Service) MemberAccess(ctx context.Context, studentID string) ([]MemberAccess, error) {
+func (s *Service) MemberAccess(ctx context.Context, studentID string) ([]MemberDoorAccess, error) {
 	identity, ok := auth.FromContext(ctx)
 	if !ok || identity.StudentID == "" || identity.StudentID != studentID {
-		return []MemberAccess{}, nil
+		return []MemberDoorAccess{}, nil
 	}
 
 	positions, err := s.queries.ListActivePositionsForMemberByStudentID(
@@ -436,7 +442,7 @@ func (s *Service) MemberAccess(ctx context.Context, studentID string) ([]MemberA
 	}
 
 	loc := locale.FromContext(ctx)
-	out := make([]MemberAccess, 0, len(order))
+	out := make([]MemberDoorAccess, 0, len(order))
 	for _, key := range order {
 		g := groups[key]
 		var matchedPositionNames []string
@@ -460,7 +466,7 @@ func (s *Service) MemberAccess(ctx context.Context, studentID string) ([]MemberA
 		if len(roles) == 0 {
 			roles = []string{"Du"}
 		}
-		out = append(out, MemberAccess{
+		out = append(out, MemberDoorAccess{
 			Name:          key.doorName,
 			VerboseName:   g.verboseName,
 			Roles:         roles,

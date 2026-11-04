@@ -13,6 +13,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/booking"
 	"github.com/dsek-lth/web/backend/internal/cafe"
+	"github.com/dsek-lth/web/backend/internal/comments"
 	"github.com/dsek-lth/web/backend/internal/committees"
 	"github.com/dsek-lth/web/backend/internal/documents"
 	"github.com/dsek-lth/web/backend/internal/doors"
@@ -27,63 +28,105 @@ import (
 	"github.com/dsek-lth/web/backend/internal/notifications"
 	"github.com/dsek-lth/web/backend/internal/pings"
 	"github.com/dsek-lth/web/backend/internal/readme"
+	"github.com/dsek-lth/web/backend/internal/search"
 	"github.com/dsek-lth/web/backend/internal/songs"
+	"github.com/dsek-lth/web/backend/internal/tickets"
 )
 
-// humaServiceError maps a domain-package error to a huma.StatusError,
-// mirroring writeServiceError (json.go) for the stdlib-handled routes
-// during the huma migration - see ../../DESIGN.md's "Migration sequencing"
-// note. Once every route is on huma, writeServiceError/json.go can be
-// deleted.
+// notFound names what each domain's ErrNotFound means, for the 404 detail.
+var notFound = []struct {
+	err  error
+	what string
+}{
+	{articles.ErrNotFound, "article"},
+	{events.ErrNotFound, "event"},
+	{members.ErrNotFound, "member"},
+	{committees.ErrNotFound, "committee, position or mandate"},
+	{nollning.ErrNotFound, "nollning season or phadder group"},
+	{songs.ErrNotFound, "song or songbook entry"},
+	{alerts.ErrNotFound, "alert"},
+	{markdown.ErrNotFound, "info page"},
+	{governingdocs.ErrNotFound, "governing document"},
+	{booking.ErrNotFound, "booking request, bookable or category"},
+	{elections.ErrNotFound, "election"},
+	{cafe.ErrNotFound, "cafe shift"},
+	{notifications.ErrNotFound, "notification"},
+	{doors.ErrNotFound, "door or door access policy"},
+	{adminsettings.ErrNotFound, "admin setting"},
+	{links.ErrNotFound, "link"},
+	{pings.ErrNotFound, "member"},
+	{medals.ErrNotFound, "member"},
+	{documents.ErrNotFound, "file"},
+	{readme.ErrNotFound, "readme issue"},
+	{accesspolicies.ErrNotFound, "access policy"},
+	{tickets.ErrNotFound, "ticket release"},
+	{tickets.ErrEntryNotFound, "ticket request"},
+}
+
+// invalidInput is every domain's "the request is well-formed but breaks a
+// rule" error. They answer 422, like huma's own validation errors.
+var invalidInput = []error{
+	articles.ErrInvalidInput,
+	events.ErrInvalidInput,
+	members.ErrInvalidInput,
+	committees.ErrInvalidInput,
+	accesspolicies.ErrInvalidInput,
+	nollning.ErrInvalidInput,
+	songs.ErrInvalidInput,
+	alerts.ErrInvalidInput,
+	markdown.ErrInvalidInput,
+	governingdocs.ErrInvalidInput,
+	booking.ErrInvalidInput,
+	elections.ErrInvalidInput,
+	cafe.ErrInvalidInput,
+	notifications.ErrInvalidInput,
+	doors.ErrInvalidInput,
+	adminsettings.ErrInvalidInput,
+	links.ErrInvalidInput,
+	pings.ErrInvalidInput,
+	documents.ErrInvalidInput,
+	tickets.ErrInvalidInput,
+	search.ErrInvalidInput,
+	comments.ErrInvalidContent,
+}
+
+// conflict is every error meaning "not possible in the current state".
+var conflict = []error{
+	songs.ErrPositionTaken,
+	songs.ErrAlreadyInSongBook,
+	tickets.ErrNotOpenYet,
+	tickets.ErrOfferNotActive,
+	tickets.ErrClosed,
+	search.ErrSyncRunning,
+}
+
+// humaServiceError maps a domain-package error to a huma.StatusError (an
+// RFC 9457 problem): 404 naming what wasn't found, 422 for invalid input
+// (with the domain's own message), 409 for a state conflict, 401/403 from
+// internal/auth, 503 when search isn't configured, else a logged 500.
 func humaServiceError(err error) error {
+	for _, nf := range notFound {
+		if errors.Is(err, nf.err) {
+			return huma.Error404NotFound(nf.what + " not found")
+		}
+	}
+	for _, e := range invalidInput {
+		if errors.Is(err, e) {
+			return huma.Error422UnprocessableEntity(err.Error())
+		}
+	}
+	for _, e := range conflict {
+		if errors.Is(err, e) {
+			return huma.Error409Conflict(err.Error())
+		}
+	}
 	switch {
-	case errors.Is(err, articles.ErrNotFound),
-		errors.Is(err, events.ErrNotFound),
-		errors.Is(err, members.ErrNotFound),
-		errors.Is(err, committees.ErrNotFound),
-		errors.Is(err, nollning.ErrNotFound),
-		errors.Is(err, songs.ErrNotFound),
-		errors.Is(err, alerts.ErrNotFound),
-		errors.Is(err, markdown.ErrNotFound),
-		errors.Is(err, governingdocs.ErrNotFound),
-		errors.Is(err, booking.ErrNotFound),
-		errors.Is(err, elections.ErrNotFound),
-		errors.Is(err, cafe.ErrNotFound),
-		errors.Is(err, notifications.ErrNotFound),
-		errors.Is(err, doors.ErrNotFound),
-		errors.Is(err, adminsettings.ErrNotFound),
-		errors.Is(err, links.ErrNotFound),
-		errors.Is(err, pings.ErrNotFound),
-		errors.Is(err, medals.ErrNotFound),
-		errors.Is(err, documents.ErrNotFound),
-		errors.Is(err, readme.ErrNotFound):
-		return huma.Error404NotFound("not found")
-	case errors.Is(err, articles.ErrInvalidInput),
-		errors.Is(err, events.ErrInvalidInput),
-		errors.Is(err, committees.ErrInvalidInput),
-		errors.Is(err, accesspolicies.ErrInvalidInput),
-		errors.Is(err, nollning.ErrInvalidInput),
-		errors.Is(err, songs.ErrInvalidInput),
-		errors.Is(err, alerts.ErrInvalidInput),
-		errors.Is(err, markdown.ErrInvalidInput),
-		errors.Is(err, governingdocs.ErrInvalidInput),
-		errors.Is(err, booking.ErrInvalidInput),
-		errors.Is(err, elections.ErrInvalidInput),
-		errors.Is(err, cafe.ErrInvalidInput),
-		errors.Is(err, notifications.ErrInvalidInput),
-		errors.Is(err, doors.ErrInvalidInput),
-		errors.Is(err, adminsettings.ErrInvalidInput),
-		errors.Is(err, links.ErrInvalidInput),
-		errors.Is(err, pings.ErrInvalidInput),
-		errors.Is(err, members.ErrInvalidInput):
-		return huma.Error400BadRequest(err.Error())
-	case errors.Is(err, songs.ErrPositionTaken),
-		errors.Is(err, songs.ErrAlreadyInSongBook):
-		return huma.Error409Conflict(err.Error())
 	case errors.Is(err, auth.ErrUnauthenticated):
 		return huma.Error401Unauthorized("unauthenticated")
 	case errors.Is(err, auth.ErrForbidden):
 		return huma.Error403Forbidden("forbidden")
+	case errors.Is(err, search.ErrUnavailable):
+		return huma.Error503ServiceUnavailable("search is not configured")
 	default:
 		log.Printf("api: internal error: %v", err)
 		return huma.Error500InternalServerError("internal error")

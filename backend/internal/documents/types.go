@@ -16,6 +16,10 @@ import (
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/danielgtaylor/huma/v2"
+
+	"github.com/dsek-lth/web/backend/internal/apitypes"
 )
 
 // Document type constants - values match the old
@@ -27,6 +31,27 @@ const (
 	TypeSRDMeeting   = "SRD-meeting"
 	TypeOther        = "other"
 )
+
+// MeetingType is which kind of meeting documents to list or delete.
+type MeetingType string
+
+func (MeetingType) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(
+		r,
+		"MeetingType",
+		TypeBoardMeeting,
+		TypeGuildMeeting,
+		TypeSRDMeeting,
+		TypeOther,
+	)
+}
+
+// MeetingUploadType is where an uploaded meeting document goes.
+type MeetingUploadType string
+
+func (MeetingUploadType) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(r, "MeetingUploadType", UploadMeeting, UploadSRD)
+}
 
 // Upload type constants - match the old
 // src/routes/(app)/documents/upload/types.ts uploadSchema's `type` enum.
@@ -45,15 +70,15 @@ func invalidf(format string, args ...any) error {
 	return fmt.Errorf("%w: "+format, append([]any{ErrInvalidInput}, args...)...)
 }
 
-// DocumentFile is one object in a meeting/requirement folder - the port of
+// StoredFile is one object in a meeting/requirement folder - the port of
 // src/lib/files/fileHandler.ts's FileData as used by this feature.
-type DocumentFile struct {
+type StoredFile struct {
 	// ID is the object's full key within its bucket.
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	URL          string    `json:"url"`
-	Size         int64     `json:"size"`
-	LastModified time.Time `json:"lastModified"`
+	ID           string    `json:"id"                    doc:"The object's key in its bucket; what delete takes."`
+	Name         string    `json:"name"                  doc:"File name."`
+	URL          string    `json:"url"                   doc:"Public URL."`
+	Size         int64     `json:"size,omitempty"        doc:"Bytes. Omitted right after an upload."`
+	LastModified time.Time `json:"lastModified,omitzero" doc:"Omitted right after an upload."`
 }
 
 // Meeting is one meeting folder's files, with notice/agenda/minutes
@@ -61,19 +86,19 @@ type DocumentFile struct {
 // logic, matching this project's "resolve once, serve resolved field"
 // convention) - Files holds everything else in the folder.
 type Meeting struct {
-	Name    string         `json:"name"`
-	Notice  *DocumentFile  `json:"notice,omitempty"`
-	Agenda  *DocumentFile  `json:"agenda,omitempty"`
-	Minutes *DocumentFile  `json:"minutes,omitempty"`
-	Files   []DocumentFile `json:"files"`
+	Name    string       `json:"name"              doc:"The meeting folder's name, e.g. S01 or HTM1."`
+	Notice  *StoredFile  `json:"notice,omitempty"  doc:"The newest file named like a notice (kallelse)."`
+	Agenda  *StoredFile  `json:"agenda,omitempty"  doc:"The newest file named like an agenda (dagordning)."`
+	Minutes *StoredFile  `json:"minutes,omitempty" doc:"The newest file named like minutes (protokoll)."`
+	Files   []StoredFile `json:"files"             doc:"Every other file in the folder."`
 }
 
-// RequirementFolder is one position/committee's requirement-profile folder
+// RequirementProfileFolder is one position/committee's requirement-profile folder
 // under public/kravprofiler/{year}/... - matches
 // documents/requirements/+page.server.ts's filesGroupedByFolder shape.
-type RequirementFolder struct {
-	Name  string         `json:"name"`
-	Files []DocumentFile `json:"files"`
+type RequirementProfileFolder struct {
+	Name  string       `json:"name"  doc:"Folder path below public/kravprofiler, including the year."`
+	Files []StoredFile `json:"files"`
 }
 
 // UploadFile is the file half of a document upload.

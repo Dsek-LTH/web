@@ -12,7 +12,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
   const [eventRes, tagsRes, committees] = await Promise.all([
     api.GET("/events/{slug}", {
       fetch,
-      params: { path: { slug: params.slug }, query: { status: "any" } },
+      params: { path: { slug: params.slug }, query: { includeDeleted: true } },
     }),
     api.GET("/tags", { fetch }),
     getEventCommitteeOptions(fetch),

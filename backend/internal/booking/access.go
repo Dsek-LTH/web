@@ -26,7 +26,7 @@ const doorAccessBuffer = time.Hour
 // name and display name only. Anyone who may create a booking request may
 // list them (upstream read them past the door:read policy for the same
 // reason); the door access policies themselves stay behind door:read.
-func (s *Service) ListDoors(ctx context.Context) ([]AccessDoor, error) {
+func (s *Service) ListDoors(ctx context.Context) ([]BookingDoor, error) {
 	if err := auth.Require(ctx, apinames.BookingRequestCreate); err != nil {
 		return nil, err
 	}
@@ -34,16 +34,16 @@ func (s *Service) ListDoors(ctx context.Context) ([]AccessDoor, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list doors: %w", err)
 	}
-	doors := make([]AccessDoor, len(rows))
+	doors := make([]BookingDoor, len(rows))
 	for i, r := range rows {
-		doors[i] = AccessDoor{Name: r.Name, VerboseName: r.VerboseName}
+		doors[i] = BookingDoor{Name: r.Name, VerboseName: r.VerboseName}
 	}
 	return doors, nil
 }
 
 // setAccess replaces a request's requested doors and members, after
 // checking every door and member exists.
-func (s *Service) setAccess(ctx context.Context, id pgtype.UUID, in AccessInput) error {
+func (s *Service) setAccess(ctx context.Context, id pgtype.UUID, in BookingAccessInput) error {
 	doorNames := uniqueStrings(in.AccessDoors)
 	memberIDs, err := dbutil.ParseUUIDs(uniqueStrings(in.AccessMemberIDs))
 	if err != nil {
@@ -117,7 +117,7 @@ func (s *Service) attachAccess(ctx context.Context, requests []*BookingRequest) 
 	ids := make([]pgtype.UUID, 0, len(requests))
 	byID := make(map[string]*BookingRequest, len(requests))
 	for _, r := range requests {
-		r.AccessDoors = []AccessDoor{}
+		r.AccessDoors = []BookingDoor{}
 		r.AccessMembers = []apitypes.Member{}
 		id, err := dbutil.ParseUUID(r.ID)
 		if err != nil {
@@ -133,7 +133,7 @@ func (s *Service) attachAccess(ctx context.Context, requests []*BookingRequest) 
 	}
 	for _, d := range doors {
 		r := byID[dbutil.UUIDStr(d.BookingRequestID)]
-		r.AccessDoors = append(r.AccessDoors, AccessDoor{Name: d.Name, VerboseName: d.VerboseName})
+		r.AccessDoors = append(r.AccessDoors, BookingDoor{Name: d.Name, VerboseName: d.VerboseName})
 	}
 
 	members, err := s.queries.ListAccessMembersForBookingRequests(ctx, ids)

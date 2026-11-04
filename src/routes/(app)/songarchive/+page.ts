@@ -15,13 +15,13 @@ export const load: PageLoad = async ({ fetch, url }) => {
         query: {
           search: search || undefined,
           category: categoryFilter.length > 0 ? categoryFilter : undefined,
-          showDeleted,
+          onlyDeleted: showDeleted,
           page,
         },
       },
     }),
     // Go decides (from the acting identity, per DESIGN.md's Principle #5)
-    // whether showDeleted is actually honored - this just forwards the
+    // whether onlyDeleted/includeDeleted are actually honored - this just forwards the
     // caller's request, same as the old app's canAccessDeletedSongs gate.
     api.GET("/songs/categories/grouped", {
       fetch,

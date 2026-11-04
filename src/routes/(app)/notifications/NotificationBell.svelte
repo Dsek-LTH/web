@@ -7,7 +7,7 @@
   import NotificationList from "./NotificationList.svelte";
   import { enhanceWithToast } from "$lib/stores/toast";
 
-  type NotificationGroup = components["schemas"]["Group"];
+  type NotificationGroup = components["schemas"]["NotificationGroup"];
 
   const PAGE_SIZE = 20;
 

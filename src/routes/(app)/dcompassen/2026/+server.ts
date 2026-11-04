@@ -13,7 +13,7 @@ export const GET: RequestHandler = async ({ locals, cookies, fetch }) => {
   }
 
   const res = await fetch(
-    new URL(`/files/miscellaneous/${DCOMPASSEN_FILE}`, PUBLIC_GO_BACKEND_URL),
+    new URL(`/files/${DCOMPASSEN_FILE}`, PUBLIC_GO_BACKEND_URL),
     {
       headers: {
         cookie: cookies

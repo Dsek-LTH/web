@@ -12,59 +12,51 @@ import (
 	"github.com/dsek-lth/web/backend/internal/search"
 )
 
-type searchInput struct {
-	Query   string   `query:"query"           required:"true" minLength:"1"`
-	Indexes []string `query:"indexes,explode" required:"true"               enum:"members,events,articles,positions,songs,committees,governingDocuments,meetingDocuments"`
-	Limit   int      `query:"limit"                                                                                                                                       default:"20" minimum:"-1" maximum:"100"`
-	Offset  int      `query:"offset"                                                                                                                                      default:"0"  minimum:"0"`
-}
-
-type searchOutput struct {
-	Body []search.Hit
-}
-
-func searchError(err error) error {
-	switch {
-	case errors.Is(err, search.ErrInvalidInput):
-		return huma.Error400BadRequest(err.Error())
-	case errors.Is(err, search.ErrUnavailable):
-		return huma.Error503ServiceUnavailable("search is not configured")
-	case errors.Is(err, search.ErrSyncRunning):
-		return huma.Error409Conflict("a search sync is already running")
-	default:
-		return humaServiceError(err)
-	}
-}
-
 func registerSearchRoutes(api huma.API, svc *search.Service) {
+	tags := []string{"Search"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "search",
 		Method:      http.MethodGet,
 		Path:        "/search",
-		Summary:     "Search across several indexes at once",
-		Description: "The members index is only searched for a signed-in caller.",
-	}, func(ctx context.Context, input *searchInput) (*searchOutput, error) {
+		Tags:        tags,
+		Summary:     "Search",
+		Description: "One query across several indexes, best matches first. The members index is " +
+			"only searched for a signed-in caller. 503 if search isn't configured.",
+	}, func(ctx context.Context, input *struct {
+		Query    string         `query:"query"           required:"true" minLength:"1" doc:"What to search for."`
+		Indexes  []search.Index `query:"indexes,explode" required:"true"               doc:"Which indexes to search."`
+		Page     int            `query:"page"            doc:"1-based page number. Defaults to 1." minimum:"1" default:"1"`
+		PageSize int            `query:"pageSize"        doc:"Hits per page." minimum:"1" maximum:"100" default:"20"`
+	},
+	) (*struct{ Body []search.Hit }, error) {
+		indexes := make([]string, len(input.Indexes))
+		for i, index := range input.Indexes {
+			indexes[i] = string(index)
+		}
 		hits, err := svc.Search(ctx, search.Query{
 			Query:   input.Query,
-			Indexes: input.Indexes,
-			Limit:   input.Limit,
-			Offset:  input.Offset,
+			Indexes: indexes,
+			Limit:   input.PageSize,
+			Offset:  (input.Page - 1) * input.PageSize,
 		})
 		if err != nil {
-			return nil, searchError(err)
+			return nil, humaServiceError(err)
 		}
-		return &searchOutput{Body: hits}, nil
+		return &struct{ Body []search.Hit }{Body: hits}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "start-search-sync",
 		Method:        http.MethodPost,
 		Path:          "/search/sync",
-		Summary:       "Rebuild every search index in the background",
+		Tags:          tags,
+		Summary:       "Rebuild the search indexes",
+		Description:   "Starts a rebuild of every index in the background; 409 if one is running. Needs core:admin. POST /search/sync/password (not in this document: its body is the raw SYNC_PASSWORD) does the same for a cron job.",
 		DefaultStatus: http.StatusAccepted,
-	}, func(ctx context.Context, input *struct{}) (*struct{}, error) {
+	}, func(ctx context.Context, _ *struct{}) (*struct{}, error) {
 		if err := svc.StartSync(ctx); err != nil {
-			return nil, searchError(err)
+			return nil, humaServiceError(err)
 		}
 		return nil, nil
 	})

@@ -128,7 +128,7 @@ func toBookingRequest(row bookingRequestRow) BookingRequest {
 		Start:     dbutil.TimePtr(row.Start),
 		End:       dbutil.TimePtr(row.End),
 		Created:   dbutil.TimePtr(row.Created),
-		Status:    string(row.Status),
+		Status:    BookingRequestStatus(row.Status),
 		Booker:    toBooker(row.bookerRow),
 		Bookables: []Bookable{},
 	}

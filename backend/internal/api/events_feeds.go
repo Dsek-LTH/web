@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -12,105 +11,128 @@ import (
 	"github.com/dsek-lth/web/backend/internal/nollning"
 )
 
-// EventCalendarHandler serves the general ICS feed. Plain handler, not
-// huma: the response is text/calendar. SvelteKit's /events/subscribe
-// proxies here - calendar apps subscribe to that URL, so it must not
-// change.
-func EventCalendarHandler(svc *events.Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		writeCalendar(w, r, svc, events.CalendarFeed{})
+// rawOutput is a non-JSON response body (ICS, CSV, file bytes).
+type rawOutput struct {
+	ContentType        string `header:"Content-Type"`
+	ContentDisposition string `header:"Content-Disposition"`
+	Body               []byte
+}
+
+// rawResponses documents a raw-body operation's 200 response as
+// contentType rather than JSON.
+func rawResponses(contentType, description string) map[string]*huma.Response {
+	return map[string]*huma.Response{
+		"200": {
+			Description: description,
+			Content: map[string]*huma.MediaType{
+				contentType: {Schema: &huma.Schema{Type: huma.TypeString}},
+			},
+		},
 	}
 }
 
-// NollningCalendarHandler serves the nollning ICS feed (proxied by
-// SvelteKit's /nollning/events/subscribe): the current season's events
-// once it has been revealed, otherwise the general feed - mirroring the
-// old REVEAL_LAUNCH_DATE switch. Either way capped at three months ahead,
-// as before.
-func NollningCalendarHandler(svc *events.Service, nollningSvc *nollning.Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+// Alarm says whether the alarm should be going off.
+type Alarm struct {
+	Active bool `json:"active" doc:"Whether an alarm-flagged event is running right now."`
+}
+
+func registerEventFeedRoutes(api huma.API, svc *events.Service, nollningSvc *nollning.Service) {
+	// SvelteKit's /events/subscribe proxies here - calendar apps subscribe
+	// to that URL, so it must not change; this one may.
+	huma.Register(api, huma.Operation{
+		OperationID: "get-events-calendar",
+		Method:      http.MethodGet,
+		Path:        "/events.ics",
+		Tags:        []string{"Events"},
+		Summary:     "Events as an ICS calendar feed",
+		Description: "Every event not tied to a nollning season.",
+		Responses:   rawResponses("text/calendar", "An iCalendar file."),
+	}, func(ctx context.Context, _ *struct{}) (*rawOutput, error) {
+		return calendar(ctx, svc, events.CalendarFeed{})
+	})
+
+	// Proxied by SvelteKit's /nollning/events/subscribe.
+	huma.Register(api, huma.Operation{
+		OperationID: "get-nollning-events-calendar",
+		Method:      http.MethodGet,
+		Path:        "/nollning/events.ics",
+		Tags:        []string{"Events"},
+		Summary:     "Nollning events as an ICS calendar feed",
+		Description: "The current season's events once it has been revealed, otherwise the " +
+			"general feed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most " +
+			"three months ahead.",
+		Responses: rawResponses("text/calendar", "An iCalendar file."),
+	}, func(ctx context.Context, _ *struct{}) (*rawOutput, error) {
 		endsBefore := time.Now().AddDate(0, 3, 0)
 		feed := events.CalendarFeed{EndsBefore: &endsBefore}
-		phase, err := nollningSvc.Phase(r.Context())
+		phase, err := nollningSvc.Phase(ctx)
 		if err != nil {
-			log.Printf("nollning calendar: phase: %v", err)
-			http.Error(w, "internal error", http.StatusInternalServerError)
-			return
+			return nil, humaServiceError(err)
 		}
 		if phase == nollning.PhasePostReveal {
-			season, err := nollningSvc.Current(r.Context())
+			season, err := nollningSvc.Current(ctx)
 			if err != nil {
-				log.Printf("nollning calendar: current season: %v", err)
-				http.Error(w, "internal error", http.StatusInternalServerError)
-				return
+				return nil, humaServiceError(err)
 			}
 			if season != nil {
 				feed.NollningSeasonID = season.ID
 			}
 		}
-		writeCalendar(w, r, svc, feed)
-	}
-}
+		return calendar(ctx, svc, feed)
+	})
 
-func writeCalendar(
-	w http.ResponseWriter,
-	r *http.Request,
-	svc *events.Service,
-	feed events.CalendarFeed,
-) {
-	ics, err := svc.CalendarICS(r.Context(), feed)
-	if err != nil {
-		log.Printf("calendar: %v", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "text/calendar; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="D-sektionen_events.ics"`)
-	_, _ = w.Write(ics)
-}
-
-// EventAlarmHandler answers "true" while an alarm-flagged event is running,
-// "false" otherwise. Plain text, proxied by SvelteKit's /api/alarm.
-func EventAlarmHandler(svc *events.Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		active, err := svc.AlarmActive(r.Context())
-		if err != nil {
-			log.Printf("alarm: %v", err)
-			http.Error(w, "internal error", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		if active {
-			_, _ = w.Write([]byte("true"))
-		} else {
-			_, _ = w.Write([]byte("false"))
-		}
-	}
-}
-
-type eventSlugByIDInput struct {
-	ID string `path:"id"`
-}
-
-type eventSlugByIDOutput struct {
-	Body struct {
-		Slug string `json:"slug"`
-	}
-}
-
-func registerEventLegacyRoutes(api huma.API, svc *events.Service) {
+	// Proxied by SvelteKit's /api/alarm, which answers "true"/"false".
 	huma.Register(api, huma.Operation{
-		OperationID: "get-event-slug-by-id",
+		OperationID: "get-alarm",
+		Method:      http.MethodGet,
+		Path:        "/alarm",
+		Tags:        []string{"Events"},
+		Summary:     "Whether an alarm event is running",
+		Description: "True while an event with alarmActive set is under way.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body Alarm }, error) {
+		active, err := svc.AlarmActive(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &struct{ Body Alarm }{Body: Alarm{Active: active}}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "get-event-slug",
 		Method:      http.MethodGet,
 		Path:        "/events/by-id/{id}",
-		Summary:     "Look up an event's slug from its id (for legacy /events/id/{id} links)",
-	}, func(ctx context.Context, input *eventSlugByIDInput) (*eventSlugByIDOutput, error) {
+		Tags:        []string{"Events"},
+		Summary:     "Look up an event's slug from its id",
+		Description: "For legacy /events/id/{id} links. Gives the event a slug first if it has none.",
+	}, func(ctx context.Context, input *struct {
+		ID string `path:"id" doc:"Event id (UUID)."`
+	},
+	) (*struct{ Body EventSlug }, error) {
 		eventSlug, err := svc.SlugForID(ctx, input.ID)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		out := &eventSlugByIDOutput{}
-		out.Body.Slug = eventSlug
-		return out, nil
+		return &struct{ Body EventSlug }{Body: EventSlug{Slug: eventSlug}}, nil
 	})
+}
+
+// EventSlug is an event's URL key.
+type EventSlug struct {
+	Slug string `json:"slug"`
+}
+
+func calendar(
+	ctx context.Context,
+	svc *events.Service,
+	feed events.CalendarFeed,
+) (*rawOutput, error) {
+	ics, err := svc.CalendarICS(ctx, feed)
+	if err != nil {
+		return nil, humaServiceError(err)
+	}
+	return &rawOutput{
+		ContentType:        "text/calendar; charset=utf-8",
+		ContentDisposition: `attachment; filename="D-sektionen_events.ics"`,
+		Body:               ics,
+	}, nil
 }

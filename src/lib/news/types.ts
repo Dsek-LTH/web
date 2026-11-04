@@ -23,9 +23,8 @@ export type ArticleContentData = {
   header: string;
   body: string;
   createdAt: Date | string;
-  // Go sends null for an empty list.
-  imageUrls?: string[] | null;
-  tags?: ArticleTagSummary[] | null;
+  imageUrls?: string[];
+  tags?: ArticleTagSummary[];
   youtubeUrl?: string;
 };
 

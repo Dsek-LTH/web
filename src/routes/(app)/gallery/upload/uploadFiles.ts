@@ -6,7 +6,7 @@ import type { UploadSchema } from "./types";
 // section. Go now awaits every file upload before returning, fixing the
 // old fire-and-forget bug this function used to have.
 export const uploadAlbumFiles = async (data: UploadSchema) => {
-  const res = await api.POST("/gallery/upload", {
+  const res = await api.POST("/albums", {
     body: { name: data.name, date: data.date, files: Array.from(data.files) },
     ...multipart,
   });

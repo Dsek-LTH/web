@@ -30,11 +30,11 @@ export const actions = {
       };
     }
 
-    const limit = Number.parseInt(data.get("limit")?.toString() ?? "20");
-    const offset = Number.parseInt(data.get("offset")?.toString() ?? "0");
+    const pageSize = Number.parseInt(data.get("pageSize")?.toString() ?? "20");
+    const page = Number.parseInt(data.get("page")?.toString() ?? "1");
 
     const res = await serverApi(event).GET("/search", {
-      params: { query: { query, indexes, limit, offset } },
+      params: { query: { query, indexes, page, pageSize } },
     });
     if (!res.data) {
       return fail(res.response.status, {
@@ -42,10 +42,6 @@ export const actions = {
         message: res.error?.detail ?? "Search failed",
       });
     }
-    return {
-      // Go types each hit's data as a plain object; searchTypes.ts
-      // describes what each index stores.
-      results: res.data as unknown as SearchDataWithType[],
-    };
+    return { results: res.data };
   },
 } satisfies Actions;

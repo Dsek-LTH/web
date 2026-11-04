@@ -24,7 +24,7 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import type { ActionType, EventFormSchema } from "$lib/events/schema";
   import type { components } from "$lib/api/schema";
-  import { recurringTypes, type RecurringType } from "$lib/utils/events";
+  import { recurringTypes } from "$lib/utils/events";
   import * as m from "$paraglide/messages";
 
   import Link from "@lucide/svelte/icons/link";
@@ -361,7 +361,7 @@
           bind:value={$form.recurringType}
         >
           <Select.Trigger class="w-full">
-            {recurringTypes[$form.recurringType as RecurringType]}
+            {recurringTypes[$form.recurringType]}
           </Select.Trigger>
           <Select.Content>
             {#each Object.entries(recurringTypes) as [value, label] (value)}

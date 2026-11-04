@@ -38,8 +38,9 @@ INSERT INTO door_access_policies (door_name, role, student_id, start_datetime, e
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id, door_name, role, student_id, start_datetime, end_datetime, is_ban, information;
 
--- name: DeleteDoorAccessPolicy :exec
-DELETE FROM door_access_policies WHERE id = $1;
+-- name: DeleteDoorAccessPolicy :execrows
+DELETE FROM door_access_policies
+WHERE id = sqlc.arg('id') AND door_name = sqlc.arg('door_name');
 
 -- name: ExistsPositionWithPrefix :one
 -- pattern is built by the caller as "{prefix}%" - a real SQL LIKE

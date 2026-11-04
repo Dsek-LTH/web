@@ -22,7 +22,7 @@
   import ArrowUp from "@lucide/svelte/icons/arrow-up";
   import ArrowDown from "@lucide/svelte/icons/arrow-down";
   import dayjs from "dayjs";
-  import type { ShlinkShortUrl } from "@shlinkio/shlink-js-sdk/api-contract";
+  import type { components } from "$lib/api/schema";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import { SvelteURLSearchParams } from "svelte/reactivity";
@@ -147,7 +147,7 @@
     },
   });
 
-  function startEdit(link: ShlinkShortUrl) {
+  function startEdit(link: components["schemas"]["ShortLink"]) {
     editingSlug = link.shortCode;
     $updateFormData.slug = link.shortCode;
     $updateFormData.url = link.longUrl;
@@ -298,7 +298,7 @@
       </Table.Row>
     </Table.Header>
     <Table.Body>
-      {#each data.domains as link (link.shortCode)}
+      {#each data.links as link (link.shortCode)}
         <Table.Row>
           <Table.Cell>
             <Checkbox
@@ -340,7 +340,7 @@
               {/each}
             </div>
           </Table.Cell>
-          <Table.Cell>{link.visitsSummary?.total ?? 0}</Table.Cell>
+          <Table.Cell>{link.visits}</Table.Cell>
           <Table.Cell>{dayjs(link.dateCreated).format("YYYY-MM-DD")}</Table.Cell
           >
           <Table.Cell>
@@ -358,7 +358,7 @@
     </Table.Body>
   </Table.Root>
 
-  <Pagination pageCount={data.pagination.pagesCount} class="mt-6" />
+  <Pagination pageCount={data.pageCount} class="mt-6" />
 </div>
 
 <Dialog.Root bind:open={createOpen}>

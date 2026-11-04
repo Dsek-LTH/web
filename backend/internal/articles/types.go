@@ -3,6 +3,8 @@ package articles
 import (
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
+
 	"github.com/dsek-lth/web/backend/internal/apitypes"
 )
 
@@ -32,65 +34,84 @@ type (
 
 type CustomAuthor struct {
 	ID       string  `json:"id"`
-	Name     string  `json:"name"`
+	Name     string  `json:"name"               doc:"nameEn or nameSv, resolved from Accept-Language."`
 	NameSv   string  `json:"nameSv"`
 	NameEn   *string `json:"nameEn,omitempty"`
 	ImageURL *string `json:"imageUrl,omitempty"`
 }
 
-// Author is one of: a plain member, a member acting under a mandate (Position
-// is set), or a custom byline (CustomAuthor is set) - mirrors the
-// authors.type generated column in the DB.
-type Author struct {
+// AuthorType mirrors the authors.type generated column.
+type AuthorType string
+
+const (
+	AuthorTypeMember  AuthorType = "Member"
+	AuthorTypeMandate AuthorType = "Mandate"
+	AuthorTypeCustom  AuthorType = "Custom"
+)
+
+func (AuthorType) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(r, "ArticleAuthorType", "Member", "Mandate", "Custom")
+}
+
+// ArticleAuthor is one of: a plain member, a member acting under a mandate
+// (Position is set), or a custom byline (CustomAuthor is set).
+type ArticleAuthor struct {
 	ID           string        `json:"id"`
-	Type         string        `json:"type"`
-	Member       Member        `json:"member"`
-	Position     *Position     `json:"position,omitempty"`
-	CustomAuthor *CustomAuthor `json:"customAuthor,omitempty"`
+	Type         AuthorType    `json:"type"                   doc:"Member: the member themselves. Mandate: as a position they hold. Custom: a shared byline."`
+	Member       Member        `json:"member"                 doc:"The member who wrote it, whatever the byline."`
+	Position     *Position     `json:"position,omitempty"     doc:"Set for a Mandate byline."`
+	CustomAuthor *CustomAuthor `json:"customAuthor,omitempty" doc:"Set for a Custom byline."`
+}
+
+// ArticleStatus is the moderation status (articles.status).
+type ArticleStatus string
+
+func (ArticleStatus) Schema(r huma.Registry) *huma.Schema {
+	return apitypes.EnumSchema(r, "ArticleStatus", "draft", "approved", "rejected")
 }
 
 type ArticleSummary struct {
-	ID           string     `json:"id"`
-	Slug         string     `json:"slug"`
-	Header       string     `json:"header"`
-	HeaderSv     string     `json:"headerSv"`
-	HeaderEn     *string    `json:"headerEn,omitempty"`
-	Body         string     `json:"body"`
-	BodySv       string     `json:"bodySv"`
-	BodyEn       *string    `json:"bodyEn,omitempty"`
-	ImageURL     *string    `json:"imageUrl,omitempty"`
-	ImageURLs    []string   `json:"imageUrls,omitempty"`
-	YoutubeURL   *string    `json:"youtubeUrl,omitempty"`
-	Status       *string    `json:"status,omitempty"`
-	PublishedAt  *time.Time `json:"publishedAt,omitempty"`
-	UpdatedAt    *time.Time `json:"updatedAt,omitempty"`
-	CreatedAt    time.Time  `json:"createdAt"`
-	Author       Author     `json:"author"`
-	Committee    *Committee `json:"committee,omitempty"`
-	Tags         []Tag      `json:"tags"`
-	CommentCount int        `json:"commentCount"`
-	LikeCount    int        `json:"likeCount"`
+	ID           string         `json:"id"`
+	Slug         string         `json:"slug"                  doc:"URL key."`
+	Header       string         `json:"header"                doc:"headerEn or headerSv, resolved from Accept-Language."`
+	HeaderSv     string         `json:"headerSv"`
+	HeaderEn     *string        `json:"headerEn,omitempty"`
+	Body         string         `json:"body"                  doc:"bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML."`
+	BodySv       string         `json:"bodySv"`
+	BodyEn       *string        `json:"bodyEn,omitempty"`
+	ImageURL     *string        `json:"imageUrl,omitempty"    doc:"The first image, for list views."`
+	ImageURLs    []string       `json:"imageUrls"             doc:"Every image, in order."`
+	YoutubeURL   *string        `json:"youtubeUrl,omitempty"`
+	Status       *ArticleStatus `json:"status,omitempty"`
+	PublishedAt  *time.Time     `json:"publishedAt,omitempty" doc:"When it goes (or went) live. Unset for a draft."`
+	UpdatedAt    *time.Time     `json:"updatedAt,omitempty"   doc:"Last edit."`
+	CreatedAt    time.Time      `json:"createdAt"`
+	Author       ArticleAuthor  `json:"author"`
+	Committee    *Committee     `json:"committee,omitempty"   doc:"The committee the article is about, if any."`
+	Tags         []Tag          `json:"tags"`
+	CommentCount int            `json:"commentCount"`
+	LikeCount    int            `json:"likeCount"`
 	// Whether (and with what text) the article is announced when it goes
 	// live - see Service.syncNotifications and Service.AnnounceDue.
-	ShouldSendNotification bool    `json:"sendNotification"`
-	NotificationText       *string `json:"notificationText,omitempty"`
+	ShouldSendNotification bool    `json:"sendNotification"           doc:"Whether subscribers are notified when it goes live."`
+	NotificationText       *string `json:"notificationText,omitempty" doc:"Custom notification text; the header is used if unset."`
 	// NollningSeasonID associates this article with a nollning season -
 	// see DESIGN.md's nollning section. Setting/changing it to a non-null
 	// value requires apinames.NollningContentAssociate (see Service.Create/
 	// Update); leaving it unset or resubmitting the current value doesn't.
-	NollningSeasonID *string `json:"nollningSeasonId,omitempty"`
+	NollningSeasonID *string `json:"nollningSeasonId,omitempty" doc:"The nollning season the article belongs to."`
 }
 
 type ArticleDetail struct {
 	ArticleSummary
-	Comments []Comment `json:"comments"`
+	Comments []Comment `json:"comments" doc:"Newest first."`
 	// TaggedMembers are the members @mentioned in Comments - see
 	// events.EventDetail's identical field.
-	TaggedMembers []Member `json:"taggedMembers"`
+	TaggedMembers []Member `json:"taggedMembers" doc:"Members @mentioned in the comments, with their current names."`
 	// Likers is everyone who liked the article - the like button reads
 	// whether the viewer is among them, and the likers list names them
 	// (upstream #1390 restored both on the article page).
-	Likers []Member `json:"likers"`
+	Likers []Member `json:"likers" doc:"Everyone who liked the article."`
 	// CanEdit/CanDelete are the acting identity's own permissions on this
 	// article, computed server-side from the exact same author-or-policy
 	// checks Update/Delete themselves enforce (see Service.detail) - the
@@ -98,12 +119,18 @@ type ArticleDetail struct {
 	// DESIGN.md's "Principles going forward" #5 for why this exists: Go is
 	// the sole source of truth for authorization, even client-side-only
 	// reads of a policy array count as a forbidden reimplementation.
-	CanEdit   bool `json:"canEdit"`
-	CanDelete bool `json:"canDelete"`
+	CanEdit   bool `json:"canEdit"   doc:"Whether the caller may edit the article (its author, or news:article:update)."`
+	CanDelete bool `json:"canDelete" doc:"Whether the caller may delete the article (news:article:delete)."`
 	// AnnouncementFailed is only set on a create/update response: the
 	// article was saved, but sending its notification or Discord post
 	// failed (see Service.syncNotifications).
-	AnnouncementFailed bool `json:"announcementFailed,omitempty"`
+	AnnouncementFailed bool `json:"announcementFailed,omitempty" doc:"Only on create/update: the article was saved, but its notification or Discord post failed."`
+}
+
+// ArticleList is one page of articles.
+type ArticleList struct {
+	Articles  []ArticleSummary `json:"articles"`
+	PageCount int              `json:"pageCount" doc:"Number of pages at this pageSize."`
 }
 
 // AuthorInput identifies which byline to attach, on top of the acting
@@ -114,8 +141,8 @@ type ArticleDetail struct {
 // member, so there's nothing to verify). Leave both unset to post as the
 // member themselves.
 type AuthorInput struct {
-	MandateID *string `json:"mandateId,omitempty"`
-	CustomID  *string `json:"customId,omitempty"`
+	MandateID *string `json:"mandateId,omitempty" doc:"Post as this mandate, which the caller must hold."`
+	CustomID  *string `json:"customId,omitempty"  doc:"Post as this custom author."`
 }
 
 // ArticleInput is the writable shape of an article, shared by create and
@@ -124,18 +151,25 @@ type AuthorInput struct {
 type ArticleInput struct {
 	HeaderSv               string      `json:"headerSv"`
 	HeaderEn               *string     `json:"headerEn"`
-	BodySv                 string      `json:"bodySv"`
-	BodyEn                 *string     `json:"bodyEn"`
-	ImageURL               *string     `json:"imageUrl"`
+	BodySv                 string      `json:"bodySv"           doc:"HTML; sanitized on save."`
+	BodyEn                 *string     `json:"bodyEn"           doc:"HTML; sanitized on save."`
+	ImageURL               *string     `json:"imageUrl"         doc:"Deprecated single image; imageUrls[0] is used if unset."`
 	ImageURLs              []string    `json:"imageUrls"`
 	YoutubeURL             *string     `json:"youtubeUrl"`
-	Author                 AuthorInput `json:"author"`
+	Author                 AuthorInput `json:"author"           doc:"The byline. The author is always the caller."`
 	TagIDs                 []string    `json:"tagIds"`
 	CommitteeID            *string     `json:"committeeId"`
-	PublishedAt            *time.Time  `json:"publishedAt"`
-	ShouldSendNotification bool        `json:"sendNotification"`
+	PublishedAt            *time.Time  `json:"publishedAt"      doc:"When it goes live. Unset keeps it a draft; omitting it on update un-publishes it."`
+	ShouldSendNotification bool        `json:"sendNotification" doc:"Notify subscribers when it goes live."`
 	NotificationText       *string     `json:"notificationText"`
-	NollningSeasonID       *string     `json:"nollningSeasonId"`
+	NollningSeasonID       *string     `json:"nollningSeasonId" doc:"Setting or changing it needs nollning:content:associate."`
+}
+
+// TagInput is a tag's editable fields.
+type TagInput struct {
+	NameSv string  `json:"nameSv"`
+	NameEn *string `json:"nameEn,omitempty"`
+	Color  *string `json:"color,omitempty"  doc:"CSS color, e.g. #ff0000."`
 }
 
 type ListParams struct {

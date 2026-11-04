@@ -8,8 +8,8 @@ import (
 	"github.com/dsek-lth/web/backend/internal/dbutil"
 )
 
-func toOpeningHour(row db.Markdown, loc string) OpeningHour {
-	return OpeningHour{
+func toOpeningHour(row db.Markdown, loc string) CafeOpeningHours {
+	return CafeOpeningHours{
 		Name:       row.Name,
 		Markdown:   dbutil.ResolveName(row.MarkdownSv, dbutil.TextPtr(row.MarkdownEn), loc),
 		MarkdownSv: row.MarkdownSv,
@@ -35,8 +35,8 @@ type shiftRow struct {
 	WorkerPicturePath pgtype.Text
 }
 
-func toShift(row shiftRow) Shift {
-	return Shift{
+func toShift(row shiftRow) CafeShift {
+	return CafeShift{
 		ID:       dbutil.UUIDStr(row.ID),
 		Date:     row.Date.Time,
 		TimeSlot: TimeSlot(row.TimeSlot),

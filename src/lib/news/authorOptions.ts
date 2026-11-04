@@ -10,7 +10,7 @@ type CustomAuthor = components["schemas"]["CustomAuthor"];
  * their currently-active mandates, or a custom byline they manage. Pure
  * function of already-fetched data so it can be called from `+page.ts`
  * (both create and edit load their own mandates/custom-authors from the
- * Go API - see backend's `/members/{id}/mandates` and `/custom-authors`).
+ * Go API - see backend's `/members/{studentId}/mandates` and `/custom-authors`).
  */
 export function buildAuthorOptions(
   self: Member,
@@ -20,12 +20,12 @@ export function buildAuthorOptions(
   return [
     { type: "Member", member: self },
     ...mandates.map((mandate) => ({
-      type: "Mandate",
+      type: "Mandate" as const,
       member: self,
       position: mandate.position,
     })),
     ...customAuthors.map((customAuthor) => ({
-      type: "Custom",
+      type: "Custom" as const,
       member: self,
       customAuthor,
     })),

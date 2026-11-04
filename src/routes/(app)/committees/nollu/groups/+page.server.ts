@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
   const season = (seasonsRes.data ?? []).find((s) => s.year === year);
 
   const summariesRes = season
-    ? await api.GET("/nollning/groups", {
+    ? await api.GET("/nollning/phadder-groups", {
         fetch,
         params: { query: { seasonId: season.id } },
       })
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
     await Promise.all(
       summaries.map((g) =>
         api
-          .GET("/nollning/groups/{id}", {
+          .GET("/nollning/phadder-groups/{id}", {
             fetch,
             params: { path: { id: g.id } },
           })

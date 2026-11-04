@@ -49,19 +49,19 @@ func NewService(dbtx db.DBTX) *Service {
 // row, ordered by name, matching the old load()'s
 // prisma.markdown.findMany({where: {name: {startsWith: "cafe:open"}},
 // orderBy: {name: "asc"}}) exactly. Writing an opening-hours page reuses
-// the already-shipped generic markdown.Service (PATCH /info/{slug}) rather
+// the already-shipped generic markdown.Service (PUT /info-pages/{slug}) rather
 // than a bespoke endpoint here - the old app's own updateHours action
 // already just delegated to the same generic updateMarkdown helper,
-// one page per submit, so pointing a future frontend at /info/{slug}
+// one page per submit, so pointing a future frontend at /info-pages/{slug}
 // directly isn't a functionality reduction, just skipping a redundant
 // wrapper.
-func (s *Service) ListOpeningHours(ctx context.Context) ([]OpeningHour, error) {
+func (s *Service) ListOpeningHours(ctx context.Context) ([]CafeOpeningHours, error) {
 	rows, err := s.queries.ListMarkdownsByPrefix(ctx, "cafe:open%")
 	if err != nil {
 		return nil, fmt.Errorf("list opening hours: %w", err)
 	}
 	loc := locale.FromContext(ctx)
-	out := make([]OpeningHour, len(rows))
+	out := make([]CafeOpeningHours, len(rows))
 	for i, row := range rows {
 		out[i] = toOpeningHour(row, loc)
 	}
@@ -88,7 +88,7 @@ func (s *Service) ListOpeningHours(ctx context.Context) ([]OpeningHour, error) {
 // unsurprising standard choice for whichever frontend eventually consumes
 // this. Revisit only if a real consumer needs bit-for-bit dayjs parity for
 // specific historical week numbers.
-func (s *Service) GetSchedule(ctx context.Context, year, week *int32) (*Schedule, error) {
+func (s *Service) GetSchedule(ctx context.Context, year, week *int32) (*CafeSchedule, error) {
 	targetYear, targetWeek, err := resolveTargetWeek(ctx, year, week)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (s *Service) GetSchedule(ctx context.Context, year, week *int32) (*Schedule
 	if err != nil {
 		return nil, fmt.Errorf("list shifts: %w", err)
 	}
-	shifts := make([]Shift, len(rows))
+	shifts := make([]CafeShift, len(rows))
 	for i, row := range rows {
 		shifts[i] = toShift(shiftRow(row))
 	}
@@ -121,7 +121,12 @@ func (s *Service) GetSchedule(ctx context.Context, year, week *int32) (*Schedule
 		return nil, fmt.Errorf("get ciabatta: %w", err)
 	}
 
-	return &Schedule{Year: targetYear, Week: targetWeek, Shifts: shifts, Ciabatta: ciabatta}, nil
+	return &CafeSchedule{
+		Year:     targetYear,
+		Week:     targetWeek,
+		Shifts:   shifts,
+		Ciabatta: ciabatta,
+	}, nil
 }
 
 // resolveTargetWeek defaults year/week to the current ISO week and enforces
@@ -190,7 +195,7 @@ func validTimeSlot(t TimeSlot) bool {
 // Requires an identity - a real, necessary explicit check to add: the old
 // action had none, relying on `worker` ending up empty/undefined for an
 // anonymous caller and the resulting prisma create failing incidentally.
-func (s *Service) SetShift(ctx context.Context, in SetShiftInput) (*ShiftMutationResult, error) {
+func (s *Service) SetShift(ctx context.Context, in CafeShiftToggleInput) (*CafeShiftResult, error) {
 	identity, ok := auth.FromContext(ctx)
 	if !ok {
 		return nil, auth.ErrUnauthenticated
@@ -251,7 +256,7 @@ func (s *Service) createShift(
 	slot TimeSlot,
 	targetMember db.GetMemberByStudentIDRow,
 	dayShifts []db.ListCafeShiftsInRangeRow,
-) (*ShiftMutationResult, error) {
+) (*CafeShiftResult, error) {
 	if slot == TimeSlotDayManager && !identity.Has(apinames.CafeDayManager) && !isAdmin {
 		return nil, auth.ErrForbidden
 	}
@@ -283,7 +288,7 @@ func (s *Service) createShift(
 	if err != nil {
 		return nil, err
 	}
-	return &ShiftMutationResult{Action: "signed_up", Shift: shift}, nil
+	return &CafeShiftResult{Action: ShiftSignedUp, Shift: shift}, nil
 }
 
 func (s *Service) resolveExistingShift(
@@ -293,7 +298,7 @@ func (s *Service) resolveExistingShift(
 	targetMember db.GetMemberByStudentIDRow,
 	date time.Time,
 	existing db.ListCafeShiftsInRangeRow,
-) (*ShiftMutationResult, error) {
+) (*CafeShiftResult, error) {
 	if existing.WorkerStudentID.Valid && existing.WorkerStudentID.String == targetStudentID {
 		// Quitting one's own shift (or, for an admin, anyone's). Day-
 		// granular cutoff (must be more than a day out), a deliberate
@@ -311,7 +316,7 @@ func (s *Service) resolveExistingShift(
 		if n == 0 {
 			return nil, ErrNotFound
 		}
-		return &ShiftMutationResult{Action: "quit"}, nil
+		return &CafeShiftResult{Action: ShiftQuit}, nil
 	}
 
 	// Someone else already has this shift - only an admin may reassign it.
@@ -329,10 +334,10 @@ func (s *Service) resolveExistingShift(
 	if err != nil {
 		return nil, err
 	}
-	return &ShiftMutationResult{Action: "reassigned", Shift: shift}, nil
+	return &CafeShiftResult{Action: ShiftReassigned, Shift: shift}, nil
 }
 
-func (s *Service) reloadShift(ctx context.Context, id pgtype.UUID) (*Shift, error) {
+func (s *Service) reloadShift(ctx context.Context, id pgtype.UUID) (*CafeShift, error) {
 	row, err := s.queries.GetCafeShiftByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("reload shift: %w", err)
@@ -343,19 +348,23 @@ func (s *Service) reloadShift(ctx context.Context, id pgtype.UUID) (*Shift, erro
 
 // SetCiabatta upserts the ciabatta-of-the-week for a given (year, week),
 // matching the old editWeeklyCiabatta action's prisma upsert exactly.
-func (s *Service) SetCiabatta(ctx context.Context, in SetCiabattaInput) (*Ciabatta, error) {
+func (s *Service) SetCiabatta(
+	ctx context.Context,
+	year, week int32,
+	in CiabattaInput,
+) (*Ciabatta, error) {
 	if err := auth.Require(ctx, apinames.CafeEditCiabattas); err != nil {
 		return nil, err
 	}
 	if in.Name == "" {
 		return nil, invalidf("name is required")
 	}
-	if in.Week < 1 || in.Week > 53 {
+	if week < 1 || week > 53 {
 		return nil, invalidf("week must be between 1 and 53")
 	}
 	row, err := s.queries.UpsertCiabatta(ctx, db.UpsertCiabattaParams{
-		Year: in.Year,
-		Week: in.Week,
+		Year: year,
+		Week: week,
 		Name: in.Name,
 	})
 	if err != nil {

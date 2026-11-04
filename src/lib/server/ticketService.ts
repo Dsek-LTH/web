@@ -18,17 +18,8 @@ export class TicketServiceError extends Error {
 type Schemas = components["schemas"];
 export type TicketRelease = Schemas["TicketRelease"];
 export type ReleaseSummary = Schemas["TicketReleaseSummary"];
-export type TicketQueueEntry = Omit<Schemas["TicketQueueEntry"], "status"> & {
-  status:
-    | "pending"
-    | "granted"
-    | "waitlisted"
-    | "accepted"
-    | "expired"
-    | "cancelled";
-};
-export type MyTicket = Omit<Schemas["MyTicket"], "status"> &
-  Pick<TicketQueueEntry, "status">;
+export type TicketQueueEntry = Schemas["TicketQueueEntry"];
+export type MyTicket = Schemas["MemberTicket"];
 export type RosterEntry = Schemas["TicketRosterEntry"];
 
 /** Unwraps an openapi-fetch result, throwing TicketServiceError on failure. */
@@ -87,7 +78,7 @@ export const getTicketRelease = async (
 ) =>
   unwrap(await serverApi(event).GET("/ticket-releases/{id}", path(releaseId)));
 
-// For page loads: a missing release (404) or malformed id (400) becomes a
+// For page loads: a missing release (404) or malformed id (422) becomes a
 // SvelteKit 404 instead of a 500.
 export const getTicketReleaseOr404 = async (
   event: RequestEvent,
@@ -98,7 +89,7 @@ export const getTicketReleaseOr404 = async (
   } catch (err) {
     if (
       err instanceof TicketServiceError &&
-      (err.status === 404 || err.status === 400)
+      (err.status === 404 || err.status === 422)
     ) {
       error(404, "Biljettsläppet hittades inte");
     }
@@ -112,7 +103,7 @@ export const requestTicket = async (event: RequestEvent, releaseId: string) =>
       "/ticket-releases/{id}/request",
       path(releaseId),
     ),
-  ) as TicketQueueEntry;
+  );
 
 export const acceptTicketOffer = async (
   event: RequestEvent,
@@ -123,7 +114,7 @@ export const acceptTicketOffer = async (
       "/ticket-releases/{id}/accept",
       path(releaseId),
     ),
-  ) as TicketQueueEntry;
+  );
 
 export const cancelTicketEntry = async (
   event: RequestEvent,
@@ -143,11 +134,14 @@ export const cancelTicketEntry = async (
 
 export const getTicketStatus = async (event: RequestEvent, releaseId: string) =>
   unwrap(
-    await serverApi(event).GET("/ticket-releases/{id}/status", path(releaseId)),
-  ) as TicketQueueEntry;
+    await serverApi(event).GET(
+      "/ticket-releases/{id}/request",
+      path(releaseId),
+    ),
+  );
 
 export const listMyTickets = async (event: RequestEvent) =>
-  (unwrap(await serverApi(event).GET("/tickets/mine", {})) ?? []) as MyTicket[];
+  (unwrap(await serverApi(event).GET("/me/tickets", {})) ?? []) as MyTicket[];
 
 export const listTicketRoster = async (
   event: RequestEvent,
@@ -169,7 +163,7 @@ export const updateTicketRelease = async (
   },
 ) =>
   unwrap(
-    await serverApi(event).PATCH("/ticket-releases/{id}", {
+    await serverApi(event).PUT("/ticket-releases/{id}", {
       ...path(releaseId),
       body: { ...input, closesAt: input.closesAt.toISOString() },
     }),

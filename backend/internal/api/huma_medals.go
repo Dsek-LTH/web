@@ -13,12 +13,8 @@ import (
 	"github.com/dsek-lth/web/backend/internal/semesters"
 )
 
-type listMedalRecipientsInput struct {
-	Semester string `query:"semester" doc:"e.g. \"VT 2026\" or \"HT 2026\" - defaults to the current semester"`
-}
-
-type listMedalRecipientsOutput struct {
-	Body []medals.MedalRecipients
+type semesterInput struct {
+	Semester string `query:"semester" doc:"VT (spring) or HT (fall) and a year, e.g. \"VT 2026\". Defaults to the current semester."`
 }
 
 func parseSemesterParam(raw string) (semesters.Semester, error) {
@@ -28,70 +24,53 @@ func parseSemesterParam(raw string) (semesters.Semester, error) {
 	return semesters.Parse(raw)
 }
 
-type listMemberMedalsInput struct {
-	StudentID string `path:"studentId"`
-}
-
-type listMemberMedalsOutput struct {
-	Body []medals.MemberMedal
-}
-
 func registerMedalRoutes(api huma.API, svc *medals.Service) {
+	tags := []string{"Medals"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-member-medals",
 		Method:      http.MethodGet,
 		Path:        "/members/{studentId}/medals",
-		Summary:     "List the medals a member has earned up to last semester",
-	}, func(ctx context.Context, input *listMemberMedalsInput) (*listMemberMedalsOutput, error) {
+		Tags:        tags,
+		Summary:     "List a member's medals",
+		Description: "Every medal the member had earned by the end of last semester.",
+	}, func(ctx context.Context, input *StudentIDPath) (*struct{ Body []medals.MemberMedal }, error) {
 		items, err := svc.MemberMedals(ctx, input.StudentID, semesters.FromDate(time.Now())-1)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listMemberMedalsOutput{Body: items}, nil
+		return &struct{ Body []medals.MemberMedal }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-medal-recipients",
 		Method:      http.MethodGet,
 		Path:        "/medals",
-		Summary:     "List who earned which medal after a given semester",
-	}, func(ctx context.Context, input *listMedalRecipientsInput) (*listMedalRecipientsOutput, error) {
-		semester, err := parseSemesterParam(input.Semester)
+		Tags:        tags,
+		Summary:     "List medal recipients",
+		Description: "Who earned which medal after the given semester. Signed-in members only.",
+	}, func(ctx context.Context, input *semesterInput) (*struct{ Body []medals.MedalRecipients }, error) {
+		recipients, err := medalRecipients(ctx, svc, input.Semester)
 		if err != nil {
-			return nil, huma.Error400BadRequest(err.Error())
+			return nil, err
 		}
-		items, err := svc.MedalRecipients(ctx, semester)
-		if err != nil {
-			return nil, humaServiceError(err)
-		}
-		return &listMedalRecipientsOutput{Body: items}, nil
+		return &struct{ Body []medals.MedalRecipients }{Body: recipients}, nil
 	})
-}
 
-// MedalsCSVHandler is a plain (non-huma) endpoint, like /me and the other
-// /auth/* routes - CSV doesn't fit huma's typed-JSON-body model, and
-// POST /uploads already established the precedent of stepping outside huma
-// for a response shape it doesn't suit. Mounted directly on the mux in
-// router.go, but still runs behind the same auth/locale middleware chain,
-// so auth.FromContext(r.Context()) works exactly like it does in any huma
-// handler.
-func MedalsCSVHandler(svc *medals.Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		semester, err := parseSemesterParam(r.URL.Query().Get("semester"))
+	// Proxied by SvelteKit's /medals/download-csv.
+	huma.Register(api, huma.Operation{
+		OperationID: "get-medal-recipients-csv",
+		Method:      http.MethodGet,
+		Path:        "/medals.csv",
+		Tags:        tags,
+		Summary:     "Medal recipients as CSV",
+		Description: "The same list as GET /medals, one row per member and medal: Namn,StilID,Medalj.",
+		Responses:   rawResponses("text/csv", "A CSV file."),
+	}, func(ctx context.Context, input *semesterInput) (*rawOutput, error) {
+		recipients, err := medalRecipients(ctx, svc, input.Semester)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			return nil, err
 		}
-		recipients, err := svc.MedalRecipients(r.Context(), semester)
-		if err != nil {
-			status := http.StatusInternalServerError
-			if statusErr, ok := humaServiceError(err).(huma.StatusError); ok {
-				status = statusErr.GetStatus()
-			}
-			http.Error(w, err.Error(), status)
-			return
-		}
-
 		var b strings.Builder
 		b.WriteString("Namn,StilID,Medalj\n")
 		for _, rec := range recipients {
@@ -100,16 +79,33 @@ func MedalsCSVHandler(svc *medals.Service) http.HandlerFunc {
 					fmt.Sprintf("%s %s", derefOr(m.FirstName, ""), derefOr(m.LastName, "")),
 					",", "",
 				)
-				b.WriteString(fmt.Sprintf("%s,%s,%s\n", name, derefOr(m.StudentID, ""), rec.Medal))
+				fmt.Fprintf(&b, "%s,%s,%s\n", name, derefOr(m.StudentID, ""), rec.Medal)
 			}
 		}
-
+		semester, _ := parseSemesterParam(input.Semester)
 		filename := strings.ReplaceAll(semesters.String(semester), " ", "-")
-		w.Header().Set("Content-Type", "text/csv")
-		w.Header().
-			Set("Content-Disposition", fmt.Sprintf("attachment; filename=medals-%s.csv", filename))
-		_, _ = w.Write([]byte(b.String()))
+		return &rawOutput{
+			ContentType:        "text/csv",
+			ContentDisposition: fmt.Sprintf("attachment; filename=medals-%s.csv", filename),
+			Body:               []byte(b.String()),
+		}, nil
+	})
+}
+
+func medalRecipients(
+	ctx context.Context,
+	svc *medals.Service,
+	rawSemester string,
+) ([]medals.MedalRecipients, error) {
+	semester, err := parseSemesterParam(rawSemester)
+	if err != nil {
+		return nil, huma.Error422UnprocessableEntity(err.Error())
 	}
+	recipients, err := svc.MedalRecipients(ctx, semester)
+	if err != nil {
+		return nil, humaServiceError(err)
+	}
+	return recipients, nil
 }
 
 func derefOr(s *string, fallback string) string {

@@ -301,7 +301,7 @@ func (s *Service) List(ctx context.Context) ([]BookingRequest, error) {
 // ReviewQueue lists the pending requests that haven't ended yet, each with
 // the accepted/pending requests it overlaps on a shared bookable - the
 // admin review page (upstream #1184's getBookingReviewQueue).
-func (s *Service) ReviewQueue(ctx context.Context) ([]ReviewItem, error) {
+func (s *Service) ReviewQueue(ctx context.Context) ([]BookingReviewItem, error) {
 	if err := auth.Require(ctx, apinames.BookingRequestUpdate); err != nil {
 		return nil, err
 	}
@@ -309,13 +309,13 @@ func (s *Service) ReviewQueue(ctx context.Context) ([]ReviewItem, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list pending booking requests: %w", err)
 	}
-	items := make([]ReviewItem, 0, len(ids))
+	items := make([]BookingReviewItem, 0, len(ids))
 	for _, id := range ids {
 		br, err := s.getFull(ctx, id)
 		if err != nil {
 			return nil, err
 		}
-		item := ReviewItem{BookingRequest: *br, Conflicts: []BookingRequest{}}
+		item := BookingReviewItem{BookingRequest: *br, Conflicts: []BookingRequest{}}
 		if br.Start != nil && br.End != nil {
 			bookableIDs := make([]pgtype.UUID, 0, len(br.Bookables))
 			for _, b := range br.Bookables {
@@ -398,7 +398,7 @@ func (s *Service) Create(
 	}); err != nil {
 		return nil, nil, fmt.Errorf("link bookables: %w", err)
 	}
-	if err := s.setAccess(ctx, row.ID, in.AccessInput); err != nil {
+	if err := s.setAccess(ctx, row.ID, in.BookingAccessInput); err != nil {
 		return nil, nil, err
 	}
 
@@ -417,7 +417,7 @@ func (s *Service) Create(
 	return result, conflicts, nil
 }
 
-// Update is a full-replace, same PUT-dressed-as-PATCH convention as
+// Update is a full-replace, same full-replace (PUT) convention as
 // articles/events/songs. Authorization extends the zmodel's delete bypass
 // (has(BookingRequestUpdate) || auth().memberId == bookerId) to update too
 // - the old zmodel only allowed the former for update, meaning in practice
@@ -483,7 +483,7 @@ func (s *Service) Update(
 	}); err != nil {
 		return nil, nil, fmt.Errorf("link bookables: %w", err)
 	}
-	if err := s.setAccess(ctx, uid, in.AccessInput); err != nil {
+	if err := s.setAccess(ctx, uid, in.BookingAccessInput); err != nil {
 		return nil, nil, err
 	}
 	// A still-accepted request (an admin edit keeps the status) gets its
@@ -553,7 +553,7 @@ func (s *Service) SetStatus(
 	ctx context.Context,
 	id string,
 	accepted bool,
-	access *AccessInput,
+	access *BookingAccessInput,
 ) (*BookingRequest, error) {
 	if err := auth.Require(ctx, apinames.BookingRequestUpdate); err != nil {
 		return nil, err

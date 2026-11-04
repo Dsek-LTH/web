@@ -5,6 +5,7 @@ import {
   type ServerLoadEvent,
 } from "@sveltejs/kit";
 import { serverApi } from "$lib/server/apiClient";
+import { isNotificationSettingType } from "$lib/notifications/settingTypes";
 
 // Both settingsLoad and settingsActions now call Go's
 // GET/PUT /notification-settings and GET /tags (backend/internal/api/
@@ -46,8 +47,14 @@ export const settingsActions = {
     const { locals, request } = event;
     const form = await request.formData();
     if (!locals.user) return fail(401, { form });
-    const subscription = form.getAll("subscription").map(String);
-    const push = form.getAll("push").map(String);
+    const subscription = form
+      .getAll("subscription")
+      .map(String)
+      .filter(isNotificationSettingType);
+    const push = form
+      .getAll("push")
+      .map(String)
+      .filter(isNotificationSettingType);
     const tags = form.getAll("tag").map(String);
 
     const res = await serverApi(event).PUT("/notification-settings", {

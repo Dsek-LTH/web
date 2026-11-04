@@ -11,109 +11,99 @@ import (
 	"github.com/dsek-lth/web/backend/internal/doors"
 )
 
-type listDoorsOutput struct {
-	Body []doors.Door
-}
-
-type doorNameInput struct {
-	Name string `path:"name"`
-}
-
-type listDoorAccessPoliciesOutput struct {
-	Body []doors.DoorAccessPolicy
-}
-
-type createDoorAccessPolicyInput struct {
-	Name string `path:"name"`
-	Body doors.CreatePolicyInput
-}
-
-type doorAccessPolicyOutput struct {
-	Body doors.DoorAccessPolicy
-}
-
-type doorAccessPolicyIDInput struct {
-	ID string `path:"id"`
-}
-
-type memberDoorAccessInput struct {
-	StudentID string `path:"studentId"`
-}
-
-type memberDoorAccessOutput struct {
-	Body []doors.MemberAccess
+type DoorNamePath struct {
+	Name string `path:"name" doc:"The door's internal name."`
 }
 
 func registerDoorRoutes(api huma.API, svc *doors.Service) {
+	tags := []string{"Doors"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-doors",
 		Method:      http.MethodGet,
 		Path:        "/doors",
-		Summary:     "List every physical door",
-	}, func(ctx context.Context, input *struct{}) (*listDoorsOutput, error) {
+		Tags:        tags,
+		Summary:     "List doors",
+		Description: "Needs core:access:door:read.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []doors.Door }, error) {
 		items, err := svc.ListDoors(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listDoorsOutput{Body: items}, nil
+		return &struct{ Body []doors.Door }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-door-access-policies",
 		Method:      http.MethodGet,
 		Path:        "/doors/{name}/access-policies",
-		Summary:     "List a door's non-expired access policies",
-	}, func(ctx context.Context, input *doorNameInput) (*listDoorAccessPoliciesOutput, error) {
+		Tags:        tags,
+		Summary:     "List a door's access policies",
+		Description: "Every rule that hasn't ended, including ones that haven't started. Needs core:access:door:read.",
+	}, func(ctx context.Context, input *DoorNamePath) (*struct{ Body []doors.DoorAccessPolicy }, error) {
 		items, err := svc.ListAccessPolicies(ctx, input.Name)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listDoorAccessPoliciesOutput{Body: items}, nil
+		return &struct{ Body []doors.DoorAccessPolicy }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "create-door-access-policy",
 		Method:        http.MethodPost,
 		Path:          "/doors/{name}/access-policies",
-		Summary:       "Grant or restrict access to a door",
+		Tags:          tags,
+		Summary:       "Create a door access policy",
+		Description:   "Grant or ban access. The member or role must exist. Needs core:access:door:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createDoorAccessPolicyInput) (*doorAccessPolicyOutput, error) {
+	}, func(ctx context.Context, input *struct {
+		DoorNamePath
+		Body doors.DoorAccessPolicyInput
+	},
+	) (*struct{ Body doors.DoorAccessPolicy }, error) {
 		policy, err := svc.CreateAccessPolicy(ctx, input.Name, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &doorAccessPolicyOutput{Body: *policy}, nil
+		return &struct{ Body doors.DoorAccessPolicy }{Body: *policy}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "delete-door-access-policy",
 		Method:        http.MethodDelete,
-		Path:          "/door-access-policies/{id}",
-		Summary:       "Remove a door access policy",
+		Path:          "/doors/{name}/access-policies/{id}",
+		Tags:          tags,
+		Summary:       "Delete a door access policy",
+		Description:   "Needs core:access:door:delete.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *doorAccessPolicyIDInput) (*struct{}, error) {
-		if err := svc.DeleteAccessPolicy(ctx, input.ID); err != nil {
+	}, func(ctx context.Context, input *struct {
+		DoorNamePath
+		IDPath
+	},
+	) (*struct{}, error) {
+		if err := svc.DeleteAccessPolicy(ctx, input.Name, input.ID); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "get-member-door-access",
+		OperationID: "list-member-door-access",
 		Method:      http.MethodGet,
 		Path:        "/members/{studentId}/door-access",
-		Summary:     "The acting member's own current door access (self-view only, empty for anyone else)",
-	}, func(ctx context.Context, input *memberDoorAccessInput) (*memberDoorAccessOutput, error) {
+		Tags:        tags,
+		Summary:     "List a member's door access",
+		Description: "Which doors the member can open now. Only for the member themselves; empty for anyone else.",
+	}, func(ctx context.Context, input *StudentIDPath) (*struct{ Body []doors.MemberDoorAccess }, error) {
 		items, err := svc.MemberAccess(ctx, input.StudentID)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &memberDoorAccessOutput{Body: items}, nil
+		return &struct{ Body []doors.MemberDoorAccess }{Body: items}, nil
 	})
 }
 
-// SaltoHandler is a plain (non-huma) endpoint, like /me and
-// MedalsCSVHandler - the response is a bare newline-separated student-ID
+// SaltoHandler is a plain (non-huma) endpoint - the response is a bare newline-separated student-ID
 // list, not JSON, and the URL itself ("/salto/{door}") must never change
 // (see src/routes/(app)/salto/README.md: the university's Salto door-lock
 // system polls this exact path). Mounted directly on the mux in router.go.

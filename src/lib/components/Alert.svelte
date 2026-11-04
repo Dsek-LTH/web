@@ -60,7 +60,7 @@
   // route's actual behavior exactly.
   let closeAlert = () =>
     api
-      .POST("/alerts/{id}/close", { params: { path: { id } } })
+      .POST("/alerts/{id}/dismiss", { params: { path: { id } } })
       .then(() => invalidate("alerts"));
 </script>
 

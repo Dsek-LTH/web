@@ -1,9 +1,4 @@
 import type { PageServerLoad } from "./$types";
-import type {
-  ShlinkDomainsList,
-  ShlinkShortUrlsList,
-  ShlinkTagsList,
-} from "@shlinkio/shlink-js-sdk/api-contract";
 import { serverApi } from "$lib/server/apiClient";
 import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
 import { z } from "zod";
@@ -13,10 +8,8 @@ import * as m from "$paraglide/messages";
 
 // admin:shlink:read/create/update/delete (Go's apinames.AdminShlink*) are
 // enforced by Go itself now (internal/links, a thin wrapper around Shlink's
-// own REST API - see backend/CLAUDE.md's Admin routes section for why
-// reads are proxied through as raw JSON rather than decoded into a
-// hand-modeled shape) - no authorize() call here, matching DESIGN.md's
-// Principle #5.
+// own REST API, see backend/CLAUDE.md's Admin routes section) - no
+// authorize() call here, matching DESIGN.md's Principle #5.
 
 const VALID_ORDER = [
   "title",
@@ -60,13 +53,6 @@ const deleteLinksSchema = z.object({
   deleting: z.string().array().min(1),
 });
 
-// Shlink's own response shapes - Go proxies them as raw JSON (`unknown` in
-// the generated schema, see internal/links' package doc comment), so they
-// are typed here with the Shlink SDK's own type definitions instead.
-type ShortUrlsList = ShlinkShortUrlsList;
-type DomainsList = ShlinkDomainsList;
-type TagsList = ShlinkTagsList;
-
 export const load: PageServerLoad = async (event) => {
   const { url } = event;
   const api = serverApi(event);
@@ -89,23 +75,20 @@ export const load: PageServerLoad = async (event) => {
       "Shlink error: " + (linksRes.error.detail ?? linksRes.error.title ?? ""),
     );
   }
-  const domains = linksRes.data as ShortUrlsList;
-
   const tagsRes = await api.GET("/links/tags", {});
-  const tags = (tagsRes.data as TagsList | undefined)?.data ?? [];
+  const tags = tagsRes.data ?? [];
 
   // Pre-fills the create dialog's domain with Shlink's own default.
   const domainsRes = await api.GET("/links/domains", {});
-  const shlinkDomains =
-    (domainsRes.data as DomainsList | undefined)?.data ?? [];
+  const shlinkDomains = domainsRes.data ?? [];
   const defaultDomain =
     shlinkDomains.find((d) => d.isDefault)?.domain ??
     shlinkDomains[0]?.domain ??
     null;
 
   return {
-    domains: domains.data,
-    pagination: domains.pagination,
+    links: linksRes.data.links,
+    pageCount: linksRes.data.pageCount,
     tags,
     defaultDomain,
     createLinksForm: await superValidate(zod4(createLinksSchema), {
@@ -153,7 +136,7 @@ export const actions: Actions = {
     if (!updateForm.valid) {
       return fail(400, { updateForm });
     }
-    const res = await serverApi(event).PATCH("/links/{shortCode}", {
+    const res = await serverApi(event).PUT("/links/{shortCode}", {
       params: { path: { shortCode: updateForm.data.slug } },
       body: { url: updateForm.data.url, tags: updateForm.data.tags },
     });

@@ -19,7 +19,7 @@ const markdownSchema = z.object({
 // policy-naming unification this replaced.
 export const load: PageServerLoad = async (event) => {
   const { params } = event;
-  const res = await serverApi(event).GET("/info/{slug}", {
+  const res = await serverApi(event).GET("/info-pages/{slug}", {
     params: { path: { slug: params.slug } },
   });
   const page = res.data;
@@ -42,7 +42,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
-    const created = await serverApi(event).POST("/info/{slug}", {
+    const created = await serverApi(event).POST("/info-pages/{slug}", {
       params: { path: { slug: name } },
       body: {
         markdownSv: form.data.markdownSv,
@@ -64,7 +64,7 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(markdownSchema));
     if (!form.valid) return fail(400, { form });
     const name = params.slug;
-    const updated = await serverApi(event).PATCH("/info/{slug}", {
+    const updated = await serverApi(event).PUT("/info-pages/{slug}", {
       params: { path: { slug: name } },
       body: {
         markdownSv: form.data.markdownSv,

@@ -28,7 +28,7 @@ import (
 var ErrNotFound = errors.New("events: not found")
 
 // ErrInvalidInput is wrapped into errors caused by malformed caller input
-// (e.g. a UUID that doesn't parse), so the API layer can map them to 400
+// (e.g. a UUID that doesn't parse), so the API layer can map them to 422
 // instead of 500 - same convention as internal/articles.
 var ErrInvalidInput = errors.New("events: invalid input")
 
@@ -161,10 +161,25 @@ func (s *Service) Get(ctx context.Context, slug string) (*EventDetail, error) {
 	return s.detail(ctx, db.ListEventsRow(row))
 }
 
-// GetAny returns an event by slug regardless of soft-delete status - for an
-// editor loading an event they might need to un-cancel or otherwise manage.
-func (s *Service) GetAny(ctx context.Context, slug string) (*EventDetail, error) {
-	return s.getBySlugUnfiltered(ctx, slug)
+// GetDeleted returns an event by slug like Get, but also when it is
+// soft-deleted - for an editor loading an event they might need to manage.
+// A deleted event is only returned to someone who may edit it.
+func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetail, error) {
+	row, err := s.queries.GetEventRowBySlug(ctx, dbutil.ToText(&eventSlug))
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get event: %w", err)
+	}
+	detail, err := s.detail(ctx, db.ListEventsRow(row))
+	if err != nil {
+		return nil, err
+	}
+	if row.RemovedAt.Valid && !row.RemovedAt.Time.After(time.Now()) && !detail.CanEdit {
+		return nil, ErrNotFound
+	}
+	return detail, nil
 }
 
 // Create makes a single event, or - when in.Recurring is set - a whole
@@ -231,7 +246,7 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 
 	occurrences, err := expandOccurrences(
 		in.StartAt, in.EndAt, in.Recurring.EndAt,
-		in.Recurring.SeparationCount, in.Recurring.Type,
+		in.Recurring.SeparationCount, string(in.Recurring.Type),
 	)
 	if err != nil {
 		return nil, err
@@ -817,15 +832,15 @@ func (s *Service) detail(ctx context.Context, row db.ListEventsRow) (*EventDetai
 		}
 	}
 
-	var recurring *RecurringInput
+	var recurring *Recurrence
 	if row.RecurringParentID.Valid {
 		series, err := s.queries.GetRecurringEvent(ctx, row.RecurringParentID)
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("get recurring series: %w", err)
 		}
 		if err == nil {
-			recurring = &RecurringInput{
-				Type:            string(series.RecurringType),
+			recurring = &Recurrence{
+				Type:            RecurringType(series.RecurringType),
 				SeparationCount: int(series.SeparationCount),
 				EndAt:           series.EndDatetime.Time,
 			}

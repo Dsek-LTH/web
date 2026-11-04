@@ -43,7 +43,7 @@ func NewService(dbtx db.DBTX) *Service {
 // List requires GoverningDocumentRead (matches the old ZModel's
 // @@allow("read", has(...,"governing_document:read"))) - unlike
 // Markdown/Alert, governing documents are not a public read.
-func (s *Service) List(ctx context.Context) ([]Document, error) {
+func (s *Service) List(ctx context.Context) ([]GoverningDocument, error) {
 	if err := auth.Require(ctx, apinames.GoverningDocumentRead); err != nil {
 		return nil, err
 	}
@@ -51,14 +51,14 @@ func (s *Service) List(ctx context.Context) ([]Document, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list governing documents: %w", err)
 	}
-	docs := make([]Document, len(rows))
+	docs := make([]GoverningDocument, len(rows))
 	for i, row := range rows {
 		docs[i] = toDocument(row)
 	}
 	return docs, nil
 }
 
-func (s *Service) Get(ctx context.Context, id string) (*Document, error) {
+func (s *Service) Get(ctx context.Context, id string) (*GoverningDocument, error) {
 	if err := auth.Require(ctx, apinames.GoverningDocumentRead); err != nil {
 		return nil, err
 	}
@@ -81,11 +81,14 @@ func (s *Service) Get(ctx context.Context, id string) (*Document, error) {
 // check to add: the old app's new/+page.server.ts create action had no
 // authorize() call at all, relying purely on ZenStack's model-level
 // @@allow policy. Go has no such fallback layer.
-func (s *Service) Create(ctx context.Context, in DocumentInput) (*Document, error) {
+func (s *Service) Create(
+	ctx context.Context,
+	in GoverningDocumentInput,
+) (*GoverningDocument, error) {
 	if err := auth.Require(ctx, apinames.GoverningDocumentWrite); err != nil {
 		return nil, err
 	}
-	if !writableTypes[in.Type] {
+	if !writableTypes[string(in.Type)] {
 		return nil, invalidf("type must be POLICY or GUIDELINE, got %q", in.Type)
 	}
 	if in.Title == "" || in.URL == "" {
@@ -106,11 +109,15 @@ func (s *Service) Create(ctx context.Context, in DocumentInput) (*Document, erro
 
 // Update requires GoverningDocumentWrite - same "old app had no explicit
 // check" note as Create above.
-func (s *Service) Update(ctx context.Context, id string, in DocumentInput) (*Document, error) {
+func (s *Service) Update(
+	ctx context.Context,
+	id string,
+	in GoverningDocumentInput,
+) (*GoverningDocument, error) {
 	if err := auth.Require(ctx, apinames.GoverningDocumentWrite); err != nil {
 		return nil, err
 	}
-	if !writableTypes[in.Type] {
+	if !writableTypes[string(in.Type)] {
 		return nil, invalidf("type must be POLICY or GUIDELINE, got %q", in.Type)
 	}
 	if in.Title == "" || in.URL == "" {
@@ -166,12 +173,12 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func toDocument(row db.Document) Document {
-	return Document{
+func toDocument(row db.Document) GoverningDocument {
+	return GoverningDocument{
 		ID:        dbutil.UUIDStr(row.ID),
 		Title:     row.Title,
 		URL:       row.Url,
-		Type:      string(row.Type),
+		Type:      DocumentType(row.Type),
 		CreatedAt: row.CreatedAt.Time,
 		UpdatedAt: row.UpdatedAt.Time,
 	}

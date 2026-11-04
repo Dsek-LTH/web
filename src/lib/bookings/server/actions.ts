@@ -30,7 +30,7 @@ export async function saveBookingRequest(event: RequestEvent, id?: string) {
   };
   const api = serverApi(event);
   const res = id
-    ? await api.PATCH("/booking-requests/{id}", {
+    ? await api.PUT("/booking-requests/{id}", {
         params: { path: { id } },
         body,
       })

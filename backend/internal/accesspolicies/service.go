@@ -58,7 +58,7 @@ func (s *Service) List(ctx context.Context, apiName *string) ([]AccessPolicy, er
 
 // ListAPINames lists every apiName with at least one grant, with its
 // grant count.
-func (s *Service) ListAPINames(ctx context.Context) ([]APINameCount, error) {
+func (s *Service) ListAPINames(ctx context.Context) ([]AccessPolicyAPIName, error) {
 	if err := auth.Require(ctx, apinames.AccessPolicyRead); err != nil {
 		return nil, err
 	}
@@ -66,9 +66,9 @@ func (s *Service) ListAPINames(ctx context.Context) ([]APINameCount, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list api names: %w", err)
 	}
-	names := make([]APINameCount, len(rows))
+	names := make([]AccessPolicyAPIName, len(rows))
 	for i, r := range rows {
-		names[i] = APINameCount{APIName: r.ApiName, GrantCount: int(r.GrantCount)}
+		names[i] = AccessPolicyAPIName{APIName: r.ApiName, GrantCount: int(r.GrantCount)}
 	}
 	return names, nil
 }
@@ -77,7 +77,10 @@ func (s *Service) ListAPINames(ctx context.Context) ([]APINameCount, error) {
 // in in.StudentIDs at once - the admin access page adds several subjects
 // in one submit (upstream #1291). All-or-nothing: an unknown student ID
 // rejects the whole batch, and the inserts are a single statement.
-func (s *Service) CreateBulk(ctx context.Context, in BulkCreateInput) ([]AccessPolicy, error) {
+func (s *Service) CreateBulk(
+	ctx context.Context,
+	in AccessPolicyBulkInput,
+) ([]AccessPolicy, error) {
 	if err := auth.Require(ctx, apinames.AccessPolicyCreate); err != nil {
 		return nil, err
 	}
@@ -135,8 +138,8 @@ func nonEmptyUnique(values []string) []string {
 // the old TS admin form's zod .refine() (exactly one, never both, never
 // neither) plus its "does this member exist" check - kept here too, not
 // just left to the new DB CHECK constraint, so a bad request gets a clean
-// 400/404 instead of a raw constraint-violation error.
-func (s *Service) Create(ctx context.Context, in CreateInput) (*AccessPolicy, error) {
+// 422/404 instead of a raw constraint-violation error.
+func (s *Service) Create(ctx context.Context, in AccessPolicyInput) (*AccessPolicy, error) {
 	if err := auth.Require(ctx, apinames.AccessPolicyCreate); err != nil {
 		return nil, err
 	}

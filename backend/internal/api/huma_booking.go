@@ -9,232 +9,185 @@ import (
 	"github.com/dsek-lth/web/backend/internal/booking"
 )
 
-type listBookableCategoriesOutput struct {
-	Body []booking.BookableCategory
-}
-
-type createBookableCategoryInput struct {
-	Body booking.BookableCategoryInput
-}
-
-type updateBookableCategoryInput struct {
-	ID   string `path:"id"`
-	Body booking.BookableCategoryInput
-}
-
-type bookableCategoryOutput struct {
-	Body booking.BookableCategory
-}
-
-type listBookablesOutput struct {
-	Body []booking.Bookable
-}
-
-type bookableIDInput struct {
-	ID string `path:"id"`
-}
-
-type createBookableInput struct {
-	Body booking.BookableInput
-}
-
-type updateBookableInput struct {
-	ID   string `path:"id"`
-	Body booking.BookableInput
-}
-
-type bookableOutput struct {
-	Body booking.Bookable
-}
-
-type listBookingRequestsOutput struct {
-	Body []booking.BookingRequest
-}
-
-type bookingRequestIDInput struct {
-	ID string `path:"id"`
-}
-
-// acceptBookingRequestInput's body is optional: without it the request's
-// own door/member access lists are used as they are.
-type acceptBookingRequestInput struct {
-	ID   string               `path:"id"`
-	Body *booking.AccessInput `          required:"false"`
-}
-
-type bookingDoorsOutput struct {
-	Body []booking.AccessDoor
-}
-
-type reviewQueueOutput struct {
-	Body []booking.ReviewItem
-}
-
 type bookingRequestOutput struct {
 	Body booking.BookingRequest
 }
 
-type createBookingRequestInput struct {
-	Body booking.BookingRequestInput
-}
-
-type updateBookingRequestInput struct {
-	ID   string `path:"id"`
-	Body booking.BookingRequestInput
-}
-
-// bookingRequestWithConflictsOutput is create/update's response shape -
-// Conflicts is a non-blocking warning (2026-09-02 decision, see
-// DESIGN.md's Booking section): other non-denied requests overlapping the
-// submitted one for at least one shared bookable. The old app never
-// checked for this at all; Go surfaces it as information rather than
-// rejecting the request outright.
-type bookingRequestWithConflictsOutput struct {
-	Body struct {
-		BookingRequest booking.BookingRequest   `json:"bookingRequest"`
-		Conflicts      []booking.BookingRequest `json:"conflicts"`
-	}
+type bookingRequestResultOutput struct {
+	Body booking.BookingRequestResult
 }
 
 func registerBookingRoutes(api huma.API, svc *booking.Service) {
+	tags := []string{"Bookings"}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-bookable-categories",
 		Method:      http.MethodGet,
 		Path:        "/bookable-categories",
+		Tags:        tags,
 		Summary:     "List bookable categories",
-	}, func(ctx context.Context, input *struct{}) (*listBookableCategoriesOutput, error) {
+		Description: "Needs booking_request:bookable:read.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []booking.BookableCategory }, error) {
 		items, err := svc.ListBookableCategories(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listBookableCategoriesOutput{Body: items}, nil
+		return &struct{ Body []booking.BookableCategory }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "create-bookable-category",
 		Method:        http.MethodPost,
 		Path:          "/bookable-categories",
+		Tags:          tags,
 		Summary:       "Create a bookable category",
+		Description:   "Needs booking_request:bookable:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createBookableCategoryInput) (*bookableCategoryOutput, error) {
+	}, func(ctx context.Context, input *struct{ Body booking.BookableCategoryInput }) (*struct{ Body booking.BookableCategory }, error) {
 		cat, err := svc.CreateBookableCategory(ctx, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &bookableCategoryOutput{Body: *cat}, nil
+		return &struct{ Body booking.BookableCategory }{Body: *cat}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-bookable-category",
-		Method:      http.MethodPatch,
+		OperationID: "replace-bookable-category",
+		Method:      http.MethodPut,
 		Path:        "/bookable-categories/{id}",
-		Summary:     "Replace a bookable category (full-replace, not a partial patch)",
-	}, func(ctx context.Context, input *updateBookableCategoryInput) (*bookableCategoryOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a bookable category",
+		Description: "Needs booking_request:bookable:update.",
+	}, func(ctx context.Context, input *struct {
+		IDPath
+		Body booking.BookableCategoryInput
+	},
+	) (*struct{ Body booking.BookableCategory }, error) {
 		cat, err := svc.UpdateBookableCategory(ctx, input.ID, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &bookableCategoryOutput{Body: *cat}, nil
+		return &struct{ Body booking.BookableCategory }{Body: *cat}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-bookables",
 		Method:      http.MethodGet,
 		Path:        "/bookables",
-		Summary:     "List bookable resources",
-	}, func(ctx context.Context, input *struct{}) (*listBookablesOutput, error) {
+		Tags:        tags,
+		Summary:     "List bookables",
+		Description: "Everything that can be booked, with its category. Needs booking_request:bookable:read.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []booking.Bookable }, error) {
 		items, err := svc.ListBookables(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listBookablesOutput{Body: items}, nil
+		return &struct{ Body []booking.Bookable }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-bookable",
 		Method:      http.MethodGet,
 		Path:        "/bookables/{id}",
-		Summary:     "Get a bookable resource",
-	}, func(ctx context.Context, input *bookableIDInput) (*bookableOutput, error) {
+		Tags:        tags,
+		Summary:     "Get a bookable",
+		Description: "Needs booking_request:bookable:read.",
+	}, func(ctx context.Context, input *IDPath) (*struct{ Body booking.Bookable }, error) {
 		b, err := svc.GetBookable(ctx, input.ID)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &bookableOutput{Body: *b}, nil
+		return &struct{ Body booking.Bookable }{Body: *b}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "create-bookable",
 		Method:        http.MethodPost,
 		Path:          "/bookables",
-		Summary:       "Create a bookable resource",
+		Tags:          tags,
+		Summary:       "Create a bookable",
+		Description:   "Needs booking_request:bookable:create.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createBookableInput) (*bookableOutput, error) {
+	}, func(ctx context.Context, input *struct{ Body booking.BookableInput }) (*struct{ Body booking.Bookable }, error) {
 		b, err := svc.CreateBookable(ctx, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &bookableOutput{Body: *b}, nil
+		return &struct{ Body booking.Bookable }{Body: *b}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-bookable",
-		Method:      http.MethodPatch,
+		OperationID: "replace-bookable",
+		Method:      http.MethodPut,
 		Path:        "/bookables/{id}",
-		Summary:     "Replace a bookable resource (full-replace, not a partial patch)",
-	}, func(ctx context.Context, input *updateBookableInput) (*bookableOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a bookable",
+		Description: "Needs booking_request:bookable:update.",
+	}, func(ctx context.Context, input *struct {
+		IDPath
+		Body booking.BookableInput
+	},
+	) (*struct{ Body booking.Bookable }, error) {
 		b, err := svc.UpdateBookable(ctx, input.ID, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &bookableOutput{Body: *b}, nil
+		return &struct{ Body booking.Bookable }{Body: *b}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-booking-requests",
 		Method:      http.MethodGet,
 		Path:        "/booking-requests",
-		Summary:     "List upcoming booking requests",
-	}, func(ctx context.Context, input *struct{}) (*listBookingRequestsOutput, error) {
+		Tags:        tags,
+		Summary:     "List booking requests",
+		Description: "Every request starting at most a week ago. Needs booking_request:read.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []booking.BookingRequest }, error) {
 		items, err := svc.List(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &listBookingRequestsOutput{Body: items}, nil
+		return &struct{ Body []booking.BookingRequest }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "list-booking-doors",
 		Method:      http.MethodGet,
-		Path:        "/booking-requests/doors",
-		Summary:     "Doors a booking request can ask access for (booking_request:create)",
-	}, func(ctx context.Context, _ *struct{}) (*bookingDoorsOutput, error) {
+		Path:        "/booking-doors",
+		Tags:        tags,
+		Summary:     "List doors a booking can open",
+		Description: "The doors a booking request can ask access to. Needs booking_request:create.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []booking.BookingDoor }, error) {
 		doors, err := svc.ListDoors(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &bookingDoorsOutput{Body: doors}, nil
+		return &struct{ Body []booking.BookingDoor }{Body: doors}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "booking-review-queue",
+		OperationID: "list-booking-review-queue",
 		Method:      http.MethodGet,
-		Path:        "/booking-requests/review",
-		Summary:     "Pending booking requests with their conflicts (booking_request:update)",
-	}, func(ctx context.Context, _ *struct{}) (*reviewQueueOutput, error) {
+		Path:        "/booking-requests/review-queue",
+		Tags:        tags,
+		Summary:     "List booking requests to review",
+		Description: "Pending requests, each with the active requests it overlaps. Needs booking_request:update.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []booking.BookingReviewItem }, error) {
 		items, err := svc.ReviewQueue(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &reviewQueueOutput{Body: items}, nil
+		return &struct{ Body []booking.BookingReviewItem }{Body: items}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-booking-request",
 		Method:      http.MethodGet,
 		Path:        "/booking-requests/{id}",
+		Tags:        tags,
 		Summary:     "Get a booking request",
-	}, func(ctx context.Context, input *bookingRequestIDInput) (*bookingRequestOutput, error) {
+		Description: "Needs booking_request:read.",
+	}, func(ctx context.Context, input *IDPath) (*bookingRequestOutput, error) {
 		br, err := svc.Get(ctx, input.ID)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -246,42 +199,50 @@ func registerBookingRoutes(api huma.API, svc *booking.Service) {
 		OperationID:   "create-booking-request",
 		Method:        http.MethodPost,
 		Path:          "/booking-requests",
+		Tags:          tags,
 		Summary:       "Create a booking request",
+		Description:   "As the signed-in member, pending review. Needs booking_request:create. The kårhusmästare is notified.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createBookingRequestInput) (*bookingRequestWithConflictsOutput, error) {
+	}, func(ctx context.Context, input *struct{ Body booking.BookingRequestInput }) (*bookingRequestResultOutput, error) {
 		br, conflicts, err := svc.Create(ctx, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		out := &bookingRequestWithConflictsOutput{}
-		out.Body.BookingRequest = *br
-		out.Body.Conflicts = conflicts
-		return out, nil
+		return &bookingRequestResultOutput{
+			Body: booking.BookingRequestResult{BookingRequest: *br, Conflicts: conflicts},
+		}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-booking-request",
-		Method:      http.MethodPatch,
+		OperationID: "replace-booking-request",
+		Method:      http.MethodPut,
 		Path:        "/booking-requests/{id}",
-		Summary:     "Replace a booking request (full-replace, not a partial patch)",
-	}, func(ctx context.Context, input *updateBookingRequestInput) (*bookingRequestWithConflictsOutput, error) {
+		Tags:        tags,
+		Summary:     "Replace a booking request",
+		Description: "Needs booking_request:update, or being the booker. A booker's edit puts the request back to PENDING.",
+	}, func(ctx context.Context, input *struct {
+		IDPath
+		Body booking.BookingRequestInput
+	},
+	) (*bookingRequestResultOutput, error) {
 		br, conflicts, err := svc.Update(ctx, input.ID, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		out := &bookingRequestWithConflictsOutput{}
-		out.Body.BookingRequest = *br
-		out.Body.Conflicts = conflicts
-		return out, nil
+		return &bookingRequestResultOutput{
+			Body: booking.BookingRequestResult{BookingRequest: *br, Conflicts: conflicts},
+		}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "delete-booking-request",
 		Method:        http.MethodDelete,
 		Path:          "/booking-requests/{id}",
+		Tags:          tags,
 		Summary:       "Delete a booking request",
+		Description:   "Needs booking_request:delete, or being the booker.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *bookingRequestIDInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *IDPath) (*struct{}, error) {
 		if err := svc.Delete(ctx, input.ID); err != nil {
 			return nil, humaServiceError(err)
 		}
@@ -292,8 +253,15 @@ func registerBookingRoutes(api huma.API, svc *booking.Service) {
 		OperationID: "accept-booking-request",
 		Method:      http.MethodPost,
 		Path:        "/booking-requests/{id}/accept",
+		Tags:        tags,
 		Summary:     "Accept a booking request",
-	}, func(ctx context.Context, input *acceptBookingRequestInput) (*bookingRequestOutput, error) {
+		Description: "Grants the door access for the booking's time plus an hour either side. Without a body, " +
+			"the request's own door and member lists are used. Needs booking_request:update. The booker is notified.",
+	}, func(ctx context.Context, input *struct {
+		IDPath
+		Body *booking.BookingAccessInput `required:"false"`
+	},
+	) (*bookingRequestOutput, error) {
 		br, err := svc.SetStatus(ctx, input.ID, true, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
@@ -305,8 +273,10 @@ func registerBookingRoutes(api huma.API, svc *booking.Service) {
 		OperationID: "reject-booking-request",
 		Method:      http.MethodPost,
 		Path:        "/booking-requests/{id}/reject",
+		Tags:        tags,
 		Summary:     "Reject a booking request",
-	}, func(ctx context.Context, input *bookingRequestIDInput) (*bookingRequestOutput, error) {
+		Description: "Removes any door access it granted. Needs booking_request:update. The booker is notified.",
+	}, func(ctx context.Context, input *IDPath) (*bookingRequestOutput, error) {
 		br, err := svc.SetStatus(ctx, input.ID, false, nil)
 		if err != nil {
 			return nil, humaServiceError(err)

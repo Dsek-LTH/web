@@ -30,16 +30,23 @@ var (
 	ErrAlreadyInSongBook = errors.New("songs: song already in songbook")
 )
 
+// SongBookEntry is a song's place in the printed songbook.
 type SongBookEntry struct {
-	Page         int  `json:"page"`
-	NumberOnPage int  `json:"numberOnPage"`
+	Page         int  `json:"page"         doc:"Page in the printed songbook."`
+	NumberOnPage int  `json:"numberOnPage" doc:"The song's number on that page, from 1."`
 	Song         Song `json:"song"`
 }
 
+// SongBookEntryList is one page of songbook entries.
+type SongBookEntryList struct {
+	Entries   []SongBookEntry `json:"entries"`
+	PageCount int             `json:"pageCount" doc:"Number of pages at this pageSize."`
+}
+
 type SongBookEntryInput struct {
-	SongID       string `json:"songId"`
-	Page         int    `json:"page"`
-	NumberOnPage int    `json:"numberOnPage"`
+	SongID       string `json:"songId"       doc:"A song can be in the songbook once."`
+	Page         int    `json:"page"         doc:"Page in the printed songbook."`
+	NumberOnPage int    `json:"numberOnPage" doc:"The song's number on that page, from 1."`
 }
 
 type SongBookListParams struct {

@@ -11,10 +11,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List access policy grants, optionally filtered by apiName */
+    /**
+     * List access policies
+     * @description Needs core:access:api:read.
+     */
     get: operations["list-access-policies"];
     put?: never;
-    /** Grant an apiName to a role or a specific member (exactly one) */
+    /**
+     * Grant a policy
+     * @description To a role or to one member. Needs core:access:api:create.
+     */
     post: operations["create-access-policy"];
     delete?: never;
     options?: never;
@@ -29,7 +35,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List the apiNames already in use, with their grant counts */
+    /**
+     * List granted policies
+     * @description Every policy that has at least one grant, with how many. Needs core:access:api:read.
+     */
     get: operations["list-access-policy-api-names"];
     put?: never;
     post?: never;
@@ -48,7 +57,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Grant an apiName to several roles and/or members at once (all or nothing) */
+    /**
+     * Grant a policy to several roles and members
+     * @description All or nothing. Needs core:access:api:create.
+     */
     post: operations["create-access-policies-bulk"];
     delete?: never;
     options?: never;
@@ -66,7 +78,10 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Revoke an access policy grant */
+    /**
+     * Revoke a policy grant
+     * @description Needs core:access:api:delete.
+     */
     delete: operations["delete-access-policy"];
     options?: never;
     head?: never;
@@ -80,7 +95,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List every admin_settings key/value row */
+    /**
+     * List admin settings
+     * @description Operator key/value settings, e.g. the Discord webhook. Needs admin:settings:read.
+     */
     get: operations["list-admin-settings"];
     put?: never;
     post?: never;
@@ -98,30 +116,81 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Create or update one admin_settings row */
-    put: operations["upsert-admin-setting"];
+    /**
+     * Set an admin setting
+     * @description Creates or replaces it. Needs admin:settings:update.
+     */
+    put: operations["set-admin-setting"];
     post?: never;
-    /** Delete one admin_settings row */
+    /**
+     * Delete an admin setting
+     * @description Needs admin:settings:delete.
+     */
     delete: operations["delete-admin-setting"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/admin/files": {
+  "/alarm": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** List admin/minio's miscellaneous-file browser */
-    get: operations["list-misc-files"];
+    /**
+     * Whether an alarm event is running
+     * @description True while an event with alarmActive set is under way.
+     */
+    get: operations["get-alarm"];
     put?: never;
-    /** Upload a file to admin/minio's miscellaneous-file browser */
-    post: operations["upload-misc-file"];
-    /** Delete a file from admin/minio's miscellaneous-file browser */
-    delete: operations["delete-misc-file"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/albums": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List albums
+     * @description Every album with its pictures. During a nollning season, albums from before it started are hidden unless the caller has member:see_staben. Needs fileHandler:albums:read.
+     */
+    get: operations["list-albums"];
+    put?: never;
+    /**
+     * Upload pictures to an album
+     * @description Creates the album "{date} {name}" if it doesn't exist. Needs fileHandler:albums:create.
+     */
+    post: operations["upload-album-pictures"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/albums/{slug}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get an album
+     * @description Its pictures and album.json metadata. Needs fileHandler:albums:read.
+     */
+    get: operations["get-album"];
+    put?: never;
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -134,10 +203,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List active site-wide alerts */
+    /**
+     * List alerts
+     * @description Every active alert banner, each saying whether the signed-in member dismissed it.
+     */
     get: operations["list-alerts"];
     put?: never;
-    /** Create a site-wide alert */
+    /**
+     * Create an alert
+     * @description Needs alert.
+     */
     post: operations["create-alert"];
     delete?: never;
     options?: never;
@@ -155,14 +230,17 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Soft-delete an alert */
+    /**
+     * Delete an alert
+     * @description Soft delete. Needs alert.
+     */
     delete: operations["delete-alert"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/alerts/{id}/close": {
+  "/alerts/{id}/dismiss": {
     parameters: {
       query?: never;
       header?: never;
@@ -171,8 +249,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Dismiss an alert as the acting member */
-    post: operations["close-alert"];
+    /**
+     * Dismiss an alert
+     * @description Hides it for the signed-in member only.
+     */
+    post: operations["dismiss-alert"];
     delete?: never;
     options?: never;
     head?: never;
@@ -186,10 +267,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List published articles */
+    /**
+     * List published articles
+     * @description Published, non-deleted articles, newest first. pageSize defaults to 10.
+     */
     get: operations["list-articles"];
     put?: never;
-    /** Create an article */
+    /**
+     * Create an article
+     * @description Needs news:article:create. The caller is the author.
+     */
     post: operations["create-article"];
     delete?: never;
     options?: never;
@@ -204,16 +291,25 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get an article by slug */
+    /**
+     * Get an article
+     * @description A published, non-deleted article, with its comments and likers. includeDeleted/includeUnpublished let an editor load a hidden one.
+     */
     get: operations["get-article"];
-    put?: never;
+    /**
+     * Replace an article
+     * @description Replaces every field, so omitting publishedAt un-publishes the article. Needs news:article:update, or being its author. The editor becomes the author.
+     */
+    put: operations["replace-article"];
     post?: never;
-    /** Soft-delete an article */
+    /**
+     * Delete an article
+     * @description Soft delete. Needs news:article:delete.
+     */
     delete: operations["delete-article"];
     options?: never;
     head?: never;
-    /** Replace an article (full-replace, not a partial patch) */
-    patch: operations["update-article"];
+    patch?: never;
     trace?: never;
   };
   "/articles/{slug}/comments": {
@@ -225,8 +321,11 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Comment on an article as the acting member */
-    post: operations["create-comment"];
+    /**
+     * Comment on an article
+     * @description As the signed-in member. Needs news:article:comment. Mentioned members are notified.
+     */
+    post: operations["create-article-comment"];
     delete?: never;
     options?: never;
     head?: never;
@@ -243,14 +342,17 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Delete a comment */
-    delete: operations["delete-comment"];
+    /**
+     * Delete an article comment
+     * @description Needs news:article:comment:delete, or being the comment's author.
+     */
+    delete: operations["delete-article-comment"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/articles/{slug}/likes": {
+  "/articles/{slug}/like": {
     parameters: {
       query?: never;
       header?: never;
@@ -258,10 +360,16 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
-    /** Like an article as the acting member */
-    post: operations["like-article"];
-    /** Unlike an article as the acting member */
+    /**
+     * Like an article
+     * @description As the signed-in member. Needs news:article:like.
+     */
+    put: operations["like-article"];
+    post?: never;
+    /**
+     * Unlike an article
+     * @description As the signed-in member.
+     */
     delete: operations["unlike-article"];
     options?: never;
     head?: never;
@@ -276,8 +384,8 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * List board-flagged positions with their current holder
-     * @description Replaces the old board page's own Prisma query - positions belonging to the current nollning season's organizing committee are omitted unless the caller holds member:see_staben (see backend/DESIGN.md's nollning section).
+     * List the board
+     * @description Every active board position with its current holder, in display order. During a nollning season, the organizing committee's positions are left out unless the caller has member:see_staben.
      */
     get: operations["list-board"];
     put?: never;
@@ -295,10 +403,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List bookable categories */
+    /**
+     * List bookable categories
+     * @description Needs booking_request:bookable:read.
+     */
     get: operations["list-bookable-categories"];
     put?: never;
-    /** Create a bookable category */
+    /**
+     * Create a bookable category
+     * @description Needs booking_request:bookable:create.
+     */
     post: operations["create-bookable-category"];
     delete?: never;
     options?: never;
@@ -314,13 +428,16 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Replace a bookable category
+     * @description Needs booking_request:bookable:update.
+     */
+    put: operations["replace-bookable-category"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a bookable category (full-replace, not a partial patch) */
-    patch: operations["update-bookable-category"];
+    patch?: never;
     trace?: never;
   };
   "/bookables": {
@@ -330,10 +447,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List bookable resources */
+    /**
+     * List bookables
+     * @description Everything that can be booked, with its category. Needs booking_request:bookable:read.
+     */
     get: operations["list-bookables"];
     put?: never;
-    /** Create a bookable resource */
+    /**
+     * Create a bookable
+     * @description Needs booking_request:bookable:create.
+     */
     post: operations["create-bookable"];
     delete?: never;
     options?: never;
@@ -348,43 +471,34 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a bookable resource */
+    /**
+     * Get a bookable
+     * @description Needs booking_request:bookable:read.
+     */
     get: operations["get-bookable"];
-    put?: never;
+    /**
+     * Replace a bookable
+     * @description Needs booking_request:bookable:update.
+     */
+    put: operations["replace-bookable"];
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Replace a bookable resource (full-replace, not a partial patch) */
-    patch: operations["update-bookable"];
-    trace?: never;
-  };
-  "/booking-requests": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List upcoming booking requests */
-    get: operations["list-booking-requests"];
-    put?: never;
-    /** Create a booking request */
-    post: operations["create-booking-request"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/booking-requests/doors": {
+  "/booking-doors": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Doors a booking request can ask access for (booking_request:create) */
+    /**
+     * List doors a booking can open
+     * @description The doors a booking request can ask access to. Needs booking_request:create.
+     */
     get: operations["list-booking-doors"];
     put?: never;
     post?: never;
@@ -394,15 +508,42 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/booking-requests/review": {
+  "/booking-requests": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Pending booking requests with their conflicts (booking_request:update) */
-    get: operations["booking-review-queue"];
+    /**
+     * List booking requests
+     * @description Every request starting at most a week ago. Needs booking_request:read.
+     */
+    get: operations["list-booking-requests"];
+    put?: never;
+    /**
+     * Create a booking request
+     * @description As the signed-in member, pending review. Needs booking_request:create. The kårhusmästare is notified.
+     */
+    post: operations["create-booking-request"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/booking-requests/review-queue": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List booking requests to review
+     * @description Pending requests, each with the active requests it overlaps. Needs booking_request:update.
+     */
+    get: operations["list-booking-review-queue"];
     put?: never;
     post?: never;
     delete?: never;
@@ -418,16 +559,25 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a booking request */
+    /**
+     * Get a booking request
+     * @description Needs booking_request:read.
+     */
     get: operations["get-booking-request"];
-    put?: never;
+    /**
+     * Replace a booking request
+     * @description Needs booking_request:update, or being the booker. A booker's edit puts the request back to PENDING.
+     */
+    put: operations["replace-booking-request"];
     post?: never;
-    /** Delete a booking request */
+    /**
+     * Delete a booking request
+     * @description Needs booking_request:delete, or being the booker.
+     */
     delete: operations["delete-booking-request"];
     options?: never;
     head?: never;
-    /** Replace a booking request (full-replace, not a partial patch) */
-    patch: operations["update-booking-request"];
+    patch?: never;
     trace?: never;
   };
   "/booking-requests/{id}/accept": {
@@ -439,7 +589,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Accept a booking request */
+    /**
+     * Accept a booking request
+     * @description Grants the door access for the booking's time plus an hour either side. Without a body, the request's own door and member lists are used. Needs booking_request:update. The booker is notified.
+     */
     post: operations["accept-booking-request"];
     delete?: never;
     options?: never;
@@ -456,7 +609,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Reject a booking request */
+    /**
+     * Reject a booking request
+     * @description Removes any door access it granted. Needs booking_request:update. The booker is notified.
+     */
     post: operations["reject-booking-request"];
     delete?: never;
     options?: never;
@@ -464,7 +620,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/cafe/ciabatta": {
+  "/cafe/ciabattas/{year}/{week}": {
     parameters: {
       query?: never;
       header?: never;
@@ -472,7 +628,10 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Set the ciabatta-of-the-week for a given year/week (upsert) */
+    /**
+     * Set a week's ciabatta
+     * @description Needs cafe:edit_ciabattas.
+     */
     put: operations["set-cafe-ciabatta"];
     post?: never;
     delete?: never;
@@ -488,7 +647,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List the cafe's opening-hours pages ("cafe:open*" markdowns rows) */
+    /**
+     * List the cafe's opening hours
+     * @description The cafe:open* info pages, one per weekday.
+     */
     get: operations["list-cafe-opening-hours"];
     put?: never;
     post?: never;
@@ -505,7 +667,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a week's cafe shifts and ciabatta-of-the-week */
+    /**
+     * Get a week's cafe schedule
+     * @description The week's shifts and ciabatta. Without cafe:see_all_weeks, only this week and the next two can be viewed.
+     */
     get: operations["get-cafe-schedule"];
     put?: never;
     post?: never;
@@ -515,7 +680,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/cafe/shifts": {
+  "/cafe/shifts/toggle": {
     parameters: {
       query?: never;
       header?: never;
@@ -523,9 +688,12 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Sign up for, quit, or (with cafe:edit_workers) reassign a cafe shift */
-    put: operations["set-cafe-shift"];
-    post?: never;
+    put?: never;
+    /**
+     * Toggle a cafe shift
+     * @description Signs the member up for an open slot, takes them off their own slot, or (with cafe:edit_workers) gives someone else's slot to them. Without cafe:edit_workers, a shift can only be quit while it is at least two days away.
+     */
+    post: operations["toggle-cafe-shift"];
     delete?: never;
     options?: never;
     head?: never;
@@ -539,7 +707,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List committees with descriptions/images and currently-active mandate/member counts */
+    /**
+     * List committees
+     * @description Every committee, with how many active mandates and members it has.
+     */
     get: operations["list-committees"];
     put?: never;
     post?: never;
@@ -556,15 +727,41 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a committee's positions (for the given year, default current), mandates, and about/links content */
+    /**
+     * Get a committee
+     * @description The committee page: its positions and their mandates for one year, and its about and links text.
+     */
     get: operations["get-committee"];
-    put?: never;
+    /**
+     * Replace a committee
+     * @description Names, descriptions, images and banner. Needs core:committee:update.
+     */
+    put: operations["replace-committee"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a committee's descriptions/images/banner */
-    patch: operations["update-committee"];
+    patch?: never;
+    trace?: never;
+  };
+  "/committees/{shortName}/about": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Replace a committee's about text
+     * @description Needs core:committee:update.
+     */
+    put: operations["replace-committee-about"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/committees/{shortName}/links": {
@@ -575,25 +772,11 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Replace a committee's sidebar links content */
-    put: operations["update-committee-links"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/committees/{shortName}/markdown": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Replace a committee's about-text */
-    put: operations["update-committee-markdown"];
+    /**
+     * Replace a committee's sidebar links
+     * @description Markdown. Needs core:committee:update.
+     */
+    put: operations["replace-committee-links"];
     post?: never;
     delete?: never;
     options?: never;
@@ -608,81 +791,14 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List custom (non-member) bylines */
+    /**
+     * List custom authors
+     * @description Shared bylines that aren't a member, e.g. Styrelsen.
+     */
     get: operations["list-custom-authors"];
     put?: never;
     post?: never;
     delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/documents": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List meeting documents (board/guild/SRD/other) for a year */
-    get: operations["list-meetings"];
-    put?: never;
-    post?: never;
-    /** Delete a meeting document */
-    delete: operations["delete-document"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/documents/requirements": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List position/committee requirement-profile documents for a year */
-    get: operations["list-requirement-profiles"];
-    put?: never;
-    post?: never;
-    /** Delete a requirement-profile document */
-    delete: operations["delete-requirement-profile"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/documents/upload": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Upload a meeting/SRD/requirement-profile document */
-    post: operations["upload-document"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/door-access-policies/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Remove a door access policy */
-    delete: operations["delete-door-access-policy"];
     options?: never;
     head?: never;
     patch?: never;
@@ -695,7 +811,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List every physical door */
+    /**
+     * List doors
+     * @description Needs core:access:door:read.
+     */
     get: operations["list-doors"];
     put?: never;
     post?: never;
@@ -712,12 +831,38 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List a door's non-expired access policies */
+    /**
+     * List a door's access policies
+     * @description Every rule that hasn't ended, including ones that haven't started. Needs core:access:door:read.
+     */
     get: operations["list-door-access-policies"];
     put?: never;
-    /** Grant or restrict access to a door */
+    /**
+     * Create a door access policy
+     * @description Grant or ban access. The member or role must exist. Needs core:access:door:create.
+     */
     post: operations["create-door-access-policy"];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/doors/{name}/access-policies/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a door access policy
+     * @description Needs core:access:door:delete.
+     */
+    delete: operations["delete-door-access-policy"];
     options?: never;
     head?: never;
     patch?: never;
@@ -730,10 +875,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List open (not yet expired) committee elections, soonest-closing first */
+    /**
+     * List open elections
+     * @description Elections that haven't closed, soonest closing first.
+     */
     get: operations["list-elections"];
     put?: never;
-    /** Create a committee election announcement */
+    /**
+     * Create an election
+     * @description Needs election:create.
+     */
     post: operations["create-election"];
     delete?: never;
     options?: never;
@@ -748,16 +899,25 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get an election by id, regardless of whether it has expired */
+    /**
+     * Get an election
+     * @description Closed ones too.
+     */
     get: operations["get-election"];
-    put?: never;
+    /**
+     * Replace an election
+     * @description Needs election:update.
+     */
+    put: operations["replace-election"];
     post?: never;
-    /** Delete an election (hard delete, no soft-delete column exists) */
+    /**
+     * Delete an election
+     * @description Needs election:delete.
+     */
     delete: operations["delete-election"];
     options?: never;
     head?: never;
-    /** Replace an election (full-replace, not a partial patch) */
-    patch: operations["update-election"];
+    patch?: never;
     trace?: never;
   };
   "/events": {
@@ -767,11 +927,37 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List events */
+    /**
+     * List events
+     * @description Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. pageSize defaults to 10.
+     */
     get: operations["list-events"];
     put?: never;
-    /** Create an event, or a recurring series if Body.recurring is set */
+    /**
+     * Create an event
+     * @description Needs event:create. With recurring set, creates every occurrence of the series as its own event and returns the first.
+     */
     post: operations["create-event"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/events.ics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Events as an ICS calendar feed
+     * @description Every event not tied to a nollning season.
+     */
+    get: operations["get-events-calendar"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -785,8 +971,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Look up an event's slug from its id (for legacy /events/id/{id} links) */
-    get: operations["get-event-slug-by-id"];
+    /**
+     * Look up an event's slug from its id
+     * @description For legacy /events/id/{id} links. Gives the event a slug first if it has none.
+     */
+    get: operations["get-event-slug"];
     put?: never;
     post?: never;
     delete?: never;
@@ -802,16 +991,25 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get an event by slug */
+    /**
+     * Get an event
+     * @description A non-deleted event, with its comments, attendees and recurring series.
+     */
     get: operations["get-event"];
-    put?: never;
+    /**
+     * Replace an event
+     * @description Replaces every field. Needs event:update, or being its author. With scope FUTURE or ALL, every affected occurrence gets the new content and start/end time of day, but keeps its own date. recurring is ignored.
+     */
+    put: operations["replace-event"];
     post?: never;
-    /** Soft-delete an event */
+    /**
+     * Delete an event
+     * @description Soft delete; scope works as for replace. Needs event:delete.
+     */
     delete: operations["delete-event"];
     options?: never;
     head?: never;
-    /** Replace an event (full-replace, not a partial patch) */
-    patch: operations["update-event"];
+    patch?: never;
     trace?: never;
   };
   "/events/{slug}/attendance": {
@@ -822,13 +1020,16 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Set your attendance
+     * @description The signed-in member's going/interested status. The organizer is notified.
+     */
+    put: operations["set-event-attendance"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Set the acting member's going/interested/none status */
-    patch: operations["set-event-attendance"];
+    patch?: never;
     trace?: never;
   };
   "/events/{slug}/comments": {
@@ -840,7 +1041,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Comment on an event as the acting member */
+    /**
+     * Comment on an event
+     * @description As the signed-in member. Needs event:comment. Mentioned members are notified.
+     */
     post: operations["create-event-comment"];
     delete?: never;
     options?: never;
@@ -858,56 +1062,56 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Delete a comment */
+    /**
+     * Delete an event comment
+     * @description Needs event:comment:delete, or being the comment's author.
+     */
     delete: operations["delete-event-comment"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/gallery": {
+  "/files": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** List gallery albums */
-    get: operations["list-albums"];
+    /**
+     * List miscellaneous files
+     * @description Files under public/miscellaneous in the files bucket (the admin file browser). Needs fileHandler:files:read.
+     */
+    get: operations["list-files"];
     put?: never;
-    post?: never;
-    delete?: never;
+    /**
+     * Upload a miscellaneous file
+     * @description Needs fileHandler:files:create.
+     */
+    post: operations["upload-file"];
+    /**
+     * Delete a miscellaneous file
+     * @description Needs fileHandler:files:delete.
+     */
+    delete: operations["delete-file"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/gallery/upload": {
+  "/files/{name}": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
-    put?: never;
-    /** Upload one or more pictures to a gallery album */
-    post: operations["upload-album"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/gallery/{slug}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get one gallery album's pictures and metadata */
-    get: operations["get-album"];
+    /**
+     * Download a miscellaneous file
+     * @description The raw bytes of public/miscellaneous/{name}. Signed-in members only.
+     */
+    get: operations["get-file"];
     put?: never;
     post?: never;
     delete?: never;
@@ -923,10 +1127,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List governing documents (styrdokument) */
+    /**
+     * List governing documents
+     * @description Every non-deleted governing document (styrdokument), of any type. Needs governing_document:read.
+     */
     get: operations["list-governing-documents"];
     put?: never;
-    /** Create a governing document */
+    /**
+     * Create a governing document
+     * @description Needs governing_document:write.
+     */
     post: operations["create-governing-document"];
     delete?: never;
     options?: never;
@@ -941,35 +1151,73 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a governing document by id (POLICY/GUIDELINE only) */
+    /**
+     * Get a governing document
+     * @description Only POLICY and GUIDELINE documents, the editable kinds. Needs governing_document:read.
+     */
     get: operations["get-governing-document"];
-    put?: never;
+    /**
+     * Replace a governing document
+     * @description Needs governing_document:write.
+     */
+    put: operations["replace-governing-document"];
     post?: never;
-    /** Soft-delete a governing document (any type) */
+    /**
+     * Delete a governing document
+     * @description Soft delete, of any type. Needs governing_document:write.
+     */
     delete: operations["delete-governing-document"];
     options?: never;
     head?: never;
-    /** Replace a governing document (full-replace, not a partial patch) */
-    patch: operations["update-governing-document"];
+    patch?: never;
     trace?: never;
   };
-  "/info/{slug}": {
+  "/images": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Get a named markdown page */
-    get: operations["get-markdown-page"];
+    get?: never;
     put?: never;
-    /** Create a named markdown page */
-    post: operations["create-markdown-page"];
+    /**
+     * Upload an image
+     * @description For article bodies. Needs news:article:create.
+     */
+    post: operations["upload-image"];
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a named markdown page's content */
-    patch: operations["update-markdown-page"];
+    patch?: never;
+    trace?: never;
+  };
+  "/info-pages/{slug}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get an info page
+     * @description Public. 404 if no page has this name.
+     */
+    get: operations["get-info-page"];
+    /**
+     * Replace an info page
+     * @description Needs markdown:update, or markdowns:<slug>:update for this page.
+     */
+    put: operations["replace-info-page"];
+    /**
+     * Create an info page
+     * @description Needs markdown:create. The creator is granted markdowns:<slug>:update for it.
+     */
+    post: operations["create-info-page"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/links": {
@@ -979,12 +1227,21 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List Shlink short URLs (proxied verbatim) */
+    /**
+     * List short links
+     * @description Short URLs in the link shortener (Shlink), 20 per page. Needs admin:shlink:read.
+     */
     get: operations["list-links"];
     put?: never;
-    /** Create a Shlink short URL */
+    /**
+     * Create a short link
+     * @description Needs admin:shlink:create.
+     */
     post: operations["create-link"];
-    /** Delete one or more Shlink short URLs, then prune emptied tags */
+    /**
+     * Delete short links
+     * @description Then deletes any tag no link uses any more. Needs admin:shlink:delete.
+     */
     delete: operations["delete-links"];
     options?: never;
     head?: never;
@@ -998,7 +1255,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List Shlink domains ({data, defaultRedirects}, proxied) */
+    /**
+     * List short link domains
+     * @description Needs admin:shlink:read.
+     */
     get: operations["list-link-domains"];
     put?: never;
     post?: never;
@@ -1015,7 +1275,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List Shlink tags with stats (proxied verbatim) */
+    /**
+     * List short link tags
+     * @description Needs admin:shlink:read.
+     */
     get: operations["list-link-tags"];
     put?: never;
     post?: never;
@@ -1033,13 +1296,16 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Replace a short link
+     * @description Its target and tags; the short code can't change. Needs admin:shlink:update.
+     */
+    put: operations["replace-link"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Update a Shlink short URL's target/tags */
-    patch: operations["update-link"];
+    patch?: never;
     trace?: never;
   };
   "/mandates/{id}": {
@@ -1050,14 +1316,60 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Replace a mandate's dates
+     * @description Needs core:mandate:update.
+     */
+    put: operations["replace-mandate-dates"];
     post?: never;
-    /** Delete a mandate */
+    /**
+     * Delete a mandate
+     * @description Needs core:mandate:delete.
+     */
     delete: operations["delete-mandate"];
     options?: never;
     head?: never;
-    /** Replace a mandate's start/end dates */
-    patch: operations["update-mandate"];
+    patch?: never;
+    trace?: never;
+  };
+  "/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get the caller's identity
+     * @description Who the caller is, with their policies and roles. Works anonymously too: an anonymous caller gets empty ids, the anonymous policies, and no member.
+     */
+    get: operations["get-me"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/me/tickets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List your tickets
+     * @description Every ticket request the signed-in member has made, newest first.
+     */
+    get: operations["list-my-tickets"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/medals": {
@@ -1067,11 +1379,62 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List who earned which medal after a given semester */
+    /**
+     * List medal recipients
+     * @description Who earned which medal after the given semester. Signed-in members only.
+     */
     get: operations["list-medal-recipients"];
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/medals.csv": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Medal recipients as CSV
+     * @description The same list as GET /medals, one row per member and medal: Namn,StilID,Medalj.
+     */
+    get: operations["get-medal-recipients-csv"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/meeting-documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List meeting documents
+     * @description One year's meetings of one kind, each with its notice, agenda and minutes picked out. Needs fileHandler:documents:read (fileHandler:files:read for SRD).
+     */
+    get: operations["list-meetings"];
+    put?: never;
+    /**
+     * Upload a meeting document
+     * @description Into public/{year}/{folder} (SRD: public/srd/{year}/{folder}). Needs fileHandler:documents:create (fileHandler:files:create for SRD).
+     */
+    post: operations["upload-meeting-document"];
+    /**
+     * Delete a meeting document
+     * @description The bucket is picked from type. Needs fileHandler:documents:delete (fileHandler:files:delete for SRD).
+     */
+    delete: operations["delete-meeting-document"];
     options?: never;
     head?: never;
     patch?: never;
@@ -1084,25 +1447,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List members, optionally filtered by classYear/classProgramme */
+    /**
+     * List members
+     * @description Signed-in members only.
+     */
     get: operations["list-members"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/members/{id}/mandates": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** List a member's currently-active mandates */
-    get: operations["list-member-mandates"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1118,15 +1467,21 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a member's full profile */
+    /**
+     * Get a member
+     * @description The full profile with mandate history. Signed-in members only.
+     */
     get: operations["get-member"];
-    put?: never;
+    /**
+     * Replace a member's profile
+     * @description Every profile field except food preference, email and picture. The member themselves, or core:member:update.
+     */
+    put: operations["replace-member-profile"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a member's profile fields (full-replace, not a partial patch) */
-    patch: operations["update-member-profile"];
+    patch?: never;
     trace?: never;
   };
   "/members/{studentId}/door-access": {
@@ -1136,8 +1491,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** The acting member's own current door access (self-view only, empty for anyone else) */
-    get: operations["get-member-door-access"];
+    /**
+     * List a member's door access
+     * @description Which doors the member can open now. Only for the member themselves; empty for anyone else.
+     */
+    get: operations["list-member-door-access"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1154,13 +1512,16 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Set a member's food preference
+     * @description The member themselves, or core:member:update.
+     */
+    put: operations["set-member-food-preference"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a member's food preference */
-    patch: operations["update-member-food-preference"];
+    patch?: never;
     trace?: never;
   };
   "/members/{studentId}/language": {
@@ -1171,13 +1532,36 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
+    /**
+     * Set a member's UI language
+     * @description What the language switcher saves. The member themselves, or core:member:update.
+     */
+    put: operations["set-member-language"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/members/{studentId}/mandates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List a member's active mandates
+     * @description Only the mandates running today - the article byline picker. GET /members/{studentId} has the full history.
+     */
+    get: operations["list-member-active-mandates"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Set a member's preferred site language */
-    patch: operations["update-member-language"];
+    patch?: never;
     trace?: never;
   };
   "/members/{studentId}/medals": {
@@ -1187,7 +1571,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List the medals a member has earned up to last semester */
+    /**
+     * List a member's medals
+     * @description Every medal the member had earned by the end of last semester.
+     */
     get: operations["list-member-medals"];
     put?: never;
     post?: never;
@@ -1204,8 +1591,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a member's PhadderRole (nolla/phadder/none) for the current season */
-    get: operations["get-phadder-role"];
+    /**
+     * Get a member's phadder role
+     * @description Whether the member is a nolla or phadder this season, and in which group.
+     */
+    get: operations["get-member-phadder-role"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1223,12 +1613,15 @@ export interface paths {
     };
     get?: never;
     /**
-     * Upload a member's profile picture and make it their avatar
-     * @description The image should already be cropped (the web app crops to 400x400 WebP). Replaces and deletes the previous picture.
+     * Set a member's profile picture
+     * @description The image should already be cropped (the web app crops to 400x400 WebP). Replaces and deletes the previous picture. The member themselves, or core:member:update.
      */
-    put: operations["upload-member-picture"];
+    put: operations["set-member-picture"];
     post?: never;
-    /** Remove a member's profile picture */
+    /**
+     * Remove a member's profile picture
+     * @description The member themselves, or core:member:update.
+     */
     delete: operations["delete-member-picture"];
     options?: never;
     head?: never;
@@ -1244,7 +1637,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Ping a member as the signed-in member */
+    /**
+     * Ping a member
+     * @description As the signed-in member. Needs core:member:ping. The pinged member is notified.
+     */
     post: operations["ping-member"];
     delete?: never;
     options?: never;
@@ -1259,8 +1655,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get the current nollning phase and active season, if any */
-    get: operations["get-current-nollning"];
+    /**
+     * Get the nollning phase
+     * @description The current phase and active season, which the frontend uses for theming and routing.
+     */
+    get: operations["get-nollning-status"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1269,17 +1668,43 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/nollning/groups": {
+  "/nollning/events.ics": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** List phadder groups, optionally filtered by seasonId */
+    /**
+     * Nollning events as an ICS calendar feed
+     * @description The current season's events once it has been revealed, otherwise the general feed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most three months ahead.
+     */
+    get: operations["get-nollning-events-calendar"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/nollning/phadder-groups": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List phadder groups
+     * @description With how many nollor and phaddrar each has.
+     */
     get: operations["list-phadder-groups"];
     put?: never;
-    /** Create a phadder group */
+    /**
+     * Create a phadder group
+     * @description Needs nollning:phaddrar:groups:manage.
+     */
     post: operations["create-phadder-group"];
     delete?: never;
     options?: never;
@@ -1287,26 +1712,35 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/nollning/groups/{id}": {
+  "/nollning/phadder-groups/{id}": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Get a phadder group with its nollor and phaddrar */
+    /**
+     * Get a phadder group
+     * @description With its nollor and phaddrar.
+     */
     get: operations["get-phadder-group"];
-    put?: never;
+    /**
+     * Replace a phadder group
+     * @description Needs nollning:phaddrar:groups:manage.
+     */
+    put: operations["replace-phadder-group"];
     post?: never;
-    /** Delete a phadder group */
+    /**
+     * Delete a phadder group
+     * @description Needs nollning:phaddrar:groups:manage.
+     */
     delete: operations["delete-phadder-group"];
     options?: never;
     head?: never;
-    /** Replace a phadder group's fields */
-    patch: operations["update-phadder-group"];
+    patch?: never;
     trace?: never;
   };
-  "/nollning/groups/{id}/nollor": {
+  "/nollning/phadder-groups/{id}/nollor": {
     parameters: {
       query?: never;
       header?: never;
@@ -1315,15 +1749,18 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Add members (by student id) to a phadder group as nollor - all or nothing */
-    post: operations["add-nolla"];
+    /**
+     * Add nollor to a phadder group
+     * @description Needs nollning:phaddrar:groups:manage.
+     */
+    post: operations["add-phadder-group-nollor"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/nollning/groups/{id}/nollor/{studentId}": {
+  "/nollning/phadder-groups/{id}/nollor/{studentId}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1333,14 +1770,17 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Remove a member from a phadder group's nollor */
-    delete: operations["remove-nolla"];
+    /**
+     * Remove a nolla from a phadder group
+     * @description Needs nollning:phaddrar:groups:manage.
+     */
+    delete: operations["remove-phadder-group-nolla"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/nollning/groups/{id}/phaddrar": {
+  "/nollning/phadder-groups/{id}/phaddrar": {
     parameters: {
       query?: never;
       header?: never;
@@ -1349,15 +1789,18 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Tag members' (by student id) active phadder/uppdrag mandates to a phadder group - all or nothing */
-    post: operations["add-phadder"];
+    /**
+     * Add phaddrar to a phadder group
+     * @description Ties each member's active phadder or uppdrag mandate for the group's season to the group; 422 naming anyone without one. Needs nollning:phaddrar:groups:manage.
+     */
+    post: operations["add-phadder-group-phaddrar"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/nollning/groups/{id}/phaddrar/{studentId}": {
+  "/nollning/phadder-groups/{id}/phaddrar/{studentId}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1367,8 +1810,11 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Untag a member's mandate(s) from a phadder group */
-    delete: operations["remove-phadder"];
+    /**
+     * Remove a phadder from a phadder group
+     * @description Needs nollning:phaddrar:groups:manage.
+     */
+    delete: operations["remove-phadder-group-phadder"];
     options?: never;
     head?: never;
     patch?: never;
@@ -1381,10 +1827,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List every nollning season */
+    /**
+     * List nollning seasons
+     * @description Every season, newest first.
+     */
     get: operations["list-nollning-seasons"];
     put?: never;
-    /** Create a nollning season */
+    /**
+     * Create a nollning season
+     * @description Needs nollning:season:manage.
+     */
     post: operations["create-nollning-season"];
     delete?: never;
     options?: never;
@@ -1400,13 +1852,16 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Replace a nollning season
+     * @description Needs nollning:season:manage.
+     */
+    put: operations["replace-nollning-season"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a nollning season's fields */
-    patch: operations["update-nollning-season"];
+    patch?: never;
     trace?: never;
   };
   "/notification-settings": {
@@ -1416,10 +1871,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get the acting member's subscription settings */
+    /**
+     * Get your notification settings
+     * @description What the signed-in member gets notified about.
+     */
     get: operations["get-notification-settings"];
-    /** Replace the acting member's subscription settings (full-replace) */
-    put: operations["put-notification-settings"];
+    /**
+     * Replace your notification settings
+     * @description Every setting at once.
+     */
+    put: operations["replace-notification-settings"];
     post?: never;
     delete?: never;
     options?: never;
@@ -1434,35 +1895,44 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List the acting member's notifications, grouped */
+    /**
+     * List your notifications
+     * @description The signed-in member's notifications, newest first, with repeats (likes, comments on the same thing, ...) merged into groups. Without pageSize, all of them; with it, one page of individual notifications, grouped within the page.
+     */
     get: operations["list-notifications"];
     put?: never;
     post?: never;
-    /** Delete one, several, or (with neither param) every notification */
+    /**
+     * Delete notifications
+     * @description The given ones, or every one.
+     */
     delete: operations["delete-notifications"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/notifications/page": {
+  "/notifications/mark-read": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** The acting member's newest notifications, grouped, plus whether there are more */
-    get: operations["list-notifications-page"];
+    get?: never;
     put?: never;
-    post?: never;
+    /**
+     * Mark notifications as read
+     * @description The given ones, or every unread one.
+     */
+    post: operations["mark-notifications-read"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/notifications/read": {
+  "/notifications/push-token": {
     parameters: {
       query?: never;
       header?: never;
@@ -1470,26 +1940,12 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Register a push token
+     * @description Ties a device's Expo push token to the signed-in member (taking it over from anyone else).
+     */
+    put: operations["set-push-token"];
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Mark one, several, or (with neither param) every unread notification as read */
-    patch: operations["mark-notifications-read"];
-    trace?: never;
-  };
-  "/notifications/token": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Register the acting member's Expo push token */
-    post: operations["upload-expo-token"];
     delete?: never;
     options?: never;
     head?: never;
@@ -1503,7 +1959,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** The acting member's number of unread notifications */
+    /**
+     * Count your unread notifications
+     * @description The notification bell's badge.
+     */
     get: operations["count-unread-notifications"];
     put?: never;
     post?: never;
@@ -1520,7 +1979,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List every position */
+    /**
+     * List positions
+     * @description Every position, active or not.
+     */
     get: operations["list-positions"];
     put?: never;
     post?: never;
@@ -1537,18 +1999,24 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a position's full mandate history and email aliases */
+    /**
+     * Get a position
+     * @description With its full mandate history and email aliases.
+     */
     get: operations["get-position"];
-    put?: never;
+    /**
+     * Replace a position
+     * @description Needs core:position:update.
+     */
+    put: operations["replace-position"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a position's fields and active/boardMember flags */
-    patch: operations["update-position"];
+    patch?: never;
     trace?: never;
   };
-  "/positions/{positionId}/mandates": {
+  "/positions/{id}/mandates": {
     parameters: {
       query?: never;
       header?: never;
@@ -1557,7 +2025,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create a mandate on this position for each of the given memberIds */
+    /**
+     * Create mandates
+     * @description One mandate on this position per member. Needs core:mandate:create.
+     */
     post: operations["create-mandates"];
     delete?: never;
     options?: never;
@@ -1572,11 +2043,42 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get one issue of the README newsletter */
+    /**
+     * Get a Readme issue
+     * @description One issue of the Readme newsletter, by year and number.
+     */
     get: operations["get-readme-issue"];
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/requirement-profiles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List requirement profiles
+     * @description One year's requirement profiles (kravprofiler), by folder. Needs fileHandler:files:read.
+     */
+    get: operations["list-requirement-profiles"];
+    put?: never;
+    /**
+     * Upload a requirement profile
+     * @description Into public/kravprofiler/{year}/{folder}. Needs fileHandler:files:create.
+     */
+    post: operations["upload-requirement-profile"];
+    /**
+     * Delete a requirement profile
+     * @description Needs fileHandler:files:delete.
+     */
+    delete: operations["delete-requirement-profile"];
     options?: never;
     head?: never;
     patch?: never;
@@ -1590,8 +2092,8 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Search across several indexes at once
-     * @description The members index is only searched for a signed-in caller.
+     * Search
+     * @description One query across several indexes, best matches first. The members index is only searched for a signed-in caller. 503 if search isn't configured.
      */
     get: operations["search"];
     put?: never;
@@ -1611,7 +2113,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Rebuild every search index in the background */
+    /**
+     * Rebuild the search indexes
+     * @description Starts a rebuild of every index in the background; 409 if one is running. Needs core:admin. POST /search/sync/password (not in this document: its body is the raw SYNC_PASSWORD) does the same for a cron job.
+     */
     post: operations["start-search-sync"];
     delete?: never;
     options?: never;
@@ -1619,17 +2124,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/songbook": {
+  "/songbook-entries": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** List songbook entries in page order */
-    get: operations["list-songbook"];
+    /**
+     * List songbook entries
+     * @description The printed songbook's index, in page order. Needs song:read. pageSize defaults to 20.
+     */
+    get: operations["list-songbook-entries"];
     put?: never;
-    /** Put a song in the songbook (song:create) */
+    /**
+     * Put a song in the songbook
+     * @description Needs song:create. 409 if the position is taken or the song is already in the book.
+     */
     post: operations["create-songbook-entry"];
     delete?: never;
     options?: never;
@@ -1637,23 +2148,32 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/songbook/{page}/{numberOnPage}": {
+  "/songbook-entries/{page}/{numberOnPage}": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Get the songbook entry at a page and number */
+    /**
+     * Get a songbook entry
+     * @description The song at a page and number. Needs song:read.
+     */
     get: operations["get-songbook-entry"];
-    put?: never;
+    /**
+     * Replace a songbook entry
+     * @description Move it and/or change its song. Needs song:update. 409 as for create.
+     */
+    put: operations["replace-songbook-entry"];
     post?: never;
-    /** Take a song out of the songbook (song:delete) */
+    /**
+     * Take a song out of the songbook
+     * @description The song itself stays in the archive. Needs song:delete.
+     */
     delete: operations["delete-songbook-entry"];
     options?: never;
     head?: never;
-    /** Move a songbook entry and/or change its song (song:update) */
-    patch: operations["update-songbook-entry"];
+    patch?: never;
     trace?: never;
   };
   "/songs": {
@@ -1663,10 +2183,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List songbook entries */
+    /**
+     * List songs
+     * @description The song archive, newest first. Needs song:read. pageSize defaults to 20.
+     */
     get: operations["list-songs"];
     put?: never;
-    /** Create a song */
+    /**
+     * Create a song
+     * @description Needs song:create.
+     */
     post: operations["create-song"];
     delete?: never;
     options?: never;
@@ -1681,7 +2207,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List existing song categories (raw, for autocomplete) */
+    /**
+     * List song categories
+     * @description Every category in use, as stored - for the song form's autocomplete. Needs song:read.
+     */
     get: operations["list-song-categories"];
     put?: never;
     post?: never;
@@ -1698,7 +2227,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List existing song categories, grouped for the filter chips */
+    /**
+     * List grouped song categories
+     * @description Categories grouped for the filter chips: a map from category id to display name. Needs song:read.
+     */
     get: operations["list-grouped-song-categories"];
     put?: never;
     post?: never;
@@ -1715,7 +2247,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List existing song melodies */
+    /**
+     * List song melodies
+     * @description Every melody in use - for the song form's autocomplete. Needs song:read.
+     */
     get: operations["list-song-melodies"];
     put?: never;
     post?: never;
@@ -1732,16 +2267,25 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a song by slug */
+    /**
+     * Get a song
+     * @description Needs song:read. A deleted song is returned too to someone with song:delete.
+     */
     get: operations["get-song"];
-    put?: never;
+    /**
+     * Replace a song
+     * @description Needs song:update.
+     */
+    put: operations["replace-song"];
     post?: never;
-    /** Soft-delete a song */
+    /**
+     * Delete a song
+     * @description Soft delete; see restore. Needs song:delete.
+     */
     delete: operations["delete-song"];
     options?: never;
     head?: never;
-    /** Replace a song (full-replace, not a partial patch) */
-    patch: operations["update-song"];
+    patch?: never;
     trace?: never;
   };
   "/songs/{slug}/restore": {
@@ -1753,7 +2297,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Restore a soft-deleted song */
+    /**
+     * Restore a deleted song
+     * @description Needs song:delete.
+     */
     post: operations["restore-song"];
     delete?: never;
     options?: never;
@@ -1768,10 +2315,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List all tags */
+    /**
+     * List tags
+     * @description Every tag, including nollning ones. Tags are shared by articles, events and notification settings.
+     */
     get: operations["list-tags"];
     put?: never;
-    /** Create a tag (tags:create) */
+    /**
+     * Create a tag
+     * @description Needs tags:create.
+     */
     post: operations["create-tag"];
     delete?: never;
     options?: never;
@@ -1787,13 +2340,16 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
+    /**
+     * Replace a tag
+     * @description Needs tags:update.
+     */
+    put: operations["replace-tag"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Replace a tag's names and color (tags:update) */
-    patch: operations["update-tag"];
+    patch?: never;
     trace?: never;
   };
   "/ticket-releases": {
@@ -1803,10 +2359,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List free-ticket releases, newest first */
+    /**
+     * List ticket releases
+     * @description Newest first, with their counts.
+     */
     get: operations["list-ticket-releases"];
     put?: never;
-    /** Create a free-ticket release for an event (webshop:create) */
+    /**
+     * Create a ticket release
+     * @description Free tickets for an event. Needs webshop:create.
+     */
     post: operations["create-ticket-release"];
     delete?: never;
     options?: never;
@@ -1821,15 +2383,21 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get a free-ticket release with its counts */
+    /**
+     * Get a ticket release
+     * @description With its counts.
+     */
     get: operations["get-ticket-release"];
-    put?: never;
+    /**
+     * Replace a ticket release
+     * @description Its editable fields; the opening time and the event can't change. Needs webshop:manage.
+     */
+    put: operations["replace-ticket-release"];
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Edit a release after publishing (webshop:manage) */
-    patch: operations["update-ticket-release"];
+    patch?: never;
     trace?: never;
   };
   "/ticket-releases/{id}/accept": {
@@ -1841,7 +2409,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Accept the signed-in member's ticket offer */
+    /**
+     * Accept a ticket offer
+     * @description The signed-in member's granted offer. 409 if there's no active offer.
+     */
     post: operations["accept-ticket-offer"];
     delete?: never;
     options?: never;
@@ -1856,11 +2427,21 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /**
+     * Get your ticket request
+     * @description The signed-in member's place in the release's queue. 404 if they haven't requested.
+     */
+    get: operations["get-ticket-request"];
     put?: never;
-    /** Request a ticket as the signed-in member */
+    /**
+     * Request a ticket
+     * @description As the signed-in member. 409 before the release opens or after it closes.
+     */
     post: operations["request-ticket"];
-    /** Withdraw the signed-in member's request, offer or waitlist spot */
+    /**
+     * Cancel your ticket request
+     * @description Withdraws the signed-in member's request, offer, ticket or waitlist spot.
+     */
     delete: operations["cancel-ticket-request"];
     options?: never;
     head?: never;
@@ -1874,61 +2455,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Everyone with a confirmed ticket (webshop:manage) */
-    get: operations["get-ticket-roster"];
+    /**
+     * List a release's ticket holders
+     * @description Everyone with a confirmed ticket, with their food preferences. Needs webshop:manage.
+     */
+    get: operations["list-ticket-roster"];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/ticket-releases/{id}/status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** The signed-in member's place in a release's queue */
-    get: operations["ticket-status"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/tickets/mine": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Every queue entry the signed-in member has had, newest first */
-    get: operations["my-tickets"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/uploads": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Upload an image (storage is mocked, see internal/integrations) */
-    post: operations["upload-image"];
     delete?: never;
     options?: never;
     head?: never;
@@ -1939,609 +2472,745 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    APINameCount: {
+    AccessPolicy: {
+      /** @description The policy, e.g. news:article:create. */
+      apiName: string;
+      /** Format: date-time */
+      createdAt: string;
+      id: string;
+      /** @description Only for a studentId grant. */
+      memberFirstName?: string;
+      /** @description Only for a studentId grant. */
+      memberLastName?: string;
+      /** @description Granted to everyone with this role, e.g. dsek.cafe (and every role under it), * (anyone) or _ (signed in). */
+      role?: string;
+      /** @description Granted to this member only. */
+      studentId?: string;
+    };
+    AccessPolicyAPIName: {
       apiName: string;
       /** Format: int64 */
       grantCount: number;
     };
-    AccessDoor: {
-      name: string;
-      verboseName: string;
-    };
-    AccessInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/AccessInput.json
-       */
-      readonly $schema?: string;
-      accessDoors: string[] | null;
-      accessMemberIds: string[] | null;
-    };
-    AccessPolicy: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/AccessPolicy.json
-       */
-      readonly $schema?: string;
+    AccessPolicyBulkInput: {
       apiName: string;
-      /** Format: date-time */
-      createdAt: string;
-      id: string;
-      memberFirstName?: string;
-      memberLastName?: string;
+      roles: string[];
+      studentIds: string[];
+    };
+    AccessPolicyInput: {
+      apiName: string;
+      /** @description Set exactly one of role and studentId. */
       role?: string;
+      /** @description Set exactly one of role and studentId. */
       studentId?: string;
     };
-    Album: {
+    AdminSetting: {
+      /** Format: date-time */
+      createdAt: string;
+      /** @description E.g. discord_webhook_se. */
       key: string;
-      pictures: components["schemas"]["Picture"][] | null;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @description Empty when unset. */
+      value: string;
+    };
+    AdminSettingInput: {
+      value: string;
+    };
+    Alarm: {
+      /** @description Whether an alarm-flagged event is running right now. */
+      active: boolean;
+    };
+    Album: {
+      /** @description Folder name, "{date} {name}" - also the album's slug. */
+      key: string;
+      pictures: components["schemas"]["AlbumPicture"][];
     };
     AlbumDetail: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/AlbumDetail.json
-       */
-      readonly $schema?: string;
+      /** @description From the album's album.json, if any. */
       editor?: string;
+      /** @description Folder name, "{date} {name}" - also the album's slug. */
       key: string;
+      /** @description From the album's album.json, if any. */
       photographer?: string;
-      pictures: components["schemas"]["Picture"][] | null;
+      pictures: components["schemas"]["AlbumPicture"][];
+    };
+    AlbumPicture: {
+      /** @description The object's key in the albums bucket. */
+      id: string;
+      /** Format: date-time */
+      lastModified: string;
+      /** @description File name. */
+      name: string;
+      /**
+       * Format: int64
+       * @description Bytes.
+       */
+      size: number;
+      /** @description Public URL. */
+      url: string;
     };
     Alert: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Alert.json
-       */
-      readonly $schema?: string;
+      /** @description Whether the signed-in member has dismissed it. Always false when anonymous. */
       closedByMe: boolean;
       /** Format: date-time */
       createdAt: string;
       id: string;
+      /** @description messageEn or messageSv, resolved from Accept-Language. */
       message: string;
       messageEn: string;
       messageSv: string;
-      severity: string;
+      severity: components["schemas"]["AlertSeverity"];
     };
     AlertInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/AlertInput.json
-       */
-      readonly $schema?: string;
       messageEn: string;
       messageSv: string;
-      severity: string;
+      severity: components["schemas"]["AlertSeverity"];
     };
+    /** @enum {string} */
+    AlertSeverity: "info" | "success" | "warning" | "error";
+    ArticleAuthor: {
+      /** @description Set for a Custom byline. */
+      customAuthor?: components["schemas"]["CustomAuthor"];
+      id: string;
+      /** @description The member who wrote it, whatever the byline. */
+      member: components["schemas"]["Member"];
+      /** @description Set for a Mandate byline. */
+      position?: components["schemas"]["Position"];
+      /** @description Member: the member themselves. Mandate: as a position they hold. Custom: a shared byline. */
+      type: components["schemas"]["ArticleAuthorType"];
+    };
+    /** @enum {string} */
+    ArticleAuthorType: "Member" | "Mandate" | "Custom";
     ArticleDetail: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ArticleDetail.json
-       */
-      readonly $schema?: string;
+      /** @description Only on create/update: the article was saved, but its notification or Discord post failed. */
       announcementFailed?: boolean;
-      author: components["schemas"]["Author"];
+      author: components["schemas"]["ArticleAuthor"];
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
       body: string;
       bodyEn?: string;
       bodySv: string;
+      /** @description Whether the caller may delete the article (news:article:delete). */
       canDelete: boolean;
+      /** @description Whether the caller may edit the article (its author, or news:article:update). */
       canEdit: boolean;
       /** Format: int64 */
       commentCount: number;
-      comments: components["schemas"]["Comment"][] | null;
+      /** @description Newest first. */
+      comments: components["schemas"]["Comment"][];
+      /** @description The committee the article is about, if any. */
       committee?: components["schemas"]["Committee"];
       /** Format: date-time */
       createdAt: string;
+      /** @description headerEn or headerSv, resolved from Accept-Language. */
       header: string;
       headerEn?: string;
       headerSv: string;
       id: string;
+      /** @description The first image, for list views. */
       imageUrl?: string;
-      imageUrls?: string[] | null;
+      /** @description Every image, in order. */
+      imageUrls: string[];
       /** Format: int64 */
       likeCount: number;
-      likers: components["schemas"]["Member"][] | null;
+      /** @description Everyone who liked the article. */
+      likers: components["schemas"]["Member"][];
+      /** @description The nollning season the article belongs to. */
       nollningSeasonId?: string;
+      /** @description Custom notification text; the header is used if unset. */
       notificationText?: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When it goes (or went) live. Unset for a draft.
+       */
       publishedAt?: string;
+      /** @description Whether subscribers are notified when it goes live. */
       sendNotification: boolean;
+      /** @description URL key. */
       slug: string;
-      status?: string;
-      taggedMembers: components["schemas"]["Member"][] | null;
-      tags: components["schemas"]["Tag"][] | null;
-      /** Format: date-time */
+      status?: components["schemas"]["ArticleStatus"];
+      /** @description Members @mentioned in the comments, with their current names. */
+      taggedMembers: components["schemas"]["Member"][];
+      tags: components["schemas"]["Tag"][];
+      /**
+       * Format: date-time
+       * @description Last edit.
+       */
       updatedAt?: string;
       youtubeUrl?: string;
     };
     ArticleInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ArticleInput.json
-       */
-      readonly $schema?: string;
+      /** @description The byline. The author is always the caller. */
       author: components["schemas"]["AuthorInput"];
+      /** @description HTML; sanitized on save. */
       bodyEn: string | null;
+      /** @description HTML; sanitized on save. */
       bodySv: string;
       committeeId: string | null;
       headerEn: string | null;
       headerSv: string;
+      /** @description Deprecated single image; imageUrls[0] is used if unset. */
       imageUrl: string | null;
-      imageUrls: string[] | null;
+      imageUrls: string[];
+      /** @description Setting or changing it needs nollning:content:associate. */
       nollningSeasonId: string | null;
       notificationText: string | null;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When it goes live. Unset keeps it a draft; omitting it on update un-publishes it.
+       */
       publishedAt: string | null;
+      /** @description Notify subscribers when it goes live. */
       sendNotification: boolean;
-      tagIds: string[] | null;
+      tagIds: string[];
       youtubeUrl: string | null;
     };
+    ArticleList: {
+      articles: components["schemas"]["ArticleSummary"][];
+      /**
+       * Format: int64
+       * @description Number of pages at this pageSize.
+       */
+      pageCount: number;
+    };
+    ArticleSearchAuthor: {
+      firstName?: string;
+      lastName?: string;
+      nickname?: string;
+      /** @description Profile picture URL. */
+      picturePath?: string;
+    };
+    ArticleSearchDocument: {
+      /** @description The member who wrote it. */
+      author: components["schemas"]["ArticleSearchAuthor"];
+      /** @description English only: bodyEn. */
+      body?: string;
+      /** @description HTML. */
+      bodyEn?: string;
+      /** @description HTML. */
+      bodySv: string;
+      /** @description English only: headerEn. */
+      header?: string;
+      headerEn?: string;
+      headerSv: string;
+      /** @description Meilisearch id. */
+      id: string;
+      /**
+       * Format: date-time
+       * @description When it went live.
+       */
+      publishedAt?: string;
+      slug: string;
+    };
+    ArticleSearchHit: {
+      data: components["schemas"]["ArticleSearchDocument"];
+      /**
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
+       */
+      type: "articles";
+    };
+    /** @enum {string} */
+    ArticleStatus: "draft" | "approved" | "rejected";
     ArticleSummary: {
-      author: components["schemas"]["Author"];
+      author: components["schemas"]["ArticleAuthor"];
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
       body: string;
       bodyEn?: string;
       bodySv: string;
       /** Format: int64 */
       commentCount: number;
+      /** @description The committee the article is about, if any. */
       committee?: components["schemas"]["Committee"];
       /** Format: date-time */
       createdAt: string;
+      /** @description headerEn or headerSv, resolved from Accept-Language. */
       header: string;
       headerEn?: string;
       headerSv: string;
       id: string;
+      /** @description The first image, for list views. */
       imageUrl?: string;
-      imageUrls?: string[] | null;
+      /** @description Every image, in order. */
+      imageUrls: string[];
       /** Format: int64 */
       likeCount: number;
+      /** @description The nollning season the article belongs to. */
       nollningSeasonId?: string;
+      /** @description Custom notification text; the header is used if unset. */
       notificationText?: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When it goes (or went) live. Unset for a draft.
+       */
       publishedAt?: string;
+      /** @description Whether subscribers are notified when it goes live. */
       sendNotification: boolean;
+      /** @description URL key. */
       slug: string;
-      status?: string;
-      tags: components["schemas"]["Tag"][] | null;
-      /** Format: date-time */
+      status?: components["schemas"]["ArticleStatus"];
+      tags: components["schemas"]["Tag"][];
+      /**
+       * Format: date-time
+       * @description Last edit.
+       */
       updatedAt?: string;
       youtubeUrl?: string;
     };
-    Author: {
-      customAuthor?: components["schemas"]["CustomAuthor"];
-      id: string;
-      member: components["schemas"]["Member"];
-      position?: components["schemas"]["Position"];
-      type: string;
+    AttendanceInput: {
+      /** @description going and interested are mutually exclusive; none clears both. */
+      status: components["schemas"]["EventAttendanceStatus"];
     };
     AuthorInput: {
+      /** @description Post as this custom author. */
       customId?: string;
+      /** @description Post as this mandate, which the caller must hold. */
       mandateId?: string;
     };
     BoardPosition: {
+      /** @description The current holder. Omitted when vacant. */
       member?: components["schemas"]["Member"];
       position: components["schemas"]["Position"];
     };
     Bookable: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Bookable.json
-       */
-      readonly $schema?: string;
+      /** @description Only on GET. */
       category?: components["schemas"]["BookableCategory"];
       categoryId?: string;
+      /** @description The door to the bookable, so a booking can grant access to it. */
       door?: string;
       id: string;
+      /** @description Disabled bookables can't be booked. */
       isDisabled: boolean;
       name: string;
       nameEn?: string;
       nameSv: string;
     };
     BookableCategory: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/BookableCategory.json
-       */
-      readonly $schema?: string;
       id: string;
       name: string;
       nameEn?: string;
       nameSv: string;
     };
     BookableCategoryInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/BookableCategoryInput.json
-       */
-      readonly $schema?: string;
       nameEn?: string;
       nameSv: string;
     };
     BookableInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/BookableInput.json
-       */
-      readonly $schema?: string;
       categoryId?: string;
+      /** @description Must be an existing door's name. */
       door?: string;
       isDisabled: boolean;
       nameEn?: string;
       nameSv: string;
     };
+    BookingAccessInput: {
+      /** @description Door names. */
+      accessDoors: string[];
+      /** @description Member ids (UUIDs). */
+      accessMemberIds: string[];
+    };
+    BookingDoor: {
+      /** @description The door's internal name. */
+      name: string;
+      /** @description Display name. */
+      verboseName: string;
+    };
     BookingRequest: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/BookingRequest.json
-       */
-      readonly $schema?: string;
-      accessDoors: components["schemas"]["AccessDoor"][] | null;
-      accessMembers: components["schemas"]["Member"][] | null;
-      bookables: components["schemas"]["Bookable"][] | null;
+      /** @description Doors to open for the booking. */
+      accessDoors: components["schemas"]["BookingDoor"][];
+      /** @description Members who get door access for the booking. */
+      accessMembers: components["schemas"]["Member"][];
+      bookables: components["schemas"]["Bookable"][];
+      /** @description Who asked for the booking. */
       booker?: components["schemas"]["Member"];
       /** Format: date-time */
       created?: string;
       /** Format: date-time */
       end?: string;
+      /** @description What the booking is for. */
       event?: string;
       id: string;
       /** Format: date-time */
       start?: string;
-      status: string;
+      status: components["schemas"]["BookingRequestStatus"];
     };
     BookingRequestInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/BookingRequestInput.json
-       */
-      readonly $schema?: string;
-      accessDoors: string[] | null;
-      accessMemberIds: string[] | null;
-      bookableIds: string[] | null;
+      /** @description Door names. */
+      accessDoors: string[];
+      /** @description Member ids (UUIDs). */
+      accessMemberIds: string[];
+      bookableIds: string[];
       /** Format: date-time */
       end: string;
+      /** @description What the booking is for. */
       event: string;
       /** Format: date-time */
       start: string;
     };
-    BookingRequestWithConflictsOutputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/BookingRequestWithConflictsOutputBody.json
-       */
-      readonly $schema?: string;
+    BookingRequestResult: {
       bookingRequest: components["schemas"]["BookingRequest"];
-      conflicts: components["schemas"]["BookingRequest"][] | null;
+      /** @description Other non-denied requests for the same bookables that overlap in time. A warning only; the request is saved. */
+      conflicts: components["schemas"]["BookingRequest"][];
     };
-    BulkCreateInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/BulkCreateInput.json
-       */
-      readonly $schema?: string;
-      apiName: string;
-      roles: string[] | null;
-      studentIds: string[] | null;
-    };
-    Ciabatta: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Ciabatta.json
-       */
-      readonly $schema?: string;
+    /** @enum {string} */
+    BookingRequestStatus: "PENDING" | "ACCEPTED" | "DENIED";
+    BookingReviewItem: {
+      /** @description Doors to open for the booking. */
+      accessDoors: components["schemas"]["BookingDoor"][];
+      /** @description Members who get door access for the booking. */
+      accessMembers: components["schemas"]["Member"][];
+      bookables: components["schemas"]["Bookable"][];
+      /** @description Who asked for the booking. */
+      booker?: components["schemas"]["Member"];
+      /** @description Other active requests for the same bookables that overlap in time. */
+      conflicts: components["schemas"]["BookingRequest"][];
+      /** Format: date-time */
+      created?: string;
+      /** Format: date-time */
+      end?: string;
+      /** @description What the booking is for. */
+      event?: string;
       id: string;
+      /** Format: date-time */
+      start?: string;
+      status: components["schemas"]["BookingRequestStatus"];
+    };
+    CafeOpeningHours: {
+      /** @description markdownEn or markdownSv, resolved from Accept-Language. */
+      markdown: string;
+      markdownEn?: string;
+      markdownSv: string;
+      /** @description The info page's name, e.g. cafe:open:0; edit it with PUT /info-pages/{slug}. */
       name: string;
-      /** Format: int32 */
+    };
+    CafeSchedule: {
+      /** @description That week's ciabatta, if set. */
+      ciabatta?: components["schemas"]["Ciabatta"];
+      /** @description Every filled shift that week; a missing slot is open. */
+      shifts: components["schemas"]["CafeShift"][];
+      /**
+       * Format: int32
+       * @description ISO week shown.
+       */
+      week: number;
+      /**
+       * Format: int32
+       * @description ISO year of the week shown.
+       */
+      year: number;
+    };
+    CafeShift: {
+      /**
+       * Format: date-time
+       * @description The day.
+       */
+      date: string;
+      id: string;
+      /** @description DAYMANAGER is the day's manager; SHIFT_1 to SHIFT_3 are its shifts. */
+      timeSlot: components["schemas"]["CafeTimeSlot"];
+      /** @description Who works the shift. */
+      worker: components["schemas"]["Member"];
+    };
+    /** @enum {string} */
+    CafeShiftAction: "signed_up" | "quit" | "reassigned";
+    CafeShiftResult: {
+      /** @description What happened. */
+      action: components["schemas"]["CafeShiftAction"];
+      /** @description The shift now. Omitted after quit. */
+      shift?: components["schemas"]["CafeShift"];
+    };
+    CafeShiftToggleInput: {
+      /** @description YYYY-MM-DD. */
+      date: string;
+      /** @description Who to put on the shift; the caller if omitted. Anyone else needs cafe:edit_workers. */
+      studentId?: string;
+      timeSlot: components["schemas"]["CafeTimeSlot"];
+    };
+    /** @enum {string} */
+    CafeTimeSlot: "DAYMANAGER" | "SHIFT_1" | "SHIFT_2" | "SHIFT_3";
+    Ciabatta: {
+      id: string;
+      /** @description The ciabatta. */
+      name: string;
+      /**
+       * Format: int32
+       * @description ISO week number.
+       */
       week: number;
       /** Format: int32 */
       year: number;
     };
+    CiabattaInput: {
+      /** @description The ciabatta. */
+      name: string;
+    };
     Comment: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Comment.json
-       */
-      readonly $schema?: string;
+      /** @description Whether the signed-in member may delete this comment. */
       canDelete: boolean;
+      /** @description Markdown. Mentions are [@Name](/members/<studentId>) links. */
       content?: string;
       id: string;
+      /** @description The comment's author. */
       member: components["schemas"]["Member"];
       /** Format: date-time */
       published: string;
     };
+    CommentInput: {
+      /** @description Markdown, at most 255 characters after trimming. */
+      content: string;
+    };
     Committee: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Committee.json
-       */
-      readonly $schema?: string;
       bannerUrl?: string;
+      /** @description Logo for dark backgrounds. */
       darkImageUrl?: string;
+      /** @description descriptionEn or descriptionSv, resolved from Accept-Language. */
       description?: string;
       descriptionEn?: string;
       descriptionSv?: string;
       id: string;
+      /** @description Whether text over the banner should be light. */
       isBannerTextLight?: boolean;
+      /** @description Logo for light backgrounds. */
       lightImageUrl?: string;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description Currently active mandates. Only set by GET /committees.
+       */
       mandateCount?: number;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description Distinct members holding an active mandate. Only set by GET /committees.
+       */
       memberCount?: number;
+      /** @description Single-color logo. */
       monoImageUrl?: string;
+      /** @description nameEn or nameSv, resolved from Accept-Language. */
       name: string;
       nameEn?: string;
       nameSv: string;
+      /** @description Image shown in link previews. */
       previewUrl?: string;
+      /** @description URL key, e.g. cafe. The key committee routes use. */
       shortName?: string;
       symbolUrl?: string;
     };
     CommitteeDetail: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CommitteeDetail.json
-       */
-      readonly $schema?: string;
-      aboutMarkdown: components["schemas"]["MarkdownContent"];
+      /** @description The committee page's main text. */
+      aboutMarkdown: components["schemas"]["CommitteeMarkdown"];
       bannerUrl?: string;
+      /** @description Logo for dark backgrounds. */
       darkImageUrl?: string;
+      /** @description descriptionEn or descriptionSv, resolved from Accept-Language. */
       description?: string;
       descriptionEn?: string;
       descriptionSv?: string;
       id: string;
+      /** @description Whether text over the banner should be light. */
       isBannerTextLight?: boolean;
+      /** @description Logo for light backgrounds. */
       lightImageUrl?: string;
-      linksMarkdown: components["schemas"]["MarkdownContent"];
-      /** Format: int64 */
+      /** @description The committee page's sidebar links. */
+      linksMarkdown: components["schemas"]["CommitteeMarkdown"];
+      /**
+       * Format: int64
+       * @description Currently active mandates. Only set by GET /committees.
+       */
       mandateCount?: number;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description Distinct members holding an active mandate. Only set by GET /committees.
+       */
       memberCount?: number;
+      /** @description Single-color logo. */
       monoImageUrl?: string;
+      /** @description nameEn or nameSv, resolved from Accept-Language. */
       name: string;
       nameEn?: string;
       nameSv: string;
-      positions: components["schemas"]["PositionDetail"][] | null;
+      /** @description Positions active that year or with mandates that year, in display order. */
+      positions: components["schemas"]["PositionDetail"][];
+      /** @description Image shown in link previews. */
       previewUrl?: string;
+      /** @description URL key, e.g. cafe. The key committee routes use. */
       shortName?: string;
       symbolUrl?: string;
-      /** Format: int32 */
+      /**
+       * Format: int32
+       * @description The year positions and mandates are shown for.
+       */
       year: number;
     };
-    CreateCommentInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreateCommentInputBody.json
-       */
-      readonly $schema?: string;
-      content: string;
+    CommitteeInput: {
+      bannerUrl?: string;
+      darkImageUrl?: string;
+      descriptionEn?: string;
+      descriptionSv?: string;
+      /** @description Whether text over the banner should be light. */
+      isBannerTextLight: boolean;
+      lightImageUrl?: string;
+      monoImageUrl?: string;
+      nameEn?: string;
+      nameSv: string;
+      previewUrl?: string;
+      symbolUrl?: string;
     };
-    CreateEventCommentInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreateEventCommentInputBody.json
-       */
-      readonly $schema?: string;
-      content: string;
+    CommitteeMarkdown: {
+      /** @description markdownEn or markdownSv, resolved from Accept-Language. */
+      markdown: string;
+      markdownEn?: string;
+      markdownSv: string;
     };
-    CreateInput: {
+    CommitteeMarkdownInput: {
+      markdownEn?: string;
+      markdownSv: string;
+    };
+    CommitteeSearchDocument: {
+      /** @description Logo for dark backgrounds. */
+      darkImageUrl?: string;
+      /** @description English only: descriptionEn. */
+      description?: string;
+      descriptionEn?: string;
+      descriptionSv?: string;
+      /** @description Meilisearch id. */
+      id: string;
+      /** @description Logo for light backgrounds. */
+      lightImageUrl?: string;
+      /** @description Single-color logo. */
+      monoImageUrl?: string;
+      /** @description English only: nameEn. */
+      name?: string;
+      nameEn?: string;
+      nameSv: string;
+      shortName?: string;
+    };
+    CommitteeSearchHit: {
+      data: components["schemas"]["CommitteeSearchDocument"];
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreateInput.json
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
        */
-      readonly $schema?: string;
-      apiName: string;
-      role?: string;
-      studentId?: string;
+      type: "committees";
     };
     CreateLinkInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreateLinkInput.json
-       */
-      readonly $schema?: string;
+      /** @description The short code. */
       slug: string;
-      tags: string[] | null;
+      /** @description At least one. */
+      tags: string[];
+      /** @description Where the link redirects. */
       url: string;
     };
-    CreateMandateInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreateMandateInput.json
-       */
-      readonly $schema?: string;
-      endDate: string;
-      memberIds: string[] | null;
-      startDate: string;
-    };
-    CreatePolicyInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreatePolicyInput.json
-       */
-      readonly $schema?: string;
-      /** Format: date-time */
-      endDatetime?: string;
-      mode: string;
-      reason?: string;
-      /** Format: date-time */
-      startDatetime?: string;
-      subject: string;
-      type: string;
-    };
-    CreateTagInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreateTagInputBody.json
-       */
-      readonly $schema?: string;
-      nameSv: string;
-    };
-    CreateTicketReleaseInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CreateTicketReleaseInputBody.json
-       */
-      readonly $schema?: string;
+    CreateTicketReleaseInput: {
       /**
        * Format: date-time
-       * @description After this time, no new requests are accepted
+       * @description When requests close.
        */
       closesAt: string;
       description?: string;
-      /** @description UUID of the event this release is for */
+      /** @description The event the tickets are for. The release expires when it ends. */
       eventId: string;
-      /** @description Room name, not a maps location */
+      /** @description Room name, not a maps location. */
       location?: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When requests open.
+       */
       opensAt: string;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description Number of tickets.
+       */
       quantity: number;
       title: string;
-    };
-    CurrentInfo: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/CurrentInfo.json
-       */
-      readonly $schema?: string;
-      phase: string;
-      season?: components["schemas"]["Season"];
     };
     CustomAuthor: {
       id: string;
       imageUrl?: string;
+      /** @description nameEn or nameSv, resolved from Accept-Language. */
       name: string;
       nameEn?: string;
       nameSv: string;
     };
-    DeleteLinksInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/DeleteLinksInputBody.json
-       */
-      readonly $schema?: string;
-      shortCodes: string[] | null;
-    };
-    Document: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Document.json
-       */
-      readonly $schema?: string;
-      /** Format: date-time */
-      createdAt: string;
-      id: string;
-      title: string;
-      type: string;
-      /** Format: date-time */
-      updatedAt: string;
-      url: string;
-    };
-    DocumentFile: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/DocumentFile.json
-       */
-      readonly $schema?: string;
-      id: string;
-      /** Format: date-time */
-      lastModified: string;
-      name: string;
-      /** Format: int64 */
-      size: number;
-      url: string;
-    };
-    DocumentInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/DocumentInput.json
-       */
-      readonly $schema?: string;
-      title: string;
-      type: string;
-      url: string;
+    DeleteLinksInput: {
+      shortCodes: string[];
     };
     Door: {
+      /** @description Internal name; the key door routes use and what Salto polls. */
       name: string;
+      /** @description Display name. */
       verboseName: string;
     };
     DoorAccessPolicy: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/DoorAccessPolicy.json
-       */
-      readonly $schema?: string;
       doorName: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description Unset means never ends.
+       */
       endDatetime?: string;
       id: string;
+      /** @description The reason given. */
       information?: string;
+      /** @description A ban removes access the member would otherwise have. */
       isBan: boolean;
+      /** @description Only for a studentId rule. */
       member?: components["schemas"]["Member"];
+      /** @description Everyone with this role (a position id prefix such as dsek.cafe, or *, _, nolla, a programme code). */
       role?: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description Unset means already started.
+       */
       startDatetime?: string;
+      /** @description This member only. */
       studentId?: string;
     };
-    Election: {
+    DoorAccessPolicyInput: {
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Election.json
+       * Format: date-time
+       * @description Required for a member rule.
        */
-      readonly $schema?: string;
+      endDatetime?: string;
+      /** @description Defaults to allow. A role can't be denied. */
+      mode?: components["schemas"]["DoorPolicyMode"];
+      /** @description Required for a member rule and for deny. */
+      reason?: string;
+      /** Format: date-time */
+      startDatetime?: string;
+      /** @description A student id (type member) or a role (type role). */
+      subject: string;
+      /** @description Defaults to member. */
+      type?: components["schemas"]["DoorPolicySubject"];
+    };
+    /** @enum {string} */
+    DoorPolicyMode: "allow" | "deny";
+    /** @enum {string} */
+    DoorPolicySubject: "member" | "role";
+    Election: {
+      /** @description The committee holding the election. */
       committee: components["schemas"]["Committee"];
       committeeId: string;
       /** Format: date-time */
       createdAt: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When nominations close; the election is hidden from the list after.
+       */
       expiresAt: string;
       id: string;
+      /** @description Where to nominate or vote (an external form). */
       link: string;
+      /** @description markdownEn or markdownSv, resolved from Accept-Language. */
       markdown: string;
       markdownEn?: string;
       markdownSv: string;
     };
     ElectionInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ElectionInput.json
-       */
-      readonly $schema?: string;
       committeeId: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When nominations close.
+       */
       expiresAt: string;
+      /** @description Where to nominate or vote (an external form). */
       link: string;
       markdownEn?: string;
       markdownSv: string;
@@ -2556,18 +3225,12 @@ export interface components {
     };
     ErrorModel: {
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ErrorModel.json
-       */
-      readonly $schema?: string;
-      /**
        * @description A human-readable explanation specific to this occurrence of the problem.
        * @example Property foo is required but is missing.
        */
       detail?: string;
       /** @description Optional list of individual error details */
-      errors?: components["schemas"]["ErrorDetail"][] | null;
+      errors?: components["schemas"]["ErrorDetail"][];
       /**
        * Format: uri
        * @description A URI reference that identifies the specific occurrence of the problem.
@@ -2593,64 +3256,75 @@ export interface components {
        */
       type: string;
     };
+    /** @enum {string} */
+    EventAttendanceStatus: "going" | "interested" | "none";
     EventDetail: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/EventDetail.json
-       */
-      readonly $schema?: string;
+      /** @description Sets off the alarm (GET /alarm) while the event runs. */
       alarmActive: boolean;
+      /** @description Who created the event. */
       author: components["schemas"]["Member"];
+      /** @description Whether the caller may delete the event (event:delete). */
       canDelete: boolean;
+      /** @description Whether the caller may edit the event (its author, or event:update). */
       canEdit: boolean;
       /** Format: int64 */
       commentCount: number;
-      comments: components["schemas"]["Comment"][] | null;
+      /** @description Newest first. */
+      comments: components["schemas"]["Comment"][];
+      /** @description The organizing committee: id, name, shortName and symbolUrl only. */
       committee?: components["schemas"]["Committee"];
+      /** @description The organizing committee. */
       committeeId?: string;
+      /** @description descriptionEn or descriptionSv, resolved from Accept-Language. Markdown. */
       description: string;
       descriptionEn?: string;
       descriptionSv: string;
       /** Format: date-time */
       endAt: string;
-      going: components["schemas"]["Member"][] | null;
+      going: components["schemas"]["Member"][];
       /** Format: int64 */
       goingCount: number;
       id: string;
       imageUrl?: string;
-      interested: components["schemas"]["Member"][] | null;
+      interested: components["schemas"]["Member"][];
       /** Format: int64 */
       interestedCount: number;
       isCancelled: boolean;
+      /** @description External link, e.g. a sign-up form. */
       link?: string;
       location?: string;
+      /** @description The nollning season the event belongs to. */
       nollningSeasonId?: string;
+      /** @description Free text; the committee's Swedish name when committeeId is set. */
       organizer: string;
-      recurring?: components["schemas"]["RecurringInput"];
+      /** @description The series this event belongs to. Omitted for a one-off event. */
+      recurring?: components["schemas"]["Recurrence"];
+      /** @description The recurring series this event is an occurrence of. */
       recurringParentId?: string;
+      /** @description shortDescriptionEn or shortDescriptionSv, resolved from Accept-Language. */
       shortDescription?: string;
       shortDescriptionEn?: string;
       shortDescriptionSv?: string;
+      /** @description URL key. */
       slug: string;
       /** Format: date-time */
       startAt: string;
-      taggedMembers: components["schemas"]["Member"][] | null;
-      tags: components["schemas"]["Tag"][] | null;
+      /** @description Members @mentioned in the comments, with their current names. */
+      taggedMembers: components["schemas"]["Member"][];
+      tags: components["schemas"]["Tag"][];
+      /** @description titleEn or titleSv, resolved from Accept-Language. */
       title: string;
       titleEn?: string;
       titleSv: string;
     };
+    /** @enum {string} */
+    EventEditScope: "THIS" | "FUTURE" | "ALL";
     EventInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/EventInput.json
-       */
-      readonly $schema?: string;
       alarmActive: boolean;
       committeeId: string | null;
+      /** @description Markdown. */
       descriptionEn: string | null;
+      /** @description Markdown. */
       descriptionSv: string;
       /** Format: date-time */
       endAt: string;
@@ -2658,33 +3332,77 @@ export interface components {
       isCancelled: boolean;
       link: string | null;
       location: string | null;
+      /** @description Setting or changing it needs nollning:content:associate. */
       nollningSeasonId: string | null;
+      /** @description Overwritten with the committee's Swedish name when committeeId is set. */
       organizer: string;
-      recurring?: components["schemas"]["RecurringInput"];
+      /** @description Create only: make a whole series, one event per occurrence. */
+      recurring?: components["schemas"]["Recurrence"];
       shortDescriptionEn: string | null;
       shortDescriptionSv: string | null;
       /** Format: date-time */
       startAt: string;
-      tagIds: string[] | null;
+      tagIds: string[];
       titleEn: string | null;
       titleSv: string;
     };
-    EventSlugByIDOutputBody: {
+    EventList: {
+      events: components["schemas"]["EventSummary"][];
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/EventSlugByIDOutputBody.json
+       * Format: int64
+       * @description Number of pages at this pageSize.
        */
-      readonly $schema?: string;
+      pageCount: number;
+    };
+    EventSearchDocument: {
+      /** @description English only: descriptionEn. */
+      description?: string;
+      descriptionEn?: string;
+      descriptionSv: string;
+      /**
+       * Format: date-time
+       * @description When the event ends.
+       */
+      endDatetime?: string;
+      /** @description Meilisearch id. */
+      id: string;
+      location?: string;
+      slug?: string;
+      /**
+       * Format: date-time
+       * @description When the event starts.
+       */
+      startDatetime?: string;
+      /** @description English only: titleEn. */
+      title?: string;
+      titleEn?: string;
+      titleSv: string;
+    };
+    EventSearchHit: {
+      data: components["schemas"]["EventSearchDocument"];
+      /**
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
+       */
+      type: "events";
+    };
+    EventSlug: {
       slug: string;
     };
+    /** @enum {string} */
+    EventSpan: "upcoming" | "past" | "range";
     EventSummary: {
+      /** @description Sets off the alarm (GET /alarm) while the event runs. */
       alarmActive: boolean;
+      /** @description Who created the event. */
       author: components["schemas"]["Member"];
       /** Format: int64 */
       commentCount: number;
+      /** @description The organizing committee: id, name, shortName and symbolUrl only. */
       committee?: components["schemas"]["Committee"];
+      /** @description The organizing committee. */
       committeeId?: string;
+      /** @description descriptionEn or descriptionSv, resolved from Accept-Language. Markdown. */
       description: string;
       descriptionEn?: string;
       descriptionSv: string;
@@ -2697,773 +3415,549 @@ export interface components {
       /** Format: int64 */
       interestedCount: number;
       isCancelled: boolean;
+      /** @description External link, e.g. a sign-up form. */
       link?: string;
       location?: string;
+      /** @description The nollning season the event belongs to. */
       nollningSeasonId?: string;
+      /** @description Free text; the committee's Swedish name when committeeId is set. */
       organizer: string;
+      /** @description The recurring series this event is an occurrence of. */
       recurringParentId?: string;
+      /** @description shortDescriptionEn or shortDescriptionSv, resolved from Accept-Language. */
       shortDescription?: string;
       shortDescriptionEn?: string;
       shortDescriptionSv?: string;
+      /** @description URL key. */
       slug: string;
       /** Format: date-time */
       startAt: string;
-      tags: components["schemas"]["Tag"][] | null;
+      tags: components["schemas"]["Tag"][];
+      /** @description titleEn or titleSv, resolved from Accept-Language. */
       title: string;
       titleEn?: string;
       titleSv: string;
     };
-    Group: {
-      authors: components["schemas"]["NotificationAuthor"][] | null;
+    FoodPreferenceInput: {
+      /** @description Free text. Omit to clear it. */
+      foodPreference?: string;
+    };
+    GoverningDocument: {
       /** Format: date-time */
       createdAt: string;
-      /** Format: int32 */
-      id: number;
-      individualIds: number[] | null;
-      link: string;
-      message: string;
-      /** Format: date-time */
-      readAt?: string;
+      id: string;
       title: string;
-      type: string;
+      type: components["schemas"]["GoverningDocumentType"];
+      /** Format: date-time */
+      updatedAt: string;
+      /** @description Where the document is, usually a PDF. */
+      url: string;
     };
-    GroupMembersInputBody: {
+    GoverningDocumentInput: {
+      title: string;
+      /** @description Only POLICY or GUIDELINE can be created or edited. */
+      type: components["schemas"]["GoverningDocumentType"];
+      url: string;
+    };
+    GoverningDocumentSearchDocument: {
+      /** @description The start of the PDF's text. */
+      content: string;
+      /** @description Meilisearch id. */
+      id: string;
+      title: string;
+      /** @description The governing document type, e.g. POLICY. */
+      type?: string;
+      /** @description Where the PDF is. */
+      url: string;
+    };
+    GoverningDocumentSearchHit: {
+      data: components["schemas"]["GoverningDocumentSearchDocument"];
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/GroupMembersInputBody.json
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
        */
-      readonly $schema?: string;
-      studentIds: string[] | null;
+      type: "governingDocuments";
     };
-    Hit: {
-      data: {
-        [key: string]: unknown;
-      };
-      type: string;
+    /** @enum {string} */
+    GoverningDocumentType:
+      | "POLICY"
+      | "GUIDELINE"
+      | "MEETING"
+      | "OTHER"
+      | "PLAN_OF_OPERATIONS"
+      | "FRAMEWORK_BUDGET"
+      | "STRATEGIC_GOALS";
+    InfoPage: {
+      /** @description Whether the caller may edit the page (markdown:update, or a grant for this page). */
+      canEdit: boolean;
+      /** @description markdownEn or markdownSv, resolved from Accept-Language. */
+      markdown: string;
+      markdownEn?: string;
+      markdownSv: string;
+      /** @description The page's slug. */
+      name: string;
     };
-    ListArticlesOutputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ListArticlesOutputBody.json
-       */
-      readonly $schema?: string;
-      articles: components["schemas"]["ArticleSummary"][] | null;
-      /** Format: int64 */
-      pageCount: number;
+    InfoPageInput: {
+      markdownEn?: string;
+      markdownSv: string;
     };
-    ListEventsOutputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ListEventsOutputBody.json
-       */
-      readonly $schema?: string;
-      events: components["schemas"]["EventSummary"][] | null;
-      /** Format: int64 */
-      pageCount: number;
+    /** @enum {string} */
+    Language: "sv" | "en";
+    LanguageInput: {
+      language: components["schemas"]["Language"];
     };
-    ListSongBookOutputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ListSongBookOutputBody.json
-       */
-      readonly $schema?: string;
-      entries: components["schemas"]["SongBookEntry"][] | null;
-      /** Format: int64 */
-      pageCount: number;
-    };
-    ListSongsOutputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ListSongsOutputBody.json
-       */
-      readonly $schema?: string;
-      /** Format: int64 */
-      pageCount: number;
-      songs: components["schemas"]["Song"][] | null;
+    LinkDomain: {
+      /** @description E.g. link.dsek.se. */
+      domain: string;
+      /** @description Whether new links go on it by default. */
+      isDefault: boolean;
     };
     Mandate: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Mandate.json
-       */
-      readonly $schema?: string;
+      /** @description Last day, YYYY-MM-DD. */
       endDate?: string;
       id: string;
+      /** @description Set in a position's list of holders. */
       member?: components["schemas"]["Member"];
+      /** @description The phadder group a phadder mandate was for. Only set in a member's mandate history. */
       phadderIn?: components["schemas"]["MandatePhadderGroup"];
+      /** @description Set in a member's mandate history. */
       position?: components["schemas"]["Position"];
+      /** @description First day, YYYY-MM-DD. */
       startDate?: string;
+    };
+    MandateDatesInput: {
+      /** @description Last day, YYYY-MM-DD. */
+      endDate: string;
+      /** @description First day, YYYY-MM-DD. */
+      startDate: string;
     };
     MandatePhadderGroup: {
       id: string;
       imageUrl?: string;
       name: string;
     };
-    MarkdownContent: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/MarkdownContent.json
-       */
-      readonly $schema?: string;
-      markdown: string;
-      markdownEn?: string;
-      markdownSv: string;
+    MandatesInput: {
+      /** @description Last day, YYYY-MM-DD. */
+      endDate: string;
+      /** @description Member ids (UUIDs); one mandate is created per member. */
+      memberIds: string[];
+      /** @description First day, YYYY-MM-DD. */
+      startDate: string;
     };
-    MedalRecipients: {
-      medal: string;
-      recipients: components["schemas"]["Member"][] | null;
+    Me: {
+      /** @description The signed-in member's own profile. Omitted for an anonymous caller. */
+      member?: components["schemas"]["MeMember"];
+      /** @description Empty for an anonymous caller. */
+      memberId: string;
+      /** @description Every API policy the caller holds, e.g. article:create. */
+      policies: string[];
+      /** @description Every role the caller has, derived from mandates (e.g. dsek.cafe), plus * (anyone) and _ (signed in). */
+      roles: string[];
+      /** @description Empty for an anonymous caller. */
+      studentId: string;
     };
-    Meeting: {
-      agenda?: components["schemas"]["DocumentFile"];
-      files: components["schemas"]["DocumentFile"][] | null;
-      minutes?: components["schemas"]["DocumentFile"];
-      name: string;
-      notice?: components["schemas"]["DocumentFile"];
-    };
-    Member: {
+    MeMember: {
+      /** @description Unset until onboarding is done. */
       classProgramme?: string;
-      /** Format: int32 */
-      classYear?: number;
-      firstName?: string;
-      id: string;
-      lastName?: string;
-      nickname?: string;
-      picturePath?: string;
-      studentId?: string;
-    };
-    MemberAccess: {
-      /** Format: date-time */
-      endDatetime?: string;
-      name: string;
-      roles: string[] | null;
-      /** Format: date-time */
-      startDatetime?: string;
-      verboseName: string;
-    };
-    MemberMedal: {
-      after: string;
-      medal: string;
-    };
-    MemberPictureOutputBody: {
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/MemberPictureOutputBody.json
+       * Format: int32
+       * @description Unset until onboarding is done.
        */
-      readonly $schema?: string;
-      picturePath: string;
-    };
-    MemberProfile: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/MemberProfile.json
-       */
-      readonly $schema?: string;
-      bio?: string;
-      classProgramme?: string;
-      /** Format: int32 */
       classYear?: number;
       email?: string;
       firstName?: string;
+      id: string;
+      /** @description Preferred UI language. */
+      language?: components["schemas"]["Language"];
+      lastName?: string;
+      nickname?: string;
+      /** @description Public URL of the profile picture. */
+      picturePath?: string;
+      studentId: string;
+    };
+    MedalRecipients: {
+      /** @description Medal name. */
+      medal: string;
+      recipients: components["schemas"]["Member"][];
+    };
+    Meeting: {
+      /** @description The newest file named like an agenda (dagordning). */
+      agenda?: components["schemas"]["StoredFile"];
+      /** @description Every other file in the folder. */
+      files: components["schemas"]["StoredFile"][];
+      /** @description The newest file named like minutes (protokoll). */
+      minutes?: components["schemas"]["StoredFile"];
+      /** @description The meeting folder's name, e.g. S01 or HTM1. */
+      name: string;
+      /** @description The newest file named like a notice (kallelse). */
+      notice?: components["schemas"]["StoredFile"];
+    };
+    MeetingDocumentSearchDocument: {
+      /** @description The start of the PDF's text. */
+      content: string;
+      /** @description Meilisearch id. */
+      id: string;
+      /** @description File name. */
+      title: string;
+      /** @description Where the PDF is. */
+      url: string;
+    };
+    MeetingDocumentSearchHit: {
+      data: components["schemas"]["MeetingDocumentSearchDocument"];
+      /**
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
+       */
+      type: "meetingDocuments";
+    };
+    /** @enum {string} */
+    MeetingType: "board-meeting" | "guild-meeting" | "SRD-meeting" | "other";
+    /** @enum {string} */
+    MeetingUploadType: "meeting" | "srd";
+    Member: {
+      /** @description Programme code, e.g. D or C. Only set where a consumer needs it. */
+      classProgramme?: string;
+      /**
+       * Format: int32
+       * @description Year the member started, e.g. 2024. Only set where a consumer needs it.
+       */
+      classYear?: number;
+      firstName?: string;
+      /** @description Member id (UUID). */
+      id: string;
+      lastName?: string;
+      nickname?: string;
+      /** @description Public URL of the profile picture. */
+      picturePath?: string;
+      /** @description LU student id, e.g. ab1234cd-s. The key member routes use. */
+      studentId?: string;
+    };
+    MemberDoorAccess: {
+      /** Format: date-time */
+      endDatetime?: string;
+      /** @description The door's internal name. */
+      name: string;
+      /** @description The member's roles that grant access. */
+      roles: string[];
+      /** Format: date-time */
+      startDatetime?: string;
+      /** @description The door's display name. */
+      verboseName: string;
+    };
+    MemberMedal: {
+      /** @description The semester after which it was earned, e.g. VT 2026. */
+      after: string;
+      /** @description Medal name, e.g. Gammal och Äcklig. */
+      medal: string;
+    };
+    MemberPhadderRole: {
+      /** @description The phadder group, if any. */
+      groupId?: string;
+      /** @description Empty when the member is neither a nolla nor a phadder this season. */
+      role: components["schemas"]["PhadderRole"];
+    };
+    MemberPicture: {
+      /** @description Public URL of the new picture. */
+      picturePath: string;
+    };
+    MemberProfile: {
+      /** @description HTML, sanitized on save. */
+      bio?: string;
+      /** @description Programme code, e.g. D or C. */
+      classProgramme?: string;
+      /**
+       * Format: int32
+       * @description Year the member started.
+       */
+      classYear?: number;
+      /** @description Only for the member themselves, or with member:see_email. */
+      email?: string;
+      firstName?: string;
+      /** @description Free text, e.g. allergies. */
       foodPreference?: string;
       /** Format: int32 */
       graduationYear?: number;
       id: string;
-      language?: string;
+      /** @description Preferred UI language. */
+      language?: components["schemas"]["Language"];
       lastName?: string;
-      mandates?: components["schemas"]["Mandate"][] | null;
+      /** @description Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}. */
+      mandates?: components["schemas"]["Mandate"][];
       nickname?: string;
+      /** @description Public URL of the profile picture. */
       picturePath?: string;
       studentId?: string;
       visible: boolean;
     };
-    MyTicket: {
-      /** Format: date-time */
+    MemberSearchDocument: {
+      /** @description Programme code, e.g. D. */
+      classProgramme?: string;
+      /**
+       * Format: int32
+       * @description Year the member started.
+       */
+      classYear?: number;
+      firstName?: string;
+      /** @description First and last name. */
+      fullName: string;
+      /** @description Meilisearch id: the member id, base64 without +/=. */
+      id: string;
+      lastName?: string;
+      nickname?: string;
+      /** @description Profile picture URL. */
+      picturePath?: string;
+      studentId?: string;
+    };
+    MemberSearchHit: {
+      data: components["schemas"]["MemberSearchDocument"];
+      /**
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
+       */
+      type: "members";
+    };
+    MemberTicket: {
+      /**
+       * Format: date-time
+       * @description When a granted offer lapses.
+       */
       offerExpiresAt?: string;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description Place on the waitlist, from 1.
+       */
       queuePosition?: number;
       releaseId: string;
       releaseTitle: string;
-      status: string;
+      /** @description granted: offered a ticket, to accept before offerExpiresAt. accepted: has a ticket. */
+      status: components["schemas"]["TicketRequestStatus"];
     };
-    NotificationAuthor: {
-      id: string;
-      name: string;
-      pictureUrl?: string;
-    };
-    NotificationsPageOutputBody: {
+    /** @enum {string} */
+    NollningPhase: "off" | "pre_reveal" | "post_reveal";
+    NollningSeason: {
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/NotificationsPageOutputBody.json
+       * Format: date-time
+       * @description When the season ends.
        */
-      readonly $schema?: string;
-      hasMore: boolean;
-      notifications: components["schemas"]["Group"][] | null;
-    };
-    OpeningHour: {
-      markdown: string;
-      markdownEn?: string;
-      markdownSv: string;
-      name: string;
-    };
-    Page: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Page.json
-       */
-      readonly $schema?: string;
-      canEdit: boolean;
-      markdown: string;
-      markdownEn?: string;
-      markdownSv: string;
-      name: string;
-    };
-    PageInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/PageInput.json
-       */
-      readonly $schema?: string;
-      markdownEn?: string;
-      markdownSv: string;
-    };
-    PhadderGroup: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/PhadderGroup.json
-       */
-      readonly $schema?: string;
-      /** Format: date-time */
-      createdAt: string;
-      description?: string;
-      id: string;
-      imageUrl?: string;
-      name: string;
-      /** Format: int64 */
-      nollaCount?: number;
-      nollor?: components["schemas"]["Member"][] | null;
-      /** Format: int64 */
-      phadderCount?: number;
-      phaddrar?: components["schemas"]["Member"][] | null;
-      seasonId: string;
-    };
-    PhadderGroupInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/PhadderGroupInput.json
-       */
-      readonly $schema?: string;
-      description: string | null;
-      imageUrl: string | null;
-      name: string;
-      seasonId: string;
-    };
-    PhadderRoleInfo: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/PhadderRoleInfo.json
-       */
-      readonly $schema?: string;
-      groupId?: string;
-      role: string;
-    };
-    Picture: {
-      id: string;
-      /** Format: date-time */
-      lastModified: string;
-      name: string;
-      /** Format: int64 */
-      size: number;
-      url: string;
-    };
-    Position: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Position.json
-       */
-      readonly $schema?: string;
-      active?: boolean;
-      boardMember?: boolean;
-      committee?: components["schemas"]["Committee"];
-      committeeId?: string;
-      description?: string;
-      descriptionEn?: string;
-      descriptionSv?: string;
-      email?: string;
-      emailAliases?: string[] | null;
-      /** Format: int32 */
-      endMonth?: number;
-      id: string;
-      name: string;
-      nameEn?: string;
-      nameSv: string;
-      /** Format: int32 */
-      startMonth?: number;
-    };
-    PositionDetail: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/PositionDetail.json
-       */
-      readonly $schema?: string;
-      active?: boolean;
-      boardMember?: boolean;
-      committee?: components["schemas"]["Committee"];
-      committeeId?: string;
-      description?: string;
-      descriptionEn?: string;
-      descriptionSv?: string;
-      email?: string;
-      emailAliases?: string[] | null;
-      /** Format: int32 */
-      endMonth?: number;
-      id: string;
-      mandates: components["schemas"]["Mandate"][] | null;
-      name: string;
-      nameEn?: string;
-      nameSv: string;
-      /** Format: int32 */
-      startMonth?: number;
-      /** Format: int32 */
-      year?: number;
-    };
-    ReadmeIssue: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ReadmeIssue.json
-       */
-      readonly $schema?: string;
-      id: string;
-      /** Format: int32 */
-      number: number;
-      /** Format: date-time */
-      publishedAt?: string;
-      title: string;
-      url: string;
-      /** Format: int32 */
-      year: number;
-    };
-    RecurringInput: {
-      /** Format: date-time */
-      endAt: string;
-      /** Format: int64 */
-      separationCount: number;
-      type: string;
-    };
-    RequirementFolder: {
-      files: components["schemas"]["DocumentFile"][] | null;
-      name: string;
-    };
-    ReviewItem: {
-      accessDoors: components["schemas"]["AccessDoor"][] | null;
-      accessMembers: components["schemas"]["Member"][] | null;
-      bookables: components["schemas"]["Bookable"][] | null;
-      booker?: components["schemas"]["Member"];
-      conflicts: components["schemas"]["BookingRequest"][] | null;
-      /** Format: date-time */
-      created?: string;
-      /** Format: date-time */
-      end?: string;
-      event?: string;
-      id: string;
-      /** Format: date-time */
-      start?: string;
-      status: string;
-    };
-    Schedule: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Schedule.json
-       */
-      readonly $schema?: string;
-      ciabatta?: components["schemas"]["Ciabatta"];
-      shifts: components["schemas"]["Shift"][] | null;
-      /** Format: int32 */
-      week: number;
-      /** Format: int32 */
-      year: number;
-    };
-    Season: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Season.json
-       */
-      readonly $schema?: string;
-      /** Format: date-time */
       endAt: string;
       id: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When the nollor arrive; the season starts.
+       */
       nollaStartAt: string;
+      /** @description The committee running nollning (staben), whose positions the board hides during the season. */
       organizingCommitteeId?: string;
-      /** Format: date-time */
+      /**
+       * Format: date-time
+       * @description When the theme is revealed (phase pre_reveal ends).
+       */
       revealAt: string;
       /** Format: int64 */
       year: number;
     };
-    SeasonInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SeasonInput.json
-       */
-      readonly $schema?: string;
+    NollningSeasonInput: {
       /** Format: date-time */
       endAt: string;
       /** Format: date-time */
       nollaStartAt: string;
+      /** @description Defaults to the committee with short name nollu on create. */
       organizingCommitteeId: string | null;
       /** Format: date-time */
       revealAt: string;
       /** Format: int64 */
       year: number;
     };
-    SetAttendanceInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SetAttendanceInputBody.json
-       */
-      readonly $schema?: string;
-      /** @enum {string} */
-      status: "going" | "interested" | "none";
+    NollningStatus: {
+      /** @description off outside a season; pre_reveal before the theme is revealed; post_reveal after. */
+      phase: components["schemas"]["NollningPhase"];
+      /** @description The active season. Omitted when phase is off. */
+      season?: components["schemas"]["NollningSeason"];
     };
-    SetCiabattaInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SetCiabattaInput.json
-       */
-      readonly $schema?: string;
+    NotificationAuthor: {
+      id: string;
+      /** @description Display name. */
       name: string;
-      /** Format: int32 */
-      week: number;
-      /** Format: int32 */
-      year: number;
+      /** @description Profile picture URL. */
+      pictureUrl?: string;
     };
-    SetShiftInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SetShiftInput.json
-       */
-      readonly $schema?: string;
-      date: string;
-      studentId?: string;
-      timeSlot: string;
-    };
-    Setting: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Setting.json
-       */
-      readonly $schema?: string;
+    NotificationGroup: {
+      /** @description Who caused it, newest first. */
+      authors: components["schemas"]["NotificationAuthor"][];
       /** Format: date-time */
       createdAt: string;
-      key: string;
-      /** Format: date-time */
-      updatedAt: string;
-      value: string;
-    };
-    Settings: {
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Settings.json
+       * Format: int32
+       * @description The newest notification's id.
        */
-      readonly $schema?: string;
-      pushSubscriptions: string[] | null;
-      subscribedTagIds: string[] | null;
-      subscriptions: string[] | null;
-    };
-    Shift: {
-      /** Format: date-time */
-      date: string;
-      id: string;
-      timeSlot: string;
-      worker: components["schemas"]["Member"];
-    };
-    ShiftMutationResult: {
+      id: number;
+      /** @description Every notification merged into this group; pass them to mark-read or delete. */
+      individualIds: number[];
+      /** @description Where the notification leads, a site path. */
+      link: string;
+      /** @description Notification text, merged for a group (e.g. "A, B and 3 others liked ..."). */
+      message: string;
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/ShiftMutationResult.json
+       * Format: date-time
+       * @description Unset while unread.
        */
-      readonly $schema?: string;
-      action: string;
-      shift?: components["schemas"]["Shift"];
-    };
-    Song: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Song.json
-       */
-      readonly $schema?: string;
-      category?: string;
-      /** Format: date-time */
-      createdAt?: string;
-      /** Format: date-time */
-      deletedAt?: string;
-      id: string;
-      lyrics: string;
-      melody?: string;
-      slug: string;
+      readAt?: string;
+      /** @description Notification title, merged for a group. */
       title: string;
+      type: components["schemas"]["NotificationType"];
+    };
+    NotificationList: {
+      /** @description Whether older notifications exist past this page. */
+      hasMore: boolean;
+      /** @description Newest first. */
+      notifications: components["schemas"]["NotificationGroup"][];
+    };
+    /** @enum {string} */
+    NotificationSettingType:
+      | "LIKE"
+      | "COMMENT"
+      | "MENTION"
+      | "NEW_ARTICLE"
+      | "EVENT_GOING"
+      | "CREATE_MANDATE"
+      | "BOOKING_REQUEST"
+      | "PING";
+    NotificationSettings: {
+      /** @description Which of those to also get as push notifications. */
+      pushSubscriptions: components["schemas"]["NotificationSettingType"][];
+      /** @description Tags whose new articles to be notified about. */
+      subscribedTagIds: string[];
+      /** @description What to get notifications about. */
+      subscriptions: components["schemas"]["NotificationSettingType"][];
+    };
+    /** @enum {string} */
+    NotificationType:
+      | "NEWS_LIKE"
+      | "EVENT_LIKE"
+      | "COMMENT"
+      | "EVENT_COMMENT"
+      | "ARTICLE_REQUEST_UPDATE"
+      | "MENTION"
+      | "NEW_ARTICLE"
+      | "EVENT_GOING"
+      | "EVENT_INTERESTED"
+      | "CREATE_MANDATE"
+      | "BOOKING_REQUEST"
+      | "PING";
+    PhadderGroup: {
       /** Format: date-time */
-      updatedAt?: string;
-      video?: string;
-    };
-    SongBookEntry: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SongBookEntry.json
-       */
-      readonly $schema?: string;
-      /** Format: int64 */
-      numberOnPage: number;
-      /** Format: int64 */
-      page: number;
-      song: components["schemas"]["Song"];
-    };
-    SongBookEntryInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SongBookEntryInput.json
-       */
-      readonly $schema?: string;
-      /** Format: int64 */
-      numberOnPage: number;
-      /** Format: int64 */
-      page: number;
-      songId: string;
-    };
-    SongInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/SongInput.json
-       */
-      readonly $schema?: string;
-      category?: string;
-      lyrics: string;
-      melody?: string;
-      title: string;
-      video?: string;
-    };
-    Tag: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/Tag.json
-       */
-      readonly $schema?: string;
-      color?: string;
+      createdAt: string;
+      /** @description HTML, sanitized on save. */
+      description?: string;
       id: string;
-      isDefault: boolean;
+      imageUrl?: string;
+      name: string;
+      /**
+       * Format: int64
+       * @description Only on the list.
+       */
+      nollaCount?: number;
+      /** @description Only on GET /nollning/phadder-groups/{id}. */
+      nollor?: components["schemas"]["Member"][];
+      /**
+       * Format: int64
+       * @description Only on the list.
+       */
+      phadderCount?: number;
+      /** @description Only on GET /nollning/phadder-groups/{id}. */
+      phaddrar?: components["schemas"]["Member"][];
+      seasonId: string;
+    };
+    PhadderGroupInput: {
+      /** @description HTML, sanitized on save. */
+      description: string | null;
+      imageUrl: string | null;
+      name: string;
+      seasonId: string;
+    };
+    PhadderGroupMembersInput: {
+      /** @description All are added, or none. */
+      studentIds: string[];
+    };
+    /** @enum {string} */
+    PhadderRole: "" | "nolla" | "phadder";
+    Position: {
+      /** @description Inactive positions are kept for history but no longer filled. */
+      active?: boolean;
+      /** @description Whether the position is on the board. */
+      boardMember?: boolean;
+      /** @description Only set where the committee isn't otherwise known, e.g. a member's mandate history. */
+      committee?: components["schemas"]["Committee"];
+      committeeId?: string;
+      /** @description descriptionEn or descriptionSv, resolved from Accept-Language. */
+      description?: string;
+      descriptionEn?: string;
+      descriptionSv?: string;
+      /** @description The position's own email address. */
+      email?: string;
+      /** @description Email aliases that forward to the holders. Only set on detail responses. */
+      emailAliases?: string[];
+      /**
+       * Format: int32
+       * @description Month (1-12) a mandate usually ends.
+       */
+      endMonth?: number;
+      /** @description Dotted position id, e.g. dsek.cafe.mastare. */
+      id: string;
+      /** @description nameEn or nameSv, resolved from Accept-Language. */
       name: string;
       nameEn?: string;
       nameSv: string;
-    };
-    TagInput: {
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/TagInput.json
+       * Format: int32
+       * @description Month (1-12) a mandate usually starts.
        */
-      readonly $schema?: string;
-      color: string | null;
-      nameEn: string | null;
-      nameSv: string;
+      startMonth?: number;
     };
-    TicketQueueEntry: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/TicketQueueEntry.json
-       */
-      readonly $schema?: string;
-      /** Format: date-time */
-      offerExpiresAt?: string;
-      /** Format: int64 */
-      queuePosition?: number;
-      status: string;
-    };
-    TicketRelease: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/TicketRelease.json
-       */
-      readonly $schema?: string;
-      /** Format: date-time */
-      closesAt: string;
-      description: string;
-      eventId: string;
-      /** Format: date-time */
-      expiresAt: string;
-      /** Format: int64 */
-      graceWindowSeconds: number;
-      id: string;
-      location: string;
-      /** Format: int64 */
-      offerWindowSeconds: number;
-      /** Format: date-time */
-      opensAt: string;
-      /** Format: int64 */
-      quantity: number;
-      status: string;
-      title: string;
-    };
-    TicketReleaseSummary: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/TicketReleaseSummary.json
-       */
-      readonly $schema?: string;
-      /** Format: int64 */
-      accepted: number;
-      /** Format: int64 */
-      claimed: number;
-      /** Format: date-time */
-      closesAt: string;
-      description: string;
-      eventId: string;
-      /** Format: date-time */
-      expiresAt: string;
-      id: string;
-      location: string;
-      /** Format: date-time */
-      lotteryAt: string;
-      /** Format: date-time */
-      opensAt: string;
-      /** Format: int64 */
-      quantity: number;
-      status: string;
-      title: string;
-      /** Format: int64 */
-      waitlisted: number;
-    };
-    TicketRosterEntry: {
-      firstName?: string;
-      foodPreference?: string;
-      lastName?: string;
-      nickname?: string;
-      picturePath?: string;
-      /** Format: date-time */
-      requestedAt: string;
-      studentId: string;
-      /** Format: date-time */
-      updatedAt: string;
-    };
-    UnreadCountOutputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UnreadCountOutputBody.json
-       */
-      readonly $schema?: string;
-      /** Format: int64 */
-      count: number;
-    };
-    UpdateCommitteeInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateCommitteeInput.json
-       */
-      readonly $schema?: string;
-      bannerUrl?: string;
-      darkImageUrl?: string;
+    PositionDetail: {
+      /** @description Inactive positions are kept for history but no longer filled. */
+      active?: boolean;
+      /** @description Whether the position is on the board. */
+      boardMember?: boolean;
+      /** @description Only set where the committee isn't otherwise known, e.g. a member's mandate history. */
+      committee?: components["schemas"]["Committee"];
+      committeeId?: string;
+      /** @description descriptionEn or descriptionSv, resolved from Accept-Language. */
+      description?: string;
       descriptionEn?: string;
       descriptionSv?: string;
-      isBannerTextLight: boolean;
-      lightImageUrl?: string;
-      monoImageUrl?: string;
+      /** @description The position's own email address. */
+      email?: string;
+      /** @description Email aliases that forward to the holders. Only set on detail responses. */
+      emailAliases?: string[];
+      /**
+       * Format: int32
+       * @description Month (1-12) a mandate usually ends.
+       */
+      endMonth?: number;
+      /** @description Dotted position id, e.g. dsek.cafe.mastare. */
+      id: string;
+      /** @description Mandates, each with its member. In a committee, that year's; from GET /positions/{id}, every one. */
+      mandates: components["schemas"]["Mandate"][];
+      /** @description nameEn or nameSv, resolved from Accept-Language. */
+      name: string;
       nameEn?: string;
       nameSv: string;
-      previewUrl?: string;
-      symbolUrl?: string;
-    };
-    UpdateFoodPreferenceInputBody: {
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateFoodPreferenceInputBody.json
+       * Format: int32
+       * @description Month (1-12) a mandate usually starts.
        */
-      readonly $schema?: string;
-      foodPreference?: string;
-    };
-    UpdateLanguageInputBody: {
+      startMonth?: number;
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateLanguageInputBody.json
+       * Format: int32
+       * @description Only in a committee's positions: the year the mandates are for.
        */
-      readonly $schema?: string;
-      /** @enum {string} */
-      language: "sv" | "en";
+      year?: number;
     };
-    UpdateLinkInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateLinkInput.json
-       */
-      readonly $schema?: string;
-      tags: string[] | null;
-      url: string;
-    };
-    UpdateMandateInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateMandateInput.json
-       */
-      readonly $schema?: string;
-      endDate: string;
-      startDate: string;
-    };
-    UpdateMarkdownInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateMarkdownInput.json
-       */
-      readonly $schema?: string;
-      markdownEn?: string;
-      markdownSv: string;
-    };
-    UpdatePositionInput: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdatePositionInput.json
-       */
-      readonly $schema?: string;
+    PositionInput: {
+      /** @description Inactive positions are kept for history but no longer filled. */
       active: boolean;
+      /** @description Whether the position is on the board. */
       boardMember: boolean;
       descriptionEn?: string;
       descriptionSv?: string;
@@ -3471,13 +3965,50 @@ export interface components {
       nameEn?: string;
       nameSv: string;
     };
-    UpdateProfileInput: {
+    PositionSearchCommittee: {
+      /** @description Logo for dark backgrounds. */
+      darkImageUrl?: string;
+      id: string;
+      /** @description Logo for light backgrounds. */
+      lightImageUrl?: string;
+      /** @description Single-color logo. */
+      monoImageUrl?: string;
+      nameEn?: string;
+      nameSv: string;
+      shortName?: string;
+    };
+    PositionSearchDocument: {
+      committee?: components["schemas"]["PositionSearchCommittee"];
+      committeeId?: string;
+      /** @description English only: committeeNameEn. */
+      committeeName?: string;
+      /** @description The committee's English name. */
+      committeeNameEn: string;
+      /** @description The committee's Swedish name. */
+      committeeNameSv: string;
+      /** @description English only: descriptionEn. */
+      description?: string;
+      descriptionEn?: string;
+      descriptionSv?: string;
+      /** @description The position id, e.g. dsek.cafe.mastare. */
+      dsekId: string;
+      /** @description Meilisearch id. */
+      id: string;
+      /** @description English only: nameEn. */
+      name?: string;
+      nameEn?: string;
+      nameSv: string;
+    };
+    PositionSearchHit: {
+      data: components["schemas"]["PositionSearchDocument"];
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateProfileInput.json
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
        */
-      readonly $schema?: string;
+      type: "positions";
+    };
+    ProfileInput: {
+      /** @description HTML, sanitized on save. */
       bio?: string;
       classProgramme?: string;
       /** Format: int32 */
@@ -3485,51 +4016,384 @@ export interface components {
       firstName: string;
       /** Format: int32 */
       graduationYear?: number;
-      language?: string;
+      language?: components["schemas"]["Language"];
       lastName: string;
       nickname?: string;
     };
-    UpdateTicketReleaseInputBody: {
+    PushTokenInput: {
+      /** @description An Expo push token, ExponentPushToken[...]. */
+      token: string;
+    };
+    ReadmeIssue: {
+      id: string;
       /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpdateTicketReleaseInputBody.json
+       * Format: int32
+       * @description Issue number within the year.
        */
-      readonly $schema?: string;
+      number: number;
+      /**
+       * Format: date-time
+       * @description Unset for an issue not out yet.
+       */
+      publishedAt?: string;
+      title: string;
+      /** @description Where the issue is, usually a PDF. */
+      url: string;
+      /** Format: int32 */
+      year: number;
+    };
+    Recurrence: {
+      /**
+       * Format: date-time
+       * @description The series' last day (inclusive).
+       */
+      endAt: string;
+      /**
+       * Format: int64
+       * @description Repeat every separationCount+1 periods; 0 is every period.
+       */
+      separationCount: number;
+      type: components["schemas"]["RecurringType"];
+    };
+    /** @enum {string} */
+    RecurringType: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
+    RequirementProfileFolder: {
+      files: components["schemas"]["StoredFile"][];
+      /** @description Folder path below public/kravprofiler, including the year. */
+      name: string;
+    };
+    /** @description A search result: the index it's from, and the stored document. */
+    SearchHit:
+      | components["schemas"]["MemberSearchHit"]
+      | components["schemas"]["EventSearchHit"]
+      | components["schemas"]["ArticleSearchHit"]
+      | components["schemas"]["PositionSearchHit"]
+      | components["schemas"]["SongSearchHit"]
+      | components["schemas"]["CommitteeSearchHit"]
+      | components["schemas"]["GoverningDocumentSearchHit"]
+      | components["schemas"]["MeetingDocumentSearchHit"];
+    /** @enum {string} */
+    SearchIndex:
+      | "members"
+      | "events"
+      | "articles"
+      | "positions"
+      | "songs"
+      | "committees"
+      | "governingDocuments"
+      | "meetingDocuments";
+    ShortLink: {
       /** Format: date-time */
+      dateCreated: string;
+      /** @description Where it redirects. */
+      longUrl: string;
+      /** @description The slug after the domain; the key link routes use. */
+      shortCode: string;
+      /** @description The full short URL. */
+      shortUrl: string;
+      tags: string[];
+      title?: string;
+      /**
+       * Format: int64
+       * @description Total visits, bots included.
+       */
+      visits: number;
+    };
+    ShortLinkList: {
+      links: components["schemas"]["ShortLink"][];
+      /**
+       * Format: int64
+       * @description Number of pages (20 links each).
+       */
+      pageCount: number;
+    };
+    Song: {
+      /** @description One or more categories, comma separated. */
+      category?: string;
+      /** Format: date-time */
+      createdAt?: string;
+      /**
+       * Format: date-time
+       * @description Set if the song is soft-deleted.
+       */
+      deletedAt?: string;
+      id: string;
+      /** @description Typographic replacements (--, ||: etc.) already applied. */
+      lyrics: string;
+      /** @description The tune it's sung to. */
+      melody?: string;
+      slug: string;
+      title: string;
+      /** Format: date-time */
+      updatedAt?: string;
+      /** @description Video URL. */
+      video?: string;
+    };
+    SongBookEntry: {
+      /**
+       * Format: int64
+       * @description The song's number on that page, from 1.
+       */
+      numberOnPage: number;
+      /**
+       * Format: int64
+       * @description Page in the printed songbook.
+       */
+      page: number;
+      song: components["schemas"]["Song"];
+    };
+    SongBookEntryInput: {
+      /**
+       * Format: int64
+       * @description The song's number on that page, from 1.
+       */
+      numberOnPage: number;
+      /**
+       * Format: int64
+       * @description Page in the printed songbook.
+       */
+      page: number;
+      /** @description A song can be in the songbook once. */
+      songId: string;
+    };
+    SongBookEntryList: {
+      entries: components["schemas"]["SongBookEntry"][];
+      /**
+       * Format: int64
+       * @description Number of pages at this pageSize.
+       */
+      pageCount: number;
+    };
+    SongInput: {
+      /** @description One or more categories, comma separated. */
+      category?: string;
+      lyrics: string;
+      melody?: string;
+      title: string;
+      video?: string;
+    };
+    SongList: {
+      /**
+       * Format: int64
+       * @description Number of pages at this pageSize.
+       */
+      pageCount: number;
+      songs: components["schemas"]["Song"][];
+    };
+    SongSearchDocument: {
+      /** @description Categories, comma separated. */
+      category?: string;
+      /** @description Meilisearch id. */
+      id: string;
+      lyrics: string;
+      /** @description The tune it's sung to. */
+      melody?: string;
+      slug: string;
+      title: string;
+    };
+    SongSearchHit: {
+      data: components["schemas"]["SongSearchDocument"];
+      /**
+       * @description The index the hit is from. (enum property replaced by openapi-typescript)
+       * @enum {string}
+       */
+      type: "songs";
+    };
+    StoredFile: {
+      /** @description The object's key in its bucket; what delete takes. */
+      id: string;
+      /**
+       * Format: date-time
+       * @description Omitted right after an upload.
+       */
+      lastModified?: string;
+      /** @description File name. */
+      name: string;
+      /**
+       * Format: int64
+       * @description Bytes. Omitted right after an upload.
+       */
+      size?: number;
+      /** @description Public URL. */
+      url: string;
+    };
+    Tag: {
+      /** @description CSS color, e.g. #ff0000. */
+      color?: string;
+      id: string;
+      /** @description New members are subscribed to default tags. */
+      isDefault: boolean;
+      /** @description nameEn or nameSv, resolved from Accept-Language. */
+      name: string;
+      nameEn?: string;
+      nameSv: string;
+    };
+    TagInput: {
+      /** @description CSS color, e.g. #ff0000. */
+      color?: string;
+      nameEn?: string;
+      nameSv: string;
+    };
+    TicketQueueEntry: {
+      /**
+       * Format: date-time
+       * @description When a granted offer lapses.
+       */
+      offerExpiresAt?: string;
+      /**
+       * Format: int64
+       * @description Place on the waitlist, from 1.
+       */
+      queuePosition?: number;
+      /** @description granted: offered a ticket, to accept before offerExpiresAt. accepted: has a ticket. */
+      status: components["schemas"]["TicketRequestStatus"];
+    };
+    TicketRelease: {
+      /**
+       * Format: date-time
+       * @description When requests close.
+       */
+      closesAt: string;
+      description: string;
+      /** @description The event the tickets are for. */
+      eventId: string;
+      /**
+       * Format: date-time
+       * @description The event's end; the release is hidden after.
+       */
+      expiresAt: string;
+      /**
+       * Format: int64
+       * @description Requests in the first this many seconds after opening are drawn by lottery; later ones queue in order.
+       */
+      graceWindowSeconds: number;
+      id: string;
+      /** @description Room name, not a maps location. */
+      location: string;
+      /**
+       * Format: int64
+       * @description How long a waitlisted member has to accept an offered ticket.
+       */
+      offerWindowSeconds: number;
+      /**
+       * Format: date-time
+       * @description When requests open.
+       */
+      opensAt: string;
+      /**
+       * Format: int64
+       * @description Number of tickets.
+       */
+      quantity: number;
+      status: components["schemas"]["TicketReleaseStatus"];
+      title: string;
+    };
+    /** @enum {string} */
+    TicketReleaseStatus: "scheduled" | "lottery_done";
+    TicketReleaseSummary: {
+      /**
+       * Format: int64
+       * @description Tickets accepted.
+       */
+      accepted: number;
+      /**
+       * Format: int64
+       * @description Tickets offered or accepted.
+       */
+      claimed: number;
+      /**
+       * Format: date-time
+       * @description When requests close.
+       */
+      closesAt: string;
+      description: string;
+      /** @description The event the tickets are for. */
+      eventId: string;
+      /**
+       * Format: date-time
+       * @description The event's end; the release is hidden after.
+       */
+      expiresAt: string;
+      id: string;
+      /** @description Room name, not a maps location. */
+      location: string;
+      /**
+       * Format: date-time
+       * @description When the lottery among early requests is drawn.
+       */
+      lotteryAt: string;
+      /**
+       * Format: date-time
+       * @description When requests open.
+       */
+      opensAt: string;
+      /**
+       * Format: int64
+       * @description Number of tickets.
+       */
+      quantity: number;
+      status: components["schemas"]["TicketReleaseStatus"];
+      title: string;
+      /**
+       * Format: int64
+       * @description Members waiting for a ticket.
+       */
+      waitlisted: number;
+    };
+    /** @enum {string} */
+    TicketRequestStatus:
+      | "pending"
+      | "granted"
+      | "waitlisted"
+      | "accepted"
+      | "expired"
+      | "cancelled";
+    TicketRosterEntry: {
+      firstName?: string;
+      /** @description Free text, e.g. allergies. */
+      foodPreference?: string;
+      lastName?: string;
+      nickname?: string;
+      /** @description Profile picture URL. */
+      picturePath?: string;
+      /** Format: date-time */
+      requestedAt: string;
+      studentId: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    UnreadCount: {
+      /** Format: int64 */
+      count: number;
+    };
+    UpdateLinkInput: {
+      tags: string[];
+      /** @description Where the link redirects. */
+      url: string;
+    };
+    UpdateTicketReleaseInput: {
+      /**
+       * Format: date-time
+       * @description When requests close.
+       */
       closesAt: string;
       description?: string;
+      /** @description Room name, not a maps location. */
       location?: string;
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @description Number of tickets.
+       */
       quantity: number;
       title: string;
     };
-    UploadExpoTokenInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UploadExpoTokenInputBody.json
-       */
-      readonly $schema?: string;
-      token: string;
+    UploadedAlbum: {
+      /** @description The album's slug. */
+      key: string;
     };
-    UploadOutputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UploadOutputBody.json
-       */
-      readonly $schema?: string;
+    UploadedImage: {
+      /** @description Public URL of the stored image. */
       url: string;
-    };
-    UpsertAdminSettingInputBody: {
-      /**
-       * Format: uri
-       * @description A URL to the JSON Schema for this object.
-       * @example https://example.com/schemas/UpsertAdminSettingInputBody.json
-       */
-      readonly $schema?: string;
-      value: string;
     };
   };
   responses: never;
@@ -3543,6 +4407,7 @@ export interface operations {
   "list-access-policies": {
     parameters: {
       query?: {
+        /** @description Only grants of this policy. */
         apiName?: string;
       };
       header?: never;
@@ -3557,7 +4422,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AccessPolicy"][] | null;
+          "application/json": components["schemas"]["AccessPolicy"][];
         };
       };
       /** @description Error */
@@ -3580,7 +4445,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateInput"];
+        "application/json": components["schemas"]["AccessPolicyInput"];
       };
     };
     responses: {
@@ -3619,7 +4484,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["APINameCount"][] | null;
+          "application/json": components["schemas"]["AccessPolicyAPIName"][];
         };
       };
       /** @description Error */
@@ -3642,7 +4507,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["BulkCreateInput"];
+        "application/json": components["schemas"]["AccessPolicyBulkInput"];
       };
     };
     responses: {
@@ -3652,7 +4517,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AccessPolicy"][] | null;
+          "application/json": components["schemas"]["AccessPolicy"][];
         };
       };
       /** @description Error */
@@ -3710,7 +4575,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Setting"][] | null;
+          "application/json": components["schemas"]["AdminSetting"][];
         };
       };
       /** @description Error */
@@ -3724,7 +4589,7 @@ export interface operations {
       };
     };
   };
-  "upsert-admin-setting": {
+  "set-admin-setting": {
     parameters: {
       query?: never;
       header?: never;
@@ -3735,7 +4600,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpsertAdminSettingInputBody"];
+        "application/json": components["schemas"]["AdminSettingInput"];
       };
     };
     responses: {
@@ -3745,7 +4610,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Setting"];
+          "application/json": components["schemas"]["AdminSetting"];
         };
       };
       /** @description Error */
@@ -3788,7 +4653,7 @@ export interface operations {
       };
     };
   };
-  "list-misc-files": {
+  "get-alarm": {
     parameters: {
       query?: never;
       header?: never;
@@ -3803,7 +4668,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["DocumentFile"][] | null;
+          "application/json": components["schemas"]["Alarm"];
         };
       };
       /** @description Error */
@@ -3817,7 +4682,36 @@ export interface operations {
       };
     };
   };
-  "upload-misc-file": {
+  "list-albums": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Album"][];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "upload-album-pictures": {
     parameters: {
       query?: never;
       header?: never;
@@ -3827,11 +4721,11 @@ export interface operations {
     requestBody?: {
       content: {
         "multipart/form-data": {
-          /** Format: binary */
-          file: Blob;
-          /** @description defaults to a random name if omitted */
+          /** @description Album date, YYYY-MM-DD. */
+          date: string;
+          files: Blob[];
+          /** @description Album name. */
           name: string;
-          prefix: string;
         };
       };
     };
@@ -3842,7 +4736,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["DocumentFile"];
+          "application/json": components["schemas"]["UploadedAlbum"];
         };
       };
       /** @description Error */
@@ -3856,23 +4750,26 @@ export interface operations {
       };
     };
   };
-  "delete-misc-file": {
+  "get-album": {
     parameters: {
-      query: {
-        id: string;
-      };
+      query?: never;
       header?: never;
-      path?: never;
+      path: {
+        /** @description The album's key. */
+        slug: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description No Content */
-      204: {
+      /** @description OK */
+      200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["AlbumDetail"];
+        };
       };
       /** @description Error */
       default: {
@@ -3900,7 +4797,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Alert"][] | null;
+          "application/json": components["schemas"]["Alert"][];
         };
       };
       /** @description Error */
@@ -3976,7 +4873,7 @@ export interface operations {
       };
     };
   };
-  "close-alert": {
+  "dismiss-alert": {
     parameters: {
       query?: never;
       header?: never;
@@ -4008,15 +4905,19 @@ export interface operations {
   "list-articles": {
     parameters: {
       query?: {
-        /** @description free-text search over header/body */
+        /** @description Free-text search over header and body. */
         search?: string;
-        /** @description tag UUIDs, ANY-match */
-        tags?: string[] | null;
+        /** @description Tag ids; an article matches if it has any of them. */
+        tags?: string[];
+        /** @description Only articles about this committee. */
         committeeId?: string;
+        /** @description Only articles written by this member. */
         authorStudentId?: string;
+        /** @description Only articles in this nollning season. */
         nollningSeasonId?: string;
-        /** @description 1-based */
+        /** @description 1-based page number. Defaults to 1. */
         page?: number;
+        /** @description Items per page. Each endpoint has its own default and maximum. */
         pageSize?: number;
       };
       header?: never;
@@ -4031,7 +4932,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ListArticlesOutputBody"];
+          "application/json": components["schemas"]["ArticleList"];
         };
       };
       /** @description Error */
@@ -4081,8 +4982,10 @@ export interface operations {
   "get-article": {
     parameters: {
       query?: {
-        /** @description pass 'any' to bypass the publish/removed filter, for an author viewing their own draft or scheduled article */
-        status?: "any";
+        /** @description Also return a soft-deleted article. Hidden articles are only returned to someone who may edit them. */
+        includeDeleted?: boolean;
+        /** @description Also return a draft or scheduled article. Hidden articles are only returned to someone who may edit them. */
+        includeUnpublished?: boolean;
       };
       header?: never;
       path: {
@@ -4091,6 +4994,41 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ArticleDetail"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "replace-article": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ArticleInput"];
+      };
+    };
     responses: {
       /** @description OK */
       200: {
@@ -4141,7 +5079,7 @@ export interface operations {
       };
     };
   };
-  "update-article": {
+  "create-article-comment": {
     parameters: {
       query?: never;
       header?: never;
@@ -4152,42 +5090,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ArticleInput"];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ArticleDetail"];
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "create-comment": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        slug: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateCommentInputBody"];
+        "application/json": components["schemas"]["CommentInput"];
       };
     };
     responses: {
@@ -4211,7 +5114,7 @@ export interface operations {
       };
     };
   };
-  "delete-comment": {
+  "delete-article-comment": {
     parameters: {
       query?: never;
       header?: never;
@@ -4314,7 +5217,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["BoardPosition"][] | null;
+          "application/json": components["schemas"]["BoardPosition"][];
         };
       };
       /** @description Error */
@@ -4343,9 +5246,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json":
-            | components["schemas"]["BookableCategory"][]
-            | null;
+          "application/json": components["schemas"]["BookableCategory"][];
         };
       };
       /** @description Error */
@@ -4392,7 +5293,7 @@ export interface operations {
       };
     };
   };
-  "update-bookable-category": {
+  "replace-bookable-category": {
     parameters: {
       query?: never;
       header?: never;
@@ -4442,7 +5343,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Bookable"][] | null;
+          "application/json": components["schemas"]["Bookable"][];
         };
       };
       /** @description Error */
@@ -4520,7 +5421,7 @@ export interface operations {
       };
     };
   };
-  "update-bookable": {
+  "replace-bookable": {
     parameters: {
       query?: never;
       header?: never;
@@ -4555,6 +5456,35 @@ export interface operations {
       };
     };
   };
+  "list-booking-doors": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BookingDoor"][];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "list-booking-requests": {
     parameters: {
       query?: never;
@@ -4570,7 +5500,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["BookingRequest"][] | null;
+          "application/json": components["schemas"]["BookingRequest"][];
         };
       };
       /** @description Error */
@@ -4603,7 +5533,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["BookingRequestWithConflictsOutputBody"];
+          "application/json": components["schemas"]["BookingRequestResult"];
         };
       };
       /** @description Error */
@@ -4617,7 +5547,7 @@ export interface operations {
       };
     };
   };
-  "list-booking-doors": {
+  "list-booking-review-queue": {
     parameters: {
       query?: never;
       header?: never;
@@ -4632,36 +5562,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AccessDoor"][] | null;
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "booking-review-queue": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ReviewItem"][] | null;
+          "application/json": components["schemas"]["BookingReviewItem"][];
         };
       };
       /** @description Error */
@@ -4706,6 +5607,41 @@ export interface operations {
       };
     };
   };
+  "replace-booking-request": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BookingRequestInput"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BookingRequestResult"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "delete-booking-request": {
     parameters: {
       query?: never;
@@ -4735,41 +5671,6 @@ export interface operations {
       };
     };
   };
-  "update-booking-request": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["BookingRequestInput"];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["BookingRequestWithConflictsOutputBody"];
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
   "accept-booking-request": {
     parameters: {
       query?: never;
@@ -4781,7 +5682,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        "application/json": components["schemas"]["AccessInput"];
+        "application/json": components["schemas"]["BookingAccessInput"];
       };
     };
     responses: {
@@ -4840,12 +5741,17 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        /** @description ISO year. */
+        year: number;
+        /** @description ISO week, 1-53. */
+        week: number;
+      };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SetCiabattaInput"];
+        "application/json": components["schemas"]["CiabattaInput"];
       };
     };
     responses: {
@@ -4884,7 +5790,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OpeningHour"][] | null;
+          "application/json": components["schemas"]["CafeOpeningHours"][];
         };
       };
       /** @description Error */
@@ -4901,9 +5807,9 @@ export interface operations {
   "get-cafe-schedule": {
     parameters: {
       query?: {
-        /** @description defaults to the current ISO year */
+        /** @description ISO year. Defaults to the current one. */
         year?: number;
-        /** @description 1-53, defaults to the current ISO week */
+        /** @description ISO week, 1-53. Defaults to the current one. */
         week?: number;
       };
       header?: never;
@@ -4918,7 +5824,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Schedule"];
+          "application/json": components["schemas"]["CafeSchedule"];
         };
       };
       /** @description Error */
@@ -4932,7 +5838,7 @@ export interface operations {
       };
     };
   };
-  "set-cafe-shift": {
+  "toggle-cafe-shift": {
     parameters: {
       query?: never;
       header?: never;
@@ -4941,7 +5847,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SetShiftInput"];
+        "application/json": components["schemas"]["CafeShiftToggleInput"];
       };
     };
     responses: {
@@ -4951,7 +5857,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ShiftMutationResult"];
+          "application/json": components["schemas"]["CafeShiftResult"];
         };
       };
       /** @description Error */
@@ -4980,7 +5886,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Committee"][] | null;
+          "application/json": components["schemas"]["Committee"][];
         };
       };
       /** @description Error */
@@ -4997,11 +5903,12 @@ export interface operations {
   "get-committee": {
     parameters: {
       query?: {
-        /** @description defaults to the current year */
+        /** @description Defaults to the current year. */
         year?: number;
       };
       header?: never;
       path: {
+        /** @description The committee's short name, e.g. cafe. */
         shortName: string;
       };
       cookie?: never;
@@ -5028,18 +5935,19 @@ export interface operations {
       };
     };
   };
-  "update-committee": {
+  "replace-committee": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description The committee's short name, e.g. cafe. */
         shortName: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateCommitteeInput"];
+        "application/json": components["schemas"]["CommitteeInput"];
       };
     };
     responses: {
@@ -5063,18 +5971,19 @@ export interface operations {
       };
     };
   };
-  "update-committee-links": {
+  "replace-committee-about": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description The committee's short name, e.g. cafe. */
         shortName: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateMarkdownInput"];
+        "application/json": components["schemas"]["CommitteeMarkdownInput"];
       };
     };
     responses: {
@@ -5084,7 +5993,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MarkdownContent"];
+          "application/json": components["schemas"]["CommitteeMarkdown"];
         };
       };
       /** @description Error */
@@ -5098,18 +6007,19 @@ export interface operations {
       };
     };
   };
-  "update-committee-markdown": {
+  "replace-committee-links": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description The committee's short name, e.g. cafe. */
         shortName: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateMarkdownInput"];
+        "application/json": components["schemas"]["CommitteeMarkdownInput"];
       };
     };
     responses: {
@@ -5119,7 +6029,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MarkdownContent"];
+          "application/json": components["schemas"]["CommitteeMarkdown"];
         };
       };
       /** @description Error */
@@ -5148,203 +6058,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CustomAuthor"][] | null;
+          "application/json": components["schemas"]["CustomAuthor"][];
         };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "list-meetings": {
-    parameters: {
-      query: {
-        /** @description one of board-meeting, guild-meeting, SRD-meeting, other */
-        type: string;
-        year: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Meeting"][] | null;
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "delete-document": {
-    parameters: {
-      query: {
-        /** @description one of board-meeting, guild-meeting, SRD-meeting, other */
-        type: string;
-        id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "list-requirement-profiles": {
-    parameters: {
-      query: {
-        year: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json":
-            | components["schemas"]["RequirementFolder"][]
-            | null;
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "delete-requirement-profile": {
-    parameters: {
-      query: {
-        id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "upload-document": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "multipart/form-data": {
-          /** Format: binary */
-          file: Blob;
-          folder: string;
-          name: string;
-          /** @description one of meeting, srd, requirement */
-          type: string;
-          /** Format: int64 */
-          year: number;
-        };
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "delete-door-access-policy": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
       };
       /** @description Error */
       default: {
@@ -5372,7 +6087,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Door"][] | null;
+          "application/json": components["schemas"]["Door"][];
         };
       };
       /** @description Error */
@@ -5391,6 +6106,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description The door's internal name. */
         name: string;
       };
       cookie?: never;
@@ -5403,9 +6119,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json":
-            | components["schemas"]["DoorAccessPolicy"][]
-            | null;
+          "application/json": components["schemas"]["DoorAccessPolicy"][];
         };
       };
       /** @description Error */
@@ -5424,13 +6138,14 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description The door's internal name. */
         name: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreatePolicyInput"];
+        "application/json": components["schemas"]["DoorAccessPolicyInput"];
       };
     };
     responses: {
@@ -5442,6 +6157,37 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["DoorAccessPolicy"];
         };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-door-access-policy": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The door's internal name. */
+        name: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Error */
       default: {
@@ -5469,7 +6215,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Election"][] | null;
+          "application/json": components["schemas"]["Election"][];
         };
       };
       /** @description Error */
@@ -5547,36 +6293,7 @@ export interface operations {
       };
     };
   };
-  "delete-election": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "update-election": {
+  "replace-election": {
     parameters: {
       query?: never;
       header?: never;
@@ -5611,24 +6328,55 @@ export interface operations {
       };
     };
   };
+  "delete-election": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "list-events": {
     parameters: {
       query?: {
-        /** @description free-text search over title/description */
+        /** @description Free-text search over title and description. */
         search?: string;
-        /** @description tag UUIDs, ANY-match */
-        tags?: string[] | null;
-        /** @description upcoming (default): ends after now; past: started before now, newest first; range: overlaps [from, to) */
-        span?: "upcoming" | "past" | "range";
-        /** @description start of the range span (inclusive) */
+        /** @description Tag ids; an event matches if it has any of them. */
+        tags?: string[];
+        /** @description upcoming (default): ends after now, soonest first. past: started before now, newest first. range: overlaps [from, to), soonest first. */
+        span?: components["schemas"]["EventSpan"];
+        /** @description Start of the range span (inclusive). */
         from?: string;
-        /** @description end of the range span (exclusive) */
+        /** @description End of the range span (exclusive). */
         to?: string;
-        /** @description also list soft-removed events; requires event:update */
-        includeRemoved?: boolean;
+        /** @description Also list soft-deleted events. Needs event:update. */
+        includeDeleted?: boolean;
+        /** @description Only events in this nollning season. */
         nollningSeasonId?: string;
-        /** @description 1-based */
+        /** @description 1-based page number. Defaults to 1. */
         page?: number;
+        /** @description Items per page. Each endpoint has its own default and maximum. */
         pageSize?: number;
       };
       header?: never;
@@ -5643,7 +6391,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ListEventsOutputBody"];
+          "application/json": components["schemas"]["EventList"];
         };
       };
       /** @description Error */
@@ -5690,11 +6438,43 @@ export interface operations {
       };
     };
   };
-  "get-event-slug-by-id": {
+  "get-events-calendar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description An iCalendar file. */
+      200: {
+        headers: {
+          "Content-Disposition"?: string;
+          "Content-Type"?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "text/calendar": string;
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "get-event-slug": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description Event id (UUID). */
         id: string;
       };
       cookie?: never;
@@ -5707,7 +6487,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["EventSlugByIDOutputBody"];
+          "application/json": components["schemas"]["EventSlug"];
         };
       };
       /** @description Error */
@@ -5724,8 +6504,8 @@ export interface operations {
   "get-event": {
     parameters: {
       query?: {
-        /** @description pass 'any' to bypass the removed filter, for an editor viewing a soft-removed event */
-        status?: "any";
+        /** @description Also return a soft-deleted event, to someone who may edit it. */
+        includeDeleted?: boolean;
       };
       header?: never;
       path: {
@@ -5755,43 +6535,11 @@ export interface operations {
       };
     };
   };
-  "delete-event": {
+  "replace-event": {
     parameters: {
       query?: {
-        /** @description how a recurring series is affected; defaults to THIS */
-        scope?: "THIS" | "FUTURE" | "ALL";
-      };
-      header?: never;
-      path: {
-        slug: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "update-event": {
-    parameters: {
-      query?: {
-        /** @description how a recurring series is affected; defaults to THIS */
-        scope?: "THIS" | "FUTURE" | "ALL";
+        /** @description For an occurrence of a recurring series: THIS (default) only this one, FUTURE this and later ones, ALL every one. */
+        scope?: components["schemas"]["EventEditScope"];
       };
       header?: never;
       path: {
@@ -5825,6 +6573,38 @@ export interface operations {
       };
     };
   };
+  "delete-event": {
+    parameters: {
+      query?: {
+        /** @description For an occurrence of a recurring series: THIS (default) only this one, FUTURE this and later ones, ALL every one. */
+        scope?: components["schemas"]["EventEditScope"];
+      };
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "set-event-attendance": {
     parameters: {
       query?: never;
@@ -5836,7 +6616,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SetAttendanceInputBody"];
+        "application/json": components["schemas"]["AttendanceInput"];
       };
     };
     responses: {
@@ -5869,7 +6649,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateEventCommentInputBody"];
+        "application/json": components["schemas"]["CommentInput"];
       };
     };
     responses: {
@@ -5923,7 +6703,7 @@ export interface operations {
       };
     };
   };
-  "list-albums": {
+  "list-files": {
     parameters: {
       query?: never;
       header?: never;
@@ -5938,7 +6718,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Album"][] | null;
+          "application/json": components["schemas"]["StoredFile"][];
         };
       };
       /** @description Error */
@@ -5952,7 +6732,7 @@ export interface operations {
       };
     };
   };
-  "upload-album": {
+  "upload-file": {
     parameters: {
       query?: never;
       header?: never;
@@ -5962,15 +6742,50 @@ export interface operations {
     requestBody?: {
       content: {
         "multipart/form-data": {
-          date: string;
-          files: Blob[];
-          name: string;
+          /** Format: binary */
+          file: Blob;
+          /** @description File name; a random one if empty. */
+          name?: string;
+          /** @description Subfolder under public/miscellaneous; / if empty. */
+          prefix?: string;
         };
       };
     };
     responses: {
       /** @description Created */
       201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StoredFile"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-file": {
+    parameters: {
+      query: {
+        /** @description The file's id. */
+        key: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
         headers: {
           [name: string]: unknown;
         };
@@ -5987,24 +6802,27 @@ export interface operations {
       };
     };
   };
-  "get-album": {
+  "get-file": {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        slug: string;
+        /** @description File name directly under public/miscellaneous. */
+        name: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
+      /** @description The file. */
       200: {
         headers: {
+          "Content-Disposition"?: string;
+          "Content-Type"?: string;
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AlbumDetail"];
+          "application/octet-stream": string;
         };
       };
       /** @description Error */
@@ -6033,7 +6851,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Document"][] | null;
+          "application/json": components["schemas"]["GoverningDocument"][];
         };
       };
       /** @description Error */
@@ -6056,7 +6874,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DocumentInput"];
+        "application/json": components["schemas"]["GoverningDocumentInput"];
       };
     };
     responses: {
@@ -6066,7 +6884,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Document"];
+          "application/json": components["schemas"]["GoverningDocument"];
         };
       };
       /** @description Error */
@@ -6097,7 +6915,42 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Document"];
+          "application/json": components["schemas"]["GoverningDocument"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "replace-governing-document": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GoverningDocumentInput"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GoverningDocument"];
         };
       };
       /** @description Error */
@@ -6140,28 +6993,32 @@ export interface operations {
       };
     };
   };
-  "update-governing-document": {
+  "upload-image": {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        id: string;
-      };
+      path?: never;
       cookie?: never;
     };
-    requestBody: {
+    requestBody?: {
       content: {
-        "application/json": components["schemas"]["DocumentInput"];
+        "multipart/form-data": {
+          /**
+           * Format: binary
+           * @description The image.
+           */
+          file: Blob;
+        };
       };
     };
     responses: {
-      /** @description OK */
-      200: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Document"];
+          "application/json": components["schemas"]["UploadedImage"];
         };
       };
       /** @description Error */
@@ -6175,11 +7032,12 @@ export interface operations {
       };
     };
   };
-  "get-markdown-page": {
+  "get-info-page": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description The page's name, e.g. cafe:open:0. */
         slug: string;
       };
       cookie?: never;
@@ -6192,7 +7050,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Page"];
+          "application/json": components["schemas"]["InfoPage"];
         };
       };
       /** @description Error */
@@ -6206,53 +7064,19 @@ export interface operations {
       };
     };
   };
-  "create-markdown-page": {
+  "replace-info-page": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description The page's name, e.g. cafe:open:0. */
         slug: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["PageInput"];
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Page"];
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "update-markdown-page": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        slug: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["PageInput"];
+        "application/json": components["schemas"]["InfoPageInput"];
       };
     };
     responses: {
@@ -6262,7 +7086,43 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Page"];
+          "application/json": components["schemas"]["InfoPage"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "create-info-page": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The page's name, e.g. cafe:open:0. */
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InfoPageInput"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InfoPage"];
         };
       };
       /** @description Error */
@@ -6279,12 +7139,21 @@ export interface operations {
   "list-links": {
     parameters: {
       query?: {
+        /** @description 1-based page number. Defaults to 1. */
         page?: number;
-        /** @description one of title, dateCreated, shortCode, longUrl, visits, nonBotVisits */
-        orderBy?: string;
-        /** @description ASC or DESC */
-        dir?: string;
-        tags?: string[] | null;
+        /** @description Sort field. */
+        orderBy?:
+          | "title"
+          | "dateCreated"
+          | "shortCode"
+          | "longUrl"
+          | "visits"
+          | "nonBotVisits";
+        /** @description Sort direction. */
+        dir?: "ASC" | "DESC";
+        /** @description Only links with these tags. */
+        tags?: string[];
+        /** @description Free-text search. */
         search?: string;
       };
       header?: never;
@@ -6299,7 +7168,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["ShortLinkList"];
         };
       };
       /** @description Error */
@@ -6332,7 +7201,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["ShortLink"];
         };
       };
       /** @description Error */
@@ -6355,7 +7224,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DeleteLinksInputBody"];
+        "application/json": components["schemas"]["DeleteLinksInput"];
       };
     };
     responses: {
@@ -6392,7 +7261,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["LinkDomain"][];
         };
       };
       /** @description Error */
@@ -6421,7 +7290,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": string[];
         };
       };
       /** @description Error */
@@ -6435,7 +7304,7 @@ export interface operations {
       };
     };
   };
-  "update-link": {
+  "replace-link": {
     parameters: {
       query?: never;
       header?: never;
@@ -6456,7 +7325,42 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["ShortLink"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "replace-mandate-dates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MandateDatesInput"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Mandate"];
         };
       };
       /** @description Error */
@@ -6499,20 +7403,14 @@ export interface operations {
       };
     };
   };
-  "update-mandate": {
+  "get-me": {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        id: string;
-      };
+      path?: never;
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateMandateInput"];
-      };
-    };
+    requestBody?: never;
     responses: {
       /** @description OK */
       200: {
@@ -6520,7 +7418,36 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Mandate"];
+          "application/json": components["schemas"]["Me"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "list-my-tickets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MemberTicket"][];
         };
       };
       /** @description Error */
@@ -6537,7 +7464,7 @@ export interface operations {
   "list-medal-recipients": {
     parameters: {
       query?: {
-        /** @description e.g. "VT 2026" or "HT 2026" - defaults to the current semester */
+        /** @description VT (spring) or HT (fall) and a year, e.g. "VT 2026". Defaults to the current semester. */
         semester?: string;
       };
       header?: never;
@@ -6552,8 +7479,148 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MedalRecipients"][] | null;
+          "application/json": components["schemas"]["MedalRecipients"][];
         };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "get-medal-recipients-csv": {
+    parameters: {
+      query?: {
+        /** @description VT (spring) or HT (fall) and a year, e.g. "VT 2026". Defaults to the current semester. */
+        semester?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description A CSV file. */
+      200: {
+        headers: {
+          "Content-Disposition"?: string;
+          "Content-Type"?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "text/csv": string;
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "list-meetings": {
+    parameters: {
+      query: {
+        type: components["schemas"]["MeetingType"];
+        year: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Meeting"][];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "upload-meeting-document": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        "multipart/form-data": {
+          /** Format: binary */
+          file: Blob;
+          /** @description The meeting folder, e.g. S01. */
+          folder: string;
+          /** @description File name without extension; the uploaded file's extension is kept. */
+          name: string;
+          type: components["schemas"]["MeetingUploadType"];
+          /** Format: int64 */
+          year: number;
+        };
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StoredFile"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-meeting-document": {
+    parameters: {
+      query: {
+        type: components["schemas"]["MeetingType"];
+        /** @description The file's id. */
+        key: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Error */
       default: {
@@ -6569,7 +7636,9 @@ export interface operations {
   "list-members": {
     parameters: {
       query?: {
+        /** @description Only members who started this year. */
         classYear?: number;
+        /** @description Only members in this programme, e.g. D. */
         classProgramme?: string;
       };
       header?: never;
@@ -6584,38 +7653,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MemberProfile"][] | null;
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "list-member-mandates": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["Mandate"][] | null;
+          "application/json": components["schemas"]["MemberProfile"][];
         };
       };
       /** @description Error */
@@ -6634,6 +7672,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
@@ -6660,18 +7699,19 @@ export interface operations {
       };
     };
   };
-  "update-member-profile": {
+  "replace-member-profile": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateProfileInput"];
+        "application/json": components["schemas"]["ProfileInput"];
       };
     };
     responses: {
@@ -6695,11 +7735,12 @@ export interface operations {
       };
     };
   };
-  "get-member-door-access": {
+  "list-member-door-access": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
@@ -6712,7 +7753,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MemberAccess"][] | null;
+          "application/json": components["schemas"]["MemberDoorAccess"][];
         };
       };
       /** @description Error */
@@ -6726,18 +7767,19 @@ export interface operations {
       };
     };
   };
-  "update-member-food-preference": {
+  "set-member-food-preference": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateFoodPreferenceInputBody"];
+        "application/json": components["schemas"]["FoodPreferenceInput"];
       };
     };
     responses: {
@@ -6761,18 +7803,19 @@ export interface operations {
       };
     };
   };
-  "update-member-language": {
+  "set-member-language": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateLanguageInputBody"];
+        "application/json": components["schemas"]["LanguageInput"];
       };
     };
     responses: {
@@ -6794,11 +7837,43 @@ export interface operations {
       };
     };
   };
+  "list-member-active-mandates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Mandate"][];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "list-member-medals": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
@@ -6811,7 +7886,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MemberMedal"][] | null;
+          "application/json": components["schemas"]["MemberMedal"][];
         };
       };
       /** @description Error */
@@ -6825,11 +7900,12 @@ export interface operations {
       };
     };
   };
-  "get-phadder-role": {
+  "get-member-phadder-role": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
@@ -6842,7 +7918,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["PhadderRoleInfo"];
+          "application/json": components["schemas"]["MemberPhadderRole"];
         };
       };
       /** @description Error */
@@ -6856,11 +7932,12 @@ export interface operations {
       };
     };
   };
-  "upload-member-picture": {
+  "set-member-picture": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
@@ -6868,7 +7945,10 @@ export interface operations {
     requestBody?: {
       content: {
         "multipart/form-data": {
-          /** Format: binary */
+          /**
+           * Format: binary
+           * @description The cropped picture, at most 8 MB.
+           */
           image: Blob;
         };
       };
@@ -6880,7 +7960,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MemberPictureOutputBody"];
+          "application/json": components["schemas"]["MemberPicture"];
         };
       };
       /** @description Error */
@@ -6899,6 +7979,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
@@ -6928,6 +8009,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
         studentId: string;
       };
       cookie?: never;
@@ -6952,7 +8034,7 @@ export interface operations {
       };
     };
   };
-  "get-current-nollning": {
+  "get-nollning-status": {
     parameters: {
       query?: never;
       header?: never;
@@ -6967,7 +8049,38 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CurrentInfo"];
+          "application/json": components["schemas"]["NollningStatus"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "get-nollning-events-calendar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description An iCalendar file. */
+      200: {
+        headers: {
+          "Content-Disposition"?: string;
+          "Content-Type"?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "text/calendar": string;
         };
       };
       /** @description Error */
@@ -6984,6 +8097,7 @@ export interface operations {
   "list-phadder-groups": {
     parameters: {
       query?: {
+        /** @description Only groups in this season. */
         seasonId?: string;
       };
       header?: never;
@@ -6998,7 +8112,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["PhadderGroup"][] | null;
+          "application/json": components["schemas"]["PhadderGroup"][];
         };
       };
       /** @description Error */
@@ -7076,36 +8190,7 @@ export interface operations {
       };
     };
   };
-  "delete-phadder-group": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "update-phadder-group": {
+  "replace-phadder-group": {
     parameters: {
       query?: never;
       header?: never;
@@ -7140,7 +8225,36 @@ export interface operations {
       };
     };
   };
-  "add-nolla": {
+  "delete-phadder-group": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "add-phadder-group-nollor": {
     parameters: {
       query?: never;
       header?: never;
@@ -7151,7 +8265,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["GroupMembersInputBody"];
+        "application/json": components["schemas"]["PhadderGroupMembersInput"];
       };
     };
     responses: {
@@ -7173,11 +8287,12 @@ export interface operations {
       };
     };
   };
-  "remove-nolla": {
+  "remove-phadder-group-nolla": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description Phadder group id. */
         id: string;
         studentId: string;
       };
@@ -7203,7 +8318,7 @@ export interface operations {
       };
     };
   };
-  "add-phadder": {
+  "add-phadder-group-phaddrar": {
     parameters: {
       query?: never;
       header?: never;
@@ -7214,7 +8329,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["GroupMembersInputBody"];
+        "application/json": components["schemas"]["PhadderGroupMembersInput"];
       };
     };
     responses: {
@@ -7236,11 +8351,12 @@ export interface operations {
       };
     };
   };
-  "remove-phadder": {
+  "remove-phadder-group-phadder": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description Phadder group id. */
         id: string;
         studentId: string;
       };
@@ -7281,7 +8397,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Season"][] | null;
+          "application/json": components["schemas"]["NollningSeason"][];
         };
       };
       /** @description Error */
@@ -7304,7 +8420,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SeasonInput"];
+        "application/json": components["schemas"]["NollningSeasonInput"];
       };
     };
     responses: {
@@ -7314,7 +8430,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Season"];
+          "application/json": components["schemas"]["NollningSeason"];
         };
       };
       /** @description Error */
@@ -7328,7 +8444,7 @@ export interface operations {
       };
     };
   };
-  "update-nollning-season": {
+  "replace-nollning-season": {
     parameters: {
       query?: never;
       header?: never;
@@ -7339,7 +8455,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["SeasonInput"];
+        "application/json": components["schemas"]["NollningSeasonInput"];
       };
     };
     responses: {
@@ -7349,7 +8465,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Season"];
+          "application/json": components["schemas"]["NollningSeason"];
         };
       };
       /** @description Error */
@@ -7378,7 +8494,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Settings"];
+          "application/json": components["schemas"]["NotificationSettings"];
         };
       };
       /** @description Error */
@@ -7392,7 +8508,7 @@ export interface operations {
       };
     };
   };
-  "put-notification-settings": {
+  "replace-notification-settings": {
     parameters: {
       query?: never;
       header?: never;
@@ -7401,16 +8517,18 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["Settings"];
+        "application/json": components["schemas"]["NotificationSettings"];
       };
     };
     responses: {
-      /** @description No Content */
-      204: {
+      /** @description OK */
+      200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["NotificationSettings"];
+        };
       };
       /** @description Error */
       default: {
@@ -7426,8 +8544,12 @@ export interface operations {
   "list-notifications": {
     parameters: {
       query?: {
-        /** @description true for the nollning-scoped subset (NEW_ARTICLE + /nollning-linked, since the current season started) instead of every notification */
-        nolla?: boolean;
+        /** @description Only the nollning ones: new articles and nollning links since the current season started. Empty outside a season. */
+        nollning?: boolean;
+        /** @description 1-based page number. Defaults to 1. */
+        page?: number;
+        /** @description Notifications per page. Omit for all. */
+        pageSize?: number;
       };
       header?: never;
       path?: never;
@@ -7441,7 +8563,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Group"][] | null;
+          "application/json": components["schemas"]["NotificationList"];
         };
       };
       /** @description Error */
@@ -7458,8 +8580,8 @@ export interface operations {
   "delete-notifications": {
     parameters: {
       query?: {
-        id?: number;
-        ids?: number[] | null;
+        /** @description Notification ids (a group's individualIds). Omit for every notification. */
+        ids?: number[];
       };
       header?: never;
       path?: never;
@@ -7473,37 +8595,6 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "list-notifications-page": {
-    parameters: {
-      query?: {
-        take?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["NotificationsPageOutputBody"];
-        };
       };
       /** @description Error */
       default: {
@@ -7519,8 +8610,8 @@ export interface operations {
   "mark-notifications-read": {
     parameters: {
       query?: {
-        id?: number;
-        ids?: number[] | null;
+        /** @description Notification ids (a group's individualIds). Omit for every notification. */
+        ids?: number[];
       };
       header?: never;
       path?: never;
@@ -7546,7 +8637,7 @@ export interface operations {
       };
     };
   };
-  "upload-expo-token": {
+  "set-push-token": {
     parameters: {
       query?: never;
       header?: never;
@@ -7555,7 +8646,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UploadExpoTokenInputBody"];
+        "application/json": components["schemas"]["PushTokenInput"];
       };
     };
     responses: {
@@ -7592,7 +8683,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UnreadCountOutputBody"];
+          "application/json": components["schemas"]["UnreadCount"];
         };
       };
       /** @description Error */
@@ -7621,7 +8712,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Position"][] | null;
+          "application/json": components["schemas"]["Position"][];
         };
       };
       /** @description Error */
@@ -7666,7 +8757,7 @@ export interface operations {
       };
     };
   };
-  "update-position": {
+  "replace-position": {
     parameters: {
       query?: never;
       header?: never;
@@ -7677,7 +8768,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdatePositionInput"];
+        "application/json": components["schemas"]["PositionInput"];
       };
     };
     responses: {
@@ -7706,13 +8797,13 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        positionId: string;
+        id: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateMandateInput"];
+        "application/json": components["schemas"]["MandatesInput"];
       };
     };
     responses: {
@@ -7722,7 +8813,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Mandate"][] | null;
+          "application/json": components["schemas"]["Mandate"][];
         };
       };
       /** @description Error */
@@ -7742,6 +8833,7 @@ export interface operations {
       header?: never;
       path: {
         year: number;
+        /** @description Issue number within the year. */
         number: number;
       };
       cookie?: never;
@@ -7768,24 +8860,10 @@ export interface operations {
       };
     };
   };
-  search: {
+  "list-requirement-profiles": {
     parameters: {
       query: {
-        query: string;
-        indexes:
-          | (
-              | "members"
-              | "events"
-              | "articles"
-              | "positions"
-              | "songs"
-              | "committees"
-              | "governingDocuments"
-              | "meetingDocuments"
-            )[]
-          | null;
-        limit?: number;
-        offset?: number;
+        year: number;
       };
       header?: never;
       path?: never;
@@ -7799,7 +8877,117 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Hit"][] | null;
+          "application/json": components["schemas"]["RequirementProfileFolder"][];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "upload-requirement-profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        "multipart/form-data": {
+          /** Format: binary */
+          file: Blob;
+          /** @description Usually the committee or position. */
+          folder: string;
+          /** @description File name without extension; the uploaded file's extension is kept. */
+          name: string;
+          /** Format: int64 */
+          year: number;
+        };
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StoredFile"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-requirement-profile": {
+    parameters: {
+      query: {
+        /** @description The file's id. */
+        key: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  search: {
+    parameters: {
+      query: {
+        /** @description What to search for. */
+        query: string;
+        /** @description Which indexes to search. */
+        indexes: components["schemas"]["SearchIndex"][];
+        /** @description 1-based page number. Defaults to 1. */
+        page?: number;
+        /** @description Hits per page. */
+        pageSize?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SearchHit"][];
         };
       };
       /** @description Error */
@@ -7840,13 +9028,14 @@ export interface operations {
       };
     };
   };
-  "list-songbook": {
+  "list-songbook-entries": {
     parameters: {
       query?: {
-        /** @description a page number, or text to search song titles for */
+        /** @description A page number, or text to search song titles for. */
         search?: string;
-        /** @description 1-based */
+        /** @description 1-based page number. Defaults to 1. */
         page?: number;
+        /** @description Items per page. Each endpoint has its own default and maximum. */
         pageSize?: number;
       };
       header?: never;
@@ -7861,7 +9050,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ListSongBookOutputBody"];
+          "application/json": components["schemas"]["SongBookEntryList"];
         };
       };
       /** @description Error */
@@ -7913,7 +9102,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description Page in the printed songbook. */
         page: number;
+        /** @description The song's number on that page. */
         numberOnPage: number;
       };
       cookie?: never;
@@ -7940,42 +9131,14 @@ export interface operations {
       };
     };
   };
-  "delete-songbook-entry": {
+  "replace-songbook-entry": {
     parameters: {
       query?: never;
       header?: never;
       path: {
+        /** @description Page in the printed songbook. */
         page: number;
-        numberOnPage: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "update-songbook-entry": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        page: number;
+        /** @description The song's number on that page. */
         numberOnPage: number;
       };
       cookie?: never;
@@ -8006,18 +9169,52 @@ export interface operations {
       };
     };
   };
+  "delete-songbook-entry": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Page in the printed songbook. */
+        page: number;
+        /** @description The song's number on that page. */
+        numberOnPage: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "list-songs": {
     parameters: {
       query?: {
+        /** @description Free-text search over title, lyrics and melody. */
         search?: string;
-        /** @description search titles only, not lyrics/melodies */
+        /** @description Search titles only. */
         titleOnly?: boolean;
-        /** @description ANY-match; repeat the param for multiple categories */
-        category?: string[] | null;
-        /** @description trash view (only soft-deleted songs) instead of the active list; only honored for a caller holding song:delete */
-        showDeleted?: boolean;
-        /** @description 1-based */
+        /** @description Categories; a song matches if it has any of them. */
+        category?: string[];
+        /** @description List only soft-deleted songs (the trash). Needs song:delete; ignored otherwise. */
+        onlyDeleted?: boolean;
+        /** @description 1-based page number. Defaults to 1. */
         page?: number;
+        /** @description Items per page. Each endpoint has its own default and maximum. */
         pageSize?: number;
       };
       header?: never;
@@ -8032,7 +9229,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ListSongsOutputBody"];
+          "application/json": components["schemas"]["SongList"];
         };
       };
       /** @description Error */
@@ -8082,6 +9279,7 @@ export interface operations {
   "list-song-categories": {
     parameters: {
       query?: {
+        /** @description Also count deleted songs. Needs song:delete; ignored otherwise. */
         includeDeleted?: boolean;
       };
       header?: never;
@@ -8096,7 +9294,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": string[] | null;
+          "application/json": string[];
         };
       };
       /** @description Error */
@@ -8113,6 +9311,7 @@ export interface operations {
   "list-grouped-song-categories": {
     parameters: {
       query?: {
+        /** @description Also count deleted songs. Needs song:delete; ignored otherwise. */
         includeDeleted?: boolean;
       };
       header?: never;
@@ -8146,6 +9345,7 @@ export interface operations {
   "list-song-melodies": {
     parameters: {
       query?: {
+        /** @description Also count deleted songs. Needs song:delete; ignored otherwise. */
         includeDeleted?: boolean;
       };
       header?: never;
@@ -8160,7 +9360,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": string[] | null;
+          "application/json": string[];
         };
       };
       /** @description Error */
@@ -8205,36 +9405,7 @@ export interface operations {
       };
     };
   };
-  "delete-song": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        slug: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description No Content */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "update-song": {
+  "replace-song": {
     parameters: {
       query?: never;
       header?: never;
@@ -8257,6 +9428,35 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["Song"];
         };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-song": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Error */
       default: {
@@ -8313,7 +9513,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Tag"][] | null;
+          "application/json": components["schemas"]["Tag"][];
         };
       };
       /** @description Error */
@@ -8336,7 +9536,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateTagInputBody"];
+        "application/json": components["schemas"]["TagInput"];
       };
     };
     responses: {
@@ -8360,7 +9560,7 @@ export interface operations {
       };
     };
   };
-  "update-tag": {
+  "replace-tag": {
     parameters: {
       query?: never;
       header?: never;
@@ -8398,7 +9598,7 @@ export interface operations {
   "list-ticket-releases": {
     parameters: {
       query?: {
-        /** @description also list releases whose event is over; requires webshop:create */
+        /** @description Also list releases whose event is over. Needs webshop:create. */
         includeExpired?: boolean;
       };
       header?: never;
@@ -8413,9 +9613,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json":
-            | components["schemas"]["TicketReleaseSummary"][]
-            | null;
+          "application/json": components["schemas"]["TicketReleaseSummary"][];
         };
       };
       /** @description Error */
@@ -8438,7 +9636,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateTicketReleaseInputBody"];
+        "application/json": components["schemas"]["CreateTicketReleaseInput"];
       };
     };
     responses: {
@@ -8493,7 +9691,7 @@ export interface operations {
       };
     };
   };
-  "update-ticket-release": {
+  "replace-ticket-release": {
     parameters: {
       query?: never;
       header?: never;
@@ -8504,7 +9702,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateTicketReleaseInputBody"];
+        "application/json": components["schemas"]["UpdateTicketReleaseInput"];
       };
     };
     responses: {
@@ -8559,7 +9757,7 @@ export interface operations {
       };
     };
   };
-  "request-ticket": {
+  "get-ticket-request": {
     parameters: {
       query?: never;
       header?: never;
@@ -8572,6 +9770,37 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TicketQueueEntry"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "request-ticket": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Created */
+      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -8601,14 +9830,12 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description OK */
-      200: {
+      /** @description No Content */
+      204: {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["TicketQueueEntry"];
-        };
+        content?: never;
       };
       /** @description Error */
       default: {
@@ -8621,7 +9848,7 @@ export interface operations {
       };
     };
   };
-  "get-ticket-roster": {
+  "list-ticket-roster": {
     parameters: {
       query?: never;
       header?: never;
@@ -8638,105 +9865,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json":
-            | components["schemas"]["TicketRosterEntry"][]
-            | null;
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "ticket-status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TicketQueueEntry"];
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "my-tickets": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MyTicket"][] | null;
-        };
-      };
-      /** @description Error */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/problem+json": components["schemas"]["ErrorModel"];
-        };
-      };
-    };
-  };
-  "upload-image": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "multipart/form-data": {
-          /** Format: binary */
-          file: Blob;
-        };
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UploadOutputBody"];
+          "application/json": components["schemas"]["TicketRosterEntry"][];
         };
       };
       /** @description Error */

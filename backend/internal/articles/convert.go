@@ -23,7 +23,7 @@ func toArticleSummary(row db.ListArticlesRow, loc string) ArticleSummary {
 		ImageURL:               dbutil.TextPtr(row.ImageUrl),
 		ImageURLs:              row.ImageUrls,
 		YoutubeURL:             dbutil.TextPtr(row.YoutubeUrl),
-		Status:                 dbutil.TextPtr(row.Status),
+		Status:                 (*ArticleStatus)(dbutil.TextPtr(row.Status)),
 		PublishedAt:            dbutil.TimePtr(row.PublishedDatetime),
 		UpdatedAt:              dbutil.TimePtr(row.LatestEditDatetime),
 		CreatedAt:              row.CreatedDatetime.Time,
@@ -33,9 +33,9 @@ func toArticleSummary(row db.ListArticlesRow, loc string) ArticleSummary {
 		ShouldSendNotification: row.ShouldSendNotification.Bool,
 		NotificationText:       dbutil.TextPtr(row.NotificationText),
 		NollningSeasonID:       dbutil.UUIDStrPtr(row.NollningSeasonID),
-		Author: Author{
+		Author: ArticleAuthor{
 			ID:   dbutil.UUIDStr(row.AuthorID),
-			Type: dbutil.StringOr(dbutil.TextPtr(row.AuthorType), "Member"),
+			Type: AuthorType(dbutil.StringOr(dbutil.TextPtr(row.AuthorType), "Member")),
 			Member: Member{
 				ID:          dbutil.UUIDStr(row.MemberID),
 				StudentID:   dbutil.TextPtr(row.MemberStudentID),

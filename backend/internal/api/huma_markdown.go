@@ -9,62 +9,61 @@ import (
 	"github.com/dsek-lth/web/backend/internal/markdown"
 )
 
-type getMarkdownPageInput struct {
-	Slug string `path:"slug"`
+type InfoPageSlug struct {
+	Slug string `path:"slug" doc:"The page's name, e.g. cafe:open:0."`
 }
 
-type markdownPageOutput struct {
-	Body markdown.Page
-}
-
-type createMarkdownPageInput struct {
-	Slug string `path:"slug"`
-	Body markdown.PageInput
-}
-
-type updateMarkdownPageInput struct {
-	Slug string `path:"slug"`
-	Body markdown.PageInput
+type infoPageWriteInput struct {
+	InfoPageSlug
+	Body markdown.InfoPageInput
 }
 
 func registerMarkdownRoutes(api huma.API, svc *markdown.Service) {
+	tags := []string{"Info pages"}
+
 	huma.Register(api, huma.Operation{
-		OperationID: "get-markdown-page",
+		OperationID: "get-info-page",
 		Method:      http.MethodGet,
-		Path:        "/info/{slug}",
-		Summary:     "Get a named markdown page",
-	}, func(ctx context.Context, input *getMarkdownPageInput) (*markdownPageOutput, error) {
+		Path:        "/info-pages/{slug}",
+		Tags:        tags,
+		Summary:     "Get an info page",
+		Description: "Public. 404 if no page has this name.",
+	}, func(ctx context.Context, input *InfoPageSlug) (*struct{ Body markdown.InfoPage }, error) {
 		page, err := svc.Get(ctx, input.Slug)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &markdownPageOutput{Body: *page}, nil
+		return &struct{ Body markdown.InfoPage }{Body: *page}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "create-markdown-page",
+		OperationID:   "create-info-page",
 		Method:        http.MethodPost,
-		Path:          "/info/{slug}",
-		Summary:       "Create a named markdown page",
+		Path:          "/info-pages/{slug}",
+		Tags:          tags,
+		Summary:       "Create an info page",
+		Description:   "Needs markdown:create. The creator is granted markdowns:<slug>:update for it.",
 		DefaultStatus: http.StatusCreated,
-	}, func(ctx context.Context, input *createMarkdownPageInput) (*markdownPageOutput, error) {
+	}, func(ctx context.Context, input *infoPageWriteInput) (*struct{ Body markdown.InfoPage }, error) {
 		page, err := svc.Create(ctx, input.Slug, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &markdownPageOutput{Body: *page}, nil
+		return &struct{ Body markdown.InfoPage }{Body: *page}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "update-markdown-page",
-		Method:      http.MethodPatch,
-		Path:        "/info/{slug}",
-		Summary:     "Replace a named markdown page's content",
-	}, func(ctx context.Context, input *updateMarkdownPageInput) (*markdownPageOutput, error) {
+		OperationID: "replace-info-page",
+		Method:      http.MethodPut,
+		Path:        "/info-pages/{slug}",
+		Tags:        tags,
+		Summary:     "Replace an info page",
+		Description: "Needs markdown:update, or markdowns:<slug>:update for this page.",
+	}, func(ctx context.Context, input *infoPageWriteInput) (*struct{ Body markdown.InfoPage }, error) {
 		page, err := svc.Update(ctx, input.Slug, input.Body)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &markdownPageOutput{Body: *page}, nil
+		return &struct{ Body markdown.InfoPage }{Body: *page}, nil
 	})
 }

@@ -40,8 +40,14 @@ func NewService(store storage.Backend, nollningSvc *nollning.Service, bucket str
 	return &Service{store: store, nollning: nollningSvc, bucket: bucket}
 }
 
-func toPicture(o storage.Object) Picture {
-	return Picture{ID: o.Key, Name: o.Name, URL: o.URL, Size: o.Size, LastModified: o.LastModified}
+func toPicture(o storage.Object) AlbumPicture {
+	return AlbumPicture{
+		ID:           o.Key,
+		Name:         o.Name,
+		URL:          o.URL,
+		Size:         o.Size,
+		LastModified: o.LastModified,
+	}
 }
 
 // ListAlbums lists every album folder under the bucket, grouped exactly
@@ -65,7 +71,7 @@ func (s *Service) ListAlbums(ctx context.Context) ([]Album, error) {
 	}
 
 	order := make([]string, 0)
-	byAlbum := make(map[string][]Picture)
+	byAlbum := make(map[string][]AlbumPicture)
 	for _, o := range objects {
 		parts := strings.Split(o.Key, "/")
 		if len(parts) < 2 {
@@ -143,13 +149,18 @@ func (s *Service) GetAlbum(ctx context.Context, slug string) (*AlbumDetail, erro
 // UploadAlbum uploads every file into the "public/{year}/{date} {name}"
 // folder and waits for all of them to finish before returning - fixes
 // gallery/upload/uploadFiles.ts's fire-and-forget bug, which pushed upload
-// promises into a list it never awaited.
-func (s *Service) UploadAlbum(ctx context.Context, name, date string, files []UploadFile) error {
+// promises into a list it never awaited. Returns the album's key.
+func (s *Service) UploadAlbum(
+	ctx context.Context,
+	name, date string,
+	files []UploadFile,
+) (string, error) {
 	if err := auth.Require(ctx, apinames.FileAlbumsCreate); err != nil {
-		return err
+		return "", err
 	}
 
-	prefix := "public/" + storage.YearFromDate(date) + "/" + storage.AlbumFolderName(date, name)
+	folder := storage.AlbumFolderName(date, name)
+	prefix := "public/" + storage.YearFromDate(date) + "/" + folder
 
 	g, gctx := errgroup.WithContext(ctx)
 	for _, f := range files {
@@ -161,7 +172,7 @@ func (s *Service) UploadAlbum(ctx context.Context, name, date string, files []Up
 		})
 	}
 	if err := g.Wait(); err != nil {
-		return fmt.Errorf("gallery: upload album %q: %w", prefix, err)
+		return "", fmt.Errorf("gallery: upload album %q: %w", prefix, err)
 	}
-	return nil
+	return folder, nil
 }

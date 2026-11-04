@@ -3,7 +3,7 @@ import type { RequestHandler } from "./$types";
 import { error } from "@sveltejs/kit";
 import { serverApi } from "$lib/server/apiClient";
 
-// Thin proxy to Go's POST /notifications/token (see backend/internal/api/
+// Thin proxy to Go's PUT /notifications/push-token (see backend/internal/api/
 // huma_notifications.go) - the native wrapper app calls this same-origin
 // route via a plain fetch (see AppNotificationTokenHandler.svelte), so it
 // stays a real endpoint rather than being inlined into that component.
@@ -16,7 +16,7 @@ export const POST: RequestHandler = async (event) => {
   if (!("notificationToken" in body)) {
     error(400, "Invalid body, missing notification token");
   }
-  const res = await serverApi(event).POST("/notifications/token", {
+  const res = await serverApi(event).PUT("/notifications/push-token", {
     body: { token: body.notificationToken },
   });
   if (res.error) {

@@ -9,113 +9,73 @@ import (
 	"github.com/dsek-lth/web/backend/internal/notifications"
 )
 
-type listNotificationsInput struct {
-	Nolla bool `query:"nolla" doc:"true for the nollning-scoped subset (NEW_ARTICLE + /nollning-linked, since the current season started) instead of every notification"`
+type notificationIDsInput struct {
+	IDs []int32 `query:"ids,explode" doc:"Notification ids (a group's individualIds). Omit for every notification."`
 }
 
-type listNotificationsOutput struct {
-	Body []notifications.Group
-}
-
-// notificationIDFilterInput's ID is 0 when unset (huma doesn't support
-// pointer query params) - notification ids are a SERIAL column starting at
-// 1, so 0 is never a real id.
-type notificationIDFilterInput struct {
-	ID  int32   `query:"id"`
-	IDs []int32 `query:"ids,explode"`
-}
-
-func (in *notificationIDFilterInput) idPtr() *int32 {
-	if in.ID == 0 {
-		return nil
-	}
-	return &in.ID
-}
-
-type uploadExpoTokenInput struct {
-	Body struct {
-		Token string `json:"token"`
-	}
-}
-
-type getNotificationSettingsOutput struct {
-	Body notifications.Settings
-}
-
-type putNotificationSettingsInput struct {
-	Body notifications.Settings
-}
-
-type notificationsPageInput struct {
-	Take int `query:"take" minimum:"1" maximum:"500" default:"20"`
-}
-
-type notificationsPageOutput struct {
-	Body struct {
-		Notifications []notifications.Group `json:"notifications"`
-		HasMore       bool                  `json:"hasMore"`
-	}
-}
-
-type unreadCountOutput struct {
-	Body struct {
-		Count int64 `json:"count"`
-	}
+type notificationSettingsOutput struct {
+	Body notifications.NotificationSettings
 }
 
 func registerNotificationRoutes(api huma.API, svc *notifications.Service) {
+	tags := []string{"Notifications"}
+
 	huma.Register(api, huma.Operation{
-		OperationID: "list-notifications-page",
+		OperationID: "list-notifications",
 		Method:      http.MethodGet,
-		Path:        "/notifications/page",
-		Summary:     "The acting member's newest notifications, grouped, plus whether there are more",
-	}, func(ctx context.Context, input *notificationsPageInput) (*notificationsPageOutput, error) {
-		groups, hasMore, err := svc.Page(ctx, input.Take)
+		Path:        "/notifications",
+		Tags:        tags,
+		Summary:     "List your notifications",
+		Description: "The signed-in member's notifications, newest first, with repeats (likes, " +
+			"comments on the same thing, ...) merged into groups. Without pageSize, all of them; " +
+			"with it, one page of individual notifications, grouped within the page.",
+	}, func(ctx context.Context, input *struct {
+		Nollning bool `query:"nollning" doc:"Only the nollning ones: new articles and nollning links since the current season started. Empty outside a season."`
+		Page     int  `query:"page"     doc:"1-based page number. Defaults to 1."`
+		PageSize int  `query:"pageSize" doc:"Notifications per page. Omit for all." maximum:"500"`
+	},
+	) (*struct {
+		Body notifications.NotificationList
+	}, error,
+	) {
+		groups, hasMore, err := svc.List(ctx, input.Nollning, input.Page, input.PageSize)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		out := &notificationsPageOutput{}
-		out.Body.Notifications = groups
-		out.Body.HasMore = hasMore
-		return out, nil
+		return &struct {
+			Body notifications.NotificationList
+		}{
+			Body: notifications.NotificationList{Notifications: groups, HasMore: hasMore},
+		}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID: "count-unread-notifications",
 		Method:      http.MethodGet,
 		Path:        "/notifications/unread-count",
-		Summary:     "The acting member's number of unread notifications",
-	}, func(ctx context.Context, _ *struct{}) (*unreadCountOutput, error) {
+		Tags:        tags,
+		Summary:     "Count your unread notifications",
+		Description: "The notification bell's badge.",
+	}, func(ctx context.Context, _ *struct{}) (*struct{ Body notifications.UnreadCount }, error) {
 		n, err := svc.UnreadCount(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		out := &unreadCountOutput{}
-		out.Body.Count = n
-		return out, nil
-	})
-
-	huma.Register(api, huma.Operation{
-		OperationID: "list-notifications",
-		Method:      http.MethodGet,
-		Path:        "/notifications",
-		Summary:     "List the acting member's notifications, grouped",
-	}, func(ctx context.Context, input *listNotificationsInput) (*listNotificationsOutput, error) {
-		groups, err := svc.List(ctx, input.Nolla)
-		if err != nil {
-			return nil, humaServiceError(err)
-		}
-		return &listNotificationsOutput{Body: groups}, nil
+		return &struct{ Body notifications.UnreadCount }{
+			Body: notifications.UnreadCount{Count: n},
+		}, nil
 	})
 
 	huma.Register(api, huma.Operation{
 		OperationID:   "mark-notifications-read",
-		Method:        http.MethodPatch,
-		Path:          "/notifications/read",
-		Summary:       "Mark one, several, or (with neither param) every unread notification as read",
+		Method:        http.MethodPost,
+		Path:          "/notifications/mark-read",
+		Tags:          tags,
+		Summary:       "Mark notifications as read",
+		Description:   "The given ones, or every unread one.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *notificationIDFilterInput) (*struct{}, error) {
-		if err := svc.MarkRead(ctx, input.idPtr(), input.IDs); err != nil {
+	}, func(ctx context.Context, input *notificationIDsInput) (*struct{}, error) {
+		if err := svc.MarkRead(ctx, nil, input.IDs); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
@@ -125,22 +85,28 @@ func registerNotificationRoutes(api huma.API, svc *notifications.Service) {
 		OperationID:   "delete-notifications",
 		Method:        http.MethodDelete,
 		Path:          "/notifications",
-		Summary:       "Delete one, several, or (with neither param) every notification",
+		Tags:          tags,
+		Summary:       "Delete notifications",
+		Description:   "The given ones, or every one.",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *notificationIDFilterInput) (*struct{}, error) {
-		if err := svc.Delete(ctx, input.idPtr(), input.IDs); err != nil {
+	}, func(ctx context.Context, input *notificationIDsInput) (*struct{}, error) {
+		if err := svc.Delete(ctx, nil, input.IDs); err != nil {
 			return nil, humaServiceError(err)
 		}
 		return nil, nil
 	})
 
+	// The native app uploads its token to SvelteKit's
+	// /api/notifications/uploadToken, which proxies here.
 	huma.Register(api, huma.Operation{
-		OperationID:   "upload-expo-token",
-		Method:        http.MethodPost,
-		Path:          "/notifications/token",
-		Summary:       "Register the acting member's Expo push token",
+		OperationID:   "set-push-token",
+		Method:        http.MethodPut,
+		Path:          "/notifications/push-token",
+		Tags:          tags,
+		Summary:       "Register a push token",
+		Description:   "Ties a device's Expo push token to the signed-in member (taking it over from anyone else).",
 		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *uploadExpoTokenInput) (*struct{}, error) {
+	}, func(ctx context.Context, input *struct{ Body notifications.PushTokenInput }) (*struct{}, error) {
 		if err := svc.UpsertExpoToken(ctx, input.Body.Token); err != nil {
 			return nil, humaServiceError(err)
 		}
@@ -151,25 +117,35 @@ func registerNotificationRoutes(api huma.API, svc *notifications.Service) {
 		OperationID: "get-notification-settings",
 		Method:      http.MethodGet,
 		Path:        "/notification-settings",
-		Summary:     "Get the acting member's subscription settings",
-	}, func(ctx context.Context, input *struct{}) (*getNotificationSettingsOutput, error) {
+		Tags:        tags,
+		Summary:     "Get your notification settings",
+		Description: "What the signed-in member gets notified about.",
+	}, func(ctx context.Context, _ *struct{}) (*notificationSettingsOutput, error) {
 		settings, err := svc.GetSettings(ctx)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		return &getNotificationSettingsOutput{Body: *settings}, nil
+		return &notificationSettingsOutput{Body: *settings}, nil
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "put-notification-settings",
-		Method:        http.MethodPut,
-		Path:          "/notification-settings",
-		Summary:       "Replace the acting member's subscription settings (full-replace)",
-		DefaultStatus: http.StatusNoContent,
-	}, func(ctx context.Context, input *putNotificationSettingsInput) (*struct{}, error) {
+		OperationID: "replace-notification-settings",
+		Method:      http.MethodPut,
+		Path:        "/notification-settings",
+		Tags:        tags,
+		Summary:     "Replace your notification settings",
+		Description: "Every setting at once.",
+	}, func(ctx context.Context, input *struct {
+		Body notifications.NotificationSettings
+	},
+	) (*notificationSettingsOutput, error) {
 		if err := svc.PutSettings(ctx, input.Body); err != nil {
 			return nil, humaServiceError(err)
 		}
-		return nil, nil
+		settings, err := svc.GetSettings(ctx)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &notificationSettingsOutput{Body: *settings}, nil
 	})
 }

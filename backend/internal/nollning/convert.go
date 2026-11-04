@@ -8,8 +8,8 @@ import (
 	"github.com/dsek-lth/web/backend/internal/dbutil"
 )
 
-func toSeason(row db.NollningSeason) Season {
-	return Season{
+func toSeason(row db.NollningSeason) NollningSeason {
+	return NollningSeason{
 		ID:                    dbutil.UUIDStr(row.ID),
 		Year:                  int(row.Year),
 		NollaStartAt:          row.NollaStartAt.Time,

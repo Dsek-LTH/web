@@ -10,7 +10,7 @@ export const setNollningGroup = async (
   groupId: string | null,
 ) => {
   if (groupId) {
-    await api.POST("/nollning/groups/{id}/nollor", {
+    await api.POST("/nollning/phadder-groups/{id}/nollor", {
       params: { path: { id: groupId } },
       body: { studentIds: [studentId] },
     });
@@ -23,7 +23,7 @@ export const setNollningGroup = async (
   const currentGroupId =
     roleRes.data?.role === "nolla" ? roleRes.data.groupId : undefined;
   if (currentGroupId) {
-    await api.DELETE("/nollning/groups/{id}/nollor/{studentId}", {
+    await api.DELETE("/nollning/phadder-groups/{id}/nollor/{studentId}", {
       params: { path: { id: currentGroupId, studentId } },
     });
   }

@@ -15,7 +15,7 @@ async function uploadImage(
   api: ReturnType<typeof serverApi>,
   file: File,
 ): Promise<string> {
-  const res = await api.POST("/uploads", { body: { file }, ...multipart });
+  const res = await api.POST("/images", { body: { file }, ...multipart });
   if (res.error) throw new Error("Failed to upload image");
   return res.data.url;
 }
@@ -144,7 +144,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     nollningSeasonId: null,
   };
 
-  const updated = await api.PATCH("/articles/{slug}", {
+  const updated = await api.PUT("/articles/{slug}", {
     params: { path: { slug } },
     body: input,
   });

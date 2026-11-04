@@ -52,7 +52,7 @@ export const actions: Actions = {
     if (currentRes.error) return fail(404, { form });
     const current = currentRes.data;
 
-    const res = await api.PATCH("/positions/{id}", {
+    const res = await api.PUT("/positions/{id}", {
       params: { path: { id: form.data.id } },
       body: {
         nameSv: current.nameSv ?? "",

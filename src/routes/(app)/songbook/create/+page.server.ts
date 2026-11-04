@@ -9,7 +9,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import { serverApi } from "$lib/server/apiClient";
 
 // song:create and the duplicate-position/duplicate-song checks are Go's
-// (POST /songbook) - the form validation here is instant feedback only.
+// (POST /songbook-entries) - the form validation here is instant feedback only.
 export const load: PageServerLoad = async () => {
   return {
     form: await superValidate(zod4(createSongBookEntrySchema)),
@@ -24,7 +24,9 @@ export const actions: Actions = {
     );
     if (!form.valid) return fail(400, { form });
 
-    const res = await serverApi(event).POST("/songbook", { body: form.data });
+    const res = await serverApi(event).POST("/songbook-entries", {
+      body: form.data,
+    });
     if (res.error) {
       const field = songBookConflictField(
         res.response.status,

@@ -125,8 +125,8 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
     const { id } = form.data;
     const deleted = await serverApi(event).DELETE(
-      "/door-access-policies/{id}",
-      { params: { path: { id } } },
+      "/doors/{name}/access-policies/{id}",
+      { params: { path: { name: event.params.slug, id } } },
     );
     if (deleted.error) throw new Error("Failed to remove door access policy");
     return message(form, {

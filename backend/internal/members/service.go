@@ -170,7 +170,7 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 		FoodPreference: dbutil.TextPtr(row.FoodPreference),
 		Bio:            dbutil.TextPtr(row.Bio),
 		GraduationYear: dbutil.Int4Ptr(row.GraduationYear),
-		Language:       dbutil.TextPtr(row.Language),
+		Language:       (*apitypes.Language)(dbutil.TextPtr(row.Language)),
 		Mandates:       mandates,
 	}
 
@@ -189,7 +189,7 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 func (s *Service) UpdateProfile(
 	ctx context.Context,
 	studentID string,
-	in UpdateProfileInput,
+	in ProfileInput,
 ) (*MemberProfile, error) {
 	if err := s.authorizeSelfOrUpdate(ctx, studentID); err != nil {
 		return nil, err
@@ -203,7 +203,7 @@ func (s *Service) UpdateProfile(
 		ClassProgramme: dbutil.ToText(in.ClassProgramme),
 		ClassYear:      dbutil.ToInt4(in.ClassYear),
 		GraduationYear: dbutil.ToInt4(in.GraduationYear),
-		Language:       dbutil.ToText(in.Language),
+		Language:       dbutil.ToText((*string)(in.Language)),
 		Bio:            dbutil.ToText(sanitizePtr(s.sanitizer, in.Bio)),
 	})
 	if err != nil {

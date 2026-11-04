@@ -36,8 +36,8 @@ func NewService(dbtx db.DBTX) *Service {
 	return &Service{queries: db.New(dbtx)}
 }
 
-func toSetting(row db.AdminSetting) Setting {
-	return Setting{
+func toSetting(row db.AdminSetting) AdminSetting {
+	return AdminSetting{
 		Key:       row.Key,
 		Value:     row.Value.String,
 		CreatedAt: row.CreatedAt.Time,
@@ -47,7 +47,7 @@ func toSetting(row db.AdminSetting) Setting {
 
 // List requires AdminSettingsRead - matches the old load()'s
 // authorize(apiNames.ADMIN.SETTINGS.READ, user) exactly.
-func (s *Service) List(ctx context.Context) ([]Setting, error) {
+func (s *Service) List(ctx context.Context) ([]AdminSetting, error) {
 	if err := auth.Require(ctx, apinames.AdminSettingsRead); err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (s *Service) List(ctx context.Context) ([]Setting, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list admin settings: %w", err)
 	}
-	out := make([]Setting, len(rows))
+	out := make([]AdminSetting, len(rows))
 	for i, row := range rows {
 		out[i] = toSetting(row)
 	}
@@ -66,7 +66,7 @@ func (s *Service) List(ctx context.Context) ([]Setting, error) {
 // real explicit check the old "update" action never had at all (it relied
 // on the route only being linked from an admin page, not an actual
 // server-side authorize() call).
-func (s *Service) Upsert(ctx context.Context, key, value string) (*Setting, error) {
+func (s *Service) Upsert(ctx context.Context, key, value string) (*AdminSetting, error) {
 	if err := auth.Require(ctx, apinames.AdminSettingsUpdate); err != nil {
 		return nil, err
 	}

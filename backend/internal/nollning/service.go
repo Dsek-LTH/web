@@ -41,7 +41,7 @@ func (s *Service) sanitizeDescription(d *string) *string {
 
 // Current returns the season whose window covers right now, or nil (not an
 // error) if none does.
-func (s *Service) Current(ctx context.Context) (*Season, error) {
+func (s *Service) Current(ctx context.Context) (*NollningSeason, error) {
 	row, err := s.queries.GetCurrentSeason(ctx)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -62,7 +62,7 @@ func (s *Service) Phase(ctx context.Context) (Phase, error) {
 	return phaseFor(season), nil
 }
 
-func phaseFor(season *Season) Phase {
+func phaseFor(season *NollningSeason) Phase {
 	if season == nil {
 		return PhaseOff
 	}
@@ -74,12 +74,12 @@ func phaseFor(season *Season) Phase {
 
 // GetCurrent backs GET /nollning/current - phase and active season (if
 // any) in one call.
-func (s *Service) GetCurrent(ctx context.Context) (*CurrentInfo, error) {
+func (s *Service) GetCurrent(ctx context.Context) (*NollningStatus, error) {
 	season, err := s.Current(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &CurrentInfo{Phase: phaseFor(season), Season: season}, nil
+	return &NollningStatus{Phase: phaseFor(season), Season: season}, nil
 }
 
 // NollaYear is the year auth.DerivedRoles' "nolla" pseudo-role should
@@ -195,12 +195,12 @@ func (s *Service) PhadderRoleFor(
 // gated on apinames.NollningSeasonManage - replaces the old AdminSetting-
 // backed nollning_start/nollning_end keys.
 
-func (s *Service) ListSeasons(ctx context.Context) ([]Season, error) {
+func (s *Service) ListSeasons(ctx context.Context) ([]NollningSeason, error) {
 	rows, err := s.queries.ListSeasons(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list seasons: %w", err)
 	}
-	seasons := make([]Season, len(rows))
+	seasons := make([]NollningSeason, len(rows))
 	for i, row := range rows {
 		seasons[i] = toSeason(row)
 	}
@@ -211,7 +211,10 @@ func (s *Service) ListSeasons(ctx context.Context) ([]Season, error) {
 // short_name is "nollu" when the caller doesn't supply one - see
 // DESIGN.md's decision #2 (a per-season, overridable FK rather than a
 // hardcoded package constant).
-func (s *Service) CreateSeason(ctx context.Context, in SeasonInput) (*Season, error) {
+func (s *Service) CreateSeason(
+	ctx context.Context,
+	in NollningSeasonInput,
+) (*NollningSeason, error) {
 	if err := auth.Require(ctx, apinames.NollningSeasonManage); err != nil {
 		return nil, err
 	}
@@ -235,7 +238,11 @@ func (s *Service) CreateSeason(ctx context.Context, in SeasonInput) (*Season, er
 	return &season, nil
 }
 
-func (s *Service) UpdateSeason(ctx context.Context, id string, in SeasonInput) (*Season, error) {
+func (s *Service) UpdateSeason(
+	ctx context.Context,
+	id string,
+	in NollningSeasonInput,
+) (*NollningSeason, error) {
 	if err := auth.Require(ctx, apinames.NollningSeasonManage); err != nil {
 		return nil, err
 	}
