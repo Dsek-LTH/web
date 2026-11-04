@@ -2,7 +2,7 @@
   import * as Tabs from "$lib/components/ui/tabs";
   import { page } from "$app/state";
   import { prefersReducedMotion } from "svelte/motion";
-  import { SvelteURLSearchParams } from "svelte/reactivity";
+  import { MediaQuery, SvelteURLSearchParams } from "svelte/reactivity";
   import { fly, slide } from "svelte/transition";
   import type { PageData } from "./$types";
   import {
@@ -21,6 +21,8 @@
   import MeetingDetail from "./MeetingDetail.svelte";
 
   let { data }: { data: PageData } = $props();
+
+  const isDesktop = new MediaQuery("(min-width: 768px)", false);
 
   let isEditing = $state(false);
   let query = $state("");
@@ -221,7 +223,7 @@
               onSelect={() => selectMeeting(meeting.name)}
             />
 
-            {#if selectedMeeting === meeting.name && selected}
+            {#if !isDesktop.current && selectedMeeting === meeting.name && selected}
               <div
                 class="md:hidden"
                 transition:slide={{
@@ -247,24 +249,26 @@
     </div>
 
     <div class="hidden min-w-0 flex-1 md:block">
-      {#key selected?.name ?? "empty"}
-        <div
-          in:fly={{
-            y: prefersReducedMotion.current ? 0 : 4,
-            duration: prefersReducedMotion.current ? 0 : 160,
-          }}
-        >
-          <MeetingDetail
-            meeting={selected}
-            deleteForm={data.deleteForm}
-            editForm={data.editForm}
-            {isEditing}
-            {canDelete}
-            {canUpdate}
-            onClose={() => (selectedMeeting = null)}
-          />
-        </div>
-      {/key}
+      {#if isDesktop.current}
+        {#key selected?.name ?? "empty"}
+          <div
+            in:fly={{
+              y: prefersReducedMotion.current ? 0 : 4,
+              duration: prefersReducedMotion.current ? 0 : 160,
+            }}
+          >
+            <MeetingDetail
+              meeting={selected}
+              deleteForm={data.deleteForm}
+              editForm={data.editForm}
+              {isEditing}
+              {canDelete}
+              {canUpdate}
+              onClose={() => (selectedMeeting = null)}
+            />
+          </div>
+        {/key}
+      {/if}
     </div>
   </div>
 </div>
