@@ -4,7 +4,6 @@ import {
 } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
-import { fileExists } from "$lib/files/helpers";
 import { error, fail, isHttpError } from "@sveltejs/kit";
 import {
   message,
@@ -191,51 +190,22 @@ export const actions: Actions = {
       );
     }
 
-    const currentFolder = id.split("/").slice(0, -1).join("/");
-    const currentName = id.split("/").at(-1)!;
     const targetFolder = getTargetFolder(meetingFolder, group);
     const targetFileId = `${targetFolder}/${name}`;
-    let currentId = id;
 
-    if (targetFileId !== id && (await fileExists(bucket, targetFileId))) {
-      return message(
-        form,
-        { message: m.documents_errors_fileExists(), type: "error" },
-        { status: 409 },
-      );
-    }
-
-    try {
-      if (targetFolder !== currentFolder) {
-        const moved = await fileHandler.move(
-          user,
-          bucket,
-          [currentId],
-          targetFolder,
-        );
-        const movedFile = moved.find((change) => !change.file.isDir);
-        if (!movedFile) {
+    if (targetFileId !== id) {
+      try {
+        await fileHandler.moveFile(user, bucket, id, targetFolder, name);
+      } catch (e) {
+        if (isHttpError(e) && e.status === 409) {
           return message(
             form,
             { message: m.documents_errors_fileExists(), type: "error" },
             { status: 409 },
           );
         }
-        currentId = movedFile.file.id;
+        throw e;
       }
-
-      if (name !== currentName) {
-        await fileHandler.rename(user, bucket, currentId, name);
-      }
-    } catch (e) {
-      if (isHttpError(e) && e.status === 409) {
-        return message(
-          form,
-          { message: m.documents_errors_fileExists(), type: "error" },
-          { status: 409 },
-        );
-      }
-      throw e;
     }
 
     return message(form, {
