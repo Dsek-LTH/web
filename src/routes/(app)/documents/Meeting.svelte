@@ -2,13 +2,12 @@
   import { Button } from "$lib/components/ui/button";
   import FileText from "@lucide/svelte/icons/file-text";
   import { page } from "$app/state";
-  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
   import type { FileData } from "$lib/files/fileHandler";
   import apiNames from "$lib/utils/apiNames";
   import DeleteFileForm from "./DeleteFileForm.svelte";
   import FileLink from "$lib/components/files/FileLink.svelte";
   import type { SuperValidated } from "sveltekit-superforms";
-  import type { DeleteSchema } from "./+page.server";
+  import type { DeleteFileSchema } from "./schemas";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages";
   import { cn } from "$lib/utils";
@@ -19,7 +18,7 @@
     files,
     isEditing,
   }: {
-    deleteForm: SuperValidated<DeleteSchema>;
+    deleteForm: SuperValidated<DeleteFileSchema>;
     name: string;
     files: FileData[];
     isEditing: boolean;
@@ -105,13 +104,14 @@
               full
             />
           {/if}
-          {#if isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE, page.data.user) && isEditing}
+          {#if isAuthorized(apiNames.FILES.BUCKET(file.bucket).DELETE, page.data.user) && isEditing}
             <DeleteFileForm
               class={isEditing
                 ? "rounded-r-full! border-[1px] py-5! pr-0.5!"
                 : ""}
               fileId={file.id}
               fileName={file.name}
+              bucket={file.bucket}
               data={deleteForm}
             />
           {/if}

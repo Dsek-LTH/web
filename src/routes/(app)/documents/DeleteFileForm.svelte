@@ -2,21 +2,24 @@
   import type { SuperValidated } from "sveltekit-superforms";
   import { superForm } from "$lib/utils/client/superForms";
   import * as m from "$paraglide/messages";
-  import type { DeleteSchema } from "./+page.server";
   import Trash from "@lucide/svelte/icons/trash";
   import { buttonVariants } from "$lib/components/ui/button";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import { cn } from "$lib/utils";
+  import type { DeleteFileSchema } from "./schemas";
 
   let {
     data,
     fileId,
     fileName,
+    bucket,
     class: klass,
   }: {
-    data: SuperValidated<DeleteSchema>;
+    data: SuperValidated<DeleteFileSchema>;
     fileId: string;
     fileName: string;
+    /** Bucket the file lives in. Omit when the action knows the bucket itself. */
+    bucket?: string;
     class?: string;
   } = $props();
 
@@ -36,6 +39,10 @@
   <AlertDialog.Content>
     <form method="POST" action="?/deleteFile" use:enhance>
       <input type="hidden" name="id" value={fileId} />
+      {#if bucket}
+        <!-- The SRD tab can list files from both buckets, so send the source bucket. -->
+        <input type="hidden" name="bucket" value={bucket} />
+      {/if}
       <AlertDialog.Header>
         <AlertDialog.Title
           ><!-- eslint-disable-next-line svelte/no-at-html-tags -->

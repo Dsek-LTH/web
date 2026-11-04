@@ -5,17 +5,14 @@ import {
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import { error, fail } from "@sveltejs/kit";
-import {
-  message,
-  superValidate,
-  type Infer,
-} from "sveltekit-superforms/server";
+import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 import { DocumentTypes as dt } from "./types";
+import { deleteFileSchema } from "./schemas";
 
 const validDocumentTypes = [
   dt.boardMeeting,
@@ -133,18 +130,24 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   };
 };
 
-const deleteSchema = z.object({
-  id: z.string(),
+const documentBuckets = [
+  PUBLIC_BUCKETS_DOCUMENTS,
+  PUBLIC_BUCKETS_FILES,
+] as const;
+
+const deleteSchema = deleteFileSchema.extend({
+  // Meeting documents live in the documents bucket, but SRD meeting documents
+  // live in the files bucket. The bucket must be sent along with the file id.
+  bucket: z.enum(documentBuckets),
 });
-export type DeleteSchema = Infer<typeof deleteSchema>;
 
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { user } = locals;
     const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
-    const { id } = form.data;
-    await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
+    const { id, bucket } = form.data;
+    await fileHandler.remove(user, bucket, [id]);
     return message(form, {
       message: m.documents_fileDeleted(),
       type: "success",
