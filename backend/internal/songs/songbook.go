@@ -72,7 +72,7 @@ func (s *Service) ListSongBook(
 	var pageSearch pgtype.Int4
 	var titleSearch pgtype.Text
 	search := strings.TrimSpace(params.Search)
-	if n, err := strconv.Atoi(search); err == nil && n > 0 {
+	if n, err := strconv.ParseInt(search, 10, 32); err == nil && n > 0 {
 		pageSearch = pgtype.Int4{Int32: int32(n), Valid: true}
 	} else if search != "" {
 		titleSearch = pgtype.Text{String: search, Valid: true}

@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: ["main", "new-design"]
 
+permissions:
+  contents: read
+
 env:
   HUSKY: 0
 

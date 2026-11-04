@@ -141,10 +141,11 @@ func (w *RealWebhooker) NotifyNewArticle(
 			}
 			footer = t.NameSv
 			if t.Color != nil {
-				if c, err := strconv.ParseInt(
+				// Discord embed colors are 24-bit RGB.
+				if c, err := strconv.ParseUint(
 					strings.TrimPrefix(*t.Color, "#"),
 					16,
-					64,
+					24,
 				); err == nil {
 					ci := int(c)
 					color = &ci
