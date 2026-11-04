@@ -17,3 +17,15 @@ The `setup.ts` script located here will take you through an interactive setup pr
 ## What does it do?
 
 It guides you in setting up a local PostgreSQL database and creates a `.env.local` file with the correct values for your local environment.
+
+## Integration tests
+
+These run the production build in a browser against a real database, with Authentik and the ticket service replaced by a fake (`tests/e2e/fake-oidc.mjs`), so they can log in without an account. They need a migrated and seeded database, and clean up after their own test users.
+
+```sh
+pnpm exec playwright install --only-shell chromium # once, and after Playwright updates
+pnpm build
+pnpm test:integration
+```
+
+Rebuild after changing code, as they don't use the dev server.
