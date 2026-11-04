@@ -7,10 +7,10 @@ export const uploadDocumentsFile = async (
   user: AuthUser,
   data: UploadSchema,
 ) => {
-  const { folder, name, year, type, file } = data;
+  const { folder, group, name, year, type, file } = data;
 
   const { path, bucket } = typeToPath[type];
-  const prefix = path(year, folder);
+  const prefix = group ? `${path(year, folder)}/${group}` : path(year, folder);
   // await prisma.meeting.upsert({
   //   where: { url: folderPath },
   //   update: {},

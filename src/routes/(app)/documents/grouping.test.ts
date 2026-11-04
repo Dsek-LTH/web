@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { FileData } from "$lib/files/fileHandler";
-import {
-  findLatestFile,
-  getColumnLayout,
-  groupDocuments,
-  splitDocumentPath,
-} from "./grouping";
+import { findLatestFile, groupDocuments, splitDocumentPath } from "./grouping";
 
 const file = (id: string, modDate?: Date): FileData => ({
   id,
   name: id.split("/").at(-1)!,
   modDate,
+  bucket: "documents",
 });
 
 describe("splitDocumentPath", () => {
@@ -74,9 +70,30 @@ describe("groupDocuments", () => {
     expect(meetings[1]!.groups[0]!.name).toBe("Motion 1");
   });
 
+  it("falls back to a filename meeting when a folder is not a valid SRD meeting", () => {
+    const meetings = groupDocuments(
+      [file("public/srd/2026/Random/Motion.pdf")],
+      "public/srd/2026/",
+      {
+        oldSrdFormat: true,
+        meetingFilter: (name) =>
+          name.startsWith("SRD") || name.startsWith("Möte"),
+      },
+    );
+
+    expect(meetings.map((meeting) => meeting.name)).toEqual(["Motion"]);
+  });
+
   it("skips directory entries", () => {
     const meetings = groupDocuments(
-      [{ id: "public/2026/HTM2/", name: "HTM2", isDir: true }],
+      [
+        {
+          id: "public/2026/HTM2/",
+          name: "HTM2",
+          isDir: true,
+          bucket: "documents",
+        },
+      ],
       "public/2026/",
     );
 
@@ -102,20 +119,5 @@ describe("findLatestFile", () => {
     expect(findLatestFile([file("Protokoll.pdf")], ["Kallelse"])).toBe(
       undefined,
     );
-  });
-});
-
-describe("getColumnLayout", () => {
-  it("fills the first column before starting the next", () => {
-    expect(getColumnLayout(3, 608, 280, 14)).toEqual({ columns: 2, rows: 2 });
-    expect(getColumnLayout(10, 608, 280, 14)).toEqual({ columns: 2, rows: 5 });
-  });
-
-  it("uses more columns when the width allows it", () => {
-    expect(getColumnLayout(3, 970, 280, 14)).toEqual({ columns: 3, rows: 1 });
-  });
-
-  it("falls back to one column", () => {
-    expect(getColumnLayout(3, 340, 280, 14)).toEqual({ columns: 1, rows: 3 });
   });
 });

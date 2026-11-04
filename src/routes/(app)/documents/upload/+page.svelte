@@ -114,6 +114,27 @@
       </div>
     </div>
 
+    {#if $form.type !== "requirement"}
+      <div class="flex flex-col gap-1.5">
+        <Label for="group">
+          {m.documents_group()}
+        </Label>
+        <Input
+          id="group"
+          name="group"
+          bind:value={$form.group}
+          type="text"
+          placeholder={m.documents_groupPlaceholder()}
+          aria-invalid={!!$errors.group}
+          aria-errormessage={$errors.group?.at(0)}
+          {...$constraints.group}
+        />
+        <p class="text-base-content/70 mt-0 text-sm italic">
+          {m.documents_groupInfo()}
+        </p>
+      </div>
+    {/if}
+
     <div class="flex flex-col gap-1.5">
       <Label for="file">
         {m.documents_uploadFile()}
@@ -176,7 +197,7 @@
       <pre>{pathInfo.bucket}/{pathInfo.path(
           $form.year,
           $form.folder,
-        )}/{$form.name}</pre>
+        )}{$form.group ? `/${$form.group}` : ""}/{$form.name}</pre>
     {/if}
 
     <div class="flex flex-row gap-2">

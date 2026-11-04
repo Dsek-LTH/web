@@ -11,6 +11,7 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
+import { groupDocuments, type DocumentMeeting } from "./grouping";
 import { DocumentTypes as dt } from "./types";
 import { deleteFileSchema } from "./schemas";
 
@@ -37,7 +38,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     throw error(400, m.documents_errors_invalidType());
   }
 
-  const files: FileData[] = await fileHandler
+  const documentsFiles: FileData[] = await fileHandler
     .getInBucket(
       user,
       PUBLIC_BUCKETS_DOCUMENTS,
@@ -48,87 +49,96 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       console.error("Error fetching files", err);
       return [];
     });
-  const SRDfiles = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
-    .catch((err) => {
-      console.error("Error fetching files", err);
-      return [];
-    });
 
-  let filteredFiles = files;
-  const oldFormatSRDFiles: FileData[] = [];
+  const documentMeetings = groupDocuments(documentsFiles, `public/${year}/`);
+
+  let meetings: DocumentMeeting[];
   switch (type) {
     case dt.guildMeeting:
-      filteredFiles = files.filter((file) => {
-        const fileParts = file.id.split("/");
-        const meeting =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
-        return meeting.startsWith("HTM") || meeting.startsWith("VTM");
-      });
+      meetings = documentMeetings.filter(
+        (meeting) =>
+          meeting.name.startsWith("HTM") || meeting.name.startsWith("VTM"),
+      );
       break;
 
-    case dt.SRDMeeting:
-      SRDfiles.forEach((file) => {
-        const fileParts = file.id.split("/");
-        const meetingName =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
-
-        const isSrdMeeting = meetingName.startsWith("SRD");
-        const oldStyle = meetingName.startsWith("Möte");
-        const isCorrectFormat = isSrdMeeting || oldStyle;
-
-        const targetFiles = isCorrectFormat ? filteredFiles : oldFormatSRDFiles;
-        targetFiles.push(file);
+    case dt.SRDMeeting: {
+      const srdFiles: FileData[] = await fileHandler
+        .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
+        .catch((err) => {
+          console.error("Error fetching files", err);
+          return [];
+        });
+      const srdMeetings = groupDocuments(srdFiles, `public/srd/${year}/`, {
+        oldSrdFormat: true,
+        meetingFilter: (name) =>
+          name.startsWith("SRD") || name.startsWith("Möte"),
       });
+      meetings = mergeMeetings([...documentMeetings, ...srdMeetings]);
       break;
+    }
 
     case dt.other:
-      filteredFiles = files.filter((file) => {
-        const fileParts = file.id.split("/");
-        const meeting =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
-        return (
-          !meeting.startsWith("HTM") &&
-          !meeting.startsWith("VTM") &&
-          !meeting.startsWith("S") &&
-          meeting != year.toString()
-        );
-      });
+      meetings = documentMeetings.filter(
+        (meeting) =>
+          !meeting.name.startsWith("HTM") &&
+          !meeting.name.startsWith("VTM") &&
+          !meeting.name.startsWith("S") &&
+          meeting.name !== String(year),
+      );
       break;
+
+    default:
+      meetings = documentMeetings;
   }
 
-  const oldSRDGroupedByMeeting = oldFormatSRDFiles.reduce<
-    Record<string, FileData[]>
-  >((acc, file) => {
-    const fileParts = file.id.split("/");
-    const fileName = fileParts[fileParts.length - 1] ?? m.documents_unknown();
-    const extensions = ["pdf", "html"];
-    const fileExtension = extensions.find((ext) => fileName.endsWith(ext));
-    const meeting = fileName.substring(
-      0,
-      fileName.length - (fileExtension ? fileExtension.length : 0),
-    );
-
-    if (!acc[meeting]) acc[meeting] = [];
-    acc[meeting]!.push(file);
-    return acc;
-  }, {});
-
-  const filesGroupedByMeeting = filteredFiles.reduce<
-    Record<string, FileData[]>
-  >((acc, file) => {
-    const fileParts = file.id.split("/");
-    const meeting = fileParts[fileParts.length - 2] ?? m.documents_unknown();
-    if (!acc[meeting]) acc[meeting] = [];
-    acc[meeting]!.push(file);
-    return acc;
-  }, oldSRDGroupedByMeeting);
   return {
-    files,
-    meetings: filesGroupedByMeeting,
+    meetings,
     deleteForm: await superValidate(zod4(deleteSchema)),
   };
 };
+
+function mergeMeetings(meetings: DocumentMeeting[]): DocumentMeeting[] {
+  const merged = new Map<string, DocumentMeeting>();
+
+  for (const meeting of meetings) {
+    const existing = merged.get(meeting.name);
+    if (!existing) {
+      merged.set(meeting.name, {
+        name: meeting.name,
+        files: [...meeting.files],
+        groups: meeting.groups.map((group) => ({
+          ...group,
+          files: [...group.files],
+        })),
+      });
+      continue;
+    }
+
+    existing.files.push(...meeting.files);
+    for (const group of meeting.groups) {
+      const existingGroup = existing.groups.find(
+        (candidate) => candidate.name === group.name,
+      );
+      if (existingGroup) {
+        existingGroup.files.push(...group.files);
+      } else {
+        existing.groups.push({ ...group, files: [...group.files] });
+      }
+    }
+  }
+
+  for (const meeting of merged.values()) {
+    meeting.groups.sort((a, b) => {
+      if (a.name === null) return 1;
+      if (b.name === null) return -1;
+      return a.name.localeCompare(b.name, "sv");
+    });
+  }
+
+  return [...merged.values()].sort((a, b) =>
+    a.name.localeCompare(b.name, "sv"),
+  );
+}
 
 const documentBuckets = [
   PUBLIC_BUCKETS_DOCUMENTS,

@@ -31,7 +31,10 @@ export function splitDocumentPath(
 export function groupDocuments(
   files: FileData[],
   basePrefix: string,
-  options: { oldSrdFormat?: boolean } = {},
+  options: {
+    oldSrdFormat?: boolean;
+    meetingFilter?: (meeting: string) => boolean;
+  } = {},
 ): DocumentMeeting[] {
   const meetings = new Map<
     string,
@@ -41,7 +44,15 @@ export function groupDocuments(
   for (const file of files) {
     if (file.isDir) continue;
 
-    const parsed = splitDocumentPath(file.id, basePrefix);
+    let parsed = splitDocumentPath(file.id, basePrefix);
+    if (
+      parsed &&
+      options.meetingFilter &&
+      !options.meetingFilter(parsed.meeting)
+    ) {
+      parsed = null;
+    }
+
     const meeting = parsed
       ? parsed.meeting
       : options.oldSrdFormat
@@ -89,25 +100,6 @@ export function findLatestFile(
         file.name.toLowerCase().startsWith(prefix.toLowerCase()),
       ),
     )
-    .sort(
-      (a, b) => (a.modDate?.getTime() ?? 0) - (b.modDate?.getTime() ?? 0),
-    )
+    .sort((a, b) => (a.modDate?.getTime() ?? 0) - (b.modDate?.getTime() ?? 0))
     .pop();
-}
-
-export function getColumnLayout(
-  childCount: number,
-  width: number,
-  minWidth: number,
-  gap: number,
-): { columns: number; rows: number } {
-  if (childCount <= 0) return { columns: 1, rows: 0 };
-
-  const maxColumns = Math.max(
-    1,
-    Math.floor((width + gap) / (minWidth + gap)),
-  );
-  const columns = Math.min(childCount, maxColumns);
-
-  return { columns, rows: Math.ceil(childCount / columns) };
 }
