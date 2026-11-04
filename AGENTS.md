@@ -25,6 +25,10 @@ and authorization; the SvelteKit app renders pages and calls it.
 
 ## Running locally
 
+Needs Node 24 (`nvm use` picks it up from `.nvmrc`), pnpm 12 (or
+`corepack enable`, which follows `packageManager` in `frontend/package.json`),
+Go 1.26 and Docker.
+
 1. `docker compose up -d` (repo root) - Postgres on 5432, Meilisearch on
    7700, poppler on 8800.
 2. `cd frontend && pnpm install`, then `pnpm migrate` and `pnpm seed`
