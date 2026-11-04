@@ -242,7 +242,7 @@ func (s *Service) List(
 	page, pageSize int,
 ) ([]NotificationGroup, bool, error) {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return nil, false, auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -315,7 +315,7 @@ func (s *Service) List(
 // list (upstream #4846a125).
 func (s *Service) UnreadCount(ctx context.Context) (int64, error) {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return 0, auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -431,7 +431,7 @@ func fullName(firstName, nickname, lastName *string) string {
 // notification".
 func (s *Service) MarkRead(ctx context.Context, id *int32, ids []int32) error {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -449,7 +449,7 @@ func (s *Service) MarkRead(ctx context.Context, id *int32, ids []int32) error {
 // id/ids/both-nil convention as MarkRead.
 func (s *Service) Delete(ctx context.Context, id *int32, ids []int32) error {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -469,7 +469,7 @@ func (s *Service) Delete(ctx context.Context, id *int32, ids []int32) error {
 // idempotent).
 func (s *Service) UpsertExpoToken(ctx context.Context, token string) error {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -486,7 +486,7 @@ func (s *Service) UpsertExpoToken(ctx context.Context, token string) error {
 // subscribedTags shape.
 func (s *Service) GetSettings(ctx context.Context) (*NotificationSettings, error) {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return nil, auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -533,7 +533,7 @@ func (s *Service) getSettings(
 // separate statements too).
 func (s *Service) PutSettings(ctx context.Context, in NotificationSettings) error {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return auth.ErrUnauthenticated
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)

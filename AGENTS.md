@@ -71,8 +71,11 @@ Frontend (`frontend/`):
 Backend (`backend/`):
 
 - `go build ./...`, `go vet ./...`, `go test ./...` (one test:
-  `go test ./... -run TestName`). A few tests use the database from
-  `backend/.env` and skip without one.
+  `go test ./... -run TestName`). Tests that need Postgres skip without
+  one: the authorization tests (`internal/api/authz_*_test.go`) create,
+  migrate and seed their own throwaway database next to `POSTGRES_URL`'s
+  and drop it afterwards; `internal/articles` uses the dev database inside a
+  rolled-back transaction.
 - `make dev` (air), `make format` (goimports + golines/gofumpt - use this,
   not plain gofmt)
 - `make generate` - sqlc, after editing `internal/db/schema.sql` or
@@ -191,7 +194,10 @@ which is the API reference.
    `NewRouter` (`api.Services`); errors in `huma_errors.go`; a tag in
    `apiTags` for a new domain. New policies go in `internal/apinames`
    (and `All()`, so the seed grants them in dev).
-4. `go test ./internal/api`, restart the backend, `pnpm generate:api`,
+4. Add authorization cases to `internal/api/authz_*_test.go`: who is
+   denied, who is allowed, and any owner exception (`e.gate` covers the
+   plain "needs policy X" shape).
+5. `go test ./internal/api`, restart the backend, `pnpm generate:api`,
    then use it from the frontend.
 
 ### Database

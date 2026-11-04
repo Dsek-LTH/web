@@ -169,7 +169,13 @@ func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetai
 	if err != nil {
 		return nil, err
 	}
-	if row.RemovedAt.Valid && !row.RemovedAt.Time.After(time.Now()) && !detail.CanEdit {
+	// The database's clock, not ours: removed_at is set with its now(), and
+	// the public reads filter with it too.
+	now, err := s.queries.DatabaseNow(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get database time: %w", err)
+	}
+	if row.RemovedAt.Valid && !row.RemovedAt.Time.After(now.Time) && !detail.CanEdit {
 		return nil, ErrNotFound
 	}
 	return detail, nil
@@ -391,7 +397,7 @@ func (s *Service) Update(
 		return nil, fmt.Errorf("get event: %w", err)
 	}
 
-	if dbutil.UUIDStr(current.AuthorMemberID) != identity.MemberID {
+	if identity.MemberID == "" || dbutil.UUIDStr(current.AuthorMemberID) != identity.MemberID {
 		if err := auth.Require(ctx, apinames.EventUpdate); err != nil {
 			return nil, err
 		}
@@ -557,7 +563,7 @@ func (s *Service) setAttendance(
 	going, interested bool,
 ) error {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return auth.ErrUnauthenticated
 	}
 	eventRow, err := s.queries.GetEventForAttendance(ctx, dbutil.ToText(&eventSlug))
@@ -845,7 +851,7 @@ func (s *Service) detail(ctx context.Context, row db.ListEventsRow) (*EventDetai
 		// EventDelete-only check (no author bypass, see Delete's doc
 		// comment) exactly - one implementation of "can this identity
 		// touch this event", read here instead of duplicated.
-		canEdit = dbutil.UUIDStr(row.AuthorMemberID) == identity.MemberID ||
+		canEdit = (identity.MemberID != "" && dbutil.UUIDStr(row.AuthorMemberID) == identity.MemberID) ||
 			identity.Has(apinames.EventUpdate)
 		canDelete = identity.Has(apinames.EventDelete)
 	}

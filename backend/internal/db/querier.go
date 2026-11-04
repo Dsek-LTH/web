@@ -104,6 +104,9 @@ type Querier interface {
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
 	CreateSongBookEntry(ctx context.Context, arg CreateSongBookEntryParams) error
 	CreateTag(ctx context.Context, nameSv string) (Tag, error)
+	// The database's current time, for comparing with timestamps it set with
+	// now() - the application's clock can be off from it.
+	DatabaseNow(ctx context.Context) (pgtype.Timestamptz, error)
 	DecrementWaitlistPositions(ctx context.Context, arg DecrementWaitlistPositionsParams) error
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
 	DeleteAdminSetting(ctx context.Context, key string) (int64, error)

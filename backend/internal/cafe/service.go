@@ -189,7 +189,7 @@ func validTimeSlot(t TimeSlot) bool {
 // anonymous caller and the resulting prisma create failing incidentally.
 func (s *Service) SetShift(ctx context.Context, in CafeShiftToggleInput) (*CafeShiftResult, error) {
 	identity, ok := auth.FromContext(ctx)
-	if !ok {
+	if !ok || identity.MemberID == "" {
 		return nil, auth.ErrUnauthenticated
 	}
 	isAdmin := identity.Has(apinames.CafeEditWorkers)

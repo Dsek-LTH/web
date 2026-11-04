@@ -120,6 +120,12 @@ func (s *Service) GetSongBookEntry(
 	if err := auth.Require(ctx, apinames.SongRead); err != nil {
 		return nil, err
 	}
+	return s.songBookEntry(ctx, page, number)
+}
+
+// songBookEntry is GetSongBookEntry without the song:read check, for
+// returning an entry the caller just wrote.
+func (s *Service) songBookEntry(ctx context.Context, page, number int) (*SongBookEntry, error) {
 	r, err := s.queries.GetSongBookEntry(ctx, db.GetSongBookEntryParams{
 		Page:         int32(page),
 		NumberOnPage: int32(number),
@@ -159,7 +165,7 @@ func (s *Service) CreateSongBookEntry(
 	}); err != nil {
 		return nil, fmt.Errorf("create songbook entry: %w", err)
 	}
-	return s.GetSongBookEntry(ctx, in.Page, in.NumberOnPage)
+	return s.songBookEntry(ctx, in.Page, in.NumberOnPage)
 }
 
 // UpdateSongBookEntry moves the entry at (page, number) to in's position
@@ -187,7 +193,7 @@ func (s *Service) UpdateSongBookEntry(
 	if n == 0 {
 		return nil, ErrNotFound
 	}
-	return s.GetSongBookEntry(ctx, in.Page, in.NumberOnPage)
+	return s.songBookEntry(ctx, in.Page, in.NumberOnPage)
 }
 
 func (s *Service) DeleteSongBookEntry(ctx context.Context, page, number int) error {

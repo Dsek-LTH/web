@@ -158,7 +158,13 @@ func (s *Service) GetHidden(
 		}
 		return nil, fmt.Errorf("get article: %w", err)
 	}
-	now := time.Now()
+	// The database's clock, not ours: removed_at is set with its now(), and
+	// the public reads filter with it too.
+	dbNow, err := s.queries.DatabaseNow(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get database time: %w", err)
+	}
+	now := dbNow.Time
 	deleted := row.RemovedAt.Valid && !row.RemovedAt.Time.After(now)
 	unpublished := !row.PublishedDatetime.Valid || row.PublishedDatetime.Time.After(now)
 	if (deleted && !includeDeleted) || (unpublished && !includeUnpublished) {
@@ -289,7 +295,7 @@ func (s *Service) Update(
 		return nil, fmt.Errorf("get article: %w", err)
 	}
 
-	if dbutil.UUIDStr(current.MemberID) != identity.MemberID {
+	if identity.MemberID == "" || dbutil.UUIDStr(current.MemberID) != identity.MemberID {
 		if err := auth.Require(ctx, apinames.NewsArticleUpdate); err != nil {
 			return nil, err
 		}
@@ -872,7 +878,7 @@ func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleD
 		// policy-only check exactly (see those methods) - one
 		// implementation of "can this identity touch this article",
 		// read here instead of duplicated.
-		canEdit = dbutil.UUIDStr(row.MemberID) == identity.MemberID ||
+		canEdit = (identity.MemberID != "" && dbutil.UUIDStr(row.MemberID) == identity.MemberID) ||
 			identity.Has(apinames.NewsArticleUpdate)
 		canDelete = identity.Has(apinames.NewsArticleDelete)
 	}
