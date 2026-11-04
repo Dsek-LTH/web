@@ -9,7 +9,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import FileLink from "$lib/components/files/FileLink.svelte";
   import DeleteFileForm from "../DeleteFileForm.svelte";
-  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import * as m from "$paraglide/messages.js";
@@ -17,10 +17,7 @@
   let { data } = $props();
 
   let canDelete = $derived(
-    isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
-      data.user,
-    ),
+    isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).DELETE, data.user),
   );
 </script>
 
