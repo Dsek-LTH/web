@@ -9,7 +9,7 @@ import (
 	_ "image/gif"  // registers GIF decoding for image.DecodeConfig
 	_ "image/jpeg" // registers JPEG decoding for image.DecodeConfig
 	_ "image/png"  // registers PNG decoding for image.DecodeConfig
-	"log"
+	"log/slog"
 	"strings"
 
 	"github.com/google/uuid"
@@ -130,6 +130,6 @@ func (s *Service) removeStoredPicture(ctx context.Context, studentID, url string
 	}
 	key := url[i+len("/"+s.membersBucket+"/"):]
 	if err := s.storage.Remove(ctx, s.membersBucket, []string{key}); err != nil {
-		log.Printf("members: remove old profile picture %s: %v", key, err)
+		slog.Error("members: remove old profile picture", "key", key, "err", err)
 	}
 }

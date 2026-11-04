@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"errors"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -201,7 +201,7 @@ func (c *OIDCClient) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		oauth2.VerifierOption(stateData.CodeVerifier),
 	)
 	if err != nil {
-		log.Printf("auth: token exchange failed: %v", err)
+		slog.Warn("auth: token exchange failed", "err", err)
 		http.Error(w, "token exchange failed", http.StatusBadGateway)
 		return
 	}
@@ -213,7 +213,7 @@ func (c *OIDCClient) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	idToken, err := c.verifier.Verify(r.Context(), rawIDToken)
 	if err != nil {
-		log.Printf("auth: id_token verification failed: %v", err)
+		slog.Warn("auth: id_token verification failed", "err", err)
 		http.Error(w, "id_token verification failed", http.StatusBadGateway)
 		return
 	}
@@ -224,7 +224,7 @@ func (c *OIDCClient) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := resolveOrCreateMember(r.Context(), c.queries, c.seeder, profile); err != nil {
-		log.Printf("auth: resolve member failed: %v", err)
+		slog.Error("auth: resolve member", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -355,7 +355,7 @@ func resolveOrCreateMember(
 	// (e.g. booking's notifyNewBookingRequest) - a seeding failure shouldn't
 	// block the member from ever logging in.
 	if err := seeder.SeedDefaults(ctx, uuid.UUID(created.ID.Bytes).String()); err != nil {
-		log.Printf("auth: seed default subscription settings for new member: %v", err)
+		slog.Error("auth: seed default subscription settings for new member", "err", err)
 	}
 	return nil
 }

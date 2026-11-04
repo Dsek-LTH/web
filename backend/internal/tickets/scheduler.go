@@ -3,7 +3,7 @@ package tickets
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 	"time"
 )
 
@@ -38,17 +38,13 @@ func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {
 	run := func() {
 		err := s.svc.RunLottery(context.Background(), releaseID)
 		if err != nil && !errors.Is(err, ErrNotFound) {
-			log.Printf(
-				"lottery run failed for release %s, retrying in %s: %v",
-				releaseID,
-				lotteryRetryDelay,
-				err,
-			)
+			slog.Error("tickets: lottery run failed, retrying",
+				"release_id", releaseID, "retry_in", lotteryRetryDelay.String(), "err", err)
 			s.armLotteryAfter(releaseID, lotteryRetryDelay)
 			return
 		}
 		if err != nil {
-			log.Printf("lottery run failed for release %s: %v", releaseID, err)
+			slog.Error("tickets: lottery run failed", "release_id", releaseID, "err", err)
 		}
 	}
 
@@ -92,12 +88,12 @@ func (s *Scheduler) RunSweepLoop(ctx context.Context, interval time.Duration) {
 func (s *Scheduler) sweepOnce(ctx context.Context) {
 	ids, err := s.svc.ListReleaseIDsWithActiveOffers(ctx)
 	if err != nil {
-		log.Printf("failed to list releases with active offers: %v", err)
+		slog.Error("tickets: list releases with active offers", "err", err)
 		return
 	}
 	for _, id := range ids {
 		if err := s.svc.SweepExpiredOffers(ctx, id); err != nil {
-			log.Printf("offer sweep failed for release %s: %v", id, err)
+			slog.Error("tickets: offer sweep failed", "release_id", id, "err", err)
 		}
 	}
 }

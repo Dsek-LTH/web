@@ -16,7 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"path"
 	"regexp"
 	"sort"
@@ -289,17 +289,17 @@ func (MockBackend) Put(
 	_ io.Reader,
 	_ int64,
 ) (string, error) {
-	log.Printf("storage: STORAGE_MOCK - pretending to store %s/%s", bucket, key)
+	slog.Info("storage: STORAGE_MOCK - pretending to store", "bucket", bucket, "key", key)
 	return "https://mock-storage.invalid/" + bucket + "/" + key, nil
 }
 
 func (MockBackend) List(_ context.Context, bucket, prefix string, _ bool) ([]Object, error) {
-	log.Printf("storage: STORAGE_MOCK - pretending to list %s/%s", bucket, prefix)
+	slog.Info("storage: STORAGE_MOCK - pretending to list", "bucket", bucket, "prefix", prefix)
 	return nil, nil
 }
 
 func (MockBackend) Get(_ context.Context, bucket, key string) ([]byte, error) {
-	log.Printf("storage: STORAGE_MOCK - pretending to read %s/%s", bucket, key)
+	slog.Info("storage: STORAGE_MOCK - pretending to read", "bucket", bucket, "key", key)
 	return nil, fmt.Errorf(
 		"storage: STORAGE_MOCK has no object %s/%s: %w",
 		bucket,
@@ -309,17 +309,13 @@ func (MockBackend) Get(_ context.Context, bucket, key string) ([]byte, error) {
 }
 
 func (MockBackend) Remove(_ context.Context, bucket string, keys []string) error {
-	log.Printf(
-		"storage: STORAGE_MOCK - pretending to remove %d object(s) from %s",
-		len(keys),
-		bucket,
-	)
+	slog.Info("storage: STORAGE_MOCK - pretending to remove", "bucket", bucket, "count", len(keys))
 	return nil
 }
 
 func (MockBackend) Upload(_ context.Context, filename string, _ io.Reader) (string, error) {
 	url := "https://mock-storage.invalid/" + filename
-	log.Printf("storage: STORAGE_MOCK - pretending to store %q, returning %s", filename, url)
+	slog.Info("storage: STORAGE_MOCK - pretending to store", "file", filename, "url", url)
 	return url, nil
 }
 

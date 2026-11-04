@@ -3,7 +3,7 @@ package articles
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -95,7 +95,7 @@ func (s *Service) announce(
 ) bool {
 	claimed, err := s.queries.ClaimArticleAnnouncement(ctx, id)
 	if err != nil {
-		log.Printf("articles: claim announcement for %s: %v", notification.Slug, err)
+		slog.Error("articles: claim announcement", "slug", notification.Slug, "err", err)
 		return false
 	}
 	if claimed == 0 {
@@ -104,16 +104,22 @@ func (s *Service) announce(
 
 	ok := true
 	if err := s.notifier.NotifyNewArticle(ctx, notification); err != nil {
-		log.Printf("articles: notify about %s: %v", notification.Slug, err)
+		slog.Error("articles: notify subscribers", "slug", notification.Slug, "err", err)
 		ok = false
 	}
 	if err := s.webhooker.NotifyNewArticle(ctx, notification); err != nil {
-		log.Printf("articles: post %s to Discord: %v", notification.Slug, err)
+		slog.Error("articles: post to Discord", "slug", notification.Slug, "err", err)
 		ok = false
 	}
 	if !ok {
 		if err := s.queries.ReleaseArticleAnnouncement(context.WithoutCancel(ctx), id); err != nil {
-			log.Printf("articles: release announcement for %s: %v", notification.Slug, err)
+			slog.Error(
+				"articles: release announcement claim",
+				"slug",
+				notification.Slug,
+				"err",
+				err,
+			)
 		}
 	}
 	return ok
@@ -151,8 +157,8 @@ func (s *Service) AnnounceDue(ctx context.Context) error {
 		articleID := dbutil.UUIDStr(r.ID)
 		if !r.ShouldSendNotification.Bool || r.PublishedDatetime.Time.Before(cutoff) {
 			if r.ShouldSendNotification.Bool {
-				log.Printf("articles: giving up on announcing %s, live since %s",
-					r.Slug, r.PublishedDatetime.Time.Format(time.RFC3339))
+				slog.Warn("articles: giving up on announcing",
+					"slug", r.Slug, "live_since", r.PublishedDatetime.Time)
 			}
 			if _, err := s.queries.ClaimArticleAnnouncement(ctx, r.ID); err != nil {
 				return fmt.Errorf("mark %s announced: %w", r.Slug, err)
@@ -180,7 +186,7 @@ func (s *Service) RunAnnouncementLoop(ctx context.Context, interval time.Duratio
 	defer ticker.Stop()
 	for {
 		if err := s.AnnounceDue(ctx); err != nil {
-			log.Printf("articles: announcement sweep: %v", err)
+			slog.Error("articles: announcement sweep", "err", err)
 		}
 		select {
 		case <-ctx.Done():

@@ -3,7 +3,7 @@ package search
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"path"
 	"strings"
@@ -47,7 +47,7 @@ func (s *Service) StartSyncUnchecked() error {
 	go func() {
 		defer s.syncMu.Unlock()
 		if err := s.sync(context.Background()); err != nil {
-			log.Printf("search: sync failed: %v", err)
+			slog.Error("search: sync failed", "err", err)
 		}
 	}()
 	return nil
@@ -59,7 +59,7 @@ func (s *Service) StartSyncUnchecked() error {
 // seconds that takes, as before.
 func (s *Service) sync(ctx context.Context) error {
 	start := time.Now()
-	log.Println("search: syncing Meilisearch")
+	slog.Info("search: syncing Meilisearch")
 	for _, index := range Indexes {
 		if err := s.meili.ensureIndex(ctx, index); err != nil {
 			return fmt.Errorf("create index %s: %w", index, err)
@@ -86,7 +86,7 @@ func (s *Service) sync(ctx context.Context) error {
 			loader{IndexMeetingDocuments, s.loadMeetingDocuments},
 		)
 	} else {
-		log.Println("search: poppler is not reachable, skipping the document indexes")
+		slog.Warn("search: poppler is not reachable, skipping the document indexes")
 	}
 
 	for _, l := range loaders {
@@ -97,9 +97,9 @@ func (s *Service) sync(ctx context.Context) error {
 		if err := s.replaceIndex(ctx, l.index, docs); err != nil {
 			return fmt.Errorf("sync %s: %w", l.index, err)
 		}
-		log.Printf("search: synced %d documents into %s", len(docs), l.index)
+		slog.Info("search: synced", "index", l.index, "documents", len(docs))
 	}
-	log.Printf("search: sync done in %s", time.Since(start).Round(time.Millisecond))
+	slog.Info("search: sync done", "duration_ms", time.Since(start).Milliseconds())
 	return nil
 }
 
@@ -281,12 +281,12 @@ func (s *Service) loadGoverningDocuments(ctx context.Context) ([]map[string]any,
 		r := rows[i]
 		pdf, err := fetchPDF(ctx, client, r.Url)
 		if err != nil {
-			log.Printf("search: skipping governing document %q: %v", r.Title, err)
+			slog.Warn("search: skipping governing document", "title", r.Title, "err", err)
 			return nil
 		}
 		content, err := s.poppler.toText(ctx, pdf, r.Title)
 		if err != nil {
-			log.Printf("search: skipping governing document %q: %v", r.Title, err)
+			slog.Warn("search: skipping governing document", "title", r.Title, "err", err)
 			return nil
 		}
 		return map[string]any{
@@ -317,12 +317,12 @@ func (s *Service) loadMeetingDocuments(ctx context.Context) ([]map[string]any, e
 		obj := objects[pdfs[i]]
 		pdf, err := s.store.Get(ctx, s.documentBucket, obj.Key)
 		if err != nil {
-			log.Printf("search: skipping meeting document %q: %v", obj.Key, err)
+			slog.Warn("search: skipping meeting document", "key", obj.Key, "err", err)
 			return nil
 		}
 		content, err := s.poppler.toText(ctx, pdf, obj.Name)
 		if err != nil {
-			log.Printf("search: skipping meeting document %q: %v", obj.Key, err)
+			slog.Warn("search: skipping meeting document", "key", obj.Key, "err", err)
 			return nil
 		}
 		return map[string]any{

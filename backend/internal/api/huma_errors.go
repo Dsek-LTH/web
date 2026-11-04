@@ -2,7 +2,7 @@ package api
 
 import (
 	"errors"
-	"log"
+	"log/slog"
 
 	"github.com/danielgtaylor/huma/v2"
 
@@ -128,7 +128,7 @@ func humaServiceError(err error) error {
 	case errors.Is(err, search.ErrUnavailable):
 		return huma.Error503ServiceUnavailable("search is not configured")
 	default:
-		log.Printf("api: internal error: %v", err)
+		slog.Error("api: internal error", "err", err)
 		return huma.Error500InternalServerError("internal error")
 	}
 }

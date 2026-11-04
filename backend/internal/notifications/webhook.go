@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
@@ -220,7 +220,7 @@ func (w *RealWebhooker) NotifyNewArticle(
 			context.WithoutCancel(ctx),
 			articleID,
 		); releaseErr != nil {
-			log.Printf("notifications: release discord claim for %s: %v", a.Slug, releaseErr)
+			slog.Error("notifications: release Discord claim", "slug", a.Slug, "err", releaseErr)
 		}
 		return err
 	}

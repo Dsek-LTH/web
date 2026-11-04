@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -83,6 +84,8 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Printf("authorization tests will skip: %v", err)
 	}
+	// One request log line per test call would bury the test output.
+	slog.SetDefault(slog.New(slog.DiscardHandler))
 	code := m.Run()
 	if cleanup != nil {
 		cleanup()

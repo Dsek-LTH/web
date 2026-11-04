@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -32,6 +32,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/gallery"
 	"github.com/dsek-lth/web/backend/internal/governingdocs"
 	"github.com/dsek-lth/web/backend/internal/links"
+	"github.com/dsek-lth/web/backend/internal/logging"
 	"github.com/dsek-lth/web/backend/internal/markdown"
 	"github.com/dsek-lth/web/backend/internal/medals"
 	"github.com/dsek-lth/web/backend/internal/members"
@@ -49,21 +50,22 @@ func main() {
 	// Best-effort: the tracked dev settings in backend/.env. Variables
 	// already set in the environment win.
 	_ = godotenv.Load(".env")
+	logging.Setup()
 
 	dsn := os.Getenv("POSTGRES_URL")
 	if dsn == "" {
-		log.Fatal("POSTGRES_URL is not set")
+		logging.Fatal("POSTGRES_URL is not set")
 	}
 
 	ctx := context.Background()
 
 	pool, err := db.NewPool(ctx, dsn)
 	if err != nil {
-		log.Fatalf("connect to database: %v", err)
+		logging.Fatal("connect to database", "err", err)
 	}
 	defer pool.Close()
 
-	log.Println("connected to database")
+	slog.Info("connected to database")
 
 	queries := db.New(pool)
 	nollningSvc := nollning.NewService(pool)
@@ -75,15 +77,15 @@ func main() {
 	// non-production environment that may hold real device tokens.
 	pushMock := os.Getenv("PUSH_MOCK") != "false"
 	if pushMock {
-		log.Println(
-			"PUSH_MOCK is not \"false\" - push notifications will be logged, not sent for real via Expo. Set PUSH_MOCK=false to send real pushes.",
+		slog.Info(
+			"PUSH_MOCK is not \"false\": push notifications are logged, not sent through Expo",
 		)
 	}
 	notificationSvc := notifications.NewService(pool, nollningSvc, pushMock)
 
 	frontendOrigin := os.Getenv("PUBLIC_FRONTEND_URL")
 	if frontendOrigin == "" {
-		log.Fatal(
+		logging.Fatal(
 			"PUBLIC_FRONTEND_URL is not set - required for CORS now that requests carry credentials (see internal/api.withCORS)",
 		)
 	}
@@ -96,7 +98,7 @@ func main() {
 	// accidentally still say "true".
 	frontendURL, err := url.Parse(frontendOrigin)
 	if err != nil {
-		log.Fatalf("PUBLIC_FRONTEND_URL is not a valid URL: %v", err)
+		logging.Fatal("PUBLIC_FRONTEND_URL is not a valid URL", "err", err)
 	}
 	looksLikeLocalDev := frontendURL.Hostname() == "localhost" ||
 		frontendURL.Hostname() == "127.0.0.1"
@@ -105,35 +107,36 @@ func main() {
 	var oidcClient *auth.OIDCClient
 	if os.Getenv("AUTH_MOCK") == "true" {
 		if !looksLikeLocalDev {
-			log.Fatalf(
-				"AUTH_MOCK=true but PUBLIC_FRONTEND_URL (%q) doesn't look like a local dev address (localhost/127.0.0.1) - refusing to start with mock auth against what looks like a real deployment. Set AUTH_MOCK=false (or unset it) for a real deployment.",
+			logging.Fatal(
+				"AUTH_MOCK=true but PUBLIC_FRONTEND_URL doesn't look like a local dev address (localhost/127.0.0.1) - refusing to start with mock auth against what looks like a real deployment. Set AUTH_MOCK=false (or unset it) for a real deployment.",
+				"frontend",
 				frontendOrigin,
 			)
 		}
 		identity, err := mockIdentity(ctx, queries)
 		if err != nil {
-			log.Fatalf("resolve mock auth identity: %v", err)
+			logging.Fatal("resolve mock auth identity", "err", err)
 		}
 		authenticator = auth.NewMockAuthenticator(identity)
 	} else {
 		oidcClient, authenticator, err = newRealAuth(ctx, queries, nollningSvc, notificationSvc)
 		if err != nil {
-			log.Fatalf("set up real auth: %v", err)
+			logging.Fatal("set up real auth", "err", err)
 		}
 	}
 
 	var store storage.Backend
 	if os.Getenv("STORAGE_MOCK") == "true" {
-		log.Println(
-			"STORAGE_MOCK=true - using a no-op mock store; gallery/documents/article-image-upload will not actually store anything. This must never run against a real deployment.",
+		slog.Warn(
+			"STORAGE_MOCK=true: using a no-op mock store, nothing is actually stored. This must never run against a real deployment.",
 		)
 		store = storage.MockBackend{}
 	} else {
 		store, err = newStorage()
 		if err != nil {
-			log.Fatalf(
-				"set up file storage (or set STORAGE_MOCK=true for local dev without MinIO): %v",
-				err,
+			logging.Fatal(
+				"set up file storage (or set STORAGE_MOCK=true for local dev without MinIO)",
+				"err", err,
 			)
 		}
 	}
@@ -178,7 +181,7 @@ func main() {
 	ticketSvc := tickets.NewService(pool)
 	ticketScheduler := tickets.NewScheduler(ticketSvc)
 	if err := ticketScheduler.RestoreOnStartup(context.Background()); err != nil {
-		log.Fatalf("restore ticket lotteries: %v", err)
+		logging.Fatal("restore ticket lotteries", "err", err)
 	}
 	go ticketScheduler.RunSweepLoop(context.Background(), 15*time.Second)
 
@@ -186,7 +189,7 @@ func main() {
 	// call answers 503 rather than the backend refusing to start.
 	meiliHost := os.Getenv("MEILISEARCH_HOST")
 	if meiliHost == "" {
-		log.Println("MEILISEARCH_HOST is not set - search is disabled")
+		slog.Warn("MEILISEARCH_HOST is not set - search is disabled")
 	}
 	searchSvc := search.NewService(pool, store, search.Config{
 		MeiliHost:      meiliHost,
@@ -237,9 +240,9 @@ func main() {
 		addr = ":8090"
 	}
 
-	log.Printf("listening on %s", addr)
+	slog.Info("listening", "addr", addr)
 	if err := http.ListenAndServe(addr, router); err != nil {
-		log.Fatalf("serve: %v", err)
+		logging.Fatal("serve", "err", err)
 	}
 }
 
@@ -332,7 +335,7 @@ func newRealAuth(
 func mustEnv(name string) string {
 	value := os.Getenv(name)
 	if value == "" {
-		log.Fatalf("%s must be set", name)
+		logging.Fatal(name + " must be set")
 	}
 	return value
 }

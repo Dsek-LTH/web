@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 )
 
@@ -18,9 +18,11 @@ type MockAuthenticator struct {
 // wired up silently, including (especially) if this code is ever pointed
 // at a real deployment before real auth exists.
 func NewMockAuthenticator(identity *Identity) *MockAuthenticator {
-	log.Printf(
-		"auth: MOCK authenticator active - every request is treated as authenticated as member %s (%s) with all policies. This must never run against a real deployment.",
+	slog.Warn(
+		"auth: MOCK authenticator active - every request is treated as authenticated as this member with all policies. This must never run against a real deployment.",
+		"member_id",
 		identity.MemberID,
+		"student_id",
 		identity.StudentID,
 	)
 	return &MockAuthenticator{identity: identity}

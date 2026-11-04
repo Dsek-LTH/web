@@ -54,6 +54,13 @@ deployment:
 Search needs Meilisearch (without `MEILISEARCH_HOST` it answers 503) and an
 index build: `POST /search/sync` as an admin (or `admin/debug`).
 
+The backend logs with `log/slog` to stderr: readable text by default,
+JSON with `LOG_FORMAT=json` (deployments), level from `LOG_LEVEL` (`debug`,
+`info`, `warn`, `error`). Log with attributes
+(`slog.Error("articles: post to Discord", "slug", slug, "err", err)`), not
+formatted strings. Every request gets one line with method, route pattern,
+status, duration and member.
+
 ## Commands
 
 Frontend (`frontend/`):

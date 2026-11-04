@@ -60,7 +60,16 @@ func newHumaAPI(mux *http.ServeMux) huma.API {
 	config.CreateHooks = nil
 	config.Tags = apiTags
 	config.Transformers = append(config.Transformers, nonNilSlices)
-	return humago.New(mux, config)
+	api := humago.New(mux, config)
+	// The request log reports the route pattern (/articles/{slug}), not the
+	// path, so lines group by operation.
+	api.UseMiddleware(func(ctx huma.Context, next func(huma.Context)) {
+		if entry := requestLogFrom(ctx.Context()); entry != nil {
+			entry.route = ctx.Operation().Path
+		}
+		next(ctx)
+	})
+	return api
 }
 
 // nonNilSlices replaces every nil slice in a response body with an empty

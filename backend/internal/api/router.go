@@ -4,7 +4,8 @@
 package api
 
 import (
-	"log"
+	"context"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -92,7 +93,9 @@ func NewRouter(
 	}
 
 	return withLogging(
-		withCORS(frontendOrigin)(auth.Middleware(authenticator)(locale.Middleware(mux))),
+		withCORS(frontendOrigin)(
+			auth.Middleware(authenticator)(withMemberLog(locale.Middleware(mux))),
+		),
 	)
 }
 
@@ -132,7 +135,7 @@ func registerRoutes(mux *http.ServeMux, s Services) huma.API {
 	// sync) they take a raw body. They're still behind the same middleware.
 	// This exact path is polled by the university's own Salto door-lock
 	// system, unauthenticated - see SaltoHandler's doc comment and
-	// src/routes/(app)/salto/README.md ("this URL must not be changed").
+	// frontend/src/routes/(app)/salto/README.md ("this URL must not be changed").
 	mux.HandleFunc("GET /salto/{door}", SaltoHandler(s.Doors))
 	mux.HandleFunc(
 		"POST /search/sync/password",
@@ -141,13 +144,77 @@ func registerRoutes(mux *http.ServeMux, s Services) huma.API {
 	return api
 }
 
+// withLogging writes one log line per request: method, route, status,
+// duration and (when signed in) the member. Inner handlers fill in what only
+// they know - the route pattern (huma) and the member (after auth) - through
+// the requestLog withLogging puts in the context.
 func withLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		next.ServeHTTP(w, r)
-		log.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(start))
+		entry := &requestLog{}
+		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rec, r.WithContext(context.WithValue(r.Context(), requestLogKey{}, entry)))
+
+		route := entry.route
+		if route == "" {
+			route = r.URL.Path
+		}
+		attrs := []any{
+			"method", r.Method,
+			"route", route,
+			"status", rec.status,
+			"duration_ms", float64(time.Since(start).Microseconds()) / 1000,
+		}
+		if entry.memberID != "" {
+			attrs = append(attrs, "member_id", entry.memberID)
+		}
+		level := slog.LevelInfo
+		if rec.status >= 500 {
+			level = slog.LevelError
+		}
+		slog.Log(r.Context(), level, "request", attrs...)
 	})
 }
+
+type requestLogKey struct{}
+
+// requestLog collects what withLogging reports about a request.
+type requestLog struct {
+	route    string
+	memberID string
+}
+
+func requestLogFrom(ctx context.Context) *requestLog {
+	entry, _ := ctx.Value(requestLogKey{}).(*requestLog)
+	return entry
+}
+
+// withMemberLog records the signed-in member for the request log; it runs
+// right after auth.Middleware has resolved the identity.
+func withMemberLog(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if entry := requestLogFrom(r.Context()); entry != nil {
+			if identity, ok := auth.FromContext(r.Context()); ok {
+				entry.memberID = identity.MemberID
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// statusRecorder remembers the status code a handler wrote.
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (s *statusRecorder) WriteHeader(code int) {
+	s.status = code
+	s.ResponseWriter.WriteHeader(code)
+}
+
+// Unwrap lets http.ResponseController reach the real writer (flushing).
+func (s *statusRecorder) Unwrap() http.ResponseWriter { return s.ResponseWriter }
 
 // withCORS echoes allowedOrigin (SvelteKit's own origin, PUBLIC_FRONTEND_URL)
 // rather than "*", and sets Allow-Credentials - required now that the

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -626,11 +626,11 @@ func (s *Service) setAttendance(
 	}
 	if going {
 		if err := s.notifier.NotifyEventGoing(ctx, n); err != nil {
-			log.Printf("events: notify event going: %v", err)
+			slog.Error("events: notify organizer about going", "err", err)
 		}
 	} else if interested {
 		if err := s.notifier.NotifyEventInterested(ctx, n); err != nil {
-			log.Printf("events: notify event interested: %v", err)
+			slog.Error("events: notify organizer about interest", "err", err)
 		}
 	}
 

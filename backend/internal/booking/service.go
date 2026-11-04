@@ -7,7 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -623,7 +623,7 @@ func (s *Service) SetStatus(
 			Status:            statusText,
 		}
 		if err := s.notifier.NotifyBookingRequestStatus(ctx, n); err != nil {
-			log.Printf("booking: notify booking request status: %v", err)
+			slog.Error("booking: notify booking request status", "err", err)
 		}
 	}
 
@@ -653,8 +653,9 @@ func (s *Service) notifyNewBookingRequest(
 ) {
 	km, err := s.queries.GetCurrentKarhusmastare(ctx)
 	if err != nil {
-		log.Printf(
-			"booking: no active karhusmastare found, skipping new-request notification: %v",
+		slog.Warn(
+			"booking: no active karhusmastare, not notifying about the new request",
+			"err",
 			err,
 		)
 		return
@@ -680,7 +681,7 @@ func (s *Service) notifyNewBookingRequest(
 		RecipientMemberID: dbutil.UUIDStr(km.ID),
 	}
 	if err := s.notifier.NotifyNewBookingRequest(ctx, n); err != nil {
-		log.Printf("booking: notify new booking request: %v", err)
+		slog.Error("booking: notify new booking request", "err", err)
 	}
 }
 

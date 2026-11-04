@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -63,7 +63,7 @@ func (a *RealAuthenticator) Authenticate(
 
 	session, err := a.sessionCodec.Decode(cookie.Value)
 	if err != nil {
-		log.Printf("auth: invalid session cookie, treating as anonymous: %v", err)
+		slog.Warn("auth: invalid session cookie, treating as anonymous", "err", err)
 		ClearSessionCookie(w)
 		return a.anonymousIdentity(r.Context())
 	}
@@ -71,13 +71,13 @@ func (a *RealAuthenticator) Authenticate(
 	if !session.ExpiresAt.After(time.Now()) {
 		refreshed, err := a.oidcClient.Refresh(r.Context(), session)
 		if err != nil {
-			log.Printf("auth: session refresh failed, treating as anonymous: %v", err)
+			slog.Warn("auth: session refresh failed, treating as anonymous", "err", err)
 			ClearSessionCookie(w)
 			return a.anonymousIdentity(r.Context())
 		}
 		session = refreshed
 		if err := SetSessionCookie(w, a.sessionCodec, session); err != nil {
-			log.Printf("auth: failed to re-issue session cookie after refresh: %v", err)
+			slog.Error("auth: re-issue session cookie after refresh", "err", err)
 		}
 	}
 

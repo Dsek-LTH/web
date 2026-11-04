@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -51,10 +51,7 @@ func isExpoPushToken(token string) bool {
 // AUTH_MOCK/STORAGE_MOCK - see Service's doc comment.
 func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 	if s.pushMock {
-		log.Printf(
-			"notifications: mock push - pretending to send %d push message(s)",
-			len(messages),
-		)
+		slog.Info("notifications: mock push - pretending to send", "messages", len(messages))
 		return
 	}
 
@@ -81,7 +78,7 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 		chunk := payload[i:end]
 		body, err := json.Marshal(chunk)
 		if err != nil {
-			log.Printf("notifications: marshal push chunk: %v", err)
+			slog.Error("notifications: marshal push chunk", "err", err)
 			failed += len(chunk)
 			continue
 		}
@@ -92,7 +89,7 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 			bytes.NewReader(body),
 		)
 		if err != nil {
-			log.Printf("notifications: build push request: %v", err)
+			slog.Error("notifications: build push request", "err", err)
 			failed += len(chunk)
 			continue
 		}
@@ -100,13 +97,13 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 		req.Header.Set("Accept", "application/json")
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Printf("notifications: send push chunk: %v", err)
+			slog.Error("notifications: send push chunk", "err", err)
 			failed += len(chunk)
 			continue
 		}
 		if resp.StatusCode >= 300 {
 			resp.Body.Close()
-			log.Printf("notifications: push chunk failed with status %d", resp.StatusCode)
+			slog.Error("notifications: push chunk failed", "status", resp.StatusCode)
 			failed += len(chunk)
 			continue
 		}
@@ -115,7 +112,7 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 		err = json.NewDecoder(resp.Body).Decode(&receipt)
 		resp.Body.Close()
 		if err != nil {
-			log.Printf("notifications: decode push response: %v", err)
+			slog.Error("notifications: decode push response", "err", err)
 			continue
 		}
 		for _, ticket := range receipt.Data {
@@ -123,17 +120,29 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 				continue
 			}
 			failed++
-			log.Printf("notifications: push failed: %s: %s", ticket.Details.Error, ticket.Message)
+			slog.Warn(
+				"notifications: push failed",
+				"error",
+				ticket.Details.Error,
+				"message",
+				ticket.Message,
+			)
 		}
 		unregistered = append(unregistered, unregisteredTokens(receipt.Data)...)
 	}
 	if failed > 0 {
-		log.Printf("notifications: %d/%d push message(s) failed to send", failed, len(payload))
+		slog.Warn(
+			"notifications: some push messages failed",
+			"failed",
+			failed,
+			"total",
+			len(payload),
+		)
 	}
 	// Tokens of uninstalled apps would only fail again next time.
 	if len(unregistered) > 0 {
 		if err := s.queries.DeleteExpoTokens(ctx, unregistered); err != nil {
-			log.Printf("notifications: delete unregistered push tokens: %v", err)
+			slog.Error("notifications: delete unregistered push tokens", "err", err)
 		}
 	}
 }
