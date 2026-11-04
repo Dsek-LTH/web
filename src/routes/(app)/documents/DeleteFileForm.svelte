@@ -40,6 +40,7 @@
     <form method="POST" action="?/deleteFile" use:enhance>
       <input type="hidden" name="id" value={fileId} />
       {#if bucket}
+        <!-- The SRD tab can list files from both buckets, so send the source bucket. -->
         <input type="hidden" name="bucket" value={bucket} />
       {/if}
       <AlertDialog.Header>
