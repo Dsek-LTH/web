@@ -1,0 +1,7 @@
+# Local settings and scratch output
+.env
+tmp
+backend
+
+# Agent and editor files
+.claude

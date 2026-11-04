@@ -22,6 +22,10 @@ FROM dependencies AS build
 
 COPY . .
 
+# The Go backend's public URL; $env/static/public bakes it in at build time.
+ARG PUBLIC_GO_BACKEND_URL
+ENV PUBLIC_GO_BACKEND_URL="${PUBLIC_GO_BACKEND_URL}"
+
 ARG PUBLIC_MINIO_BASE_URL
 ENV PUBLIC_MINIO_BASE_URL="${PUBLIC_MINIO_BASE_URL}"
 
