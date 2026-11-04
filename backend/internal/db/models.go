@@ -238,8 +238,8 @@ type Article struct {
 	ScheduledID            pgtype.Text        `json:"scheduled_id"`
 	ShouldSendNotification pgtype.Bool        `json:"should_send_notification"`
 	CommitteeID            pgtype.UUID        `json:"committee_id"`
-	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 	DiscordAnnouncedAt     pgtype.Timestamptz `json:"discord_announced_at"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 	AnnouncedAt            pgtype.Timestamptz `json:"announced_at"`
 }
 
@@ -436,8 +436,8 @@ type Event struct {
 	IsDetatched        bool               `json:"is_detatched"`
 	RecurringParentID  pgtype.UUID        `json:"recurring_parent_id"`
 	IsCancelled        pgtype.Bool        `json:"is_cancelled"`
-	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 	CommitteeID        pgtype.UUID        `json:"committee_id"`
+	NollningSeasonID   pgtype.UUID        `json:"nollning_season_id"`
 }
 
 type EventComment struct {

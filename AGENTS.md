@@ -203,10 +203,14 @@ dsek -c '\d <table>'`) - some columns are camelCase (`"workerId"`,
 `"isDisabled"`). Everything else in `internal/db` is generated.
 
 Migrations are `internal/db/migrations/<timestamp>_<name>.up.sql` with a
-real `.down.sql`, applied by golang-migrate (`go tool migrate`). The old
-Prisma history is the baseline, so `migrate up` builds a database from
-nothing. Unused tables from removed features (webshop, expenses) are still
-in the database on purpose.
+real `.down.sql`, applied by golang-migrate (`go tool migrate`). The first
+one, `20261103200000_baseline`, is the schema Prisma's migrations had built
+(no down file); `migrate up` builds a database from nothing, and adopts a
+database Prisma migrated by recording the baseline as applied - only if
+its `_prisma_migrations` lists exactly the migrations the baseline replaced
+(`cmd/migrate/adopt.go`). New migrations get timestamps after the newest
+one. Unused tables from removed features (webshop, expenses) are still in
+the database on purpose.
 
 ### Nollning
 

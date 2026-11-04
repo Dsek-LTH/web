@@ -17,9 +17,13 @@
 //	go tool migrate down [n]
 //	go tool migrate force <version>
 //	go tool migrate version
+//
+// `up` also adopts a database Prisma migrated before the switch to this
+// backend - see adoptPrismaDatabase.
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -35,7 +39,10 @@ import (
 	"github.com/dsek-lth/web/backend/internal/db"
 )
 
-const migrationsPath = "file://internal/db/migrations"
+const (
+	migrationsDir  = "internal/db/migrations"
+	migrationsPath = "file://" + migrationsDir
+)
 
 func main() {
 	if len(os.Args) < 2 {
@@ -66,6 +73,9 @@ func main() {
 
 	switch cmd, args := os.Args[1], os.Args[2:]; cmd {
 	case "up":
+		if err = adoptPrismaDatabase(context.Background(), m, dsn); err != nil {
+			log.Fatal(err)
+		}
 		err = m.Up()
 	case "down":
 		steps := 1

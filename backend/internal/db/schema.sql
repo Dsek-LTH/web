@@ -60,7 +60,7 @@ CREATE TABLE email_aliases (
     email        VARCHAR(255) NOT NULL
 );
 
--- Go-owned from creation (see internal/db/migrations/20260901220000_...) -
+-- Go-owned from creation (migration 20261103200002_add_nollning_seasons) -
 -- one row per nollning year, replacing the old AdminSetting-backed time
 -- window plus every hardcoded per-year date scattered across the TS app.
 CREATE TABLE nollning_seasons (
@@ -79,7 +79,7 @@ CREATE TABLE phadder_groups (
     image_url    TEXT,
     "createdAt"  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- Replaces a bare `year int` (see migration
-    -- 20260901220200_phadder_groups_season_id) - column sits last because
+    -- 20261103200004_phadder_groups_season_id) - column sits last because
     -- Postgres always appends ADD COLUMN at the end and DROP COLUMN doesn't
     -- renumber the rest; this must match the live table's actual order.
     season_id    UUID NOT NULL REFERENCES nollning_seasons (id)
@@ -188,13 +188,12 @@ CREATE TABLE articles (
     CONSTRAINT enforce_status_type CHECK (
         status = 'draft' OR status = 'approved' OR status = 'rejected'
     ),
-    -- Added by migration 20260901220100_add_nollning_season_id_to_content.
-    nollning_season_id       UUID REFERENCES nollning_seasons (id),
-    -- Added by upstream's 20261102190000_add_article_discord_announced_at
-    -- (carried into internal/db/migrations): set while/once the article
-    -- has been posted to Discord, so it's only ever posted once.
+    -- Set while/once the article has been posted to Discord, so it's only
+    -- ever posted once.
     discord_announced_at     TIMESTAMPTZ,
-    -- Go-owned (migration 20261103120000_add_article_announced_at): when
+    -- Added by migration 20261103200003_add_nollning_season_id_to_content.
+    nollning_season_id       UUID REFERENCES nollning_seasons (id),
+    -- Go-owned (migration 20261103200005_add_article_announced_at): when
     -- the article's go-live announcement was handled, sent or skipped -
     -- see articles.Service.AnnounceDue.
     announced_at             TIMESTAMPTZ
@@ -262,9 +261,7 @@ CREATE TYPE "recurringType" AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY');
 -- One row per recurring series; individual occurrences are pre-materialized
 -- as ordinary rows in `events` (see recurring_parent_id below) at creation
 -- time, not expanded at read time.
--- Renamed from "RecurringEvent" to recurring_event by upstream's
--- 20260914163028_fix_recurringevent_table migration (carried into
--- internal/db/migrations during the Phase 12 upstream sync).
+-- Called "RecurringEvent" until upstream renamed it.
 CREATE TABLE recurring_event (
     id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     separation_count INTEGER NOT NULL,
@@ -298,10 +295,9 @@ CREATE TABLE events (
     is_cancelled          BOOLEAN DEFAULT false,
     -- Ticket relation deliberately not modeled: the webshop (shop/tickets/
     -- orders/payments) is out of scope.
-    -- Added by migration 20260901220100_add_nollning_season_id_to_content.
-    nollning_season_id    UUID REFERENCES nollning_seasons (id),
-    -- Added by upstream's 20260921190000_add_committee_to_events migration.
-    committee_id          UUID REFERENCES committees (id)
+    committee_id          UUID REFERENCES committees (id),
+    -- Added by migration 20261103200003_add_nollning_season_id_to_content.
+    nollning_season_id    UUID REFERENCES nollning_seasons (id)
 );
 
 CREATE TABLE event_comments (
