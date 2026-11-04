@@ -133,8 +133,16 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   };
 };
 
+const documentBuckets = [
+  PUBLIC_BUCKETS_DOCUMENTS,
+  PUBLIC_BUCKETS_FILES,
+] as const;
+
 const deleteSchema = z.object({
   id: z.string(),
+  // Meeting documents live in the documents bucket, but SRD meeting documents
+  // live in the files bucket. The bucket must be sent along with the file id.
+  bucket: z.enum(documentBuckets),
 });
 export type DeleteSchema = Infer<typeof deleteSchema>;
 
@@ -143,8 +151,8 @@ export const actions: Actions = {
     const { user } = locals;
     const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
-    const { id } = form.data;
-    await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
+    const { id, bucket } = form.data;
+    await fileHandler.remove(user, bucket, [id]);
     return message(form, {
       message: m.documents_fileDeleted(),
       type: "success",

@@ -4,7 +4,10 @@
   import { SvelteURLSearchParams } from "svelte/reactivity";
   import Meeting from "./Meeting.svelte";
   import type { PageData } from "./$types";
-  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import {
+    PUBLIC_BUCKETS_DOCUMENTS,
+    PUBLIC_BUCKETS_FILES,
+  } from "$env/static/public";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
 
@@ -53,7 +56,11 @@
     isAuthorized(
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
       data.user,
-    ),
+    ) ||
+      isAuthorized(
+        apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).DELETE,
+        data.user,
+      ),
   );
 </script>
 

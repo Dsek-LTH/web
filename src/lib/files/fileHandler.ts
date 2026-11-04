@@ -10,6 +10,7 @@ import path from "path";
 export type FileData = {
   id: string;
   name: string;
+  bucket: string;
   modDate?: Date;
   size?: number;
   thumbnailUrl?: string;
@@ -50,6 +51,7 @@ const getFilesInFolder = async (
         files.push({
           id: obj.name,
           name: path.basename(obj.name),
+          bucket,
           modDate: obj.lastModified,
           size: obj.size,
           thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${obj.name}`,
@@ -59,6 +61,7 @@ const getFilesInFolder = async (
         files.push({
           id: obj.prefix,
           name: path.basename(obj.prefix),
+          bucket,
           isDir: true,
         });
       }
@@ -139,6 +142,7 @@ const removeFileGivenPath = async (
     return filesInFolder.map((file) => ({
       id: file.id,
       name: path.basename(file.id),
+      bucket,
     }));
   } else if (filesInFolder.length === 1) {
     const file = filesInFolder[0]!;
@@ -147,6 +151,7 @@ const removeFileGivenPath = async (
       {
         id: file.id,
         name: path.basename(file.id),
+        bucket,
       },
     ];
   } else {
@@ -234,9 +239,10 @@ const moveObject = async (
             file: {
               id: `${newFolder + basename}/`,
               name: basename,
+              bucket,
               isDir: true,
             },
-            oldFile: { id: fileName, name: basename, isDir: true },
+            oldFile: { id: fileName, name: basename, bucket, isDir: true },
           };
           moved.push(FileChange);
           moved.push(...recursivedMoved);
@@ -253,6 +259,7 @@ const moveObject = async (
         const oldFile = {
           id: fileName,
           name: path.basename(fileName),
+          bucket,
           modDate: objectStats.lastModified,
           size: objectStats.size,
           thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${fileName}`,
@@ -261,6 +268,7 @@ const moveObject = async (
         const newFile = {
           id: newFileName,
           name: path.basename(newFileName),
+          bucket,
           size: objectStats.size,
           thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileName}`,
         };
@@ -324,6 +332,7 @@ const renameObject = async (
   const oldFile = {
     id: fileName,
     name: path.basename(fileName),
+    bucket,
     modDate: objectStats.lastModified,
     size: objectStats.size,
     thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${fileName}`,
@@ -332,6 +341,7 @@ const renameObject = async (
   const newFile = {
     id: newFileId,
     name: path.basename(newFileId),
+    bucket,
     size: objectStats.size,
     thumbnailUrl: `${MINIO_BASE_URL}${bucket}/${newFileId}`,
   };
