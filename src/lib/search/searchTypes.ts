@@ -387,11 +387,7 @@ export const listOfAttributesUsedAsLink: string[] =
   Object.values(attributesUsedAsLink).flat();
 
 type DefaultRankingRules =
-  | "words"
-  | "typo"
-  | "proximity"
-  | "attribute"
-  | "exactness";
+  "words" | "typo" | "proximity" | "attribute" | "exactness";
 const defaultRankingRules = [
   "words",
   "typo",

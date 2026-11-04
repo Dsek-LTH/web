@@ -35,8 +35,10 @@
       name="startDate"
       iso
       class="px-4!"
-      bind:value={() => $form.startDate?.toISOString().split("T")[0],
-      (d) => (d ? ($form.startDate = new Date(d)) : () => "")}
+      bind:value={
+        () => $form.startDate?.toISOString().split("T")[0],
+        (d) => (d ? ($form.startDate = new Date(d)) : () => "")
+      }
       error={!!$errors.startDate}
       {...$constraints.startDate}
     />
@@ -47,8 +49,10 @@
       name="endDate"
       iso
       class="px-4!"
-      bind:value={() => $form.endDate?.toISOString().split("T")[0],
-      (d) => (d ? ($form.endDate = new Date(d)) : () => "")}
+      bind:value={
+        () => $form.endDate?.toISOString().split("T")[0],
+        (d) => (d ? ($form.endDate = new Date(d)) : () => "")
+      }
       error={!!$errors.endDate}
       {...$constraints.endDate}
     />

@@ -6,9 +6,8 @@ export const load: PageServerLoad = async ({ locals }) => {
     where: {
       start: {
         gte: new Date(
-          Temporal.Now.zonedDateTimeISO()
-            .subtract({ weeks: 1 })
-            .toInstant().epochMilliseconds,
+          Temporal.Now.zonedDateTimeISO().subtract({ weeks: 1 }).toInstant()
+            .epochMilliseconds,
         ),
       },
     },

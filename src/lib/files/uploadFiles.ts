@@ -46,10 +46,12 @@ export const uploadFile = async (
   //   create: { title: meeting, date, url: folderPath },
   // });
 
-  let dataToUpload: File | Buffer = file;
+  let dataToUpload: File | Uint8Array<ArrayBuffer> = file;
   if (isFileImage(file) && compressionOptions !== false) {
     try {
-      dataToUpload = await compressImage(file, compressionOptions);
+      dataToUpload = new Uint8Array(
+        await compressImage(file, compressionOptions),
+      );
       formattedName = prepareNameForFilesystem(
         name ?? getNameOfFile(file.name),
         file.name,
@@ -57,7 +59,7 @@ export const uploadFile = async (
       );
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : String(e);
-      throw new Error(`Could not compress image: ${errMsg}`);
+      throw new Error(`Could not compress image: ${errMsg}`, { cause: e });
     }
   }
 
@@ -82,6 +84,8 @@ export const uploadFile = async (
   } catch (e) {
     console.error(e);
     const errMsg = e instanceof Error ? e.message : String(e);
-    throw new Error(`${m.members_errors_couldntUploadFile()}: ${errMsg}`);
+    throw new Error(`${m.members_errors_couldntUploadFile()}: ${errMsg}`, {
+      cause: e,
+    });
   }
 };
