@@ -1,6 +1,5 @@
 // Package adminsettings is the generic operator key/value store behind
-// admin/settings - see DESIGN.md's roadmap Phase 11 ("Admin
-// consolidation"). Ported from src/routes/(app)/admin/settings/
+// admin/settings. Ported from src/routes/(app)/admin/settings/
 // +page.server.ts's update/remove actions. The admin_settings table
 // pre-dates this Go port (already read by internal/nollning's predecessor
 // and internal/notifications' Discord webhook config) - this package is

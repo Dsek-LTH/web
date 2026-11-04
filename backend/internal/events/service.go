@@ -46,14 +46,7 @@ const defaultPageSize = 10
 // RecurringEvent row and every occurrence's Event row - the only place in
 // this port that needs one; see Create.
 //
-// Not ported yet (no interface/method exists because nothing depends on it
-// in this pass - see DESIGN.md's events section for the full list):
-// the calendar range endpoint, the ICS subscribe feed, and the full-text
-// typeahead search endpoint. All are additive - none block the CRUD/
-// recurring/going-interested/comments/tags surface this Service already
-// covers. Push notifications to the organizer on going/interested (the one
-// item this list used to name as missing) were closed in Phase 9 - see
-// setAttendance and DESIGN.md's Phase 9 entry.
+// Going/interested notify the organizer - see setAttendance.
 type Service struct {
 	pool      *pgxpool.Pool
 	queries   *db.Queries
@@ -148,8 +141,8 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]EventSummary, 
 }
 
 // Get returns a non-removed event by slug - the public detail view. The
-// old TS getEvent() applied no removed_at filter at all here (see
-// DESIGN.md's events section); fixed rather than replicated.
+// old TS getEvent() applied no removed_at filter at all here; fixed rather
+// than replicated.
 func (s *Service) Get(ctx context.Context, slug string) (*EventDetail, error) {
 	row, err := s.queries.GetEventBySlug(ctx, dbutil.ToText(&slug))
 	if err != nil {
@@ -371,13 +364,14 @@ func (s *Service) resolveCommittee(ctx context.Context, in *EventInput) (pgtype.
 //     onward, or all of them) gets the same new content, but each keeps
 //     its own original date - only the submitted start/end time-of-day
 //     shifts, reconstructed in Europe/Stockholm per sibling. This mirrors
-//     the old TS updateEvent's FUTURE/ALL branch exactly (see DESIGN.md).
+//     the old TS updateEvent's FUTURE/ALL branch exactly.
 //
 // Unlike articles.Service.Update, the acting identity never replaces
-// author_id here - see the doc comment on db.UpdateEventParams's query and
-// DESIGN.md's events section for why events deliberately diverge from
-// articles on this point (author_id is a permission anchor here, not a
-// displayed byline).
+// author_id here - see the doc comment on db.UpdateEventParams's query.
+// Events deliberately diverge from articles on this point: author_id is a
+// permission anchor here (the original author can still edit), not a
+// displayed byline, so reassigning it would hand edit rights to every
+// editor and take them from the organizer.
 func (s *Service) Update(
 	ctx context.Context,
 	eventSlug string,
@@ -411,8 +405,7 @@ func (s *Service) Update(
 	if err != nil {
 		return nil, invalidf("invalid nollning season id: %v", err)
 	}
-	// Same "only gate an actual change" rule as articles.Service.Update -
-	// see DESIGN.md's nollning section.
+	// Same "only gate an actual change" rule as articles.Service.Update.
 	if nollningSeasonID != current.NollningSeasonID {
 		if err := auth.Require(ctx, apinames.NollningContentAssociate); err != nil {
 			return nil, err
@@ -507,8 +500,7 @@ func (s *Service) Update(
 // apinames.EventDelete, matching the old TS removeEventAction's real
 // permission check exactly (its canEdit-style author bypass is an
 // edit-only allowance, not a delete one). scope works like Update's,
-// except the old FUTURE branch's missing return path (see DESIGN.md's
-// events section) isn't reproduced - Delete always completes for whichever
+// except the old FUTURE branch's missing return path isn't reproduced - Delete always completes for whichever
 // scope was requested.
 func (s *Service) Delete(ctx context.Context, eventSlug string, scope EditScope) error {
 	if err := auth.Require(ctx, apinames.EventDelete); err != nil {
@@ -642,7 +634,7 @@ func (s *Service) setAttendance(
 // AddComment ports the events entity-type branch of src/lib/zod/comments.ts,
 // but gated on apinames.EventComment - the old code only checked "is
 // someone logged in", with no policy check at all despite
-// apiNames.EVENT.COMMENT existing (see DESIGN.md's events section).
+// apiNames.EVENT.COMMENT existing.
 func (s *Service) AddComment(ctx context.Context, eventSlug, content string) (*Comment, error) {
 	if err := auth.Require(ctx, apinames.EventComment); err != nil {
 		return nil, err
@@ -688,8 +680,8 @@ func (s *Service) AddComment(ctx context.Context, eventSlug, content string) (*C
 // apinames.EventCommentDelete, delete it - the old ZModel's two
 // EventComment delete rules (see internal/comments.CanDelete). The old TS
 // removeCommentAction("EVENT") itself had no authorization check at all
-// (any visitor could delete any comment), a real bug flagged in
-// DESIGN.md's events section and fixed here, not replicated. The author
+// (any visitor could delete any comment), a real bug fixed here, not
+// replicated. The author
 // half was missing from the first Go port and added in the Phase 12
 // upstream sync, once upstream's restored comment UI (#1390) relied on it.
 func (s *Service) RemoveComment(ctx context.Context, eventSlug, commentID string) error {

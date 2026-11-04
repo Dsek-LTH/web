@@ -7,8 +7,7 @@ import { z } from "zod";
 import * as m from "$paraglide/messages";
 
 // Every rule (who may manage groups, that members exist, that a phadder
-// holds a phadder/uppdrag mandate during the group's season) is Go's -
-// see backend/CLAUDE.md's Nollning routes section.
+// holds a phadder/uppdrag mandate during the group's season) is Go's.
 //
 // Groups belong to a nollning season in Go; the page (upstream #1291)
 // edits them by year, so a group's year is its season's, and saving a

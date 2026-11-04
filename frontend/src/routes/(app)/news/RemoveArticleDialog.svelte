@@ -7,7 +7,7 @@
   import { toast } from "$lib/stores/toast";
   import type { Snippet } from "svelte";
 
-  // Pure-proxy mutation (see DESIGN.md's "Principles going forward" #5):
+  // Pure-proxy mutation:
   // calls the Go API directly from the client, no SvelteKit server action,
   // no zod - Go's own auth.Require(apinames.NewsArticleDelete)/author
   // bypass is the only real gate either way (see

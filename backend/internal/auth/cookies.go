@@ -7,7 +7,7 @@ import (
 
 // CookieDomain scopes the session cookie to the same registrable domain
 // SvelteKit runs on, so both origins can read it despite being different
-// ports (dev) or subdomains (prod) - see DESIGN.md's Auth section. Set
+// ports (dev) or subdomains (prod). Set
 // AUTH_COOKIE_DOMAIN explicitly for any non-localhost environment; there is
 // no environment-detection fallback here, only a dev-friendly default.
 func CookieDomain() string {
@@ -19,7 +19,7 @@ func CookieDomain() string {
 
 // cookieSecure reports whether the session cookie should carry the Secure
 // attribute. Explicit env var rather than an environment guess, same "loud,
-// never a silent default" principle DESIGN.md already applies to AUTH_MOCK -
+// never a silent default" principle as AUTH_MOCK -
 // must be set true in any deployment actually served over HTTPS.
 func cookieSecure() bool {
 	return os.Getenv("AUTH_COOKIE_SECURE") == "true"

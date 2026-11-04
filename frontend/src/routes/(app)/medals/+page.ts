@@ -4,9 +4,8 @@ import { getSemesterOrThrowSvelteError } from "$lib/utils/url";
 import { toString as semesterToString } from "$lib/utils/semesters";
 import { api } from "$lib/api/client";
 
-// The old load's sync() call (search-index sync) is dropped, not ported -
-// an unrelated later-phase concern (see DESIGN.md's roadmap "Search"
-// phase), not medals' job.
+// The old load's sync() call (search-index sync) is dropped - search
+// indexing isn't medals' job.
 export const load: PageLoad = async ({ fetch, url }) => {
   const semester = getSemesterOrThrowSvelteError(url);
   const res = await api.GET("/medals", {

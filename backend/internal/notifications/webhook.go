@@ -25,7 +25,7 @@ const nollningTagPrefix = "[NOLLNING]"
 // src/lib/news/server/webhooks.ts, recovered from before articles was
 // ported), including its config source: the admin_settings table's
 // "discord_webhook_se"/"webhook_tags_se" keys (an admin-editable runtime
-// setting, not an env var - see DESIGN.md's Phase 9 entry for why).
+// setting, not an env var, so admins can change it without a deploy).
 type RealWebhooker struct {
 	svc *Service
 }
@@ -247,9 +247,7 @@ func postDiscordWebhook(ctx context.Context, webhookURL string, body []byte) err
 
 // limitDescription mirrors webhooks.ts's limitDescription exactly,
 // including its slightly redundant two-step truncation (replicated
-// faithfully rather than "fixed" - see backend/CLAUDE.md's convention of
-// leaving intentional-looking old-app behavior alone absent evidence it's a
-// bug).
+// faithfully rather than "fixed", absent evidence it's a bug).
 func limitDescription(text string) string {
 	description := strings.ReplaceAll(text, "\n", " ")
 	if len(description) > 256-3 {

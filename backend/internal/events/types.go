@@ -26,7 +26,7 @@ type (
 // only, not full lists - EventDetail adds the full lists. This
 // deliberately diverges from the old Prisma getAllEvents/getEvent, which
 // both eagerly loaded full going/interested/comment lists even for list
-// views (see DESIGN.md's events section) - the same "summary vs detail"
+// views - the same "summary vs detail"
 // split articles' ArticleSummary/ArticleDetail already established.
 type EventSummary struct {
 	ID                 string    `json:"id"`
@@ -61,8 +61,7 @@ type EventSummary struct {
 	GoingCount      int        `json:"goingCount"`
 	InterestedCount int        `json:"interestedCount"`
 	// NollningSeasonID associates this event with a nollning season - see
-	// articles.ArticleSummary's identical field and DESIGN.md's nollning
-	// section.
+	// articles.ArticleSummary's identical field.
 	NollningSeasonID *string `json:"nollningSeasonId,omitempty" doc:"The nollning season the event belongs to."`
 }
 
@@ -82,9 +81,8 @@ type EventDetail struct {
 	// themselves enforce (see Service.detail) - CanEdit mirrors Update's
 	// author-or-EventUpdate bypass, CanDelete mirrors Delete's
 	// EventDelete-only check (no author bypass - see Delete's doc comment).
-	// See articles.ArticleDetail's identical fields and DESIGN.md's
-	// "Principles going forward" #5 for why the frontend must read these
-	// rather than recompute them.
+	// The frontend reads these rather than recompute them: Go is the only
+	// place authorization is decided.
 	CanEdit   bool `json:"canEdit"   doc:"Whether the caller may edit the event (its author, or event:update)."`
 	CanDelete bool `json:"canDelete" doc:"Whether the caller may delete the event (event:delete)."`
 	// Recurring is the series this event belongs to (its type, separation

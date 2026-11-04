@@ -63,7 +63,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
       zod4(eventSchema.and(z.object({ editType: actionType }))),
     ),
     // From Go (EventDetail.canDelete) - see the event detail page's
-    // +page.server.ts and DESIGN.md's "Principles going forward" #5.
+    // +page.ts.
     canDelete: event.canDelete,
   };
 };

@@ -8,8 +8,7 @@ import * as m from "$paraglide/messages";
 
 // admin:shlink:read/create/update/delete (Go's apinames.AdminShlink*) are
 // enforced by Go itself now (internal/links, a thin wrapper around Shlink's
-// own REST API, see backend/CLAUDE.md's Admin routes section) - no
-// authorize() call here, matching DESIGN.md's Principle #5.
+// own REST API) - no authorize() call here.
 
 const VALID_ORDER = [
   "title",

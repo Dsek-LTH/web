@@ -12,9 +12,8 @@ import type { PageServerLoad } from "./$types";
 //
 // admin:settings:read/update/delete (Go's apinames.AdminSettings*) are
 // enforced by Go itself now (internal/adminsettings) - no authorize() call
-// here, matching DESIGN.md's Principle #5. The old update/remove actions
-// had no authorize() call at all either, so this is a real fix, not a
-// replicated gap - see backend/CLAUDE.md's Admin routes section.
+// here. The old update/remove actions had no authorize() call at all
+// either, so Go's check is a real fix, not a replicated gap.
 
 export const load: PageServerLoad = async (event) => {
   const api = serverApi(event);

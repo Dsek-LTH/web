@@ -12,9 +12,8 @@ import (
 // when the columns are identical, so callers adapt their row into this one
 // with a trivial field-for-field copy, then call toCommittee once. This is
 // the single place Committee's field resolution (Name/Description from
-// their Sv/En pairs) lives - see toPosition below for the same pattern,
-// and DESIGN.md's note on why this replaced inlining the resolve calls at
-// every construction site.
+// their Sv/En pairs) lives, rather than at every construction site - see
+// toPosition below for the same pattern.
 type committeeRow struct {
 	ID            pgtype.UUID
 	NameSv        string

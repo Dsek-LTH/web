@@ -27,10 +27,10 @@
   // backend/internal/governingdocs) - matching the old app's single
   // GOVERNING_DOCUMENT.CREATE/UPDATE/DELETE policy string exactly. A plain
   // policies.includes() read, same as Song/Alert's own list pages already
-  // do - not the isAuthorized()/getDerivedRoles-style reimplementation
-  // DESIGN.md's Principle #5 rules out (that's about recomputing a
-  // per-resource "can this identity touch this thing" decision, not
-  // reading an already-resolved flat policy list for a visibility toggle).
+  // do - not a reimplementation of authorization (that would be
+  // recomputing a per-resource "can this identity touch this thing"
+  // decision, which is Go's alone, not reading an already-resolved flat
+  // policy list for a visibility toggle).
   let canWrite = $derived(
     data.user?.policies?.includes(apiNames.GOVERNING_DOCUMENT.CREATE) ?? false,
   );
@@ -39,7 +39,7 @@
   let canDelete = $derived(canWrite);
   let canEdit = $derived(canUpdate || canDelete);
 
-  // Pure-proxy mutation (see DESIGN.md's Principle #5) - direct Go call, no
+  // Pure-proxy mutation - direct Go call, no
   // SvelteKit action, matching RemoveArticleDialog.svelte's pattern.
   async function removeDocument(id: string) {
     const res = await api.DELETE("/governing-documents/{id}", {

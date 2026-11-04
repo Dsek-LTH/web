@@ -10,8 +10,7 @@ import { isNotificationSettingType } from "$lib/notifications/settingTypes";
 // Both settingsLoad and settingsActions now call Go's
 // GET/PUT /notification-settings and GET /tags (backend/internal/api/
 // huma_notifications.go) instead of prisma.subscriptionSetting/
-// prisma.member.subscribedTags directly - see backend/CLAUDE.md's
-// "Notifications routes" section. subscribedTags's old shape
+// prisma.member.subscribedTags directly. subscribedTags's old shape
 // ({ subscribedTags: Tag[] }) is gone - the Go settings response only
 // carries subscribedTagIds, so +page.svelte checks tag.id membership
 // against that list instead of matching by name.

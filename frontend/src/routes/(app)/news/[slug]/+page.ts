@@ -27,8 +27,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
 
   // canEdit/canDelete come straight from Go (ArticleDetail.canEdit/
   // canDelete), computed server-side from the same author-or-policy check
-  // Update/Delete themselves enforce - see DESIGN.md's "Principles going
-  // forward" #5. Nothing here reimplements authorization.
+  // Update/Delete themselves enforce. Nothing here reimplements
+  // authorization.
   return {
     article,
     canEdit: article.canEdit,

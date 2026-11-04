@@ -95,8 +95,8 @@ type ArticleSummary struct {
 	// live - see Service.syncNotifications and Service.AnnounceDue.
 	ShouldSendNotification bool    `json:"sendNotification"           doc:"Whether subscribers are notified when it goes live."`
 	NotificationText       *string `json:"notificationText,omitempty" doc:"Custom notification text; the header is used if unset."`
-	// NollningSeasonID associates this article with a nollning season -
-	// see DESIGN.md's nollning section. Setting/changing it to a non-null
+	// NollningSeasonID associates this article with a nollning season.
+	// Setting/changing it to a non-null
 	// value requires apinames.NollningContentAssociate (see Service.Create/
 	// Update); leaving it unset or resubmitting the current value doesn't.
 	NollningSeasonID *string `json:"nollningSeasonId,omitempty" doc:"The nollning season the article belongs to."`
@@ -115,8 +115,7 @@ type ArticleDetail struct {
 	// CanEdit/CanDelete are the acting identity's own permissions on this
 	// article, computed server-side from the exact same author-or-policy
 	// checks Update/Delete themselves enforce (see Service.detail) - the
-	// frontend reads these instead of recomputing authorization itself. See
-	// DESIGN.md's "Principles going forward" #5 for why this exists: Go is
+	// frontend reads these instead of recomputing authorization itself: Go is
 	// the sole source of truth for authorization, even client-side-only
 	// reads of a policy array count as a forbidden reimplementation.
 	CanEdit   bool `json:"canEdit"   doc:"Whether the caller may edit the article (its author, or news:article:update)."`

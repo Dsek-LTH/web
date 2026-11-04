@@ -1,9 +1,8 @@
 // Package api registers every endpoint on huma (code-first: handlers take
 // and return typed Go structs, and huma derives the OpenAPI document from
-// them, so it cannot drift from the code). See ../../DESIGN.md's "API
-// shape and frontend integration" section for why huma was chosen.
+// them, so it cannot drift from the code).
 //
-// Conventions (DESIGN.md, phase 17): plural kebab-case paths; POST creates
+// Conventions: plural kebab-case paths; POST creates
 // (201), PUT replaces (200), DELETE removes (204); other state changes are
 // POST /{resource}/{key}/{verb}; every operation has one tag; request
 // bodies are named <Thing>Input; lists never come back null.

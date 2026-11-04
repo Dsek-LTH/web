@@ -16,7 +16,7 @@ import (
 )
 
 // Me is what hooks.server.ts reads instead of doing its own OIDC +
-// role/policy derivation - see DESIGN.md's Auth section.
+// role/policy derivation: Go is the session authority.
 type Me struct {
 	StudentID string    `json:"studentId"        doc:"Empty for an anonymous caller."`
 	MemberID  string    `json:"memberId"         doc:"Empty for an anonymous caller."`

@@ -36,7 +36,7 @@
     data.user?.policies?.includes(apiNames.SONG.DELETE),
   );
 
-  // Pure-proxy mutations (see DESIGN.md's Principle #5): call the Go API
+  // Pure-proxy mutations: call the Go API
   // directly, no SvelteKit action - Go's own
   // auth.Require(apinames.SongDelete) is the only real gate either way.
   async function removeSong() {

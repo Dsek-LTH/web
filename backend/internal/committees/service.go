@@ -1,7 +1,6 @@
 // Package committees is the directory-foundation committee/position/mandate
-// domain. See backend/DESIGN.md's roadmap "Phase 1: directory foundation"
-// for scope - notably, the board page and its SEE_STABEN staben-hiding
-// logic are deliberately NOT here, deferred to Phase 2's nollning redesign.
+// domain, plus the board (ListBoard), whose staben redaction asks
+// internal/nollning.
 package committees
 
 import (
@@ -38,8 +37,7 @@ type Service struct {
 }
 
 // nollning is used by ListBoard to know which committee's positions to
-// redact from viewers without apinames.MemberSeeStaben (see DESIGN.md's
-// nollning section) - no import-cycle risk the way internal/auth's
+// redact from viewers without apinames.MemberSeeStaben - no import-cycle risk the way internal/auth's
 // dependency on internal/nollning has, since internal/nollning never
 // imports this package.
 func NewService(dbtx db.DBTX, nollningSvc *nollning.Service) *Service {
@@ -315,7 +313,7 @@ func (s *Service) ListPositions(ctx context.Context) ([]Position, error) {
 // InjectStabenPolicy has already granted everyone that policy by default,
 // so this is a no-op filter then. Replaces the old TS board page's
 // `position.id.startsWith("dsek.noll")` hack with a real committee_id
-// comparison (see DESIGN.md's nollning section).
+// comparison.
 func (s *Service) ListBoard(ctx context.Context) ([]BoardPosition, error) {
 	rows, err := s.queries.ListBoard(ctx)
 	if err != nil {

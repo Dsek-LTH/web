@@ -31,8 +31,8 @@
     return isMeetingType(requested) ? requested : dt.boardMeeting;
   });
 
-  // Sort order stays a display-only concern (not authorization/validation,
-  // so Principle #5 doesn't apply) - ported verbatim from the old
+  // Sort order stays a display-only concern (not authorization or
+  // validation, which are Go's) - ported verbatim from the old
   // Object.keys(data.meetings).sort(...), now operating on
   // Meeting[]/.name instead of the old Record<string, FileData[]>'s keys.
   let meetings = $derived(
@@ -54,8 +54,8 @@
   );
 
   // Flat policy-list reads (see governing-documents' list page precedent),
-  // not the isAuthorized()/getDerivedRoles-style per-resource
-  // recomputation DESIGN.md's Principle #5 rules out. Delete's bucket -
+  // not a per-resource authorization decision (those are Go's alone).
+  // Delete's bucket -
   // and therefore its policy - depends on the active tab, mirroring
   // backend/internal/documents.Service.deleteTarget exactly (SRD lives in
   // the files bucket, every other tab in documents).

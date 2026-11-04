@@ -1,5 +1,4 @@
-// Package alerts is the site-wide banner-message domain - see DESIGN.md's
-// Phase 3 ("Simple standalone CRUD") section. Ported from
+// Package alerts is the site-wide banner-message domain. Ported from
 // src/routes/(app)/admin/alerts and the old api/closeAlert endpoint.
 package alerts
 

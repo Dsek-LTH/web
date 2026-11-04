@@ -1,8 +1,7 @@
 // getExistingCategories/getExistingMelodies/canAccessDeletedSongs/
 // fixSongText/groupCategories all moved server-side into the Go API
 // (backend/internal/songs - GET /songs/categories(/grouped), /melodies;
-// FixSongText/GroupCategories in text.go) as part of DESIGN.md's Phase 3 -
-// see backend/CLAUDE.md's Songbook routes section. mayWatchVideos stays
+// FixSongText/GroupCategories in text.go). mayWatchVideos stays
 // here: a purely client-visible UI gate over data already sent to the
 // client (see the song pages' own note on this), not a real
 // access boundary Go needs to enforce.

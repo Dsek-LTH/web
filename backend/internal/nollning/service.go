@@ -84,8 +84,7 @@ func (s *Service) GetCurrent(ctx context.Context) (*NollningStatus, error) {
 
 // NollaYear is the year auth.DerivedRoles' "nolla" pseudo-role should
 // compare a member's classYear against: the current season's year if one
-// is active, else the calendar year (see DESIGN.md's decision #3 - a
-// season boundary crossing a calendar year, e.g. starting in August,
+// is active, else the calendar year (a season boundary crossing a calendar year, e.g. starting in August,
 // should resolve consistently with every other nollning date check rather
 // than each caller computing time.Now().Year() independently).
 func (s *Service) NollaYear(ctx context.Context) (int, error) {
@@ -105,7 +104,7 @@ func (s *Service) NollaYear(ctx context.Context) (int, error) {
 // a real access-policy row keep it. Mirrors the old
 // hooks.server.helpers.ts fetchAccessPolicies behavior exactly, just named
 // and independently callable instead of a side effect buried inside a
-// generic policy fetch (see DESIGN.md's decision on SEE_STABEN).
+// generic policy fetch.
 func (s *Service) InjectStabenPolicy(ctx context.Context, policies []string) ([]string, error) {
 	season, err := s.Current(ctx)
 	if err != nil {
@@ -208,9 +207,8 @@ func (s *Service) ListSeasons(ctx context.Context) ([]NollningSeason, error) {
 }
 
 // CreateSeason resolves OrganizingCommitteeID from the committee whose
-// short_name is "nollu" when the caller doesn't supply one - see
-// DESIGN.md's decision #2 (a per-season, overridable FK rather than a
-// hardcoded package constant).
+// short_name is "nollu" when the caller doesn't supply one - a per-season,
+// overridable FK rather than a hardcoded package constant.
 func (s *Service) CreateSeason(
 	ctx context.Context,
 	in NollningSeasonInput,
@@ -301,8 +299,7 @@ func (s *Service) resolveOrganizingCommittee(
 
 // ListGroups/GetGroup/CreateGroup/UpdateGroup/DeleteGroup and the nolla/
 // phadder membership methods below mirror
-// committees/nollu/groups/manage/+page.server.ts's six actions exactly -
-// see DESIGN.md's phadder-group section.
+// committees/nollu/groups/manage/+page.server.ts's six actions exactly.
 
 func (s *Service) ListGroups(ctx context.Context, seasonID *string) ([]PhadderGroup, error) {
 	seasonUUID, err := dbutil.ParseUUIDPtr(seasonID)

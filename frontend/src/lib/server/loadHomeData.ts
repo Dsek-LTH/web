@@ -109,8 +109,7 @@ export const loadHomeData = async (event: RequestEvent) => {
   // Ordered soonest-closing first (the Go API's only order for this list),
   // not newest-announced first like the old query - a deliberate
   // simplification for a 3-item homepage widget rather than adding a
-  // second order variant to the endpoint (see DESIGN.md's "Elections"
-  // section).
+  // second order variant to the endpoint.
   const electionsPromise = api
     .GET("/elections")
     .then((res) => (res.data ?? []).slice(0, 3));

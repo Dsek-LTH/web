@@ -15,7 +15,7 @@
   import { invalidateAll } from "$app/navigation";
   import { toast } from "$lib/stores/toast";
 
-  // Pure-proxy mutations (DESIGN.md's principle #5): the picture is
+  // Pure-proxy mutations: the picture is
   // cropped and scaled here in the browser, then uploaded straight to Go,
   // which stores it and makes it the member's avatar.
   let { data }: { data: PageData | EditPageData } = $props();

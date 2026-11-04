@@ -1,8 +1,6 @@
 // Package members is the directory-foundation member domain: the member
-// list/profile/update endpoints. See backend/DESIGN.md's roadmap "Phase 1:
-// directory foundation" for scope and the deliberate cuts (avatar upload,
-// medals, ping, door access, subscription settings - each belongs to a
-// different, later phase).
+// list/profile/update endpoints, profile pictures (picture.go) and
+// birthdays (birthday.go).
 package members
 
 import (
@@ -228,7 +226,7 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 
 // UpdateProfile full-replaces the profile fields (not food preference, not
 // email, not nollningGroupId - see UpdateFoodPreference and
-// backend/DESIGN.md's Phase 2 nollning redesign). Authorized as self or
+// internal/nollning's phadder-group membership). Authorized as self or
 // MemberUpdate - the old TS actions had no server-side check at all here,
 // only client-side button-hiding; this is a real fix, not a replicated gap.
 func (s *Service) UpdateProfile(

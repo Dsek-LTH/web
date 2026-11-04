@@ -360,11 +360,10 @@ type GetArticleRowBySlugRow struct {
 
 // Unfiltered lookup: no publish/removed filter. Used internally after
 // create/update (so the caller gets back exactly what it just wrote even if
-// it's a future scheduled draft), and by the ArticleByAnySlug service method
-// for callers - like the SvelteKit edit page - that need to load a draft or
-// future-scheduled article by its own author. There's no auth on this API,
-// so this is no more exposed than the existing unauthenticated mutations;
-// see backend/CLAUDE.md.
+// it's a future scheduled draft), and by articles.Service.GetHidden for
+// callers - like the SvelteKit edit page - that need to load a draft or
+// future-scheduled article. GetHidden only returns a hidden article to
+// someone who may edit it.
 func (q *Queries) GetArticleRowBySlug(ctx context.Context, slug string) (GetArticleRowBySlugRow, error) {
 	row := q.db.QueryRow(ctx, getArticleRowBySlug, slug)
 	var i GetArticleRowBySlugRow

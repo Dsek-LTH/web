@@ -20,7 +20,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
         },
       },
     }),
-    // Go decides (from the acting identity, per DESIGN.md's Principle #5)
+    // Go decides (from the acting identity)
     // whether onlyDeleted/includeDeleted are actually honored - this just forwards the
     // caller's request, same as the old app's canAccessDeletedSongs gate.
     api.GET("/songs/categories/grouped", {

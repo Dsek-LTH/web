@@ -120,8 +120,8 @@ WHERE (
 
 -- name: GetEventBySlug :one
 -- Public lookup: hides soft-removed events, same visibility rule as
--- ListEvents. The old TS getEvent() applied no such filter at all (see
--- DESIGN.md's events section) - fixed here rather than replicated.
+-- ListEvents. The old TS getEvent() applied no such filter at all - fixed
+-- here rather than replicated.
 SELECT
     e.id, e.title_sv, e.title_en, e.description_sv, e.description_en, e.link,
     e.location, e.organizer, e.author_id, e.short_description_sv,

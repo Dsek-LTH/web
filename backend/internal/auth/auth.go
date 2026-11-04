@@ -1,9 +1,8 @@
 // Package auth is the authorization boundary for this API: an Identity
 // resolved per-request, carried in context, and checked against policy
-// strings (see internal/apinames). There is currently only a mock
-// Authenticator (see mock.go) - see ../../DESIGN.md's Auth section for why
-// that's intentional rather than a shortcut, and what a real
-// implementation needs to slot in behind this same interface.
+// strings (see internal/apinames). RealAuthenticator (real.go) resolves
+// the Identity from the session cookie; MockAuthenticator (mock.go), for
+// local development only, stands in for it behind the same interface.
 package auth
 
 import (

@@ -14,8 +14,7 @@ import (
 // nollaYear replaces the TS original's bare time.Now().Year() for the
 // "nolla" role - callers pass internal/nollning.Service.NollaYear(ctx) so a
 // nollning season crossing a calendar year (e.g. starting in August)
-// resolves consistently with every other nollning date check (see
-// DESIGN.md's nollning section, decision #3) instead of each call site
+// resolves consistently with every other nollning date check, instead of each call site
 // computing the calendar year independently.
 func DerivedRoles(
 	groupList []string,

@@ -24,7 +24,7 @@ async function uploadImage(
 // and the schedule-vs-notify-now decision all now happen server-side in
 // the Go API (backend/internal/articles, backend/internal/integrations) -
 // this file just validates the form, uploads images, and forwards the
-// result. See ../../../DESIGN.md.
+// result.
 
 export const createArticle: Action = async (event) => {
   const { request } = event;
@@ -66,8 +66,8 @@ export const createArticle: Action = async (event) => {
     publishedAt: (publishTime ?? new Date()).toISOString(),
     sendNotification,
     notificationText: notificationText ?? null,
-    // No season picker UI exists yet for articles (see backend/CLAUDE.md's
-    // Nollning routes section) - always null here until one's built.
+    // No season picker UI exists yet for articles - always null here until
+    // one's built.
     nollningSeasonId: null,
   };
 

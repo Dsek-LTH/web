@@ -1,8 +1,8 @@
 // Package integrations declares the external systems article handling
 // depends on: push notifications, the Discord webhook, and image storage.
 // Each started out as an interface with only a mock implementation
-// (mock.go) - see ../../DESIGN.md's "Mocking out-of-scope dependencies"
-// section; the real implementations live in internal/notifications and
+// (mock.go), so callers could be written against the real shape first;
+// the real implementations live in internal/notifications and
 // internal/storage. (Scheduled publishing had a Scheduler interface here
 // too; it was replaced by internal/articles' own announcement sweep.)
 package integrations
@@ -41,8 +41,7 @@ type LikeNotification struct {
 
 // EventNotification is what Notifier needs for an RSVP (going/interested)
 // notification to an event's organizer - mirrors interestedGoing.ts's two
-// sendNotification calls, closing the gap events.Service's own doc comment
-// flags (see DESIGN.md's Phase 9 entry).
+// sendNotification calls.
 type EventNotification struct {
 	EventID           string
 	Slug              string

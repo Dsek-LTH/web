@@ -56,7 +56,7 @@ func (BookingRequestStatus) Schema(r huma.Registry) *huma.Schema {
 }
 
 // BookingRequest's start/end/event/booker are nullable in the underlying
-// table (a historical looseness - see backend/CLAUDE.md) even though every
+// table (a historical looseness) even though every
 // real code path always sets them; kept as pointers to reflect that
 // honestly rather than assume NOT NULL.
 type BookingRequest struct {

@@ -15,8 +15,7 @@ import {
 } from "$lib/server/metrics";
 
 // Identity/session resolution (login, refresh, roles/policies) is owned
-// entirely by the Go backend (backend/internal/auth) - see DESIGN.md's Auth
-// section. This handle asks Go who the caller is (via the shared
+// entirely by the Go backend (backend/internal/auth). This handle asks Go who the caller is (via the shared
 // dsek_session cookie) and sets locals.user/locals.member from the answer.
 // Go's /auth/callback creates the member row on first login.
 const identityHandle: Handle = async ({ event, resolve }) => {

@@ -8,7 +8,7 @@
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
 
   // Matches the Go API's Tag shape (id/name/color, resolved name rather
-  // than nameSv/nameEn) - see backend/CLAUDE.md.
+  // than nameSv/nameEn).
   type TagLike = { id: string; name: string; color?: string };
 
   let {

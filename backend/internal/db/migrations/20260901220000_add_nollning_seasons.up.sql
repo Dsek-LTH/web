@@ -2,7 +2,7 @@
 -- nollning_start/nollning_end keys (src/lib/utils/adminSettings/nollning.ts)
 -- plus every hardcoded per-year date scattered across the old TS app
 -- (REVEAL_LAUNCH_DATE, nolla's CUTOFF_DATE, the nollning-events page's
--- weekStarts array) - see DESIGN.md's "Nollning: proposed redesign".
+-- weekStarts array).
 --
 -- organizing_committee_id names which committee's mandates count as
 -- "staben" for IsStaben/SEE_STABEN purposes (see internal/nollning) -

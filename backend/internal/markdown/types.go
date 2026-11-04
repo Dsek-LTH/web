@@ -11,9 +11,8 @@ type InfoPage struct {
 	MarkdownSv string  `json:"markdownSv"`
 	MarkdownEn *string `json:"markdownEn,omitempty"`
 	// CanEdit is computed server-side from the exact check Update itself
-	// runs (base MarkdownUpdate policy or this page's own dynamic grant) -
-	// see DESIGN.md's Principle #5. The frontend reads this field instead
-	// of calling isAuthorized with a dynamic policy string client-side.
+	// runs (base MarkdownUpdate policy or this page's own dynamic grant).
+	// The frontend reads this field instead of deciding itself.
 	CanEdit bool `json:"canEdit" doc:"Whether the caller may edit the page (markdown:update, or a grant for this page)."`
 }
 

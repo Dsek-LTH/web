@@ -34,8 +34,7 @@ type Service struct {
 // nollning is used by ListAlbums to redact pre-reveal albums from viewers
 // without apinames.MemberSeeStaben - same pattern as
 // internal/committees.Service.ListBoard, replacing the old
-// isNollningPeriod/getNollningStart AdminSetting-based date hack (see
-// ../../DESIGN.md's Phase 4 section).
+// isNollningPeriod/getNollningStart AdminSetting-based date hack.
 func NewService(store storage.Backend, nollningSvc *nollning.Service, bucket string) *Service {
 	return &Service{store: store, nollning: nollningSvc, bucket: bucket}
 }

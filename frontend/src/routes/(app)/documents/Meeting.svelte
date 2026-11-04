@@ -29,10 +29,9 @@
 
   // notice/agenda/minutes and the remaining files are now resolved
   // server-side (backend/internal/documents.buildMeeting) instead of this
-  // component's own client-side findFile logic - see backend/CLAUDE.md's
-  // Phase 4 section.
+  // component's own client-side findFile logic.
 
-  // Pure-proxy mutation (see DESIGN.md's Principle #5) - direct Go call, no
+  // Pure-proxy mutation - direct Go call, no
   // SvelteKit action, matching the governing-documents list page's
   // removeDocument pattern. Go derives the correct bucket from `type`,
   // fixing the old app's delete-always-hits-documentsBucket bug.

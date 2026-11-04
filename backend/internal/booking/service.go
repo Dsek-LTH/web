@@ -1,5 +1,5 @@
-// Package booking is the booking domain (bookables + booking requests) -
-// see DESIGN.md's Phase 5 ("Booking") section. Ported from
+// Package booking is the booking domain (bookables + booking requests).
+// Ported from
 // src/routes/(app)/booking/*.
 package booking
 
@@ -354,8 +354,8 @@ func (s *Service) Get(ctx context.Context, id string) (*BookingRequest, error) {
 // reach this far (auth.Require already failed).
 //
 // Returns the created request plus any non-DENIED requests that overlap it
-// in time for at least one shared bookable - a non-blocking warning
-// (2026-09-02 decision, see DESIGN.md's Booking section): the old app never
+// in time for at least one shared bookable - a non-blocking warning: the
+// old app never
 // checked for this at all, so Go surfaces it as information rather than
 // rejecting the request outright.
 func (s *Service) Create(
@@ -422,8 +422,7 @@ func (s *Service) Create(
 // (has(BookingRequestUpdate) || auth().memberId == bookerId) to update too
 // - the old zmodel only allowed the former for update, meaning in practice
 // only an admin-equivalent caller could ever edit a booking, including
-// their own; this closes that gap deliberately (see DESIGN.md's Booking
-// section) rather than replicate a booker being unable to edit their own
+// their own; this closes that gap deliberately rather than replicate a booker being unable to edit their own
 // pending request the way they can already delete it. A self-edit resets
 // status to PENDING (forcing re-review); an admin edit (someone holding
 // BookingRequestUpdate) preserves whatever status was submitted.

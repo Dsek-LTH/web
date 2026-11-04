@@ -14,8 +14,7 @@ type EventInput = components["schemas"]["EventInput"];
 // recurring series), recurring-series expansion, DST-safe wall-clock
 // reconstruction, author resolution, and body sanitization all now happen
 // server-side in the Go API (backend/internal/events) - this file just
-// validates the form, uploads the image, and forwards the result. See
-// ../../../DESIGN.md's events section.
+// validates the form, uploads the image, and forwards the result.
 
 async function uploadImage(file: File): Promise<string> {
   const res = await api.POST("/images", { body: { file }, ...multipart });
@@ -45,8 +44,8 @@ function toEventInput(
     alarmActive: data.alarmActive ?? false,
     isCancelled: data.isCancelled ?? false,
     tagIds: data.tags.filter((tag) => !!tag).map((tag) => tag.id),
-    // No season picker UI exists yet for events (see backend/CLAUDE.md's
-    // Nollning routes section) - always null here until one's built.
+    // No season picker UI exists yet for events - always null here until
+    // one's built.
     nollningSeasonId: null,
     recurring: data.isRecurring
       ? {

@@ -22,12 +22,10 @@ type ListCustomAuthorsRow struct {
 	ImageUrl pgtype.Text `json:"image_url"`
 }
 
-// Unfiltered: the old TS backend restricted this list to custom authors
-// whose custom_author_roles matched one of the member's Keycloak-derived
-// roles (getDerivedRoles) - that role-derivation system isn't ported to Go
-// (see ../../DESIGN.md's Auth section on the mock RBAC gap), so for now
-// every member can choose from every custom author. Revisit once real
-// roles exist.
+// Unfiltered: every member can choose from every custom author. The old
+// TS backend restricted this list to custom authors whose
+// custom_author_roles matched one of the member's roles; that filter isn't
+// ported.
 func (q *Queries) ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error) {
 	rows, err := q.db.Query(ctx, listCustomAuthors)
 	if err != nil {

@@ -12,10 +12,8 @@ import (
 )
 
 // RealNotifier implements integrations.Notifier for real, replacing
-// MockNotifier - see DESIGN.md's Phase 9 entry. Each method mirrors one old
-// TS sendNotification call site exactly (see backend/CLAUDE.md's
-// "Notifications routes" section for the full call-site inventory);
-// title/message text is synthesized here rather than passed in, matching
+// MockNotifier. Each method mirrors one old TS sendNotification call site
+// exactly; title/message text is synthesized here rather than passed in, matching
 // how the mocked interface was already shaped (callers pass structured
 // facts, not pre-rendered strings).
 type RealNotifier struct {
@@ -230,7 +228,7 @@ func (s *Service) memberPlainName(ctx context.Context, memberID string) (string,
 
 // stripToText is a lightweight stand-in for markdownToTxt(...).slice(0,254):
 // collapses newlines to spaces and truncates. Accepted simplification, not a
-// full markdown-to-plaintext port - see DESIGN.md's Phase 9 entry.
+// full markdown-to-plaintext port.
 func stripToText(s string, limit int) string {
 	s = strings.Join(strings.Fields(s), " ")
 	if len(s) > limit {

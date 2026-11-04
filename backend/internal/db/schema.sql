@@ -10,8 +10,7 @@
 -- songs/documents/alerts/_alerts_closed_by all pre-date this Go port (they
 -- were created by Prisma's own migration history, already applied to the
 -- live DB and already carried forward into internal/db/migrations as part
--- of that baseline copy - see DESIGN.md's "DB migrations, once Prisma is
--- gone"). No new migration was needed to add them here; they're just newly
+-- of that baseline copy). No new migration was needed to add them here; they're just newly
 -- described in this file so sqlc can generate code against them.
 --
 -- This mirrors tables that already exist in the shared database (previously
@@ -64,7 +63,6 @@ CREATE TABLE email_aliases (
 -- Go-owned from creation (see internal/db/migrations/20260901220000_...) -
 -- one row per nollning year, replacing the old AdminSetting-backed time
 -- window plus every hardcoded per-year date scattered across the TS app.
--- See DESIGN.md's "Nollning: proposed redesign".
 CREATE TABLE nollning_seasons (
     id                      UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     year                    INTEGER NOT NULL UNIQUE,
@@ -190,8 +188,7 @@ CREATE TABLE articles (
     CONSTRAINT enforce_status_type CHECK (
         status = 'draft' OR status = 'approved' OR status = 'rejected'
     ),
-    -- Added by migration 20260901220100_add_nollning_season_id_to_content -
-    -- see DESIGN.md's "Content classification" decision.
+    -- Added by migration 20260901220100_add_nollning_season_id_to_content.
     nollning_season_id       UUID REFERENCES nollning_seasons (id),
     -- Added by upstream's 20261102190000_add_article_discord_announced_at
     -- (carried into internal/db/migrations): set while/once the article
@@ -264,7 +261,7 @@ CREATE TYPE "recurringType" AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY');
 
 -- One row per recurring series; individual occurrences are pre-materialized
 -- as ordinary rows in `events` (see recurring_parent_id below) at creation
--- time, not expanded at read time - see DESIGN.md's events section.
+-- time, not expanded at read time.
 -- Renamed from "RecurringEvent" to recurring_event by upstream's
 -- 20260914163028_fix_recurringevent_table migration (carried into
 -- internal/db/migrations during the Phase 12 upstream sync).
@@ -299,8 +296,8 @@ CREATE TABLE events (
     is_detatched          BOOLEAN NOT NULL DEFAULT false,
     recurring_parent_id   UUID REFERENCES recurring_event (id),
     is_cancelled          BOOLEAN DEFAULT false,
-    -- Ticket relation deliberately not modeled - see DESIGN.md's "Shop /
-    -- tickets: cut from scope entirely".
+    -- Ticket relation deliberately not modeled: the webshop (shop/tickets/
+    -- orders/payments) is out of scope.
     -- Added by migration 20260901220100_add_nollning_season_id_to_content.
     nollning_season_id    UUID REFERENCES nollning_seasons (id),
     -- Added by upstream's 20260921190000_add_committee_to_events migration.
@@ -392,9 +389,8 @@ CREATE TYPE document_type AS ENUM (
 -- "documents" here is the governing-documents (styrdokument) feature at
 -- /documents/governing - url is a plain string the author pastes in, no
 -- real file storage involved, unlike the MinIO-backed /documents,
--- /documents/requirements, /documents/upload browsing (no Prisma model at
--- all, deferred to Phase 4 - see DESIGN.md's Phase 3 section for why these
--- two "documents" things are unrelated despite the shared URL prefix).
+-- /documents/requirements, /documents/upload browsing (internal/documents,
+-- no table at all) - the two are unrelated despite the shared URL prefix.
 CREATE TABLE documents (
     id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     title      VARCHAR(255) NOT NULL,
@@ -459,7 +455,7 @@ CREATE TABLE elections (
     expires_at   TIMESTAMPTZ NOT NULL
 );
 
--- Phase 8 ("Cafe" - see DESIGN.md's roadmap). "workerId" is genuinely
+-- Cafe. "workerId" is genuinely
 -- camelCase in the live table (confirmed via psql \d, not schema.zmodel),
 -- same situation as phadder_groups."createdAt"/bookables."isDisabled".
 CREATE TYPE time_slots AS ENUM ('DAYMANAGER', 'SHIFT_1', 'SHIFT_2', 'SHIFT_3');
@@ -480,8 +476,7 @@ CREATE TABLE ciabatta_of_the_week (
     UNIQUE (year, week)
 );
 
--- Phase 9 ("Real notifications + Discord webhook" - see DESIGN.md's
--- roadmap). All five tables below pre-date this Go port (Prisma-created,
+-- Notifications. All five tables below pre-date this Go port (Prisma-created,
 -- part of the original copied migration history) - schema.sql additions
 -- only, no new migration, same as songs/alerts/booking/elections/cafe.
 --
@@ -520,8 +515,7 @@ CREATE TABLE subscription_settings (
 -- AdminSetting-backed nollning-period window (superseded by
 -- nollning_seasons in Phase 2) and the Discord webhook config Phase 9
 -- reuses (keys "discord_webhook_se"/"webhook_tags_se"). Real CRUD over
--- this table (internal/adminsettings) shipped in Phase 11 ("Admin
--- consolidation") - see backend/CLAUDE.md's "Admin routes" section.
+-- this table is internal/adminsettings.
 CREATE TABLE admin_settings (
     key        VARCHAR(255) PRIMARY KEY,
     value      VARCHAR(255),
@@ -540,7 +534,7 @@ CREATE TABLE _member_tag_subscriptions (
 CREATE UNIQUE INDEX _member_tag_subscriptions_ab_unique ON _member_tag_subscriptions ("A", "B");
 CREATE INDEX _member_tag_subscriptions_b_index ON _member_tag_subscriptions ("B");
 
--- Phase 10 ("Doors/Salto" - see DESIGN.md's roadmap). "id" is a
+-- Doors. "id" is a
 -- nullable, unused-by-any-query legacy field (confirmed via psql \d, no
 -- schema.zmodel drift here) - kept for fidelity, not referenced anywhere.
 CREATE TABLE doors (

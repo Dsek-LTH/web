@@ -1,6 +1,5 @@
 // Package governingdocs is the governing-documents (styrdokument) domain
-// behind /documents/governing - see DESIGN.md's Phase 3 ("Simple
-// standalone CRUD") section. Ported from
+// behind /documents/governing. Ported from
 // src/routes/(app)/documents/governing/*.
 package governingdocs
 
@@ -147,7 +146,7 @@ func (s *Service) Update(
 	return &doc, nil
 }
 
-// Delete is a real soft-delete (per DESIGN.md's Phase 3 decision) - the old
+// Delete is a real soft-delete - the old
 // app's delete action did a hard prisma.document.delete despite the
 // deletedAt column existing, effectively dead schema. Fixed here to match
 // Song/Article/Event's existing soft-delete convention, not replicated.

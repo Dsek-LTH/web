@@ -7,10 +7,9 @@ import (
 
 // MockAuthenticator treats every request as authenticated as a single
 // fixed Identity, regardless of any credentials (or lack thereof) on the
-// request. This stands in for real auth while the site is non-production
-// for the duration of the rewrite - see ../../DESIGN.md's Auth section.
-// It is not a fallback for missing credentials on an otherwise-real
-// authenticator; it is the *only* authenticator right now.
+// request. It stands in for RealAuthenticator in local development
+// (AUTH_MOCK=true) only. It is not a fallback for missing credentials on
+// an otherwise-real authenticator.
 type MockAuthenticator struct {
 	identity *Identity
 }

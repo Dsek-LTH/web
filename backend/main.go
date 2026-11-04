@@ -72,8 +72,7 @@ func main() {
 	// rows are always created for real) - default true (mock/no-op) unless
 	// explicitly set to "false", same "explicit opt-in to real, loud either
 	// way" shape as AUTH_MOCK/STORAGE_MOCK. This should stay true for any
-	// non-production environment sharing the live dev DB's real device
-	// tokens - see DESIGN.md's Phase 9 entry.
+	// non-production environment that may hold real device tokens.
 	pushMock := os.Getenv("PUSH_MOCK") != "false"
 	if pushMock {
 		log.Println(
@@ -94,8 +93,7 @@ func main() {
 	// login redirects/CORS to work at all (see internal/api.withCORS), so
 	// it can't accidentally still say "localhost" there the way an
 	// inherited AUTH_MOCK=true from the git-tracked .env could
-	// accidentally still say "true" - see DESIGN.md's Auth section for
-	// the AUTH_MOCK-defaults-on-in-.env decision this backstops.
+	// accidentally still say "true".
 	frontendURL, err := url.Parse(frontendOrigin)
 	if err != nil {
 		log.Fatalf("PUBLIC_FRONTEND_URL is not a valid URL: %v", err)
@@ -274,8 +272,7 @@ func mockIdentity(ctx context.Context, queries *db.Queries) (*auth.Identity, err
 }
 
 // newRealAuth builds the OIDC client and RealAuthenticator - the default
-// (AUTH_MOCK unset or not "true") per DESIGN.md's Auth section: the mock
-// must be an explicit opt-in, never a silent fallback for missing config.
+// (AUTH_MOCK unset or not "true"): the mock must be an explicit opt-in, never a silent fallback for missing config.
 func newRealAuth(
 	ctx context.Context,
 	queries *db.Queries,
@@ -340,8 +337,8 @@ func mustEnv(name string) string {
 	return value
 }
 
-// newStorage builds the real MinIO-backed Store (see internal/storage and
-// ../../DESIGN.md's Phase 4 section) - the default unless STORAGE_MOCK=true
+// newStorage builds the real MinIO-backed Store (see internal/storage) -
+// the default unless STORAGE_MOCK=true
 // opts out for local dev without MinIO credentials configured, same
 // "explicit opt-in, never a silent fallback" shape as AUTH_MOCK.
 func newStorage() (*storage.Store, error) {

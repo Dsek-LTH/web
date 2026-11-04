@@ -1,6 +1,5 @@
 // Package accesspolicies is the small admin CRUD over api_access_policies
-// (grants an apiName to a role or a specific member) - see
-// backend/DESIGN.md's roadmap "Phase 1: directory foundation".
+// (grants an apiName to a role or a specific member).
 package accesspolicies
 
 import (

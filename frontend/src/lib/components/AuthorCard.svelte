@@ -17,7 +17,7 @@
   }: {
     class?: string;
     // Matches the Go API's Author shape directly - flat `position`, not a
-    // nested `mandate.position` - see backend/CLAUDE.md. Picked down to
+    // nested `mandate.position`. Picked down to
     // just the fields used below, not the full Position/CustomAuthor
     // schemas, so this also accepts the article-form's lighter-weight
     // author-option shape (see $lib/news/schema.ts).

@@ -50,7 +50,7 @@ func init() {
 
 // OIDCClient owns the OAuth2/OIDC handshake with Authentik: login,
 // callback, logout. It replaces @auth/sveltekit's SvelteKitAuth setup in
-// hooks.server.ts (see DESIGN.md's Auth section) - Go is now the OIDC
+// hooks.server.ts - Go is now the OIDC
 // client and session authority, not SvelteKit.
 type OIDCClient struct {
 	oauth2Config  oauth2.Config

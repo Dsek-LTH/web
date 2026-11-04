@@ -87,9 +87,8 @@ SELECT EXISTS(SELECT 1 FROM positions WHERE id LIKE $1::text) AS exists
 // pattern is built by the caller as "{prefix}%" - a real SQL LIKE
 // wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
 // literal-escaping of startsWith) only ever matched a position id that
-// literally contained a "%" character, i.e. never. User-confirmed fix
-// (2026-09-03, see DESIGN.md's Phase 10 entry): role-based door/create-form
-// validation now does a real prefix match.
+// literally contained a "%" character, i.e. never. Role-based
+// door/create-form validation now does a real prefix match.
 func (q *Queries) ExistsPositionWithPrefix(ctx context.Context, pattern string) (bool, error) {
 	row := q.db.QueryRow(ctx, existsPositionWithPrefix, pattern)
 	var exists bool

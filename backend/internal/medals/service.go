@@ -1,6 +1,5 @@
 // Package medals is the read-only computed-medals domain behind
-// /medals - see DESIGN.md's Phase 3 ("Simple standalone CRUD") section.
-// Ported from src/lib/server/medals/medals.ts and
+// /medals. Ported from src/lib/server/medals/medals.ts and
 // src/routes/(app)/medals/*. No writes, no dedicated table - everything is
 // derived from mandates/positions/committees, already in schema.sql.
 package medals

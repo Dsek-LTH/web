@@ -8,9 +8,8 @@ import (
 
 // Election is a single committee's open-nominations/voting announcement -
 // see Service.List. Link points to an external form/vote (e.g. a Google
-// Form); this feature has no in-house ballot/voting mechanism of its own -
-// see DESIGN.md's "Elections" section for the correction to the roadmap's
-// original ("nomination/voting workflow") description. Ships both the raw
+// Form); this feature has no in-house ballot/voting mechanism of its own.
+// Ships both the raw
 // markdownSv/markdownEn pair and one resolved Markdown field, same pattern
 // as Alert.Message. Committee is always populated (every query joins it) -
 // the election card needs it to render without a second request, same

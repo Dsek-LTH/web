@@ -5,13 +5,11 @@ import { serverApi } from "$lib/server/apiClient";
 // alerts is fetched fresh from Go on every load (no module-level cache) -
 // the old alertsCache here was shared, mutable process-wide state with no
 // TTL of its own beyond the next `depends("alerts")` invalidation; a real
-// per-request read is simple enough now that this isn't a Prisma
-// round-trip DESIGN.md's mocking principle would have any reason to avoid.
+// per-request read is simple enough now.
 //
 // notificationsPromise now comes from Go's GET /notifications (backend/
 // internal/api/huma_notifications.go) instead of
-// getMyGroupedNotifications(user, prisma) - see backend/CLAUDE.md's
-// "Notifications routes" section. mutateNotificationForm/
+// getMyGroupedNotifications(user, prisma). mutateNotificationForm/
 // readNotificationForm (superValidate scaffolding for the classic
 // notifications/+page.server.ts actions) are gone - grep confirmed zero
 // .svelte consumers; NotificationBell/List/Item all use

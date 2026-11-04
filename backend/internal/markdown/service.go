@@ -1,9 +1,9 @@
 // Package markdown is the generic named-page CMS domain behind the old
-// /info-pages/{slug} routes - see DESIGN.md's Phase 3 ("Simple standalone CRUD")
-// section. Ported from src/routes/(app)/info/[slug] and admin/info,
-// unifying their two previously-divergent create paths/policy groups into
-// one (see backend/CLAUDE.md's Markdown routes section for the full
-// rationale). Distinct from internal/committees' own private reuse of the
+// /info-pages/{slug} routes. Ported from src/routes/(app)/info/[slug] and
+// admin/info, unifying their two previously-divergent create paths/policy
+// groups into one: markdown:create/markdown:update as the base policies,
+// plus a per-page grant (pageUpdatePolicy) given to whoever creates a page.
+// Distinct from internal/committees' own private reuse of the
 // same `markdowns` table for each committee's about/links text under
 // {shortName}/{shortName}_links keys - that package still calls
 // db.Queries.GetMarkdown directly and is unaffected by this one.
@@ -37,8 +37,8 @@ func invalidf(format string, args ...any) error {
 // (fmt.Sprintf("markdowns:%s:update", slug), plural - matching the live
 // table/old TS naming, deliberately distinct from the singular
 // apinames.MarkdownUpdate base policy) - not a const since it's
-// per-instance. See backend/CLAUDE.md's Markdown routes section: any plain
-// string works with auth.Require/Identity.Has, no enum involved.
+// per-instance: any plain string works with auth.Require/Identity.Has, no
+// enum involved.
 func pageUpdatePolicy(name string) string {
 	return fmt.Sprintf("markdowns:%s:update", name)
 }

@@ -14,8 +14,7 @@ const SessionCookieName = "dsek_session"
 
 // SessionData is the payload SessionCookieName carries, encrypted and
 // signed via SessionCodec so it's opaque and tamper-proof to the browser -
-// mirrors the trust model Auth.js's own session cookie already used (see
-// DESIGN.md's Auth section), just with no server-side session store:
+// mirrors the trust model Auth.js's own session cookie used, with no server-side session store:
 // everything needed to resolve an Identity or silently refresh the access
 // token lives in the cookie itself.
 type SessionData struct {

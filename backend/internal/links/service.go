@@ -1,6 +1,5 @@
 // Package links is a thin wrapper around Shlink (the university's URL
-// shortener, at SHLINK_ENDPOINT) behind admin/links - see DESIGN.md's
-// roadmap Phase 11 ("Admin consolidation"). Unlike every other domain
+// shortener, at SHLINK_ENDPOINT) behind admin/links. Unlike every other domain
 // package in this backend, there is no local table at all: every read/
 // write proxies straight through to Shlink's own REST API v3, the same
 // external system the old app's @shlinkio/shlink-js-sdk dependency talked

@@ -5,8 +5,7 @@ import type { PageLoad } from "./$types";
 import { DocumentTypes as dt, isMeetingType } from "./types";
 
 // Ported from +page.server.ts to a universal load calling the Go backend
-// (backend/internal/documents.Service.ListMeetings) - see
-// backend/CLAUDE.md's Phase 4 section. The board/guild/SRD/other
+// (backend/internal/documents.Service.ListMeetings). The board/guild/SRD/other
 // filter+grouping logic (and notice/agenda/minutes resolution) now happens
 // server-side in Go instead of here.
 export const load: PageLoad = async ({ fetch, url }) => {

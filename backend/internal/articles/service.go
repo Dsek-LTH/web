@@ -322,8 +322,7 @@ func (s *Service) Update(
 	// Only require the permission when the value is actually changing -
 	// resubmitting the article's current nollningSeasonId (every save
 	// resubmits every field, since Update is full-replace) doesn't need
-	// it, only setting/changing it to something new does. See DESIGN.md's
-	// nollning section.
+	// it, only setting/changing it to something new does.
 	if nollningSeasonID != current.NollningSeasonID {
 		if err := auth.Require(ctx, apinames.NollningContentAssociate); err != nil {
 			return nil, err

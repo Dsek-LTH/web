@@ -5,8 +5,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import type { Actions } from "./$types";
 
 // No SvelteKit-side authorize() gate here - the Go API enforces this
-// itself (currently via mock auth that always succeeds) - see
-// backend/CLAUDE.md's Auth section.
+// itself.
 export const actions: Actions = {
   update: updateArticle,
   removeArticle: async (event) => {

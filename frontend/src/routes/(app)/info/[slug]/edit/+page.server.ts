@@ -13,10 +13,8 @@ const markdownSchema = z.object({
 
 // markdown:create/markdown:update (or this page's own dynamic grant) are
 // enforced by the Go API itself (backend/internal/markdown) - no
-// authorize() call here, matching DESIGN.md's Principle #5. create/update
-// both now go through the same unified Go endpoints admin/info's create
-// form also uses - see backend/CLAUDE.md's Markdown routes section for the
-// policy-naming unification this replaced.
+// authorize() call here. create/update both go through the same Go
+// endpoints admin/info's create form also uses.
 export const load: PageServerLoad = async (event) => {
   const { params } = event;
   const res = await serverApi(event).GET("/info-pages/{slug}", {

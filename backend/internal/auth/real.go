@@ -27,7 +27,7 @@ type StabenInjector interface {
 }
 
 // RealAuthenticator resolves an Identity from the session cookie set by
-// OIDCClient.CallbackHandler - see DESIGN.md's Auth section. A missing or
+// OIDCClient.CallbackHandler. A missing or
 // invalid session resolves to an anonymous Identity rather than an error;
 // an expired one is silently refreshed (see OIDCClient.Refresh) and the
 // cookie is re-issued on w before this returns.

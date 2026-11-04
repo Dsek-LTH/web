@@ -11,8 +11,7 @@ import (
 // GoverningDocument is a governing document (styrdokument) - a title/url/type
 // pointer, not a stored file (url is just a plain string the author pastes
 // in). Package named governingdocs, not documents, to avoid colliding with
-// the unrelated MinIO-backed /documents file-browsing feature (no Prisma
-// model, deferred to Phase 4 - see DESIGN.md's Phase 3 section).
+// the unrelated MinIO-backed meeting-document feature (internal/documents).
 type GoverningDocument struct {
 	ID        string       `json:"id"`
 	Title     string       `json:"title"`

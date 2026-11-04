@@ -4,8 +4,7 @@ import { z } from "zod";
 import { getYoutubeVideoId } from "$lib/utils/youtube";
 
 // Mirrors the Go API's Author shape directly (flat `position`, not a
-// nested `mandate.position`) - see backend/CLAUDE.md and
-// $lib/components/AuthorCard.svelte. This is what the picker in
+// nested `mandate.position`) - see $lib/components/AuthorCard.svelte. This is what the picker in
 // ArticleForm.svelte binds to; on submit it's reduced to the
 // `{mandateId?, customId?}` the Go API's AuthorInput actually wants (see
 // $lib/news/server/actions.ts) - the member is always resolved

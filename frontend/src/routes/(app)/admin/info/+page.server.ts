@@ -9,10 +9,9 @@ import { slugify } from "$lib/utils/slugify";
 import { serverApi } from "$lib/server/apiClient";
 
 // markdown:create is enforced by the Go API itself - no authorize() call
-// here, matching DESIGN.md's Principle #5. Calls the same unified
-// POST /info-pages/{slug} endpoint info/[slug]/edit's create action uses -
-// previously a second, divergent creation path with no ACL auto-grant; see
-// backend/CLAUDE.md's Markdown routes section.
+// here. Calls the same unified POST /info-pages/{slug} endpoint
+// info/[slug]/edit's create action uses, which also grants the creator a
+// per-page edit policy.
 export const load: PageServerLoad = async () => {
   return { form: await superValidate(zod4(infoPageSchema)) };
 };

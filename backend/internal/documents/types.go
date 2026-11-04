@@ -1,12 +1,10 @@
 // Package documents is the MinIO-backed meeting-document/requirement-profile
 // file-browsing feature (src/routes/(app)/documents/*,
-// /documents/requirements, /documents/upload) - see ../../DESIGN.md's Phase
-// 4 section ("Real file storage + gallery + document uploads"). Deliberately
+// /documents/requirements, /documents/upload). Deliberately
 // not named governingdocs and unrelated to it: that package is the
 // Document-Prisma-model-backed "governing documents" (styrdokument)
 // feature, ported in Phase 3, which happens to share the /documents URL
-// prefix and nothing else (see backend/CLAUDE.md's "Info-pages routes"
-// naming note for the same kind of prefix collision). Like gallery, there's
+// prefix and nothing else. Like gallery, there's
 // no backing DB table at all - pure MinIO folder listings, exactly as
 // before.
 package documents

@@ -1,12 +1,9 @@
 // Package elections is the committee-election-announcement domain behind
-// /elections - see DESIGN.md's "Elections" section (roadmap Phase 7).
-// Ported from src/routes/(app)/elections/*. Despite the roadmap's original
-// "nomination/voting workflow" description, this feature has no in-house
-// ballot mechanism at all - Election.link just points to an external form
-// (Google Forms or similar); actual voting never touches this backend. See
-// DESIGN.md for the correction and what "yrka" (motion submission, a plain
-// email send with no DB model) and ItemQuestion (actually part of the
-// already-cut-from-scope shop/ticket domain) turned out to really be.
+// /elections. Ported from src/routes/(app)/elections/*. There is no
+// in-house ballot mechanism at all - Election.link just points to an external form
+// (Google Forms or similar); actual voting never touches this backend.
+// "Yrka" (motion submission) isn't here either: it's a plain email the
+// SvelteKit app sends, with no DB model.
 package elections
 
 import (

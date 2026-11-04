@@ -1,7 +1,5 @@
 // Package storage is the real MinIO-backed object store replacing
-// internal/integrations.MockUploader - see ../../DESIGN.md's Phase 4
-// section ("Real file storage + gallery + document uploads") for why this
-// was mocked until now. Store wraps github.com/minio/minio-go/v7 and is
+// internal/integrations.MockUploader. Store wraps github.com/minio/minio-go/v7 and is
 // consumed directly by internal/gallery and internal/documents (which need
 // listing/deleting, not just a single-shot upload), and implements
 // integrations.Uploader for the simpler article-image upload path.

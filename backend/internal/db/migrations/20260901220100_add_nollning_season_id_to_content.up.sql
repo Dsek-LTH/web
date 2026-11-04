@@ -1,8 +1,7 @@
 -- Direct FK replacing the old `[NOLLNING]`-tag-name-prefix convention
 -- (src/lib/components/postReveal/types.ts's NOLLNING_TAG_PREFIX, matched
 -- via startsWith against tags.name_sv) for "is this article/event part of
--- nollning, and which year's". Decided 2026-09-01, see DESIGN.md's
--- "Content classification" note: a direct FK gives referential integrity
+-- nollning, and which year's". A direct FK gives referential integrity
 -- and composes with ordinary topical tags instead of overloading them.
 ALTER TABLE articles ADD COLUMN nollning_season_id UUID REFERENCES nollning_seasons (id);
 ALTER TABLE events ADD COLUMN nollning_season_id UUID REFERENCES nollning_seasons (id);

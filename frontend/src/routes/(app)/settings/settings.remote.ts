@@ -29,8 +29,7 @@ const settingsSchema = z.object(schemaFields).and(
 
 // Now a thin proxy to Go's PUT /notification-settings (full-replace,
 // backend/internal/api/huma_notifications.go) instead of a
-// prisma.$transaction + prisma.member.update pair - see
-// backend/CLAUDE.md's "Notifications routes" section.
+// prisma.$transaction + prisma.member.update pair.
 export const updateSettings = form(settingsSchema, async (data) => {
   const event = getRequestEvent();
   if (!event.locals.user) {

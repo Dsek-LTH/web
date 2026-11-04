@@ -1,7 +1,6 @@
 // Package api wires the article/tag/upload endpoints through huma
 // (github.com/danielgtaylor/huma/v2) on top of the stdlib net/http mux -
-// see huma_articles.go and ../../DESIGN.md's "API shape and frontend
-// integration" section for why.
+// see huma_articles.go.
 package api
 
 import (

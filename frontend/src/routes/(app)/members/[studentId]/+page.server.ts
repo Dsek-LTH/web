@@ -128,7 +128,7 @@ export const load: PageServerLoad = async (event) => {
   // Go's MemberAccess itself only ever returns real data for the caller's
   // own studentId (empty otherwise) - the member.id check here just skips
   // the network round-trip entirely when viewing someone else's profile,
-  // not a duplicated authorization decision (Principle #5).
+  // not a duplicated authorization decision.
   const doorAccess =
     member.id === user?.memberId
       ? await api

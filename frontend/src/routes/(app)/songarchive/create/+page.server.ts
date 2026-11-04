@@ -9,8 +9,7 @@ import { serverApi } from "$lib/server/apiClient";
 
 // Slug generation, sanitization, and the song:create check itself all
 // happen server-side in the Go API (backend/internal/songs) now - this
-// file just validates the form (instant-feedback UX only, per DESIGN.md's
-// Principle #5 - Go's own auth.Require/validation is what actually
+// file just validates the form (instant-feedback UX only - Go's own auth.Require/validation is what actually
 // decides whether the save succeeds) and forwards the result.
 export const load: PageServerLoad = async (event) => {
   const api = serverApi(event);

@@ -3,8 +3,7 @@ import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
 
 // Ported from +page.server.ts to a universal load calling the Go backend
-// (backend/internal/gallery.Service.GetAlbum) - see backend/CLAUDE.md's
-// Phase 4 section. album.json metadata parsing now happens server-side in
+// (backend/internal/gallery.Service.GetAlbum). album.json metadata parsing now happens server-side in
 // Go instead of an HTTP round-trip through the object's own public URL.
 export const load: PageLoad = async ({ fetch, params }) => {
   const res = await api.GET("/albums/{slug}", {

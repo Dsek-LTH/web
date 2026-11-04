@@ -1,5 +1,4 @@
-// Package gallery is the photo-album domain - see ../../DESIGN.md's Phase
-// 4 section ("Real file storage + gallery + document uploads"). Unlike
+// Package gallery is the photo-album domain. Unlike
 // every other internal/<domain> package, there's no backing DB table at
 // all: albums are pure MinIO folder listings, exactly as they were in the
 // old SvelteKit app (src/routes/(app)/gallery/*, no Prisma model).

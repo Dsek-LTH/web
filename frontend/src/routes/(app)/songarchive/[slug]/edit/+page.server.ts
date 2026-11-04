@@ -7,8 +7,8 @@ import { updateSongSchema } from "../../schema";
 import type { Actions } from "./$types";
 import { serverApi } from "$lib/server/apiClient";
 
-// Only the update action stays a SvelteKit action (a real authoring form,
-// see DESIGN.md's Principle #5) - delete/restore are pure-proxy mutations
+// Only the update action stays a SvelteKit action (a real authoring form)
+// - delete/restore are pure-proxy mutations
 // now called directly from the client (see +page.svelte and
 // [slug]/+page.svelte), matching RemoveArticleDialog.svelte's pattern. No
 // `load` here: song/existingCategories/existingMelodies/updateForm all

@@ -1,6 +1,5 @@
 -- Replaces phadder_groups.year (a bare int with no relation to the actual
--- nollning time window - see DESIGN.md's "Phadder-group membership becomes
--- one function, not two independent ones") with a real FK to
+-- nollning time window) with a real FK to
 -- nollning_seasons, fixing the same "hardcoded/duplicated year" problem
 -- articles/events' nollning_season_id fixes for content.
 ALTER TABLE phadder_groups ADD COLUMN season_id UUID REFERENCES nollning_seasons (id);

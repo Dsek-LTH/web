@@ -1,15 +1,10 @@
 // Package cafe is the committees/cafe domain behind /cafe/* - shift
 // scheduling, ciabatta-of-the-week, and opening-hours listing for the cafe
-// committee - see DESIGN.md's roadmap Phase 8 ("Cafe"). Ported from
+// committee. Ported from
 // src/routes/(app)/committees/cafe/+page.server.ts. The committee page
 // itself (about text, positions, banner) is already served by
 // internal/committees (Phase 1) - this package only covers the
-// cafe-specific tabs that page adds on top. Deliberately scoped to just
-// shifts/ciabatta/opening-hours: the roadmap's own "shifts + drink
-// inventory" phase description turned out to conflate this feature with
-// admin/stocklist (DrinkItem/DrinkItemBatch/SexetInventoryValueLog),
-// already separately listed under Phase 11 ("Admin consolidation") - see
-// DESIGN.md's Phase 8 entry for the user-confirmed correction.
+// cafe-specific tabs that page adds on top.
 package cafe
 
 import (
@@ -82,11 +77,8 @@ func (s *Service) ListOpeningHours(ctx context.Context) ([]CafeOpeningHours, err
 // start on Sunday" convention with its own idiosyncratic year-boundary
 // rules. This package uses real ISO-8601 week semantics (Go's
 // time.Time.ISOWeek(), Monday-start, week 1 contains the year's first
-// Thursday) instead of porting that algorithm - a deliberate simplification
-// given nothing renders this page yet (still <NotImplemented />, per
-// backend/CLAUDE.md's Cafe routes section) and ISO weeks are the
-// unsurprising standard choice for whichever frontend eventually consumes
-// this. Revisit only if a real consumer needs bit-for-bit dayjs parity for
+// Thursday) instead of porting that algorithm - a deliberate simplification,
+// since ISO weeks are the unsurprising standard choice. Revisit only if a real consumer needs bit-for-bit dayjs parity for
 // specific historical week numbers.
 func (s *Service) GetSchedule(ctx context.Context, year, week *int32) (*CafeSchedule, error) {
 	targetYear, targetWeek, err := resolveTargetWeek(ctx, year, week)

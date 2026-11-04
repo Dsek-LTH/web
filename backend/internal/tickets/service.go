@@ -4,8 +4,7 @@
 // get a free ticket or join the waitlist, and an offer not accepted in
 // time passes to the next in line. Every change to a release runs under
 // a row lock (withReleaseLock) so it can't be oversold. Ported from the
-// standalone ticket-service during the Phase 12 upstream sync - see
-// DESIGN.md - with the backend's auth replacing its own JWT validation.
+// standalone ticket-service, with the backend's auth replacing its own JWT validation.
 //
 // Queue entries and created_by hold the member's student id, as the
 // original service stored them.

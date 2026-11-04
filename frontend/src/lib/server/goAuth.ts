@@ -4,7 +4,7 @@ import type { components } from "$lib/api/schema";
 
 /**
  * The Go backend's GET /me response (backend/internal/api/huma_me.go). Go
- * is the OIDC/session authority - see backend/DESIGN.md's Auth section.
+ * is the OIDC/session authority.
  * member is omitted for an anonymous caller.
  */
 export type GoIdentity = components["schemas"]["Me"];

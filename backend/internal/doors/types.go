@@ -19,9 +19,8 @@ type Door struct {
 
 // DoorAccessPolicy is the admin edit-door page's own view of one rule -
 // named with the Door prefix (not just AccessPolicy) to avoid colliding
-// with internal/accesspolicies.AccessPolicy in huma's schema registry (see
-// CLAUDE.md's huma "duplicate name" gotcha - this collided and panicked at
-// server startup during this port before the rename). Member is populated
+// with internal/accesspolicies.AccessPolicy in huma's schema registry,
+// which names schemas after the bare Go type and panics on a duplicate. Member is populated
 // only for a studentId-scoped row (nil for a role-scoped one), same
 // "sub-object only where a real consumer renders it" convention as
 // apitypes.Mandate.member/Position.committee.

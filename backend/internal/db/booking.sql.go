@@ -624,8 +624,7 @@ type ListConflictingBookingRequestsRow struct {
 	BookerPicturePath pgtype.Text          `json:"booker_picture_path"`
 }
 
-// Non-blocking overlap warning (2026-09-02 decision, see DESIGN.md's
-// Booking section) - the old app never checked this at all; Go surfaces it
+// Non-blocking overlap warning - the old app never checked this at all; Go surfaces it
 // as a warning on create/update rather than rejecting the request outright.
 // DENIED requests never conflict; exclude_id lets an edit ignore its own
 // pre-existing row (NULL/unset on create, where nothing to exclude yet).

@@ -4,10 +4,9 @@ import { getYearOrThrowSvelteError } from "$lib/utils/url";
 import type { PageLoad } from "./$types";
 
 // A universal load calling the Go backend
-// (backend/internal/documents.Service.ListRequirements) - see
-// backend/CLAUDE.md's Phase 4 section. The page (upstream #1291) deletes
+// (backend/internal/documents.Service.ListRequirements). The page (upstream #1291) deletes
 // a file by calling DELETE /requirement-profiles directly from the
-// client - no SvelteKit action, per Principle #5 - rather than the old
+// client - no SvelteKit action - rather than the old
 // deleteFile form action, which also had the wrong-bucket bug Go fixes
 // (see backend/internal/documents.Service.DeleteRequirement).
 export const load: PageLoad = async ({ fetch, url }) => {

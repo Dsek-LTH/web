@@ -57,8 +57,7 @@ const (
 
 	// NollningContentAssociate gates setting/changing an article's or
 	// event's nollning_season_id - one shared policy across both domains
-	// (decided 2026-09-01, see ../../DESIGN.md's nollning section) rather
-	// than a per-domain pair, since it's the same real-world permission
+	// rather than a per-domain pair, since it's the same real-world permission
 	// ("can mark content as nollning-related") regardless of content type.
 	NollningContentAssociate = "nollning:content:associate"
 	// NollningSeasonManage gates nollning_seasons admin CRUD - new, the old
@@ -69,7 +68,7 @@ const (
 	// apiNames.NOLLNING.MANAGE_PHADDER_GROUPS exactly.
 	NollningPhadderGroupsManage = "nollning:phaddrar:groups:manage"
 
-	// Phase 3 ("Simple standalone CRUD" - see DESIGN.md's roadmap) below.
+	// Songbook.
 
 	SongCreate = "song:create"
 	SongRead   = "song:read"
@@ -82,7 +81,7 @@ const (
 
 	// MarkdownCreate/MarkdownUpdate are the base (any-page) policies for the
 	// generic /info CMS pages, unifying the old app's split MARKDOWNS/
-	// MARKDOWN policy groups into one (see DESIGN.md's Phase 3 section).
+	// MARKDOWN policy groups into one.
 	// A page can also be edited via a per-page dynamic policy string
 	// ("markdowns:{slug}:update", plural, matching the live table/old TS
 	// naming) granted to that page's creator - built at call sites via
@@ -95,8 +94,7 @@ const (
 	GoverningDocumentRead  = "governing_document:read"
 	GoverningDocumentWrite = "governing_document:write"
 
-	// Phase 4 ("Real file storage + gallery + document uploads" - see
-	// DESIGN.md's roadmap) below. Naming mirrors the old
+	// File storage (gallery, documents, files). Naming mirrors the old
 	// apiNames.FILES.BUCKET(name) exactly ("fileHandler:{bucket}:{action}"),
 	// not a fresh scheme, so existing dev-DB AccessPolicy grants for these
 	// strings carry over unchanged.
@@ -109,7 +107,7 @@ const (
 	FileFilesCreate     = "fileHandler:files:create"
 	FileFilesDelete     = "fileHandler:files:delete"
 
-	// Phase 5 ("Booking" - see DESIGN.md's roadmap) below. Naming mirrors
+	// Booking. Naming mirrors
 	// the old apiNames.BOOKINGS/BOOKABLES crud() groups exactly
 	// ("booking_request:*" / "booking_request:bookable:*"), so existing
 	// dev-DB AccessPolicy grants for these strings carry over unchanged.
@@ -125,7 +123,7 @@ const (
 	BookableRead   = "booking_request:bookable:read"
 	BookableUpdate = "booking_request:bookable:update"
 
-	// Phase 7 ("Elections" - see DESIGN.md's roadmap) below. Naming mirrors
+	// Elections. Naming mirrors
 	// the old apiNames.ELECTION crud() group exactly - three separate policy
 	// strings (unlike GoverningDocument's shared Write), since that's how
 	// the live ZModel actually gated create/update/delete individually. No
@@ -136,7 +134,7 @@ const (
 	ElectionUpdate = "election:update"
 	ElectionDelete = "election:delete"
 
-	// Phase 8 ("Cafe" - see DESIGN.md's roadmap) below. Naming mirrors the
+	// Cafe. Naming mirrors the
 	// old apiNames.CAFE group exactly - four flat policies, not a crud()
 	// group, matching the live ZModel's own shape (CafeShift/
 	// CiabattaOfTheWeek's @@allow expressions reference these same four
@@ -146,7 +144,7 @@ const (
 	CafeSeeAllWeeks   = "cafe:see_all_weeks"
 	CafeDayManager    = "cafe:day_manager"
 
-	// Phase 10 ("Doors/Salto" - see DESIGN.md's roadmap) below. Naming
+	// Doors. Naming
 	// mirrors the old apiNames.DOOR crud() group exactly
 	// ("core:access:door:*"), so existing dev-DB AccessPolicy grants carry
 	// over unchanged. No DoorUpdate: the old zmodel's DoorAccessPolicy
@@ -157,7 +155,7 @@ const (
 	DoorCreate = "core:access:door:create"
 	DoorDelete = "core:access:door:delete"
 
-	// Phase 11 ("Admin consolidation" - see DESIGN.md's roadmap) below.
+	// Admin.
 
 	// AdminSettingsRead/Update/Delete mirror the old apiNames.ADMIN.SETTINGS
 	// crud() group - no AdminSettingsCreate, since the old app's single

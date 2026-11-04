@@ -18,8 +18,7 @@ const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 
 // fileHandler:files:read/create/delete (Go's apinames.FileFiles*) are
 // enforced by Go itself now (internal/documents.Service's ListMisc/
-// UploadMisc/DeleteMisc) - no authorize() call here, matching DESIGN.md's
-// Principle #5.
+// UploadMisc/DeleteMisc) - no authorize() call here.
 
 export const load = async (event) => {
   const res = await serverApi(event).GET("/files", {});

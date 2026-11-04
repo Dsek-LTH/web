@@ -1,6 +1,5 @@
-// Package notifications is the Phase 9 port of src/lib/utils/notifications/*
-// (see ../../../DESIGN.md's roadmap, "9. Real notifications + Discord
-// webhook") - in-app notifications, push (Expo), subscription settings, and
+// Package notifications is the port of src/lib/utils/notifications/* -
+// in-app notifications, push (Expo), subscription settings, and
 // (via notifier.go/webhook.go) the two integrations.Notifier/Webhooker
 // implementations every other domain's mocked calls become real through.
 package notifications
@@ -180,7 +179,7 @@ var NollaDefaultSubscriptionSettings = []SettingDefault{
 //
 // Named NotificationAuthor, not Author, to avoid huma's "duplicate schema
 // name" trap (internal/articles already registers its own bare "Author"
-// type) - see backend/CLAUDE.md's huma gotcha note.
+// type); huma panics on two schemas with the same bare name.
 type NotificationAuthor struct {
 	ID         string  `json:"id"`
 	Name       string  `json:"name"                 doc:"Display name."`

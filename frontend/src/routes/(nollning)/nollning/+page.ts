@@ -1,12 +1,9 @@
 import { api } from "$lib/api/client";
 
-// This page's +page.svelte is still <NotImplemented /> (part of the
-// (nollning)/ route tree's product UI, out of scope for this pass - see
-// backend/DESIGN.md's nollning section) - the load below is still ported
-// to the Go backend regardless, same "port the server logic even without
-// a page.svelte" precedent used elsewhere this pass. Replaces the old
-// hardcoded `year: 2025` filter (one of the landmine dates DESIGN.md's
-// nollning survey called out by name) with the actual current season.
+// This page's +page.svelte is still <NotImplemented /> (the (nollning)/
+// route tree's product UI isn't built yet); the load is real regardless.
+// It uses the current season instead of the old hardcoded `year: 2025`
+// filter.
 export const load = async (event) => {
   const currentRes = await api.GET("/nollning/current", { fetch: event.fetch });
   const seasonId = currentRes.data?.season?.id;

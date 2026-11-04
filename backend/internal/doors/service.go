@@ -1,5 +1,4 @@
-// Package doors is the physical-access-control domain - see DESIGN.md's
-// roadmap "Phase 10: Doors/Salto". Ported from src/routes/(app)/admin/doors
+// Package doors is the physical-access-control domain. Ported from src/routes/(app)/admin/doors
 // (management UI), src/routes/(app)/salto/[door] (the public endpoint the
 // university's Salto door-lock system itself polls - see its own README.md:
 // "this URL must not be changed"), and src/lib/utils/member.ts's

@@ -1,8 +1,7 @@
 // Package search is the cross-entity search over Meilisearch: a full
 // rebuild of every index from the database (and the meeting-document
 // bucket), and a federated query across the indexes a caller picks.
-// Ported from src/lib/search/* and src/routes/(app)/api/search - see
-// ../../DESIGN.md's roadmap Phase 13.
+// Ported from src/lib/search/* and src/routes/(app)/api/search.
 package search
 
 import (

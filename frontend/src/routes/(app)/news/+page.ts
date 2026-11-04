@@ -52,8 +52,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
     // Includes nollning-prefixed tags in the filter list, unlike the old
     // Prisma-backed tag query - the Go API doesn't know about the
     // nollning feature (it isn't ported) and this isn't worth a Prisma
-    // call from a page that's otherwise fully off Prisma. Acceptable per
-    // DESIGN.md's mocking principle.
+    // call from a page that's otherwise fully off Prisma. Acceptable: the
+    // consequence is a few extra tags in the list.
     api.GET("/tags", { fetch }),
   ]);
   if (articlesRes.error)

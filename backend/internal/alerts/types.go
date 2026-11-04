@@ -13,8 +13,8 @@ import (
 // internal/locale) - display code reads Message, admin forms read the raw
 // pair. ClosedByMe is resolved server-side from the acting identity rather
 // than shipping the full closer-member-id list to the client (data
-// minimization, same reasoning DESIGN.md already used for articles' like
-// count vs a full likers list).
+// minimization, the same reason articles send a like count rather than
+// every liker).
 type Alert struct {
 	ID         string    `json:"id"`
 	Severity   Severity  `json:"severity"`

@@ -5,8 +5,7 @@ import { serverApi } from "$lib/server/apiClient";
 
 // All three now proxy to Go's POST /notifications/mark-read / DELETE
 // /notifications (backend/internal/api/huma_notifications.go) instead of
-// prisma.notification.* directly - see backend/CLAUDE.md's "Notifications
-// routes" section.
+// prisma.notification.* directly.
 
 // Lazily fetched by NotificationBell once opened, `take` grows by one page
 // per "load more" - Go returns the newest `take` notifications, grouped,

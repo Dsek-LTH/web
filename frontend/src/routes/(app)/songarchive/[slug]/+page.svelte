@@ -32,7 +32,7 @@
   );
   const canWatchVideo = $derived(song.video && mayWatchVideos(data.user));
 
-  // Pure-proxy mutation (see DESIGN.md's Principle #5) - matches the same
+  // Pure-proxy mutation - matches the same
   // restore call the edit page's own restore button makes.
   async function restoreSong() {
     const res = await api.POST("/songs/{slug}/restore", {

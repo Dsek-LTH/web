@@ -97,7 +97,7 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
     createdAt: new Date(article.createdAt),
     now: new Date(),
     // From Go (ArticleDetail.canDelete) - see the article detail page's
-    // +page.ts and DESIGN.md's "Principles going forward" #5.
+    // +page.ts.
     canDelete: article.canDelete,
   };
 };

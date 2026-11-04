@@ -15,8 +15,8 @@ import { updateCommitteeBody, updateCommitteeSchema } from "./types";
  * file rather than alongside this one (a single shared module would make
  * this file's own static `$lib/server/apiClient` import poison every
  * universal-load importer, even though only committeeActions used it).
- * This is fine: GET /committees/{shortName} is a public read (see
- * backend/CLAUDE.md's Directory routes section), so it doesn't need the
+ * This is fine: GET /committees/{shortName} is a public read, so it
+ * doesn't need the
  * acting identity to be correct.
  * @param fetch The SvelteKit-provided fetch (forwards cookies to the Go API)
  * @param shortName The committee's short name

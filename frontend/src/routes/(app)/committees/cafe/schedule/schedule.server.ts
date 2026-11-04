@@ -8,8 +8,8 @@ import { TimeSlot, editWeeklyCiabattaSchema, scheduleForm } from "../types";
 
 // Week math, the cafe:see_all_weeks viewing window, and every shift rule
 // (day managers, sign-up/quit deadlines, editing others' shifts) are Go's
-// (GET /cafe/schedule, POST /cafe/shifts/toggle, PUT /cafe/ciabattas/{year}/{week} - see
-// backend/CLAUDE.md's Cafe routes section). The committee itself comes
+// (GET /cafe/schedule, POST /cafe/shifts/toggle,
+// PUT /cafe/ciabattas/{year}/{week}). The committee itself comes
 // from the committees layout.
 export const scheduleLoad = async (event: PageServerLoadEvent) => {
   const { url } = event;

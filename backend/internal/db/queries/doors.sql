@@ -46,9 +46,8 @@ WHERE id = sqlc.arg('id') AND door_name = sqlc.arg('door_name');
 -- pattern is built by the caller as "{prefix}%" - a real SQL LIKE
 -- wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
 -- literal-escaping of startsWith) only ever matched a position id that
--- literally contained a "%" character, i.e. never. User-confirmed fix
--- (2026-09-03, see DESIGN.md's Phase 10 entry): role-based door/create-form
--- validation now does a real prefix match.
+-- literally contained a "%" character, i.e. never. Role-based
+-- door/create-form validation now does a real prefix match.
 SELECT EXISTS(SELECT 1 FROM positions WHERE id LIKE sqlc.arg('pattern')::text) AS exists;
 
 -- name: ListPositionIDsMatchingPrefixes :many

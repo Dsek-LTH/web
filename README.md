@@ -50,7 +50,20 @@ This project is the main web page for the D-guild within TLTH, a non-profit orga
 [![node][node]][node-url]
 [![pnpm][pnpm]][pnpm-url]
 [![docker][docker]][docker-url]
-[![pm2][pm2]][pm2-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Repository
+
+- `frontend/` - the SvelteKit app
+- `backend/` - the Go API it calls for all data
+- `poppler-server/` - a small service that extracts text from PDFs for search
+- `docker-compose.yml` - the local database, Meilisearch and poppler-server
+
+To run it locally: `docker compose up -d`, then `pnpm install`,
+`pnpm migrate` and `pnpm seed` in `frontend/`, then `make dev` in `backend/`
+(port 8090) and `pnpm dev` in `frontend/` (port 5173). `AGENTS.md` has the
+details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -127,7 +140,5 @@ https://www.dsek.se/en/info/contact
 [pnpm-url]: https://pnpm.io/
 [docker]: https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
 [docker-url]: https://www.docker.com/
-[pm2]: https://img.shields.io/badge/pm2-2B037A?style=for-the-badge&logo=pm2&logoColor=white
-[pm2-url]: https://pm2.keymetrics.io/
 [node]: https://img.shields.io/badge/node-339933?style=for-the-badge&logo=node.js&logoColor=white
 [node-url]: https://nodejs.org/

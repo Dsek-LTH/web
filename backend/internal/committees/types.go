@@ -71,8 +71,7 @@ type CommitteeMarkdownInput struct {
 // PositionInput is the full-replace body for PUT /positions/{id} -
 // deliberately combines the old TS app's two separate actions (field edits;
 // active/boardMember toggles) into one endpoint, since positions have few
-// fields and the flags-toggle UI doesn't exist in TS yet (see
-// backend/DESIGN.md's roadmap for the reasoning).
+// fields.
 type PositionInput struct {
 	NameSv        string  `json:"nameSv"`
 	NameEn        *string `json:"nameEn,omitempty"`

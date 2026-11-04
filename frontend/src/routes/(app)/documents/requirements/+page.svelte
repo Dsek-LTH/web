@@ -28,7 +28,7 @@
     ),
   );
 
-  // Pure-proxy mutation straight to Go (DESIGN.md's Principle #5), like
+  // Pure-proxy mutation straight to Go, like
   // Meeting.svelte's file delete.
   async function removeFile(id: string) {
     const res = await api.DELETE("/requirement-profiles", {

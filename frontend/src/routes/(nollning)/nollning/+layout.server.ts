@@ -13,8 +13,7 @@ export const load = async (event) => {
   const revealTheme = current?.phase === "post_reveal";
   // Replaces getNollaGroupedNotifications' hardcoded 2025-06-26 cutoff with
   // Go's GET /notifications?nollning=true, which filters on the current
-  // season's real nollaStartAt instead - see backend/CLAUDE.md's
-  // "Notifications routes" section and DESIGN.md's Phase 9 entry.
+  // season's real nollaStartAt instead.
   const notificationsPromise = serverApi(event)
     .GET("/notifications", { params: { query: { nollning: true } } })
     .then((res) => res.data?.notifications ?? []);

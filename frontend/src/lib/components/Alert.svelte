@@ -54,7 +54,7 @@
   let { icon, foreground, background } = $derived(data[severity])!;
   const Icon = $derived(icon);
 
-  // Pure-proxy mutation (see DESIGN.md's Principle #5) - calls Go directly,
+  // Pure-proxy mutation - calls Go directly,
   // no SvelteKit endpoint in between. Go's Service.Close is the only real
   // gate (just "must be authenticated"), matching the old /api/closeAlert
   // route's actual behavior exactly.

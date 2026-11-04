@@ -10,11 +10,11 @@ import dayjs from "dayjs";
 
 // core:access:door:create/delete (Go's apinames.DoorCreate/DoorDelete) are
 // enforced by the Go API itself - see backend/internal/doors. No
-// authorize() call here, matching DESIGN.md's Principle #5. The old app's
+// authorize() call here: authorization is Go's alone. The old app's
 // createSchema also validated "does this member/role actually exist" via a
 // direct Prisma query in an async .refine() - that check now lives
-// server-side in Go (Service.CreateAccessPolicy) instead, per DESIGN.md's
-// "no validation logic re-implemented in TypeScript" principle; the create
+// server-side in Go (Service.CreateAccessPolicy) instead, since validation
+// isn't re-implemented in TypeScript; the create
 // action below surfaces Go's rejection back onto the subject field the same
 // way committees/nollu/groups/manage's addNolla/addPhadder actions already
 // do for an equivalent Go-side existence check.

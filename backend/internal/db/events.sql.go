@@ -276,8 +276,8 @@ type GetEventBySlugRow struct {
 }
 
 // Public lookup: hides soft-removed events, same visibility rule as
-// ListEvents. The old TS getEvent() applied no such filter at all (see
-// DESIGN.md's events section) - fixed here rather than replicated.
+// ListEvents. The old TS getEvent() applied no such filter at all - fixed
+// here rather than replicated.
 func (q *Queries) GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEventBySlugRow, error) {
 	row := q.db.QueryRow(ctx, getEventBySlug, slug)
 	var i GetEventBySlugRow

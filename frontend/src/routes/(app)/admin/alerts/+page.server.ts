@@ -11,8 +11,8 @@ import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
 
 // alert:manage (Go's AlertManage) is enforced by the Go API itself on
-// create/delete - see backend/internal/alerts. No authorize() call here,
-// matching DESIGN.md's Principle #5.
+// create/delete - see backend/internal/alerts. No authorize() call here:
+// authorization is Go's alone.
 export const load: PageServerLoad = async (event) => {
   const res = await serverApi(event).GET("/alerts", {});
   if (res.error) throw new Error("Failed to load alerts");

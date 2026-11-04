@@ -112,7 +112,7 @@ func ToTimestamptz(t *time.Time) pgtype.Timestamptz {
 
 // ResolveName picks en if locale is "en" and it's set, sv otherwise - the
 // server-side replacement for Prisma's old translationExtension fallback
-// rule (see backend/CLAUDE.md's Locale note).
+// rule. Responses carry both the raw pair and the resolved value.
 func ResolveName(sv string, en *string, locale string) string {
 	if locale == "en" && en != nil && *en != "" {
 		return *en

@@ -123,9 +123,8 @@ type Querier interface {
 	// pattern is built by the caller as "{prefix}%" - a real SQL LIKE
 	// wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
 	// literal-escaping of startsWith) only ever matched a position id that
-	// literally contained a "%" character, i.e. never. User-confirmed fix
-	// (2026-09-03, see DESIGN.md's Phase 10 entry): role-based door/create-form
-	// validation now does a real prefix match.
+	// literally contained a "%" character, i.e. never. Role-based
+	// door/create-form validation now does a real prefix match.
 	ExistsPositionWithPrefix(ctx context.Context, pattern string) (bool, error)
 	ExpireEntry(ctx context.Context, id pgtype.UUID) error
 	// The member's phadder/uppdrag mandate overlapping the group's season
@@ -154,11 +153,10 @@ type Querier interface {
 	GetArticleIDBySlug(ctx context.Context, slug string) (pgtype.UUID, error)
 	// Unfiltered lookup: no publish/removed filter. Used internally after
 	// create/update (so the caller gets back exactly what it just wrote even if
-	// it's a future scheduled draft), and by the ArticleByAnySlug service method
-	// for callers - like the SvelteKit edit page - that need to load a draft or
-	// future-scheduled article by its own author. There's no auth on this API,
-	// so this is no more exposed than the existing unauthenticated mutations;
-	// see backend/CLAUDE.md.
+	// it's a future scheduled draft), and by articles.Service.GetHidden for
+	// callers - like the SvelteKit edit page - that need to load a draft or
+	// future-scheduled article. GetHidden only returns a hidden article to
+	// someone who may edit it.
 	GetArticleRowBySlug(ctx context.Context, slug string) (GetArticleRowBySlugRow, error)
 	// Resolves the display identity of a notification's sender: the plain
 	// member fields, plus (if the author acted via a mandate) that mandate's
@@ -196,8 +194,8 @@ type Querier interface {
 	// matching prisma.election.findFirst({where: {id}}).
 	GetElectionByID(ctx context.Context, id pgtype.UUID) (GetElectionByIDRow, error)
 	// Public lookup: hides soft-removed events, same visibility rule as
-	// ListEvents. The old TS getEvent() applied no such filter at all (see
-	// DESIGN.md's events section) - fixed here rather than replicated.
+	// ListEvents. The old TS getEvent() applied no such filter at all - fixed
+	// here rather than replicated.
 	GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEventBySlugRow, error)
 	GetEventCommentMemberID(ctx context.Context, arg GetEventCommentMemberIDParams) (pgtype.UUID, error)
 	// Phase 9: setAttendance needs the organizer/title/slug to notify on
@@ -351,18 +349,15 @@ type Querier interface {
 	// Committees eligible for a committee medal - excludes the same fixed
 	// short_name set the old app hardcoded (valb/other/dchip/medalj).
 	ListCommitteesWithMedals(ctx context.Context) ([]ListCommitteesWithMedalsRow, error)
-	// Non-blocking overlap warning (2026-09-02 decision, see DESIGN.md's
-	// Booking section) - the old app never checked this at all; Go surfaces it
+	// Non-blocking overlap warning - the old app never checked this at all; Go surfaces it
 	// as a warning on create/update rather than rejecting the request outright.
 	// DENIED requests never conflict; exclude_id lets an edit ignore its own
 	// pre-existing row (NULL/unset on create, where nothing to exclude yet).
 	ListConflictingBookingRequests(ctx context.Context, arg ListConflictingBookingRequestsParams) ([]ListConflictingBookingRequestsRow, error)
-	// Unfiltered: the old TS backend restricted this list to custom authors
-	// whose custom_author_roles matched one of the member's Keycloak-derived
-	// roles (getDerivedRoles) - that role-derivation system isn't ported to Go
-	// (see ../../DESIGN.md's Auth section on the mock RBAC gap), so for now
-	// every member can choose from every custom author. Revisit once real
-	// roles exist.
+	// Unfiltered: every member can choose from every custom author. The old
+	// TS backend restricted this list to custom authors whose
+	// custom_author_roles matched one of the member's roles; that filter isn't
+	// ported.
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
 	ListDefaultTagIDs(ctx context.Context) ([]pgtype.UUID, error)
 	ListDistinctSongCategories(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)

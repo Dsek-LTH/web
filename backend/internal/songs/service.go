@@ -1,5 +1,4 @@
-// Package songs is the songbook domain - see DESIGN.md's Phase 3 ("Simple
-// standalone CRUD") section. Ported from
+// Package songs is the songbook domain. Ported from
 // src/routes/(app)/songbook/*.
 package songs
 

@@ -1,8 +1,7 @@
 // Package nollning is the single source of truth for "what nollning phase/
 // season/role is this" - every other domain (auth, articles, events,
-// committees) calls into it rather than re-deriving its own answer. See
-// ../../DESIGN.md's "Nollning: proposed redesign" for the full rationale:
-// it collapses three previously-independent mechanisms (an AdminSetting-
+// committees) calls into it rather than re-deriving its own answer. It
+// collapses three previously-independent mechanisms (an AdminSetting-
 // backed time window, a `[NOLLNING]` tag-name-prefix convention, and a
 // dual-path PhadderGroup/mandate membership model) into one package.
 package nollning
@@ -132,7 +131,7 @@ type PhadderGroupInput struct {
 // NollningStatus is what GET /nollning/current returns - what the frontend
 // needs to pick a theme and route the native app, replacing
 // REVEAL_LAUNCH_DATE/CUTOFF_DATE/APP_PREFERRED_PAGE_COOKIE's ad-hoc date
-// logic with one API call (see DESIGN.md's nollning section).
+// logic with one API call.
 type NollningStatus struct {
 	Phase  Phase           `json:"phase"            doc:"off outside a season; pre_reveal before the theme is revealed; post_reveal after."`
 	Season *NollningSeason `json:"season,omitempty" doc:"The active season. Omitted when phase is off."`
