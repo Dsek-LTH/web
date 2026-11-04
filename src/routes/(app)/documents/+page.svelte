@@ -1,7 +1,9 @@
 <script lang="ts">
   import * as Tabs from "$lib/components/ui/tabs";
   import { page } from "$app/state";
+  import { prefersReducedMotion } from "svelte/motion";
   import { SvelteURLSearchParams } from "svelte/reactivity";
+  import { fly, slide } from "svelte/transition";
   import type { PageData } from "./$types";
   import {
     PUBLIC_BUCKETS_DOCUMENTS,
@@ -135,19 +137,25 @@
         class="flex flex-col items-start gap-3 md:flex-row md:items-stretch md:gap-2"
       >
         <Tabs.Root value={page.url.searchParams.get("type") ?? "board-meeting"}>
-          <Tabs.List class="flex-col px-4 sm:flex-row sm:px-1">
+          <Tabs.List class="max-w-full flex-row px-1">
             <a href={generateLink("guild-meeting")}>
-              <Tabs.Trigger value="guild-meeting"
+              <Tabs.Trigger
+                value="guild-meeting"
+                class="px-2 text-xs sm:px-3 sm:text-sm"
                 >{m.documents_guildMeetings()}</Tabs.Trigger
               ></a
             >
             <a href={generateLink("board-meeting")}
-              ><Tabs.Trigger value="board-meeting"
+              ><Tabs.Trigger
+                value="board-meeting"
+                class="px-2 text-xs sm:px-3 sm:text-sm"
                 >{m.documents_boardMeetings()}</Tabs.Trigger
               ></a
             >
             <a href={generateLink("SRD-meeting")}
-              ><Tabs.Trigger value="SRD-meeting"
+              ><Tabs.Trigger
+                value="SRD-meeting"
+                class="px-2 text-xs sm:px-3 sm:text-sm"
                 >{m.documents_srdMeetings()}</Tabs.Trigger
               ></a
             >
@@ -214,16 +222,23 @@
             />
 
             {#if selectedMeeting === meeting.name && selected}
-              <div class="mt-2 md:hidden">
-                <MeetingDetail
-                  meeting={selected}
-                  deleteForm={data.deleteForm}
-                  editForm={data.editForm}
-                  {isEditing}
-                  {canDelete}
-                  {canUpdate}
-                  onClose={() => (selectedMeeting = null)}
-                />
+              <div
+                class="md:hidden"
+                transition:slide={{
+                  duration: prefersReducedMotion.current ? 0 : 200,
+                }}
+              >
+                <div class="pt-2">
+                  <MeetingDetail
+                    meeting={selected}
+                    deleteForm={data.deleteForm}
+                    editForm={data.editForm}
+                    {isEditing}
+                    {canDelete}
+                    {canUpdate}
+                    onClose={() => (selectedMeeting = null)}
+                  />
+                </div>
               </div>
             {/if}
           </div>
@@ -232,15 +247,24 @@
     </div>
 
     <div class="hidden min-w-0 flex-1 md:block">
-      <MeetingDetail
-        meeting={selected}
-        deleteForm={data.deleteForm}
-        editForm={data.editForm}
-        {isEditing}
-        {canDelete}
-        {canUpdate}
-        onClose={() => (selectedMeeting = null)}
-      />
+      {#key selected?.name ?? "empty"}
+        <div
+          in:fly={{
+            y: prefersReducedMotion.current ? 0 : 4,
+            duration: prefersReducedMotion.current ? 0 : 160,
+          }}
+        >
+          <MeetingDetail
+            meeting={selected}
+            deleteForm={data.deleteForm}
+            editForm={data.editForm}
+            {isEditing}
+            {canDelete}
+            {canUpdate}
+            onClose={() => (selectedMeeting = null)}
+          />
+        </div>
+      {/key}
     </div>
   </div>
 </div>
