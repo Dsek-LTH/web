@@ -2719,9 +2719,10 @@ updated in its own phase, same as phase 1 and phase 2 already did.
       by member id (`memberIds`, `accessMemberIds`) where the pickers hand
       over ids; path keys are student ids. The notification list pages by
       `hasMore`, not `pageCount`: grouping makes a page count meaningless.
-    - **Found, not fixed**: the requirement-profiles page shows its delete
+    - **Found, not fixed**: ~~the requirement-profiles page shows its delete
       button for the documents bucket's delete policy, but Go deletes from
-      the files bucket (`fileHandler:files:delete`); `/bookings/create`
+      the files bucket~~ (**fixed 2026-11-04**: the page checks
+      `fileHandler:files:delete` now); `/bookings/create`
       logs a button-inside-button hydration warning (markup untouched by
       this phase); Shlink errors (e.g. no API key in dev) surface as 422.
     - **Verified**: `go build`/`vet`/`test`, svelte-check, eslint,

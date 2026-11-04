@@ -8,7 +8,7 @@
   import YearSelector from "$lib/components/YearSelector.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import FileLink from "$lib/components/files/FileLink.svelte";
-  import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+  import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
   import apiNames from "$lib/utils/apiNames";
   import * as m from "$paraglide/messages.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
@@ -21,10 +21,10 @@
   let { data } = $props();
 
   // Only decides whether to show the button - Go enforces the delete
-  // policy itself.
+  // policy itself. Requirement profiles live in the files bucket.
   let canDelete = $derived(
     !!data.user?.policies?.includes(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).DELETE,
     ),
   );
 
