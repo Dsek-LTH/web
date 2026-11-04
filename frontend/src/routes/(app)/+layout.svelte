@@ -22,16 +22,14 @@
     : 0) + "px"}
 >
   {#if data.isApp}
-    <AppHeader unreadCountPromise={data.unreadCountPromise} />
+    <AppHeader unreadCount={data.unreadCount} />
     <AppNavigation />
   {:else}
-    <Header unreadCountPromise={data.unreadCountPromise} />
+    <Header unreadCount={data.unreadCount} />
   {/if}
 
   {#if data.isApp}
-    {#await data.unreadCountPromise then unreadCount}
-      <AppUnreadNotificationHandler notificationCount={unreadCount} />
-    {/await}
+    <AppUnreadNotificationHandler notificationCount={data.unreadCount} />
     <AppNotificationTokenHandler />
   {/if}
 

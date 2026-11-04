@@ -33,8 +33,7 @@
   import { Spinner } from "$lib/components/ui/spinner";
   import { getFileUrl } from "$lib/files/client";
 
-  const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
-    $props();
+  const { unreadCount }: { unreadCount?: number } = $props();
 
   const canAccess = (accessRequired: string | null) =>
     accessRequired === null ||
@@ -128,7 +127,7 @@
         class="p-1.5"><Languages /></Button
       >
       {#if page.data.member}
-        <NotificationBell {unreadCountPromise} />
+        <NotificationBell {unreadCount} />
         <HoverCard.Root bind:open={memberOpen} openDelay={0} closeDelay={125}>
           <HoverCard.Trigger onclick={() => (memberOpen = !memberOpen)}>
             <MemberAvatar

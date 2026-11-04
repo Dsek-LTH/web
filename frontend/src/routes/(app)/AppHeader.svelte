@@ -5,8 +5,7 @@
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
   import NotificationBell from "./notifications/NotificationBell.svelte";
 
-  const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
-    $props();
+  const { unreadCount }: { unreadCount?: number } = $props();
 
   let commandDialogOpen = $state(false);
 
@@ -24,7 +23,7 @@
     class="bg-muted-background border-rosa-background fixed top-0 z-500 mb-2 flex w-full flex-row items-center justify-between border-b-[1px] px-4 shadow-sm"
   >
     {#if page.data.member}
-      <NotificationBell {unreadCountPromise} />
+      <NotificationBell {unreadCount} />
     {/if}
 
     <Button

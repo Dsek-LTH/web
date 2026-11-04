@@ -241,6 +241,10 @@ PR previews.
   the client bundle, sometimes as "An impossible situation occurred".
   svelte-check, eslint and SSR curl don't catch it; `pnpm build` or a real
   browser load does.
+- **Streamed layout data breaks status codes**: returning an unawaited
+  promise from a layout load makes SvelteKit stream every page under it,
+  and a streamed page is sent with status 200 even when it renders an
+  error. Await layout data (in parallel with `Promise.all`).
 - **Restarting the backend**: stop it by port
   (`kill $(lsof -ti tcp:8090)`) - `go run`'s binary lives in the build
   cache, so a pattern-based `pkill` can miss it and `pnpm generate:api`

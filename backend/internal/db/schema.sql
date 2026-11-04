@@ -496,6 +496,7 @@ CREATE TABLE notifications (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     from_author_id  UUID REFERENCES authors (id) ON DELETE SET NULL
 );
+CREATE INDEX notifications_member_id_created_at_index ON notifications (member_id, created_at DESC);
 
 CREATE TABLE expo_tokens (
     id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,

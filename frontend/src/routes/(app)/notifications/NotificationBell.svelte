@@ -11,21 +11,10 @@
 
   const PAGE_SIZE = 20;
 
-  const { unreadCountPromise }: { unreadCountPromise?: Promise<number> } =
+  const { unreadCount: serverUnreadCount = 0 }: { unreadCount?: number } =
     $props();
 
   let open = $state(false);
-
-  let serverUnreadCount = $state(0);
-  $effect(() => {
-    if (!unreadCountPromise) {
-      serverUnreadCount = 0;
-      return;
-    }
-    unreadCountPromise.then((count) => {
-      serverUnreadCount = count ?? 0;
-    });
-  });
 
   // Locally mark notifications as read to optimistically hide the badge
   let locallyMarkedRead = $state(false);

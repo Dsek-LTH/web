@@ -17,7 +17,7 @@
   <AppHeader />
   <AppNavigation />
 {:else}
-  <Header unreadCountPromise={data.unreadCountPromise} />
+  <Header unreadCount={data.unreadCount} />
 {/if}
 <main
   style:padding-top={data.isApp ? "64px" : "0px"}

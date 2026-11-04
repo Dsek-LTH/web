@@ -25,20 +25,23 @@ export const load = loadFlash(async (event) => {
   // during SSR too, not just after client-side hydration re-fetches with
   // real cookies.
   const api = serverApi(event);
-  // Only the cheap unread count is loaded up front (streamed, never
-  // blocking render) - NotificationBell fetches the actual list lazily,
-  // paginated, once it's opened (see notifications/data.remote.ts).
-  const unreadCountPromise = user?.memberId
-    ? api
-        .GET("/notifications/unread-count", {})
-        .then((res) => res.data?.count ?? 0)
-    : undefined;
-
-  const alertsRes = await api.GET("/alerts", {});
+  // Only the cheap unread count is loaded up front - NotificationBell
+  // fetches the actual list lazily, paginated, once it's opened (see
+  // notifications/data.remote.ts). It's awaited alongside the alerts rather
+  // than streamed: SvelteKit sends a streamed page with status 200 even
+  // when it renders an error, and this layout wraps every page.
+  const [alertsRes, unreadCount] = await Promise.all([
+    api.GET("/alerts", {}),
+    user?.memberId
+      ? api
+          .GET("/notifications/unread-count", {})
+          .then((res) => res.data?.count ?? 0)
+      : undefined,
+  ]);
 
   return {
     alerts: alertsRes.data ?? [],
-    unreadCountPromise,
+    unreadCount,
   };
 });
 
