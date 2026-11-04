@@ -115,13 +115,20 @@ export const loadHomeData = async (event: RequestEvent) => {
     .GET("/elections")
     .then((res) => (res.data ?? []).slice(0, 3));
 
-  const [news, events, cafeOpen, commitData, elections] =
+  const birthdaysPromise = event.locals.user?.memberId
+    ? api
+        .GET("/members", { params: { query: { birthdayToday: true } } })
+        .then((res) => res.data ?? [])
+    : Promise.resolve([]);
+
+  const [news, events, cafeOpen, commitData, elections, birthdays] =
     await Promise.allSettled([
       newsPromise,
       eventsPromise,
       cafeOpenPromise,
       commitPromise,
       electionsPromise,
+      birthdaysPromise,
     ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
@@ -164,5 +171,6 @@ export const loadHomeData = async (event: RequestEvent) => {
     wikiData: await wikiDataCache.get(),
     minecraftStatus: minecraftStatus(),
     elections: elections.value,
+    birthdays: birthdays.status === "fulfilled" ? birthdays.value : [],
   };
 };

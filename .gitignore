@@ -7,7 +7,6 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-/.vercel
 project.inlang/project_id
 /test-results/
 /playwright-report/

@@ -1,5 +1,6 @@
 import { memberSchema } from "$lib/zod/schemas";
 import { serverApi } from "$lib/server/apiClient";
+import { toBirthDateString } from "$lib/utils/birthdays";
 import * as m from "$paraglide/messages";
 import { error, fail, redirect, type NumericRange } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -67,6 +68,7 @@ const updateSchema = memberSchema
     firstName: true,
     lastName: true,
     nickname: true,
+    birthDate: true,
     foodPreference: true,
     classProgramme: true,
     classYear: true,
@@ -99,6 +101,7 @@ export const actions: Actions = {
         graduationYear: profileFields.graduationYear ?? undefined,
         language: profileFields.language ?? undefined,
         bio: profileFields.bio ?? undefined,
+        birthDate: toBirthDateString(profileFields.birthDate),
       },
     });
     if (foodPreference !== undefined) {

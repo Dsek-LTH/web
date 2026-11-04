@@ -103,7 +103,8 @@ CREATE TABLE members (
     email              VARCHAR(255) UNIQUE,
     nollning_group_id  UUID REFERENCES phadder_groups (id) ON DELETE SET NULL,
     graduation_year    INTEGER,
-    language           VARCHAR(255)
+    language           VARCHAR(255),
+    birth_date         DATE
 );
 
 CREATE TABLE mandates (

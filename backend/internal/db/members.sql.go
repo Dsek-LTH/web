@@ -124,7 +124,7 @@ func (q *Queries) GetMemberPicturePath(ctx context.Context, studentID pgtype.Tex
 
 const getMemberProfile = `-- name: GetMemberProfile :one
 SELECT id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-       class_year, visible, food_preference, bio, email, graduation_year, language
+       class_year, visible, food_preference, bio, email, graduation_year, language, birth_date
 FROM members
 WHERE student_id = $1
 `
@@ -144,6 +144,7 @@ type GetMemberProfileRow struct {
 	Email          pgtype.Text `json:"email"`
 	GraduationYear pgtype.Int4 `json:"graduation_year"`
 	Language       pgtype.Text `json:"language"`
+	BirthDate      pgtype.Date `json:"birth_date"`
 }
 
 // Full column set for a member's own profile page, unlike
@@ -167,6 +168,7 @@ func (q *Queries) GetMemberProfile(ctx context.Context, studentID pgtype.Text) (
 		&i.Email,
 		&i.GraduationYear,
 		&i.Language,
+		&i.BirthDate,
 	)
 	return i, err
 }
@@ -228,6 +230,53 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]Lis
 	return items, nil
 }
 
+const listVisibleMembersWithBirthDate = `-- name: ListVisibleMembersWithBirthDate :many
+SELECT id, student_id, first_name, nickname, last_name, picture_path, birth_date
+FROM members
+WHERE visible AND birth_date IS NOT NULL
+ORDER BY first_name, last_name
+`
+
+type ListVisibleMembersWithBirthDateRow struct {
+	ID          pgtype.UUID `json:"id"`
+	StudentID   pgtype.Text `json:"student_id"`
+	FirstName   pgtype.Text `json:"first_name"`
+	Nickname    pgtype.Text `json:"nickname"`
+	LastName    pgtype.Text `json:"last_name"`
+	PicturePath pgtype.Text `json:"picture_path"`
+	BirthDate   pgtype.Date `json:"birth_date"`
+}
+
+// Candidates for the home page's birthday list; whose birthday is today is
+// decided in Go (members.BirthdayOn), which also handles 29 February.
+func (q *Queries) ListVisibleMembersWithBirthDate(ctx context.Context) ([]ListVisibleMembersWithBirthDateRow, error) {
+	rows, err := q.db.Query(ctx, listVisibleMembersWithBirthDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListVisibleMembersWithBirthDateRow{}
+	for rows.Next() {
+		var i ListVisibleMembersWithBirthDateRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StudentID,
+			&i.FirstName,
+			&i.Nickname,
+			&i.LastName,
+			&i.PicturePath,
+			&i.BirthDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setMemberPicturePath = `-- name: SetMemberPicturePath :execrows
 UPDATE members SET picture_path = $1 WHERE student_id = $2
 `
@@ -250,7 +299,7 @@ UPDATE members
 SET food_preference = $2
 WHERE student_id = $1
 RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-          class_year, visible, food_preference, bio, email, graduation_year, language
+          class_year, visible, food_preference, bio, email, graduation_year, language, birth_date
 `
 
 type UpdateMemberFoodPreferenceParams struct {
@@ -273,6 +322,7 @@ type UpdateMemberFoodPreferenceRow struct {
 	Email          pgtype.Text `json:"email"`
 	GraduationYear pgtype.Int4 `json:"graduation_year"`
 	Language       pgtype.Text `json:"language"`
+	BirthDate      pgtype.Date `json:"birth_date"`
 }
 
 func (q *Queries) UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemberFoodPreferenceParams) (UpdateMemberFoodPreferenceRow, error) {
@@ -293,6 +343,7 @@ func (q *Queries) UpdateMemberFoodPreference(ctx context.Context, arg UpdateMemb
 		&i.Email,
 		&i.GraduationYear,
 		&i.Language,
+		&i.BirthDate,
 	)
 	return i, err
 }
@@ -317,10 +368,10 @@ func (q *Queries) UpdateMemberLanguage(ctx context.Context, arg UpdateMemberLang
 const updateMemberProfile = `-- name: UpdateMemberProfile :one
 UPDATE members
 SET first_name = $2, last_name = $3, nickname = $4, class_programme = $5,
-    class_year = $6, graduation_year = $7, language = $8, bio = $9
+    class_year = $6, graduation_year = $7, language = $8, bio = $9, birth_date = $10
 WHERE student_id = $1
 RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-          class_year, visible, food_preference, bio, email, graduation_year, language
+          class_year, visible, food_preference, bio, email, graduation_year, language, birth_date
 `
 
 type UpdateMemberProfileParams struct {
@@ -333,6 +384,7 @@ type UpdateMemberProfileParams struct {
 	GraduationYear pgtype.Int4 `json:"graduation_year"`
 	Language       pgtype.Text `json:"language"`
 	Bio            pgtype.Text `json:"bio"`
+	BirthDate      pgtype.Date `json:"birth_date"`
 }
 
 type UpdateMemberProfileRow struct {
@@ -350,6 +402,7 @@ type UpdateMemberProfileRow struct {
 	Email          pgtype.Text `json:"email"`
 	GraduationYear pgtype.Int4 `json:"graduation_year"`
 	Language       pgtype.Text `json:"language"`
+	BirthDate      pgtype.Date `json:"birth_date"`
 }
 
 func (q *Queries) UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfileParams) (UpdateMemberProfileRow, error) {
@@ -363,6 +416,7 @@ func (q *Queries) UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfi
 		arg.GraduationYear,
 		arg.Language,
 		arg.Bio,
+		arg.BirthDate,
 	)
 	var i UpdateMemberProfileRow
 	err := row.Scan(
@@ -380,6 +434,7 @@ func (q *Queries) UpdateMemberProfile(ctx context.Context, arg UpdateMemberProfi
 		&i.Email,
 		&i.GraduationYear,
 		&i.Language,
+		&i.BirthDate,
 	)
 	return i, err
 }

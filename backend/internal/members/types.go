@@ -29,6 +29,8 @@ type MemberProfile struct {
 	GraduationYear *int32             `json:"graduationYear,omitempty"`
 	Language       *apitypes.Language `json:"language,omitempty"       doc:"Preferred UI language."`
 	Email          *string            `json:"email,omitempty"          doc:"Only for the member themselves, or with member:see_email."`
+	BirthDate      *string            `json:"birthDate,omitempty"      doc:"YYYY-MM-DD. Only for the member themselves, or with member:user."`
+	BirthdayToday  bool               `json:"birthdayToday"            doc:"Whether it's the member's birthday today (Swedish time). False when birthDate is hidden."`
 	Mandates       []Mandate          `json:"mandates,omitempty"       doc:"Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}."`
 }
 
@@ -42,6 +44,7 @@ type ProfileInput struct {
 	GraduationYear *int32             `json:"graduationYear,omitempty"`
 	Language       *apitypes.Language `json:"language,omitempty"`
 	Bio            *string            `json:"bio,omitempty"            doc:"HTML, sanitized on save."`
+	BirthDate      *string            `json:"birthDate,omitempty"      doc:"YYYY-MM-DD. Omit to clear it."`
 }
 
 // FoodPreferenceInput replaces a member's food preference.

@@ -502,6 +502,7 @@ type Member struct {
 	NollningGroupID  pgtype.UUID `json:"nollning_group_id"`
 	GraduationYear   pgtype.Int4 `json:"graduation_year"`
 	Language         pgtype.Text `json:"language"`
+	BirthDate        pgtype.Date `json:"birth_date"`
 }
 
 type MemberTagSubscription struct {

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -135,10 +136,7 @@ func NewOIDCClient(
 // state in a short-lived cookie (10 minutes - plenty for a login redirect
 // round trip) scoped to this API's own origin only.
 func (c *OIDCClient) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	returnTo := r.URL.Query().Get("returnTo")
-	if returnTo == "" {
-		returnTo = "/"
-	}
+	returnTo := safeReturnTo(r.URL.Query().Get("returnTo"))
 	state, err := randomToken()
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -368,4 +366,16 @@ func randomToken() (string, error) {
 		return "", err
 	}
 	return base64.RawURLEncoding.EncodeToString(buf), nil
+}
+
+// safeReturnTo keeps the post-login redirect on the frontend: the callback
+// redirects to frontendURL+returnTo, so anything but a plain path
+// ("@evil.example", ".evil.example", "//evil.example") would leave it.
+func safeReturnTo(returnTo string) string {
+	if !strings.HasPrefix(returnTo, "/") ||
+		strings.HasPrefix(returnTo, "//") ||
+		strings.HasPrefix(returnTo, "/\\") {
+		return "/"
+	}
+	return returnTo
 }

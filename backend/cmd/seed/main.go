@@ -276,12 +276,23 @@ func (s *seeder) members() error {
 			v := s.f.RandomString([]string{"Vegetarian", "Vegan"})
 			food = &v
 		}
+		// About one in ten has their birthday today, so the home page's
+		// birthday list has someone to show.
+		birthDate := time.Date(
+			s.f.IntRange(s.now.Year()-30, s.now.Year()-18),
+			time.Month(s.f.IntRange(1, 12)), s.f.IntRange(1, 28), 0, 0, 0, 0, time.UTC,
+		)
+		if s.f.IntN(10) == 0 {
+			birthDate = time.Date(
+				s.f.IntRange(1995, 2005), s.now.Month(), s.now.Day(), 0, 0, 0, 0, time.UTC,
+			)
+		}
 		email := strings.ToLower(fmt.Sprintf("%s.%s.%s@user.dsek.se", first, last, studentID))
 		id, err := s.insertID(
 			`
 			INSERT INTO members (student_id, first_name, last_name, nickname, bio, food_preference,
-				class_programme, class_year, picture_path, email, visible)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true) RETURNING id`,
+				class_programme, class_year, picture_path, email, birth_date, visible)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, true) RETURNING id`,
 			studentID,
 			first,
 			last,
@@ -295,6 +306,7 @@ func (s *seeder) members() error {
 				s.f.IntRange(1_000_000, 99_999_999),
 			),
 			email,
+			birthDate.Format(time.DateOnly),
 		)
 		if err != nil {
 			return err

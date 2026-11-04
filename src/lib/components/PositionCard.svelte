@@ -16,6 +16,12 @@
     };
     compact?: boolean;
   } = $props();
+
+  const title = $derived(
+    mandate.phadderIn
+      ? `${mandate.position?.name} i ${mandate.phadderIn.name}`
+      : mandate.position?.name,
+  );
 </script>
 
 <div
@@ -40,10 +46,10 @@
     <a href={getPositionLink(mandate.position.id)}>
       {#if compact}
         <h5 class="hover:text-muted-foreground transition-all">
-          {mandate.position?.name}
+          {title}
         </h5>
       {:else}<h6 class="hover:text-muted-foreground transition-all">
-          {mandate.position?.name}
+          {title}
         </h6>{/if}
     </a>
     {#if !compact}

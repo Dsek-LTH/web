@@ -2,6 +2,7 @@ import { serverApi } from "$lib/server/apiClient";
 import { setNollningGroup } from "$lib/utils/member";
 import { emptySchema, memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
+import { getLocale } from "$paraglide/runtime";
 import { error, fail, type NumericRange } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import {
@@ -11,6 +12,7 @@ import {
 } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
+import { formatBirthday, toBirthDateString } from "$lib/utils/birthdays";
 
 export const load: PageServerLoad = async (event) => {
   const { locals, params, cookies } = event;
@@ -109,6 +111,10 @@ export const load: PageServerLoad = async (event) => {
         }
       : null;
 
+  const birthday = profile.birthDate
+    ? formatBirthday(new Date(profile.birthDate), getLocale())
+    : null;
+
   const member = {
     ...profile,
     mandates: (profile.mandates ?? []).map((mandate) => ({
@@ -145,6 +151,8 @@ export const load: PageServerLoad = async (event) => {
         zod4(phadderGroupSchema),
       ),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
+      birthday,
+      birthdayToday: profile.birthdayToday,
       doorAccess,
       publishedArticles: publishedArticlesResult.value,
       medals: medalsResult.value.data ?? [],
@@ -162,6 +170,7 @@ const updateSchema = memberSchema
     firstName: true,
     lastName: true,
     nickname: true,
+    birthDate: true,
     foodPreference: true,
     classProgramme: true,
     classYear: true,
@@ -263,6 +272,7 @@ export const actions: Actions = {
         graduationYear: profileFields.graduationYear ?? undefined,
         language: profileFields.language ?? undefined,
         bio: profileFields.bio ?? undefined,
+        birthDate: toBirthDateString(profileFields.birthDate),
       },
     });
     if (foodPreference !== undefined) {

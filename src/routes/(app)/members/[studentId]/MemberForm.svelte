@@ -82,6 +82,17 @@
         </div>
       </div>
       <div class="flex w-full flex-col gap-1.5">
+        <Label for="birthDate">{m.members_birthday()}</Label><Input
+          type="date"
+          id="birthDate"
+          name="birthDate"
+          bind:value={() => $form.birthDate?.toISOString().split("T")[0] ?? "",
+          (value) => ($form.birthDate = value ? new Date(value) : null)}
+          aria-invalid={!!$errors.birthDate}
+          aria-errormessage={$errors.birthDate?.at(0)}><Calendar /></Input
+        >
+      </div>
+      <div class="flex w-full flex-col gap-1.5">
         <Label for="nickname">{m.members_nickname()}</Label><Input
           bind:value={$form.nickname}
           type="text"

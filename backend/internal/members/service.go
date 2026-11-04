@@ -9,8 +9,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/dsek-lth/web/backend/internal/apinames"
@@ -65,11 +67,18 @@ func requireMember(ctx context.Context) (*auth.Identity, error) {
 type ListParams struct {
 	ClassYear      *int32
 	ClassProgramme *string
+	// BirthdayToday lists only visible members whose birthday is today,
+	// ignoring the other filters. Needs member:user.
+	BirthdayToday bool
 }
 
 func (s *Service) List(ctx context.Context, params ListParams) ([]MemberProfile, error) {
-	if _, err := requireMember(ctx); err != nil {
+	identity, err := requireMember(ctx)
+	if err != nil {
 		return nil, err
+	}
+	if params.BirthdayToday {
+		return s.listBirthdays(ctx, identity)
 	}
 	rows, err := s.queries.ListMembers(ctx, db.ListMembersParams{
 		ClassYear:      dbutil.ToInt4(params.ClassYear),
@@ -90,6 +99,38 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]MemberProfile,
 			ClassProgramme: dbutil.TextPtr(r.ClassProgramme),
 			ClassYear:      dbutil.Int4Ptr(r.ClassYear),
 		}
+	}
+	return members, nil
+}
+
+func (s *Service) listBirthdays(
+	ctx context.Context,
+	identity *auth.Identity,
+) ([]MemberProfile, error) {
+	if !identity.Has(apinames.MemberUser) {
+		return []MemberProfile{}, nil
+	}
+	rows, err := s.queries.ListVisibleMembersWithBirthDate(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list birthdays: %w", err)
+	}
+	now := time.Now()
+	members := []MemberProfile{}
+	for _, r := range rows {
+		if !BirthdayOn(r.BirthDate, now) {
+			continue
+		}
+		members = append(members, MemberProfile{
+			ID:            dbutil.UUIDStr(r.ID),
+			StudentID:     dbutil.TextPtr(r.StudentID),
+			FirstName:     dbutil.TextPtr(r.FirstName),
+			Nickname:      dbutil.TextPtr(r.Nickname),
+			LastName:      dbutil.TextPtr(r.LastName),
+			PicturePath:   dbutil.TextPtr(r.PicturePath),
+			Visible:       true,
+			BirthDate:     dbutil.DatePtr(r.BirthDate),
+			BirthdayToday: true,
+		})
 	}
 	return members, nil
 }
@@ -177,6 +218,10 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 	if identity.StudentID == studentID || identity.Has(apinames.MemberSeeEmail) {
 		member.Email = dbutil.TextPtr(row.Email)
 	}
+	if identity.StudentID == studentID || identity.Has(apinames.MemberUser) {
+		member.BirthDate = dbutil.DatePtr(row.BirthDate)
+		member.BirthdayToday = BirthdayOn(row.BirthDate, time.Now())
+	}
 
 	return &member, nil
 }
@@ -194,6 +239,17 @@ func (s *Service) UpdateProfile(
 	if err := s.authorizeSelfOrUpdate(ctx, studentID); err != nil {
 		return nil, err
 	}
+	var birthDate pgtype.Date
+	if in.BirthDate != nil && *in.BirthDate != "" {
+		d, err := dbutil.ParseDate(*in.BirthDate)
+		if err != nil {
+			return nil, invalidf("birthDate must be YYYY-MM-DD")
+		}
+		if d.Time.After(time.Now()) {
+			return nil, invalidf("birthDate can't be in the future")
+		}
+		birthDate = d
+	}
 
 	row, err := s.queries.UpdateMemberProfile(ctx, db.UpdateMemberProfileParams{
 		StudentID:      dbutil.ToText(&studentID),
@@ -205,6 +261,7 @@ func (s *Service) UpdateProfile(
 		GraduationYear: dbutil.ToInt4(in.GraduationYear),
 		Language:       dbutil.ToText((*string)(in.Language)),
 		Bio:            dbutil.ToText(sanitizePtr(s.sanitizer, in.Bio)),
+		BirthDate:      birthDate,
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

@@ -20,29 +20,37 @@ WHERE (sqlc.narg('class_year')::int IS NULL OR class_year = sqlc.narg('class_yea
   AND (sqlc.narg('class_programme')::text IS NULL OR class_programme = sqlc.narg('class_programme')::text)
 ORDER BY first_name, last_name, class_programme;
 
+-- name: ListVisibleMembersWithBirthDate :many
+-- Candidates for the home page's birthday list; whose birthday is today is
+-- decided in Go (members.BirthdayOn), which also handles 29 February.
+SELECT id, student_id, first_name, nickname, last_name, picture_path, birth_date
+FROM members
+WHERE visible AND birth_date IS NOT NULL
+ORDER BY first_name, last_name;
+
 -- name: GetMemberProfile :one
 -- Full column set for a member's own profile page, unlike
 -- GetMemberByStudentID's minimal projection (built only for author
 -- resolution).
 SELECT id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-       class_year, visible, food_preference, bio, email, graduation_year, language
+       class_year, visible, food_preference, bio, email, graduation_year, language, birth_date
 FROM members
 WHERE student_id = $1;
 
 -- name: UpdateMemberProfile :one
 UPDATE members
 SET first_name = $2, last_name = $3, nickname = $4, class_programme = $5,
-    class_year = $6, graduation_year = $7, language = $8, bio = $9
+    class_year = $6, graduation_year = $7, language = $8, bio = $9, birth_date = $10
 WHERE student_id = $1
 RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-          class_year, visible, food_preference, bio, email, graduation_year, language;
+          class_year, visible, food_preference, bio, email, graduation_year, language, birth_date;
 
 -- name: UpdateMemberFoodPreference :one
 UPDATE members
 SET food_preference = $2
 WHERE student_id = $1
 RETURNING id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-          class_year, visible, food_preference, bio, email, graduation_year, language;
+          class_year, visible, food_preference, bio, email, graduation_year, language, birth_date;
 
 -- name: CreateMember :one
 -- Minimal port of src/lib/utils/member.ts's createMember: just the bare

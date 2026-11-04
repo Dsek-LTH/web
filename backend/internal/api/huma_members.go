@@ -27,13 +27,15 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 		Path:        "/members",
 		Tags:        tags,
 		Summary:     "List members",
-		Description: "Signed-in members only.",
+		Description: "Signed-in members only. With birthdayToday, needs member:user " +
+			"(an empty list otherwise).",
 	}, func(ctx context.Context, input *struct {
 		ClassYear      int32  `query:"classYear"      doc:"Only members who started this year."`
 		ClassProgramme string `query:"classProgramme" doc:"Only members in this programme, e.g. D."`
+		BirthdayToday  bool   `query:"birthdayToday"  doc:"Only visible members whose birthday is today (Swedish time). Ignores the other filters."`
 	},
 	) (*struct{ Body []members.MemberProfile }, error) {
-		params := members.ListParams{}
+		params := members.ListParams{BirthdayToday: input.BirthdayToday}
 		if input.ClassYear != 0 {
 			params.ClassYear = &input.ClassYear
 		}

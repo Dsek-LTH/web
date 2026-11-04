@@ -1,5 +1,4 @@
 <script lang="ts">
-  import PageHeader from "$lib/components/nav/PageHeader.svelte";
   import FileLink from "$lib/components/files/FileLink.svelte";
   import YearSelector from "$lib/components/YearSelector.svelte";
   import { Button, buttonVariants } from "$lib/components/ui/button";
@@ -114,7 +113,17 @@
 {/snippet}
 
 <div class="layout-container">
-  <PageHeader title={m.documents_governing()} class="mb-4" />
+  <h1 class="mb-4">{m.documents_governing()}</h1>
+
+  <div class="prose dark:prose-invert mb-8">
+    <p>{m.documents_governing_blurb()}</p>
+    <p>
+      {m.documents_governing_forQuestions()}
+      <a href="mailto:styrelsen@dsek.se" class="text-primary hover:underline"
+        >styrelsen@dsek.se</a
+      >
+    </p>
+  </div>
 
   {#if canCreate || canEdit}
     <div class="mb-4 flex gap-2">
@@ -136,16 +145,6 @@
       {/if}
     </div>
   {/if}
-
-  <div class="prose dark:prose-invert mb-8">
-    <p>{m.documents_governing_blurb()}</p>
-    <p>
-      {m.documents_governing_forQuestions()}
-      <a href="mailto:styrelsen@dsek.se" class="text-primary hover:underline"
-        >styrelsen@dsek.se</a
-      >
-    </p>
-  </div>
 
   <div class="mb-8 grid grid-cols-1 gap-8 md:grid-cols-2">
     <a

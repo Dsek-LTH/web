@@ -26,6 +26,10 @@ export const memberSchema = z.object({
       message: "Ogiltigt program",
     }),
   graduationYear: z.number().min(1962).nullable().default(null),
+  birthDate: z.preprocess(
+    (value) => (value === "" ? null : value),
+    z.coerce.date().nullable().default(null),
+  ),
   foodPreference: z.string().nullable().default(null),
   nollningGroupId: z.string().uuid().nullable().default(null),
   language: z.enum(["sv", "en"]).nullable().default(null),

@@ -11,6 +11,7 @@
 
   import { m } from "$paraglide/messages";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
+  import BirthdayList from "$lib/components/BirthdayList.svelte";
   import { Spinner } from "$lib/components/ui/spinner";
   import { page } from "$app/state";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
@@ -142,5 +143,7 @@
         }))}
       />
     </div>
+
+    <BirthdayList birthdays={data.birthdays} />
   </div>
 </div>

@@ -9,6 +9,7 @@
   import PositionCard from "$lib/components/PositionCard.svelte";
   import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import ParticleRain from "$lib/components/ParticleRain.svelte";
 
   import PhadderGroupModal from "./PhadderGroupModal.svelte";
   import MemberBio from "./MemberBio.svelte";
@@ -18,8 +19,10 @@
   import DoorOpen from "@lucide/svelte/icons/door-open";
   import DoorClosed from "@lucide/svelte/icons/door-closed";
   import Copy from "@lucide/svelte/icons/copy";
+  import Cake from "@lucide/svelte/icons/cake";
 
   import { cn } from "$lib/utils";
+  import { BIRTHDAY_COLORS } from "$lib/utils/birthdays";
   import { getFullName } from "$lib/utils/client/member";
   import SEO from "$lib/seo/SEO.svelte";
   import apiNames from "$lib/utils/apiNames";
@@ -75,6 +78,28 @@
     },
   }}
 />
+
+{#if data.birthdayToday && !data.isBirthday}
+  <ParticleRain colors={BIRTHDAY_COLORS} count={30} />
+{/if}
+
+{#snippet birthdayInfo()}
+  {#if data.birthday}
+    <div class="mt-1 flex flex-wrap items-center gap-2">
+      <span class="text-muted-foreground flex items-center gap-1 text-sm">
+        <Cake class="size-4" />
+        {m.members_birthday()}: {data.birthday}
+      </span>
+      {#if data.birthdayToday}
+        <span
+          class="bg-rosa-100 text-rosa-700 dark:bg-rosa-950 dark:text-rosa-200 animate-pulse rounded-full px-2 py-0.5 text-xs font-medium"
+        >
+          {m.members_birthdayToday()}
+        </span>
+      {/if}
+    </div>
+  {/if}
+{/snippet}
 
 <PhadderGroupModal
   isEditing={true}
@@ -133,6 +158,7 @@
           <ProgrammeBadge {member} />
         </a>
       </div>
+      {@render birthdayInfo()}
       {#if member.nickname}<p class="text-rosa-500 mt-0">
           "{member.nickname}"
         </p>{/if}
@@ -348,6 +374,7 @@
           </Dialog.Root>
         {/if}
       </div>
+      {@render birthdayInfo()}
       <h4 class="mb-8">
         {member.nickname ? "“" + member.nickname + "”" : ""}
       </h4>

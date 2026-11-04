@@ -1449,7 +1449,7 @@ export interface paths {
     };
     /**
      * List members
-     * @description Signed-in members only.
+     * @description Signed-in members only. With birthdayToday, needs member:user (an empty list otherwise).
      */
     get: operations["list-members"];
     put?: never;
@@ -3557,6 +3557,8 @@ export interface components {
       studentId: string;
     };
     MeMember: {
+      /** @description Whether it's the member's birthday today (Swedish time). */
+      birthdayToday: boolean;
       /** @description Unset until onboarding is done. */
       classProgramme?: string;
       /**
@@ -3663,6 +3665,10 @@ export interface components {
     MemberProfile: {
       /** @description HTML, sanitized on save. */
       bio?: string;
+      /** @description YYYY-MM-DD. Only for the member themselves, or with member:user. */
+      birthDate?: string;
+      /** @description Whether it's the member's birthday today (Swedish time). False when birthDate is hidden. */
+      birthdayToday: boolean;
       /** @description Programme code, e.g. D or C. */
       classProgramme?: string;
       /**
@@ -4010,6 +4016,8 @@ export interface components {
     ProfileInput: {
       /** @description HTML, sanitized on save. */
       bio?: string;
+      /** @description YYYY-MM-DD. Omit to clear it. */
+      birthDate?: string;
       classProgramme?: string;
       /** Format: int32 */
       classYear?: number;
@@ -7640,6 +7648,8 @@ export interface operations {
         classYear?: number;
         /** @description Only members in this programme, e.g. D. */
         classProgramme?: string;
+        /** @description Only visible members whose birthday is today (Swedish time). Ignores the other filters. */
+        birthdayToday?: boolean;
       };
       header?: never;
       path?: never;

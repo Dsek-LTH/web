@@ -36,6 +36,8 @@ const (
 	MemberUpdate   = "core:member:update"
 	MemberSeeEmail = "member:see_email"
 	MemberPing     = "core:member:ping"
+	// MemberUser lets a member see other members' birth dates.
+	MemberUser = "member:user"
 	// MemberSeeStaben mirrors the old apiNames.MEMBER.SEE_STABEN exactly -
 	// granted to everyone outside a nollning season, opt-in only during one
 	// (see internal/nollning.Service.InjectStabenPolicy).
@@ -203,6 +205,7 @@ func All() []string {
 		MemberUpdate,
 		MemberSeeEmail,
 		MemberPing,
+		MemberUser,
 		MemberSeeStaben,
 		CommitteeUpdate,
 		PositionUpdate,

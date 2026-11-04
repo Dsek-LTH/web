@@ -1,4 +1,5 @@
 import { loadFlash } from "sveltekit-flash-message/server";
+import { getSeasonalEffect } from "$lib/utils/seasonalEffects";
 /**
  * Load the form flash message.
  * Propagates the user and member to the page data.
@@ -25,6 +26,8 @@ export const load = loadFlash(async ({ locals }) => {
     user,
     member,
     theme,
+    isBirthday: member?.birthdayToday ?? false,
+    seasonalEffect: getSeasonalEffect(new Date()),
     /**
      * isApp is true when the page is rendered within the native app. This
      * differs from using breakpoint modifiers as the site should look and

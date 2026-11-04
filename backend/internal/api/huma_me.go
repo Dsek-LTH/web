@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -11,6 +12,7 @@ import (
 	"github.com/dsek-lth/web/backend/internal/auth"
 	"github.com/dsek-lth/web/backend/internal/db"
 	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/backend/internal/members"
 )
 
 // Me is what hooks.server.ts reads instead of doing its own OIDC +
@@ -36,6 +38,7 @@ type MeMember struct {
 	ClassProgramme *string            `json:"classProgramme,omitempty" doc:"Unset until onboarding is done."`
 	ClassYear      *int32             `json:"classYear,omitempty"      doc:"Unset until onboarding is done."`
 	Language       *apitypes.Language `json:"language,omitempty"       doc:"Preferred UI language."`
+	BirthdayToday  bool               `json:"birthdayToday"            doc:"Whether it's the member's birthday today (Swedish time)."`
 }
 
 func registerMeRoutes(api huma.API, queries *db.Queries) {
@@ -79,6 +82,7 @@ func registerMeRoutes(api huma.API, queries *db.Queries) {
 				ClassProgramme: dbutil.TextPtr(m.ClassProgramme),
 				ClassYear:      dbutil.Int4Ptr(m.ClassYear),
 				Language:       (*apitypes.Language)(dbutil.TextPtr(m.Language)),
+				BirthdayToday:  members.BirthdayOn(m.BirthDate, time.Now()),
 			}
 		}
 		return &struct{ Body Me }{Body: me}, nil

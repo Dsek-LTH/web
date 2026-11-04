@@ -1,5 +1,6 @@
 import { memberSchema } from "$lib/zod/schemas";
 import { serverApi } from "$lib/server/apiClient";
+import { toBirthDateString } from "$lib/utils/birthdays";
 import { superValidate, type Infer } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
@@ -61,6 +62,7 @@ export const load: PageServerLoad = async (event) => {
 const updateSchema = memberSchema.pick({
   firstName: true,
   lastName: true,
+  birthDate: true,
   foodPreference: true,
   classProgramme: true,
   classYear: true,
@@ -105,6 +107,7 @@ export const actions: Actions = {
         graduationYear: current.graduationYear,
         language: current.language,
         bio: current.bio,
+        birthDate: toBirthDateString(profileFields.birthDate),
       },
     });
     if (profileRes.error) {

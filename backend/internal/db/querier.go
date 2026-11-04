@@ -545,6 +545,9 @@ type Querier interface {
 	// window), regardless of booker - visibility is gated at the service layer
 	// (booking_request:read), not per-row ownership.
 	ListUpcomingBookingRequests(ctx context.Context, since pgtype.Timestamptz) ([]ListUpcomingBookingRequestsRow, error)
+	// Candidates for the home page's birthday list; whose birthday is today is
+	// decided in Go (members.BirthdayOn), which also handles 29 February.
+	ListVisibleMembersWithBirthDate(ctx context.Context) ([]ListVisibleMembersWithBirthDateRow, error)
 	ListWaitlistFrontForUpdate(ctx context.Context, arg ListWaitlistFrontForUpdateParams) ([]TicketQueueEntry, error)
 	LockRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
 	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
