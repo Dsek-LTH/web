@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { SuperValidated } from "sveltekit-superforms";
   import type { DeleteFileSchema } from "./schemas";
+  import type { EditSchema } from "./+page.server";
   import type { DocumentMeeting } from "./grouping";
   import GroupColumns from "./GroupColumns.svelte";
   import { Button } from "$lib/components/ui/button";
@@ -11,38 +12,22 @@
   let {
     meeting,
     deleteForm,
+    editForm,
     isEditing,
-    canEdit,
+    canDelete,
+    canUpdate,
     onClose,
     class: klass,
   }: {
     meeting: DocumentMeeting | null;
     deleteForm: SuperValidated<DeleteFileSchema>;
+    editForm: SuperValidated<EditSchema>;
     isEditing: boolean;
-    canEdit: boolean;
+    canDelete: boolean;
+    canUpdate: boolean;
     onClose?: () => void;
     class?: string;
   } = $props();
-
-  let groups = $derived.by(() => {
-    if (!meeting) return [];
-
-    const sorted = [...meeting.groups].sort((a, b) => {
-      if (a.name === null) return 1;
-      if (b.name === null) return -1;
-      return a.name.localeCompare(b.name, "sv");
-    });
-
-    let lastLetter = "";
-    return sorted.map((group) => {
-      const displayName = group.name ?? m.documents_uncategorized();
-      const letter = displayName.charAt(0).toUpperCase();
-      const showSortKey = letter !== lastLetter;
-      lastLetter = letter;
-
-      return { group, displayName, sortKey: letter, showSortKey };
-    });
-  });
 </script>
 
 {#if !meeting}
@@ -79,12 +64,19 @@
         {m.documents_allDocuments()}
       </p>
 
-      {#if groups.length === 0}
+      {#if meeting.groups.length === 0}
         <p class="text-muted-foreground py-4 text-center text-sm">
           {m.documents_noDocuments()}
         </p>
       {:else}
-        <GroupColumns {groups} {deleteForm} {isEditing} {canEdit} />
+        <GroupColumns
+          groups={meeting.groups}
+          {deleteForm}
+          {editForm}
+          {isEditing}
+          {canDelete}
+          {canUpdate}
+        />
       {/if}
     </div>
   </section>

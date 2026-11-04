@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { FileData } from "$lib/files/fileHandler";
-import { findLatestFile, groupDocuments, splitDocumentPath } from "./grouping";
+import {
+  findLatestFile,
+  getMeetingFolder,
+  getTargetFolder,
+  groupDocuments,
+  splitDocumentPath,
+} from "./grouping";
 
 const file = (id: string, modDate?: Date): FileData => ({
   id,
@@ -84,6 +90,21 @@ describe("groupDocuments", () => {
     expect(meetings.map((meeting) => meeting.name)).toEqual(["Motion"]);
   });
 
+  it("sorts files inside each group alphabetically", () => {
+    const meetings = groupDocuments(
+      [
+        file("public/2026/HTM2/Fika/B.pdf"),
+        file("public/2026/HTM2/Fika/A.pdf"),
+      ],
+      "public/2026/",
+    );
+
+    expect(meetings[0]!.groups[0]!.files.map((entry) => entry.name)).toEqual([
+      "A.pdf",
+      "B.pdf",
+    ]);
+  });
+
   it("skips directory entries", () => {
     const meetings = groupDocuments(
       [
@@ -118,6 +139,53 @@ describe("findLatestFile", () => {
   it("returns undefined when nothing matches", () => {
     expect(findLatestFile([file("Protokoll.pdf")], ["Kallelse"])).toBe(
       undefined,
+    );
+  });
+});
+
+describe("getMeetingFolder", () => {
+  it("finds the meeting folder in the documents bucket", () => {
+    expect(
+      getMeetingFolder(
+        "public/2026/HTM2/Fika/Motion.pdf",
+        "documents",
+        "documents",
+        "files",
+      ),
+    ).toBe("public/2026/HTM2");
+  });
+
+  it("finds the meeting folder in the SRD files bucket", () => {
+    expect(
+      getMeetingFolder(
+        "public/srd/2026/SRD10/Motion.pdf",
+        "files",
+        "documents",
+        "files",
+      ),
+    ).toBe("public/srd/2026/SRD10");
+  });
+
+  it("rejects paths outside the allowed buckets", () => {
+    expect(
+      getMeetingFolder(
+        "public/2026/HTM2/Motion.pdf",
+        "files",
+        "documents",
+        "files",
+      ),
+    ).toBeNull();
+  });
+});
+
+describe("getTargetFolder", () => {
+  it("targets the meeting folder when the group is empty", () => {
+    expect(getTargetFolder("public/2026/HTM2", "")).toBe("public/2026/HTM2");
+  });
+
+  it("targets the group subfolder", () => {
+    expect(getTargetFolder("public/2026/HTM2", "Fika")).toBe(
+      "public/2026/HTM2/Fika",
     );
   });
 });

@@ -95,7 +95,7 @@
       data.user,
     ),
   );
-  let canEdit = $derived(
+  let canDelete = $derived(
     isAuthorized(
       apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
       data.user,
@@ -105,6 +105,17 @@
         data.user,
       ),
   );
+  let canUpdate = $derived(
+    isAuthorized(
+      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).UPDATE,
+      data.user,
+    ) ||
+      isAuthorized(
+        apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).UPDATE,
+        data.user,
+      ),
+  );
+  let canEdit = $derived(canDelete || canUpdate);
 </script>
 
 <div class="layout-container">
@@ -182,14 +193,14 @@
   </div>
 
   <div class="mt-4 flex flex-col gap-4 md:flex-row md:items-start">
-    <div class="flex w-full flex-col gap-2 md:w-fit md:shrink-0">
+    <div class="flex w-full flex-col gap-2 md:w-fit md:max-w-full md:shrink-0">
       {#if sortedMeetings.length === 0}
         <p class="text-muted-foreground text-sm">
           {m.documents_errors_noFiles()}
         </p>
       {:else}
         {#each sortedMeetings as meeting (meeting.name)}
-          <div class="w-full md:w-fit">
+          <div class="w-full">
             <MeetingRow
               {meeting}
               selected={selectedMeeting === meeting.name}
@@ -201,8 +212,10 @@
                 <MeetingDetail
                   meeting={selected}
                   deleteForm={data.deleteForm}
+                  editForm={data.editForm}
                   {isEditing}
-                  {canEdit}
+                  {canDelete}
+                  {canUpdate}
                   onClose={() => (selectedMeeting = null)}
                 />
               </div>
@@ -216,8 +229,10 @@
       <MeetingDetail
         meeting={selected}
         deleteForm={data.deleteForm}
+        editForm={data.editForm}
         {isEditing}
-        {canEdit}
+        {canDelete}
+        {canUpdate}
         onClose={() => (selectedMeeting = null)}
       />
     </div>

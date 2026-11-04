@@ -304,30 +304,29 @@ const renameObject = async (
     return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
   }
   authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
-  if (await fileExists(bucket, newFileName)) {
-    throw error(409, `File ${newFileName} already exists`);
-  }
   const dirname = path.dirname(fileName);
 
   if (isDir(fileName)) {
+    const parent = path.dirname(fileName.replace(/\/$/, ""));
+    const newDir = path.join(parent, newFileName);
     const filesInFolder = await getFilesInBucket(user, bucket, fileName);
     if (filesInFolder) {
       await moveObject(
         user,
         bucket,
         filesInFolder.map((file) => file.id),
-        `${newFileName}/`,
+        `${newDir}/`,
       );
     }
     return undefined;
   }
-  const newFileId = path.join(`${dirname}/`, newFileName);
-
-  const objectStats = await minio.statObject(bucket, fileName);
+  const newFileId = path.join(dirname, newFileName);
 
   if (await fileExists(bucket, newFileId)) {
-    return undefined;
+    throw error(409, `File ${newFileName} already exists`);
   }
+
+  const objectStats = await minio.statObject(bucket, fileName);
 
   const oldFile = {
     id: fileName,
@@ -348,7 +347,7 @@ const renameObject = async (
 
   await minio.copyObject(
     bucket,
-    newFileName,
+    newFileId,
     `/${bucket}/${fileName}`,
     new CopyConditions(),
   );

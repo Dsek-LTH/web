@@ -80,7 +80,7 @@ export function groupDocuments(
       groups: [...entry.groups.entries()]
         .map(([groupName, groupFiles]) => ({
           name: groupName,
-          files: groupFiles,
+          files: groupFiles.sort((a, b) => a.name.localeCompare(b.name, "sv")),
         }))
         .sort((a, b) => {
           if (a.name === null) return 1;
@@ -102,4 +102,38 @@ export function findLatestFile(
     )
     .sort((a, b) => (a.modDate?.getTime() ?? 0) - (b.modDate?.getTime() ?? 0))
     .pop();
+}
+
+export function getMeetingFolder(
+  fileId: string,
+  bucket: string,
+  documentsBucket: string,
+  filesBucket: string,
+): string | null {
+  const parts = fileId.split("/");
+  if (parts.at(-1) === "") return null;
+
+  const folderParts = parts.slice(0, -1);
+  if (bucket === documentsBucket) {
+    if (folderParts[0] !== "public" || folderParts.length < 3) return null;
+    return folderParts.slice(0, 3).join("/");
+  }
+
+  if (bucket === filesBucket) {
+    if (
+      folderParts[0] !== "public" ||
+      folderParts[1] !== "srd" ||
+      folderParts.length < 4
+    ) {
+      return null;
+    }
+    return folderParts.slice(0, 4).join("/");
+  }
+
+  return null;
+}
+
+export function getTargetFolder(meetingFolder: string, group: string): string {
+  const trimmed = group.trim();
+  return trimmed ? `${meetingFolder}/${trimmed}` : meetingFolder;
 }
