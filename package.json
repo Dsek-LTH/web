@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "prepare": "svelte-kit sync && pnpm paraglide",
-    "setup-dev": "vite-node dev/setup.ts",
     "ci-check": "concurrently 'pnpm:lint --max-warnings 0' 'pnpm:format' 'pnpm:test' 'pnpm:check --fail-on-warnings' 'pnpm:check-translations' --prefix-colors 'auto' --group",
     "dev": "vite dev",
     "build": "vite build",
@@ -25,7 +24,6 @@
     "check-translations": "./dev/check_translations.sh"
   },
   "devDependencies": {
-    "@clack/prompts": "^0.8.2",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.39.1",
