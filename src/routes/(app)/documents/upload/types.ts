@@ -1,12 +1,14 @@
 import * as m from "$paraglide/messages";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
+import { groupNameSchema } from "../groupName";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
 export const uploadSchema = z.object({
   type: z.enum(["meeting", "srd", "requirement"]).default("meeting"),
   folder: z.string().default(""),
+  group: groupNameSchema.default(""),
   name: z.string().default(""),
   year: z
     .number()

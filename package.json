@@ -23,6 +23,8 @@
     "migrate:deploy": "prisma migrate deploy",
     "migrate:seed": "prisma migrate deploy && prisma db seed",
     "seed": "prisma db seed",
+    "seed:documents": "vite-node dev/seed-documents.ts",
+    "seed:documents:clean": "vite-node dev/seed-documents.ts --clean",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",
     "check-translations": "./dev/check_translations.sh"
   },

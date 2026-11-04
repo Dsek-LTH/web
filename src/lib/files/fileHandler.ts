@@ -293,41 +293,16 @@ const moveObject = async (
   return moved;
 };
 
-const renameObject = async (
-  user: AuthUser | undefined,
+const copyFileTo = async (
   bucket: string,
   fileName: string,
-  newFileName: string,
-) => {
-  const isHealthy: boolean = await isMinIOHealthy();
-  if (!isHealthy) {
-    return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
+  newFileId: string,
+): Promise<FileChange> => {
+  if (await fileExists(bucket, newFileId)) {
+    throw error(409, `File ${newFileId} already exists`);
   }
-  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
-  if (await fileExists(bucket, newFileName)) {
-    throw error(409, `File ${newFileName} already exists`);
-  }
-  const dirname = path.dirname(fileName);
-
-  if (isDir(fileName)) {
-    const filesInFolder = await getFilesInBucket(user, bucket, fileName);
-    if (filesInFolder) {
-      await moveObject(
-        user,
-        bucket,
-        filesInFolder.map((file) => file.id),
-        `${newFileName}/`,
-      );
-    }
-    return undefined;
-  }
-  const newFileId = path.join(`${dirname}/`, newFileName);
 
   const objectStats = await minio.statObject(bucket, fileName);
-
-  if (await fileExists(bucket, newFileId)) {
-    return undefined;
-  }
 
   const oldFile = {
     id: fileName,
@@ -348,18 +323,58 @@ const renameObject = async (
 
   await minio.copyObject(
     bucket,
-    newFileName,
+    newFileId,
     `/${bucket}/${fileName}`,
     new CopyConditions(),
   );
   await minio.removeObject(bucket, fileName);
 
-  const FileChange = {
-    file: newFile,
-    oldFile,
-  };
+  return { file: newFile, oldFile };
+};
 
-  return FileChange;
+const moveFile = async (
+  user: AuthUser | undefined,
+  bucket: string,
+  fileName: string,
+  newFolder: string,
+  newFileName: string,
+) => {
+  const isHealthy: boolean = await isMinIOHealthy();
+  if (!isHealthy) {
+    return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
+  }
+  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
+  return copyFileTo(bucket, fileName, path.join(newFolder, newFileName));
+};
+
+const renameObject = async (
+  user: AuthUser | undefined,
+  bucket: string,
+  fileName: string,
+  newFileName: string,
+) => {
+  const isHealthy: boolean = await isMinIOHealthy();
+  if (!isHealthy) {
+    return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
+  }
+  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
+  const dirname = path.dirname(fileName);
+
+  if (isDir(fileName)) {
+    const parent = path.dirname(fileName.replace(/\/$/, ""));
+    const newDir = path.join(parent, newFileName);
+    const filesInFolder = await getFilesInBucket(user, bucket, fileName);
+    if (filesInFolder) {
+      await moveObject(
+        user,
+        bucket,
+        filesInFolder.map((file) => file.id),
+        `${newDir}/`,
+      );
+    }
+    return undefined;
+  }
+  return copyFileTo(bucket, fileName, path.join(dirname, newFileName));
 };
 const fileHandler = {
   isMinIOHealthy: isMinIOHealthy,
@@ -367,6 +382,7 @@ const fileHandler = {
   getPresignedPutUrl,
   remove: removeObjects,
   move: moveObject,
+  moveFile: moveFile,
   rename: renameObject,
 };
 export default fileHandler;
