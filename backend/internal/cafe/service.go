@@ -124,7 +124,7 @@ func (s *Service) GetSchedule(ctx context.Context, year, week *int32) (*CafeSche
 // resolveTargetWeek defaults year/week to the current ISO week and enforces
 // the CafeSeeAllWeeks window described on GetSchedule.
 func resolveTargetWeek(ctx context.Context, year, week *int32) (int32, int32, error) {
-	curYear, curWeek := time.Now().UTC().ISOWeek()
+	curYear, curWeek := swedishNow().ISOWeek()
 
 	targetYear := int32(curYear)
 	if year != nil {
@@ -164,9 +164,29 @@ func mondayOfISOWeek(year, week int) time.Time {
 	return week1Monday.AddDate(0, 0, (week-1)*7)
 }
 
-func todayUTC() time.Time {
-	now := time.Now().UTC()
-	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+// now is the clock; tests replace it.
+var now = time.Now
+
+var stockholm = func() *time.Location {
+	loc, err := time.LoadLocation("Europe/Stockholm")
+	if err != nil {
+		panic(err)
+	}
+	return loc
+}()
+
+// swedishNow is the current time in Sweden. The cafe's weeks and days are
+// Swedish ones: in UTC, Monday 00:00-01:00 (02:00 in summer) is still the
+// previous Sunday, so "this week" and "today" would be a day behind.
+func swedishNow() time.Time {
+	return now().In(stockholm)
+}
+
+// today is today's date in Sweden, as midnight UTC - the form shift dates
+// are parsed into.
+func today() time.Time {
+	t := swedishNow()
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
 }
 
 func validTimeSlot(t TimeSlot) bool {
@@ -252,7 +272,7 @@ func (s *Service) createShift(
 	if slot == TimeSlotDayManager && !identity.Has(apinames.CafeDayManager) && !isAdmin {
 		return nil, auth.ErrForbidden
 	}
-	if !isAdmin && date.Before(todayUTC()) {
+	if !isAdmin && date.Before(today()) {
 		return nil, invalidf("cannot sign up for a shift in the past")
 	}
 	if !isAdmin {
@@ -298,7 +318,7 @@ func (s *Service) resolveExistingShift(
 		// dayjs().add(1, "day")` instant comparison and its two distinct
 		// "too close"/"already passed" error messages - not preserved
 		// since nothing renders this page yet to display them.
-		if !isAdmin && !date.After(todayUTC().AddDate(0, 0, 1)) {
+		if !isAdmin && !date.After(today().AddDate(0, 0, 1)) {
 			return nil, invalidf("too close to the shift date to cancel")
 		}
 		n, err := s.queries.DeleteCafeShift(ctx, existing.ID)
