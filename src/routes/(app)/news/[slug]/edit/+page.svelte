@@ -14,6 +14,13 @@
 
   let { data }: { data: PageData } = $props();
 
+  // A scheduled article has no public page yet, so go back to /news (where it is listed),
+  // same as the update action's redirect.
+  const publishTime = $derived(data.form.data.publishTime);
+  const backHref = $derived(
+    publishTime && publishTime > data.now ? "/news" : `/news/${data.slug}`,
+  );
+
   // svelte-ignore state_referenced_locally
   const superform = superForm(data.form, {
     dataType: "json",
@@ -26,7 +33,7 @@
 <SetPageTitle title={m.news_editArticle()} />
 
 <div class="flex flex-col gap-2 pt-4 pb-6">
-  <Button variant="ghost" href="/news/{data.slug}" class="-ml-3 self-start">
+  <Button variant="ghost" href={backHref} class="-ml-3 self-start">
     <ArrowLeft />
     {m.back()}
   </Button>
@@ -43,7 +50,7 @@
   now={data.now}
   isEditing
   formAction="?/update"
-  cancelHref="/news/{data.slug}"
+  cancelHref={backHref}
 />
 
 {#if data.canDelete}
