@@ -20,10 +20,13 @@
     isPreview = false,
     variant = "default",
     tags = [],
+    href,
   }: {
     article: ArticleCardData;
     index: number;
     isPreview?: boolean;
+    /** Where the card links; defaults to the article page. */
+    href?: string;
     /**
      * `default`: bordered card with author avatar (home, TV, profiles).
      * `editorial`: borderless, image-led card with a single meta line, for dense grids like /news.
@@ -34,7 +37,7 @@
   } = $props();
 
   const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
-  const articleUrl = $derived(`/news/${article.slug}`);
+  const articleUrl = $derived(href ?? `/news/${article.slug}`);
   let failedImageUrl = $state<string | null>(null);
   let unavailableVideoId = $state<string | null>(null);
 

@@ -143,14 +143,32 @@
   </div>
 
   {#if data.scheduledArticles.length > 0}
-    <section class="rounded-xl border">
-      <header class="flex items-center gap-2 border-b px-4 py-3">
+    <section class="flex flex-col gap-3">
+      <header class="flex items-center gap-2">
         <h2 class="text-base font-semibold">{m.news_scheduledNews()}</h2>
         <span class="text-muted-foreground text-sm"
           >{data.scheduledArticles.length}</span
         >
       </header>
-      {@render editLinks(data.scheduledArticles)}
+      <!-- Same cards as the grid below, one column wide, scrolling sideways when there
+           are more than fit. The padding keeps the cards' shadows from being clipped. -->
+      <div
+        class="-mx-2 flex snap-x [scrollbar-width:thin] gap-6 overflow-x-auto px-2 pt-1 pb-4"
+      >
+        {#each data.scheduledArticles as article, index (article.id)}
+          <div
+            class="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
+          >
+            <ArticleCard
+              {article}
+              {index}
+              variant="editorial"
+              tags={article.tags}
+              href="/news/{article.slug}/edit"
+            />
+          </div>
+        {/each}
+      </div>
     </section>
   {/if}
 

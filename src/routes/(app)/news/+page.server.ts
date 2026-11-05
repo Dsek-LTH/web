@@ -74,6 +74,7 @@ export const load: PageServerLoad = async ({ locals, url, cookies }) => {
             },
           },
           tags: true,
+          committee: true,
         },
         orderBy: {
           publishedAt: "asc",
