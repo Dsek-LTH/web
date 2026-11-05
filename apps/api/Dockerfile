@@ -12,7 +12,7 @@ COPY . .
 # (`/app/seed`; it wipes the database, so nothing else may run it).
 RUN --mount=type=cache,target=/go/pkg/mod \
   --mount=type=cache,target=/root/.cache/go-build \
-  CGO_ENABLED=0 go build -trimpath -o /out/backend ./cmd/api \
+  CGO_ENABLED=0 go build -trimpath -o /out/api ./cmd/api \
   && CGO_ENABLED=0 go build -trimpath -o /out/migrate ./cmd/migrate \
   && CGO_ENABLED=0 go build -trimpath -o /out/seed ./cmd/seed
 
@@ -21,7 +21,7 @@ FROM gcr.io/distroless/static-debian12:nonroot AS runtime
 
 WORKDIR /app
 
-COPY --from=build /out/backend /out/migrate /out/seed ./
+COPY --from=build /out/api /out/migrate /out/seed ./
 # migrate reads them from file://internal/db/migrations, relative to /app.
 COPY internal/db/migrations ./internal/db/migrations
 
@@ -29,4 +29,4 @@ ENV ADDR=":8090"
 
 EXPOSE 8090
 
-ENTRYPOINT ["/app/backend"]
+ENTRYPOINT ["/app/api"]

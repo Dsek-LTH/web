@@ -27,9 +27,10 @@ Each deployable app is a folder in `apps/`:
   poppler-server. `podman-dev.yaml` is the same for podman.
 - `.github/workflows` - CI (`node.js.yml` for the frontend, `go.yml` for
   the backend, `e2e.yml` for the Playwright tests, `api-breaking.yml` for
-  breaking API changes) and image builds (`deploy*.yml`: website, backend
-  and poppler images). The Kubernetes manifests live in a separate
-  repository.
+  breaking API changes) and image builds (`deploy*.yml`: the `web`, `api`
+  and `poppler` images in `registry.dsek.se/<namespace>/`, which the
+  ImageStreams of the same names in the Kubernetes manifests (the
+  dumbo-m repository) deploy from).
 
 ## Running locally
 
@@ -76,7 +77,7 @@ status, duration and member.
 
 Tracing (OpenTelemetry, `internal/tracing`) is off unless
 `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` (or `OTEL_EXPORTER_OTLP_ENDPOINT`) is
-set; `OTEL_SERVICE_NAME` defaults to `dsek-backend`. Spans cover every
+set; `OTEL_SERVICE_NAME` defaults to `dsek-api`. Spans cover every
 request (named by route), every query and every outgoing HTTP call, and
 continue the SvelteKit server's trace, so a page load is one trace across
 both. Locally: `docker compose --profile tracing up -d` starts Jaeger (UI
@@ -310,8 +311,8 @@ organizing committee's positions are hidden from those without it.
 The backend runs in-process timers: the article announcement sweep
 (notifications and the Discord post when a scheduled article goes live)
 and the ticket lotteries and offer expiry. Run exactly one replica.
-Deployments run `/app/migrate up` before the server starts; the backend
-image also contains `/app/seed`, which wipes the database and is only for
+Deployments run `/app/migrate up` before the server (`/app/api`) starts;
+the api image also contains `/app/seed`, which wipes the database and is only for
 PR previews.
 
 ## Gotchas

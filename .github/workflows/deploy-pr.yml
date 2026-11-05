@@ -12,7 +12,7 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 jobs:
-  website:
+  web:
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
       contains(github.event.pull_request.labels.*.name, 'preview')
@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
-      - name: Build and push website
+      - name: Build and push web
         uses: docker/build-push-action@v7
         with:
           context: "{{defaultContext}}:apps/web"
@@ -40,7 +40,7 @@ jobs:
             "PUBLIC_BUCKETS_MEMBERS=members"
             "VERSION=${{ github.ref_name }}"
           push: true
-          tags: registry.dsek.se/web-pr-${{ github.event.number }}/website:latest
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/web:latest
       - name: Comment preview URL
         uses: actions/github-script@v9
         with:
@@ -75,7 +75,7 @@ jobs:
           push: true
           tags: registry.dsek.se/web-pr-${{ github.event.number }}/poppler:latest
 
-  backend:
+  api:
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
       contains(github.event.pull_request.labels.*.name, 'preview')
@@ -90,9 +90,9 @@ jobs:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
-      - name: Build and push backend
+      - name: Build and push api
         uses: docker/build-push-action@v7
         with:
           context: "{{defaultContext}}:apps/api"
           push: true
-          tags: registry.dsek.se/web-pr-${{ github.event.number }}/backend:latest
+          tags: registry.dsek.se/web-pr-${{ github.event.number }}/api:latest

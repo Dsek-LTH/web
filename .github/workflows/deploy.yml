@@ -7,7 +7,7 @@ on:
     types: [published]
 
 jobs:
-  website:
+  web:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -19,7 +19,7 @@ jobs:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
-      - name: Build and push website
+      - name: Build and push web
         uses: docker/build-push-action@v7
         with:
           context: "{{defaultContext}}:apps/web"
@@ -32,7 +32,7 @@ jobs:
             "PUBLIC_BUCKETS_MEMBERS=members"
             "VERSION=${{ github.ref_name }}"
           push: true
-          tags: registry.dsek.se/web/website:latest
+          tags: registry.dsek.se/web/web:latest
 
   poppler:
     runs-on: ubuntu-latest
@@ -53,7 +53,7 @@ jobs:
           push: true
           tags: registry.dsek.se/web/poppler:latest
 
-  backend:
+  api:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -65,9 +65,9 @@ jobs:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
-      - name: Build and push backend
+      - name: Build and push api
         uses: docker/build-push-action@v7
         with:
           context: "{{defaultContext}}:apps/api"
           push: true
-          tags: registry.dsek.se/web/backend:latest
+          tags: registry.dsek.se/web/api:latest

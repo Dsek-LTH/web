@@ -2,7 +2,7 @@
 // endpoint is configured with the standard variables
 // (OTEL_EXPORTER_OTLP_TRACES_ENDPOINT, a full URL, or
 // OTEL_EXPORTER_OTLP_ENDPOINT, a base URL), named OTEL_SERVICE_NAME
-// (dsek-backend by default) with any OTEL_RESOURCE_ATTRIBUTES. Without an
+// (dsek-api by default) with any OTEL_RESOURCE_ATTRIBUTES. Without an
 // endpoint everything stays a no-op. Incoming requests continue the
 // caller's trace (W3C traceparent, as the SvelteKit server sends it), so a
 // page load is one trace across both.
@@ -42,7 +42,7 @@ func Setup(ctx context.Context) func(context.Context) {
 	}
 	name := os.Getenv("OTEL_SERVICE_NAME")
 	if name == "" {
-		name = "dsek-backend"
+		name = "dsek-api"
 	}
 	// Schemaless, so it merges with the default resource (which also reads
 	// OTEL_RESOURCE_ATTRIBUTES) whatever semconv version that uses.
