@@ -20,9 +20,10 @@ and authorization; the SvelteKit app renders pages and calls it.
 - `docker-compose.yml` - local Postgres (`dsek-db`), Meilisearch and
   poppler-server. `podman-dev.yaml` is the same for podman.
 - `.github/workflows` - CI (`node.js.yml` for the frontend, `go.yml` for
-  the backend, `api-breaking.yml` for breaking API changes) and image
-  builds (`deploy*.yml`: website, backend and poppler images). The
-  Kubernetes manifests live in a separate repository.
+  the backend, `e2e.yml` for the Playwright tests, `api-breaking.yml` for
+  breaking API changes) and image builds (`deploy*.yml`: website, backend
+  and poppler images). The Kubernetes manifests live in a separate
+  repository.
 
 ## Running locally
 
@@ -84,6 +85,8 @@ Frontend (`frontend/`):
   (Prettier, also covers the root Markdown/YAML and poppler-server),
   `pnpm test` (vitest), `pnpm check-translations`, `pnpm ci-check` (all of
   them)
+- `pnpm test:integration` - the Playwright tests (see "End-to-end tests";
+  one test: `pnpm test:integration -g "publish an event"`)
 - `pnpm generate:api` - regenerate `src/lib/api/schema.d.ts` from the
   running backend's `/openapi.json`. Do this after any API change, with
   the new backend running.
@@ -210,6 +213,26 @@ which is the API reference.
 - Pages that still render `<NotImplemented />` have real loads behind
   them; their UI just isn't built.
 
+### End-to-end tests
+
+Playwright, in `frontend/e2e`, run with `pnpm test:integration` (needs the
+Postgres container; `pnpm exec playwright install chromium` once). It
+starts its own servers and stops them afterwards: a backend on 8091
+(`e2e/backend.sh`) on a `dsek_e2e` database it drops, migrates and seeds
+every run, with auth and storage mocked, and a production build of the
+frontend on 4173 (it rebuilds `build/`). The dev database and dev servers
+are left alone.
+
+- `routes.spec.ts` opens every page and fails on an error status, an
+  uncaught exception or a console error. Pages without parameters are
+  found from `src/routes`, so a new page is covered automatically; add
+  pages with parameters to `dynamicRoutes`.
+- `publish.spec.ts` writes an article and an event through their forms.
+
+CI runs them in `e2e.yml`, which isn't a required check yet. Keep the
+suite to smoke tests and a few flows that matter: detailed UI tests break
+with every redesign.
+
 ### Adding an endpoint or a domain
 
 1. SQL in `internal/db/queries/<domain>.sql` (named `sqlc.arg()` params,
@@ -277,8 +300,8 @@ PR previews.
 - **`.server.ts` in universal loads**: importing a `.server.ts` file or
   anything under `$lib/server` from a `+page.ts` (even indirectly) breaks
   the client bundle, sometimes as "An impossible situation occurred".
-  svelte-check, eslint and SSR curl don't catch it; `pnpm build` or a real
-  browser load does.
+  svelte-check, eslint and SSR curl don't catch it; `pnpm build`, a real
+  browser load or `pnpm test:integration` (both) does.
 - **Streamed layout data breaks status codes**: returning an unawaited
   promise from a layout load makes SvelteKit stream every page under it,
   and a streamed page is sent with status 200 even when it renders an
