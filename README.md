@@ -42,8 +42,7 @@ This project is the main web page for the D-guild within TLTH, a non-profit orga
 ![builtwith][builtwith]
 [![svelte][svelte]][svelte-url]
 [![typescript][typescript]][typescript-url]
-[![prisma][prisma]][prisma-url]
-[![zenstack][zenstack]][zenstack-url]
+[![go][go]][go-url]
 
 <!-- [![expo][expo]][expo-url] -->
 
@@ -51,7 +50,19 @@ This project is the main web page for the D-guild within TLTH, a non-profit orga
 [![node][node]][node-url]
 [![pnpm][pnpm]][pnpm-url]
 [![docker][docker]][docker-url]
-[![pm2][pm2]][pm2-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Repository
+
+- `apps/web/` - the SvelteKit app
+- `apps/api/` - the Go API it calls for all data
+- `apps/poppler-server/` - a small service that extracts text from PDFs for search
+- `docker-compose.yml` - the local database, Meilisearch and poppler-server
+
+To run it locally: `make setup`, `make db` and `make dev` (the API on port
+8090, the web app on 5173); `make` lists every command. `AGENTS.md` has the
+details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -117,20 +128,16 @@ https://www.dsek.se/en/info/contact
 [builtwith]: https://img.shields.io/badge/built%20with-f280a1?style=for-the-badge
 [using]: https://img.shields.io/badge/using-f280a1?style=for-the-badge
 [typescript]: https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
+[go]: https://img.shields.io/badge/go-00ADD8?style=for-the-badge&logo=go&logoColor=white
+[go-url]: https://go.dev/
 [typescript-url]: https://www.typescriptlang.org/
 [svelte]: https://img.shields.io/badge/svelte-FF3E00?style=for-the-badge&logo=svelte&logoColor=white
 [svelte-url]: https://svelte.dev/
 [expo]: https://img.shields.io/badge/expo-000020?style=for-the-badge&logo=expo&logoColor=white
 [expo-url]: https://expo.dev/
-[prisma]: https://img.shields.io/badge/prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white
-[prisma-url]: https://www.prisma.io/
 [pnpm]: https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white
 [pnpm-url]: https://pnpm.io/
-[zenstack]: https://img.shields.io/badge/zenstack-ff7f1a?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjUzLjMzMyIgaGVpZ2h0PSI1My4zMzMiIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHBhdGggZD0iTTguOSA4LjljLTQgNC01IDcuNS0yLjQgOC40IDEuNi43IDIuNS0uNCA0LTQuNy43LTIuMSAyLjEtMy4zIDUtNC4zQzIzLjggNS40IDMyIDExIDMyIDE5LjYgMzIgMjcuNyAyNy4zIDMzIDIwIDMzYy00IDAtOS42LTIuNi0xMS41LTUuNGwtMS41LTJ2MmMwIDQuMSA2LjEgNy42IDEzLjIgNy42IDkuNS0uMSAxNS43LTYuOSAxNC40LTE1LjlDMzMuMyA5LjQgMjguNCA1IDE4LjcgNWMtNS42IDAtNi4yLjItOS44IDMuOSIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==
-[zenstack-url]: https://zenstack.dev/
 [docker]: https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
 [docker-url]: https://www.docker.com/
-[pm2]: https://img.shields.io/badge/pm2-2B037A?style=for-the-badge&logo=pm2&logoColor=white
-[pm2-url]: https://pm2.keymetrics.io/
 [node]: https://img.shields.io/badge/node-339933?style=for-the-badge&logo=node.js&logoColor=white
 [node-url]: https://nodejs.org/

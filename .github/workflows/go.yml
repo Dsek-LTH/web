@@ -1,0 +1,55 @@
+name: Go CI
+
+on:
+  push:
+    branches: ["main", "new-design"]
+    paths: ["apps/api/**", "tools/**", "Makefile", ".github/workflows/go.yml"]
+  pull_request:
+    paths: ["apps/api/**", "tools/**", "Makefile", ".github/workflows/go.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dsek
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      # Overrides apps/api/.env, so the tests that need a database use the
+      # service above.
+      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/dsek?sslmode=disable
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: |
+            apps/api/go.sum
+            tools/go.sum
+      - run: go build ./...
+      # go vet, golangci-lint, and the generated code in internal/db
+      # matching schema.sql and queries/.
+      - run: make lint-api
+        working-directory: .
+      - run: go tool migrate up
+      # Some tests attach their data to seeded rows.
+      - run: go tool seed
+      - run: go test ./...

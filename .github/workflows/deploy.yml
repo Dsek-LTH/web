@@ -7,7 +7,7 @@ on:
     types: [published]
 
 jobs:
-  website:
+  web:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -19,10 +19,12 @@ jobs:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
-      - name: Build and push website
+      - name: Build and push web
         uses: docker/build-push-action@v7
         with:
+          context: "{{defaultContext}}:apps/web"
           build-args: |
+            "PUBLIC_GO_BACKEND_URL=https://api.dsek.se"
             "PUBLIC_MINIO_BASE_URL=https://files.dsek.se"
             "PUBLIC_BUCKETS_ALBUMS=albums"
             "PUBLIC_BUCKETS_DOCUMENTS=documents"
@@ -30,7 +32,7 @@ jobs:
             "PUBLIC_BUCKETS_MEMBERS=members"
             "VERSION=${{ github.ref_name }}"
           push: true
-          tags: registry.dsek.se/web/website:latest
+          tags: registry.dsek.se/web/web:latest
 
   poppler:
     runs-on: ubuntu-latest
@@ -47,11 +49,11 @@ jobs:
       - name: Build and push poppler
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:poppler-server"
+          context: "{{defaultContext}}:apps/poppler-server"
           push: true
           tags: registry.dsek.se/web/poppler:latest
 
-  scheduler:
+  api:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
@@ -63,28 +65,9 @@ jobs:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
-      - name: Build and push scheduler
+      - name: Build and push api
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:scheduler-service"
+          context: "{{defaultContext}}:apps/api"
           push: true
-          tags: registry.dsek.se/web/scheduler:latest
-
-  ticket-service:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Login to image registry
-        id: registry-login
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.IMAGEREPO_USERNAME }}
-          password: ${{ secrets.IMAGEREPO_PASSWORD }}
-          registry: registry.dsek.se
-      - name: Build and push ticket-service
-        uses: docker/build-push-action@v7
-        with:
-          context: "{{defaultContext}}:ticket-service"
-          push: true
-          tags: registry.dsek.se/web/ticket-service:latest
+          tags: registry.dsek.se/web/api:latest

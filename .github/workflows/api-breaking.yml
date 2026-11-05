@@ -1,0 +1,62 @@
+# Fails a pull request that makes a breaking change to the API: removing or
+# renaming an endpoint or field, making a request field required, narrowing
+# an enum, ... Old native app builds keep calling the old API for months, so
+# change it additively instead (see "API" in AGENTS.md). If a break is
+# intended, add the `api-breaking` label: the check then only reports.
+name: API breaking changes
+
+on:
+  pull_request:
+    paths: ["apps/api/**", ".github/workflows/api-breaking.yml"]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+env:
+  OASDIFF_VERSION: 1.35.0
+
+jobs:
+  oasdiff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
+
+      - name: Build the OpenAPI documents
+        id: specs
+        run: |
+          (cd apps/api && go run ./cmd/openapi -3.0) > "$RUNNER_TEMP/head.json"
+          git worktree add "$RUNNER_TEMP/base" "${{ github.event.pull_request.base.sha }}"
+          if [ ! -d "$RUNNER_TEMP/base/apps/api/cmd/openapi" ]; then
+            echo "The base branch has no apps/api/cmd/openapi; nothing to compare." >> "$GITHUB_STEP_SUMMARY"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          (cd "$RUNNER_TEMP/base/apps/api" && go run ./cmd/openapi -3.0) > "$RUNNER_TEMP/base.json"
+
+      - name: Install oasdiff
+        if: steps.specs.outputs.skip != 'true'
+        run: |
+          curl -fsSL "https://github.com/oasdiff/oasdiff/releases/download/v${OASDIFF_VERSION}/oasdiff_${OASDIFF_VERSION}_linux_amd64.tar.gz" \
+            | tar -xz -C "$RUNNER_TEMP" oasdiff
+
+      - name: Compare
+        if: steps.specs.outputs.skip != 'true'
+        env:
+          ALLOWED: ${{ contains(github.event.pull_request.labels.*.name, 'api-breaking') }}
+        run: |
+          oasdiff="$RUNNER_TEMP/oasdiff"
+          base="$RUNNER_TEMP/base.json"
+          head="$RUNNER_TEMP/head.json"
+          "$oasdiff" breaking "$base" "$head" -f markdown >> "$GITHUB_STEP_SUMMARY"
+          if [ "$ALLOWED" = "true" ]; then
+            "$oasdiff" breaking "$base" "$head"
+          else
+            "$oasdiff" breaking "$base" "$head" --fail-on ERR
+          fi

@@ -1,0 +1,54 @@
+<script lang="ts">
+  import Toast from "../Toast.svelte";
+  import Alert from "$lib/components/Alert.svelte";
+  import Header from "./Header.svelte";
+  import Footer from "./Footer.svelte";
+  import AppNotificationTokenHandler from "$lib/components/utils/AppNotificationTokenHandler.svelte";
+  import AppUnreadNotificationHandler from "$lib/components/utils/AppUnreadNotificationHandler.svelte";
+  import { page } from "$app/state";
+  import AppNavigation from "./AppNavigation.svelte";
+  import AppHeader from "./AppHeader.svelte";
+
+  const { data, children } = $props();
+</script>
+
+<div
+  class="flex min-h-screen flex-col"
+  style:padding-top={(data.isApp
+    ? (page.data.appInfo?.os == "ios" ? page.data.appInfo?.insets?.top : 0) + 48
+    : 0) + "px"}
+  style:padding-bottom={(data.isApp
+    ? (page.data.appInfo?.insets?.bottom ?? 0) + 64
+    : 0) + "px"}
+>
+  {#if data.isApp}
+    <AppHeader unreadCount={data.unreadCount} />
+    <AppNavigation />
+  {:else}
+    <Header unreadCount={data.unreadCount} />
+  {/if}
+
+  {#if data.isApp}
+    <AppUnreadNotificationHandler notificationCount={data.unreadCount} />
+    <AppNotificationTokenHandler />
+  {/if}
+
+  <main class="flex min-h-0 flex-1 flex-col">
+    {#each data.alerts as alert (alert.id)}
+      {#if !alert.closedByMe}
+        <Alert
+          id={alert.id}
+          message={alert.message}
+          severity={alert.severity}
+        />
+      {/if}
+    {/each}
+
+    {@render children?.()}
+  </main>
+
+  <Toast />
+  {#if !data.isApp}
+    <Footer />
+  {/if}
+</div>

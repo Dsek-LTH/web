@@ -1,0 +1,641 @@
+-- Schema for the subset of the site's Postgres database that the Go backend
+-- currently owns: articles and events, and everything they depend on
+-- (authors, members, committees, positions, mandates, tags, phadder
+-- groups); plus the directory-foundation domain (members/committees/
+-- positions/mandates in full, email_aliases, markdowns, api_access_policies);
+-- plus Phase 3's simple standalone CRUD domains (songs, alerts, documents/
+-- governing documents - markdowns already covered above, reused for the
+-- generic /info pages too).
+--
+-- songs/documents/alerts/_alerts_closed_by all pre-date this Go port (they
+-- were created by Prisma's own migration history, already applied to the
+-- live DB and already carried forward into internal/db/migrations as part
+-- of that baseline copy). No new migration was needed to add them here; they're just newly
+-- described in this file so sqlc can generate code against them.
+--
+-- This mirrors tables that already exist in the shared database (previously
+-- managed by ../../src/database/schema.zmodel / Prisma migrations) — column
+-- order, names, and constraints were checked against a live dev DB
+-- (`\d <table>` in psql), not just transcribed from schema.prisma. It is not
+-- run as a migration against that database; it exists so sqlc can
+-- type-check queries against it.
+--
+-- Column order matters here: it must match the live table for `SELECT *`/
+-- `RETURNING *` to scan into the right struct fields. Prefer writing
+-- explicit column lists in queries/*.sql over `*` so this stops mattering.
+
+CREATE TABLE committees (
+    id                    UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name_sv               VARCHAR(255) NOT NULL,
+    name_en               VARCHAR(255),
+    short_name            VARCHAR(255) UNIQUE,
+    description_sv        VARCHAR(255),
+    description_en        VARCHAR(255),
+    dark_image_url        TEXT,
+    light_image_url       TEXT,
+    mono_image_url        TEXT,
+    symbol_url            TEXT,
+    banner_url            TEXT,
+    is_banner_text_light  BOOLEAN NOT NULL DEFAULT false,
+    preview_url           TEXT
+);
+
+CREATE TABLE positions (
+    id             VARCHAR(255) NOT NULL PRIMARY KEY,
+    name_sv        VARCHAR(255) NOT NULL,
+    name_en        VARCHAR(255),
+    committee_id   UUID REFERENCES committees (id),
+    email          VARCHAR(255),
+    active         BOOLEAN NOT NULL DEFAULT true,
+    board_member   BOOLEAN NOT NULL DEFAULT false,
+    description_sv TEXT,
+    description_en TEXT,
+    end_month      INTEGER NOT NULL DEFAULT 11,
+    start_month    INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE email_aliases (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    position_id  VARCHAR(255) NOT NULL REFERENCES positions (id),
+    email        VARCHAR(255) NOT NULL
+);
+
+-- Go-owned from creation (migration 20261103200002_add_nollning_seasons) -
+-- one row per nollning year, replacing the old AdminSetting-backed time
+-- window plus every hardcoded per-year date scattered across the TS app.
+CREATE TABLE nollning_seasons (
+    id                      UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    year                    INTEGER NOT NULL UNIQUE,
+    nolla_start_at          TIMESTAMPTZ NOT NULL,
+    reveal_at               TIMESTAMPTZ NOT NULL,
+    end_at                  TIMESTAMPTZ NOT NULL,
+    organizing_committee_id UUID REFERENCES committees (id)
+);
+
+CREATE TABLE phadder_groups (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name         VARCHAR(255) NOT NULL,
+    description  TEXT,
+    image_url    TEXT,
+    "createdAt"  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Replaces a bare `year int` (see migration
+    -- 20261103200004_phadder_groups_season_id) - column sits last because
+    -- Postgres always appends ADD COLUMN at the end and DROP COLUMN doesn't
+    -- renumber the rest; this must match the live table's actual order.
+    season_id    UUID NOT NULL REFERENCES nollning_seasons (id)
+);
+
+CREATE TABLE members (
+    id                 UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    student_id         VARCHAR(255) UNIQUE,
+    first_name         VARCHAR(255),
+    nickname           VARCHAR(255),
+    last_name          VARCHAR(255),
+    picture_path       TEXT,
+    class_programme    VARCHAR(255),
+    class_year         INTEGER,
+    visible            BOOLEAN NOT NULL DEFAULT true,
+    food_preference    VARCHAR(255),
+    bio                TEXT,
+    stripe_customer_id TEXT,
+    email              VARCHAR(255) UNIQUE,
+    nollning_group_id  UUID REFERENCES phadder_groups (id) ON DELETE SET NULL,
+    graduation_year    INTEGER,
+    language           VARCHAR(255),
+    birth_date         DATE
+);
+
+CREATE TABLE mandates (
+    id             UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_id      UUID NOT NULL REFERENCES members (id),
+    position_id    VARCHAR(255) NOT NULL REFERENCES positions (id),
+    start_date     DATE NOT NULL,
+    end_date       DATE NOT NULL,
+    "phadderInId"  UUID REFERENCES phadder_groups (id) ON DELETE SET NULL,
+    last_synced    DATE NOT NULL
+);
+
+CREATE TABLE custom_authors (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name_sv    VARCHAR(255) NOT NULL,
+    name_en    VARCHAR(255),
+    image_url  TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE custom_author_roles (
+    id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    custom_author_id UUID NOT NULL REFERENCES custom_authors (id) ON DELETE CASCADE,
+    role             VARCHAR(255) NOT NULL,
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- An author is one of: a plain member, a member acting under a mandate
+-- (position they held at the time), or a custom (non-member) byline.
+CREATE TABLE authors (
+    id          UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_id   UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    mandate_id  UUID REFERENCES mandates (id) ON DELETE SET NULL,
+    custom_id   UUID REFERENCES custom_authors (id) ON DELETE SET NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    type        VARCHAR(255) GENERATED ALWAYS AS (
+        CASE
+            WHEN mandate_id IS NULL AND custom_id IS NULL THEN 'Member'
+            WHEN mandate_id IS NOT NULL AND custom_id IS NULL THEN 'Mandate'
+            WHEN mandate_id IS NULL AND custom_id IS NOT NULL THEN 'Custom'
+            ELSE NULL
+        END
+    ) STORED,
+    UNIQUE (member_id, mandate_id, custom_id),
+    CONSTRAINT enforce_author_type CHECK (
+        (mandate_id IS NULL AND custom_id IS NULL)
+        OR (mandate_id IS NOT NULL AND custom_id IS NULL)
+        OR (mandate_id IS NULL AND custom_id IS NOT NULL)
+    )
+);
+
+CREATE TABLE tags (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name_sv    VARCHAR(255) NOT NULL,
+    name_en    VARCHAR(255),
+    color      VARCHAR(255),
+    is_default BOOLEAN DEFAULT false
+);
+
+CREATE TABLE articles (
+    id                       UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    header_sv                VARCHAR(255) NOT NULL,
+    header_en                VARCHAR(255),
+    body_sv                  TEXT NOT NULL,
+    body_en                  TEXT,
+    image_url                TEXT,
+    author_id                UUID NOT NULL REFERENCES authors (id) ON DELETE CASCADE,
+    published_datetime       TIMESTAMPTZ,
+    latest_edit_datetime     TIMESTAMPTZ,
+    slug                     VARCHAR(255) NOT NULL UNIQUE,
+    removed_at               TIMESTAMPTZ,
+    status                   TEXT DEFAULT 'approved',
+    created_datetime         TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    youtube_url              TEXT,
+    image_urls               TEXT[],
+    notification_text        VARCHAR(255),
+    scheduled_id             TEXT,
+    should_send_notification BOOLEAN DEFAULT false,
+    committee_id             UUID REFERENCES committees (id),
+    CONSTRAINT enforce_status_type CHECK (
+        status = 'draft' OR status = 'approved' OR status = 'rejected'
+    ),
+    -- Set while/once the article has been posted to Discord, so it's only
+    -- ever posted once.
+    discord_announced_at     TIMESTAMPTZ,
+    -- Added by migration 20261103200003_add_nollning_season_id_to_content.
+    nollning_season_id       UUID REFERENCES nollning_seasons (id),
+    -- Go-owned (migration 20261103200005_add_article_announced_at): when
+    -- the article's go-live announcement was handled, sent or skipped -
+    -- see articles.Service.AnnounceDue.
+    announced_at             TIMESTAMPTZ
+);
+CREATE INDEX articles_published_datetime_index ON articles (published_datetime);
+
+CREATE TABLE article_comments (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    article_id UUID NOT NULL REFERENCES articles (id) ON DELETE CASCADE,
+    member_id  UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    content    VARCHAR(255),
+    published  TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE article_requests (
+    id                        UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    article_id                UUID UNIQUE REFERENCES articles (id) ON DELETE CASCADE,
+    approved_datetime         TIMESTAMPTZ,
+    rejected_datetime         TIMESTAMPTZ,
+    rejection_reason         TEXT,
+    handled_by                UUID REFERENCES members (id) ON DELETE SET NULL,
+    should_send_notification  BOOLEAN DEFAULT false,
+    notification_body_sv      VARCHAR(255),
+    notification_body_en      VARCHAR(255)
+);
+
+-- Operator-managed grants read by internal/auth to resolve an Identity's
+-- Policies: a row grants api_name to either a role (matched against
+-- getDerivedRoles' output) or a specific student_id, never both.
+CREATE TABLE api_access_policies (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    api_name   VARCHAR(255) NOT NULL,
+    role       VARCHAR(255),
+    student_id VARCHAR(255) REFERENCES members (student_id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Generic named markdown content, keyed by an arbitrary string convention
+-- rather than a foreign key - e.g. a committee's about-text is stored at
+-- key `<shortName>`, its sidebar links at `<shortName>_links`. Not
+-- committee-specific; other future features read this table too.
+CREATE TABLE markdowns (
+    name         VARCHAR(255) NOT NULL PRIMARY KEY,
+    markdown_sv  TEXT NOT NULL,
+    markdown_en  TEXT
+);
+
+-- Implicit Prisma many-to-many join tables (named "_article_tags" /
+-- "_article_likes" in the live DB); kept as-is rather than renamed.
+CREATE TABLE _article_tags (
+    "A" UUID NOT NULL REFERENCES articles (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES tags (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _article_tags_ab_unique ON _article_tags ("A", "B");
+CREATE INDEX _article_tags_b_index ON _article_tags ("B");
+
+CREATE TABLE _article_likes (
+    "A" UUID NOT NULL REFERENCES articles (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _article_likes_ab_unique ON _article_likes ("A", "B");
+CREATE INDEX _article_likes_b_index ON _article_likes ("B");
+
+CREATE TYPE "recurringType" AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY');
+
+-- One row per recurring series; individual occurrences are pre-materialized
+-- as ordinary rows in `events` (see recurring_parent_id below) at creation
+-- time, not expanded at read time.
+-- Called "RecurringEvent" until upstream renamed it.
+CREATE TABLE recurring_event (
+    id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    separation_count INTEGER NOT NULL,
+    recurring_type   "recurringType" NOT NULL,
+    author_id        UUID NOT NULL REFERENCES members (id),
+    start_datetime   TIMESTAMPTZ NOT NULL,
+    end_datetime     TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE events (
+    id                    UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title_sv              VARCHAR(255) NOT NULL,
+    title_en              VARCHAR(255),
+    description_sv        TEXT NOT NULL,
+    description_en        TEXT,
+    link                  VARCHAR(255),
+    location              VARCHAR(255),
+    organizer             VARCHAR(255) NOT NULL,
+    author_id             UUID NOT NULL REFERENCES members (id),
+    short_description_sv  VARCHAR(255),
+    short_description_en  VARCHAR(255),
+    start_datetime        TIMESTAMPTZ NOT NULL,
+    end_datetime          TIMESTAMPTZ NOT NULL,
+    number_of_updates     INTEGER DEFAULT 0,
+    slug                  VARCHAR(255) UNIQUE,
+    alarm_active          BOOLEAN DEFAULT false,
+    removed_at            TIMESTAMPTZ,
+    "imageUrl"            TEXT,
+    is_detatched          BOOLEAN NOT NULL DEFAULT false,
+    recurring_parent_id   UUID REFERENCES recurring_event (id),
+    is_cancelled          BOOLEAN DEFAULT false,
+    -- Ticket relation deliberately not modeled: the webshop (shop/tickets/
+    -- orders/payments) is out of scope.
+    committee_id          UUID REFERENCES committees (id),
+    -- Added by migration 20261103200003_add_nollning_season_id_to_content.
+    nollning_season_id    UUID REFERENCES nollning_seasons (id)
+);
+CREATE INDEX events_start_datetime_index ON events (start_datetime);
+
+CREATE TABLE event_comments (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    event_id   UUID NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    member_id  UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    content    TEXT,
+    published  TIMESTAMPTZ NOT NULL
+);
+
+-- Implicit Prisma many-to-many join tables (named "_event_tags" /
+-- "_event_going" / "_event_interested" in the live DB), same pattern as
+-- _article_tags/_article_likes above - reuses the same `tags` table
+-- articles already uses (one physical table, two relations).
+CREATE TABLE _event_tags (
+    "A" UUID NOT NULL REFERENCES events (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES tags (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _event_tags_ab_unique ON _event_tags ("A", "B");
+CREATE INDEX _event_tags_b_index ON _event_tags ("B");
+
+CREATE TABLE _event_going (
+    "A" UUID NOT NULL REFERENCES events (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _event_going_ab_unique ON _event_going ("A", "B");
+CREATE INDEX _event_going_b_index ON _event_going ("B");
+
+CREATE TABLE _event_interested (
+    "A" UUID NOT NULL REFERENCES events (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _event_interested_ab_unique ON _event_interested ("A", "B");
+CREATE INDEX _event_interested_b_index ON _event_interested ("B");
+
+CREATE TABLE songs (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title      VARCHAR(255) NOT NULL,
+    lyrics     TEXT NOT NULL,
+    melody     VARCHAR(255),
+    category   VARCHAR(255),
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ,
+    slug       VARCHAR(255) NOT NULL UNIQUE,
+    video      TEXT
+);
+
+-- The printed songbook's page/number for a song (upstream's
+-- 20260917122428_add_songbook_entries, carried into internal/db/migrations
+-- during the Phase 12 upstream sync). At most one entry per song and per
+-- (page, number_on_page).
+CREATE TABLE song_book_entries (
+    song_id        UUID NOT NULL UNIQUE REFERENCES songs (id),
+    page           INTEGER NOT NULL,
+    number_on_page INTEGER NOT NULL,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at     TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (page, number_on_page)
+);
+
+CREATE TABLE alerts (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    severity   VARCHAR(255) NOT NULL,
+    message_sv VARCHAR(255) NOT NULL,
+    message_en VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    removed_at TIMESTAMPTZ
+);
+
+-- Implicit Prisma many-to-many join table (named "_alerts_closed_by" in the
+-- live DB) - which members have individually dismissed which alert.
+CREATE TABLE _alerts_closed_by (
+    "A" UUID NOT NULL REFERENCES alerts (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _alerts_closed_by_ab_unique ON _alerts_closed_by ("A", "B");
+CREATE INDEX _alerts_closed_by_b_index ON _alerts_closed_by ("B");
+
+CREATE TYPE document_type AS ENUM (
+    'POLICY', 'GUIDELINE', 'MEETING', 'OTHER', 'PLAN_OF_OPERATIONS',
+    'FRAMEWORK_BUDGET', 'STRATEGIC_GOALS'
+);
+
+-- "documents" here is the governing-documents (styrdokument) feature at
+-- /documents/governing - url is a plain string the author pastes in, no
+-- real file storage involved, unlike the MinIO-backed /documents,
+-- /documents/requirements, /documents/upload browsing (internal/documents,
+-- no table at all) - the two are unrelated despite the shared URL prefix.
+CREATE TABLE documents (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title      VARCHAR(255) NOT NULL,
+    url        VARCHAR(255) NOT NULL,
+    type       document_type NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ
+);
+
+CREATE TABLE bookable_categories (
+    id      UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name_sv VARCHAR(255) NOT NULL,
+    name_en VARCHAR(255)
+);
+
+-- "isDisabled" is genuinely camelCase in the live table (renamed name ->
+-- name_sv by a later migration, but isDisabled predates that pass and was
+-- never touched) - same "don't trust schema.prisma/zmodel naming, trust
+-- psql \d" situation as phadder_groups."createdAt" noted above.
+CREATE TABLE bookables (
+    id          UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name_sv     VARCHAR(255) NOT NULL,
+    name_en     VARCHAR(255),
+    "isDisabled" BOOLEAN NOT NULL DEFAULT false,
+    category_id UUID REFERENCES bookable_categories (id),
+    -- A door name (FK to doors.name since upstream's
+    -- 20260911101936_add_booking_door_access, not modeled here since
+    -- doors is declared further down).
+    door        VARCHAR(255)
+);
+
+CREATE TYPE "BookingRequestStatus" AS ENUM ('ACCEPTED', 'DENIED', 'PENDING');
+
+CREATE TABLE booking_requests (
+    id        UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    booker_id UUID REFERENCES members (id),
+    start     TIMESTAMPTZ,
+    "end"     TIMESTAMPTZ,
+    created   TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    event     VARCHAR(255),
+    status    "BookingRequestStatus" NOT NULL DEFAULT 'PENDING'
+);
+
+-- Implicit Prisma many-to-many join table - which bookables ("A") a booking
+-- request ("B") asked for. Alphabetical-by-model-name column assignment,
+-- same convention as _article_tags/_event_tags.
+CREATE TABLE _booking_requests_bookables (
+    "A" UUID NOT NULL REFERENCES bookables (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES booking_requests (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _booking_requests_bookables_ab_pkey ON _booking_requests_bookables ("A", "B");
+CREATE INDEX _booking_requests_bookables_b_index ON _booking_requests_bookables ("B");
+
+CREATE TABLE elections (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    committee_id UUID NOT NULL REFERENCES committees (id),
+    markdown_sv  TEXT NOT NULL,
+    markdown_en  TEXT,
+    link         TEXT NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at   TIMESTAMPTZ NOT NULL
+);
+
+-- Cafe. "workerId" is genuinely
+-- camelCase in the live table (confirmed via psql \d, not schema.zmodel),
+-- same situation as phadder_groups."createdAt"/bookables."isDisabled".
+CREATE TYPE time_slots AS ENUM ('DAYMANAGER', 'SHIFT_1', 'SHIFT_2', 'SHIFT_3');
+
+CREATE TABLE cafe_shifts (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    date       TIMESTAMP(3) NOT NULL,
+    "workerId" UUID NOT NULL REFERENCES members (id),
+    time_slot  time_slots NOT NULL,
+    UNIQUE (date, time_slot)
+);
+
+CREATE TABLE ciabatta_of_the_week (
+    id   UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    year INTEGER NOT NULL,
+    week INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    UNIQUE (year, week)
+);
+
+-- Notifications. All five tables below pre-date this Go port (Prisma-created,
+-- part of the original copied migration history) - schema.sql additions
+-- only, no new migration, same as songs/alerts/booking/elections/cafe.
+--
+-- notifications.id is a genuine outlier: a plain autoincrement integer,
+-- not gen_random_uuid() like every other table in this file - matched
+-- exactly rather than "fixed", since this is a description of the live
+-- table, not a fresh design.
+CREATE TABLE notifications (
+    id              SERIAL PRIMARY KEY,
+    title           VARCHAR(255) NOT NULL,
+    message         VARCHAR(255) NOT NULL,
+    type            VARCHAR(255) NOT NULL,
+    link            VARCHAR(255) NOT NULL,
+    read_at         TIMESTAMPTZ,
+    member_id       UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    from_author_id  UUID REFERENCES authors (id) ON DELETE SET NULL
+);
+CREATE INDEX notifications_member_id_created_at_index ON notifications (member_id, created_at DESC);
+CREATE INDEX notifications_link_index ON notifications (link);
+CREATE INDEX notifications_member_id_unread_index ON notifications (member_id)
+    WHERE read_at IS NULL;
+
+CREATE TABLE expo_tokens (
+    id         UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_id  UUID REFERENCES members (id),
+    expo_token VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE subscription_settings (
+    id                 UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    member_id          UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    type               VARCHAR(255) NOT NULL,
+    push_notification  BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE (member_id, type)
+);
+
+-- Generic operator key/value store - existed already for the old
+-- AdminSetting-backed nollning-period window (superseded by
+-- nollning_seasons in Phase 2) and the Discord webhook config Phase 9
+-- reuses (keys "discord_webhook_se"/"webhook_tags_se"). Real CRUD over
+-- this table is internal/adminsettings.
+CREATE TABLE admin_settings (
+    key        VARCHAR(255) PRIMARY KEY,
+    value      VARCHAR(255),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL
+);
+
+-- Implicit Prisma many-to-many join table (named "_member_tag_subscriptions"
+-- in the live DB) - which tags ("B") a member ("A") wants NEW_ARTICLE
+-- notifications for. Alphabetical-by-model-name column assignment
+-- (Member < Tag), same convention as every other implicit join table here.
+CREATE TABLE _member_tag_subscriptions (
+    "A" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES tags (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX _member_tag_subscriptions_ab_unique ON _member_tag_subscriptions ("A", "B");
+CREATE INDEX _member_tag_subscriptions_b_index ON _member_tag_subscriptions ("B");
+
+-- Doors. "id" is a
+-- nullable, unused-by-any-query legacy field (confirmed via psql \d, no
+-- schema.zmodel drift here) - kept for fidelity, not referenced anywhere.
+CREATE TABLE doors (
+    name         VARCHAR(255) NOT NULL PRIMARY KEY,
+    id           VARCHAR(255),
+    verbose_name VARCHAR(255) NOT NULL
+);
+
+-- role/student_id: exactly one is set per row (member-scoped or
+-- role/position-prefix-scoped policy), same convention as
+-- api_access_policies.role/student_id - never enforced by a DB CHECK here
+-- though, matching the live table (no such constraint exists there, unlike
+-- api_access_policies' Go-added one).
+CREATE TABLE door_access_policies (
+    id             UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    door_name      VARCHAR(255) NOT NULL REFERENCES doors (name),
+    role           VARCHAR(255),
+    student_id     VARCHAR(255) REFERENCES members (student_id),
+    start_datetime TIMESTAMPTZ,
+    end_datetime   TIMESTAMPTZ,
+    is_ban         BOOLEAN NOT NULL DEFAULT false,
+    information    VARCHAR(255),
+    -- Set for the policies a booking's acceptance granted (see
+    -- internal/booking's door access), so they can be replaced/removed with
+    -- the booking. Added by upstream's 20260911101936_add_booking_door_access.
+    booking_request_id UUID REFERENCES booking_requests (id) ON DELETE CASCADE
+);
+
+-- Which doors ("B", by name) and which members ("B") a booking request
+-- ("A") asked door access for - upstream's
+-- 20260911101936_add_booking_door_access, implicit Prisma join tables.
+CREATE TABLE _booking_requests_access_doors (
+    "A" UUID NOT NULL REFERENCES booking_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" VARCHAR(255) NOT NULL REFERENCES doors (name) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY ("A", "B")
+);
+
+CREATE TABLE _booking_requests_access_members (
+    "A" UUID NOT NULL REFERENCES booking_requests (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY ("A", "B")
+);
+
+-- Free-ticket releases for events and their request queues (upstream
+-- #1325's ticket_release/ticket_queue_entry, created by upstream's
+-- 20260921172447/20260921180031/20260921212144 migrations; owned by
+-- internal/tickets since the Phase 12 upstream sync). member_id and
+-- created_by hold student ids, not member uuids - what the original
+-- ticket-service got from Authentik's preferred_username.
+CREATE TABLE ticket_release (
+    id                   UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title                TEXT NOT NULL,
+    quantity             INTEGER NOT NULL,
+    opens_at             TIMESTAMPTZ NOT NULL,
+    grace_window_seconds INTEGER NOT NULL DEFAULT 60,
+    offer_window_seconds INTEGER NOT NULL DEFAULT 300,
+    status               TEXT NOT NULL DEFAULT 'scheduled',
+    created_by           TEXT NOT NULL,
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    description          TEXT NOT NULL DEFAULT '',
+    event_id             UUID NOT NULL REFERENCES events (id),
+    location             TEXT NOT NULL DEFAULT '',
+    closes_at            TIMESTAMPTZ NOT NULL,
+    expires_at           TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE ticket_queue_entry (
+    id               UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    release_id       UUID NOT NULL REFERENCES ticket_release (id) ON DELETE CASCADE,
+    member_id        TEXT NOT NULL,
+    status           TEXT NOT NULL DEFAULT 'pending',
+    queue_position   INTEGER,
+    offer_expires_at TIMESTAMPTZ,
+    requested_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (release_id, member_id)
+);
+
+-- One row per pair of members, keeping the direction of the first ping;
+-- from_sent_at/to_sent_at record the latest ping in each direction.
+CREATE TABLE pings (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    from_member  UUID REFERENCES members (id) ON DELETE CASCADE,
+    to_member    UUID REFERENCES members (id) ON DELETE CASCADE,
+    from_sent_at TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    to_sent_at   TIMESTAMPTZ(6),
+    created_at   TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
+    count        INTEGER DEFAULT 1,
+    UNIQUE (from_member, to_member)
+);
+
+-- Issues of the README newsletter; each links out to its PDF.
+CREATE TABLE readme (
+    id           UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title        TEXT NOT NULL,
+    url          TEXT NOT NULL,
+    created_at   TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMPTZ(6) NOT NULL,
+    year         INTEGER NOT NULL,
+    number       INTEGER NOT NULL,
+    published_at TIMESTAMPTZ(6)
+);

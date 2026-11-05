@@ -1,0 +1,84 @@
+import { tagSchema } from "$lib/zod/schemas";
+import { z } from "zod";
+import * as m from "$paraglide/messages";
+import type { Infer } from "sveltekit-superforms";
+import { isFileImage } from "$lib/files/utils";
+import {
+  recurringTypesList,
+  recurringTypeValues,
+  type RecurringType,
+} from "$lib/utils/events";
+
+export const eventSchema = z
+  .object({
+    titleSv: z.string(),
+    titleEn: z.string().nullable(),
+    descriptionSv: z.string().default(""),
+    descriptionEn: z.string().nullable(),
+    shortDescriptionSv: z.string().nullable().default(null),
+    shortDescriptionEn: z.string().nullable().default(null),
+
+    link: z.string().nullable().default(null),
+    location: z.string().nullable().default(null),
+    /**
+     * The organizing committee. `organizer` is kept as text: it is set to the
+     * committee's name whenever one is chosen, and is otherwise the old free
+     * text organizer of the event.
+     */
+    organizer: z.string().default(""),
+    committeeId: z.string().nullable().default(null),
+
+    startDatetime: z.date().default(() => new Date()),
+    endDatetime: z
+      .date()
+      .default(() => new Date(new Date().getTime() + 60 * 60 * 1000)), // one hour later
+
+    imageUrl: z.string().optional().nullable(),
+    // only for uploading files
+    image: z
+      .instanceof(File, { message: "Please upload a file" })
+      .nullable()
+      .optional()
+      .refine((file) => !file || isFileImage(file), {
+        message: "Måste vara en bild",
+      }),
+
+    tags: z
+      .array(
+        tagSchema.pick({
+          id: true,
+        }),
+      )
+      .default([]),
+
+    alarmActive: z.boolean().nullable().default(null),
+    isCancelled: z.boolean().nullable().default(null),
+    isRecurring: z.boolean().default(false),
+    // see comment above and in utils/events.ts why we do it like this
+    recurringType: z
+      .enum(recurringTypesList as [RecurringType, ...RecurringType[]])
+      .default(recurringTypeValues.WEEKLY),
+    separationCount: z.number().default(0),
+    recurringEndDatetime: z
+      .date()
+      .default(() => new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)), // one week later
+  })
+  .refine((data) => data.startDatetime < data.endDatetime, {
+    message: m.events_errors_endAfterStart(),
+    path: ["endDatetime"],
+  })
+  .refine(
+    (data) =>
+      !data.isRecurring || data.startDatetime < data.recurringEndDatetime,
+    {
+      message: m.events_errors_endAfterStart(),
+      path: ["recurringEndDatetime"],
+    },
+  );
+export type EventSchema = Infer<typeof eventSchema>;
+
+export const actionType = z.enum(["THIS", "FUTURE", "ALL"]);
+
+export type ActionType = z.infer<typeof actionType>;
+/** The event form as used by the create/edit pages, which also ask how a recurring event should be edited. */
+export type EventFormSchema = EventSchema & { editType?: ActionType };

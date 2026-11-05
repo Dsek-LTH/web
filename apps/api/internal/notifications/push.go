@@ -1,0 +1,174 @@
+package notifications
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"log/slog"
+	"net/http"
+	"strings"
+	"time"
+)
+
+// expoPushEndpoint is Expo's push API - no access token is required (the
+// old app's `new Expo()` called it unauthenticated too, see
+// src/lib/utils/notifications/push.ts), so this is a plain HTTP POST rather
+// than a full SDK dependency.
+const expoPushEndpoint = "https://exp.host/--/api/v2/push/send"
+
+// expoChunkSize mirrors expo-server-sdk's own chunking limit.
+const expoChunkSize = 100
+
+type pushMessage struct {
+	Token string
+	Title string
+	Body  string
+	Link  string
+	Badge int
+}
+
+type expoPushMessage struct {
+	To        string         `json:"to"`
+	Title     string         `json:"title"`
+	Body      string         `json:"body"`
+	ChannelID string         `json:"channelId"`
+	Data      map[string]any `json:"data"`
+	Sound     string         `json:"sound"`
+	Priority  string         `json:"priority"`
+	Badge     int            `json:"badge"`
+}
+
+// isExpoPushToken mirrors Expo.isExpoPushToken's shape check.
+func isExpoPushToken(token string) bool {
+	return strings.HasPrefix(token, "ExponentPushToken[") ||
+		strings.HasPrefix(token, "ExpoPushToken[")
+}
+
+// sendPush mirrors sendPushNotifications: filters to valid-looking tokens,
+// chunks, POSTs each chunk, best-effort (logs, never fails the caller -
+// Send already committed the in-app Notification rows by the time this
+// runs). Gated by pushMock, same "explicit opt-in to real" shape as
+// AUTH_MOCK/STORAGE_MOCK - see Service's doc comment.
+func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
+	if s.pushMock {
+		slog.Info("notifications: mock push - pretending to send", "messages", len(messages))
+		return
+	}
+
+	var payload []expoPushMessage
+	for _, m := range messages {
+		if !isExpoPushToken(m.Token) {
+			continue
+		}
+		payload = append(payload, expoPushMessage{
+			To: m.Token, Title: m.Title, Body: m.Body, ChannelID: "default",
+			Data: map[string]any{"link": m.Link}, Sound: "default",
+			Priority: "high", Badge: m.Badge,
+		})
+	}
+	if len(payload) == 0 {
+		return
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	failed := 0
+	var unregistered []string
+	for i := 0; i < len(payload); i += expoChunkSize {
+		end := min(i+expoChunkSize, len(payload))
+		chunk := payload[i:end]
+		body, err := json.Marshal(chunk)
+		if err != nil {
+			slog.Error("notifications: marshal push chunk", "err", err)
+			failed += len(chunk)
+			continue
+		}
+		req, err := http.NewRequestWithContext(
+			ctx,
+			http.MethodPost,
+			expoPushEndpoint,
+			bytes.NewReader(body),
+		)
+		if err != nil {
+			slog.Error("notifications: build push request", "err", err)
+			failed += len(chunk)
+			continue
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "application/json")
+		resp, err := client.Do(req)
+		if err != nil {
+			slog.Error("notifications: send push chunk", "err", err)
+			failed += len(chunk)
+			continue
+		}
+		if resp.StatusCode >= 300 {
+			resp.Body.Close()
+			slog.Error("notifications: push chunk failed", "status", resp.StatusCode)
+			failed += len(chunk)
+			continue
+		}
+		// An accepted chunk can still hold individual messages that failed.
+		var receipt expoPushResponse
+		err = json.NewDecoder(resp.Body).Decode(&receipt)
+		resp.Body.Close()
+		if err != nil {
+			slog.Error("notifications: decode push response", "err", err)
+			continue
+		}
+		for _, ticket := range receipt.Data {
+			if ticket.Status != "error" {
+				continue
+			}
+			failed++
+			slog.Warn(
+				"notifications: push failed",
+				"error",
+				ticket.Details.Error,
+				"message",
+				ticket.Message,
+			)
+		}
+		unregistered = append(unregistered, unregisteredTokens(receipt.Data)...)
+	}
+	if failed > 0 {
+		slog.Warn(
+			"notifications: some push messages failed",
+			"failed",
+			failed,
+			"total",
+			len(payload),
+		)
+	}
+	// Tokens of uninstalled apps would only fail again next time.
+	if len(unregistered) > 0 {
+		if err := s.queries.DeleteExpoTokens(ctx, unregistered); err != nil {
+			slog.Error("notifications: delete unregistered push tokens", "err", err)
+		}
+	}
+}
+
+type expoPushTicket struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Details struct {
+		Error         string `json:"error"`
+		ExpoPushToken string `json:"expoPushToken"`
+	} `json:"details"`
+}
+
+type expoPushResponse struct {
+	Data []expoPushTicket `json:"data"`
+}
+
+// unregisteredTokens picks out the tokens Expo reports as no longer
+// belonging to an installed app.
+func unregisteredTokens(tickets []expoPushTicket) []string {
+	var tokens []string
+	for _, t := range tickets {
+		if t.Status == "error" && t.Details.Error == "DeviceNotRegistered" &&
+			t.Details.ExpoPushToken != "" {
+			tokens = append(tokens, t.Details.ExpoPushToken)
+		}
+	}
+	return tokens
+}
