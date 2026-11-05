@@ -76,7 +76,7 @@
 </script>
 
 <div class="space-y-6">
-  {#if page.data.user?.policies.includes(apiNames.DOOR.UPDATE)}
+  {#if page.data.user?.policies.includes(apiNames.DOOR.CREATE)}
     <!-- Form -->
     <Card>
       <CardHeader>

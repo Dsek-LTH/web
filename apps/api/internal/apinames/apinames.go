@@ -182,9 +182,14 @@ const (
 	// email from there (see AGENTS.md). It is here so the mock identity and
 	// the dev seed grant it too.
 	YrkaSend = "yrka:send"
+
+	// AdminMenu only decides whether SvelteKit shows the admin section of
+	// the menu (each admin page answers by its own policy). Here for the
+	// same reason as YrkaSend.
+	AdminMenu = "core:access:admin:read"
 )
 
-// All lists every policy this API (or, for YrkaSend, SvelteKit) checks -
+// All lists every policy this API (or, for YrkaSend and AdminMenu, SvelteKit) checks -
 // used to build the all-permissions mock identity (see internal/auth.MockAuthenticator).
 // Extend this whenever a new policy constant is added above.
 func All() []string {
@@ -267,6 +272,7 @@ func All() []string {
 		AdminShlinkUpdate,
 		AdminShlinkDelete,
 		CoreAdmin,
+		AdminMenu,
 		YrkaSend,
 	}
 }

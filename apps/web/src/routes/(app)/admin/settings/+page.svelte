@@ -24,7 +24,7 @@
 <div class="mx-auto w-full max-w-5xl px-4 py-8">
   <h1 class="mb-6 text-3xl font-bold">{m.admin_settings_pageTitle()}</h1>
 
-  <NollningSeasons seasons={data.seasons} committees={data.committees} />
+  <NollningSeasons seasons={data.seasons} />
 
   <Card class="mb-6">
     <CardHeader>

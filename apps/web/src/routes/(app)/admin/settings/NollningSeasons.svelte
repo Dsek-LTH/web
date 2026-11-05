@@ -22,13 +22,7 @@
     organizingCommitteeId: string;
   };
 
-  let {
-    seasons,
-    committees,
-  }: {
-    seasons: Season[];
-    committees: Array<{ id: string; name: string }>;
-  } = $props();
+  let { seasons }: { seasons: Season[] } = $props();
 
   const nextYear = $derived(
     Math.max(new Date().getFullYear(), ...seasons.map((s) => s.year + 1)),
@@ -63,6 +57,12 @@
   >
     {#if season}
       <input type="hidden" name="id" value={season.id} />
+      <!-- Always nollu: a new season gets it from Go, an edit keeps it. -->
+      <input
+        type="hidden"
+        name="organizingCommitteeId"
+        value={season.organizingCommitteeId}
+      />
     {/if}
     <div class="flex w-24 flex-col gap-1.5">
       <Label>{m.admin_settings_nollningYear()}</Label>
@@ -94,19 +94,6 @@
         value={season?.endAt ?? ""}
         required
       />
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <Label>{m.admin_settings_nollningCommittee()}</Label>
-      <select
-        name="organizingCommitteeId"
-        value={season?.organizingCommitteeId ?? ""}
-        class="border-input bg-background h-9 rounded-md border px-3 text-sm"
-      >
-        <option value="">{m.admin_settings_nollningCommitteeDefault()}</option>
-        {#each committees as committee (committee.id)}
-          <option value={committee.id}>{committee.name}</option>
-        {/each}
-      </select>
     </div>
     <Button type="submit" variant={season ? "outline" : undefined}>
       {m.admin_settings_save()}

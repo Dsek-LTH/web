@@ -28,10 +28,9 @@ export const load: PageServerLoad = async (event) => {
     apiNames.NOLLNING.MANAGE_SEASONS,
   );
   const api = serverApi(event);
-  const [settingsRes, seasonsRes, committeesRes] = await Promise.all([
+  const [settingsRes, seasonsRes] = await Promise.all([
     api.GET("/admin-settings", {}),
     api.GET("/nollning/seasons", {}),
-    api.GET("/committees", {}),
   ]);
 
   return {
@@ -45,10 +44,6 @@ export const load: PageServerLoad = async (event) => {
       revealAt: toLocalInput(season.revealAt),
       endAt: toLocalInput(season.endAt),
       organizingCommitteeId: season.organizingCommitteeId ?? "",
-    })),
-    committees: (committeesRes.data ?? []).map((committee) => ({
-      id: committee.id,
-      name: committee.name,
     })),
     updateForm: await superValidate(zod4(updateSchema)),
   };
@@ -113,7 +108,8 @@ export const actions = {
       nollaStartAt: fromLocalInput(nollaStartAt),
       revealAt: fromLocalInput(revealAt),
       endAt: fromLocalInput(endAt),
-      // Unset on create means the nollu committee.
+      // Unset on create means the nollu committee; an edit sends the
+      // season's own.
       organizingCommitteeId: organizingCommitteeId || null,
     };
     const api = serverApi(event);

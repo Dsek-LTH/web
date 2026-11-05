@@ -1376,8 +1376,6 @@
   "admin_settings_nollningEnd": "Slut",
   "admin_settings_nollningSeasons": "Nollningsperioder",
   "admin_settings_nollningYear": "År",
-  "admin_settings_nollningCommittee": "Arrangerande utskott",
-  "admin_settings_nollningCommitteeDefault": "Nollu (standard)",
   "admin_settings_nollningNewSeason": "Ny period",
   "admin_settings_nollningSeasonSaved": "Nollningen {year} sparad",
   "admin_settings_nollningSeasonCreated": "Nollningen {year} skapad",

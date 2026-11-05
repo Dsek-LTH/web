@@ -1376,8 +1376,6 @@
   "admin_settings_nollningEnd": "End",
   "admin_settings_nollningSeasons": "Nollning seasons",
   "admin_settings_nollningYear": "Year",
-  "admin_settings_nollningCommittee": "Organizing committee",
-  "admin_settings_nollningCommitteeDefault": "Nollu (default)",
   "admin_settings_nollningNewSeason": "New season",
   "admin_settings_nollningSeasonSaved": "Nollning {year} saved",
   "admin_settings_nollningSeasonCreated": "Nollning {year} created",

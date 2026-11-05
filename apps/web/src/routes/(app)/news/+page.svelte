@@ -26,7 +26,7 @@
   <div class="flex-1 gap-2 md:flex-row md:items-end">
     <NewsSearch />
   </div>
-  {#if data.user?.policies?.includes(apiNames.TAGS.READ)}
+  {#if data.user?.policies?.includes(apiNames.TAGS.CREATE) || data.user?.policies?.includes(apiNames.TAGS.UPDATE)}
     <a href="/news/tags"><Button variant="outline">{m.news_tags()}</Button></a>
   {/if}
   {#if data.user?.policies?.includes(apiNames.NEWS.CREATE)}
