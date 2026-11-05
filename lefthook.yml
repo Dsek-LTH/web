@@ -1,0 +1,19 @@
+# Git hooks, opt-in: `make hooks` installs them. Before a push, each check
+# runs only if the pushed commits touch what it covers.
+lefthook: tools/bin/lefthook
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: api
+      glob: "apps/api/**"
+      run: make lint-api
+    - name: web
+      glob: "apps/web/**"
+      run: make lint-web
+    - name: api-types
+      glob: "apps/{api,web}/**"
+      run: make api-types
+    - name: workflows
+      glob: ".github/workflows/**"
+      run: make lint-ci

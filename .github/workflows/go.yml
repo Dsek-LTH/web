@@ -3,9 +3,9 @@ name: Go CI
 on:
   push:
     branches: ["main", "new-design"]
-    paths: ["apps/api/**", ".github/workflows/go.yml"]
+    paths: ["apps/api/**", "tools/**", "Makefile", ".github/workflows/go.yml"]
   pull_request:
-    paths: ["apps/api/**", ".github/workflows/go.yml"]
+    paths: ["apps/api/**", "tools/**", "Makefile", ".github/workflows/go.yml"]
 
 permissions:
   contents: read
@@ -41,11 +41,14 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: apps/api/go.mod
-          cache-dependency-path: apps/api/go.sum
+          cache-dependency-path: |
+            apps/api/go.sum
+            tools/go.sum
       - run: go build ./...
-      - run: go vet ./...
-      # The generated code in internal/db matches schema.sql and queries/.
-      - run: go tool sqlc diff
+      # go vet, golangci-lint, and the generated code in internal/db
+      # matching schema.sql and queries/.
+      - run: make lint-api
+        working-directory: .
       - run: go tool migrate up
       # Some tests attach their data to seeded rows.
       - run: go tool seed

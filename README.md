@@ -60,9 +60,8 @@ This project is the main web page for the D-guild within TLTH, a non-profit orga
 - `apps/poppler-server/` - a small service that extracts text from PDFs for search
 - `docker-compose.yml` - the local database, Meilisearch and poppler-server
 
-To run it locally: `docker compose up -d`, then `pnpm install`,
-`pnpm migrate` and `pnpm seed` in `apps/web/`, then `make dev` in
-`apps/api/` (port 8090) and `pnpm dev` in `apps/web/` (port 5173). `AGENTS.md` has the
+To run it locally: `make setup`, `make db` and `make dev` (the API on port
+8090, the web app on 5173); `make` lists every command. `AGENTS.md` has the
 details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

@@ -17,8 +17,6 @@
     "test": "pnpm test:unit",
     "test:integration": "playwright test",
     "test:unit": "vitest run --retry 2",
-    "migrate": "cd ../api && go tool migrate up",
-    "seed": "cd ../api && go tool seed",
     "generate:api": "vite-node dev/generate_api_types.ts",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/translations/paraglide",
     "check-translations": "./dev/check_translations.sh"

@@ -19,6 +19,10 @@ Each deployable app is a folder in `apps/`:
   `cmd/migrate`, `cmd/seed` and `cmd/openapi` are the other commands.
 - `apps/poppler-server/` - a small Node service that extracts text from PDFs
   for search.
+- `Makefile` - the repo-wide commands (see "Commands"); `make` lists them.
+  `tools/` is a Go module holding the repo's tools (golangci-lint,
+  govulncheck, oasdiff, lefthook), which the Makefile builds into
+  `tools/bin`. `lefthook.yml` is the opt-in pre-push hook.
 - `docker-compose.yml` - local Postgres (`dsek-db`), Meilisearch and
   poppler-server. `podman-dev.yaml` is the same for podman.
 - `.github/workflows` - CI (`node.js.yml` for the frontend, `go.yml` for
@@ -33,14 +37,15 @@ Needs Node 24 (`nvm use` in `apps/web` picks it up from its `.nvmrc`),
 pnpm 12 (or `corepack enable`, which follows `packageManager` in
 `apps/web/package.json`), Go 1.26 and Docker.
 
-1. `docker compose up -d` (repo root) - Postgres on 5432, Meilisearch on
-   7700, poppler on 8800.
-2. `cd apps/web && pnpm install`, then `pnpm migrate` and `pnpm seed`
-   (or `./dev/setup_db.sh`, which does all three). The seed wipes the
+1. `make setup` - the apps' dependencies, the tools and Playwright's
+   Chromium.
+2. `make db` - starts Postgres (5432), Meilisearch (7700) and poppler
+   (8800) with docker compose, then migrates and seeds. The seed wipes the
    local database and fills it with deterministic fake data.
-3. Backend: `cd apps/api && make dev` (hot reload) or
-   `go run ./cmd/api` - port **8090**.
-4. Frontend: `cd apps/web && pnpm dev` - port **5173**.
+3. `make dev` - the API (port **8090**, hot reload) and the web app (port
+   **5173**) together; `make dev-api` / `make dev-web` for one of them.
+4. Optionally `make hooks` - a pre-push hook running the linters for what
+   the push touches.
 
 Settings come from `apps/web/.env` and `apps/api/.env`. Both are tracked on
 purpose: they hold only dev values (no real secrets), so a fresh clone runs
@@ -80,6 +85,24 @@ frontend's `.env` already points there.
 
 ## Commands
 
+Root (`make`, which lists them all):
+
+- `make check` - everything CI checks except the end-to-end tests: `lint`
+  (`lint-api`: go vet, golangci-lint (`apps/api/.golangci.yml`), sqlc diff;
+  `lint-web`; `lint-ci`: actionlint), `test` (`test-api`, `test-web`) and
+  `api-types` (the web app's API types are current)
+- `make e2e` - the Playwright tests
+- `make generate` - sqlc, then the web app's API types
+- `make fmt` - format both apps
+- `make api-diff` - the breaking-change check CI runs, against `main`
+  (`BASE=<ref>` for another)
+- `make audit` - govulncheck and `pnpm audit`
+- `make migrate`, `make seed`, `make db-reset`, `make db-shell`
+
+Tools for the whole repo are `tool` dependencies in `tools/go.mod` (add one
+with `go get -tool` there); actionlint is pinned in the Makefile instead,
+since its YAML library clashes with oasdiff's.
+
 Frontend (`apps/web/`):
 
 - `pnpm dev`, `pnpm build`
@@ -92,7 +115,6 @@ Frontend (`apps/web/`):
 - `pnpm generate:api` - regenerate `src/lib/api/schema.d.ts` from the
   backend's OpenAPI document (`go run ./cmd/openapi`; no server needed).
   Do this after any API change; CI fails if the committed file is stale.
-- `pnpm migrate`, `pnpm seed` - shortcuts for the backend commands below
 
 Backend (`apps/api/`):
 
