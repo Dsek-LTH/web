@@ -3,10 +3,14 @@ import { authorSchema, tagSchema } from "$lib/zod/schemas";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import { getYoutubeVideoId } from "$lib/utils/youtube";
+import * as m from "$paraglide/messages";
+
+// Messages are functions so they are translated per validation (per request on the server),
+// not once at import time.
 
 export const articleSchema = z.object({
   slug: z.string(),
-  headerSv: z.string().min(1, "Title cannot be empty"),
+  headerSv: z.string().min(1, { error: () => m.news_errors_titleRequired() }),
   headerEn: z.string().nullable(),
   bodySv: z.string().default(""),
   bodyEn: z.string().nullable(),
@@ -25,17 +29,23 @@ export const articleSchema = z.object({
     .optional()
     .nullable()
     .refine((value) => !value || getYoutubeVideoId(value) !== null, {
-      message: "Invalid YouTube URL",
+      error: () => m.news_errors_invalidYoutube(),
     }),
   publishTime: z.date().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z
-    .instanceof(File, { message: "Please upload a file." })
+    .instanceof(File, { error: () => m.news_errors_notAnImage() })
     .refine((file) => !file || isFileImage(file), {
-      message: "Måste vara en bild",
+      error: () => m.news_errors_notAnImage(),
     })
     .array()
     .default([]),
+  /**
+   * Which image becomes the cover, as an index into `[...imageUrls, ...images]`
+   * (existing images first, then new uploads). Null means "keep the current cover"
+   * when editing and "first image" when creating.
+   */
+  coverImageIndex: z.number().int().min(0).nullable().optional(),
   committeeId: z.uuid().nullable(),
   notificationText: z.string().max(255).optional().nullable(),
   sendNotification: z.boolean(),
@@ -47,16 +57,14 @@ export const createSchema = articleSchema
     slug: true,
   })
   .refine((data) => data.sendNotification === false || data.tags.length > 0, {
-    message:
-      "Tags cannot be empty if you want to send a notification. No notifications will be sent",
+    error: () => m.news_errors_tagsForNotification(),
     path: ["tags"],
   });
 
 export const updateSchema = articleSchema.refine(
   (data) => data.sendNotification === false || data.tags.length > 0,
   {
-    message:
-      "Tags cannot be empty if you want to send a notification. No notifications will be sent",
+    error: () => m.news_errors_tagsForNotification(),
     path: ["tags"],
   },
 );

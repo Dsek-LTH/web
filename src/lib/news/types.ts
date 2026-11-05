@@ -33,6 +33,10 @@ export type ArticleContentData = {
   imageUrls: string[];
   tags: ArticleTagSummary[];
   youtubeUrl: string | null;
+  /** Cover image, shown as the hero when there is no video. Defaults to the first of `imageUrls`. */
+  imageUrl?: string | null;
+  /** Shown in the byline; falls back to `createdAt`. */
+  publishedAt?: Date | null;
 };
 
 export type ArticleCardData = {
@@ -44,6 +48,11 @@ export type ArticleCardData = {
   createdAt: Date;
   committee: ArticleCommitteeSummary | null;
   youtubeUrl: string | null;
+  /** Shown as the date when set, like the article page; otherwise `createdAt`. */
+  publishedAt?: Date | null;
+  /** Counts in the editorial card's meta line, when the page loads them. */
+  likers?: unknown[];
+  comments?: Array<{ content: string | null }>;
 };
 
 export type ArticleSmallCardData = {

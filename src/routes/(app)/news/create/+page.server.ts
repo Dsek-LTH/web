@@ -52,7 +52,8 @@ export const load: PageServerLoad = async ({ locals }) => {
     authorOptions,
     form: await superValidate(
       {
-        sendNotification: true,
+        // Off by default: notifications require tags, so "on" made untagged articles fail.
+        sendNotification: false,
         author: authorOptions[0],
       },
       zod4(createSchema),

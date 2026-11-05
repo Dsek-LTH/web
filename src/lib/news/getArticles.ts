@@ -42,7 +42,7 @@ const include = {
 export const getAllArticles = async (
   prisma: ExtendedPrisma,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
-): Promise<[Article[], number]> => {
+): Promise<[articles: Article[], pageCount: number, totalCount: number]> => {
   const pageNumber = filters.page ?? 0;
   const pageSize = filters.pageSize ?? 10;
 
@@ -119,7 +119,7 @@ export const getAllArticles = async (
     }),
     prisma.article.count({ where }),
   ]);
-  return [articles, Math.ceil(count / pageSize)];
+  return [articles, Math.ceil(count / pageSize), count];
 };
 
 export const getArticle = async (prisma: ExtendedPrisma, slug: string) => {

@@ -109,14 +109,19 @@ model AccessPolicy {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model ArticleComment {
-  id        String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  articleId String   @map("article_id") @db.Uuid()
-  memberId  String   @map("member_id") @db.Uuid()
-  content   String?  @db.VarChar(255)
-  published DateTime @db.Timestamptz(6)
-  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_article_id_foreign")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_member_id_foreign")
+  id        String           @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  articleId String           @map("article_id") @db.Uuid()
+  memberId  String           @map("member_id") @db.Uuid()
+  content   String?          @db.VarChar(255)
+  published DateTime         @db.Timestamptz(6)
+  article   Article          @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_article_id_foreign")
+  member    Member           @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_member_id_foreign")
+  /// Set on replies: the comment being answered, which may itself be a reply.
+  parentId  String?          @map("parent_id") @db.Uuid()
+  parent    ArticleComment?  @relation("ArticleCommentReplies", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_parent_id_foreign")
+  replies   ArticleComment[] @relation("ArticleCommentReplies")
 
+  @@index([parentId], map: "article_comments_parent_id_index")
   @@map("article_comments")
 }
 
@@ -362,14 +367,19 @@ model EmailAlias {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model EventComment {
-  id        String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
-  eventId   String   @map("event_id") @db.Uuid()
-  memberId  String   @map("member_id") @db.Uuid()
+  id        String         @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  eventId   String         @map("event_id") @db.Uuid()
+  memberId  String         @map("member_id") @db.Uuid()
   content   String?
-  published DateTime @db.Timestamptz(6)
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_event_id_foreign")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_member_id_foreign")
+  published DateTime       @db.Timestamptz(6)
+  event     Event          @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_event_id_foreign")
+  member    Member         @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_member_id_foreign")
+  /// Set on replies: the comment being answered, which may itself be a reply.
+  parentId  String?        @map("parent_id") @db.Uuid()
+  parent    EventComment?  @relation("EventCommentReplies", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_parent_id_foreign")
+  replies   EventComment[] @relation("EventCommentReplies")
 
+  @@index([parentId], map: "event_comments_parent_id_index")
   @@map("event_comments")
 }
 

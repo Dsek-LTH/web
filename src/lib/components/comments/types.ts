@@ -8,7 +8,8 @@ type BaseComment =
   ExtendedPrismaModel<"ArticleComment"> | ExtendedPrismaModel<"EventComment">;
 
 export type CommentWithMember = BaseComment & {
-  member: CommentMember;
+  /** Null on removed comments (see hideRemovedCommentAuthors). */
+  member: CommentMember | null;
 };
 
 export type MentionRequest = {

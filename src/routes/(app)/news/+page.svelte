@@ -3,16 +3,64 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import NewsSearch from "./NewsSearch.svelte";
-  import { Button } from "$lib/components/ui/button";
+  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import * as ToggleGroup from "$lib/components/ui/toggle-group";
+  import * as Tooltip from "$lib/components/ui/tooltip";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import Pagination from "$lib/components/Pagination.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import dayjs from "dayjs";
+  import LayoutGrid from "@lucide/svelte/icons/layout-grid";
+  import List from "@lucide/svelte/icons/list";
+  import ChevronDown from "@lucide/svelte/icons/chevron-down";
+  import Plus from "@lucide/svelte/icons/plus";
+  import Ellipsis from "@lucide/svelte/icons/ellipsis";
+  import Tags from "@lucide/svelte/icons/tags";
+  import NewsList from "./NewsList.svelte";
+  import {
+    isNewsViewMode,
+    saveNewsViewMode,
+    type NewsViewMode,
+  } from "$lib/news/viewMode";
 
   let { data } = $props();
 
+  const canCreate = $derived(isAuthorized(apiNames.NEWS.CREATE, data.user));
+  const canManageTags = $derived(isAuthorized(apiNames.TAGS.READ, data.user));
+
+  // Initial value comes from the cookie (read on the server), so SSR renders the right view.
+  let viewMode = $derived(data.viewMode);
+
+  const setViewMode = (value: NewsViewMode) => {
+    viewMode = value;
+    saveNewsViewMode(value);
+  };
+
+  const viewOptions = [
+    { value: "cards", label: m.news_view_cards, icon: LayoutGrid },
+    { value: "list", label: m.news_view_list, icon: List },
+  ] as const;
+
+  const rangeFrom = $derived(
+    data.totalCount === 0 ? 0 : (data.page - 1) * data.pageSize + 1,
+  );
+  const rangeTo = $derived(
+    Math.min(data.page * data.pageSize, data.totalCount),
+  );
+  const rangeLabel = $derived(
+    m.news_showingRange({
+      from: rangeFrom,
+      to: rangeTo,
+      total: data.totalCount,
+    }),
+  );
+
   let showNollning = $state(false);
+
+  const formatDateTime = (date: Date | null) =>
+    dayjs(date).format("YYYY-MM-DD HH:mm");
 </script>
 
 <SetPageTitle title={m.news()} />
@@ -26,73 +74,193 @@
   }}
 />
 
-<div class="flex flex-row gap-2 pt-4 pb-2">
-  <div class="flex-1 gap-2 md:flex-row md:items-end">
-    <NewsSearch />
-  </div>
-  {#if isAuthorized(apiNames.TAGS.READ, data.user)}
-    <a href="/news/tags"><Button variant="outline">{m.news_tags()}</Button></a>
-  {/if}
-  {#if isAuthorized(apiNames.NEWS.CREATE, data.user)}
-    <a href="/news/create"><Button>+ {m.news_create()}</Button></a>
-  {/if}
-</div>
-
-{#if data.scheduledArticles.length > 0}
-  <section class="mb-6">
-    <h2 class="mb-3 text-lg font-semibold">{m.news_scheduledNews()}</h2>
-    <div class="flex flex-col gap-2">
-      {#each data.scheduledArticles as article (article.id)}
+<!-- Rows linking to the editor, for the author-only panels below. -->
+{#snippet editLinks(
+  articles: Array<{
+    id: string;
+    slug: string;
+    header: string;
+    publishedAt: Date | null;
+  }>,
+)}
+  <ul class="ml-0 list-none divide-y [&>li]:my-0">
+    {#each articles as article (article.id)}
+      <li>
         <a
           href="/news/{article.slug}/edit"
-          class="hover:bg-muted/50 flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors"
+          class="hover:bg-muted/50 flex items-center justify-between gap-4 px-4 py-3 text-sm transition-colors"
         >
           <span class="font-medium">{article.header}</span>
-          <span class="text-muted-foreground ml-4 shrink-0">
-            {m.news_scheduledFor()}
-            {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
+          <span class="text-muted-foreground shrink-0">
+            {#if article.publishedAt && new Date(article.publishedAt) > new Date()}
+              {m.news_scheduledFor()}
+            {/if}
+            {formatDateTime(article.publishedAt)}
           </span>
         </a>
-      {/each}
-    </div>
-  </section>
-{/if}
+      </li>
+    {/each}
+  </ul>
+{/snippet}
 
-{#if data.nollningArticles.length > 0}
-  <section class="mb-6">
-    {#if showNollning}
-      <h2 class="mb-3 text-lg font-semibold">{m.news_nollningNews()}</h2>
-      <div class="flex flex-col gap-2">
-        {#each data.nollningArticles as article (article.id)}
-          <a
-            href="/news/{article.slug}/edit"
-            class="hover:bg-muted/50 flex items-center justify-between rounded-md border px-4 py-3 text-sm transition-colors"
-          >
-            <span class="font-medium">{article.header}</span>
-            <span class="text-muted-foreground ml-4 shrink-0">
-              {#if article.publishedAt && new Date(article.publishedAt) > new Date()}
-                {m.news_scheduledFor()}
-                {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
-              {:else}
-                {dayjs(article.publishedAt).format("YYYY-MM-DD HH:mm")}
-              {/if}
-            </span>
-          </a>
+<!-- The author-only lists (scheduled, nollning) are framed panels; the public article
+     list is not, so the news itself sits directly on the page. -->
+<div class="flex flex-col gap-6 pt-4 pb-8">
+  <!-- Page-level actions live here, above the author panels, so they are always in reach.
+       The list toolbar below only holds controls that affect the list itself. -->
+  <div class="flex items-center justify-between gap-4">
+    <h1 class="text-3xl font-bold">{m.news()}</h1>
+    {#if canCreate || canManageTags}
+      <div class="flex items-center gap-2">
+        {#if canManageTags}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              class={buttonVariants({ variant: "outline", size: "icon" })}
+              aria-label={m.news_moreActions()}
+            >
+              <Ellipsis />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end">
+              <DropdownMenu.Item>
+                {#snippet child({ props })}
+                  <a href="/news/tags" {...props}>
+                    <Tags />
+                    {m.news_manageTags()}
+                  </a>
+                {/snippet}
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        {/if}
+        {#if canCreate}
+          <Button href="/news/create">
+            <Plus />
+            {m.news_newArticle()}
+          </Button>
+        {/if}
+      </div>
+    {/if}
+  </div>
+
+  {#if data.scheduledArticles.length > 0}
+    <section class="rounded-xl border">
+      <header class="flex items-center gap-2 border-b px-4 py-3">
+        <h2 class="text-base font-semibold">{m.news_scheduledNews()}</h2>
+        <span class="text-muted-foreground text-sm"
+          >{data.scheduledArticles.length}</span
+        >
+      </header>
+      {@render editLinks(data.scheduledArticles)}
+    </section>
+  {/if}
+
+  {#if data.nollningArticles.length > 0}
+    <section class="rounded-xl border">
+      <button
+        type="button"
+        class="hover:bg-muted/50 flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left transition-colors"
+        class:rounded-b-none={showNollning}
+        class:border-b={showNollning}
+        aria-expanded={showNollning}
+        onclick={() => (showNollning = !showNollning)}
+      >
+        <h2 class="text-base font-semibold">{m.news_nollningNews()}</h2>
+        <span class="text-muted-foreground text-sm"
+          >{data.nollningArticles.length}</span
+        >
+        <span class="text-muted-foreground ml-auto text-sm">
+          {showNollning ? m.news_hideNollningNews() : m.news_showNollningNews()}
+        </span>
+        <ChevronDown
+          class="text-muted-foreground size-4 transition-transform {showNollning
+            ? 'rotate-180'
+            : ''}"
+        />
+      </button>
+      {#if showNollning}
+        {@render editLinks(data.nollningArticles)}
+      {/if}
+    </section>
+  {/if}
+
+  <!-- No frame around the articles: cards and rows sit on the page itself, aligned
+       with the heading above. The toolbar is a plain row. -->
+  <section class="flex flex-col gap-6">
+    <header class="flex items-center gap-3">
+      <div class="min-w-0 flex-1">
+        <NewsSearch />
+      </div>
+      <span
+        class="text-muted-foreground hidden shrink-0 text-sm tabular-nums sm:inline"
+      >
+        {rangeLabel}
+      </span>
+      <!-- Icon-only and muted when active: view state should not compete with the primary action.
+           The getter/setter binding ignores deselection, so one view is always selected. -->
+      <Tooltip.Provider>
+        <ToggleGroup.Root
+          type="single"
+          variant="outline"
+          aria-label={m.news_view()}
+          bind:value={
+            () => viewMode,
+            (value) => {
+              if (isNewsViewMode(value)) setViewMode(value);
+            }
+          }
+        >
+          {#each viewOptions as option (option.value)}
+            {@const Icon = option.icon}
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                {#snippet child({ props })}
+                  <ToggleGroup.Item
+                    {...props}
+                    value={option.value}
+                    aria-label={option.label()}
+                    class="text-muted-foreground data-[state=on]:text-foreground size-9"
+                  >
+                    <Icon />
+                  </ToggleGroup.Item>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content>{option.label()}</Tooltip.Content>
+            </Tooltip.Root>
+          {/each}
+        </ToggleGroup.Root>
+      </Tooltip.Provider>
+    </header>
+
+    {#if data.articles.length === 0}
+      <p class="text-muted-foreground py-16 text-center">
+        {m.news_noArticlesFound()}
+      </p>
+    {:else if viewMode === "list"}
+      <NewsList articles={data.articles} />
+    {:else}
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {#each data.articles as article, index (article.id)}
+          <ArticleCard
+            {article}
+            {index}
+            variant="editorial"
+            tags={article.tags}
+          />
         {/each}
       </div>
     {/if}
-    <Button variant="outline" onclick={() => (showNollning = !showNollning)}>
-      {showNollning ? m.news_hideNollningNews() : m.news_showNollningNews()}
-    </Button>
-  </section>
-{/if}
 
-<Pagination pageCount={data.pageCount} class="pb-2" />
-<div class="space-y-4">
-  <section class="grid grid-cols-1 gap-8 md:grid-cols-2">
-    {#each data.articles as article, index (article.id)}
-      <ArticleCard {article} {index} />
-    {/each}
+    <!-- The count sits in the toolbar from sm up; on phones the toolbar has no room, so it stays here. -->
+    <footer
+      class="text-muted-foreground flex flex-col items-center gap-2 text-sm {data.pageCount <=
+      1
+        ? 'sm:hidden'
+        : ''}"
+    >
+      <span class="tabular-nums sm:hidden">{rangeLabel}</span>
+      {#if data.pageCount > 1}
+        <Pagination pageCount={data.pageCount} class="justify-center" />
+      {/if}
+    </footer>
   </section>
-  <Pagination pageCount={data.pageCount} />
 </div>

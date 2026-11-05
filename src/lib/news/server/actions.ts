@@ -20,6 +20,10 @@ import { announceArticle } from "./notifications";
 import { env } from "$env/dynamic/private";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
+/** The chosen cover, falling back to the first image, or null when there are none. */
+const pickCover = (imageUrls: string[], index: number) =>
+  imageUrls[index] ?? imageUrls[0] ?? null;
+
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
   const randomName = (Math.random() + 1).toString(36).substring(2);
   const imageUrl = await uploadFile(
@@ -56,6 +60,7 @@ export const createArticle: Action = async (event) => {
     bodyEn,
     committeeId,
     publishTime,
+    coverImageIndex,
     ...rest
   } = form.data;
   const existingAuthor = await prisma.author.findFirst({
@@ -79,7 +84,7 @@ export const createArticle: Action = async (event) => {
   });
   await Promise.resolve();
   rest.imageUrls = await Promise.all(tasks);
-  rest.imageUrl = rest.imageUrls[0];
+  rest.imageUrl = pickCover(rest.imageUrls, coverImageIndex ?? 0);
 
   const result = await prisma.article.create({
     data: {
@@ -208,6 +213,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     publishTime,
     sendNotification,
     notificationText,
+    coverImageIndex,
     ...rest
   } = form.data;
   // No scheduled time means publish immediately.
@@ -231,6 +237,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     rest.imageUrls === undefined
       ? newImages
       : [...rest.imageUrls, ...newImages];
+  // Without an explicit choice the current cover is kept as is.
+  if (coverImageIndex != null)
+    rest.imageUrl = pickCover(rest.imageUrls, coverImageIndex);
 
   let announced = true;
   try {

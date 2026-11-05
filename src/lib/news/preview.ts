@@ -25,6 +25,7 @@ export type PreviewForm = {
   tags: Array<{ id: string }>;
   imageUrls?: string[] | null;
   imageUrl?: string | null;
+  coverImageIndex?: number | null;
   committeeId?: string | null;
   publishTime?: Date | null;
   youtubeUrl?: string | null;
@@ -124,9 +125,14 @@ export const buildArticlePreview = ({
   const imageUrls = isEditing
     ? [...existingImageUrls, ...uploadedImageUrls]
     : [...uploadedImageUrls];
-  const cardImageUrl = isEditing
-    ? (form.imageUrl ?? null)
-    : (uploadedImageUrls[0] ?? form.imageUrl ?? null);
+  // Same rule as the server: an explicit cover index wins (falling back to the first
+  // image); otherwise editing keeps the current cover and creating uses the first upload.
+  const cardImageUrl =
+    form.coverImageIndex != null
+      ? (imageUrls[form.coverImageIndex] ?? imageUrls[0] ?? null)
+      : isEditing
+        ? (form.imageUrl ?? null)
+        : (uploadedImageUrls[0] ?? form.imageUrl ?? null);
 
   return {
     article: {

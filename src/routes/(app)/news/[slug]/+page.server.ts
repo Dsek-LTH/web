@@ -6,6 +6,7 @@ import { getArticle } from "$lib/news/getArticles";
 import apiNames from "$lib/utils/apiNames";
 import { authorize, isAuthorized } from "$lib/utils/authorization";
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
+import { hideRemovedCommentAuthors } from "$lib/components/comments/threads";
 import { redirect } from "sveltekit-flash-message/server";
 import {
   commentAction,
@@ -38,7 +39,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     article.author.memberId === user.memberId;
   const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
   return {
-    article,
+    article: {
+      ...article,
+      comments: hideRemovedCommentAuthors(article.comments),
+    },
     allTaggedMembers,
     canEdit,
     canDelete,
@@ -58,13 +62,15 @@ export const actions: Actions = {
     const { prisma, user } = locals;
     authorize(apiNames.NEWS.DELETE, user);
 
-    const existingArticle = prisma.article.findUnique({
+    const existingArticle = await prisma.article.findUnique({
       where: {
         slug: params.slug,
+        removedAt: null,
       },
+      select: { id: true },
     });
 
-    if (!existingArticle) return error(404, m.news_errors_articleNotFound());
+    if (!existingArticle) throw error(404, m.news_errors_articleNotFound());
 
     await prisma.article.update({
       where: {
