@@ -1,6 +1,8 @@
 # Git hooks, opt-in: `make hooks` installs them. Before a push, each check
 # runs only if the pushed commits touch what it covers.
-lefthook: tools/bin/lefthook
+# go tool needs a go.mod where it runs, and lefthook needs to run in the
+# repo root: -n only prints the path of the built binary.
+lefthook: "$(go -C tools tool -n lefthook)"
 
 pre-push:
   parallel: true

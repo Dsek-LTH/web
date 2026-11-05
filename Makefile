@@ -6,12 +6,13 @@ API := apps/api
 WEB := apps/web
 POPPLER := apps/poppler-server
 
-# Tools for the whole repo, versioned in tools/go.mod and built into
-# tools/bin (gitignored) whenever it changes. actionlint isn't in there:
-# it needs an older version of a YAML library than oasdiff does.
-BIN := $(CURDIR)/tools/bin
-ACTIONLINT_VERSION := v1.7.12
-TOOLS := $(BIN)/.installed
+# Tools for the whole repo are `tool` dependencies in tools/go.mod, a
+# module of their own so their dependencies can't move the API's. From
+# apps/api they run with -modfile; elsewhere from tools/ (go tool needs a
+# go.mod where it runs). actionlint isn't in there: it needs an older
+# version of a YAML library than oasdiff does, so it's pinned here.
+TOOL := go tool -modfile=$(CURDIR)/tools/go.mod
+ACTIONLINT := go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
 
 # What make api-diff compares against.
 BASE ?= main
@@ -27,17 +28,13 @@ help: ## List the targets
 		/^[a-z-]+:.*## / { printf "  \033[36m%-11s\033[0m %s\n", $$1, $$2 }' \
 		$(MAKEFILE_LIST)
 
-$(TOOLS): tools/go.mod tools/go.sum
-	cd tools && GOBIN=$(BIN) go install tool
-	GOBIN=$(BIN) go install github.com/rhysd/actionlint/cmd/actionlint@$(ACTIONLINT_VERSION)
-	@touch $@
-
 ##@ Setup
 
-setup: $(TOOLS) ## Install dependencies, Go modules, the tools and Playwright's Chromium
+setup: ## Install dependencies, Go modules and Playwright's Chromium
 	cd $(WEB) && pnpm install
 	cd $(POPPLER) && pnpm install
 	cd $(API) && go mod download
+	cd tools && go mod download
 	cd $(WEB) && pnpm exec playwright install chromium
 
 db: ## Start Postgres, Meilisearch and poppler, then migrate and seed (wipes the dev data)
@@ -59,8 +56,8 @@ db-reset: ## Drop and recreate the dev database, then migrate and seed
 		-c "DROP DATABASE IF EXISTS dsek WITH (FORCE)" -c "CREATE DATABASE dsek"
 	@$(MAKE) --no-print-directory migrate seed
 
-hooks: $(TOOLS) ## Install the pre-push hook (lefthook.yml)
-	$(BIN)/lefthook install
+hooks: ## Install the pre-push hook (lefthook.yml)
+	cd tools && go tool lefthook install
 
 ##@ Develop
 
@@ -87,15 +84,15 @@ check: lint test api-types ## Everything CI checks except the end-to-end tests
 
 lint: lint-api lint-web lint-ci ## All the linters
 
-lint-api: $(TOOLS) ## go vet, golangci-lint, and sqlc's generated code being current
-	cd $(API) && go vet ./... && $(BIN)/golangci-lint run ./... && go tool sqlc diff
+lint-api: ## go vet, golangci-lint, and sqlc's generated code being current
+	cd $(API) && go vet ./... && $(TOOL) golangci-lint run ./... && go tool sqlc diff
 
 lint-web: ## eslint, Prettier, svelte-check and the translations
 	cd $(WEB) && pnpm lint --max-warnings 0 && pnpm format \
 		&& pnpm check --fail-on-warnings && pnpm check-translations
 
-lint-ci: $(TOOLS) ## actionlint on the GitHub workflows
-	$(BIN)/actionlint
+lint-ci: ## actionlint on the GitHub workflows
+	$(ACTIONLINT)
 
 test: test-api test-web ## The Go and vitest tests
 
@@ -111,18 +108,18 @@ api-types: ## Fail if the web app's API types are stale
 e2e: ## The Playwright tests (see "End-to-end tests" in AGENTS.md)
 	cd $(WEB) && pnpm test:integration
 
-api-diff: $(TOOLS) ## Breaking API changes against BASE (default main), as CI checks
+api-diff: ## Breaking API changes against BASE (default main), as CI checks
 	@tmp=$$(mktemp -d) && trap 'rm -rf "$$tmp"' EXIT \
 		&& git archive $(BASE) $(API) | tar -x -C "$$tmp" \
 		&& if [ ! -d "$$tmp/$(API)/cmd/openapi" ]; then \
 			echo "$(BASE) has no $(API)/cmd/openapi to compare with"; exit 1; fi \
 		&& (cd "$$tmp/$(API)" && go run ./cmd/openapi -3.0) > "$$tmp/base.json" \
 		&& (cd $(API) && go run ./cmd/openapi -3.0) > "$$tmp/head.json" \
-		&& $(BIN)/oasdiff breaking "$$tmp/base.json" "$$tmp/head.json" --fail-on ERR
+		&& cd tools && go tool oasdiff breaking "$$tmp/base.json" "$$tmp/head.json" --fail-on ERR
 
-audit: $(TOOLS) ## Known vulnerabilities: govulncheck, and pnpm audit for both Node apps
+audit: ## Known vulnerabilities: govulncheck, and pnpm audit for both Node apps
 	@status=0; \
-		(cd $(API) && $(BIN)/govulncheck ./...) || status=1; \
+		(cd $(API) && $(TOOL) govulncheck ./...) || status=1; \
 		(cd $(WEB) && pnpm audit) || status=1; \
 		(cd $(POPPLER) && pnpm audit) || status=1; \
 		exit $$status

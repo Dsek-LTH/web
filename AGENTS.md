@@ -12,7 +12,7 @@ Each deployable app is a folder in `apps/`:
   paraglide for sv/en translations in `src/translations`). It has no
   database access of its own.
 - `apps/api/` - the Go API (module
-  `github.com/dsek-lth/web/apps/api`, Go 1.26). `cmd/api` wires
+  `github.com/dsek-lth/web/apps/api`, Go 1.27). `cmd/api` wires
   everything; `internal/<domain>` holds one package per domain (a
   `Service` wrapping sqlc's `*db.Queries`); `internal/api` is the HTTP
   layer; `internal/db` is schema, queries, migrations and generated code;
@@ -21,8 +21,8 @@ Each deployable app is a folder in `apps/`:
   for search.
 - `Makefile` - the repo-wide commands (see "Commands"); `make` lists them.
   `tools/` is a Go module holding the repo's tools (golangci-lint,
-  govulncheck, oasdiff, lefthook), which the Makefile builds into
-  `tools/bin`. `lefthook.yml` is the opt-in pre-push hook.
+  govulncheck, oasdiff, lefthook). `lefthook.yml` is the opt-in pre-push
+  hook.
 - `docker-compose.yml` - local Postgres (`dsek-db`), Meilisearch and
   poppler-server. `podman-dev.yaml` is the same for podman.
 - `.github/workflows` - CI (`node.js.yml` for the frontend, `go.yml` for
@@ -35,7 +35,7 @@ Each deployable app is a folder in `apps/`:
 
 Needs Node 24 (`nvm use` in `apps/web` picks it up from its `.nvmrc`),
 pnpm 12 (or `corepack enable`, which follows `packageManager` in
-`apps/web/package.json`), Go 1.26 and Docker.
+`apps/web/package.json`), Go 1.27 and Docker.
 
 1. `make setup` - the apps' dependencies, the tools and Playwright's
    Chromium.
@@ -100,7 +100,10 @@ Root (`make`, which lists them all):
 - `make migrate`, `make seed`, `make db-reset`, `make db-shell`
 
 Tools for the whole repo are `tool` dependencies in `tools/go.mod` (add one
-with `go get -tool` there); actionlint is pinned in the Makefile instead,
+with `go get -tool` there), a module of their own so their dependencies
+can't move the API's. They run with `go tool`, from `apps/api` as
+`go tool -modfile=../../tools/go.mod <name>`; keep both modules on the same
+Go version. actionlint is pinned in the Makefile instead (`go run ...@v`),
 since its YAML library clashes with oasdiff's.
 
 Frontend (`apps/web/`):
