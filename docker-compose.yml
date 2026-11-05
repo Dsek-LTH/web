@@ -28,7 +28,7 @@ services:
 
   poppler-server:
     build:
-      context: ./poppler-server
+      context: ./apps/poppler-server
       dockerfile: Dockerfile
     container_name: dsek-poppler
     restart: always
@@ -38,7 +38,7 @@ services:
       - "8800:8800"
 
   # Local trace viewer, opt-in: `docker compose --profile tracing up -d`,
-  # then set OTEL_EXPORTER_OTLP_TRACES_ENDPOINT in backend/.env. UI on
+  # then set OTEL_EXPORTER_OTLP_TRACES_ENDPOINT in apps/backend/.env. UI on
   # http://localhost:16686.
   jaeger:
     container_name: dsek-jaeger

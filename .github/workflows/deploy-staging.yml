@@ -23,7 +23,7 @@ jobs:
       - name: Build and push website
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:frontend"
+          context: "{{defaultContext}}:apps/frontend"
           build-args: |
             "PUBLIC_GO_BACKEND_URL=https://api.staging.dsek.se"
             "PUBLIC_MINIO_BASE_URL=https://files-sandbox.dsek.se"
@@ -50,7 +50,7 @@ jobs:
       - name: Build and push poppler
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:poppler-server"
+          context: "{{defaultContext}}:apps/poppler-server"
           push: true
           tags: registry.dsek.se/web-staging/poppler:latest
 
@@ -69,6 +69,6 @@ jobs:
       - name: Build and push backend
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:backend"
+          context: "{{defaultContext}}:apps/backend"
           push: true
           tags: registry.dsek.se/web-staging/backend:latest

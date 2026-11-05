@@ -6,16 +6,18 @@ and authorization; the SvelteKit app renders pages and calls it.
 
 ## Layout
 
-- `frontend/` - the SvelteKit app (Svelte 5, TypeScript, Tailwind,
+Each deployable app is a folder in `apps/`:
+
+- `apps/frontend/` - the SvelteKit app (Svelte 5, TypeScript, Tailwind,
   paraglide for sv/en translations in `src/translations`). It has no
   database access of its own.
-- `backend/` - the Go API (module `github.com/dsek-lth/web/backend`,
+- `apps/backend/` - the Go API (module `github.com/dsek-lth/web/backend`,
   Go 1.26). `cmd/server` wires everything; `internal/<domain>` holds one
   package per domain (a `Service` wrapping sqlc's `*db.Queries`);
   `internal/api` is the HTTP layer; `internal/db` is schema, queries,
   migrations and generated code; `cmd/migrate`, `cmd/seed` and
   `cmd/openapi` are the other commands.
-- `poppler-server/` - a small Node service that extracts text from PDFs
+- `apps/poppler-server/` - a small Node service that extracts text from PDFs
   for search.
 - `docker-compose.yml` - local Postgres (`dsek-db`), Meilisearch and
   poppler-server. `podman-dev.yaml` is the same for podman.
@@ -28,28 +30,29 @@ and authorization; the SvelteKit app renders pages and calls it.
 ## Running locally
 
 Needs Node 24 (`nvm use` picks it up from `.nvmrc`), pnpm 12 (or
-`corepack enable`, which follows `packageManager` in `frontend/package.json`),
+`corepack enable`, which follows `packageManager` in
+`apps/frontend/package.json`),
 Go 1.26 and Docker.
 
 1. `docker compose up -d` (repo root) - Postgres on 5432, Meilisearch on
    7700, poppler on 8800.
-2. `cd frontend && pnpm install`, then `pnpm migrate` and `pnpm seed`
+2. `cd apps/frontend && pnpm install`, then `pnpm migrate` and `pnpm seed`
    (or `./dev/setup_db.sh`, which does all three). The seed wipes the
    local database and fills it with deterministic fake data.
-3. Backend: `cd backend && make dev` (hot reload) or `go run ./cmd/server` - port
-   **8090**.
-4. Frontend: `cd frontend && pnpm dev` - port **5173**.
+3. Backend: `cd apps/backend && make dev` (hot reload) or
+   `go run ./cmd/server` - port **8090**.
+4. Frontend: `cd apps/frontend && pnpm dev` - port **5173**.
 
-Settings come from `frontend/.env` and `backend/.env`. Both are tracked on
-purpose: they hold only dev values (no real secrets), so a fresh clone runs
-without copying anything. Variables already set in the environment win.
+Settings come from `apps/frontend/.env` and `apps/backend/.env`. Both are
+tracked on purpose: they hold only dev values (no real secrets), so a fresh
+clone runs without copying anything. Variables already set in the environment win.
 Each file has only what its half reads; the public URLs both need
 (`PUBLIC_GO_BACKEND_URL`, `PUBLIC_MINIO_BASE_URL`, ...) are in both.
 
 Mocks, each an explicit opt-in that logs loudly and must never be on in a
 deployment:
 
-- `AUTH_MOCK=true` (on in `backend/.env`) - every request is a fixed real
+- `AUTH_MOCK=true` (on in `apps/backend/.env`) - every request is a fixed real
   member (`AUTH_MOCK_STUDENT_ID`, or any member) holding every policy.
   Unset it to log in through Authentik's dev client for real.
 - `STORAGE_MOCK=true` - no MinIO: uploads are dropped, listings are
@@ -73,12 +76,12 @@ set; `OTEL_SERVICE_NAME` defaults to `dsek-backend`. Spans cover every
 request (named by route), every query and every outgoing HTTP call, and
 continue the SvelteKit server's trace, so a page load is one trace across
 both. Locally: `docker compose --profile tracing up -d` starts Jaeger (UI
-on http://localhost:16686); uncomment the endpoint in `backend/.env`. The
+on http://localhost:16686); uncomment the endpoint in `apps/backend/.env`. The
 frontend's `.env` already points there.
 
 ## Commands
 
-Frontend (`frontend/`):
+Frontend (`apps/frontend/`):
 
 - `pnpm dev`, `pnpm build`
 - `pnpm check` (svelte-check), `pnpm lint`, `pnpm format` / `format:fix`
@@ -92,7 +95,7 @@ Frontend (`frontend/`):
   the new backend running.
 - `pnpm migrate`, `pnpm seed` - shortcuts for the backend commands below
 
-Backend (`backend/`):
+Backend (`apps/backend/`):
 
 - `go build ./...`, `go vet ./...`, `go test ./...` (one test:
   `go test ./... -run TestName`). Tests that need Postgres skip without
@@ -215,7 +218,7 @@ which is the API reference.
 
 ### End-to-end tests
 
-Playwright, in `frontend/e2e`, run with `pnpm test:integration` (needs the
+Playwright, in `apps/frontend/e2e`, run with `pnpm test:integration` (needs the
 Postgres container; `pnpm exec playwright install chromium` once). It
 starts its own servers and stops them afterwards: a backend on 8091
 (`e2e/backend.sh`) on a `dsek_e2e` database it drops, migrates and seeds
@@ -318,9 +321,10 @@ PR previews.
 
 ## External contracts - don't change these
 
-- `GET /salto/{door}` on the SvelteKit origin (`frontend/src/routes/(app)/salto/[door]`,
-  proxying Go's): the university's Salto door system polls this exact URL
-  for who may open a door. Its output must stay byte-identical.
+- `GET /salto/{door}` on the SvelteKit origin
+  (`apps/frontend/src/routes/(app)/salto/[door]`, proxying Go's): the
+  university's Salto door system polls this exact URL for who may open a
+  door. Its output must stay byte-identical.
 - SvelteKit URLs other clients use, kept as thin proxies to Go:
   `/events/subscribe` and `/nollning/events/subscribe` (calendar
   subscriptions), `/api/sync` (the search-index cron job),

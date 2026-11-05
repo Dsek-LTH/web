@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: apps/frontend
 
     services:
       postgres:
@@ -42,13 +42,13 @@ jobs:
           fetch-depth: 0
       - uses: pnpm/action-setup@v6
         with:
-          package_json_file: frontend/package.json
+          package_json_file: apps/frontend/package.json
       - name: Use Node.js
         uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: "pnpm"
-          cache-dependency-path: frontend/pnpm-lock.yaml
+          cache-dependency-path: apps/frontend/pnpm-lock.yaml
       - run: pnpm i
       - run: pnpm run lint --max-warnings 0
       - run: pnpm run format
@@ -56,4 +56,4 @@ jobs:
       - run: pnpm run check --fail-on-warnings
       - run: pnpm run check-translations
       - run: pnpm run build
-      # When adding a step to the list above, please consider adding it to the `ci-check` script in `frontend/package.json`.
+      # When adding a step to the list above, please consider adding it to the `ci-check` script in `apps/frontend/package.json`.

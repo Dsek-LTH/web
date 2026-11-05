@@ -55,14 +55,14 @@ This project is the main web page for the D-guild within TLTH, a non-profit orga
 
 ## Repository
 
-- `frontend/` - the SvelteKit app
-- `backend/` - the Go API it calls for all data
-- `poppler-server/` - a small service that extracts text from PDFs for search
+- `apps/frontend/` - the SvelteKit app
+- `apps/backend/` - the Go API it calls for all data
+- `apps/poppler-server/` - a small service that extracts text from PDFs for search
 - `docker-compose.yml` - the local database, Meilisearch and poppler-server
 
 To run it locally: `docker compose up -d`, then `pnpm install`,
-`pnpm migrate` and `pnpm seed` in `frontend/`, then `make dev` in `backend/`
-(port 8090) and `pnpm dev` in `frontend/` (port 5173). `AGENTS.md` has the
+`pnpm migrate` and `pnpm seed` in `apps/frontend/`, then `make dev` in
+`apps/backend/` (port 8090) and `pnpm dev` in `apps/frontend/` (port 5173). `AGENTS.md` has the
 details.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
