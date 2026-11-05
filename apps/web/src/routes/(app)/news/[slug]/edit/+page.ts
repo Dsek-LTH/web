@@ -85,7 +85,12 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
         imageUrls: article.imageUrls ?? undefined,
         imageUrl: article.imageUrl ?? null,
         youtubeUrl: article.youtubeUrl ?? null,
-        publishTime: article.publishedAt ? new Date(article.publishedAt) : null,
+        // Only a scheduled article (going live later) has a publish time to
+        // edit; a live one's date stays as it is (see updateArticle).
+        publishTime:
+          article.publishedAt && new Date(article.publishedAt) > new Date()
+            ? new Date(article.publishedAt)
+            : null,
         committeeId: article.committee?.id ?? null,
         notificationText: article.notificationText ?? null,
         sendNotification: article.sendNotification,

@@ -127,6 +127,31 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   const finalImageUrls =
     imageUrls === undefined ? newImages : [...imageUrls, ...newImages];
 
+  // Without a scheduled time, an article that's already live keeps its
+  // date and a scheduled one (or a draft) goes live now. Go would make an
+  // article without publishedAt a draft again, hiding it.
+  let publishedAt = publishTime;
+  if (!publishedAt) {
+    const current = await api.GET("/articles/{slug}", {
+      params: {
+        path: { slug },
+        query: { includeDeleted: true, includeUnpublished: true },
+      },
+    });
+    if (current.error)
+      error(
+        current.response.status,
+        current.error.detail ?? "Failed to load article",
+      );
+    const livePublishedAt = current.data.publishedAt
+      ? new Date(current.data.publishedAt)
+      : null;
+    publishedAt =
+      livePublishedAt && livePublishedAt <= new Date()
+        ? livePublishedAt
+        : new Date();
+  }
+
   const input: ArticleInput = {
     headerSv,
     headerEn: headerEn ?? null,
@@ -138,7 +163,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     author: toAuthorInput(author),
     tagIds: tags.filter((tag) => !!tag).map((tag) => tag.id),
     committeeId: committeeId ?? null,
-    publishedAt: publishTime ? publishTime.toISOString() : null,
+    publishedAt: publishedAt.toISOString(),
     sendNotification,
     notificationText: notificationText ?? null,
     // Always null (same as createArticle above, and events' identical
@@ -168,7 +193,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   }
 
   throw redirect(
-    `/news/${publishTime && publishTime < new Date() ? event.params.slug : ""}`,
+    `/news/${publishedAt <= new Date() ? event.params.slug : ""}`,
     updated.data.announcementFailed
       ? { message: m.news_errors_notificationFailed(), type: "error" }
       : { message: m.news_articleUpdated(), type: "success" },

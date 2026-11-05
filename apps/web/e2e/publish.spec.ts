@@ -16,7 +16,22 @@ test("publish an article", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/news\/e2e-article-\d+$/);
   await expect(page.getByRole("heading", { name: header })).toBeVisible();
+  const edit = `${new URL(page.url()).pathname}/edit`;
 
+  await page.goto("/news");
+  await expect(
+    page.getByText(header).filter({ visible: true }).first(),
+  ).toBeVisible();
+
+  // Saving it again leaves it published: a live article isn't shown as
+  // scheduled, and saving without a schedule doesn't make it a draft.
+  await page.goto(edit);
+  await page.getByRole("button", { name: "Submit" }).click();
+  await page.waitForURL(/\/news\/e2e-article-\d+$/);
+  await page.goto(edit);
+  await expect(
+    page.getByRole("checkbox", { name: "Schedule publishing" }),
+  ).not.toBeChecked();
   await page.goto("/news");
   await expect(
     page.getByText(header).filter({ visible: true }).first(),
