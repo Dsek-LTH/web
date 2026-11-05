@@ -175,10 +175,15 @@ const (
 	// CoreAdmin gates triggering a search-index rebuild - the policy the
 	// old admin/debug page's Meilisearch sync button checked.
 	CoreAdmin = "core:admin"
+
+	// YrkaSend is the one policy only SvelteKit checks: /yrka sends its
+	// email from there (see AGENTS.md). It is here so the mock identity and
+	// the dev seed grant it too.
+	YrkaSend = "yrka:send"
 )
 
-// All lists every policy this API currently checks - used to build the
-// all-permissions mock identity (see internal/auth.MockAuthenticator).
+// All lists every policy this API (or, for YrkaSend, SvelteKit) checks -
+// used to build the all-permissions mock identity (see internal/auth.MockAuthenticator).
 // Extend this whenever a new policy constant is added above.
 func All() []string {
 	return []string{
@@ -258,5 +263,6 @@ func All() []string {
 		AdminShlinkUpdate,
 		AdminShlinkDelete,
 		CoreAdmin,
+		YrkaSend,
 	}
 }
