@@ -147,16 +147,27 @@ export function mergeMeetings(meetings: DocumentMeeting[]): DocumentMeeting[] {
   );
 }
 
+export const meetingDocumentPrefixes = {
+  notice: ["kallelse", "notice"],
+  agenda: [
+    "föredragningslista",
+    "foredragningslista",
+    "fredragningslista",
+    "dagordning",
+    "agenda",
+  ],
+  minutes: ["protokoll", "minutes", "minute", "protocol"],
+} as const;
+
 export function findLatestFile(
   files: FileData[],
-  prefixes: string[],
+  prefixes: readonly string[],
 ): FileData | undefined {
   return files
-    .filter((file) =>
-      prefixes.some((prefix) =>
-        file.name.toLowerCase().startsWith(prefix.toLowerCase()),
-      ),
-    )
+    .filter((file) => {
+      const name = file.name.toLowerCase();
+      return prefixes.some((prefix) => name.includes(prefix.toLowerCase()));
+    })
     .sort((a, b) => (a.modDate?.getTime() ?? 0) - (b.modDate?.getTime() ?? 0))
     .pop();
 }
