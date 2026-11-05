@@ -350,7 +350,7 @@ defineCustomServerStrategy("custom-userPreference", {
 
 export const handle = sequence(
   async ({ event, resolve }) => {
-    const route = event.url.pathname || "-";
+    const route = event.route.id ?? "unmatched";
     const method = event.request.method;
 
     inflightRequests.inc();
