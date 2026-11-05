@@ -1,5 +1,6 @@
 import { fileExists, isDir } from "$lib/files/helpers";
 import { MINIO_BASE_URL } from "$lib/files/client";
+import { isReservedGroupName } from "$lib/files/documentGroups";
 import minio, { CopyConditions } from "$lib/files/minio";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
@@ -94,7 +95,10 @@ const getFilesInBucket = async (
       prefix !== "/" ? basePath + prefix : basePath,
       recursive,
     )
-  ).filter((file) => file.name !== "_folder-preserver");
+  ).filter(
+    (file) =>
+      file.name !== "_folder-preserver" && !isReservedGroupName(file.name),
+  );
   return files;
 };
 
@@ -332,21 +336,6 @@ const copyFileTo = async (
   return { file: newFile, oldFile };
 };
 
-const moveFile = async (
-  user: AuthUser | undefined,
-  bucket: string,
-  fileName: string,
-  newFolder: string,
-  newFileName: string,
-) => {
-  const isHealthy: boolean = await isMinIOHealthy();
-  if (!isHealthy) {
-    return Promise.reject(new Error("MinIO is not healthy, cannot get files"));
-  }
-  authorize(apiNames.FILES.BUCKET(bucket).UPDATE, user);
-  return copyFileTo(bucket, fileName, path.join(newFolder, newFileName));
-};
-
 const renameObject = async (
   user: AuthUser | undefined,
   bucket: string,
@@ -382,7 +371,6 @@ const fileHandler = {
   getPresignedPutUrl,
   remove: removeObjects,
   move: moveObject,
-  moveFile: moveFile,
   rename: renameObject,
 };
 export default fileHandler;
