@@ -72,7 +72,7 @@ type OIDCClient struct {
 // taking a *notifications.Service directly for the same import-cycle reason
 // as StabenInjector above: internal/notifications' own Service methods use
 // auth.FromContext/auth.ErrUnauthenticated like every other domain service,
-// so importing it back from here would cycle. main.go wires the concrete
+// so importing it back from here would cycle. cmd/server wires the concrete
 // value in.
 type MemberSeeder interface {
 	SeedDefaults(ctx context.Context, memberID string) error

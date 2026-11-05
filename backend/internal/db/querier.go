@@ -147,7 +147,7 @@ type Querier interface {
 	// prisma.document.delete({where:{id}}) exactly.
 	GetAnyGoverningDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error)
 	// Used only to seed the mock auth identity in dev when no specific member
-	// is configured (see internal/auth, main.go). Arbitrary but deterministic
+	// is configured (see internal/auth, cmd/server). Arbitrary but deterministic
 	// enough for local dev: whichever member sorts first by id.
 	GetAnyMember(ctx context.Context) (GetAnyMemberRow, error)
 	// Public lookup: only published, not (currently) removed articles.

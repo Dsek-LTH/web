@@ -185,7 +185,7 @@ var fakeShlink = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,
 		`"title":"Invalid API key","detail":"Provide a valid API key","status":401}`))
 }))
 
-// newEnvironment builds every service the way main.go does, with storage and
+// newEnvironment builds every service the way cmd/server does, with storage and
 // push mocked and no Meilisearch or Shlink.
 func newEnvironment(ctx context.Context, pool *pgxpool.Pool) (*environment, error) {
 	queries := db.New(pool)

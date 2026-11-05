@@ -84,7 +84,7 @@ func OpenAPI() *huma.OpenAPI {
 // authenticator before reaching a handler; handlers and Service methods
 // read "who is doing this" from the request context (see internal/auth),
 // never from the request body. oidcClient is nil when AUTH_MOCK is active
-// (see main.go) - /auth/login, /auth/callback, /auth/logout are simply not
+// (see cmd/server) - /auth/login, /auth/callback, /auth/logout are simply not
 // registered in that case, same as a real deployment never mocking auth.
 func NewRouter(
 	s Services,

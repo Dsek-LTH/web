@@ -19,7 +19,7 @@ import (
 // so this package doesn't import internal/nollning - internal/nollning's
 // own Service methods use auth.Require/auth.FromContext like every other
 // domain service, and importing it back from here would create an import
-// cycle. nollning.Service satisfies this interface structurally; main.go
+// cycle. nollning.Service satisfies this interface structurally; cmd/server
 // wires the concrete value in.
 type StabenInjector interface {
 	InjectStabenPolicy(ctx context.Context, policies []string) ([]string, error)

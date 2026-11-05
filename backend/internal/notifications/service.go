@@ -45,7 +45,7 @@ type Service struct {
 // in-app Notification rows - matching the old app's own "web notifications
 // always created, push is the part that no-ops in dev" split. Default true
 // (mock/no-op) unless PUSH_MOCK=false is set explicitly, mirroring AUTH_MOCK/
-// STORAGE_MOCK's "opt-in to real, loud either way" shape - see main.go.
+// STORAGE_MOCK's "opt-in to real, loud either way" shape - see cmd/server.
 func NewService(dbtx db.DBTX, nollningSvc *nollning.Service, pushMock bool) *Service {
 	return &Service{queries: db.New(dbtx), nollning: nollningSvc, pushMock: pushMock}
 }

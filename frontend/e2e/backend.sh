@@ -37,4 +37,4 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=""
 
 go tool migrate up
 go tool seed
-exec go run .
+exec go run ./cmd/server

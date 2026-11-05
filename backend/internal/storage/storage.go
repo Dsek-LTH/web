@@ -7,7 +7,7 @@
 // internal/gallery, internal/documents, and internal/articles all depend on
 // the Backend interface, not *Store directly, so MockBackend can stand in
 // for local dev when MINIO_ROOT_USER/MINIO_ROOT_PASSWORD aren't configured
-// (see main.go's STORAGE_MOCK - same "explicit opt-in, never a silent
+// (see cmd/server's STORAGE_MOCK - same "explicit opt-in, never a silent
 // fallback" shape as AUTH_MOCK, not a permanent mode).
 package storage
 
@@ -37,7 +37,7 @@ const folderPreserverObject = "_folder-preserver"
 
 // Backend is what internal/gallery, internal/documents, and
 // internal/articles actually depend on - *Store's real implementation, or
-// MockBackend for local dev without MinIO credentials (see main.go's
+// MockBackend for local dev without MinIO credentials (see cmd/server's
 // STORAGE_MOCK).
 // ErrNotFound is returned by Get for a key that doesn't exist.
 var ErrNotFound = errors.New("storage: not found")
@@ -54,7 +54,7 @@ type Backend interface {
 // Config is everything needed to reach the MinIO instance, read from env
 // vars already present in .env (MINIO_ENDPOINT, MINIO_PORT, MINIO_USE_SSL,
 // MINIO_ROOT_USER, MINIO_ROOT_PASSWORD, PUBLIC_MINIO_BASE_URL) - see
-// main.go.
+// cmd/server.
 type Config struct {
 	Endpoint string
 	UseSSL   bool
@@ -209,7 +209,7 @@ func (s *Store) Remove(ctx context.Context, bucket string, keys []string) error 
 
 // Upload implements internal/integrations.Uploader for article image
 // upload (the one existing caller, internal/articles.Service.UploadImage) -
-// this is what replaces MockUploader in main.go. Every other consumer
+// this is what replaces MockUploader in cmd/server. Every other consumer
 // (internal/gallery, internal/documents) needs bucket/prefix control and
 // calls Put/List/Remove directly instead.
 func (s *Store) Upload(ctx context.Context, filename string, data io.Reader) (string, error) {
@@ -281,7 +281,7 @@ func YearFromDate(date string) string {
 var _ Backend = (*Store)(nil)
 
 // MockBackend is a no-op Backend for local dev without real MinIO
-// credentials (main.go's STORAGE_MOCK=true) - every write logs and
+// credentials (cmd/server's STORAGE_MOCK=true) - every write logs and
 // succeeds without storing anything, every read returns empty, matching
 // internal/integrations.MockUploader's existing "obviously fake, loud in
 // the log" shape. Not meant to be exercised in CI/production - gallery and

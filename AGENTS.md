@@ -10,11 +10,11 @@ and authorization; the SvelteKit app renders pages and calls it.
   paraglide for sv/en translations in `src/translations`). It has no
   database access of its own.
 - `backend/` - the Go API (module `github.com/dsek-lth/web/backend`,
-  Go 1.26). `main.go` wires everything; `internal/<domain>` holds one
+  Go 1.26). `cmd/server` wires everything; `internal/<domain>` holds one
   package per domain (a `Service` wrapping sqlc's `*db.Queries`);
   `internal/api` is the HTTP layer; `internal/db` is schema, queries,
   migrations and generated code; `cmd/migrate`, `cmd/seed` and
-  `cmd/openapi` are commands.
+  `cmd/openapi` are the other commands.
 - `poppler-server/` - a small Node service that extracts text from PDFs
   for search.
 - `docker-compose.yml` - local Postgres (`dsek-db`), Meilisearch and
@@ -36,7 +36,7 @@ Go 1.26 and Docker.
 2. `cd frontend && pnpm install`, then `pnpm migrate` and `pnpm seed`
    (or `./dev/setup_db.sh`, which does all three). The seed wipes the
    local database and fills it with deterministic fake data.
-3. Backend: `cd backend && make dev` (hot reload) or `go run .` - port
+3. Backend: `cd backend && make dev` (hot reload) or `go run ./cmd/server` - port
    **8090**.
 4. Frontend: `cd frontend && pnpm dev` - port **5173**.
 

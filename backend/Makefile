@@ -5,7 +5,7 @@ format:
 	go tool golines --base-formatter "go tool gofumpt" -w .
 
 dev:
-	go tool air
+	go tool air --build.cmd "go build -o ./tmp/main ./cmd/server" --build.bin ./tmp/main
 
 generate:
 	go tool sqlc generate

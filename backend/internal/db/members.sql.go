@@ -71,7 +71,7 @@ type GetAnyMemberRow struct {
 }
 
 // Used only to seed the mock auth identity in dev when no specific member
-// is configured (see internal/auth, main.go). Arbitrary but deterministic
+// is configured (see internal/auth, cmd/server). Arbitrary but deterministic
 // enough for local dev: whichever member sorts first by id.
 func (q *Queries) GetAnyMember(ctx context.Context) (GetAnyMemberRow, error) {
 	row := q.db.QueryRow(ctx, getAnyMember)

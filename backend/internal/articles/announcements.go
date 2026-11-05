@@ -180,7 +180,7 @@ func (s *Service) AnnounceDue(ctx context.Context) error {
 }
 
 // RunAnnouncementLoop calls AnnounceDue now and then every interval until
-// ctx is done - started from main.go, like the ticket offer sweep.
+// ctx is done - started from cmd/server, like the ticket offer sweep.
 func (s *Service) RunAnnouncementLoop(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()

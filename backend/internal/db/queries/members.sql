@@ -5,7 +5,7 @@ WHERE student_id = $1;
 
 -- name: GetAnyMember :one
 -- Used only to seed the mock auth identity in dev when no specific member
--- is configured (see internal/auth, main.go). Arbitrary but deterministic
+-- is configured (see internal/auth, cmd/server). Arbitrary but deterministic
 -- enough for local dev: whichever member sorts first by id.
 SELECT id, student_id FROM members WHERE student_id IS NOT NULL ORDER BY id LIMIT 1;
 

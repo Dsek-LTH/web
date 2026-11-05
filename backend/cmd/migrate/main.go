@@ -49,7 +49,7 @@ func main() {
 		usageAndExit()
 	}
 
-	// Same env loading as main.go: backend/.env, if present.
+	// Same env loading as cmd/server: backend/.env, if present.
 	_ = godotenv.Load(".env")
 
 	dsn := os.Getenv("POSTGRES_URL")
