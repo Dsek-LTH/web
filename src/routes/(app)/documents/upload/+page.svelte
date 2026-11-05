@@ -203,7 +203,7 @@
       <pre>{pathInfo.bucket}/{pathInfo.path(
           $form.year,
           $form.folder,
-        )}{$form.group ? `/${$form.group}` : ""}/{$form.name}</pre>
+        )}/{$form.name}</pre>
     {/if}
 
     <div class="flex flex-row gap-2">

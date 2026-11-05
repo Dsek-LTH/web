@@ -2,8 +2,16 @@ import {
   PUBLIC_BUCKETS_DOCUMENTS,
   PUBLIC_BUCKETS_FILES,
 } from "$env/static/public";
+import type { AuthUser } from "@zenstackhq/runtime";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
+import {
+  isReservedGroupName,
+  readGroupMap,
+  updateGroupMap,
+  type DocumentGroupMap,
+} from "$lib/files/documentGroups";
+import apiNames from "$lib/utils/apiNames";
 import { error, fail, isHttpError } from "@sveltejs/kit";
 import {
   message,
@@ -16,15 +24,16 @@ import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 import {
+  getMeetingFileKey,
   getMeetingFolder,
-  getTargetFolder,
   groupDocuments,
   mergeMeetings,
+  splitDocumentPath,
   type DocumentMeeting,
 } from "./grouping";
 import { DocumentTypes as dt } from "./types";
 import { deleteFileSchema } from "./schemas";
-import { groupNameSchema } from "./groupName";
+import { groupNameSchema, isSafePathSegment } from "./groupName";
 
 const validDocumentTypes = [
   dt.boardMeeting,
@@ -63,7 +72,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       return [];
     });
 
-  const documentMeetings = groupDocuments(documentsFiles, `public/${year}/`);
+  const documentsGroupMaps = await readGroupMaps(
+    user,
+    PUBLIC_BUCKETS_DOCUMENTS,
+    documentsFiles,
+    `public/${year}/`,
+  );
+  const documentMeetings = groupDocuments(documentsFiles, `public/${year}/`, {
+    groupMaps: documentsGroupMaps,
+  });
 
   let meetings: DocumentMeeting[];
   switch (type) {
@@ -82,10 +99,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
           loadError = true;
           return [];
         });
+      const srdGroupMaps = await readGroupMaps(
+        user,
+        PUBLIC_BUCKETS_FILES,
+        srdFiles,
+        `public/srd/${year}/`,
+      );
       const srdMeetings = groupDocuments(srdFiles, `public/srd/${year}/`, {
         oldSrdFormat: true,
         meetingFilter: (name) =>
           name.startsWith("SRD") || name.startsWith("Möte"),
+        groupMaps: srdGroupMaps,
       });
       meetings = mergeMeetings([...documentMeetings, ...srdMeetings]);
       break;
@@ -113,6 +137,32 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   };
 };
 
+async function readGroupMaps(
+  user: AuthUser | undefined,
+  bucket: string,
+  files: FileData[],
+  prefix: string,
+): Promise<Record<string, DocumentGroupMap>> {
+  const meetings = new Set(
+    files.flatMap(({ id, isDir }) => {
+      const parsed = isDir ? null : splitDocumentPath(id, prefix);
+      return parsed ? [parsed.meeting] : [];
+    }),
+  );
+
+  return Object.fromEntries(
+    await Promise.all(
+      [...meetings].map(
+        async (meeting) =>
+          [
+            meeting,
+            await readGroupMap(user, bucket, `${prefix}${meeting}`),
+          ] as const,
+      ),
+    ),
+  );
+}
+
 const documentBuckets = [
   PUBLIC_BUCKETS_DOCUMENTS,
   PUBLIC_BUCKETS_FILES,
@@ -133,16 +183,15 @@ const editFileSchema = z.object({
     .min(1)
     .max(200)
     .refine(
-      (value) =>
-        value !== "." &&
-        !value.includes("/") &&
-        !value.includes("\\") &&
-        !value.includes(".."),
+      (value) => !isReservedGroupName(value) && isSafePathSegment(value),
       { message: m.documents_errors_invalidFileName() },
     ),
   group: groupNameSchema.default(""),
 });
 export type EditSchema = Infer<typeof editFileSchema>;
+
+const isDocumentGroupsFile = (id: string) =>
+  isReservedGroupName(id.split("/").at(-1) ?? "");
 
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
@@ -150,7 +199,36 @@ export const actions: Actions = {
     const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
     const { id, bucket } = form.data;
+    if (isDocumentGroupsFile(id)) {
+      return message(
+        form,
+        { message: m.documents_errors_invalidFileName(), type: "error" },
+        { status: 400 },
+      );
+    }
+
+    const meetingFolder = getMeetingFolder(
+      id,
+      bucket,
+      PUBLIC_BUCKETS_DOCUMENTS,
+      PUBLIC_BUCKETS_FILES,
+    );
+    // Delete the object first so a failed delete never strips a surviving
+    // file's group. If the sidecar update then fails, the stale key only
+    // matters if a new file reuses the same path.
     await fileHandler.remove(user, bucket, [id]);
+
+    if (meetingFolder) {
+      const fileKey = getMeetingFileKey(id, meetingFolder);
+      await updateGroupMap(
+        user,
+        bucket,
+        meetingFolder,
+        (map) => (fileKey in map ? delete map[fileKey] : false),
+        apiNames.FILES.BUCKET(bucket).DELETE,
+      );
+    }
+
     return message(form, {
       message: m.documents_fileDeleted(),
       type: "success",
@@ -163,19 +241,27 @@ export const actions: Actions = {
     if (!form.valid) return fail(400, { form });
 
     const { id, bucket, name, group } = form.data;
+    if (isDocumentGroupsFile(id)) {
+      return message(
+        form,
+        { message: m.documents_errors_invalidFileName(), type: "error" },
+        { status: 400 },
+      );
+    }
+
     const isOldSrdFile =
       bucket === PUBLIC_BUCKETS_FILES &&
       id.startsWith("public/srd/") &&
       id.split("/").length === 4;
     const meetingFolder = isOldSrdFile
-      ? id.split("/").slice(0, 3).join("/")
+      ? null
       : getMeetingFolder(
           id,
           bucket,
           PUBLIC_BUCKETS_DOCUMENTS,
           PUBLIC_BUCKETS_FILES,
         );
-    if (!meetingFolder) {
+    if (!meetingFolder && !isOldSrdFile) {
       return message(
         form,
         { message: m.documents_errors_invalidFileName(), type: "error" },
@@ -190,12 +276,14 @@ export const actions: Actions = {
       );
     }
 
-    const targetFolder = getTargetFolder(meetingFolder, group);
-    const targetFileId = `${targetFolder}/${name}`;
-
-    if (targetFileId !== id) {
+    const fileName = id.split("/").at(-1)!;
+    const fileKey = meetingFolder ? getMeetingFileKey(id, meetingFolder) : null;
+    if (name !== fileName) {
+      // Rename first so a failed sidecar write can be reported without
+      // claiming the rename failed; a stale key leaves the file ungrouped
+      // until it is edited again.
       try {
-        await fileHandler.moveFile(user, bucket, id, targetFolder, name);
+        await fileHandler.rename(user, bucket, id, name);
       } catch (e) {
         if (isHttpError(e) && e.status === 409) {
           return message(
@@ -205,6 +293,25 @@ export const actions: Actions = {
           );
         }
         throw e;
+      }
+    }
+
+    if (meetingFolder && fileKey) {
+      const nextKey = fileKey.replace(/[^/]+$/, () => name);
+      try {
+        await updateGroupMap(user, bucket, meetingFolder, (map) => {
+          if (!(fileKey in map) && !group) return false;
+          if (name === fileName && (map[fileKey] ?? "") === group) return false;
+          delete map[fileKey];
+          if (group) map[nextKey] = group;
+          return true;
+        });
+      } catch (error) {
+        console.error("Could not update document group", error);
+        return message(form, {
+          message: m.documents_errors_groupNotUpdated(),
+          type: "warning",
+        });
       }
     }
 

@@ -1,4 +1,5 @@
 import { fileHandler } from "$lib/files";
+import { isReservedGroupName } from "$lib/files/documentGroups";
 import type { AuthUser } from "@zenstackhq/runtime";
 import * as m from "$paraglide/messages";
 import sharp, { type ResizeOptions, type WebpOptions } from "sharp";
@@ -28,7 +29,7 @@ export const compressImage = async (
     .webp(options?.webp)
     .toBuffer();
 
-export const uploadFile = async (
+export const uploadFileWithKey = async (
   user: AuthUser,
   file: File,
   prefix: string,
@@ -61,6 +62,10 @@ export const uploadFile = async (
     }
   }
 
+  if (isReservedGroupName(formattedName)) {
+    throw new Error(m.documents_errors_invalidFileName());
+  }
+
   const filePath = `${prefix}/${formattedName}`;
 
   try {
@@ -78,10 +83,17 @@ export const uploadFile = async (
       throw new Error(
         `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
       );
-    return `${MINIO_BASE_URL}${bucket}/${filePath}`;
+    return {
+      url: `${MINIO_BASE_URL}${bucket}/${filePath}`,
+      key: filePath,
+    };
   } catch (e) {
     console.error(e);
     const errMsg = e instanceof Error ? e.message : String(e);
     throw new Error(`${m.members_errors_couldntUploadFile()}: ${errMsg}`);
   }
 };
+
+export const uploadFile = async (
+  ...args: Parameters<typeof uploadFileWithKey>
+) => (await uploadFileWithKey(...args)).url;

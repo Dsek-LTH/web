@@ -1,3 +1,4 @@
+import type { DocumentGroupMap } from "$lib/files/documentGroups";
 import type { FileData } from "$lib/files/fileHandler";
 import { getNameOfFile } from "$lib/files/utils";
 
@@ -15,17 +16,21 @@ export type DocumentMeeting = {
 export function splitDocumentPath(
   fileId: string,
   basePrefix: string,
-): { meeting: string; group: string | null } | null {
+): { meeting: string } | null {
   const prefix = basePrefix.endsWith("/") ? basePrefix : `${basePrefix}/`;
   if (!fileId.startsWith(prefix)) return null;
 
   const parts = fileId.slice(prefix.length).split("/").filter(Boolean);
   if (parts.length < 2) return null;
 
-  return {
-    meeting: parts[0]!,
-    group: parts.length > 2 ? parts.slice(1, -1).join("/") : null,
-  };
+  return { meeting: parts[0]! };
+}
+
+export function getMeetingFileKey(
+  fileId: string,
+  meetingFolder: string,
+): string {
+  return fileId.slice(`${meetingFolder.replace(/\/$/, "")}/`.length);
 }
 
 export function groupDocuments(
@@ -34,17 +39,19 @@ export function groupDocuments(
   options: {
     oldSrdFormat?: boolean;
     meetingFilter?: (meeting: string) => boolean;
+    groupMaps?: Record<string, DocumentGroupMap>;
   } = {},
 ): DocumentMeeting[] {
   const meetings = new Map<
     string,
     { files: FileData[]; groups: Map<string | null, FileData[]> }
   >();
+  const prefix = basePrefix.endsWith("/") ? basePrefix : `${basePrefix}/`;
 
   for (const file of files) {
     if (file.isDir) continue;
 
-    let parsed = splitDocumentPath(file.id, basePrefix);
+    let parsed = splitDocumentPath(file.id, prefix);
     if (
       parsed &&
       options.meetingFilter &&
@@ -60,7 +67,11 @@ export function groupDocuments(
         : null;
     if (!meeting) continue;
 
-    const group = parsed?.group ?? null;
+    const group = parsed
+      ? (options.groupMaps?.[meeting]?.[
+          getMeetingFileKey(file.id, `${prefix}${meeting}`)
+        ] ?? null)
+      : null;
     if (!meetings.has(meeting)) {
       meetings.set(meeting, { files: [], groups: new Map() });
     }
@@ -177,9 +188,4 @@ export function getMeetingFolder(
   }
 
   return null;
-}
-
-export function getTargetFolder(meetingFolder: string, group: string): string {
-  const trimmed = group.trim();
-  return trimmed ? `${meetingFolder}/${trimmed}` : meetingFolder;
 }

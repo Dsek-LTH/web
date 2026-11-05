@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { FileData } from "$lib/files/fileHandler";
 import {
   findLatestFile,
+  getMeetingFileKey,
   getMeetingFolder,
-  getTargetFolder,
   groupDocuments,
   mergeMeetings,
   splitDocumentPath,
@@ -17,19 +17,19 @@ const file = (id: string, modDate?: Date): FileData => ({
 });
 
 describe("splitDocumentPath", () => {
-  it("parses a file directly in the meeting folder", () => {
+  it("parses the meeting from a flat file path", () => {
     expect(
       splitDocumentPath("public/2026/HTM2/Kallelse.pdf", "public/2026/"),
-    ).toEqual({ meeting: "HTM2", group: null });
+    ).toEqual({ meeting: "HTM2" });
   });
 
-  it("parses a file inside a group folder", () => {
+  it("ignores legacy group folders in the path", () => {
     expect(
       splitDocumentPath(
         "public/2026/HTM2/Fika på alla möten/Kallelse.pdf",
         "public/2026/",
       ),
-    ).toEqual({ meeting: "HTM2", group: "Fika på alla möten" });
+    ).toEqual({ meeting: "HTM2" });
   });
 
   it("returns null for a file outside the prefix", () => {
@@ -39,15 +39,31 @@ describe("splitDocumentPath", () => {
   });
 });
 
+describe("getMeetingFileKey", () => {
+  it("returns the path relative to the meeting folder", () => {
+    expect(
+      getMeetingFileKey(
+        "public/2026/HTM2/Folder/Motion.pdf",
+        "public/2026/HTM2",
+      ),
+    ).toBe("Folder/Motion.pdf");
+  });
+});
+
 describe("groupDocuments", () => {
-  it("groups files by meeting and group, with ungrouped files last", () => {
+  it("groups files from the group map, with ungrouped files last", () => {
     const meetings = groupDocuments(
       [
-        file("public/2026/HTM2/Zeta/Zeta.pdf"),
-        file("public/2026/HTM2/Alpha/Alpha.pdf"),
+        file("public/2026/HTM2/Zeta.pdf"),
+        file("public/2026/HTM2/Alpha.pdf"),
         file("public/2026/HTM2/Kallelse.pdf"),
       ],
       "public/2026/",
+      {
+        groupMaps: {
+          HTM2: { "Zeta.pdf": "Zeta", "Alpha.pdf": "Alpha" },
+        },
+      },
     );
 
     expect(meetings).toHaveLength(1);
@@ -60,14 +76,44 @@ describe("groupDocuments", () => {
     expect(meetings[0]!.files).toHaveLength(3);
   });
 
+  it("keys nested legacy files by their path inside the meeting", () => {
+    const meetings = groupDocuments(
+      [
+        file("public/2026/HTM2/Folder A/Motion.pdf"),
+        file("public/2026/HTM2/Folder B/Motion.pdf"),
+      ],
+      "public/2026/",
+      {
+        groupMaps: {
+          HTM2: {
+            "Folder A/Motion.pdf": "Group A",
+            "Folder B/Motion.pdf": "Group B",
+          },
+        },
+      },
+    );
+
+    expect(
+      meetings[0]!.groups.map((group) => [group.name, group.files[0]!.id]),
+    ).toEqual([
+      ["Group A", "public/2026/HTM2/Folder A/Motion.pdf"],
+      ["Group B", "public/2026/HTM2/Folder B/Motion.pdf"],
+    ]);
+  });
+
   it("keeps old SRD files as filename-based meetings", () => {
     const meetings = groupDocuments(
       [
         file("public/srd/2026/Möte 1.pdf"),
-        file("public/srd/2026/SRD10/Motion 1/Motion_1.pdf"),
+        file("public/srd/2026/SRD10/Motion_1.pdf"),
       ],
       "public/srd/2026/",
-      { oldSrdFormat: true },
+      {
+        oldSrdFormat: true,
+        groupMaps: {
+          SRD10: { "Motion_1.pdf": "Motion 1" },
+        },
+      },
     );
 
     expect(meetings.map((meeting) => meeting.name)).toEqual([
@@ -98,6 +144,11 @@ describe("groupDocuments", () => {
         file("public/2026/HTM2/Fika/A.pdf"),
       ],
       "public/2026/",
+      {
+        groupMaps: {
+          HTM2: { "A.pdf": "Fika", "B.pdf": "Fika" },
+        },
+      },
     );
 
     expect(meetings[0]!.groups[0]!.files.map((entry) => entry.name)).toEqual([
@@ -147,18 +198,25 @@ describe("findLatestFile", () => {
 describe("mergeMeetings", () => {
   it("sorts files again after merging groups", () => {
     const documents = groupDocuments(
-      [
-        file("public/2026/Möte 1/Group/A.pdf"),
-        file("public/2026/Möte 1/Group/C.pdf"),
-      ],
+      [file("public/2026/Möte 1/A.pdf"), file("public/2026/Möte 1/C.pdf")],
       "public/2026/",
+      {
+        groupMaps: {
+          "Möte 1": { "A.pdf": "Group", "C.pdf": "Group" },
+        },
+      },
     );
     const srd = groupDocuments(
       [
-        file("public/srd/2026/Möte 1/Group/B.pdf"),
-        file("public/srd/2026/Möte 1/Group/D.pdf"),
+        file("public/srd/2026/Möte 1/B.pdf"),
+        file("public/srd/2026/Möte 1/D.pdf"),
       ],
       "public/srd/2026/",
+      {
+        groupMaps: {
+          "Möte 1": { "B.pdf": "Group", "D.pdf": "Group" },
+        },
+      },
     );
 
     const merged = mergeMeetings([...documents, ...srd]);
@@ -204,17 +262,5 @@ describe("getMeetingFolder", () => {
         "files",
       ),
     ).toBeNull();
-  });
-});
-
-describe("getTargetFolder", () => {
-  it("targets the meeting folder when the group is empty", () => {
-    expect(getTargetFolder("public/2026/HTM2", "")).toBe("public/2026/HTM2");
-  });
-
-  it("targets the group subfolder", () => {
-    expect(getTargetFolder("public/2026/HTM2", "Fika")).toBe(
-      "public/2026/HTM2/Fika",
-    );
   });
 });
