@@ -6,7 +6,7 @@
 SELECT m.id, m.start_date, m.end_date,
        p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
        c.id AS committee_id, c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
-       c.short_name AS committee_short_name,
+       c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
        pg.id AS phadder_group_id, pg.name AS phadder_group_name,
        pg.image_url AS phadder_group_image_url
 FROM mandates m

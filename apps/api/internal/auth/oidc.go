@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -63,6 +64,15 @@ type OIDCClient struct {
 	// refreshGroup collapses concurrent Refresh calls that share the same
 	// refresh token into a single upstream call - see Refresh's doc comment.
 	refreshGroup singleflight.Group
+	// recentRefreshes remembers each refresh's result by the refresh token
+	// it used, for refreshGrace - see Refresh's doc comment.
+	recentRefreshesMu sync.Mutex
+	recentRefreshes   map[string]recentRefresh
+}
+
+type recentRefresh struct {
+	session SessionData
+	at      time.Time
 }
 
 // MemberSeeder is the one piece of internal/notifications CallbackHandler
@@ -280,9 +290,25 @@ func (c *OIDCClient) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 // context is done before the (possibly shared) exchange finishes, this
 // returns promptly without waiting the full refreshTimeout, but without
 // cancelling the in-flight exchange out from under any other waiter.
-const refreshTimeout = 10 * time.Second
+//
+// singleflight only helps while the exchange is in flight. A request that
+// still carries the old cookie can arrive after it finished: a page's
+// SvelteKit server and the browser both calling with the cookie they had,
+// or a second tab. Authentik has already rotated that refresh token, so
+// exchanging it again fails with invalid_grant - the same spurious logout.
+// So the result is also kept for refreshGrace, keyed by the token that was
+// spent, and a late caller gets the same refreshed session (and its cookie
+// re-issued). In memory, which is enough with the one replica this runs as.
+const (
+	refreshTimeout = 10 * time.Second
+	refreshGrace   = time.Minute
+)
 
 func (c *OIDCClient) Refresh(ctx context.Context, session SessionData) (SessionData, error) {
+	if refreshed, ok := c.recentRefresh(session.RefreshToken); ok {
+		return refreshed, nil
+	}
+
 	done := c.refreshGroup.DoChan(session.RefreshToken, func() (any, error) {
 		refreshCtx, cancel := context.WithTimeout(context.Background(), refreshTimeout)
 		defer cancel()
@@ -307,6 +333,7 @@ func (c *OIDCClient) Refresh(ctx context.Context, session SessionData) (SessionD
 				}
 			}
 		}
+		c.rememberRefresh(session.RefreshToken, updated)
 		return updated, nil
 	})
 
@@ -319,6 +346,31 @@ func (c *OIDCClient) Refresh(ctx context.Context, session SessionData) (SessionD
 	case <-ctx.Done():
 		return SessionData{}, ctx.Err()
 	}
+}
+
+func (c *OIDCClient) recentRefresh(refreshToken string) (SessionData, bool) {
+	c.recentRefreshesMu.Lock()
+	defer c.recentRefreshesMu.Unlock()
+	r, ok := c.recentRefreshes[refreshToken]
+	if !ok || time.Since(r.at) > refreshGrace {
+		return SessionData{}, false
+	}
+	return r.session, true
+}
+
+func (c *OIDCClient) rememberRefresh(refreshToken string, session SessionData) {
+	c.recentRefreshesMu.Lock()
+	defer c.recentRefreshesMu.Unlock()
+	now := time.Now()
+	for token, r := range c.recentRefreshes {
+		if now.Sub(r.at) > refreshGrace {
+			delete(c.recentRefreshes, token)
+		}
+	}
+	if c.recentRefreshes == nil {
+		c.recentRefreshes = make(map[string]recentRefresh)
+	}
+	c.recentRefreshes[refreshToken] = recentRefresh{session: session, at: now}
 }
 
 // LogoutHandler clears the session cookie and redirects to Authentik's

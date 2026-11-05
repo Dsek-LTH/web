@@ -22,12 +22,14 @@ sql "DROP DATABASE IF EXISTS dsek_e2e WITH (FORCE)"
 sql "CREATE DATABASE dsek_e2e"
 
 # Set here, so they win over apps/api/.env. Search, PDF text, the link
-# shortener and tracing are off; auth and storage are mocked.
+# shortener and tracing are off; auth and storage are mocked, auth only for
+# requests with a session cookie (see e2e/servers.ts).
 export POSTGRES_URL="$server/dsek_e2e?sslmode=disable"
 export ADDR=":8091"
-export PUBLIC_GO_BACKEND_URL="http://localhost:8091"
+export PUBLIC_GO_BACKEND_URL="http://127.0.0.1:8091"
 export PUBLIC_FRONTEND_URL="http://localhost:4173"
 export AUTH_MOCK=true
+export AUTH_MOCK_REQUIRE_COOKIE=true
 export STORAGE_MOCK=true
 export MEILISEARCH_HOST=""
 export POPPLER_SERVER_URL=""

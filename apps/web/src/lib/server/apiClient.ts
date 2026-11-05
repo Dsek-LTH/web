@@ -2,7 +2,7 @@ import createClient from "openapi-fetch";
 import type { RequestEvent } from "@sveltejs/kit";
 import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
 import { getLocale } from "$paraglide/runtime";
-import { forwardSetCookies } from "./goAuth";
+import { cookieHeader, forwardSetCookies } from "./goAuth";
 import type { paths } from "$lib/api/schema";
 
 /**
@@ -36,10 +36,7 @@ export function serverApi(event: RequestEvent) {
   client.use({
     onRequest({ request }) {
       request.headers.set("Accept-Language", getLocale());
-      const cookie = event.cookies
-        .getAll()
-        .map(({ name, value }) => `${name}=${value}`)
-        .join("; ");
+      const cookie = cookieHeader(event.cookies);
       if (cookie) request.headers.set("cookie", cookie);
       return request;
     },

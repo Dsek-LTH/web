@@ -2,8 +2,18 @@ import "temporal-polyfill/global";
 import { env } from "$env/dynamic/private";
 import { themes, type Theme } from "$lib/utils/themes";
 import { cookieName, defineCustomServerStrategy } from "$paraglide/runtime";
-import { fetchIdentity } from "$lib/server/goAuth";
-import { redirect, type Handle, type HandleServerError } from "@sveltejs/kit";
+import {
+  cookieHeader,
+  fetchIdentity,
+  forwardSetCookies,
+  isGoBackendUrl,
+} from "$lib/server/goAuth";
+import {
+  redirect,
+  type Handle,
+  type HandleFetch,
+  type HandleServerError,
+} from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { randomBytes } from "crypto";
 import { paraglideMiddleware } from "$paraglide/server";
@@ -96,6 +106,28 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
+// Universal loads call Go through the event's fetch (`api.GET(..., { fetch
+// })`). During SSR SvelteKit forwards the caller's cookies only to its own
+// host and its subdomains, and the API is on a sibling host
+// (go-staging-api vs go-staging, api.dsek.se vs www.dsek.se), so without
+// this every SSR'd universal load would call Go anonymously. Set-Cookie
+// (a session Go refreshed) is passed back to the browser the same way.
+export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
+  if (!isGoBackendUrl(request.url)) return fetch(request);
+
+  const cookie = cookieHeader(event.cookies);
+  if (cookie) request.headers.set("cookie", cookie);
+  const response = await fetch(request);
+  try {
+    forwardSetCookies(response, event.cookies);
+  } catch {
+    // A load still running after the response has started (a streamed
+    // promise) can't set cookies anymore; the browser's next request to Go
+    // gets the refreshed session again.
+  }
+  return response;
+};
+
 export const handleError: HandleServerError = ({ error }) => {
   return {
     message: error instanceof Error ? error.message : `${error}`,
@@ -145,10 +177,9 @@ defineCustomServerStrategy("custom-userPreference", {
   getLocale: async () => {
     const event = getRequestEvent();
     // Same fetchIdentity call identityHandle makes further down the chain -
-    // duplicated here since this strategy fires from inside paraglideHandle,
-    // which runs before identityHandle populates locals. Not cached across
-    // the two; an accepted minor inefficiency, not a correctness gap
-    // (fetchIdentity's Set-Cookie forwarding is idempotent either way).
+    // this strategy fires from inside paraglideHandle, before identityHandle
+    // populates locals. fetchIdentity is memoized per request, so this is
+    // one call to Go's /me (and at most one session refresh), not two.
     const identity = await fetchIdentity(event);
     return identity.member?.language ?? undefined;
   },

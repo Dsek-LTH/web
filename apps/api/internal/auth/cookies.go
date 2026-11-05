@@ -25,6 +25,11 @@ func cookieSecure() bool {
 	return os.Getenv("AUTH_COOKIE_SECURE") == "true"
 }
 
+// sessionCookieMaxAge keeps the session across browser restarts, as Auth.js's
+// did. It is securecookie's own 30-day cap (see NewSessionCodec); a refresh
+// token Authentik no longer accepts ends the session sooner.
+const sessionCookieMaxAge = 30 * 24 * 60 * 60
+
 // SetSessionCookie encodes data and sets it as the session cookie.
 // SameSite=Lax is sufficient (not None) because SvelteKit and this API are
 // same-site (same registrable domain) even though cross-origin.
@@ -38,6 +43,7 @@ func SetSessionCookie(w http.ResponseWriter, codec *SessionCodec, data SessionDa
 		Value:    value,
 		Domain:   CookieDomain(),
 		Path:     "/",
+		MaxAge:   sessionCookieMaxAge,
 		HttpOnly: true,
 		Secure:   cookieSecure(),
 		SameSite: http.SameSiteLaxMode,

@@ -5,11 +5,10 @@ import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
 // response directly). No page renders a
 // download link yet (the /medals route is still a stub), but the endpoint
 // itself is real.
-export const GET = async ({ url, request, fetch }) => {
+// The event's fetch carries the session (handleFetch in hooks.server.ts).
+export const GET = async ({ url, fetch }) => {
   const target = new URL("/medals.csv", PUBLIC_GO_BACKEND_URL);
   target.search = url.search;
 
-  return fetch(target, {
-    headers: { cookie: request.headers.get("cookie") ?? "" },
-  });
+  return fetch(target);
 };

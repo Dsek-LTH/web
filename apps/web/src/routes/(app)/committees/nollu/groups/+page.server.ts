@@ -1,11 +1,13 @@
 import { error } from "@sveltejs/kit";
-import { api } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
 import type { PageServerLoad } from "./$types";
 import { committeeLoad } from "../../committee";
 import { committeeActions } from "../../committee.server";
 import { getYearOrThrowSvelteError } from "$lib/utils/url";
 
-export const load: PageServerLoad = async ({ url, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+  const { url, fetch } = event;
+  const api = serverApi(event);
   const currentYear = new Date().getFullYear();
   // Allow to see committees from 1982 to the NEXT year
   const year = getYearOrThrowSvelteError(url, {
@@ -15,7 +17,7 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
   // "year" is now resolved against a real nollning_seasons row instead of
   // phadder_groups.year (dropped - see backend's Phase 2 nollning
   // redesign). No season for the requested year just means an empty list.
-  const seasonsRes = await api.GET("/nollning/seasons", { fetch });
+  const seasonsRes = await api.GET("/nollning/seasons");
   if (seasonsRes.error)
     error(
       seasonsRes.response.status,
@@ -25,7 +27,6 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 
   const summariesRes = season
     ? await api.GET("/nollning/phadder-groups", {
-        fetch,
         params: { query: { seasonId: season.id } },
       })
     : undefined;
@@ -44,7 +45,6 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
       summaries.map((g) =>
         api
           .GET("/nollning/phadder-groups/{id}", {
-            fetch,
             params: { path: { id: g.id } },
           })
           .then((res) => res.data),

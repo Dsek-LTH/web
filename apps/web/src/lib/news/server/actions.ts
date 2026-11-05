@@ -2,7 +2,7 @@ import { createSchema, updateSchema } from "$lib/news/schema";
 import { toAuthorInput } from "$lib/news/authorOptions";
 import { redirect } from "sveltekit-flash-message/server";
 import * as m from "$paraglide/messages";
-import { type Action } from "@sveltejs/kit";
+import { error, type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import { serverApi } from "$lib/server/apiClient";
@@ -16,7 +16,8 @@ async function uploadImage(
   file: File,
 ): Promise<string> {
   const res = await api.POST("/images", { body: { file }, ...multipart });
-  if (res.error) throw new Error("Failed to upload image");
+  if (res.error)
+    error(res.response.status, res.error.detail ?? "Failed to upload image");
   return res.data.url;
 }
 
@@ -72,7 +73,11 @@ export const createArticle: Action = async (event) => {
   };
 
   const created = await api.POST("/articles", { body: input });
-  if (created.error) throw new Error("Failed to create article");
+  if (created.error)
+    error(
+      created.response.status,
+      created.error.detail ?? "Failed to create article",
+    );
   const publishTimeIsInFuture = publishTime && publishTime > new Date();
 
   throw redirect(
@@ -156,7 +161,10 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
         { status: 400 },
       );
     }
-    throw new Error("Failed to update article");
+    error(
+      updated.response.status,
+      updated.error.detail ?? "Failed to update article",
+    );
   }
 
   throw redirect(

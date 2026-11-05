@@ -52,6 +52,22 @@ func NewRealAuthenticator(
 	}
 }
 
+// NewAnonymousAuthenticator resolves every request as anonymous, with the
+// policies real auth gives a caller without a session.
+// NewCookieGatedMockAuthenticator's fallback.
+func NewAnonymousAuthenticator(queries *db.Queries, nollning StabenInjector) Authenticator {
+	return anonymousAuthenticator{&RealAuthenticator{queries: queries, nollning: nollning}}
+}
+
+type anonymousAuthenticator struct{ a *RealAuthenticator }
+
+func (a anonymousAuthenticator) Authenticate(
+	_ http.ResponseWriter,
+	r *http.Request,
+) (*Identity, error) {
+	return a.a.anonymousIdentity(r.Context())
+}
+
 func (a *RealAuthenticator) Authenticate(
 	w http.ResponseWriter,
 	r *http.Request,

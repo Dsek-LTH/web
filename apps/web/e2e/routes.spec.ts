@@ -5,7 +5,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { globSync } from "node:fs";
-import { API_URL } from "./servers";
+import { API_URL, SESSION_COOKIE } from "./servers";
 
 // Opens every page in a real browser and checks that it loads without an
 // error status, an uncaught exception or a console error. This catches what
@@ -41,7 +41,9 @@ const first = async <T>(
   path: string,
   pick: (body: never) => T[],
 ): Promise<T> => {
-  const res = await api.get(API_URL + path);
+  const res = await api.get(API_URL + path, {
+    headers: { cookie: SESSION_COOKIE },
+  });
   expect(res.ok(), `GET ${path}`).toBeTruthy();
   const items = pick((await res.json()) as never);
   expect(items.length, `GET ${path} has items`).toBeGreaterThan(0);

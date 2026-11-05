@@ -5,7 +5,8 @@ import { error, type Action } from "@sveltejs/kit";
 import { z } from "zod";
 import { fail, superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
-import { api, multipart } from "$lib/api/client";
+import { serverApi } from "$lib/server/apiClient";
+import { multipart } from "$lib/api/client";
 import type { components } from "$lib/api/schema";
 
 type EventInput = components["schemas"]["EventInput"];
@@ -16,9 +17,13 @@ type EventInput = components["schemas"]["EventInput"];
 // server-side in the Go API (apps/api/internal/events) - this file just
 // validates the form, uploads the image, and forwards the result.
 
-async function uploadImage(file: File): Promise<string> {
+async function uploadImage(
+  api: ReturnType<typeof serverApi>,
+  file: File,
+): Promise<string> {
   const res = await api.POST("/images", { body: { file }, ...multipart });
-  if (res.error) throw new Error("Failed to upload image");
+  if (res.error)
+    error(res.response.status, res.error.detail ?? "Failed to upload image");
   return res.data.url;
 }
 
@@ -59,17 +64,22 @@ function toEventInput(
 
 export const createEvent: Action = async (event) => {
   const { request } = event;
+  const api = serverApi(event);
   const form = await superValidate(request, zod4(eventSchema));
   if (!form.valid) return fail(400, { form });
 
   const imageUrl = form.data.image
-    ? await uploadImage(form.data.image)
+    ? await uploadImage(api, form.data.image)
     : (form.data.imageUrl ?? null);
 
   const created = await api.POST("/events", {
     body: toEventInput(form.data, imageUrl),
   });
-  if (created.error) throw new Error("Failed to create event");
+  if (created.error)
+    error(
+      created.response.status,
+      created.error.detail ?? "Failed to create event",
+    );
 
   throw redirect(
     `/events/${created.data.slug}`,
@@ -85,6 +95,7 @@ export const createEvent: Action = async (event) => {
 
 export const updateEvent: Action<{ slug: string }> = async (event) => {
   const { request, params } = event;
+  const api = serverApi(event);
   const slug = params.slug;
   const form = await superValidate(
     request,
@@ -93,7 +104,7 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
   if (!form.valid) return fail(400, { form });
 
   const imageUrl = form.data.image
-    ? await uploadImage(form.data.image)
+    ? await uploadImage(api, form.data.image)
     : (form.data.imageUrl ?? null);
 
   const updated = await api.PUT("/events/{slug}", {
@@ -104,7 +115,10 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     if (updated.response.status === 404) {
       return error(404, m.events_errors_eventNotFound());
     }
-    throw new Error("Failed to update event");
+    error(
+      updated.response.status,
+      updated.error.detail ?? "Failed to update event",
+    );
   }
 
   throw redirect(

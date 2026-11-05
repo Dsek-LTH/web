@@ -9,6 +9,8 @@ import type { components } from "$lib/api/schema";
  */
 export type GoIdentity = components["schemas"]["Me"];
 
+const identities = new WeakMap<RequestEvent, Promise<GoIdentity>>();
+
 /**
  * Calls Go's GET /me, forwarding this request's cookies there and forwarding
  * back any Set-Cookie it issues (e.g. a re-issued dsek_session after a
@@ -17,16 +19,54 @@ export type GoIdentity = components["schemas"]["Me"];
  * fetch to the Go API (which the browser handles natively), nothing
  * forwards cookies in either direction automatically - it has to be done
  * by hand here.
+ *
+ * Memoized per request: hooks.server.ts asks twice (paraglide's locale
+ * strategy, then identityHandle). Two calls with the same expired session
+ * would each refresh it, and Authentik rotates the refresh token on use,
+ * so the second one fails and Go clears the cookie - a logout every time
+ * the access token expires.
  */
-export async function fetchIdentity(event: RequestEvent): Promise<GoIdentity> {
+export function fetchIdentity(event: RequestEvent): Promise<GoIdentity> {
+  let identity = identities.get(event);
+  if (!identity) {
+    identity = requestIdentity(event);
+    identities.set(event, identity);
+  }
+  return identity;
+}
+
+async function requestIdentity(event: RequestEvent): Promise<GoIdentity> {
   const res = await fetch(`${PUBLIC_GO_BACKEND_URL}/me`, {
-    headers: { cookie: event.request.headers.get("cookie") ?? "" },
+    headers: { cookie: cookieHeader(event.cookies) },
   });
   if (!res.ok) {
     error(502, "auth backend unavailable");
   }
   forwardSetCookies(res, event.cookies);
   return res.json();
+}
+
+/**
+ * The Cookie header to send Go on behalf of this request: event.cookies
+ * rather than the raw request header, so a session Go re-issued earlier in
+ * the same request (forwardSetCookies) is sent instead of the expired one.
+ * Cookies deleted during the request show up in getAll() with an empty
+ * value; they're left out.
+ */
+export function cookieHeader(cookies: Cookies): string {
+  return cookies
+    .getAll()
+    .filter(({ value }) => value !== "")
+    .map(({ name, value }) => `${name}=${value}`)
+    .join("; ");
+}
+
+/**
+ * Whether url is on the Go API, i.e. a request that should carry this
+ * request's cookies (see handleFetch in hooks.server.ts).
+ */
+export function isGoBackendUrl(url: string | URL): boolean {
+  return new URL(url).origin === new URL(PUBLIC_GO_BACKEND_URL).origin;
 }
 
 /**
@@ -75,10 +115,14 @@ export function forwardSetCookies(response: Response, cookies: Cookies) {
       }
     }
 
-    if (maxAge !== undefined && maxAge < 0) {
+    // Go's MaxAge: -1 is sent as Max-Age=0.
+    if (maxAge !== undefined && maxAge <= 0) {
       cookies.delete(name, { path, ...opts });
     } else {
-      cookies.set(name, value, { path, maxAge, ...opts });
+      // The value is already cookie-safe as Go sent it; SvelteKit's default
+      // encodeURIComponent would turn securecookie's base64 padding into
+      // %3D, which Go then can't decode.
+      cookies.set(name, value, { path, maxAge, encode: (v) => v, ...opts });
     }
   }
 }

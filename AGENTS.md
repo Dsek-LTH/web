@@ -59,7 +59,9 @@ deployment:
 
 - `AUTH_MOCK=true` (on in `apps/api/.env`) - every request is a fixed real
   member (`AUTH_MOCK_STUDENT_ID`, or any member) holding every policy.
-  Unset it to log in through Authentik's dev client for real.
+  Unset it to log in through Authentik's dev client for real. With
+  `AUTH_MOCK_REQUIRE_COOKIE=true` too (the e2e tests), only requests
+  carrying a `dsek_session` cookie are that member; the rest are anonymous.
 - `STORAGE_MOCK=true` - no MinIO: uploads are dropped, listings are
   empty. Needed unless you have MinIO credentials.
 - `PUSH_MOCK` - push notifications are logged, not sent, unless it is
@@ -236,11 +238,15 @@ which is the API reference.
   `components["schemas"][...]` (or a `Pick` of one) without `| null`;
   shared UI components may take small local prop shapes instead.
 - Loads are universal (`+page.ts`) by default and pass their own `fetch`
-  (`api.GET(..., { fetch })`). Use a server load or action only when it
-  needs cookies, `locals`, secrets or a real upload. `.server.ts` code
-  calls Go through `serverApi(event)` (`$lib/server/apiClient`), which
-  forwards the session cookie both ways - the shared `api` would call Go
-  anonymously from the server.
+  (`api.GET(..., { fetch })`); during SSR, `handleFetch` in
+  `hooks.server.ts` adds the session cookie to that fetch's calls to Go
+  (SvelteKit itself only forwards cookies to its own host and subdomains,
+  and the API is on a sibling host). Use a server load or action only when
+  it needs cookies, `locals`, secrets or a real upload. `.server.ts` code
+  (and `$lib/**/server`) calls Go through `serverApi(event)`
+  (`$lib/server/apiClient`), which forwards the session cookie both ways -
+  the shared `api` without the event's `fetch` calls Go anonymously from
+  the server.
 - Pass Go's status and `detail` on when a load fails, not a fixed 500.
 - Uploads: send typed bodies with `...multipart` from `$lib/api/client`.
 - Pages that still render `<NotImplemented />` have real loads behind
@@ -250,11 +256,15 @@ which is the API reference.
 
 Playwright, in `apps/web/e2e`, run with `pnpm test:integration` (needs the
 Postgres container; `pnpm exec playwright install chromium` once). It
-starts its own servers and stops them afterwards: a backend on 8091
-(`e2e/api.sh`) on a `dsek_e2e` database it drops, migrates and seeds
-every run, with auth and storage mocked, and a production build of the
-frontend on 4173 (it rebuilds `build/`). The dev database and dev servers
-are left alone.
+starts its own servers and stops them afterwards: a backend on
+`127.0.0.1:8091` (`e2e/api.sh`) on a `dsek_e2e` database it drops,
+migrates and seeds every run, with auth and storage mocked, and a
+production build of the frontend on `localhost:4173` (it rebuilds
+`build/`). The dev database and dev servers are left alone. Auth is mocked
+only for requests with a session cookie, which the browser has, and the
+two servers are on different hosts as in a deployment, so a server-side
+call to Go that drops the caller's cookies is anonymous and fails the
+test - local dev, where every request is the mock member, never shows it.
 
 - `routes.spec.ts` opens every page and fails on an error status, an
   uncaught exception or a console error. Pages without parameters are

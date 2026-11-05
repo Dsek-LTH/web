@@ -1,5 +1,7 @@
 import { defineConfig } from "@playwright/test";
-import { API_URL, WEB_URL } from "./e2e/servers";
+import { API_URL, SESSION_COOKIE, WEB_URL } from "./e2e/servers";
+
+const [cookieName = "", cookieValue = ""] = SESSION_COOKIE.split("=");
 
 // End-to-end tests (pnpm test:integration): a production build in a real
 // browser against a real backend. See "End-to-end tests" in AGENTS.md.
@@ -13,6 +15,34 @@ export default defineConfig({
   use: {
     baseURL: WEB_URL,
     trace: "retain-on-failure",
+    storageState: {
+      cookies: [
+        {
+          name: cookieName,
+          value: cookieValue,
+          domain: new URL(WEB_URL).hostname,
+          path: "/",
+          expires: -1,
+          httpOnly: true,
+          secure: false,
+          sameSite: "Lax",
+        },
+        // The browser calls the API from the web app's origin, which is
+        // cross-site, so like any cross-site cookie it needs SameSite=None
+        // (and with it Secure, which Chromium honors on http://127.0.0.1).
+        {
+          name: cookieName,
+          value: cookieValue,
+          domain: new URL(API_URL).hostname,
+          path: "/",
+          expires: -1,
+          httpOnly: true,
+          secure: true,
+          sameSite: "None",
+        },
+      ],
+      origins: [],
+    },
   },
   webServer: [
     {

@@ -122,7 +122,14 @@ func main() {
 		if err != nil {
 			logging.Fatal("resolve mock auth identity", "err", err)
 		}
-		authenticator = auth.NewMockAuthenticator(identity)
+		if os.Getenv("AUTH_MOCK_REQUIRE_COOKIE") == "true" {
+			authenticator = auth.NewCookieGatedMockAuthenticator(
+				identity,
+				auth.NewAnonymousAuthenticator(queries, nollningSvc),
+			)
+		} else {
+			authenticator = auth.NewMockAuthenticator(identity)
+		}
 	} else {
 		oidcClient, authenticator, err = newRealAuth(ctx, queries, nollningSvc, notificationSvc)
 		if err != nil {

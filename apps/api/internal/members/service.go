@@ -166,6 +166,7 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 				NameSv:    m.CommitteeNameSv.String,
 				NameEn:    committeeNameEn,
 				ShortName: dbutil.TextPtr(m.CommitteeShortName),
+				SymbolURL: dbutil.TextPtr(m.CommitteeSymbolUrl),
 			}
 		}
 		var phadderIn *apitypes.MandatePhadderGroup
