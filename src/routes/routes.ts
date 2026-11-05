@@ -11,6 +11,7 @@ import DoorClosedLocked from "@lucide/svelte/icons/door-closed-locked";
 import Files from "@lucide/svelte/icons/files";
 import FileText from "@lucide/svelte/icons/file-text";
 import HousePlus from "@lucide/svelte/icons/house-plus";
+import Image from "@lucide/svelte/icons/image";
 import Info from "@lucide/svelte/icons/info";
 import Link from "@lucide/svelte/icons/link";
 import Megaphone from "@lucide/svelte/icons/megaphone";
@@ -273,6 +274,13 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           icon: Settings,
+        },
+        {
+          title: m.admin_roleLogos_pageTitle(),
+          path: "/admin/role-logos",
+          accessRequired: apiNames.POSITION.UPDATE,
+          appBehaviour: "none",
+          icon: Image,
         },
         {
           title: m.files(),

@@ -830,6 +830,17 @@ model Position {
     @@map("positions")
 }
 
+model RoleLogo {
+    path    String @id @db.VarChar(255)
+    logoUrl String @db.Text
+
+    @@allow("read", true)
+    @@allow("create", has(auth().policies, "core:position:update"))
+    @@allow("update", has(auth().policies, "core:position:update"))
+    @@allow("delete", has(auth().policies, "core:position:update"))
+    @@map("role_logos")
+}
+
 model Product {
     id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     name               String              @db.VarChar(255)

@@ -17,6 +17,7 @@ import {
   waitForTask,
 } from "$lib/search/syncHelpers";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { resolveRoleLogo, roleLogoMap } from "$lib/utils/roleLogos";
 import {
   syncGoverningDocuments,
   syncMeetingDocuments,
@@ -241,7 +242,11 @@ async function syncEvents() {
 }
 
 async function syncPositions() {
-  const numPositions = await authorizedPrismaClient.position.count();
+  const [numPositions, roleLogos] = await Promise.all([
+    authorizedPrismaClient.position.count(),
+    authorizedPrismaClient.roleLogo.findMany(),
+  ]);
+  const logos = roleLogoMap(roleLogos);
   const positionsIndex = await getMeilisearch().getIndex("positions");
   await resetIndex(positionsIndex, meilisearchConstants.position);
   for (let i = 0; i < numPositions; i += BATCH_SIZE) {
@@ -270,6 +275,7 @@ async function syncPositions() {
             dsekId: position.id,
             committeeNameSv: position.committee?.nameSv ?? "",
             committeeNameEn: position.committee?.nameEn ?? "",
+            roleLogoUrl: resolveRoleLogo(position.id, logos) ?? null,
             id: prismaIdToMeiliId(position.id),
           })),
         );
