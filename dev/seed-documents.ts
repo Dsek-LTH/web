@@ -121,16 +121,64 @@ const srdFiles = [
   "Möte 2.pdf",
 ];
 
+type SeedEntry = {
+  bucket: string;
+  key: string;
+  legacyKey: string;
+  meetingFolder?: string;
+  fileName: string;
+  group?: string;
+};
+
+// The fixture paths still use group folders; the seed writes flat files plus
+// a per-meeting _groups.json sidecar.
+const toEntries = (paths: string[], bucket: string, base: string) =>
+  paths.map((path): SeedEntry => {
+    const parts = path.split("/");
+    const fileName = parts.pop()!;
+    const legacyKey = `${base}/${path}`;
+    if (parts.length === 0) {
+      return { bucket, key: legacyKey, legacyKey, fileName };
+    }
+
+    const meetingFolder = `${base}/${parts.shift()}`;
+    return {
+      bucket,
+      key: `${meetingFolder}/${fileName}`,
+      legacyKey,
+      meetingFolder,
+      fileName,
+      group: parts.join("/") || undefined,
+    };
+  });
+
 const entries = [
-  ...documentFiles.map((key) => ({
-    bucket: documentsBucket,
-    key: `public/${year}/${key}`,
-  })),
-  ...srdFiles.map((key) => ({
-    bucket: filesBucket,
-    key: `public/srd/${year}/${key}`,
-  })),
+  ...toEntries(documentFiles, documentsBucket, `public/${year}`),
+  ...toEntries(srdFiles, filesBucket, `public/srd/${year}`),
 ];
+
+const groupMaps = new Map<
+  string,
+  { bucket: string; key: string; files: Record<string, string> }
+>();
+for (const { bucket, meetingFolder, fileName, group } of entries) {
+  if (!meetingFolder || !group) continue;
+
+  const id = `${bucket}/${meetingFolder}`;
+  const sidecar = groupMaps.get(id) ?? {
+    bucket,
+    key: `${meetingFolder}/_groups.json`,
+    files: {},
+  };
+  sidecar.files[fileName] = group;
+  groupMaps.set(id, sidecar);
+}
+
+const sidecars = [...groupMaps.values()].map(({ bucket, key, files }) => ({
+  bucket,
+  key,
+  body: Buffer.from(JSON.stringify({ version: 1, files }, null, 2)),
+}));
 
 // A minimal blank PDF so the links open something valid.
 const pdf = Buffer.from(`%PDF-1.4
@@ -159,15 +207,25 @@ startxref
 async function main() {
   console.log(`Target MinIO: ${endpoint} (${documentsBucket}, ${filesBucket})`);
 
+  const objects = [
+    ...entries.flatMap((entry) => [
+      { bucket: entry.bucket, key: entry.legacyKey },
+      ...(entry.key === entry.legacyKey
+        ? []
+        : [{ bucket: entry.bucket, key: entry.key }]),
+    ]),
+    ...sidecars,
+  ];
+
   if (process.argv.includes("--clean")) {
-    for (const { bucket, key } of entries) {
+    for (const { bucket, key } of objects) {
       await minio.removeObject(bucket, key);
     }
-    console.log(`Removed ${entries.length} seeded document objects.`);
+    console.log(`Removed ${objects.length} seeded objects.`);
     return;
   }
 
-  const buckets = [...new Set(entries.map((entry) => entry.bucket))];
+  const buckets = [...new Set(objects.map(({ bucket }) => bucket))];
   for (const bucket of buckets) {
     if (!(await minio.bucketExists(bucket))) {
       await minio.makeBucket(bucket);
@@ -193,9 +251,14 @@ async function main() {
       "Content-Type": "application/pdf",
     });
   }
+  for (const { bucket, key, body } of sidecars) {
+    await minio.putObject(bucket, key, body, body.length, {
+      "Content-Type": "application/json",
+    });
+  }
 
   console.log(
-    `Seeded ${entries.length} document objects in ${buckets.join(", ")}.`,
+    `Seeded ${entries.length} document objects and ${sidecars.length} group maps in ${buckets.join(", ")}.`,
   );
   console.log(
     `Open /documents?year=${year} and sign in with a user that can read documents.`,
