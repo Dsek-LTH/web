@@ -1,22 +1,28 @@
 FROM node:24.22.2-slim AS base
 
+WORKDIR /app
+
+FROM base AS pnpm
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 
-RUN apt-get update \
-  && apt-get install --yes --no-install-recommends openssl lsof \
-  && rm -rf /var/lib/apt/lists/* \
-  && npm install --global pnpm@12.16.1
-
-WORKDIR /app
-
-FROM base AS dependencies
+RUN npm install --global pnpm@12.16.1
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
 
+FROM pnpm AS dependencies
+
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   pnpm install --frozen-lockfile --ignore-scripts
+
+# What the server needs at run time: adapter-node bundles the dev
+# dependencies into build/.
+FROM pnpm AS production-dependencies
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+  pnpm install --frozen-lockfile --ignore-scripts --prod
 
 FROM dependencies AS build
 
@@ -52,24 +58,10 @@ ENV NODE_ENV="production"
 ENV PORT="7777"
 ENV HOME="/tmp"
 
-COPY --chown=1001:0 --from=build /app/build ./build
-COPY --chown=1001:0 --from=build /app/node_modules ./node_modules
-COPY --chown=1001:0 --from=build /app/package.json ./package.json
-COPY --chown=1001:0 --from=build /app/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --chown=1001:0 --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY --chown=1001:0 --from=build /app/prod ./prod
-COPY --chown=1001:0 --from=build /app/src ./src
-COPY --chown=1001:0 --from=build /app/project.inlang ./project.inlang
-COPY --chown=1001:0 --from=build /app/svelte.config.js ./svelte.config.js
-COPY --chown=1001:0 --from=build /app/tsconfig.json ./tsconfig.json
-COPY --chown=1001:0 --from=build /app/vite.config.ts ./vite.config.ts
-
-# needed for pnpm seed to work
-RUN mkdir --parents /app/node_modules/.vite /app/node_modules/.vite-temp /app/.svelte-kit \
-  && chown 1001:0 /app/node_modules/.vite /app/node_modules/.vite-temp /app/.svelte-kit \
-  && chmod 770 /app/node_modules/.vite /app/node_modules/.vite-temp /app/.svelte-kit \
-  && chmod g+rwx /app/src/translations \
-  && find /app/src/translations/paraglide -type d -exec chmod g+rwx {} +
+COPY --from=production-dependencies /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/build ./build
+COPY --from=build /app/prod ./prod
 
 USER 1001:0
 
