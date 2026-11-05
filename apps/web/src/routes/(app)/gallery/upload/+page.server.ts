@@ -5,6 +5,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { uploadSchema } from "./types";
 import { uploadAlbumFiles } from "./uploadFiles";
 import { redirect } from "@sveltejs/kit";
+import { serverApi } from "$lib/server/apiClient";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod4(uploadSchema));
@@ -12,14 +13,15 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-  default: async ({ request }) => {
+  default: async (event) => {
+    const { request } = event;
     const form = await superValidate(request, zod4(uploadSchema), {
       allowFiles: true,
     });
 
     if (!form.valid) return fail(400, withFiles({ form }));
     try {
-      await uploadAlbumFiles(form.data);
+      await uploadAlbumFiles(serverApi(event), form.data);
     } catch (e) {
       return message(
         form,
