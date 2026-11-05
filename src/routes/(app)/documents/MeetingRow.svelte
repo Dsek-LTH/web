@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { FileData } from "$lib/files/fileHandler";
   import type { DocumentMeeting } from "./grouping";
-  import { findLatestFile } from "./grouping";
+  import { findLatestFile, meetingDocumentPrefixes } from "./grouping";
   import { Button } from "$lib/components/ui/button";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import FileText from "@lucide/svelte/icons/file-text";
@@ -20,21 +20,14 @@
     class?: string;
   } = $props();
 
-  let notice = $derived(findLatestFile(meeting.files, ["Kallelse", "Notice"]));
+  let notice = $derived(
+    findLatestFile(meeting.files, meetingDocumentPrefixes.notice),
+  );
   let agenda = $derived(
-    findLatestFile(meeting.files, [
-      "Föredragningslista",
-      "Foredragningslista",
-      "Agenda",
-    ]),
+    findLatestFile(meeting.files, meetingDocumentPrefixes.agenda),
   );
   let minutes = $derived(
-    findLatestFile(meeting.files, [
-      "Protokoll",
-      "Mötesprotokoll",
-      "Minutes",
-      "Minute",
-    ]),
+    findLatestFile(meeting.files, meetingDocumentPrefixes.minutes),
   );
 </script>
 

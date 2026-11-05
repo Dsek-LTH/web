@@ -5,6 +5,7 @@ import {
   getMeetingFileKey,
   getMeetingFolder,
   groupDocuments,
+  meetingDocumentPrefixes,
   mergeMeetings,
   splitDocumentPath,
 } from "./grouping";
@@ -186,6 +187,36 @@ describe("findLatestFile", () => {
     );
 
     expect(findLatestFile([older, newer], ["Kallelse", "Notice"])).toBe(newer);
+  });
+
+  it("matches date-prefixed English meeting documents", () => {
+    const notice = file("public/srd/2026/SRD19/2026-10-07-srd19-notice.pdf");
+    const protocol = file(
+      "public/srd/2026/SRD19/2026-10-07-srd19-protocol.pdf",
+    );
+
+    expect(findLatestFile([notice], meetingDocumentPrefixes.notice)).toBe(
+      notice,
+    );
+    expect(findLatestFile([protocol], meetingDocumentPrefixes.minutes)).toBe(
+      protocol,
+    );
+  });
+
+  it("matches keywords inside prefixed and misspelled filenames", () => {
+    const agenda = file("public/2025/VTM/1_Foredragningslista_VTM.pdf");
+    const agendaTypo = file("public/2025/VTM/1_Fredragningslista_VTM.pdf");
+    const minutes = file("public/2025/VTM/VTM Motesprotokoll.pdf");
+
+    expect(findLatestFile([agenda], meetingDocumentPrefixes.agenda)).toBe(
+      agenda,
+    );
+    expect(findLatestFile([agendaTypo], meetingDocumentPrefixes.agenda)).toBe(
+      agendaTypo,
+    );
+    expect(findLatestFile([minutes], meetingDocumentPrefixes.minutes)).toBe(
+      minutes,
+    );
   });
 
   it("returns undefined when nothing matches", () => {
