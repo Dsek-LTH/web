@@ -24,7 +24,7 @@ ROOT_FILES := README.md AGENTS.md .github docker-compose.yml podman-dev.yaml \
 BASE ?= main
 
 .DEFAULT_GOAL := help
-.PHONY: help setup db migrate seed db-shell db-reset hooks dev dev-api \
+.PHONY: help setup db migrate seed seed-documents seed-documents-clean db-shell db-reset hooks dev dev-api \
 	dev-web generate fmt check lint lint-api lint-web lint-ci lint-root test \
 	test-api test-web api-types e2e api-diff audit
 
@@ -53,6 +53,12 @@ migrate: ## Apply the database migrations
 
 seed: ## Wipe the dev database and fill it with fake data
 	cd $(API) && go tool seed
+
+seed-documents: ## Write sample meeting documents to the MinIO in apps/api/.env (local or sandbox)
+	cd $(API) && go run ./cmd/seed-documents
+
+seed-documents-clean: ## Remove the sample meeting documents again
+	cd $(API) && go run ./cmd/seed-documents -clean
 
 db-shell: ## psql on the dev database
 	docker exec -it dsek-db psql -U postgres dsek

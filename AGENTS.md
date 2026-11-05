@@ -101,6 +101,9 @@ Root (`make`, which lists them all):
   (`BASE=<ref>` for another)
 - `make audit` - govulncheck and `pnpm audit`
 - `make migrate`, `make seed`, `make db-reset`, `make db-shell`
+- `make seed-documents` (`-clean` to remove) - sample meeting documents and
+  groups in the MinIO from `apps/api/.env`; refuses anything but localhost or
+  a sandbox endpoint
 
 Tools for the whole repo are `tool` dependencies in `tools/go.mod` (add one
 with `go get -tool` there), a module of their own so their dependencies
