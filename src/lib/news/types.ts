@@ -52,7 +52,8 @@ export type ArticleCardData = {
   publishedAt?: Date | null;
   /** Counts in the editorial card's meta line, when the page loads them. */
   likers?: unknown[];
-  comments?: Array<{ content: string | null }>;
+  /** Visible (not removed) comments only. */
+  _count?: { comments: number };
 };
 
 export type ArticleSmallCardData = {

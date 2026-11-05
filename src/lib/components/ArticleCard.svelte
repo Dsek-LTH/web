@@ -9,7 +9,6 @@
   import { getYoutubeVideoId } from "$lib/utils/youtube";
   import { getAuthorName, NEWS_TIME_ZONE } from "$lib/news/format";
   import { getLocale } from "$paraglide/runtime";
-  import { countVisibleComments } from "$lib/components/comments/threads";
   import * as m from "$paraglide/messages";
   import Heart from "@lucide/svelte/icons/heart";
   import MessageCircle from "@lucide/svelte/icons/message-circle";
@@ -68,9 +67,7 @@
     date.toLocaleDateString("sv-SE", { timeZone: NEWS_TIME_ZONE }),
   );
   const likeCount = $derived(article.likers?.length ?? 0);
-  const commentCount = $derived(
-    article.comments ? countVisibleComments(article.comments) : 0,
-  );
+  const commentCount = $derived(article._count?.comments ?? 0);
 </script>
 
 {#snippet cover()}

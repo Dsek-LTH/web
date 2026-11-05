@@ -14,7 +14,7 @@ type ArticleFilters = {
   pageSize?: number;
 };
 
-const include = {
+const baseInclude = {
   author: {
     include: {
       member: true,
@@ -26,6 +26,13 @@ const include = {
       customAuthor: true,
     },
   },
+  likers: true,
+  tags: true,
+  committee: true,
+};
+
+const include = {
+  ...baseInclude,
   comments: {
     include: {
       member: true,
@@ -34,15 +41,23 @@ const include = {
       published: "desc" as const,
     },
   },
-  likers: true,
-  tags: true,
-  committee: true,
+};
+
+// Lists only show how many comments an article has, so they get a count of the visible
+// ones (removed comments have no content) instead of every comment and its author.
+const listInclude = {
+  ...baseInclude,
+  _count: {
+    select: { comments: { where: { content: { not: null } } } },
+  },
 };
 
 export const getAllArticles = async (
   prisma: ExtendedPrisma,
   filters: ArticleFilters = { page: 0, pageSize: 10 },
-): Promise<[articles: Article[], pageCount: number, totalCount: number]> => {
+): Promise<
+  [articles: ArticleListItem[], pageCount: number, totalCount: number]
+> => {
   const pageNumber = filters.page ?? 0;
   const pageSize = filters.pageSize ?? 10;
 
@@ -115,7 +130,7 @@ export const getAllArticles = async (
       },
       skip: Math.max(pageNumber - 1, 0) * pageSize,
       take: pageSize,
-      include,
+      include: listInclude,
     }),
     prisma.article.count({ where }),
   ]);
@@ -138,6 +153,11 @@ export const getArticle = async (prisma: ExtendedPrisma, slug: string) => {
 };
 
 export type Article = NonNullable<Awaited<ReturnType<typeof getArticle>>>;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for its type
+const getArticleListItem = (prisma: ExtendedPrisma) =>
+  prisma.article.findFirstOrThrow({ include: listInclude });
+export type ArticleListItem = Awaited<ReturnType<typeof getArticleListItem>>;
 
 export type AuthorOption = ExtendedPrismaModel<"Author"> & {
   member: ExtendedPrismaModel<"Member">;

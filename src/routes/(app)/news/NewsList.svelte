@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { countVisibleComments } from "$lib/components/comments/threads";
   import * as m from "$paraglide/messages";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import YoutubeThumbnail from "$lib/components/YoutubeThumbnail.svelte";
@@ -21,7 +20,7 @@
     publishedAt: Date | null;
     tags: ArticleTagSummary[];
     likers: unknown[];
-    comments: Array<{ content: string | null }>;
+    _count: { comments: number };
   };
 
   let { articles }: { articles: ListArticle[] } = $props();
@@ -39,7 +38,7 @@
     {@const videoId = getYoutubeVideoId(article.youtubeUrl)}
     {@const href = `/news/${article.slug}`}
     {@const excerpt = toExcerpt(article.body)}
-    {@const commentCount = countVisibleComments(article.comments)}
+    {@const commentCount = article._count.comments}
     {@const date = article.publishedAt ?? article.createdAt}
     <!-- Same staggered entrance as the cards in the grid view. -->
     <li
