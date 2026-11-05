@@ -14,7 +14,6 @@ export const parseNewsViewMode = (value: string | undefined): NewsViewMode =>
 /**
  * Persist the chosen view mode in a cookie so the server can render the
  * right view on the next visit without a layout flash.
- * Path is "/" because the page is also served under localized prefixes (e.g. /en/news).
  */
 export const saveNewsViewMode = (mode: NewsViewMode) => {
   const oneYear = 60 * 60 * 24 * 365;
