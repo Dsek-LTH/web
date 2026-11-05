@@ -175,9 +175,16 @@ func (c *OIDCClient) CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing oauth state", http.StatusBadRequest)
 		return
 	}
-	// Clear the state cookie regardless of outcome - it's single-use.
+	// Clear the state cookie regardless of outcome - it's single-use. Same
+	// attributes as when it was set.
 	http.SetCookie(w, &http.Cookie{
-		Name: oauthStateCookieName, Value: "", Path: "/", MaxAge: -1,
+		Name:     oauthStateCookieName,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   cookieSecure(),
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	var stateData oauthStateData
