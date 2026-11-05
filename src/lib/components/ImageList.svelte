@@ -10,7 +10,10 @@
   <!-- Square thumbnails in a grid; click opens the full image. -->
   <ul
     data-sveltekit-preload-data="off"
-    class={cn("grid grid-cols-2 gap-2 sm:grid-cols-3", className)}
+    class={cn(
+      "ml-0 grid list-none grid-cols-2 gap-2 sm:grid-cols-3 [&>li]:my-0",
+      className,
+    )}
   >
     {#each images as image, index (`${index}:${image}`)}
       <li>
