@@ -26,20 +26,33 @@ func Middleware(next http.Handler) http.Handler {
 	})
 }
 
+// Default is the locale when Accept-Language names neither language, or is
+// missing (calendar apps, Salto, curl) - English, like paraglide's
+// baseLocale.
+const Default = "en"
+
+// resolve picks the first of Accept-Language's languages that is Swedish or
+// English. Browsers list them by preference, so the q-values aren't read.
 func resolve(acceptLanguage string) string {
-	first, _, _ := strings.Cut(acceptLanguage, ",")
-	if strings.HasPrefix(strings.ToLower(strings.TrimSpace(first)), "en") {
-		return "en"
+	for tag := range strings.SplitSeq(acceptLanguage, ",") {
+		lang, _, _ := strings.Cut(strings.ToLower(tag), ";")
+		lang = strings.TrimSpace(lang)
+		switch {
+		case lang == "sv" || strings.HasPrefix(lang, "sv-"):
+			return "sv"
+		case lang == "en" || strings.HasPrefix(lang, "en-"):
+			return "en"
+		}
 	}
-	return "sv"
+	return Default
 }
 
 // FromContext returns the resolved locale ("sv" or "en"), defaulting to
-// "sv" if Middleware never ran (e.g. in a test calling the service
+// Default if Middleware never ran (e.g. in a test calling the service
 // directly).
 func FromContext(ctx context.Context) string {
 	if loc, ok := ctx.Value(ctxKey{}).(string); ok {
 		return loc
 	}
-	return "sv"
+	return Default
 }
