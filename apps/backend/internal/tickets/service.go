@@ -21,10 +21,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/auth"
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 type Service struct {

@@ -12,15 +12,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/microcosm-cc/bluemonday"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/auth"
-	"github.com/dsek-lth/web/backend/internal/comments"
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
-	"github.com/dsek-lth/web/backend/internal/integrations"
-	"github.com/dsek-lth/web/backend/internal/locale"
-	"github.com/dsek-lth/web/backend/internal/mentions"
-	"github.com/dsek-lth/web/backend/internal/slug"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/comments"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/integrations"
+	"github.com/dsek-lth/web/apps/backend/internal/locale"
+	"github.com/dsek-lth/web/apps/backend/internal/mentions"
+	"github.com/dsek-lth/web/apps/backend/internal/slug"
 )
 
 // ErrNotFound is returned when an article, comment, or tag lookup by

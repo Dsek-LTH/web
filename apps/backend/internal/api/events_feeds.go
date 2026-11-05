@@ -7,8 +7,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/events"
-	"github.com/dsek-lth/web/backend/internal/nollning"
+	"github.com/dsek-lth/web/apps/backend/internal/events"
+	"github.com/dsek-lth/web/apps/backend/internal/nollning"
 )
 
 // rawOutput is a non-JSON response body (ICS, CSV, file bytes).

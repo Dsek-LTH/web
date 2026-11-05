@@ -1,8 +1,8 @@
 package songs
 
 import (
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 func toSong(row db.Song) Song {

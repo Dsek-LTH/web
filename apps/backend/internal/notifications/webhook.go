@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/dbutil"
-	"github.com/dsek-lth/web/backend/internal/integrations"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/integrations"
 )
 
 // nollningTagPrefix mirrors NOLLNING_TAG_PREFIX - articles tagged with this

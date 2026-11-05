@@ -14,8 +14,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
-	"github.com/dsek-lth/web/backend/internal/articles"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/articles"
 )
 
 // Paging is the shared page/pageSize query pair.

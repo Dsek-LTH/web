@@ -9,10 +9,10 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/auth"
-	"github.com/dsek-lth/web/backend/internal/nollning"
-	"github.com/dsek-lth/web/backend/internal/storage"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/nollning"
+	"github.com/dsek-lth/web/apps/backend/internal/storage"
 )
 
 // albumMetadataFile is the optional per-album metadata object - see

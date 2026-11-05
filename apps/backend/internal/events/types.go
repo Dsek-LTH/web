@@ -6,8 +6,8 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 // Member/Tag/Comment are aliased from internal/apitypes (same members/tags

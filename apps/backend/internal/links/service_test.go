@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
 )
 
 // Shlink v3 wraps every list response one level deep; the service decodes

@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
 )
 
 var (

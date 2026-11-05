@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
 )
 
 // StabenInjector is the one piece of internal/nollning RealAuthenticator

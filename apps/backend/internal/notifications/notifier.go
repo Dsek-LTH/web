@@ -7,8 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/dsek-lth/web/backend/internal/dbutil"
-	"github.com/dsek-lth/web/backend/internal/integrations"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/integrations"
 )
 
 // RealNotifier implements integrations.Notifier for real, replacing

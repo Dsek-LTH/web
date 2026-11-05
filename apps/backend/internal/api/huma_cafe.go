@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/cafe"
+	"github.com/dsek-lth/web/apps/backend/internal/cafe"
 )
 
 func registerCafeRoutes(api huma.API, svc *cafe.Service) {

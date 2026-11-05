@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
 )
 
 // Expected values come from the old prismaIdToMeiliId, so existing

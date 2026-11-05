@@ -1,6 +1,6 @@
 package committees
 
-import "github.com/dsek-lth/web/backend/internal/apitypes"
+import "github.com/dsek-lth/web/apps/backend/internal/apitypes"
 
 // Committee/Position/Mandate are aliased from internal/apitypes, same
 // reasoning as internal/articles' aliases - see that package's doc comment.

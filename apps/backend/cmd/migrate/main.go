@@ -36,7 +36,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
 
-	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
 )
 
 const (

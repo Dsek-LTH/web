@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
 )
 
 func TestNormalize(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
 )
 
 // MaxLength matches the comment form's zod limit and article_comments'

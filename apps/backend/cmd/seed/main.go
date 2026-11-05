@@ -19,8 +19,8 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/seed"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/seed"
 )
 
 func main() {

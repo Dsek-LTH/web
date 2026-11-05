@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/alerts"
+	"github.com/dsek-lth/web/apps/backend/internal/alerts"
 )
 
 func registerAlertRoutes(api huma.API, svc *alerts.Service) {

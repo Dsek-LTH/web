@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/auth"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 // batchSize is how many documents go to Meilisearch per request.

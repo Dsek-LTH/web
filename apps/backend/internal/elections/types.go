@@ -3,7 +3,7 @@ package elections
 import (
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
 )
 
 // Election is a single committee's open-nominations/voting announcement -

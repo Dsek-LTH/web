@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/gallery"
+	"github.com/dsek-lth/web/apps/backend/internal/gallery"
 )
 
 func registerGalleryRoutes(api huma.API, svc *gallery.Service) {

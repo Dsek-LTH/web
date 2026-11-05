@@ -8,7 +8,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/doors"
+	"github.com/dsek-lth/web/apps/backend/internal/doors"
 )
 
 type DoorNamePath struct {

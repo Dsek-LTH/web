@@ -8,8 +8,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/dsek-lth/web/backend/internal/dbutil"
-	"github.com/dsek-lth/web/backend/internal/integrations"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/integrations"
 )
 
 // An article's go-live announcement (in-app/push notification and Discord

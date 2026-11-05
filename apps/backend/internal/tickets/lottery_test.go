@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
 )
 
 func makeEntries(n int) []db.TicketQueueEntry {

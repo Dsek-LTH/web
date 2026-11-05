@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
 )
 
 func TestSongAccess(t *testing.T) {

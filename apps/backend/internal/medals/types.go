@@ -1,6 +1,6 @@
 package medals
 
-import "github.com/dsek-lth/web/backend/internal/apitypes"
+import "github.com/dsek-lth/web/apps/backend/internal/apitypes"
 
 // MemberMedal is one medal a member has earned, and the semester (as a
 // display string, e.g. "VT 2026") after which they earned it - see

@@ -3,7 +3,7 @@ package documents
 import (
 	"testing"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
 )
 
 func TestDeleteTargetPicksTheBucketAFileIsIn(t *testing.T) {

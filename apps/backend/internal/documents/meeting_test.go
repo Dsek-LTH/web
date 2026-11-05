@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/storage"
+	"github.com/dsek-lth/web/apps/backend/internal/storage"
 )
 
 func TestBuildMeetingMatchesPrefixes(t *testing.T) {

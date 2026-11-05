@@ -18,7 +18,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/sync/singleflight"
 
-	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
 )
 
 // AuthentikProfile is the subset of Authentik's ID token claims this

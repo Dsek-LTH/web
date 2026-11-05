@@ -11,12 +11,12 @@ Each deployable app is a folder in `apps/`:
 - `apps/frontend/` - the SvelteKit app (Svelte 5, TypeScript, Tailwind,
   paraglide for sv/en translations in `src/translations`). It has no
   database access of its own.
-- `apps/backend/` - the Go API (module `github.com/dsek-lth/web/backend`,
-  Go 1.26). `cmd/server` wires everything; `internal/<domain>` holds one
-  package per domain (a `Service` wrapping sqlc's `*db.Queries`);
-  `internal/api` is the HTTP layer; `internal/db` is schema, queries,
-  migrations and generated code; `cmd/migrate`, `cmd/seed` and
-  `cmd/openapi` are the other commands.
+- `apps/backend/` - the Go API (module
+  `github.com/dsek-lth/web/apps/backend`, Go 1.26). `cmd/server` wires
+  everything; `internal/<domain>` holds one package per domain (a
+  `Service` wrapping sqlc's `*db.Queries`); `internal/api` is the HTTP
+  layer; `internal/db` is schema, queries, migrations and generated code;
+  `cmd/migrate`, `cmd/seed` and `cmd/openapi` are the other commands.
 - `apps/poppler-server/` - a small Node service that extracts text from PDFs
   for search.
 - `docker-compose.yml` - local Postgres (`dsek-db`), Meilisearch and

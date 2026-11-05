@@ -1,8 +1,8 @@
 package articles
 
 import (
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 // toArticleSummary builds the DTO from the joined article-row shape shared

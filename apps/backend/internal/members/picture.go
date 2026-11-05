@@ -17,8 +17,8 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	_ "golang.org/x/image/webp" // registers WebP decoding for image.DecodeConfig
 
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 // MaxPictureSize matches the old upload form's 8 MB limit.

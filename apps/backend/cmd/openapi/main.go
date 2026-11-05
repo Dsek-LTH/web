@@ -12,7 +12,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/dsek-lth/web/backend/internal/api"
+	"github.com/dsek-lth/web/apps/backend/internal/api"
 )
 
 func main() {

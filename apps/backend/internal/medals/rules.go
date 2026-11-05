@@ -4,7 +4,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/semesters"
+	"github.com/dsek-lth/web/apps/backend/internal/semesters"
 )
 
 // mandateInfo is the minimal shape the award rules need from a mandate -

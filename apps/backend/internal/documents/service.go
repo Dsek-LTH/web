@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/auth"
-	"github.com/dsek-lth/web/backend/internal/storage"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/storage"
 )
 
 type Service struct {

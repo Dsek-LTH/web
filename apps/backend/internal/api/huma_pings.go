@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/pings"
+	"github.com/dsek-lth/web/apps/backend/internal/pings"
 )
 
 func registerPingRoutes(api huma.API, svc *pings.Service) {

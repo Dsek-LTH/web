@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/markdown"
+	"github.com/dsek-lth/web/apps/backend/internal/markdown"
 )
 
 type InfoPageSlug struct {

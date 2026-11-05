@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
 )
 
 // The case from issue #1154: Monday 20 April 2026, 00:25 in Sweden, which

@@ -5,7 +5,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
 )
 
 // Door is deliberately missing the live table's own "id" column - a

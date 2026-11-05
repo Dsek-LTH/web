@@ -7,8 +7,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
-	"github.com/dsek-lth/web/backend/internal/tickets"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/tickets"
 )
 
 // Free-ticket releases (internal/tickets). Listing and reading a release

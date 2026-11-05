@@ -9,7 +9,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/search"
+	"github.com/dsek-lth/web/apps/backend/internal/search"
 )
 
 func registerSearchRoutes(api huma.API, svc *search.Service) {

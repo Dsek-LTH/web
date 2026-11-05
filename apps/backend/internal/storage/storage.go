@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dsek-lth/web/backend/internal/tracing"
+	"github.com/dsek-lth/web/apps/backend/internal/tracing"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"

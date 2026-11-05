@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/links"
+	"github.com/dsek-lth/web/apps/backend/internal/links"
 )
 
 type shortLinkOutput struct {

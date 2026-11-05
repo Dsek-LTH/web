@@ -13,12 +13,12 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
-	"github.com/dsek-lth/web/backend/internal/auth"
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
-	"github.com/dsek-lth/web/backend/internal/locale"
-	"github.com/dsek-lth/web/backend/internal/semesters"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/auth"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/locale"
+	"github.com/dsek-lth/web/apps/backend/internal/semesters"
 )
 
 // medalNames mirrors messages_{sv,en}.json's medals_volunteerMedal/

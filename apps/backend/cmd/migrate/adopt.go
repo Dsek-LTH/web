@@ -12,7 +12,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 
-	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
 )
 
 // baselineVersion is 20261103200000_baseline: the schema Prisma's migrations

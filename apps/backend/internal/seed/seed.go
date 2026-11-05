@@ -17,10 +17,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/dsek-lth/web/backend/internal/apinames"
-	"github.com/dsek-lth/web/backend/internal/committees"
-	"github.com/dsek-lth/web/backend/internal/notifications"
-	"github.com/dsek-lth/web/backend/internal/slug"
+	"github.com/dsek-lth/web/apps/backend/internal/apinames"
+	"github.com/dsek-lth/web/apps/backend/internal/committees"
+	"github.com/dsek-lth/web/apps/backend/internal/notifications"
+	"github.com/dsek-lth/web/apps/backend/internal/slug"
 )
 
 //go:embed pages/for-foretag.sv.md

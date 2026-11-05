@@ -3,7 +3,7 @@ package committees
 import (
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 // committeeRow is the scalar shape every sqlc-generated committee row type

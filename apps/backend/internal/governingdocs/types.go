@@ -5,7 +5,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
 )
 
 // GoverningDocument is a governing document (styrdokument) - a title/url/type

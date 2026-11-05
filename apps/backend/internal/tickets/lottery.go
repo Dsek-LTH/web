@@ -3,7 +3,7 @@ package tickets
 import (
 	"math/rand"
 
-	"github.com/dsek-lth/web/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
 )
 
 // runLottery splits pending entries into those granted a ticket and those

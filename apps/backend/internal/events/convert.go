@@ -1,8 +1,8 @@
 package events
 
 import (
-	"github.com/dsek-lth/web/backend/internal/db"
-	"github.com/dsek-lth/web/backend/internal/dbutil"
+	"github.com/dsek-lth/web/apps/backend/internal/db"
+	"github.com/dsek-lth/web/apps/backend/internal/dbutil"
 )
 
 // toEventSummary builds the DTO from the joined event-row shape shared by

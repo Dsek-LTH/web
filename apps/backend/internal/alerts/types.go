@@ -5,7 +5,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
 )
 
 // Alert is a site-wide banner message - see Service.List. Like articles,

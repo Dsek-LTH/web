@@ -17,7 +17,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/apitypes"
+	"github.com/dsek-lth/web/apps/backend/internal/apitypes"
 )
 
 // Document type constants - values match the old

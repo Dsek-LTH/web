@@ -1,11 +1,11 @@
-module github.com/dsek-lth/web/backend
+module github.com/dsek-lth/web/apps/backend
 
 go 1.26.0
 
 tool (
 	github.com/air-verse/air
-	github.com/dsek-lth/web/backend/cmd/migrate
-	github.com/dsek-lth/web/backend/cmd/seed
+	github.com/dsek-lth/web/apps/backend/cmd/migrate
+	github.com/dsek-lth/web/apps/backend/cmd/seed
 	github.com/golangci/golines
 	github.com/sqlc-dev/sqlc/cmd/sqlc
 	golang.org/x/tools/cmd/goimports

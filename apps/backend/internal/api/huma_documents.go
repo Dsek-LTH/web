@@ -7,7 +7,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 
-	"github.com/dsek-lth/web/backend/internal/documents"
+	"github.com/dsek-lth/web/apps/backend/internal/documents"
 )
 
 type storedFileOutput struct {

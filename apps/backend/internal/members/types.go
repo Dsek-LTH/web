@@ -1,6 +1,6 @@
 package members
 
-import "github.com/dsek-lth/web/backend/internal/apitypes"
+import "github.com/dsek-lth/web/apps/backend/internal/apitypes"
 
 type Mandate = apitypes.Mandate
 

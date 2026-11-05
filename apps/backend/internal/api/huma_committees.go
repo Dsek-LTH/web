@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/dsek-lth/web/backend/internal/committees"
+	"github.com/dsek-lth/web/apps/backend/internal/committees"
 )
 
 type ShortNamePath struct {
