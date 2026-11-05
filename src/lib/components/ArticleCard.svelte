@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { ArticleCardData, ArticleTagSummary } from "$lib/news/types";
-  import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
   import AuthorAvatar from "./AuthorAvatar.svelte";
   import TagRow from "./TagRow.svelte";
@@ -8,7 +7,8 @@
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
   import { getYoutubeVideoId } from "$lib/utils/youtube";
-  import { getAuthorName } from "$lib/news/format";
+  import { getAuthorName, NEWS_TIME_ZONE } from "$lib/news/format";
+  import { getLocale } from "$paraglide/runtime";
   import { countVisibleComments } from "$lib/components/comments/threads";
   import * as m from "$paraglide/messages";
   import Heart from "@lucide/svelte/icons/heart";
@@ -53,7 +53,20 @@
   const authorName = $derived(getAuthorName(article.author));
 
   const excerptText = $derived(toExcerpt(article.body));
-  const date = $derived(dayjs(article.publishedAt ?? article.createdAt));
+  const date = $derived(new Date(article.publishedAt ?? article.createdAt));
+  // In the fixed news time zone, so server and client agree on the day around midnight.
+  const shortDate = $derived(
+    date.toLocaleDateString(getLocale(), {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: NEWS_TIME_ZONE,
+    }),
+  );
+  // sv-SE formats as YYYY-MM-DD.
+  const isoDate = $derived(
+    date.toLocaleDateString("sv-SE", { timeZone: NEWS_TIME_ZONE }),
+  );
   const likeCount = $derived(article.likers?.length ?? 0);
   const commentCount = $derived(
     article.comments ? countVisibleComments(article.comments) : 0,
@@ -186,7 +199,7 @@
           </span>
         {/if}
         <time class="shrink-0 whitespace-nowrap" datetime={date.toISOString()}
-          >{date.format("D MMM YYYY")}</time
+          >{shortDate}</time
         >
       </div>
     </div>
@@ -219,7 +232,7 @@
         type={article.author.type}
         links={!isPreview}
       />
-      <span class="text-muted-foreground">{date.format("YYYY-MM-DD")}</span>
+      <span class="text-muted-foreground">{isoDate}</span>
     </div>
   </div>
 {/if}
