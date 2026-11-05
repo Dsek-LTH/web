@@ -90,7 +90,9 @@ Root (`make`, which lists them all):
 
 - `make check` - everything CI checks except the end-to-end tests: `lint`
   (`lint-api`: go vet, golangci-lint (`apps/api/.golangci.yml`), sqlc diff;
-  `lint-web`; `lint-ci`: actionlint), `test` (`test-api`, `test-web`) and
+  `lint-web`; `lint-ci`: actionlint; `lint-root`: Prettier on the docs,
+  workflows, compose files and poppler-server, through `pnpm dlx` at the
+  version the web app locks), `test` (`test-api`, `test-web`) and
   `api-types` (the web app's API types are current)
 - `make e2e` - the Playwright tests
 - `make generate` - sqlc, then the web app's API types
@@ -111,7 +113,7 @@ Frontend (`apps/web/`):
 
 - `pnpm dev`, `pnpm build`
 - `pnpm check` (svelte-check), `pnpm lint`, `pnpm format` / `format:fix`
-  (Prettier, also covers the root Markdown/YAML and poppler-server),
+  (Prettier),
   `pnpm test` (vitest), `pnpm check-translations`, `pnpm ci-check` (all of
   them)
 - `pnpm test:integration` - the Playwright tests (see "End-to-end tests";
@@ -246,7 +248,7 @@ which is the API reference.
 Playwright, in `apps/web/e2e`, run with `pnpm test:integration` (needs the
 Postgres container; `pnpm exec playwright install chromium` once). It
 starts its own servers and stops them afterwards: a backend on 8091
-(`e2e/backend.sh`) on a `dsek_e2e` database it drops, migrates and seeds
+(`e2e/api.sh`) on a `dsek_e2e` database it drops, migrates and seeds
 every run, with auth and storage mocked, and a production build of the
 frontend on 4173 (it rebuilds `build/`). The dev database and dev servers
 are left alone.

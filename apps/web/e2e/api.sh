@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Starts the Go backend for the Playwright tests (playwright.config.ts runs
+# Starts the API for the Playwright tests (playwright.config.ts runs
 # this). It gets its own database, dsek_e2e, next to the dev one: dropped,
 # migrated and seeded on every run, so the tests write freely and never
-# touch the dev data. Port 8091, so it runs beside a dev backend on 8090.
+# touch the dev data. Port 8091, so it runs beside a dev API on 8090.
 set -euo pipefail
 cd "$(dirname "$0")/../../api"
 

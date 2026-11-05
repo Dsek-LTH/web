@@ -35,7 +35,7 @@ jobs:
           - 5432:5432
 
     env:
-      # The server e2e/backend.sh creates its dsek_e2e database on.
+      # The server e2e/api.sh creates its dsek_e2e database on.
       POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/postgres
 
     steps:

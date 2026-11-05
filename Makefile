@@ -14,13 +14,19 @@ POPPLER := apps/poppler-server
 TOOL := go tool -modfile=$(CURDIR)/tools/go.mod
 ACTIONLINT := go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
 
+# Prettier for the files outside the web app (which formats itself), at
+# the version apps/web locks, without a package.json in the root.
+PRETTIER := pnpm dlx prettier@3.4.2
+ROOT_FILES := README.md AGENTS.md .github docker-compose.yml podman-dev.yaml \
+	lefthook.yml $(POPPLER)/*.js $(POPPLER)/*.md $(POPPLER)/package.json
+
 # What make api-diff compares against.
 BASE ?= main
 
 .DEFAULT_GOAL := help
 .PHONY: help setup db migrate seed db-shell db-reset hooks dev dev-api \
-	dev-web generate fmt check lint lint-api lint-web lint-ci test test-api \
-	test-web api-types e2e api-diff audit
+	dev-web generate fmt check lint lint-api lint-web lint-ci lint-root test \
+	test-api test-web api-types e2e api-diff audit
 
 help: ## List the targets
 	@awk 'BEGIN { FS = ":.*## " } \
@@ -74,15 +80,16 @@ generate: ## sqlc, then the web app's API types: after a query or API change
 	cd $(API) && $(MAKE) generate
 	cd $(WEB) && pnpm generate:api
 
-fmt: ## Format both apps
+fmt: ## Format both apps and the files outside them
 	cd $(API) && $(MAKE) format
 	cd $(WEB) && pnpm format:fix
+	$(PRETTIER) --write $(ROOT_FILES)
 
 ##@ Check
 
 check: lint test api-types ## Everything CI checks except the end-to-end tests
 
-lint: lint-api lint-web lint-ci ## All the linters
+lint: lint-api lint-web lint-ci lint-root ## All the linters
 
 lint-api: ## go vet, golangci-lint, and sqlc's generated code being current
 	cd $(API) && go vet ./... && $(TOOL) golangci-lint run ./... && go tool sqlc diff
@@ -93,6 +100,9 @@ lint-web: ## eslint, Prettier, svelte-check and the translations
 
 lint-ci: ## actionlint on the GitHub workflows
 	$(ACTIONLINT)
+
+lint-root: ## Prettier on the docs, workflows, compose files and poppler-server
+	$(PRETTIER) --check $(ROOT_FILES)
 
 test: test-api test-web ## The Go and vitest tests
 

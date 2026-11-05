@@ -19,3 +19,6 @@ pre-push:
     - name: workflows
       glob: ".github/workflows/**"
       run: make lint-ci
+    - name: root
+      glob: "{*.md,*.yml,*.yaml,.github/**,apps/poppler-server/**}"
+      run: make lint-root
