@@ -658,7 +658,7 @@
   "documents_filePlaceholder": "Motion about something...",
   "documents_fileUploaded": "File uploaded",
   "documents_group": "Group (optional)",
-  "documents_groupPlaceholder": "Motion, proposition…",
+  "documents_groupPlaceholder": "E.g. Fika at every meeting",
   "documents_groupInfo": "Documents with the same group are shown together in the document list.",
   "documents_editFile": "Edit document",
   "documents_editFileDescription": "Rename the document or move it to another group.",

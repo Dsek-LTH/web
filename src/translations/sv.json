@@ -658,7 +658,7 @@
   "documents_filePlaceholder": "Motion om något...",
   "documents_fileUploaded": "Fil uppladdad",
   "documents_group": "Grupp (valfritt)",
-  "documents_groupPlaceholder": "Motion, proposition…",
+  "documents_groupPlaceholder": "T.ex. Mötesfika till alla",
   "documents_groupInfo": "Dokument med samma grupp visas tillsammans i dokumentlistan.",
   "documents_editFile": "Redigera dokument",
   "documents_editFileDescription": "Byt namn eller flytta dokumentet till en annan grupp.",
