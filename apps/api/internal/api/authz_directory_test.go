@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"testing"
 	"time"
@@ -239,14 +238,4 @@ func TestNollningAccess(t *testing.T) {
 	e.check(t, e.gate(http.MethodDelete, path+"/phaddrar/"+e.members[4].StudentID, nil, allowed,
 		apinames.NollningPhadderGroupsManage))
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.NollningPhadderGroupsManage))
-}
-
-// mustJSON is for building raw bodies in tests.
-func mustJSON(t *testing.T, v any) []byte {
-	t.Helper()
-	b, err := json.Marshal(v)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return b
 }

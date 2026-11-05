@@ -96,7 +96,7 @@ func checkPrismaHistory(history []prismaRow) error {
 		switch {
 		case r.rolledBackAt != nil:
 		case r.finishedAt == nil:
-			return fmt.Errorf("Prisma migration %s failed or never finished", r.name)
+			return fmt.Errorf("migration %s failed or never finished under Prisma", r.name)
 		default:
 			applied[r.name] = true
 		}

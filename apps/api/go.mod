@@ -2,6 +2,8 @@ module github.com/dsek-lth/web/apps/api
 
 go 1.26.0
 
+toolchain go1.26.10
+
 tool (
 	github.com/air-verse/air
 	github.com/dsek-lth/web/apps/api/cmd/migrate

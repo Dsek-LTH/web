@@ -425,18 +425,6 @@ func (e *environment) one(t *testing.T, query string, args ...any) string {
 	return v
 }
 
-// idOf decodes the "id" (or key) field of a JSON response.
-func idOf(t *testing.T, r response, key string) string {
-	t.Helper()
-	var m map[string]any
-	r.decode(t, &m)
-	v, isString := m[key].(string)
-	if !isString {
-		t.Fatalf("response has no string %q: %s", key, truncate(r.body))
-	}
-	return v
-}
-
 // mustCall is call for setup steps that have to succeed.
 func (e *environment) mustCall(t *testing.T, c caller, method, path string, body any) response {
 	t.Helper()

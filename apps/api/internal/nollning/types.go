@@ -89,17 +89,6 @@ func (PhadderRole) Schema(r huma.Registry) *huma.Schema {
 	return apitypes.EnumSchema(r, "PhadderRole", "", "nolla", "phadder")
 }
 
-// phadderPositionIDs are the two position IDs the old TS app hardcoded in
-// phadderMandateFilter (src/lib/nollning/groups/types.ts) - kept as literal
-// constants here for the same reason internal/committees/ordering.go
-// already hardcodes specific position-ID strings for board ordering: these
-// are genuine real-world identifiers, not derived from anything else in
-// the schema.
-const (
-	positionIDPhadder = "dsek.noll.phadder"
-	positionIDUppdrag = "dsek.noll.uppdrag"
-)
-
 // PhadderGroup is one year's phadder group (a small group of nollor
 // assigned to one or more phaddrar/uppdrag-holders for the nollning
 // period). Nollor/Phaddrar are only populated on a single-group fetch;
