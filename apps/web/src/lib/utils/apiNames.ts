@@ -39,6 +39,7 @@ const apiNames = {
     SEE_INACTIVE: "core:position:inactive:read",
   },
   ADMIN: {
+    CORE: "core:admin",
     READ: "core:access:admin:read",
     SETTINGS: crud("admin:settings"),
     SHLINK: crud("admin:shlink"),
@@ -84,6 +85,7 @@ const apiNames = {
   },
   NOLLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
+    MANAGE_SEASONS: "nollning:season:manage",
   },
   CAFE: {
     EDIT_WORKERS: "cafe:edit_workers",

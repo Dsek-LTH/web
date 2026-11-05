@@ -6,10 +6,11 @@ import { error } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { PageLoad } from "./$types";
+import { requireCanEdit } from "$lib/utils/access";
 
 export const load: PageLoad = async ({ fetch, params, parent }) => {
-  const { member } = await parent();
-  if (!member) throw error(401, m.news_errors_memberNotFound());
+  const { member, user } = await parent();
+  if (!member) throw error(401, m.errors_notLoggedIn());
 
   const [articleRes, mandatesRes, customAuthorsRes, committeesRes, tagsRes] =
     await Promise.all([
@@ -38,6 +39,7 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
       failed.error.detail ?? "Failed to load author/committee/tag options",
     );
   const article = articleRes.data;
+  requireCanEdit(user, article.canEdit);
 
   const self = {
     id: member.id,

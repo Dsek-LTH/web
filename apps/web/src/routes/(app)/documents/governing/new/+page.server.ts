@@ -6,14 +6,17 @@ import { governingDocumentSchema } from "../schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // governing_document:write is enforced by the Go API itself
 // (apps/api/internal/governingdocs) - a real, necessary explicit check Go
 // adds that the old app's action never had (it relied purely on
 // ZenStack's model-level policy, with no fallback for a Go-backed world).
-export const load: PageServerLoad = async () => ({
-  form: await superValidate(zod4(governingDocumentSchema)),
-});
+export const load: PageServerLoad = async ({ locals }) => {
+  requirePolicy(locals.user, apiNames.GOVERNING_DOCUMENT.CREATE);
+  return { form: await superValidate(zod4(governingDocumentSchema)) };
+};
 
 export const actions: Actions = {
   create: async (event) => {

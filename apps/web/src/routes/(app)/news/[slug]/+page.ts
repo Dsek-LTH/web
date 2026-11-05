@@ -1,7 +1,4 @@
-import {
-  NOLLNING_TAG_PREFIX,
-  POST_REVEAL_PREFIX,
-} from "$lib/components/postReveal/types";
+import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 import { api } from "$lib/api/client";
 import { commentSchema, removeCommentSchema } from "$lib/zod/comments";
 import * as m from "$paraglide/messages";
@@ -21,7 +18,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
   }
   const article = res.data;
 
-  if (article.tags?.some((t) => t.name.startsWith(NOLLNING_TAG_PREFIX))) {
+  // Nollning articles are shown on the nollning pages.
+  if (article.nollningSeasonId) {
     throw redirect(302, `${POST_REVEAL_PREFIX}/messages`);
   }
 

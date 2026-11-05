@@ -13,6 +13,7 @@ import {
 import { zod4 } from "sveltekit-superforms/adapters";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
+import { goError } from "$lib/utils/access";
 
 const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 
@@ -22,6 +23,8 @@ const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 
 export const load = async (event) => {
   const res = await serverApi(event).GET("/files", {});
+  if (res.response.status === 401 || res.response.status === 403)
+    goError(res.response, res.error, "Failed to load files");
   if (res.error) {
     // Matches the old load's own fileHandler.getInBucket(...).catch(...) -
     // a storage error shouldn't fail the whole page, just leave the list

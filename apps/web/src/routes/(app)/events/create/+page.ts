@@ -6,10 +6,12 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageLoad } from "./$types";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageLoad = async ({ fetch, parent }) => {
-  const { member } = await parent();
-  if (!member) error(401, "Du måste vara inloggad för att skapa evenemang.");
+  const { user } = await parent();
+  requirePolicy(user, apiNames.EVENT.CREATE);
 
   const [tagsRes, committees] = await Promise.all([
     api.GET("/tags", { fetch }),

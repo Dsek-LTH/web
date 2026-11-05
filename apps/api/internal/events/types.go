@@ -187,6 +187,9 @@ type ListParams struct {
 	Span             Span
 	From, To         *time.Time
 	NollningSeasonID *string
+	// IncludeNollning lists nollning season content too, which is left out
+	// unless NollningSeasonID picks a season.
+	IncludeNollning bool
 	// IncludeRemoved lists soft-removed events too - the admin
 	// all-events page; requires apinames.EventUpdate.
 	IncludeRemoved bool

@@ -10,6 +10,11 @@
   import AppNavigation from "./(app)/AppNavigation.svelte";
   import Header from "./(app)/Header.svelte";
   import AppHeader from "./(app)/AppHeader.svelte";
+  import { signIn } from "$lib/utils/auth";
+  import LogIn from "@lucide/svelte/icons/log-in";
+
+  // Not being logged in or allowed is an answer, not a bug.
+  const expected = $derived(page.status === 401 || page.status === 403);
 </script>
 
 {#if page.data.isApp}
@@ -33,26 +38,33 @@
   </div>
 
   <div>
+    {#if page.status === 401}
+      <Button variant="rosa" onclick={signIn}>
+        <LogIn />{m.navbar_logIn()}
+      </Button>
+    {/if}
     <Button variant="lila" onclick={() => history.back()}>
       <ArrowLeft />{m.back()}
     </Button>
   </div>
-  <div>
-    <div>{m.error_should_not_happen()}</div>
-    <div class="inline-flex flex-row items-center">
-      <Button
-        variant="ghost"
-        href="https://github.com/Dsek-LTH/web/issues/new/choose"
-      >
-        <Bug />{m.error_create_issue()}</Button
-      >
+  {#if !expected}
+    <div>
+      <div>{m.error_should_not_happen()}</div>
+      <div class="inline-flex flex-row items-center">
+        <Button
+          variant="ghost"
+          href="https://github.com/Dsek-LTH/web/issues/new/choose"
+        >
+          <Bug />{m.error_create_issue()}</Button
+        >
 
-      <span>{m.error_or()}</span>
-      <Button variant="ghost" href="mailto:dwww@dsek.se"
-        ><Mail />{m.error_contact()}</Button
-      >
+        <span>{m.error_or()}</span>
+        <Button variant="ghost" href="mailto:dwww@dsek.se"
+          ><Mail />{m.error_contact()}</Button
+        >
+      </div>
     </div>
-  </div>
+  {/if}
 </main>
 {#if !page.data.isApp}
   <Footer />

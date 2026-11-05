@@ -8,14 +8,17 @@ import * as m from "$paraglide/messages";
 import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
 import { serverApi } from "$lib/server/apiClient";
+import { goError, requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // election:create is enforced by the Go API itself - a real, necessary
 // explicit check Go adds that the old app's action never had (it relied
 // purely on ZenStack's model-level policy, with no fallback for a
 // Go-backed world).
 export const load: PageServerLoad = async (event) => {
+  requirePolicy(event.locals.user, apiNames.ELECTION.CREATE);
   const res = await serverApi(event).GET("/committees", {});
-  if (res.error) throw new Error("Failed to load committees");
+  if (res.error) goError(res.response, res.error, "Failed to load committees");
   const committees = res.data ?? [];
 
   const election = {

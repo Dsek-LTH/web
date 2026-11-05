@@ -6,9 +6,12 @@ import { error } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import type { PageLoad } from "./$types";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 export const load: PageLoad = async ({ fetch, parent }) => {
-  const { member } = await parent();
+  const { member, user } = await parent();
+  requirePolicy(user, apiNames.NEWS.CREATE);
   if (!member) throw error(401, m.news_errors_memberNotFound());
 
   const [mandatesRes, customAuthorsRes, committeesRes, tagsRes] =

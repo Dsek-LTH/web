@@ -10,9 +10,12 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // Editing requires webshop:manage in Go.
 export const load = async (event) => {
+  requirePolicy(event.locals.user, apiNames.WEBSHOP.MANAGE);
   const release = await getTicketReleaseOr404(event, event.params.releaseId);
 
   return {

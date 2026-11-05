@@ -92,6 +92,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		CommitteeID:      committeeID,
 		AuthorStudentID:  authorStudentID,
 		NollningSeasonID: nollningSeasonID,
+		IncludeNollning:  params.IncludeNollning,
 		Limit:            int32(pageSize),
 		Offset:           int32((page - 1) * pageSize),
 	})
@@ -105,6 +106,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		CommitteeID:      committeeID,
 		AuthorStudentID:  authorStudentID,
 		NollningSeasonID: nollningSeasonID,
+		IncludeNollning:  params.IncludeNollning,
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("count articles: %w", err)

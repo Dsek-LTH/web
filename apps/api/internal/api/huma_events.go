@@ -19,6 +19,7 @@ type listEventsInput struct {
 	To               time.Time   `query:"to"               doc:"End of the range span (exclusive)."`
 	IncludeDeleted   bool        `query:"includeDeleted"   doc:"Also list soft-deleted events. Needs event:update."`
 	NollningSeasonID string      `query:"nollningSeasonId" doc:"Only events in this nollning season."`
+	IncludeNollning  bool        `query:"includeNollning"  doc:"Also list nollning season events, which are left out unless nollningSeasonId is set."`
 	Paging
 }
 
@@ -52,7 +53,7 @@ func registerEventRoutes(api huma.API, svc *events.Service) {
 		Path:        "/events",
 		Tags:        tags,
 		Summary:     "List events",
-		Description: "Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. pageSize defaults to 10.",
+		Description: "Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. Nollning season events are left out unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.",
 	}, func(ctx context.Context, input *listEventsInput) (*struct{ Body events.EventList }, error) {
 		params := events.ListParams{
 			TagIDs:         input.Tags,
@@ -73,6 +74,7 @@ func registerEventRoutes(api huma.API, svc *events.Service) {
 		if input.NollningSeasonID != "" {
 			params.NollningSeasonID = &input.NollningSeasonID
 		}
+		params.IncludeNollning = input.IncludeNollning
 
 		items, pageCount, err := svc.List(ctx, params)
 		if err != nil {

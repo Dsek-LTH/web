@@ -148,10 +148,36 @@ const proxies = [
 ];
 
 test("proxies answer callers without cookies", async ({ playwright }) => {
-  const anonymous = await playwright.request.newContext({ baseURL: WEB_URL });
+  const anonymous = await playwright.request.newContext({
+    baseURL: WEB_URL,
+    // Not the config's, which has the session cookie.
+    storageState: { cookies: [], origins: [] },
+  });
   for (const path of proxies) {
     const res = await anonymous.get(path);
     expect(res.status(), path).toBe(200);
+  }
+  await anonymous.dispose();
+});
+
+// Pages only some members can use answer 401 to a visitor who isn't
+// logged in, rather than an empty page or a form that can't be saved.
+const gated = [
+  "/news/create",
+  "/events/create",
+  "/admin/settings",
+  "/admin/alerts",
+];
+
+test("gated pages answer 401 when logged out", async ({ playwright }) => {
+  const anonymous = await playwright.request.newContext({
+    baseURL: WEB_URL,
+    // Not the config's, which has the session cookie.
+    storageState: { cookies: [], origins: [] },
+  });
+  for (const path of gated) {
+    const res = await anonymous.get(path, { maxRedirects: 0 });
+    expect(res.status(), path).toBe(401);
   }
   await anonymous.dispose();
 });

@@ -7,8 +7,9 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageLoad } from "./$types";
+import { requireCanEdit } from "$lib/utils/access";
 
-export const load: PageLoad = async ({ fetch, params }) => {
+export const load: PageLoad = async ({ fetch, params, parent }) => {
   const [eventRes, tagsRes, committees] = await Promise.all([
     api.GET("/events/{slug}", {
       fetch,
@@ -19,6 +20,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
   ]);
   if (eventRes.error) throw error(404, m.events_errors_eventNotFound());
   const event = eventRes.data;
+  requireCanEdit((await parent()).user, event.canEdit);
 
   // Go's EventDetail.recurring carries the series' own settings, so a
   // FUTURE/ALL edit shows them instead of the form defaults.

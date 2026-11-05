@@ -5,6 +5,8 @@ import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { serverApi } from "$lib/server/apiClient";
+import { requireCanEdit, requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 const markdownSchema = z.object({
   markdownSv: z.string(),
@@ -21,6 +23,9 @@ export const load: PageServerLoad = async (event) => {
     params: { path: { slug: params.slug } },
   });
   const page = res.data;
+  // An existing page goes by Go's canEdit; a new one needs markdown:create.
+  if (page) requireCanEdit(event.locals.user, page.canEdit);
+  else requirePolicy(event.locals.user, apiNames.MARKDOWN.CREATE);
 
   return {
     form: await superValidate(

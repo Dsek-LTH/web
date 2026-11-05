@@ -1,9 +1,15 @@
 import { serverApi } from "$lib/server/apiClient";
 import { fail } from "@sveltejs/kit";
+import type { ErrorStatus } from "sveltekit-superforms";
+import dayjs from "dayjs";
+import { APP_TIMEZONE, toAppTime } from "$lib/utils/datetime";
+import * as m from "$paraglide/messages";
 import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { PageServerLoad } from "./$types";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // The nollning period form edits the latest nollning season (Phase 2's
 // nollning_seasons, which replaced the old nollning_start/nollning_end
@@ -16,25 +22,43 @@ import type { PageServerLoad } from "./$types";
 // either, so Go's check is a real fix, not a replicated gap.
 
 export const load: PageServerLoad = async (event) => {
+  requirePolicy(
+    event.locals.user,
+    apiNames.ADMIN.SETTINGS.UPDATE,
+    apiNames.NOLLNING.MANAGE_SEASONS,
+  );
   const api = serverApi(event);
-  const settingsRes = await api.GET("/admin-settings", {});
-  const seasonsRes = await api.GET("/nollning/seasons", {});
-
-  const latest = latestSeason(seasonsRes.data ?? []);
+  const [settingsRes, seasonsRes, committeesRes] = await Promise.all([
+    api.GET("/admin-settings", {}),
+    api.GET("/nollning/seasons", {}),
+    api.GET("/committees", {}),
+  ]);
 
   return {
+    // Empty for someone who only manages nollning seasons.
     settings: settingsRes.data ?? [],
-    nollning: latest
-      ? {
-          start: new Date(latest.nollaStartAt),
-          reveal: new Date(latest.revealAt),
-          end: new Date(latest.endAt),
-        }
-      : null,
+    // Newest first, with times as the inputs show them: Swedish local time.
+    seasons: (seasonsRes.data ?? []).map((season) => ({
+      id: season.id,
+      year: season.year,
+      nollaStartAt: toLocalInput(season.nollaStartAt),
+      revealAt: toLocalInput(season.revealAt),
+      endAt: toLocalInput(season.endAt),
+      organizingCommitteeId: season.organizingCommitteeId ?? "",
+    })),
+    committees: (committeesRes.data ?? []).map((committee) => ({
+      id: committee.id,
+      name: committee.name,
+    })),
     updateForm: await superValidate(zod4(updateSchema)),
-    updateNollningForm: await superValidate(zod4(updateNollningPeriodSchema)),
   };
 };
+
+// A datetime-local input's value, in Swedish time.
+const toLocalInput = (instant: string) =>
+  toAppTime(instant).format("YYYY-MM-DDTHH:mm");
+const fromLocalInput = (value: string) =>
+  dayjs.tz(value, APP_TIMEZONE).toISOString();
 
 const updateSchema = z.object({
   key: z.string().min(1),
@@ -43,18 +67,14 @@ const updateSchema = z.object({
 const removeSchema = z.object({
   key: z.string().min(1),
 });
-const updateNollningPeriodSchema = z.object({
-  start: z.date(),
-  reveal: z.date(),
-  end: z.date(),
+const seasonSchema = z.object({
+  id: z.string().optional(),
+  year: z.number().int(),
+  nollaStartAt: z.string().min(1),
+  revealAt: z.string().min(1),
+  endAt: z.string().min(1),
+  organizingCommitteeId: z.string().optional(),
 });
-
-type Season = { id: string; year: number } & Record<string, unknown>;
-const latestSeason = <T extends Season>(seasons: T[]): T | undefined =>
-  seasons.reduce<T | undefined>(
-    (latest, s) => (!latest || s.year > latest.year ? s : latest),
-    undefined,
-  );
 
 export const actions = {
   async update(event) {
@@ -82,31 +102,37 @@ export const actions = {
       type: "success",
     });
   },
-  async updateNollning(event) {
-    const api = serverApi(event);
-    const form = await superValidate(
-      event.request,
-      zod4(updateNollningPeriodSchema),
-    );
+  // Creates a season (no id) or replaces one.
+  async saveSeason(event) {
+    const form = await superValidate(event.request, zod4(seasonSchema));
     if (!form.valid) return fail(400, { form });
-    const seasonsRes = await api.GET("/nollning/seasons", {});
-    const latest = latestSeason(seasonsRes.data ?? []);
+    const { id, year, nollaStartAt, revealAt, endAt, organizingCommitteeId } =
+      form.data;
     const body = {
-      year: latest?.year ?? form.data.start.getFullYear(),
-      nollaStartAt: form.data.start.toISOString(),
-      revealAt: form.data.reveal.toISOString(),
-      endAt: form.data.end.toISOString(),
-      organizingCommitteeId: latest?.organizingCommitteeId ?? null,
+      year,
+      nollaStartAt: fromLocalInput(nollaStartAt),
+      revealAt: fromLocalInput(revealAt),
+      endAt: fromLocalInput(endAt),
+      // Unset on create means the nollu committee.
+      organizingCommitteeId: organizingCommitteeId || null,
     };
-    const res = latest
+    const api = serverApi(event);
+    const res = id
       ? await api.PUT("/nollning/seasons/{id}", {
-          params: { path: { id: latest.id } },
+          params: { path: { id } },
           body,
         })
       : await api.POST("/nollning/seasons", { body });
-    if (res.error) return fail(400, { form });
+    if (res.error)
+      return message(
+        form,
+        { message: res.error.detail ?? res.response.statusText, type: "error" },
+        { status: res.response.status as ErrorStatus },
+      );
     return message(form, {
-      message: `Nollningsperiod uppdaterad`,
+      message: id
+        ? m.admin_settings_nollningSeasonSaved({ year })
+        : m.admin_settings_nollningSeasonCreated({ year }),
       type: "success",
     });
   },

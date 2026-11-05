@@ -1,6 +1,8 @@
 import { MINIO_BASE_URL } from "$lib/files/client";
 import { serverApi } from "$lib/server/apiClient";
 import { fail } from "@sveltejs/kit";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // MinIO's own liveness probe, on its public URL:
 // https://min.io/docs/minio/linux/operations/monitoring/healthcheck-probe.html
@@ -10,6 +12,7 @@ const isMinIOHealthy = (fetch: typeof globalThis.fetch) =>
     .catch(() => false);
 
 export const load = async (event) => {
+  requirePolicy(event.locals.user, apiNames.ADMIN.CORE);
   const currentRes = await serverApi(event).GET("/nollning/current", {});
   return {
     isNollning: currentRes.data?.phase !== "off",

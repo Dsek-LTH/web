@@ -9,12 +9,21 @@ import { message, superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
+import { requirePolicy } from "$lib/utils/access";
 
 // Creating requires webshop:create in Go.
 export const load = async (event) => {
+  requirePolicy(event.locals.user, apiNames.WEBSHOP.CREATE);
   // Upcoming, not cancelled events to attach a release to.
   const res = await serverApi(event).GET("/events", {
-    params: { query: { span: "upcoming", page: 1, pageSize: 100 } },
+    params: {
+      query: {
+        span: "upcoming",
+        includeNollning: true,
+        page: 1,
+        pageSize: 100,
+      },
+    },
   });
   const events = (res.data?.events ?? [])
     .filter((e) => !e.isCancelled)

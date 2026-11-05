@@ -166,7 +166,9 @@ globally.
 - **Locale.** The frontend sends `Accept-Language`; every translated field
   comes back as the raw pair (`nameSv`/`nameEn`, for edit forms) plus one
   resolved field (`name`, for display). The frontend never resolves a
-  translation itself.
+  translation itself. Without Swedish or English in `Accept-Language`
+  (calendar apps, Salto) Go answers in English, like paraglide's base
+  locale.
 
 ## Conventions
 
@@ -183,7 +185,13 @@ is either redundant or a rule that drifts.
   directly from the component - no SvelteKit action, no zod (see
   `news/RemoveArticleDialog.svelte`). Authoring forms may keep a zod schema
   and a server action, but only as instant feedback; Go decides.
-- The only checks left in SvelteKit are `/yrka` (it sends an email from
+- A page someone can't use answers 401 (logged out) or 403 instead of
+  rendering empty: pass Go's status on when the load's own data is gated
+  (`goError`), otherwise gate the load with `$lib/utils/access` -
+  `requireCanEdit` with the resource's `canEdit`, or `requirePolicy` with
+  the policy the page's action needs from Go. These only pick the page
+  shown; Go still decides every write.
+- The only other checks in SvelteKit are `/yrka` (it sends an email from
   SvelteKit) and the nollu group manage page (listing groups is public).
 
 ### API (Go)
@@ -318,6 +326,11 @@ the database on purpose.
 phase (`off`/`pre_reveal`/`post_reveal`, from `nollning_seasons`); every
 other domain asks it. Articles and events belong to a season through
 `nollning_season_id` (setting it needs `nollning:content:associate`).
+Season content stays out of the general lists (`/articles`, `/events`,
+the main calendar feed) and isn't posted to Discord; lists include it with
+`nollningSeasonId` or `includeNollning`. It is written on the nollning
+site (website-daisy for now), so this site's forms never set a season and
+keep the one an edited item has. Seasons are managed in `/admin/settings`.
 Outside a season everyone gets `member:see_staben`; during one, the season
 organizing committee's positions are hidden from those without it.
 

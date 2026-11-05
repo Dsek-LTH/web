@@ -9,6 +9,7 @@ import { searchDocumentId } from "$lib/search/searchHelpers";
 import type { MemberSearchReturnAttributes } from "$lib/search/searchTypes";
 import { serverApi } from "$lib/server/apiClient";
 import { APP_TIMEZONE } from "$lib/utils/datetime";
+import { goError } from "$lib/utils/access";
 
 type GoBookingRequest = components["schemas"]["BookingRequest"];
 type Member = components["schemas"]["Member"];
@@ -38,14 +39,18 @@ export async function getBookingRequestOrThrow(
   const res = await serverApi(event).GET("/booking-requests/{id}", {
     params: { path: { id } },
   });
-  if (res.error) error(404, m.booking_errors_notFound());
+  if (res.response.status === 404 || res.response.status === 422)
+    error(404, m.booking_errors_notFound());
+  if (res.error) goError(res.response, res.error, m.booking_errors_notFound());
   return normalizeBooking(res.data);
 }
 
 /** Every booking request from a week back onwards, soonest first. */
 export async function getUpcomingBookingRequests(event: RequestEvent) {
   const res = await serverApi(event).GET("/booking-requests", {});
-  return (res.data ?? []).map(normalizeBooking);
+  if (res.error)
+    goError(res.response, res.error, "Failed to load booking requests");
+  return res.data.map(normalizeBooking);
 }
 
 /** Everything the booking form needs to pick from: bookables and doors. */

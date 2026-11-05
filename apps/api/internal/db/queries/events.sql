@@ -68,6 +68,13 @@ WHERE (
     sqlc.narg('nollning_season_id')::uuid IS NULL
     OR e.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
   )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    sqlc.arg('include_nollning')::bool
+    OR sqlc.narg('nollning_season_id')::uuid IS NOT NULL
+    OR e.nollning_season_id IS NULL
+  )
 -- Ordering direction depends on 'descending' (set for past events, which
 -- sort most-recent-first; everything else sorts soonest-first). sqlc can't
 -- parameterize ORDER BY directly, so both directions are expressed as
@@ -119,6 +126,13 @@ WHERE (
   AND (
     sqlc.narg('nollning_season_id')::uuid IS NULL
     OR e.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
+  )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    sqlc.arg('include_nollning')::bool
+    OR sqlc.narg('nollning_season_id')::uuid IS NOT NULL
+    OR e.nollning_season_id IS NULL
   );
 
 -- name: GetEventBySlug :one

@@ -7,10 +7,13 @@ import type { PageServerLoad, Actions } from "./$types";
 import * as m from "$paraglide/messages";
 import { redirect } from "sveltekit-flash-message/server";
 import { serverApi } from "$lib/server/apiClient";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // song:create and the duplicate-position/duplicate-song checks are Go's
 // (POST /songbook-entries) - the form validation here is instant feedback only.
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  requirePolicy(locals.user, apiNames.SONG.CREATE);
   return {
     form: await superValidate(zod4(createSongBookEntrySchema)),
   };

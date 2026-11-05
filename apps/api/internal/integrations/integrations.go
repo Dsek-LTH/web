@@ -27,6 +27,9 @@ type ArticleNotification struct {
 	AuthorID         string
 	NotificationText string
 	TagIDs           []string
+	// Nollning is whether the article belongs to a nollning season; those
+	// aren't posted to Discord.
+	Nollning bool
 }
 
 // LikeNotification is what Notifier.NotifyLike needs to announce a like -

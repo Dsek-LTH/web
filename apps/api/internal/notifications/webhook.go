@@ -64,6 +64,9 @@ func (w *RealWebhooker) NotifyNewArticle(
 	ctx context.Context,
 	a integrations.ArticleNotification,
 ) error {
+	if a.Nollning {
+		return nil
+	}
 	var tags []struct {
 		ID     string
 		NameSv string

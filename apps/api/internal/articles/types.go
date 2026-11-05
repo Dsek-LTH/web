@@ -177,6 +177,9 @@ type ListParams struct {
 	CommitteeID      *string
 	AuthorStudentID  *string
 	NollningSeasonID *string
-	Page             int
-	PageSize         int
+	// IncludeNollning lists nollning season content too, which is left out
+	// unless NollningSeasonID picks a season.
+	IncludeNollning bool
+	Page            int
+	PageSize        int
 }

@@ -269,7 +269,7 @@ export interface paths {
     };
     /**
      * List published articles
-     * @description Published, non-deleted articles, newest first. pageSize defaults to 10.
+     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.
      */
     get: operations["list-articles"];
     put?: never;
@@ -929,7 +929,7 @@ export interface paths {
     };
     /**
      * List events
-     * @description Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. pageSize defaults to 10.
+     * @description Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. Nollning season events are left out unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.
      */
     get: operations["list-events"];
     put?: never;
@@ -4961,6 +4961,8 @@ export interface operations {
         authorStudentId?: string;
         /** @description Only articles in this nollning season. */
         nollningSeasonId?: string;
+        /** @description Also list nollning season articles, which are left out unless nollningSeasonId is set. */
+        includeNollning?: boolean;
         /** @description 1-based page number. Defaults to 1. */
         page?: number;
         /** @description Items per page. Each endpoint has its own default and maximum. */
@@ -6420,6 +6422,8 @@ export interface operations {
         includeDeleted?: boolean;
         /** @description Only events in this nollning season. */
         nollningSeasonId?: string;
+        /** @description Also list nollning season events, which are left out unless nollningSeasonId is set. */
+        includeNollning?: boolean;
         /** @description 1-based page number. Defaults to 1. */
         page?: number;
         /** @description Items per page. Each endpoint has its own default and maximum. */

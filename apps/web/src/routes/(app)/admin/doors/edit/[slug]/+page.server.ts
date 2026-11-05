@@ -7,6 +7,7 @@ import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
 import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
+import { goError } from "$lib/utils/access";
 
 // core:access:door:create/delete (Go's apinames.DoorCreate/DoorDelete) are
 // enforced by the Go API itself - see apps/api/internal/doors. No
@@ -28,7 +29,8 @@ export const load: PageServerLoad = async (event) => {
   const res = await serverApi(event).GET("/doors/{name}/access-policies", {
     params: { path: { name: params.slug } },
   });
-  if (res.error) throw new Error("Failed to load door access policies");
+  if (res.error)
+    goError(res.response, res.error, "Failed to load door access policies");
 
   return {
     door,

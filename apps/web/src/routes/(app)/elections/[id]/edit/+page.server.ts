@@ -9,6 +9,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { serverApi } from "$lib/server/apiClient";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -17,6 +19,7 @@ dayjs.extend(timezone);
 // explicit check" note as the create page's action.
 export const load: PageServerLoad = async (event) => {
   const { params } = event;
+  requirePolicy(event.locals.user, apiNames.ELECTION.UPDATE);
 
   const [electionRes, committeesRes] = await Promise.all([
     serverApi(event).GET("/elections/{id}", {

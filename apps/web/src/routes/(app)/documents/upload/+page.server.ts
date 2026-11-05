@@ -6,8 +6,16 @@ import type { Actions, PageServerLoad } from "./$types";
 import { multipart } from "$lib/api/client";
 import { serverApi } from "$lib/server/apiClient";
 import { uploadSchema } from "./types";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  // Meeting documents, or the SRD's files.
+  requirePolicy(
+    locals.user,
+    apiNames.FILES.BUCKET("documents").CREATE,
+    apiNames.FILES.BUCKET("files").CREATE,
+  );
   const form = await superValidate(zod4(uploadSchema));
   return { form };
 };

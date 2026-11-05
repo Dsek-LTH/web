@@ -103,6 +103,8 @@ const eventPageLoad =
               search: url.searchParams.get("search") || undefined,
               tags: tagIds,
               includeDeleted: adminMode,
+              // The admin list shows nollning events too.
+              includeNollning: adminMode,
             },
           },
         });

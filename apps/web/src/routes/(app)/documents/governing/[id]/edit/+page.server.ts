@@ -6,11 +6,14 @@ import { redirect } from "sveltekit-flash-message/server";
 import { governingDocumentSchema } from "../../schemas";
 import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // governing_document:write is enforced by the Go API itself - same
 // "old app had no explicit check" note as the new/ page's create action.
 export const load: PageServerLoad = async (event) => {
   const { params } = event;
+  requirePolicy(event.locals.user, apiNames.GOVERNING_DOCUMENT.UPDATE);
   const res = await serverApi(event).GET("/governing-documents/{id}", {
     params: { path: { id: params.id } },
   });

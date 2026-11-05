@@ -9,11 +9,14 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // tags:create/tags:update are enforced by Go (POST /tags, PUT /tags/{id}).
 // Listing tags is public in Go; the page itself is only linked for
 // tags:read holders (see news/+page.svelte).
 export const load: PageServerLoad = async (event) => {
+  requirePolicy(event.locals.user, apiNames.TAGS.CREATE, apiNames.TAGS.UPDATE);
   const res = await serverApi(event).GET("/tags", {});
   return {
     tags: res.data ?? [],

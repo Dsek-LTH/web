@@ -75,6 +75,13 @@ WHERE (
     $6::uuid IS NULL
     OR e.nollning_season_id = $6::uuid
   )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    $7::bool
+    OR $6::uuid IS NOT NULL
+    OR e.nollning_season_id IS NULL
+  )
 `
 
 type CountEventsParams struct {
@@ -84,6 +91,7 @@ type CountEventsParams struct {
 	Search           pgtype.Text        `json:"search"`
 	TagIds           []pgtype.UUID      `json:"tag_ids"`
 	NollningSeasonID pgtype.UUID        `json:"nollning_season_id"`
+	IncludeNollning  bool               `json:"include_nollning"`
 }
 
 func (q *Queries) CountEvents(ctx context.Context, arg CountEventsParams) (int64, error) {
@@ -94,6 +102,7 @@ func (q *Queries) CountEvents(ctx context.Context, arg CountEventsParams) (int64
 		arg.Search,
 		arg.TagIds,
 		arg.NollningSeasonID,
+		arg.IncludeNollning,
 	)
 	var count int64
 	err := row.Scan(&count)
@@ -624,10 +633,17 @@ WHERE (
     $6::uuid IS NULL
     OR e.nollning_season_id = $6::uuid
   )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    $7::bool
+    OR $6::uuid IS NOT NULL
+    OR e.nollning_season_id IS NULL
+  )
 ORDER BY
-    (CASE WHEN $7::bool THEN e.start_datetime END) DESC,
-    (CASE WHEN NOT $7::bool THEN e.start_datetime END) ASC NULLS LAST
-LIMIT $9 OFFSET $8
+    (CASE WHEN $8::bool THEN e.start_datetime END) DESC,
+    (CASE WHEN NOT $8::bool THEN e.start_datetime END) ASC NULLS LAST
+LIMIT $10 OFFSET $9
 `
 
 type ListEventsParams struct {
@@ -637,6 +653,7 @@ type ListEventsParams struct {
 	Search           pgtype.Text        `json:"search"`
 	TagIds           []pgtype.UUID      `json:"tag_ids"`
 	NollningSeasonID pgtype.UUID        `json:"nollning_season_id"`
+	IncludeNollning  bool               `json:"include_nollning"`
 	Descending       bool               `json:"descending"`
 	Offset           int32              `json:"offset"`
 	Limit            int32              `json:"limit"`
@@ -700,6 +717,7 @@ func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]ListE
 		arg.Search,
 		arg.TagIds,
 		arg.NollningSeasonID,
+		arg.IncludeNollning,
 		arg.Descending,
 		arg.Offset,
 		arg.Limit,

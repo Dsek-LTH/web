@@ -6,8 +6,11 @@ import { uploadSchema } from "./types";
 import { uploadAlbumFiles } from "./uploadFiles";
 import { redirect } from "@sveltejs/kit";
 import { serverApi } from "$lib/server/apiClient";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  requirePolicy(locals.user, apiNames.FILES.BUCKET("albums").CREATE);
   const form = await superValidate(zod4(uploadSchema));
   return { form };
 };

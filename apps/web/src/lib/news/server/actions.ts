@@ -67,8 +67,7 @@ export const createArticle: Action = async (event) => {
     publishedAt: (publishTime ?? new Date()).toISOString(),
     sendNotification,
     notificationText: notificationText ?? null,
-    // No season picker UI exists yet for articles - always null here until
-    // one's built.
+    // Nollning content is written on the nollning site, not here.
     nollningSeasonId: null,
   };
 
@@ -127,22 +126,24 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   const finalImageUrls =
     imageUrls === undefined ? newImages : [...imageUrls, ...newImages];
 
+  // What the form doesn't edit comes from the article as it is.
+  const current = await api.GET("/articles/{slug}", {
+    params: {
+      path: { slug },
+      query: { includeDeleted: true, includeUnpublished: true },
+    },
+  });
+  if (current.error)
+    error(
+      current.response.status,
+      current.error.detail ?? "Failed to load article",
+    );
+
   // Without a scheduled time, an article that's already live keeps its
   // date and a scheduled one (or a draft) goes live now. Go would make an
   // article without publishedAt a draft again, hiding it.
   let publishedAt = publishTime;
   if (!publishedAt) {
-    const current = await api.GET("/articles/{slug}", {
-      params: {
-        path: { slug },
-        query: { includeDeleted: true, includeUnpublished: true },
-      },
-    });
-    if (current.error)
-      error(
-        current.response.status,
-        current.error.detail ?? "Failed to load article",
-      );
     const livePublishedAt = current.data.publishedAt
       ? new Date(current.data.publishedAt)
       : null;
@@ -166,12 +167,9 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     publishedAt: publishedAt.toISOString(),
     sendNotification,
     notificationText: notificationText ?? null,
-    // Always null (same as createArticle above, and events' identical
-    // note) - since this form can only ever have produced a null value on
-    // create, always sending null on update doesn't lose data yet. Once a
-    // season picker exists, this needs to round-trip the article's
-    // existing value instead of hardcoding null.
-    nollningSeasonId: null,
+    // Nollning content is written on the nollning site; this form keeps
+    // whatever season the article has.
+    nollningSeasonId: current.data.nollningSeasonId ?? null,
   };
 
   const updated = await api.PUT("/articles/{slug}", {

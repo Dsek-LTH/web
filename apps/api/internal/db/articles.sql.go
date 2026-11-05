@@ -64,6 +64,13 @@ WHERE a.published_datetime IS NOT NULL
     $5::uuid IS NULL
     OR a.nollning_season_id = $5::uuid
   )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    $6::bool
+    OR $5::uuid IS NOT NULL
+    OR a.nollning_season_id IS NULL
+  )
 `
 
 type CountArticlesParams struct {
@@ -72,6 +79,7 @@ type CountArticlesParams struct {
 	CommitteeID      pgtype.UUID   `json:"committee_id"`
 	AuthorStudentID  pgtype.Text   `json:"author_student_id"`
 	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
+	IncludeNollning  bool          `json:"include_nollning"`
 }
 
 func (q *Queries) CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error) {
@@ -81,6 +89,7 @@ func (q *Queries) CountArticles(ctx context.Context, arg CountArticlesParams) (i
 		arg.CommitteeID,
 		arg.AuthorStudentID,
 		arg.NollningSeasonID,
+		arg.IncludeNollning,
 	)
 	var count int64
 	err := row.Scan(&count)
@@ -467,8 +476,15 @@ WHERE a.published_datetime IS NOT NULL
     $5::uuid IS NULL
     OR a.nollning_season_id = $5::uuid
   )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    $6::bool
+    OR $5::uuid IS NOT NULL
+    OR a.nollning_season_id IS NULL
+  )
 ORDER BY a.published_datetime DESC
-LIMIT $7 OFFSET $6
+LIMIT $8 OFFSET $7
 `
 
 type ListArticlesParams struct {
@@ -477,6 +493,7 @@ type ListArticlesParams struct {
 	CommitteeID      pgtype.UUID   `json:"committee_id"`
 	AuthorStudentID  pgtype.Text   `json:"author_student_id"`
 	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
+	IncludeNollning  bool          `json:"include_nollning"`
 	Offset           int32         `json:"offset"`
 	Limit            int32         `json:"limit"`
 }
@@ -535,6 +552,7 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 		arg.CommitteeID,
 		arg.AuthorStudentID,
 		arg.NollningSeasonID,
+		arg.IncludeNollning,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -600,7 +618,7 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 const listDueArticleAnnouncements = `-- name: ListDueArticleAnnouncements :many
 SELECT a.id, a.slug, a.header_sv, a.body_sv, a.notification_text,
        a.should_send_notification, a.published_datetime, a.author_id,
-       au.member_id AS author_member_id
+       au.member_id AS author_member_id, a.nollning_season_id
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 WHERE a.announced_at IS NULL
@@ -621,6 +639,7 @@ type ListDueArticleAnnouncementsRow struct {
 	PublishedDatetime      pgtype.Timestamptz `json:"published_datetime"`
 	AuthorID               pgtype.UUID        `json:"author_id"`
 	AuthorMemberID         pgtype.UUID        `json:"author_member_id"`
+	NollningSeasonID       pgtype.UUID        `json:"nollning_season_id"`
 }
 
 // Live articles whose announcement hasn't been handled yet, oldest first.
@@ -643,6 +662,7 @@ func (q *Queries) ListDueArticleAnnouncements(ctx context.Context) ([]ListDueArt
 			&i.PublishedDatetime,
 			&i.AuthorID,
 			&i.AuthorMemberID,
+			&i.NollningSeasonID,
 		); err != nil {
 			return nil, err
 		}

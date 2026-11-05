@@ -30,6 +30,7 @@ async function uploadImage(
 function toEventInput(
   data: z.infer<typeof eventSchema>,
   imageUrl: string | null,
+  nollningSeasonId: string | null,
 ): EventInput {
   return {
     titleSv: data.titleSv,
@@ -49,9 +50,9 @@ function toEventInput(
     alarmActive: data.alarmActive ?? false,
     isCancelled: data.isCancelled ?? false,
     tagIds: data.tags.filter((tag) => !!tag).map((tag) => tag.id),
-    // No season picker UI exists yet for events - always null here until
-    // one's built.
-    nollningSeasonId: null,
+    // Nollning content is written on the nollning site; a new event has no
+    // season and an edited one keeps its own.
+    nollningSeasonId,
     recurring: data.isRecurring
       ? {
           type: data.recurringType,
@@ -73,7 +74,7 @@ export const createEvent: Action = async (event) => {
     : (form.data.imageUrl ?? null);
 
   const created = await api.POST("/events", {
-    body: toEventInput(form.data, imageUrl),
+    body: toEventInput(form.data, imageUrl, null),
   });
   if (created.error)
     error(
@@ -107,9 +108,22 @@ export const updateEvent: Action<{ slug: string }> = async (event) => {
     ? await uploadImage(api, form.data.image)
     : (form.data.imageUrl ?? null);
 
+  const current = await api.GET("/events/{slug}", {
+    params: { path: { slug }, query: { includeDeleted: true } },
+  });
+  if (current.error)
+    error(
+      current.response.status,
+      current.error.detail ?? m.events_errors_eventNotFound(),
+    );
+
   const updated = await api.PUT("/events/{slug}", {
     params: { path: { slug }, query: { scope: form.data.editType } },
-    body: toEventInput(form.data, imageUrl),
+    body: toEventInput(
+      form.data,
+      imageUrl,
+      current.data.nollningSeasonId ?? null,
+    ),
   });
   if (updated.error) {
     if (updated.response.status === 404) {

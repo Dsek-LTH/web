@@ -9,13 +9,16 @@ import {
 import { zod4 } from "sveltekit-superforms/adapters";
 import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
+import { goError, requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // alert:manage (Go's AlertManage) is enforced by the Go API itself on
 // create/delete - see apps/api/internal/alerts. No authorize() call here:
 // authorization is Go's alone.
 export const load: PageServerLoad = async (event) => {
+  requirePolicy(event.locals.user, apiNames.ALERT);
   const res = await serverApi(event).GET("/alerts", {});
-  if (res.error) throw new Error("Failed to load alerts");
+  if (res.error) goError(res.response, res.error, "Failed to load alerts");
   return {
     alert: res.data ?? [],
   };

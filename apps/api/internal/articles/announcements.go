@@ -75,6 +75,7 @@ func (s *Service) syncNotifications(
 		AuthorMemberID: authorMemberID,
 		AuthorID:       authorID,
 		TagIDs:         in.TagIDs,
+		Nollning:       in.NollningSeasonID != nil,
 	}
 	if in.NotificationText != nil {
 		notification.NotificationText = *in.NotificationText
@@ -174,6 +175,7 @@ func (s *Service) AnnounceDue(ctx context.Context) error {
 			AuthorMemberID:   dbutil.UUIDStr(r.AuthorMemberID),
 			AuthorID:         dbutil.UUIDStr(r.AuthorID),
 			TagIDs:           tagIDs[articleID],
+			Nollning:         r.NollningSeasonID.Valid,
 		})
 	}
 	return nil

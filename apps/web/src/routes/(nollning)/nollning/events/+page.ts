@@ -46,6 +46,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
         span: "range",
         from: from.toISOString(),
         to: new Date(from.valueOf() + WEEK_MS).toISOString(),
+        nollningSeasonId: season.id,
         pageSize: 500,
       },
     },

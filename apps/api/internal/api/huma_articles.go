@@ -30,6 +30,7 @@ type listArticlesInput struct {
 	CommitteeID      string   `query:"committeeId"      doc:"Only articles about this committee."`
 	AuthorStudentID  string   `query:"authorStudentId"  doc:"Only articles written by this member."`
 	NollningSeasonID string   `query:"nollningSeasonId" doc:"Only articles in this nollning season."`
+	IncludeNollning  bool     `query:"includeNollning"  doc:"Also list nollning season articles, which are left out unless nollningSeasonId is set."`
 	Paging
 }
 
@@ -74,7 +75,8 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Path:        "/articles",
 		Tags:        tags,
 		Summary:     "List published articles",
-		Description: "Published, non-deleted articles, newest first. pageSize defaults to 10.",
+		Description: "Published, non-deleted articles, newest first, without nollning season articles " +
+			"unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.",
 	}, func(ctx context.Context, input *listArticlesInput) (*struct{ Body articles.ArticleList }, error) {
 		params := articles.ListParams{
 			TagIDs:   input.Tags,
@@ -93,6 +95,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		if input.NollningSeasonID != "" {
 			params.NollningSeasonID = &input.NollningSeasonID
 		}
+		params.IncludeNollning = input.IncludeNollning
 
 		items, pageCount, err := svc.List(ctx, params)
 		if err != nil {

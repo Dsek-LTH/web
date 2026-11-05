@@ -57,6 +57,13 @@ WHERE a.published_datetime IS NOT NULL
     sqlc.narg('nollning_season_id')::uuid IS NULL
     OR a.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
   )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    sqlc.arg('include_nollning')::bool
+    OR sqlc.narg('nollning_season_id')::uuid IS NOT NULL
+    OR a.nollning_season_id IS NULL
+  )
 ORDER BY a.published_datetime DESC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
@@ -86,6 +93,13 @@ WHERE a.published_datetime IS NOT NULL
   AND (
     sqlc.narg('nollning_season_id')::uuid IS NULL
     OR a.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
+  )
+  -- Nollning content stays out of the general feeds (it has its own
+  -- pages), unless asked for or filtered to one season.
+  AND (
+    sqlc.arg('include_nollning')::bool
+    OR sqlc.narg('nollning_season_id')::uuid IS NOT NULL
+    OR a.nollning_season_id IS NULL
   );
 
 -- name: GetArticleBySlug :one
@@ -215,7 +229,7 @@ UPDATE articles SET announced_at = NULL WHERE id = $1;
 -- Live articles whose announcement hasn't been handled yet, oldest first.
 SELECT a.id, a.slug, a.header_sv, a.body_sv, a.notification_text,
        a.should_send_notification, a.published_datetime, a.author_id,
-       au.member_id AS author_member_id
+       au.member_id AS author_member_id, a.nollning_season_id
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 WHERE a.announced_at IS NULL

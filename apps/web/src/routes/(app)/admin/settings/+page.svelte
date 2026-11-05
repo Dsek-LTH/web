@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { superForm } from "$lib/utils/client/superForms";
   import {
     Card,
     CardHeader,
@@ -10,7 +9,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Button, buttonVariants } from "$lib/components/ui/button/index.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
-  import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
+  import NollningSeasons from "./NollningSeasons.svelte";
   import { enhance } from "$app/forms";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import * as m from "$paraglide/messages.js";
@@ -18,13 +17,6 @@
   import Trash from "@lucide/svelte/icons/trash";
 
   let { data } = $props();
-
-  // svelte-ignore state_referenced_locally
-  const {
-    form,
-    errors,
-    enhance: nollningEnhance,
-  } = superForm(data.updateNollningForm, { id: "nollning" });
 </script>
 
 <SetPageTitle title={m.admin_settings_pageTitle()} />
@@ -32,51 +24,7 @@
 <div class="mx-auto w-full max-w-5xl px-4 py-8">
   <h1 class="mb-6 text-3xl font-bold">{m.admin_settings_pageTitle()}</h1>
 
-  <Card class="mb-6">
-    <CardHeader>
-      <CardTitle>{m.admin_settings_nollningPeriod()}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form
-        method="POST"
-        action="?/updateNollning"
-        use:nollningEnhance
-        class="flex flex-wrap items-end gap-4"
-      >
-        <div class="flex flex-col gap-1.5">
-          <Label>{m.admin_settings_nollningStart()}</Label>
-          <DatePicker
-            name="start"
-            iso
-            value={data.nollning?.start.toISOString().split("T")[0] ??
-              $form.start?.toISOString().split("T")[0]}
-            error={!!$errors.start}
-          />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <Label>{m.admin_settings_nollningReveal()}</Label>
-          <DatePicker
-            name="reveal"
-            iso
-            value={data.nollning?.reveal.toISOString().split("T")[0] ??
-              $form.reveal?.toISOString().split("T")[0]}
-            error={!!$errors.reveal}
-          />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <Label>{m.admin_settings_nollningEnd()}</Label>
-          <DatePicker
-            name="end"
-            iso
-            value={data.nollning?.end.toISOString().split("T")[0] ??
-              $form.end?.toISOString().split("T")[0]}
-            error={!!$errors.end}
-          />
-        </div>
-        <Button type="submit">{m.admin_settings_save()}</Button>
-      </form>
-    </CardContent>
-  </Card>
+  <NollningSeasons seasons={data.seasons} committees={data.committees} />
 
   <Card class="mb-6">
     <CardHeader>

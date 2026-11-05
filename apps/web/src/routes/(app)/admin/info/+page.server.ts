@@ -7,12 +7,15 @@ import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
 import { serverApi } from "$lib/server/apiClient";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 // markdown:create is enforced by the Go API itself - no authorize() call
 // here. Calls the same unified POST /info-pages/{slug} endpoint
 // info/[slug]/edit's create action uses, which also grants the creator a
 // per-page edit policy.
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  requirePolicy(locals.user, apiNames.MARKDOWN.CREATE);
   return { form: await superValidate(zod4(infoPageSchema)) };
 };
 
