@@ -30,7 +30,7 @@ jobs:
       - name: Build and push website
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:apps/frontend"
+          context: "{{defaultContext}}:apps/web"
           build-args: |
             "PUBLIC_GO_BACKEND_URL=https://web-pr-${{ github.event.number }}-api.apps.okd.dsek.se"
             "PUBLIC_MINIO_BASE_URL=https://files-sandbox.dsek.se"
@@ -93,6 +93,6 @@ jobs:
       - name: Build and push backend
         uses: docker/build-push-action@v7
         with:
-          context: "{{defaultContext}}:apps/backend"
+          context: "{{defaultContext}}:apps/api"
           push: true
           tags: registry.dsek.se/web-pr-${{ github.event.number }}/backend:latest

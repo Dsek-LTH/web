@@ -3,9 +3,9 @@ name: Go CI
 on:
   push:
     branches: ["main", "new-design"]
-    paths: ["apps/backend/**", ".github/workflows/go.yml"]
+    paths: ["apps/api/**", ".github/workflows/go.yml"]
   pull_request:
-    paths: ["apps/backend/**", ".github/workflows/go.yml"]
+    paths: ["apps/api/**", ".github/workflows/go.yml"]
 
 permissions:
   contents: read
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/backend
+        working-directory: apps/api
 
     services:
       postgres:
@@ -32,7 +32,7 @@ jobs:
           - 5432:5432
 
     env:
-      # Overrides apps/backend/.env, so the tests that need a database use the
+      # Overrides apps/api/.env, so the tests that need a database use the
       # service above.
       POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/dsek?sslmode=disable
 
@@ -40,8 +40,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
-          go-version-file: apps/backend/go.mod
-          cache-dependency-path: apps/backend/go.sum
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
       - run: go build ./...
       - run: go vet ./...
       # The generated code in internal/db matches schema.sql and queries/.

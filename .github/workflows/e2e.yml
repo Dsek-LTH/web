@@ -1,4 +1,4 @@
-# The Playwright tests (apps/frontend/e2e): a production build of the frontend in
+# The Playwright tests (apps/web/e2e): a production build of the frontend in
 # a real browser against the backend on a seeded database. Not a required
 # check while the suite settles; see "End-to-end tests" in AGENTS.md.
 name: End-to-end tests
@@ -6,9 +6,9 @@ name: End-to-end tests
 on:
   push:
     branches: ["main"]
-    paths: ["apps/frontend/**", "apps/backend/**", ".github/workflows/e2e.yml"]
+    paths: ["apps/web/**", "apps/api/**", ".github/workflows/e2e.yml"]
   pull_request:
-    paths: ["apps/frontend/**", "apps/backend/**", ".github/workflows/e2e.yml"]
+    paths: ["apps/web/**", "apps/api/**", ".github/workflows/e2e.yml"]
 
 permissions:
   contents: read
@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: apps/frontend
+        working-directory: apps/web
 
     services:
       postgres:
@@ -45,16 +45,16 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
-          go-version-file: apps/backend/go.mod
-          cache-dependency-path: apps/backend/go.sum
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
       - uses: pnpm/action-setup@v6
         with:
-          package_json_file: apps/frontend/package.json
+          package_json_file: apps/web/package.json
       - uses: actions/setup-node@v7
         with:
-          node-version-file: .nvmrc
+          node-version-file: apps/web/.nvmrc
           cache: "pnpm"
-          cache-dependency-path: apps/frontend/pnpm-lock.yaml
+          cache-dependency-path: apps/web/pnpm-lock.yaml
       - run: pnpm i
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:integration
@@ -63,6 +63,6 @@ jobs:
         with:
           name: playwright-report
           path: |
-            apps/frontend/playwright-report
-            apps/frontend/test-results
+            apps/web/playwright-report
+            apps/web/test-results
           retention-days: 14

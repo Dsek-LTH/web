@@ -7,7 +7,7 @@ name: API breaking changes
 
 on:
   pull_request:
-    paths: ["apps/backend/**", ".github/workflows/api-breaking.yml"]
+    paths: ["apps/api/**", ".github/workflows/api-breaking.yml"]
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
 permissions:
@@ -25,20 +25,20 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
-          go-version-file: apps/backend/go.mod
-          cache-dependency-path: apps/backend/go.sum
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
 
       - name: Build the OpenAPI documents
         id: specs
         run: |
-          (cd apps/backend && go run ./cmd/openapi -3.0) > "$RUNNER_TEMP/head.json"
+          (cd apps/api && go run ./cmd/openapi -3.0) > "$RUNNER_TEMP/head.json"
           git worktree add "$RUNNER_TEMP/base" "${{ github.event.pull_request.base.sha }}"
-          if [ ! -d "$RUNNER_TEMP/base/apps/backend/cmd/openapi" ]; then
-            echo "The base branch has no apps/backend/cmd/openapi; nothing to compare." >> "$GITHUB_STEP_SUMMARY"
+          if [ ! -d "$RUNNER_TEMP/base/apps/api/cmd/openapi" ]; then
+            echo "The base branch has no apps/api/cmd/openapi; nothing to compare." >> "$GITHUB_STEP_SUMMARY"
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          (cd "$RUNNER_TEMP/base/apps/backend" && go run ./cmd/openapi -3.0) > "$RUNNER_TEMP/base.json"
+          (cd "$RUNNER_TEMP/base/apps/api" && go run ./cmd/openapi -3.0) > "$RUNNER_TEMP/base.json"
 
       - name: Install oasdiff
         if: steps.specs.outputs.skip != 'true'

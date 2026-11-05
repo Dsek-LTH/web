@@ -8,7 +8,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "eslint.validate": ["javascript", "typescript", "svelte"],
-  "eslint.workingDirectories": ["apps/frontend"],
+  "eslint.workingDirectories": ["apps/web"],
   "files.associations": {
     "*.css": "tailwindcss"
   },
@@ -16,13 +16,13 @@
   "editor.quickSuggestions": {
     "strings": "on"
   },
-  "prettier.configPath": "apps/frontend/prettier.config.js",
+  "prettier.configPath": "apps/web/prettier.config.js",
   "prettier.documentSelectors": ["**/*.svelte"],
   "tailwindCSS.experimental.classRegex": [
     "class:(.+)", // for svelte class: directive
     ".*icon: \"(.+)\"", // for icon property in routes.ts
   ],
-  "tailwindCSS.experimental.configFile": "apps/frontend/src/app.css",
+  "tailwindCSS.experimental.configFile": "apps/web/src/app.css",
   "workbench.editor.labelFormat": "short", // show filename + route in tab
   "explorer.compactFolders": false, // present folders in explorer as a tree
   "git.inputValidation": true,
