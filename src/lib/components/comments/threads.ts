@@ -53,15 +53,23 @@ export function buildCommentTree<C extends ThreadableComment>(
 
 /**
  * A removed comment stays as a placeholder for its replies, but the page shouldn't
- * still reveal who wrote it, so its member is dropped before it is sent to the client.
+ * still reveal who wrote it, so its member and member ID are dropped before it is
+ * sent to the client.
  */
 export const hideRemovedCommentAuthors = <
-  C extends { content: string | null; member: unknown },
+  C extends { content: string | null; member: unknown; memberId: string },
 >(
   comments: C[],
-): Array<Omit<C, "member"> & { member: C["member"] | null }> =>
+): Array<
+  Omit<C, "member" | "memberId"> & {
+    member: C["member"] | null;
+    memberId: string | null;
+  }
+> =>
   comments.map((comment) =>
-    comment.content === null ? { ...comment, member: null } : comment,
+    comment.content === null
+      ? { ...comment, member: null, memberId: null }
+      : comment,
   );
 
 /** Comments people can actually read, i.e. not counting removed placeholders. */

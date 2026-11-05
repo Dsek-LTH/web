@@ -82,11 +82,12 @@ describe("hideRemovedCommentAuthors", () => {
   it("drops the member of removed comments only", () => {
     const member = { id: "m1" };
     const result = hideRemovedCommentAuthors([
-      { ...comment("a", 1), member },
-      { ...comment("b", 2, null, null), member },
+      { ...comment("a", 1), member, memberId: "m1" },
+      { ...comment("b", 2, null, null), member, memberId: "m1" },
     ]);
 
     expect(result.map((c) => c.member)).toEqual([member, null]);
+    expect(result.map((c) => c.memberId)).toEqual(["m1", null]);
   });
 });
 
