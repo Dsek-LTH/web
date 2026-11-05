@@ -514,6 +514,8 @@
   "news_hide": "Hide",
   "news_scheduled": "scheduled",
   "news_scheduledNews": "Scheduled news",
+  "news_scheduledPrevious": "Previous scheduled articles",
+  "news_scheduledNext": "Next scheduled articles",
   "news_scheduledFor": "Scheduled for",
   "news_schedule_publish_time": "Schedule publishing",
   "news_nollningNews": "Nollning news",

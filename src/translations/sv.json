@@ -514,6 +514,8 @@
   "news_hide": "Dölj",
   "news_scheduled": "schemalagda",
   "news_scheduledNews": "Schemalagda nyheter",
+  "news_scheduledPrevious": "Föregående schemalagda nyheter",
+  "news_scheduledNext": "Nästa schemalagda nyheter",
   "news_scheduledFor": "Schemalagd för",
   "news_schedule_publish_time": "Schemalägg publicering",
   "news_nollningNews": "Nollningsnyheter",

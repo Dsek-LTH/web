@@ -15,6 +15,8 @@
   import LayoutGrid from "@lucide/svelte/icons/layout-grid";
   import List from "@lucide/svelte/icons/list";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
+  import ChevronLeft from "@lucide/svelte/icons/chevron-left";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import Plus from "@lucide/svelte/icons/plus";
   import Ellipsis from "@lucide/svelte/icons/ellipsis";
   import Tags from "@lucide/svelte/icons/tags";
@@ -61,6 +63,41 @@
 
   const formatDateTime = (date: Date | null) =>
     dayjs(date).format("YYYY-MM-DD HH:mm");
+
+  // Scheduled row: arrows and edge fades only show when there is something to scroll.
+  let scheduledRow = $state<HTMLElement>();
+  let canScrollLeft = $state(false);
+  let canScrollRight = $state(false);
+
+  const updateScheduledScroll = () => {
+    if (!scheduledRow) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scheduledRow;
+    // 1px slack: scroll positions can be fractional on zoomed or high-DPI screens.
+    canScrollLeft = scrollLeft > 1;
+    canScrollRight = scrollLeft + clientWidth < scrollWidth - 1;
+  };
+
+  const scrollScheduled = (direction: 1 | -1) =>
+    scheduledRow?.scrollBy({
+      left: direction * scheduledRow.clientWidth,
+      behavior: "smooth",
+    });
+
+  $effect(() => {
+    // Read so the cards are observed again when the list changes.
+    if (!scheduledRow || data.scheduledArticles.length === 0) return;
+    // Recheck when the row resizes (window width, cards loading in).
+    const observer = new ResizeObserver(updateScheduledScroll);
+    observer.observe(scheduledRow);
+    for (const card of scheduledRow.children) observer.observe(card);
+    return () => observer.disconnect();
+  });
+
+  const scheduledMask = $derived(
+    canScrollLeft || canScrollRight
+      ? `linear-gradient(to right, ${canScrollLeft ? "transparent" : "black"}, black 3rem, black calc(100% - 3rem), ${canScrollRight ? "transparent" : "black"})`
+      : undefined,
+  );
 </script>
 
 <SetPageTitle title={m.news()} />
@@ -149,11 +186,39 @@
         <span class="text-muted-foreground text-sm"
           >{data.scheduledArticles.length}</span
         >
+        {#if canScrollLeft || canScrollRight}
+          <div class="ml-auto flex gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              class="size-8"
+              aria-label={m.news_scheduledPrevious()}
+              disabled={!canScrollLeft}
+              onclick={() => scrollScheduled(-1)}
+            >
+              <ChevronLeft />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              class="size-8"
+              aria-label={m.news_scheduledNext()}
+              disabled={!canScrollRight}
+              onclick={() => scrollScheduled(1)}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+        {/if}
       </header>
       <!-- Same cards as the grid below, one column wide, scrolling sideways when there
-           are more than fit. The padding keeps the cards' shadows from being clipped. -->
+           are more than fit. The padding keeps the cards' shadows from being clipped.
+           An edge fades out while there is more to scroll in that direction. -->
       <div
-        class="-mx-2 flex snap-x [scrollbar-width:thin] gap-6 overflow-x-auto px-2 pt-1 pb-4"
+        bind:this={scheduledRow}
+        onscroll={updateScheduledScroll}
+        class="-mx-2 flex snap-x scroll-px-2 [scrollbar-width:thin] gap-6 overflow-x-auto px-2 pt-1 pb-4"
+        style:mask-image={scheduledMask}
       >
         {#each data.scheduledArticles as article, index (article.id)}
           <div
