@@ -28,6 +28,8 @@
 
   // Image URLs that failed to load; the committee placeholder underneath shows instead.
   const failedImages = new SvelteSet<string>();
+  // Video IDs whose thumbnail is unavailable; the cover image is used instead.
+  const failedVideos = new SvelteSet<string>();
 </script>
 
 <!-- A list rather than a <table>: each row is one target (stretched title link),
@@ -52,7 +54,14 @@
           committee={article.committee}
           class="absolute inset-0"
         />
-        {#if article.imageUrl && !failedImages.has(article.imageUrl)}
+        <!-- Same precedence as the cards: a video wins over the cover image. -->
+        {#if videoId && !failedVideos.has(videoId)}
+          <YoutubeThumbnail
+            {videoId}
+            class="absolute inset-0 size-full object-cover"
+            onunavailable={() => failedVideos.add(videoId)}
+          />
+        {:else if article.imageUrl && !failedImages.has(article.imageUrl)}
           <img
             src={article.imageUrl}
             alt=""
@@ -60,11 +69,6 @@
             class="absolute inset-0 size-full object-cover"
             onerror={() =>
               article.imageUrl && failedImages.add(article.imageUrl)}
-          />
-        {:else if videoId}
-          <YoutubeThumbnail
-            {videoId}
-            class="absolute inset-0 size-full object-cover"
           />
         {/if}
       </div>
