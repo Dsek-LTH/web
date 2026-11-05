@@ -163,7 +163,8 @@
         </div>
       </Tabs.Content>
 
-      <Tabs.Content value="home" class="min-w-0">
+      <!-- The home page shows four cards per row on lg; half of this half-width column matches that. -->
+      <Tabs.Content value="home" class="min-w-0 lg:w-1/2">
         <ArticleSmallCard
           article={{
             slug: "",
