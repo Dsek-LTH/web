@@ -65,9 +65,11 @@ const minio = new Client({
 });
 
 const documentFiles = [
+  // Deliberately mix Swedish/English, date-prefixed and misspelled meeting
+  // document names so the quick-link heuristics are exercised in development.
   // Board meetings
   "S11/Kallelse_S11.pdf",
-  "S11/Föredragningslista_S11.pdf",
+  "S11/1_Föredragningslista_S11.pdf",
   "S11/Protokoll_S11.pdf",
   "S11/Fika på alla möten/Motion_Fika_S11.pdf",
   "S11/Fika på alla möten/Motion_Fika_bilaga_S11.pdf",
@@ -76,11 +78,11 @@ const documentFiles = [
   "S11/Bilaga_budget_S11.pdf",
   "S10/Kallelse_S10.pdf",
   "S10/Föredragningslista_S10.pdf",
-  "S10/Protokoll_S10.pdf",
+  "S10/StudentCouncilMeetingProtocol_S10.pdf",
 
   // Guild meetings
   "HTM2/Kallelse_HTM2.pdf",
-  "HTM2/Föredragningslista_HTM2.pdf",
+  "HTM2/1_Fredragningslista_HTM2.pdf",
   "HTM2/Protokoll_HTM2.pdf",
   "HTM2/Fika på alla möten/Motion_Fika_HTM2.pdf",
   "HTM2/Fika på alla möten/Motion_Fika_bilaga_A_HTM2.pdf",
@@ -99,7 +101,7 @@ const documentFiles = [
   "HTM1/Mer glitter i valstugan/Motion_Mer_glitter_HTM1.pdf",
   "VTM2/Kallelse_VTM2.pdf",
   "VTM2/Föredragningslista_VTM2.pdf",
-  "VTM2/Protokoll_VTM2.pdf",
+  "VTM2/VTM Motesprotokoll.pdf",
 
   // Old-style SRD meeting in the documents bucket
   "Möte 1/Kallelse_Mote_1.pdf",
@@ -113,9 +115,9 @@ const srdFiles = [
   "SRD10/Protokoll_SRD10.pdf",
   "SRD10/Fika på alla möten/Motion_Fika_SRD10.pdf",
   "SRD10/Ny hoodie-färg/Proposition_Ny_hoodie_SRD10.pdf",
-  "SRD9/Kallelse_SRD9.pdf",
+  "SRD9/2026-10-07-srd9-notice.pdf",
   "SRD9/Föredragningslista_SRD9.pdf",
-  "SRD9/Protokoll_SRD9.pdf",
+  "SRD9/2026-10-07-srd9-protocol.pdf",
 
   // Old-style SRD file directly in the year folder
   "Möte 2.pdf",
