@@ -11,9 +11,6 @@ on:
 permissions:
   contents: read
 
-env:
-  HUSKY: 0
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -57,3 +54,11 @@ jobs:
       - run: pnpm run check-translations
       - run: pnpm run build
       # When adding a step to the list above, please consider adding it to the `ci-check` script in `apps/frontend/package.json`.
+      # schema.d.ts is what pnpm generate:api makes from the backend's
+      # OpenAPI document.
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/backend/go.mod
+          cache-dependency-path: apps/backend/go.sum
+      - run: pnpm generate:api
+      - run: git diff --exit-code src/lib/api/schema.d.ts

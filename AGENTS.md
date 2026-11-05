@@ -91,8 +91,8 @@ Frontend (`apps/frontend/`):
 - `pnpm test:integration` - the Playwright tests (see "End-to-end tests";
   one test: `pnpm test:integration -g "publish an event"`)
 - `pnpm generate:api` - regenerate `src/lib/api/schema.d.ts` from the
-  running backend's `/openapi.json`. Do this after any API change, with
-  the new backend running.
+  backend's OpenAPI document (`go run ./cmd/openapi`; no server needed).
+  Do this after any API change; CI fails if the committed file is stale.
 - `pnpm migrate`, `pnpm seed` - shortcuts for the backend commands below
 
 Backend (`apps/backend/`):
@@ -251,8 +251,8 @@ with every redesign.
 4. Add authorization cases to `internal/api/authz_*_test.go`: who is
    denied, who is allowed, and any owner exception (`e.gate` covers the
    plain "needs policy X" shape).
-5. `go test ./internal/api`, restart the backend, `pnpm generate:api`,
-   then use it from the frontend.
+5. `go test ./internal/api`, `pnpm generate:api`, then use it from the
+   frontend.
 
 ### Database
 
@@ -311,8 +311,8 @@ PR previews.
   error. Await layout data (in parallel with `Promise.all`).
 - **Restarting the backend**: stop it by port
   (`kill $(lsof -ti tcp:8090)`) - `go run`'s binary lives in the build
-  cache, so a pattern-based `pkill` can miss it and `pnpm generate:api`
-  then reads the old spec.
+  cache, so a pattern-based `pkill` can miss it and the old server keeps
+  answering.
 - **Renaming Go identifiers**: use `gopls rename`; `gofmt -r 'Old -> New'`
   also renames same-named struct fields and selectors.
 - **Svelte 5 bindable fallbacks**: `bind:value={undefined}` into a

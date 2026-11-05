@@ -13,9 +13,6 @@ on:
 permissions:
   contents: read
 
-env:
-  HUSKY: 0
-
 jobs:
   playwright:
     runs-on: ubuntu-latest

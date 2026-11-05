@@ -50,7 +50,6 @@
     "eslint-plugin-svelte": "^3.13.0",
     "formsnap": "^2.0.1",
     "globals": "^15.13.0",
-    "husky": "^9.1.7",
     "openapi-fetch": "^0.17.0",
     "openapi-typescript": "^7.13.0",
     "postcss": "^8.4.49",
