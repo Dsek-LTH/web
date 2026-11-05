@@ -9,7 +9,7 @@ import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch, params, parent }) => {
   const { member } = await parent();
-  if (!member) throw error(500, m.news_errors_memberNotFound());
+  if (!member) throw error(401, m.news_errors_memberNotFound());
 
   const [articleRes, mandatesRes, customAuthorsRes, committeesRes, tagsRes] =
     await Promise.all([

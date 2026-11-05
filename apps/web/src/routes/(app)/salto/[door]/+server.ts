@@ -1,5 +1,6 @@
 import { PUBLIC_GO_BACKEND_URL } from "$env/static/public";
 import type { RequestHandler } from "./$types";
+import { passOn } from "$lib/server/proxy";
 
 // A thin proxy to Go's GET /salto/{door} (apps/api/internal/doors), same "port the logic to
 // Go, keep this URL as a pure forwarder" pattern already established by
@@ -14,5 +15,5 @@ export const GET: RequestHandler = async ({ params, fetch }) => {
     `/salto/${encodeURIComponent(params.door)}`,
     PUBLIC_GO_BACKEND_URL,
   );
-  return fetch(target);
+  return passOn(await fetch(target));
 };

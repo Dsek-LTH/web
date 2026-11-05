@@ -1,4 +1,4 @@
-import { error, type RequestEvent } from "@sveltejs/kit";
+import { error, type NumericRange, type RequestEvent } from "@sveltejs/kit";
 import type { components } from "$lib/api/schema";
 import { serverApi } from "$lib/server/apiClient";
 
@@ -37,6 +37,17 @@ const unwrap = <T>(res: {
   return res.data;
 };
 
+/** unwrap for page loads: Go's status and detail become the page's error. */
+const unwrapForLoad = <T>(res: Parameters<typeof unwrap<T>>[0]): T => {
+  try {
+    return unwrap(res);
+  } catch (err) {
+    if (err instanceof TicketServiceError)
+      error(err.status as NumericRange<400, 599>, err.message);
+    throw err;
+  }
+};
+
 const path = (releaseId: string) => ({ params: { path: { id: releaseId } } });
 
 export const createTicketRelease = async (
@@ -66,7 +77,7 @@ export const listTicketReleases = async (
   event: RequestEvent,
   opts?: { includeExpired?: boolean },
 ) =>
-  unwrap(
+  unwrapForLoad(
     await serverApi(event).GET("/ticket-releases", {
       params: { query: { includeExpired: opts?.includeExpired ?? false } },
     }),
@@ -79,7 +90,7 @@ export const getTicketRelease = async (
   unwrap(await serverApi(event).GET("/ticket-releases/{id}", path(releaseId)));
 
 // For page loads: a missing release (404) or malformed id (422) becomes a
-// SvelteKit 404 instead of a 500.
+// SvelteKit 404, other failures Go's own status, instead of a 500.
 export const getTicketReleaseOr404 = async (
   event: RequestEvent,
   releaseId: string,
@@ -93,6 +104,8 @@ export const getTicketReleaseOr404 = async (
     ) {
       error(404, "Biljettsläppet hittades inte");
     }
+    if (err instanceof TicketServiceError)
+      error(err.status as NumericRange<400, 599>, err.message);
     throw err;
   }
 };
@@ -141,13 +154,14 @@ export const getTicketStatus = async (event: RequestEvent, releaseId: string) =>
   );
 
 export const listMyTickets = async (event: RequestEvent) =>
-  (unwrap(await serverApi(event).GET("/me/tickets", {})) ?? []) as MyTicket[];
+  (unwrapForLoad(await serverApi(event).GET("/me/tickets", {})) ??
+    []) as MyTicket[];
 
 export const listTicketRoster = async (
   event: RequestEvent,
   releaseId: string,
 ) =>
-  unwrap(
+  unwrapForLoad(
     await serverApi(event).GET("/ticket-releases/{id}/roster", path(releaseId)),
   ) ?? [];
 

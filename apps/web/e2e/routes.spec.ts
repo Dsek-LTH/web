@@ -5,7 +5,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { globSync } from "node:fs";
-import { API_URL, SESSION_COOKIE } from "./servers";
+import { API_URL, SESSION_COOKIE, WEB_URL } from "./servers";
 
 // Opens every page in a real browser and checks that it loads without an
 // error status, an uncaught exception or a console error. This catches what
@@ -137,3 +137,21 @@ for (const [name, fill] of Object.entries(dynamicRoutes)) {
     }
   });
 }
+
+// URLs other clients call without a session (Salto, calendar apps, the
+// search cron), so they're fetched without the browser's cookies.
+const proxies = [
+  "/salto/e2e",
+  "/events/subscribe",
+  "/nollning/events/subscribe",
+  "/api/openapi.json",
+];
+
+test("proxies answer callers without cookies", async ({ playwright }) => {
+  const anonymous = await playwright.request.newContext({ baseURL: WEB_URL });
+  for (const path of proxies) {
+    const res = await anonymous.get(path);
+    expect(res.status(), path).toBe(200);
+  }
+  await anonymous.dispose();
+});
