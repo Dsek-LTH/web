@@ -44,6 +44,8 @@ export const load: PageServerLoad = async ({ locals, url, cookies }) => {
           publishedAt: {
             gt: new Date(),
           },
+          // Deleting only sets removedAt, so deleted articles must be filtered out here.
+          OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
           tags: {
             none: {
               nameSv: {
