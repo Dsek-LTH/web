@@ -184,7 +184,7 @@ const genitiveCase = (base: string): string => {
 };
 
 const getLocalSearchId = (params: RouteParams) => {
-  if (!positionPrefixes.some((v) => params.positionId.includes(v))) {
+  if (!positionPrefixes.some((v) => params.positionId.startsWith(v + "."))) {
     return `dsek.${committeeToPositionMap[params.shortName as keyof typeof committeeToPositionMap]}.${params.positionId}`;
   }
   return params.positionId;
