@@ -13,15 +13,16 @@ and authorization; the SvelteKit app renders pages and calls it.
   Go 1.26). `main.go` wires everything; `internal/<domain>` holds one
   package per domain (a `Service` wrapping sqlc's `*db.Queries`);
   `internal/api` is the HTTP layer; `internal/db` is schema, queries,
-  migrations and generated code; `cmd/migrate` and `cmd/seed` are
-  commands.
+  migrations and generated code; `cmd/migrate`, `cmd/seed` and
+  `cmd/openapi` are commands.
 - `poppler-server/` - a small Node service that extracts text from PDFs
   for search.
 - `docker-compose.yml` - local Postgres (`dsek-db`), Meilisearch and
   poppler-server. `podman-dev.yaml` is the same for podman.
 - `.github/workflows` - CI (`node.js.yml` for the frontend, `go.yml` for
-  the backend) and image builds (`deploy*.yml`: website, backend and
-  poppler images). The Kubernetes manifests live in a separate repository.
+  the backend, `api-breaking.yml` for breaking API changes) and image
+  builds (`deploy*.yml`: website, backend and poppler images). The
+  Kubernetes manifests live in a separate repository.
 
 ## Running locally
 
@@ -182,6 +183,13 @@ which is the API reference.
 - Only `GET /salto/{door}`, `POST /search/sync/password` and `/auth/*` are
   plain handlers; raw bodies (ICS, CSV, files) are still huma operations
   (`rawOutput`).
+- The API is unversioned and changes only additively: the native app calls
+  it directly and old builds stay installed for months. Add optional
+  fields and new endpoints; don't remove, rename or tighten anything. To
+  replace something, add the new one beside it and remove the old one once
+  no app build uses it. CI (`api-breaking.yml`) runs `oasdiff breaking`
+  against the base branch's spec (`go run ./cmd/openapi -3.0`); an
+  intended break needs the `api-breaking` label.
 
 ### Frontend
 

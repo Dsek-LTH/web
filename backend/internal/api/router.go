@@ -74,6 +74,12 @@ type Services struct {
 	SyncPassword string
 }
 
+// OpenAPI returns the API's OpenAPI document without any services, for
+// cmd/openapi.
+func OpenAPI() *huma.OpenAPI {
+	return registerRoutes(http.NewServeMux(), Services{}).OpenAPI()
+}
+
 // NewRouter registers every endpoint. Every request is authenticated via
 // authenticator before reaching a handler; handlers and Service methods
 // read "who is doing this" from the request context (see internal/auth),
