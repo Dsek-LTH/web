@@ -16,6 +16,9 @@
   import List from "@lucide/svelte/icons/list";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
+  import CalendarClock from "@lucide/svelte/icons/calendar-clock";
+  import { NEWS_TIME_ZONE } from "$lib/news/format";
+  import { getLocale } from "$paraglide/runtime";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import Plus from "@lucide/svelte/icons/plus";
   import Ellipsis from "@lucide/svelte/icons/ellipsis";
@@ -63,6 +66,14 @@
 
   const formatDateTime = (date: Date | null) =>
     dayjs(date).format("YYYY-MM-DD HH:mm");
+
+  // Medium date style so "Scheduled for …" fits on one line above a card.
+  const formatScheduledFor = (date: Date) =>
+    date.toLocaleString(getLocale(), {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: NEWS_TIME_ZONE,
+    });
 
   // Scheduled row: arrows and edge fades only show when there is something to scroll.
   let scheduledRow = $state<HTMLElement>();
@@ -222,8 +233,21 @@
       >
         {#each data.scheduledArticles as article, index (article.id)}
           <div
-            class="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
+            class="flex w-[85%] shrink-0 snap-start flex-col gap-2 sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
           >
+            {#if article.publishedAt}
+              <span
+                class="text-muted-foreground flex items-center gap-1.5 px-1.5 text-sm"
+              >
+                <CalendarClock class="size-4 shrink-0" aria-hidden="true" />
+                <span class="truncate">
+                  {m.news_scheduledFor()}
+                  <time datetime={article.publishedAt.toISOString()}>
+                    {formatScheduledFor(article.publishedAt)}
+                  </time>
+                </span>
+              </span>
+            {/if}
             <ArticleCard
               {article}
               {index}
