@@ -10,17 +10,16 @@
   import AppNavigation from "./(app)/AppNavigation.svelte";
   import Header from "./(app)/Header.svelte";
   import AppHeader from "./(app)/AppHeader.svelte";
-  const { data } = $props();
 </script>
 
-{#if data.isApp}
+{#if page.data.isApp}
   <AppHeader />
   <AppNavigation />
 {:else}
-  <Header unreadCount={data.unreadCount} />
+  <Header unreadCount={page.data["unreadCount"]} />
 {/if}
 <main
-  style:padding-top={data.isApp ? "64px" : "0px"}
+  style:padding-top={page.data.isApp ? "64px" : "0px"}
   class="layout-container inline-flex flex-col gap-4 text-center"
 >
   <div>
@@ -55,6 +54,6 @@
     </div>
   </div>
 </main>
-{#if !data.isApp}
+{#if !page.data.isApp}
   <Footer />
 {/if}

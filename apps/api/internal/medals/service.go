@@ -44,7 +44,15 @@ func committeeMedalName(nameSv string, nameEn *string, loc string) string {
 }
 
 // ErrNotFound is returned for a student id with no member.
-var ErrNotFound = errors.New("medals: not found")
+var (
+	ErrNotFound     = errors.New("medals: not found")
+	ErrInvalidInput = errors.New("medals: invalid input")
+)
+
+// FirstSemester is the first semester with medals: the guild was founded
+// in 1982. The bound also stops crawlers following the previous-semester
+// links forever.
+var FirstSemester = semesters.FromYearAndTerm(1982, "VT")
 
 type Service struct {
 	queries *db.Queries
@@ -147,6 +155,13 @@ func (s *Service) MedalRecipients(
 ) ([]MedalRecipients, error) {
 	if _, err := requireMember(ctx); err != nil {
 		return nil, err
+	}
+	if after < FirstSemester || after > semesters.FromDate(time.Now()) {
+		return nil, fmt.Errorf(
+			"%w: medals exist from %s to the current semester",
+			ErrInvalidInput,
+			semesters.String(FirstSemester),
+		)
 	}
 
 	candidateIDs, err := s.queries.ListMemberIDsWithMandateActiveDuring(

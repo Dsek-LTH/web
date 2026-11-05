@@ -29,6 +29,13 @@ export const endDate = (semester: Semester): Date =>
 export const dateToSemester = (date: Date): Semester =>
   date.getFullYear() * 2 + (date.getMonth() >= 6 ? 1 : 0);
 
+/**
+ * The guild was founded in 1982, so no medals exist before this semester.
+ * The medals page stops its previous link here; Go rejects anything earlier
+ * (internal/medals.FirstSemester).
+ */
+export const FIRST_MEDALS_SEMESTER = semesterFromYearAndTerm(1982, "VT");
+
 export const semesterRange = (start: Semester, end: Semester): Semester[] =>
   Array.from({ length: end - start + 1 }, (x, i) => start + i);
 

@@ -3,9 +3,13 @@ package documents
 import (
 	"context"
 	"errors"
+	"fmt"
+	"maps"
 	"path"
 	"strconv"
 	"strings"
+	"sync"
+	"unicode/utf8"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
@@ -16,6 +20,9 @@ type Service struct {
 	store           storage.Backend
 	documentsBucket string
 	filesBucket     string
+
+	locksMu sync.Mutex
+	locks   map[string]*sync.Mutex // per meeting sidecar, see updateGroupMap
 }
 
 func NewService(store storage.Backend, documentsBucket, filesBucket string) *Service {
@@ -42,36 +49,12 @@ func toDocumentFile(o storage.Object) StoredFile {
 	}
 }
 
-// folderOf returns an object key's second-to-last path segment (its
-// containing "meeting" folder), matching
-// `fileParts[fileParts.length - 2] ?? m.documents_unknown()` throughout the
-// old TS code.
-func folderOf(key string) string {
-	parts := strings.Split(key, "/")
-	if len(parts) < 2 {
-		return "unknown"
-	}
-	return parts[len(parts)-2]
-}
-
-// oldFormatSRDMeetingName strips a trailing "pdf"/"html" substring (not
-// ".pdf" - no dot check, matching the old TS's fileName.endsWith(ext) exactly)
-// from a filename, used to group pre-folder-convention SRD files by
-// filename instead of by folder.
-func oldFormatSRDMeetingName(filename string) string {
-	for _, ext := range []string{"pdf", "html"} {
-		if strings.HasSuffix(filename, ext) {
-			return filename[:len(filename)-len(ext)]
-		}
-	}
-	return filename
-}
-
-// ListMeetings ports documents/+page.server.ts's load function verbatim -
-// board/guild/SRD/other each have a genuinely different filter/grouping
-// rule, reflecting years of ad-hoc naming conventions in the live MinIO
-// bucket layout; this is a direct translation, not a redesign, since real
-// files already sit under these exact prefixes.
+// ListMeetings lists one year's meetings of one kind. Board meetings are the
+// "S..." folders, guild meetings "HTM..."/"VTM...", other meetings every
+// folder but those; SRD meetings are the documents bucket's "Möte ..."
+// folders together with the files bucket's public/srd/{year}, where files
+// outside a "SRD..." or "Möte ..." folder (from before the folders) are
+// meetings of their own, named after the file.
 func (s *Service) ListMeetings(ctx context.Context, docType string, year int) ([]Meeting, error) {
 	if err := auth.Require(ctx, apinames.FileDocumentsRead); err != nil {
 		return nil, err
@@ -87,131 +70,40 @@ func (s *Service) ListMeetings(ctx context.Context, docType string, year int) ([
 	}
 
 	yearStr := strconv.Itoa(year)
-	files, err := s.store.List(ctx, s.documentsBucket, "public/"+yearStr+"/"+prefix, true)
+	base := "public/" + yearStr + "/"
+	files, err := s.listFiles(ctx, s.documentsBucket, base+prefix)
 	if err != nil {
-		return nil, invalidf("list documents for %d: %w", year, err)
+		return nil, fmt.Errorf("list documents for %d: %w", year, err)
 	}
+	meetings := s.groupDocuments(ctx, s.documentsBucket, files, base, groupOptions{})
 
-	var filteredFiles, oldFormatSRDFiles []storage.Object
+	isGuild := func(name string) bool {
+		return strings.HasPrefix(name, "HTM") || strings.HasPrefix(name, "VTM")
+	}
 	switch docType {
 	case TypeGuildMeeting:
-		for _, f := range files {
-			if meeting := folderOf(
-				f.Key,
-			); strings.HasPrefix(meeting, "HTM") ||
-				strings.HasPrefix(meeting, "VTM") {
-				filteredFiles = append(filteredFiles, f)
-			}
-		}
-	case TypeSRDMeeting:
-		filteredFiles = files
-		srdFiles, err := s.store.List(ctx, s.filesBucket, "public/srd/"+yearStr, true)
-		if err != nil {
-			return nil, invalidf("list SRD documents for %d: %w", year, err)
-		}
-		for _, f := range srdFiles {
-			meeting := folderOf(f.Key)
-			if strings.HasPrefix(meeting, "SRD") || strings.HasPrefix(meeting, "Möte") {
-				filteredFiles = append(filteredFiles, f)
-			} else {
-				oldFormatSRDFiles = append(oldFormatSRDFiles, f)
-			}
-		}
+		maps.DeleteFunc(meetings, func(name string, _ *meetingFiles) bool { return !isGuild(name) })
 	case TypeOther:
-		for _, f := range files {
-			meeting := folderOf(f.Key)
-			if !strings.HasPrefix(meeting, "HTM") && !strings.HasPrefix(meeting, "VTM") &&
-				!strings.HasPrefix(meeting, "S") && meeting != yearStr {
-				filteredFiles = append(filteredFiles, f)
-			}
+		maps.DeleteFunc(meetings, func(name string, _ *meetingFiles) bool {
+			return isGuild(name) || strings.HasPrefix(name, "S") || name == yearStr
+		})
+	case TypeSRDMeeting:
+		srdBase := "public/srd/" + yearStr + "/"
+		srdFiles, err := s.listFiles(ctx, s.filesBucket, "public/srd/"+yearStr)
+		if err != nil {
+			return nil, fmt.Errorf("list SRD documents for %d: %w", year, err)
 		}
-	default: // TypeBoardMeeting - no further filter, already scoped by the "S" prefix.
-		filteredFiles = files
+		mergeMeetings(
+			meetings,
+			s.groupDocuments(ctx, s.filesBucket, srdFiles, srdBase, groupOptions{
+				oldSRDFormat: true,
+				meetingFilter: func(name string) bool {
+					return strings.HasPrefix(name, "SRD") || strings.HasPrefix(name, "Möte")
+				},
+			}),
+		)
 	}
-
-	groups := make(map[string][]storage.Object)
-	var order []string
-	addTo := func(key string, f storage.Object) {
-		if _, ok := groups[key]; !ok {
-			order = append(order, key)
-		}
-		groups[key] = append(groups[key], f)
-	}
-	for _, f := range oldFormatSRDFiles {
-		addTo(oldFormatSRDMeetingName(f.Name), f)
-	}
-	for _, f := range filteredFiles {
-		addTo(folderOf(f.Key), f)
-	}
-
-	meetings := make([]Meeting, 0, len(order))
-	for _, name := range order {
-		meetings = append(meetings, buildMeeting(name, groups[name]))
-	}
-	return meetings, nil
-}
-
-// buildMeeting ports Meeting.svelte's findFile: for each of
-// notice/agenda/minutes, the most-recently-modified file whose name
-// case-insensitively starts with one of that field's prefixes. Prefix, not
-// substring, and "mötesprotokoll" added, since upstream's fix to the same
-// function (synced in Phase 12) - a file merely mentioning "agenda"
-// somewhere in its name was being picked as the agenda.
-//
-// Real fix included here: the old minutes substring list was
-// ["Protokoll", "Minutes, Minute"] - a single string containing a literal
-// comma, so "Minutes"/"Minute" alone never actually matched anything (a
-// find/replace-with-comma typo, not an intentional compound phrase). Split
-// into three separate substrings here.
-func buildMeeting(name string, files []storage.Object) Meeting {
-	notice := findFile(files, "kallelse", "notice")
-	agenda := findFile(files, "föredragningslista", "foredragningslista", "agenda")
-	minutes := findFile(files, "protokoll", "mötesprotokoll", "minutes", "minute")
-
-	m := Meeting{Name: name}
-	if notice != nil {
-		f := toDocumentFile(*notice)
-		m.Notice = &f
-	}
-	if agenda != nil {
-		f := toDocumentFile(*agenda)
-		m.Agenda = &f
-	}
-	if minutes != nil {
-		f := toDocumentFile(*minutes)
-		m.Minutes = &f
-	}
-	for _, f := range files {
-		if (notice != nil && f.Key == notice.Key) ||
-			(agenda != nil && f.Key == agenda.Key) ||
-			(minutes != nil && f.Key == minutes.Key) {
-			continue
-		}
-		m.Files = append(m.Files, toDocumentFile(f))
-	}
-	return m
-}
-
-func findFile(files []storage.Object, prefixes ...string) *storage.Object {
-	var best *storage.Object
-	for i := range files {
-		f := &files[i]
-		lower := strings.ToLower(f.Name)
-		matched := false
-		for _, p := range prefixes {
-			if strings.HasPrefix(lower, p) {
-				matched = true
-				break
-			}
-		}
-		if !matched {
-			continue
-		}
-		if best == nil || f.LastModified.After(best.LastModified) {
-			best = f
-		}
-	}
-	return best
+	return s.meetingList(ctx, meetings), nil
 }
 
 // ListRequirements ports documents/requirements/+page.server.ts's load
@@ -277,24 +169,46 @@ func (s *Service) uploadTarget(
 	}
 }
 
-// deleteTarget resolves a file (its key, and the tab a delete was performed
-// from) to the bucket it lives in and that bucket's delete policy. The old
-// app's documents-page delete action always removed from documentsBucket,
-// which silently did nothing for SRD files in filesBucket. The SRD tab
-// lists both buckets (see ListMeetings), so its bucket comes from the key: only
-// filesBucket's SRD files are under public/srd/.
-func (s *Service) deleteTarget(docType, key string) (bucket, deletePolicy string, err error) {
+// bucketOf resolves a meeting document (its key, and the tab it was listed
+// on) to the bucket it lives in. The SRD tab lists both buckets (see
+// ListMeetings), so its bucket comes from the key: only the files bucket's
+// SRD files are under public/srd/.
+func (s *Service) bucketOf(docType, key string) (string, error) {
 	switch docType {
 	case TypeBoardMeeting, TypeGuildMeeting, TypeOther:
-		return s.documentsBucket, apinames.FileDocumentsDelete, nil
+		return s.documentsBucket, nil
 	case TypeSRDMeeting:
 		if strings.HasPrefix(key, "public/srd/") {
-			return s.filesBucket, apinames.FileFilesDelete, nil
+			return s.filesBucket, nil
 		}
-		return s.documentsBucket, apinames.FileDocumentsDelete, nil
+		return s.documentsBucket, nil
 	default:
-		return "", "", invalidf("unknown document type %q", docType)
+		return "", invalidf("unknown document type %q", docType)
 	}
+}
+
+// bucketPolicies returns the policies for updating and deleting files in a
+// bucket.
+func (s *Service) bucketPolicies(bucket string) (update, del string) {
+	if bucket == s.filesBucket {
+		return apinames.FileFilesUpdate, apinames.FileFilesDelete
+	}
+	return apinames.FileDocumentsUpdate, apinames.FileDocumentsDelete
+}
+
+// isSafePathSegment reports whether name can be one segment of a key.
+func isSafePathSegment(name string) bool {
+	return name != "." && !strings.ContainsAny(name, "/\\") && !strings.Contains(name, "..")
+}
+
+// cleanGroup trims a group name and checks it: at most 80 characters, and
+// one path segment.
+func cleanGroup(group string) (string, error) {
+	group = strings.TrimSpace(group)
+	if utf8.RuneCountInString(group) > 80 || (group != "" && !isSafePathSegment(group)) {
+		return "", invalidf("invalid group name %q", group)
+	}
+	return group, nil
 }
 
 // Upload stores one document/requirement/SRD file, gated on the
@@ -303,9 +217,20 @@ func (s *Service) Upload(
 	ctx context.Context,
 	uploadType string,
 	year int,
-	folder, name string,
+	folder, group, name string,
 	file UploadFile,
 ) (*StoredFile, error) {
+	folder = strings.TrimSpace(folder)
+	if folder == "" || !isSafePathSegment(folder) {
+		return nil, invalidf("invalid folder %q", folder)
+	}
+	group, err := cleanGroup(group)
+	if err != nil {
+		return nil, err
+	}
+	if uploadType == UploadRequirement {
+		group = ""
+	}
 	bucket, prefix, createPolicy, err := s.uploadTarget(uploadType, year, folder)
 	if err != nil {
 		return nil, err
@@ -313,26 +238,162 @@ func (s *Service) Upload(
 	if err := auth.Require(ctx, createPolicy); err != nil {
 		return nil, err
 	}
-	key := prefix + "/" + storage.PreparedFilename(name, file.Filename)
+	filename := storage.PreparedFilename(name, file.Filename)
+	if isReservedName(filename) {
+		return nil, invalidf("invalid file name %q", filename)
+	}
+	key := prefix + "/" + filename
 	url, err := s.store.Put(ctx, bucket, key, file.Data, -1)
 	if err != nil {
-		return nil, invalidf("upload %s: %w", key, err)
+		return nil, fmt.Errorf("upload %s: %w", key, err)
 	}
-	return &StoredFile{ID: key, Name: path.Base(key), URL: url}, nil
+	if group != "" {
+		err := s.updateGroupMap(ctx, bucket, prefix, func(groups groupMap) bool {
+			groups[meetingFileKey(key, prefix)] = group
+			return true
+		})
+		if err != nil {
+			return nil, fmt.Errorf("uploaded %s, but not its group: %w", key, err)
+		}
+	}
+	return &StoredFile{ID: key, Name: filename, URL: url}, nil
 }
 
-// Delete removes one meeting-document file, gated on the bucket its docType
-// actually lives in - see deleteTarget's doc comment for the bug this
-// fixes.
-func (s *Service) Delete(ctx context.Context, docType, id string) error {
-	bucket, deletePolicy, err := s.deleteTarget(docType, id)
+// Delete removes one meeting document, and its entry in the meeting's
+// sidecar. Needs the delete policy of the bucket it's in.
+func (s *Service) Delete(ctx context.Context, docType, key string) error {
+	if isReservedName(path.Base(key)) {
+		return invalidf("invalid file %q", key)
+	}
+	bucket, err := s.bucketOf(docType, key)
 	if err != nil {
 		return err
 	}
+	_, deletePolicy := s.bucketPolicies(bucket)
 	if err := auth.Require(ctx, deletePolicy); err != nil {
 		return err
 	}
-	return s.store.Remove(ctx, bucket, []string{id})
+	// The object goes first, so a failed delete never strips a surviving
+	// file's group. A leftover entry only matters if a new file reuses the
+	// path.
+	if err := s.store.Remove(ctx, bucket, []string{key}); err != nil {
+		return err
+	}
+	folder, ok := s.meetingFolder(bucket, key)
+	if !ok {
+		return nil
+	}
+	fileKey := meetingFileKey(key, folder)
+	return s.updateGroupMap(ctx, bucket, folder, func(groups groupMap) bool {
+		if _, ok := groups[fileKey]; !ok {
+			return false
+		}
+		delete(groups, fileKey)
+		return true
+	})
+}
+
+// Update renames a meeting document and sets its group. Needs the update
+// policy of the bucket it's in. Files the SRD tab lists from before the
+// meeting folders (public/srd/{year}/{file}) can be renamed but not grouped.
+func (s *Service) Update(
+	ctx context.Context,
+	docType, key string,
+	in MeetingDocumentInput,
+) (*MeetingDocument, error) {
+	name := strings.TrimSpace(in.Name)
+	if name == "" || utf8.RuneCountInString(name) > 200 || !isSafePathSegment(name) ||
+		isReservedName(name) {
+		return nil, invalidf("invalid file name %q", name)
+	}
+	group, err := cleanGroup(in.Group)
+	if err != nil {
+		return nil, err
+	}
+	fileName := path.Base(key)
+	if isReservedName(fileName) {
+		return nil, invalidf("invalid file %q", key)
+	}
+	bucket, err := s.bucketOf(docType, key)
+	if err != nil {
+		return nil, err
+	}
+	updatePolicy, _ := s.bucketPolicies(bucket)
+	if err := auth.Require(ctx, updatePolicy); err != nil {
+		return nil, err
+	}
+
+	oldSRD := bucket == s.filesBucket && strings.HasPrefix(key, "public/srd/") &&
+		strings.Count(key, "/") == 3
+	folder, inMeeting := s.meetingFolder(bucket, key)
+	switch {
+	case oldSRD && group != "":
+		return nil, invalidf("files from before the SRD meeting folders can't be grouped")
+	case oldSRD:
+		inMeeting = false
+	case !inMeeting:
+		return nil, invalidf("%q isn't in a meeting folder", key)
+	}
+
+	newKey := key
+	if name != fileName {
+		newKey = path.Join(path.Dir(key), name)
+		exists, err := s.store.Exists(ctx, bucket, newKey)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, fmt.Errorf("%w: %s", ErrFileExists, name)
+		}
+		if err := s.store.Copy(ctx, bucket, key, newKey); err != nil {
+			return nil, err
+		}
+		if err := s.store.Remove(ctx, bucket, []string{key}); err != nil {
+			return nil, err
+		}
+	}
+
+	if inMeeting {
+		// The rename went first: if the sidecar can't be written, the file
+		// keeps its new name and loses its group.
+		fileKey := meetingFileKey(key, folder)
+		nextKey := path.Join(path.Dir(fileKey), name)
+		err := s.updateGroupMap(ctx, bucket, folder, func(groups groupMap) bool {
+			current, has := groups[fileKey]
+			if (!has && group == "") || (name == fileName && current == group) {
+				return false
+			}
+			delete(groups, fileKey)
+			if group != "" {
+				groups[nextKey] = group
+			}
+			return true
+		})
+		if err != nil {
+			return nil, fmt.Errorf("renamed %s, but not its group: %w", key, err)
+		}
+	}
+
+	objects, err := s.store.List(ctx, bucket, newKey, false)
+	if err != nil {
+		return nil, err
+	}
+	for _, o := range objects {
+		if o.Key == newKey {
+			_, deletePolicy := s.bucketPolicies(bucket)
+			identity, _ := auth.FromContext(ctx)
+			return &MeetingDocument{
+				ID:           o.Key,
+				Name:         o.Name,
+				URL:          o.URL,
+				Size:         o.Size,
+				LastModified: o.LastModified,
+				CanEdit:      true,
+				CanDelete:    identity.Has(deletePolicy),
+			}, nil
+		}
+	}
+	return &MeetingDocument{ID: newKey, Name: name, CanEdit: true}, nil
 }
 
 // DeleteRequirement removes one requirement-profile file. Requirement

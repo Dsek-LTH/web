@@ -53,7 +53,7 @@
   >
     {#each data.committees
       .filter((e: Committee) => e.shortName != "dchip")
-      .sort( (e1: Committee, e2: Committee) => e1.nameSv.localeCompare(e2.nameSv, "sv"), ) as committee, index (committee.id)}
+      .sort( (e1: Committee, e2: Committee) => e1.nameSv.localeCompare(e2.nameSv, "sv") ) as committee, index (committee.id)}
       {@const previewUrl = committee.previewUrl ?? ""}
       <a class="group block" href="/committees/{committee.shortName}">
         <div

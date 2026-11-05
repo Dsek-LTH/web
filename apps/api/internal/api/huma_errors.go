@@ -85,6 +85,7 @@ var invalidInput = []error{
 	links.ErrInvalidInput,
 	pings.ErrInvalidInput,
 	documents.ErrInvalidInput,
+	medals.ErrInvalidInput,
 	tickets.ErrInvalidInput,
 	search.ErrInvalidInput,
 	comments.ErrInvalidContent,
@@ -98,6 +99,7 @@ var conflict = []error{
 	tickets.ErrOfferNotActive,
 	tickets.ErrClosed,
 	search.ErrSyncRunning,
+	documents.ErrFileExists,
 }
 
 // humaServiceError maps a domain-package error to a huma.StatusError (an

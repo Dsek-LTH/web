@@ -16,7 +16,7 @@ ACTIONLINT := go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
 
 # Prettier for the files outside the web app (which formats itself), at
 # the version apps/web locks, without a package.json in the root.
-PRETTIER := pnpm dlx prettier@3.4.2
+PRETTIER := pnpm dlx prettier@3.9.10
 ROOT_FILES := README.md AGENTS.md .github docker-compose.yml podman-dev.yaml \
 	lefthook.yml $(POPPLER)/*.js $(POPPLER)/*.md $(POPPLER)/package.json
 

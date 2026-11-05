@@ -13,18 +13,24 @@ type Meeting = components["schemas"]["Meeting"];
 
 export type BoardMeetingFiles = {
   name: string;
-  files: Array<components["schemas"]["StoredFile"]>;
+  files: Array<components["schemas"]["MeetingDocument"]>;
 };
 
-const boardMeetingFiles = (meeting: Meeting): BoardMeetingFiles => ({
-  name: meeting.name,
-  files: [
+// The notice, agenda and minutes first, then the meeting's other files.
+const boardMeetingFiles = (meeting: Meeting): BoardMeetingFiles => {
+  const files = [
     meeting.notice,
     meeting.agenda,
     meeting.minutes,
-    ...(meeting.files ?? []),
-  ].filter((file) => file !== undefined),
-});
+    ...meeting.groups.flatMap((group) => group.files),
+  ].filter((file) => file !== undefined);
+  return {
+    name: meeting.name,
+    files: files.filter(
+      (file, i) => files.findIndex((other) => other.id === file.id) === i,
+    ),
+  };
+};
 
 export const loadHomeData = async (event: RequestEvent) => {
   const { fetch } = event;

@@ -53,8 +53,7 @@
       bookables: Array<components["schemas"]["Bookable"]>;
       doors: Array<components["schemas"]["BookingDoor"]>;
       currentMemberSearchAttributes?:
-        | (MemberSearchReturnAttributes & { id: string })
-        | null;
+        (MemberSearchReturnAttributes & { id: string }) | null;
       initialAccessMembers?: Array<
         MemberSearchReturnAttributes & { id: string }
       >;

@@ -328,6 +328,16 @@ func TestFileAccess(t *testing.T) {
 	e.check(t, e.gate(http.MethodDelete,
 		fmt.Sprintf("/meeting-documents?type=board-meeting&key=public/%d/S01/x.png", year), nil,
 		allowed, apinames.FileDocumentsDelete))
+	rename := map[string]string{"name": "y.png", "group": "Motion"}
+	e.check(t, e.gate(http.MethodPut,
+		fmt.Sprintf("/meeting-documents?type=board-meeting&key=public/%d/S01/x.png", year), rename,
+		ok, apinames.FileDocumentsUpdate))
+	// The files bucket's SRD files need that bucket's update policy.
+	srdFile := fmt.Sprintf("/meeting-documents?type=SRD-meeting&key=public/srd/%d/SRD1/x.png", year)
+	e.check(t, []accessCase{
+		{e.as(2, apinames.FileDocumentsUpdate), http.MethodPut, srdFile, rename, denied},
+		{e.as(2, apinames.FileFilesUpdate), http.MethodPut, srdFile, rename, ok},
+	})
 
 	profiles := fmt.Sprintf("/requirement-profiles?year=%d", year)
 	e.check(t, e.gate(http.MethodGet, profiles, nil, ok, apinames.FileFilesRead))

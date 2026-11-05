@@ -110,7 +110,7 @@
           />
         {:else}
           <div
-            class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
+            class="text-muted-foreground flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
           >
             <span class="font-medium">{m.home_newsEmpty()}</span>
           </div>

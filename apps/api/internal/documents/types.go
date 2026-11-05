@@ -62,6 +62,7 @@ const (
 var (
 	ErrInvalidInput = errors.New("documents: invalid input")
 	ErrNotFound     = errors.New("documents: not found")
+	ErrFileExists   = errors.New("documents: a file with that name already exists")
 )
 
 func invalidf(format string, args ...any) error {
@@ -79,16 +80,38 @@ type StoredFile struct {
 	LastModified time.Time `json:"lastModified,omitzero" doc:"Omitted right after an upload."`
 }
 
-// Meeting is one meeting folder's files, with notice/agenda/minutes
-// resolved server-side (ported from Meeting.svelte's client-side findFile
-// logic, matching this project's "resolve once, serve resolved field"
-// convention) - Files holds everything else in the folder.
+// MeetingDocument is one file of a meeting.
+type MeetingDocument struct {
+	ID           string    `json:"id"                    doc:"The object's key in its bucket; what edit and delete take."`
+	Name         string    `json:"name"                  doc:"File name."`
+	URL          string    `json:"url"                   doc:"Public URL."`
+	Size         int64     `json:"size,omitempty"        doc:"Bytes."`
+	LastModified time.Time `json:"lastModified,omitzero" doc:"When it was last written."`
+	CanEdit      bool      `json:"canEdit"               doc:"Whether the caller may rename it or change its group."`
+	CanDelete    bool      `json:"canDelete"             doc:"Whether the caller may delete it."`
+}
+
+// MeetingDocumentGroup is the files of a meeting that share a group, as
+// recorded in the meeting folder's _groups.json.
+type MeetingDocumentGroup struct {
+	Name  string            `json:"name,omitempty" doc:"The group, e.g. a motion. Omitted for the files in no group, which come last."`
+	Files []MeetingDocument `json:"files"          doc:"By name."`
+}
+
+// Meeting is one meeting's files: its notice, agenda and minutes picked
+// out, and every file (those three included) by group.
 type Meeting struct {
-	Name    string       `json:"name"              doc:"The meeting folder's name, e.g. S01 or HTM1."`
-	Notice  *StoredFile  `json:"notice,omitempty"  doc:"The newest file named like a notice (kallelse)."`
-	Agenda  *StoredFile  `json:"agenda,omitempty"  doc:"The newest file named like an agenda (dagordning)."`
-	Minutes *StoredFile  `json:"minutes,omitempty" doc:"The newest file named like minutes (protokoll)."`
-	Files   []StoredFile `json:"files"             doc:"Every other file in the folder."`
+	Name    string                 `json:"name"              doc:"The meeting folder's name, e.g. S01 or HTM1."`
+	Notice  *MeetingDocument       `json:"notice,omitempty"  doc:"The newest file whose name mentions a notice (kallelse)."`
+	Agenda  *MeetingDocument       `json:"agenda,omitempty"  doc:"The newest file whose name mentions an agenda (föredragningslista)."`
+	Minutes *MeetingDocument       `json:"minutes,omitempty" doc:"The newest file whose name mentions minutes (protokoll)."`
+	Groups  []MeetingDocumentGroup `json:"groups"            doc:"Named groups first, by name."`
+}
+
+// MeetingDocumentInput renames a meeting document or changes its group.
+type MeetingDocumentInput struct {
+	Name  string `json:"name"            doc:"The file name, extension included." minLength:"1" maxLength:"200"`
+	Group string `json:"group,omitempty" doc:"The group; empty for none."                       maxLength:"80"`
 }
 
 // RequirementProfileFolder is one position/committee's requirement-profile folder

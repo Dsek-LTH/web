@@ -48,6 +48,12 @@ export default [
   ...svelte.configs.recommended,
   ...svelte.configs.prettier,
   {
+    // This rule doesn't understand $bindable() or $: reactivity, so everything it
+    // reports in components is a false positive.
+    files: ["**/*.svelte"],
+    rules: { "no-useless-assignment": "off" },
+  },
+  {
     plugins: {
       "@typescript-eslint": typescriptEslint,
     },
@@ -58,6 +64,7 @@ export default [
 
     languageOptions: {
       globals: {
+        ...globals.es2025,
         ...globals.browser,
         ...globals.node,
         Temporal: "readonly",

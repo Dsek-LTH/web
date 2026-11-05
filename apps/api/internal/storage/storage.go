@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime"
 	"path"
 	"regexp"
 	"sort"
@@ -46,6 +47,10 @@ type Backend interface {
 	Put(ctx context.Context, bucket, key string, data io.Reader, size int64) (string, error)
 	List(ctx context.Context, bucket, prefix string, recursive bool) ([]Object, error)
 	Get(ctx context.Context, bucket, key string) ([]byte, error)
+	// Exists reports whether bucket/key is an object.
+	Exists(ctx context.Context, bucket, key string) (bool, error)
+	// Copy copies bucket/src to bucket/dst on the server.
+	Copy(ctx context.Context, bucket, src, dst string) error
 	Remove(ctx context.Context, bucket string, keys []string) error
 	// Upload implements internal/integrations.Uploader.
 	Upload(ctx context.Context, filename string, data io.Reader) (string, error)
@@ -171,18 +176,45 @@ func (s *Store) Get(ctx context.Context, bucket, key string) ([]byte, error) {
 }
 
 // Put uploads data as bucket/key and returns its public URL. size may be
-// -1 if unknown (minio-go streams it in that case).
+// -1 if unknown (minio-go streams it in that case). The content type comes
+// from the key's extension, so browsers open a PDF instead of downloading
+// it.
 func (s *Store) Put(
 	ctx context.Context,
 	bucket, key string,
 	data io.Reader,
 	size int64,
 ) (string, error) {
-	_, err := s.client.PutObject(ctx, bucket, key, data, size, minio.PutObjectOptions{})
+	_, err := s.client.PutObject(ctx, bucket, key, data, size, minio.PutObjectOptions{
+		ContentType: mime.TypeByExtension(path.Ext(key)),
+	})
 	if err != nil {
 		return "", fmt.Errorf("storage: put %s/%s: %w", bucket, key, err)
 	}
 	return s.objectURL(bucket, key), nil
+}
+
+func (s *Store) Exists(ctx context.Context, bucket, key string) (bool, error) {
+	_, err := s.client.StatObject(ctx, bucket, key, minio.StatObjectOptions{})
+	if err == nil {
+		return true, nil
+	}
+	if minio.ToErrorResponse(err).Code == "NoSuchKey" {
+		return false, nil
+	}
+	return false, fmt.Errorf("storage: stat %s/%s: %w", bucket, key, err)
+}
+
+func (s *Store) Copy(ctx context.Context, bucket, src, dst string) error {
+	_, err := s.client.CopyObject(
+		ctx,
+		minio.CopyDestOptions{Bucket: bucket, Object: dst},
+		minio.CopySrcOptions{Bucket: bucket, Object: src},
+	)
+	if err != nil {
+		return fmt.Errorf("storage: copy %s/%s to %s: %w", bucket, src, dst, err)
+	}
+	return nil
 }
 
 // Remove deletes every given key from bucket in one batch call.
@@ -312,6 +344,18 @@ func (MockBackend) Get(_ context.Context, bucket, key string) ([]byte, error) {
 		key,
 		ErrNotFound,
 	)
+}
+
+func (MockBackend) Exists(_ context.Context, _, _ string) (bool, error) {
+	return false, nil
+}
+
+func (MockBackend) Copy(_ context.Context, bucket, src, dst string) error {
+	slog.Info(
+		"storage: STORAGE_MOCK - pretending to copy",
+		"bucket", bucket, "src", src, "dst", dst,
+	)
+	return nil
 }
 
 func (MockBackend) Remove(_ context.Context, bucket string, keys []string) error {

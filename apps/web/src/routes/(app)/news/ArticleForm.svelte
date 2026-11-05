@@ -225,7 +225,7 @@
           ""}</Select.Trigger
       >
       <Select.Content side="bottom">
-        {#each committees.sort( (c1, c2) => c1.name.localeCompare(c2.name), ) as committee (committee.id)}
+        {#each committees.sort( (c1, c2) => c1.name.localeCompare(c2.name) ) as committee (committee.id)}
           <Select.Item value={committee.id}>{committee.name}</Select.Item>
         {/each}
       </Select.Content>
@@ -254,18 +254,22 @@
     {#if schedulePublish}
       <div class="flex flex-row items-center gap-2">
         <DatePicker
-          bind:value={() => publishDate,
-          (value) => {
-            publishDate = value;
-            updatePublishTime();
-          }}
+          bind:value={
+            () => publishDate,
+            (value) => {
+              publishDate = value;
+              updatePublishTime();
+            }
+          }
         />
         <TimePicker
-          bind:value={() => publishTimeValue,
-          (value) => {
-            publishTimeValue = value;
-            updatePublishTime();
-          }}
+          bind:value={
+            () => publishTimeValue,
+            (value) => {
+              publishTimeValue = value;
+              updatePublishTime();
+            }
+          }
         />
       </div>
     {/if}

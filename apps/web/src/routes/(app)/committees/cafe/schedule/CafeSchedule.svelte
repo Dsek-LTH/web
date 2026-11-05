@@ -396,16 +396,18 @@
                     // No delay here, since we want to submit the worker id, not an empty string
                     formRefs[getKey(day, timeSlot)]?.requestSubmit();
                   }}
-                  bind:selectedMembers={() => {
-                    const member = memberMap[getKey(day, timeSlot)];
+                  bind:selectedMembers={
+                    () => {
+                      const member = memberMap[getKey(day, timeSlot)];
 
-                    if (!member) return [];
-                    return [{ ...member, fullName: getFullName(member) }];
-                  },
-                  (value) => {
-                    const key = getKey(day, timeSlot);
-                    memberMap[key] = value?.[0] ?? undefined;
-                  }}
+                      if (!member) return [];
+                      return [{ ...member, fullName: getFullName(member) }];
+                    },
+                    (value) => {
+                      const key = getKey(day, timeSlot);
+                      memberMap[key] = value?.[0] ?? undefined;
+                    }
+                  }
                   class="w-full"
                 />
                 <input

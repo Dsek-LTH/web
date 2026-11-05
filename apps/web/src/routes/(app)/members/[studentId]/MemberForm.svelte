@@ -86,8 +86,10 @@
           type="date"
           id="birthDate"
           name="birthDate"
-          bind:value={() => $form.birthDate?.toISOString().split("T")[0] ?? "",
-          (value) => ($form.birthDate = value ? new Date(value) : null)}
+          bind:value={
+            () => $form.birthDate?.toISOString().split("T")[0] ?? "",
+            (value) => ($form.birthDate = value ? new Date(value) : null)
+          }
           aria-invalid={!!$errors.birthDate}
           aria-errormessage={$errors.birthDate?.at(0)}><Calendar /></Input
         >

@@ -1381,7 +1381,7 @@ export interface paths {
     };
     /**
      * List medal recipients
-     * @description Who earned which medal after the given semester. Signed-in members only.
+     * @description Who earned which medal after the given semester, from VT 1982 to the current one. Signed-in members only.
      */
     get: operations["list-medal-recipients"];
     put?: never;
@@ -1424,15 +1424,19 @@ export interface paths {
      * @description One year's meetings of one kind, each with its notice, agenda and minutes picked out. Needs fileHandler:documents:read (fileHandler:files:read for SRD).
      */
     get: operations["list-meetings"];
-    put?: never;
+    /**
+     * Rename a meeting document or change its group
+     * @description The bucket is picked from type and key. Needs fileHandler:documents:update (fileHandler:files:update for the files bucket's SRD files).
+     */
+    put: operations["update-meeting-document"];
     /**
      * Upload a meeting document
-     * @description Into public/{year}/{folder} (SRD: public/srd/{year}/{folder}). Needs fileHandler:documents:create (fileHandler:files:create for SRD).
+     * @description Into public/{year}/{folder} (SRD: public/srd/{year}/{folder}), optionally in a group. Needs fileHandler:documents:create (fileHandler:files:create for SRD).
      */
     post: operations["upload-meeting-document"];
     /**
      * Delete a meeting document
-     * @description The bucket is picked from type. Needs fileHandler:documents:delete (fileHandler:files:delete for SRD).
+     * @description The bucket is picked from type and key; its entry in the meeting's groups goes too. Needs fileHandler:documents:delete (fileHandler:files:delete for the files bucket's SRD files).
      */
     delete: operations["delete-meeting-document"];
     options?: never;
@@ -3583,16 +3587,50 @@ export interface components {
       recipients: components["schemas"]["Member"][];
     };
     Meeting: {
-      /** @description The newest file named like an agenda (dagordning). */
-      agenda?: components["schemas"]["StoredFile"];
-      /** @description Every other file in the folder. */
-      files: components["schemas"]["StoredFile"][];
-      /** @description The newest file named like minutes (protokoll). */
-      minutes?: components["schemas"]["StoredFile"];
+      /** @description The newest file whose name mentions an agenda (föredragningslista). */
+      agenda?: components["schemas"]["MeetingDocument"];
+      /** @description Named groups first, by name. */
+      groups: components["schemas"]["MeetingDocumentGroup"][];
+      /** @description The newest file whose name mentions minutes (protokoll). */
+      minutes?: components["schemas"]["MeetingDocument"];
       /** @description The meeting folder's name, e.g. S01 or HTM1. */
       name: string;
-      /** @description The newest file named like a notice (kallelse). */
-      notice?: components["schemas"]["StoredFile"];
+      /** @description The newest file whose name mentions a notice (kallelse). */
+      notice?: components["schemas"]["MeetingDocument"];
+    };
+    MeetingDocument: {
+      /** @description Whether the caller may delete it. */
+      canDelete: boolean;
+      /** @description Whether the caller may rename it or change its group. */
+      canEdit: boolean;
+      /** @description The object's key in its bucket; what edit and delete take. */
+      id: string;
+      /**
+       * Format: date-time
+       * @description When it was last written.
+       */
+      lastModified?: string;
+      /** @description File name. */
+      name: string;
+      /**
+       * Format: int64
+       * @description Bytes.
+       */
+      size?: number;
+      /** @description Public URL. */
+      url: string;
+    };
+    MeetingDocumentGroup: {
+      /** @description By name. */
+      files: components["schemas"]["MeetingDocument"][];
+      /** @description The group, e.g. a motion. Omitted for the files in no group, which come last. */
+      name?: string;
+    };
+    MeetingDocumentInput: {
+      /** @description The group; empty for none. */
+      group?: string;
+      /** @description The file name, extension included. */
+      name: string;
     };
     MeetingDocumentSearchDocument: {
       /** @description The start of the PDF's text. */
@@ -7567,6 +7605,43 @@ export interface operations {
       };
     };
   };
+  "update-meeting-document": {
+    parameters: {
+      query: {
+        type: components["schemas"]["MeetingType"];
+        /** @description The file's id. */
+        key: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MeetingDocumentInput"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MeetingDocument"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
   "upload-meeting-document": {
     parameters: {
       query?: never;
@@ -7581,6 +7656,8 @@ export interface operations {
           file: Blob;
           /** @description The meeting folder, e.g. S01. */
           folder: string;
+          /** @description The file's group in the meeting, e.g. a motion; empty for none. */
+          group?: string;
           /** @description File name without extension; the uploaded file's extension is kept. */
           name: string;
           type: components["schemas"]["MeetingUploadType"];

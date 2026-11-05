@@ -43,13 +43,14 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		Path:          "/meeting-documents",
 		Tags:          tags,
 		Summary:       "Upload a meeting document",
-		Description:   "Into public/{year}/{folder} (SRD: public/srd/{year}/{folder}). Needs fileHandler:documents:create (fileHandler:files:create for SRD).",
+		Description:   "Into public/{year}/{folder} (SRD: public/srd/{year}/{folder}), optionally in a group. Needs fileHandler:documents:create (fileHandler:files:create for SRD).",
 		DefaultStatus: http.StatusCreated,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			Type   documents.MeetingUploadType `form:"type"   required:"true"`
 			Year   int                         `form:"year"   required:"true"`
-			Folder string                      `form:"folder" doc:"The meeting folder, e.g. S01."`
+			Folder string                      `form:"folder" doc:"The meeting folder, e.g. S01."                                    required:"true"`
+			Group  string                      `form:"group"  doc:"The file's group in the meeting, e.g. a motion; empty for none." required:"false"`
 			Name   string                      `form:"name"   doc:"File name without extension; the uploaded file's extension is kept."`
 			File   huma.FormFile               `form:"file"   required:"true"`
 		}]
@@ -57,11 +58,39 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 	) (*storedFileOutput, error) {
 		data := input.RawBody.Data()
 		file := documents.UploadFile{Filename: data.File.Filename, Data: data.File}
-		stored, err := svc.Upload(ctx, string(data.Type), data.Year, data.Folder, data.Name, file)
+		stored, err := svc.Upload(
+			ctx,
+			string(data.Type),
+			data.Year,
+			data.Folder,
+			data.Group,
+			data.Name,
+			file,
+		)
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
 		return &storedFileOutput{Body: *stored}, nil
+	})
+
+	huma.Register(api, huma.Operation{
+		OperationID: "update-meeting-document",
+		Method:      http.MethodPut,
+		Path:        "/meeting-documents",
+		Tags:        tags,
+		Summary:     "Rename a meeting document or change its group",
+		Description: "The bucket is picked from type and key. Needs fileHandler:documents:update (fileHandler:files:update for the files bucket's SRD files).",
+	}, func(ctx context.Context, input *struct {
+		Type documents.MeetingType `query:"type" required:"true"`
+		Key  string                `query:"key"  required:"true" doc:"The file's id."`
+		Body documents.MeetingDocumentInput
+	},
+	) (*struct{ Body documents.MeetingDocument }, error) {
+		doc, err := svc.Update(ctx, string(input.Type), input.Key, input.Body)
+		if err != nil {
+			return nil, humaServiceError(err)
+		}
+		return &struct{ Body documents.MeetingDocument }{Body: *doc}, nil
 	})
 
 	huma.Register(api, huma.Operation{
@@ -70,7 +99,7 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		Path:          "/meeting-documents",
 		Tags:          tags,
 		Summary:       "Delete a meeting document",
-		Description:   "The bucket is picked from type. Needs fileHandler:documents:delete (fileHandler:files:delete for SRD).",
+		Description:   "The bucket is picked from type and key; its entry in the meeting's groups goes too. Needs fileHandler:documents:delete (fileHandler:files:delete for the files bucket's SRD files).",
 		DefaultStatus: http.StatusNoContent,
 	}, func(ctx context.Context, input *struct {
 		Type documents.MeetingType `query:"type" required:"true"`
@@ -117,7 +146,7 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			Year   int           `form:"year"   required:"true"`
-			Folder string        `form:"folder" doc:"Usually the committee or position."`
+			Folder string        `form:"folder" doc:"Usually the committee or position." required:"true"`
 			Name   string        `form:"name"   doc:"File name without extension; the uploaded file's extension is kept."`
 			File   huma.FormFile `form:"file"   required:"true"`
 		}]
@@ -130,6 +159,7 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 			documents.UploadRequirement,
 			data.Year,
 			data.Folder,
+			"",
 			data.Name,
 			file,
 		)

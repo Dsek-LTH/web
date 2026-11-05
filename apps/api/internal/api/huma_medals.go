@@ -48,7 +48,7 @@ func registerMedalRoutes(api huma.API, svc *medals.Service) {
 		Path:        "/medals",
 		Tags:        tags,
 		Summary:     "List medal recipients",
-		Description: "Who earned which medal after the given semester. Signed-in members only.",
+		Description: "Who earned which medal after the given semester, from VT 1982 to the current one. Signed-in members only.",
 	}, func(ctx context.Context, input *semesterInput) (*struct{ Body []medals.MedalRecipients }, error) {
 		recipients, err := medalRecipients(ctx, svc, input.Semester)
 		if err != nil {

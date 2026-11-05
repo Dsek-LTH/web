@@ -306,11 +306,13 @@
     <FileUpload
       accept="image/*"
       aria-invalid={!!$errors.image}
-      bind:files={() => imageFiles,
-      (files) => {
-        imageFiles = files;
-        $form.image = files?.item(0) ?? null;
-      }}
+      bind:files={
+        () => imageFiles,
+        (files) => {
+          imageFiles = files;
+          $form.image = files?.item(0) ?? null;
+        }
+      }
     />
     {#if $errors.image}
       <p class="text-destructive text-sm">{$errors.image.at(0)}</p>
@@ -332,8 +334,9 @@
     <div class="flex flex-row items-center gap-2">
       <Checkbox
         id="isCancelled"
-        bind:checked={() => !!$form.isCancelled,
-        (checked) => ($form.isCancelled = checked)}
+        bind:checked={
+          () => !!$form.isCancelled, (checked) => ($form.isCancelled = checked)
+        }
       />
       <Label for="isCancelled">{m.events_cancelEvent()}</Label>
     </div>
@@ -375,21 +378,23 @@
         {#if creating}
           <DatePicker
             error={!!$errors.recurringEndDatetime}
-            bind:value={() =>
-              toCalendarDate(
-                fromDate($form.recurringEndDatetime, tz),
-              ).toString(),
-            (newDate) => {
-              const parsed = parseDate(newDate);
-              // Keep the whole last day included in the recurring range.
-              $form.recurringEndDatetime = new CalendarDateTime(
-                parsed.year,
-                parsed.month,
-                parsed.day,
-                23,
-                59,
-              ).toDate(tz);
-            }}
+            bind:value={
+              () =>
+                toCalendarDate(
+                  fromDate($form.recurringEndDatetime, tz),
+                ).toString(),
+              (newDate) => {
+                const parsed = parseDate(newDate);
+                // Keep the whole last day included in the recurring range.
+                $form.recurringEndDatetime = new CalendarDateTime(
+                  parsed.year,
+                  parsed.month,
+                  parsed.day,
+                  23,
+                  59,
+                ).toDate(tz);
+              }
+            }
           />
           {#if $errors.recurringEndDatetime}
             <p class="text-destructive text-sm">
@@ -418,8 +423,10 @@
           </AlertDialog.Header>
           <AlertDialog.Description>
             <RadioGroup.Root
-              bind:value={() => $form.editType ?? "THIS",
-              (value) => ($form.editType = value as ActionType)}
+              bind:value={
+                () => $form.editType ?? "THIS",
+                (value) => ($form.editType = value as ActionType)
+              }
               class="px-6"
             >
               {#each editTypes as { value, label } (value)}

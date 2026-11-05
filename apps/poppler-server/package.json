@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.22.3",
+    "express": "^5.3.0",
     "multer": "2.5.0"
   }
 }

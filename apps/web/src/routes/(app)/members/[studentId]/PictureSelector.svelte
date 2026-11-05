@@ -201,8 +201,8 @@
           cropShape="round"
           showGrid={false}
           image={avatar}
-          on:cropcomplete={(e) => {
-            crop = e.detail.pixels;
+          oncropcomplete={(e) => {
+            crop = e.pixels;
           }}
         />
       </div>

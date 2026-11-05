@@ -102,9 +102,11 @@ const (
 	FileAlbumsCreate    = "fileHandler:albums:create"
 	FileDocumentsRead   = "fileHandler:documents:read"
 	FileDocumentsCreate = "fileHandler:documents:create"
+	FileDocumentsUpdate = "fileHandler:documents:update"
 	FileDocumentsDelete = "fileHandler:documents:delete"
 	FileFilesRead       = "fileHandler:files:read"
 	FileFilesCreate     = "fileHandler:files:create"
+	FileFilesUpdate     = "fileHandler:files:update"
 	FileFilesDelete     = "fileHandler:files:delete"
 
 	// Booking. Naming mirrors
@@ -234,9 +236,11 @@ func All() []string {
 		FileAlbumsCreate,
 		FileDocumentsRead,
 		FileDocumentsCreate,
+		FileDocumentsUpdate,
 		FileDocumentsDelete,
 		FileFilesRead,
 		FileFilesCreate,
+		FileFilesUpdate,
 		FileFilesDelete,
 		BookingRequestCreate,
 		BookingRequestRead,
