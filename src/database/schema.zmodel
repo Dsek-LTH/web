@@ -78,11 +78,17 @@ model ArticleComment {
     published DateTime @db.Timestamptz(6)
     article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_article_id_foreign")
     member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_member_id_foreign")
+    /// Set on replies: the comment being answered, which may itself be a reply.
+    parentId  String?  @map("parent_id") @db.Uuid
+    parent    ArticleComment? @relation("ArticleCommentReplies", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "article_comments_parent_id_foreign")
+    replies   ArticleComment[] @relation("ArticleCommentReplies")
 
     @@allow("create", auth() != null)
     @@allow("read", true)
+    // removeCommentAction (src/lib/zod/comments.ts) re-checks these delete rules by hand. Keep it in sync.
     @@allow("delete", has(auth().policies, "news:article:comment:delete"))
     @@allow("delete", auth().memberId == memberId)
+    @@index([parentId], map: "article_comments_parent_id_index")
     @@map("article_comments")
 }
 
@@ -397,11 +403,17 @@ model EventComment {
     published DateTime @db.Timestamptz(6)
     event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_event_id_foreign")
     member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_member_id_foreign")
+    /// Set on replies: the comment being answered, which may itself be a reply.
+    parentId  String?  @map("parent_id") @db.Uuid
+    parent    EventComment? @relation("EventCommentReplies", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "event_comments_parent_id_foreign")
+    replies   EventComment[] @relation("EventCommentReplies")
 
     @@allow("create", has(auth().policies, "event:comment"))
     @@allow("read", has(auth().policies, "event:read"))
+    // removeCommentAction (src/lib/zod/comments.ts) re-checks these delete rules by hand. Keep it in sync.
     @@allow("delete", has(auth().policies, "event:comment:delete"))
     @@allow("delete", auth().memberId == memberId)
+    @@index([parentId], map: "event_comments_parent_id_index")
     @@map("event_comments")
 }
 

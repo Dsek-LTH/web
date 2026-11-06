@@ -8,15 +8,37 @@
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import Trash from "@lucide/svelte/icons/trash";
   import * as m from "$paraglide/messages";
+  import { Button } from "$lib/components/ui/button";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data }: { data: PageData } = $props();
+
+  // A scheduled article has no public page yet, so go back to /news (where it is listed),
+  // same as the update action's redirect.
+  const publishTime = $derived(data.form.data.publishTime);
+  const backHref = $derived(
+    publishTime && publishTime > data.now ? "/news" : `/news/${data.slug}`,
+  );
 
   // svelte-ignore state_referenced_locally
   const superform = superForm(data.form, {
     dataType: "json",
     delayMs: 500,
+    // Superforms asks before any navigation (Back, Cancel, closing the tab) with unsaved changes.
+    taintedMessage: m.news_unsavedChanges(),
   });
 </script>
+
+<SetPageTitle title={m.news_editArticle()} />
+
+<div class="flex flex-col gap-2 pt-4 pb-6">
+  <Button variant="ghost" href={backHref} class="-ml-3 self-start">
+    <ArrowLeft />
+    {m.back()}
+  </Button>
+  <h1 class="text-3xl font-bold">{m.news_editArticle()}</h1>
+</div>
 
 <ArticleEditor
   allTags={data.allTags}
@@ -28,6 +50,7 @@
   now={data.now}
   isEditing
   formAction="?/update"
+  cancelHref={backHref}
 />
 
 {#if data.canDelete}

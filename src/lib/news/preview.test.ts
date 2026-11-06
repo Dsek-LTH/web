@@ -208,6 +208,44 @@ describe("buildArticlePreview", () => {
     expect(preview.cardImageUrl).toBe("/cover.jpg");
   });
 
+  it("uses the chosen cover among new uploads when creating", () => {
+    const preview = buildArticlePreview({
+      form: { ...baseForm, coverImageIndex: 1 },
+      tags,
+      committees,
+      language: "sv",
+      createdAt,
+      now,
+      uploadedImageUrls: ["blob:new-1", "blob:new-2"],
+    });
+
+    expect(preview.cardImageUrl).toBe("blob:new-2");
+  });
+
+  it("indexes the cover across existing images, then uploads, when editing", () => {
+    const form = {
+      ...baseForm,
+      imageUrls: ["/a.jpg", "/b.jpg"],
+      imageUrl: "/a.jpg",
+    };
+    const build = (coverImageIndex: number) =>
+      buildArticlePreview({
+        form: { ...form, coverImageIndex },
+        tags,
+        committees,
+        language: "sv",
+        createdAt,
+        now,
+        uploadedImageUrls: ["blob:new-1"],
+        isEditing: true,
+      }).cardImageUrl;
+
+    expect(build(1)).toBe("/b.jpg");
+    expect(build(2)).toBe("blob:new-1");
+    // An index past the end falls back to the first image, like the server does.
+    expect(build(5)).toBe("/a.jpg");
+  });
+
   it("uses the scheduled publish date for the card when set", () => {
     const preview = buildArticlePreview({
       form: { ...baseForm, publishTime: publishedAt },

@@ -6,6 +6,7 @@
   import { getFullName } from "$lib/utils/client/member";
   import { getPositionLink } from "$lib/utils/positions";
   import { twMerge } from "tailwind-merge";
+  import type { Snippet } from "svelte";
 
   let {
     class: klass,
@@ -15,6 +16,7 @@
     type = "Member",
     links = true,
     lazy = false,
+    meta,
   }: {
     class?: string;
     member: Pick<
@@ -29,7 +31,13 @@
     position: Pick<ExtendedPrismaModel<"Position">, "id" | "name"> | undefined;
     links?: boolean;
     lazy?: boolean;
+    /** Extra muted info after the position on the second line, e.g. a date. */
+    meta?: Snippet;
   } = $props();
+
+  let showPosition = $derived(
+    (type !== "Custom" || customAuthor == null) && !!position,
+  );
 </script>
 
 <div class={twMerge("flex flex-row items-center gap-2 p-1", klass)}>
@@ -67,16 +75,24 @@
       </a>
     {/if}
 
-    {#if (type !== "Custom" || customAuthor == null) && position}
-      <a
-        href={getPositionLink(position.id)}
-        tabindex={links ? 0 : -1}
-        class="text-muted-foreground hover:opacity-80 focus:opacity-80 {links
-          ? ''
-          : 'pointer-events-none'}"
-      >
-        {position.name}
-      </a>
+    {#if (showPosition && position) || meta}
+      <div class="text-muted-foreground flex flex-wrap items-center gap-x-1.5">
+        {#if showPosition && position}
+          <a
+            href={getPositionLink(position.id)}
+            tabindex={links ? 0 : -1}
+            class="hover:opacity-80 focus:opacity-80 {links
+              ? ''
+              : 'pointer-events-none'}"
+          >
+            {position.name}
+          </a>
+        {/if}
+        {#if showPosition && meta}
+          <span aria-hidden="true">·</span>
+        {/if}
+        {@render meta?.()}
+      </div>
     {/if}
   </div>
 </div>

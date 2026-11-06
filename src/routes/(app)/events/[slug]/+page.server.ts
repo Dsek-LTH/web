@@ -1,4 +1,5 @@
 import { getAllTaggedMembers } from "$lib/utils/commentTagging";
+import { hideRemovedCommentAuthors } from "$lib/components/comments/threads";
 import {
   commentAction,
   commentSchema,
@@ -34,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const canScan = isAuthorized(apiNames.WEBSHOP.MANAGE, user);
   const canDelete = isAuthorized(apiNames.EVENT.DELETE, user);
   return {
-    event,
+    event: { ...event, comments: hideRemovedCommentAuthors(event.comments) },
     allTaggedMembers,
     canEdit,
     canScan,
