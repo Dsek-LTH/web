@@ -55,6 +55,7 @@ type Querier interface {
 	CloseWaitlistGap(ctx context.Context, arg CloseWaitlistGapParams) error
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
+	CountBookablesByID(ctx context.Context, ids []pgtype.UUID) (int64, error)
 	CountDoorsByName(ctx context.Context, names []string) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
@@ -556,6 +557,9 @@ type Querier interface {
 	// decided in Go (members.BirthdayOn), which also handles 29 February.
 	ListVisibleMembersWithBirthDate(ctx context.Context) ([]ListVisibleMembersWithBirthDateRow, error)
 	ListWaitlistFrontForUpdate(ctx context.Context, arg ListWaitlistFrontForUpdateParams) ([]TicketQueueEntry, error)
+	// Locks the request row for the rest of the transaction, so concurrent
+	// edits and accept/reject of one request run one after another.
+	LockBookingRequest(ctx context.Context, id pgtype.UUID) (LockBookingRequestRow, error)
 	LockRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
 	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
 	// sent_by_from_member says which direction this ping went relative to the

@@ -12,6 +12,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
@@ -36,12 +37,53 @@ func invalidf(format string, args ...any) error {
 const upcomingWindow = -7 * 24 * time.Hour
 
 type Service struct {
+	pool     *pgxpool.Pool
 	queries  *db.Queries
 	notifier integrations.Notifier
 }
 
-func NewService(dbtx db.DBTX, notifier integrations.Notifier) *Service {
-	return &Service{queries: db.New(dbtx), notifier: notifier}
+func NewService(pool *pgxpool.Pool, notifier integrations.Notifier) *Service {
+	return &Service{pool: pool, queries: db.New(pool), notifier: notifier}
+}
+
+// inTx runs fn in a transaction, committed only if fn succeeds, so a
+// booking request write never half-applies.
+func (s *Service) inTx(ctx context.Context, fn func(q *db.Queries) error) error {
+	return pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
+		return fn(s.queries.WithTx(tx))
+	})
+}
+
+// lockBookingRequest locks a request's row until the transaction ends.
+func lockBookingRequest(
+	ctx context.Context,
+	q *db.Queries,
+	id pgtype.UUID,
+) (db.LockBookingRequestRow, error) {
+	row, err := q.LockBookingRequest(ctx, id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return row, ErrNotFound
+		}
+		return row, fmt.Errorf("lock booking request: %w", err)
+	}
+	return row, nil
+}
+
+// checkBookables parses bookable ids and checks every one exists.
+func checkBookables(ctx context.Context, q *db.Queries, ids []string) ([]pgtype.UUID, error) {
+	bookableIDs, err := dbutil.ParseUUIDs(uniqueStrings(ids))
+	if err != nil {
+		return nil, invalidf("invalid bookable id: %v", err)
+	}
+	n, err := q.CountBookablesByID(ctx, bookableIDs)
+	if err != nil {
+		return nil, fmt.Errorf("look up bookables: %w", err)
+	}
+	if int(n) != len(bookableIDs) {
+		return nil, invalidf("unknown bookable")
+	}
+	return bookableIDs, nil
 }
 
 // --- Bookable categories ---
@@ -369,45 +411,57 @@ func (s *Service) Create(
 	if err := validateBookingRequestInput(in); err != nil {
 		return nil, nil, err
 	}
-	bookableIDs, err := dbutil.ParseUUIDs(in.BookableIDs)
-	if err != nil {
-		return nil, nil, invalidf("invalid bookable id: %v", err)
-	}
 
 	var bookerID pgtype.UUID
 	if identity.MemberID != "" {
+		var err error
 		bookerID, err = dbutil.ParseUUID(identity.MemberID)
 		if err != nil {
 			return nil, nil, fmt.Errorf("parse acting member id: %w", err)
 		}
 	}
 
-	row, err := s.queries.CreateBookingRequest(ctx, db.CreateBookingRequestParams{
-		BookerID: bookerID,
-		Start:    dbutil.ToTimestamptz(&in.Start),
-		End:      dbutil.ToTimestamptz(&in.End),
-		Event:    dbutil.ToText(&in.Event),
-		Status:   db.BookingRequestStatusPENDING,
+	var id pgtype.UUID
+	var bookableIDs []pgtype.UUID
+	err := s.inTx(ctx, func(q *db.Queries) error {
+		var err error
+		bookableIDs, err = checkBookables(ctx, q, in.BookableIDs)
+		if err != nil {
+			return err
+		}
+		access, err := checkAccess(ctx, q, in.BookingAccessInput)
+		if err != nil {
+			return err
+		}
+		row, err := q.CreateBookingRequest(ctx, db.CreateBookingRequestParams{
+			BookerID: bookerID,
+			Start:    dbutil.ToTimestamptz(&in.Start),
+			End:      dbutil.ToTimestamptz(&in.End),
+			Event:    dbutil.ToText(&in.Event),
+			Status:   db.BookingRequestStatusPENDING,
+		})
+		if err != nil {
+			return fmt.Errorf("create booking request: %w", err)
+		}
+		id = row.ID
+		if err := q.AddBookingRequestBookables(ctx, db.AddBookingRequestBookablesParams{
+			BookableIds:      bookableIDs,
+			BookingRequestID: id,
+		}); err != nil {
+			return fmt.Errorf("link bookables: %w", err)
+		}
+		return setAccess(ctx, q, id, access)
 	})
 	if err != nil {
-		return nil, nil, fmt.Errorf("create booking request: %w", err)
-	}
-	if err := s.queries.AddBookingRequestBookables(ctx, db.AddBookingRequestBookablesParams{
-		BookableIds:      bookableIDs,
-		BookingRequestID: row.ID,
-	}); err != nil {
-		return nil, nil, fmt.Errorf("link bookables: %w", err)
-	}
-	if err := s.setAccess(ctx, row.ID, in.BookingAccessInput); err != nil {
 		return nil, nil, err
 	}
 
-	conflicts, err := s.conflicts(ctx, bookableIDs, in.Start, in.End, &row.ID)
+	conflicts, err := s.conflicts(ctx, bookableIDs, in.Start, in.End, &id)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	result, err := s.getFull(ctx, row.ID)
+	result, err := s.getFull(ctx, id)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -439,61 +493,70 @@ func (s *Service) Update(
 	if err != nil {
 		return nil, nil, invalidf("invalid id: %v", err)
 	}
-	existing, err := s.queries.GetBookingRequestByID(ctx, uid)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil, ErrNotFound
-		}
-		return nil, nil, fmt.Errorf("get booking request: %w", err)
-	}
-	isAdmin := identity.Has(apinames.BookingRequestUpdate)
-	isOwner := existing.BookerID.Valid && dbutil.UUIDStr(existing.BookerID) == identity.MemberID
-	if !isAdmin && !isOwner {
-		return nil, nil, auth.ErrForbidden
-	}
-	if err := validateBookingRequestInput(in); err != nil {
-		return nil, nil, err
-	}
-	bookableIDs, err := dbutil.ParseUUIDs(in.BookableIDs)
-	if err != nil {
-		return nil, nil, invalidf("invalid bookable id: %v", err)
-	}
 
-	status := existing.Status
-	if !isAdmin {
-		status = db.BookingRequestStatusPENDING
-	}
-
-	if _, err := s.queries.UpdateBookingRequest(ctx, db.UpdateBookingRequestParams{
-		ID:     uid,
-		Start:  dbutil.ToTimestamptz(&in.Start),
-		End:    dbutil.ToTimestamptz(&in.End),
-		Event:  dbutil.ToText(&in.Event),
-		Status: status,
-	}); err != nil {
-		return nil, nil, fmt.Errorf("update booking request: %w", err)
-	}
-	if err := s.queries.ClearBookingRequestBookables(ctx, uid); err != nil {
-		return nil, nil, fmt.Errorf("clear bookables: %w", err)
-	}
-	if err := s.queries.AddBookingRequestBookables(ctx, db.AddBookingRequestBookablesParams{
-		BookableIds:      bookableIDs,
-		BookingRequestID: uid,
-	}); err != nil {
-		return nil, nil, fmt.Errorf("link bookables: %w", err)
-	}
-	if err := s.setAccess(ctx, uid, in.BookingAccessInput); err != nil {
-		return nil, nil, err
-	}
-	// A still-accepted request (an admin edit keeps the status) gets its
-	// door access re-granted for the new time/doors/members; any other
-	// status loses whatever an earlier acceptance granted.
-	if status == db.BookingRequestStatusACCEPTED {
-		if err := s.grantDoorAccess(ctx, uid); err != nil {
-			return nil, nil, err
+	var bookableIDs []pgtype.UUID
+	err = s.inTx(ctx, func(q *db.Queries) error {
+		existing, err := lockBookingRequest(ctx, q, uid)
+		if err != nil {
+			return err
 		}
-	} else if err := s.queries.ClearBookingDoorAccess(ctx, uid); err != nil {
-		return nil, nil, fmt.Errorf("clear booking door access: %w", err)
+		isAdmin := identity.Has(apinames.BookingRequestUpdate)
+		isOwner := existing.BookerID.Valid &&
+			dbutil.UUIDStr(existing.BookerID) == identity.MemberID
+		if !isAdmin && !isOwner {
+			return auth.ErrForbidden
+		}
+		if err := validateBookingRequestInput(in); err != nil {
+			return err
+		}
+		bookableIDs, err = checkBookables(ctx, q, in.BookableIDs)
+		if err != nil {
+			return err
+		}
+		access, err := checkAccess(ctx, q, in.BookingAccessInput)
+		if err != nil {
+			return err
+		}
+
+		status := existing.Status
+		if !isAdmin {
+			status = db.BookingRequestStatusPENDING
+		}
+
+		if _, err := q.UpdateBookingRequest(ctx, db.UpdateBookingRequestParams{
+			ID:     uid,
+			Start:  dbutil.ToTimestamptz(&in.Start),
+			End:    dbutil.ToTimestamptz(&in.End),
+			Event:  dbutil.ToText(&in.Event),
+			Status: status,
+		}); err != nil {
+			return fmt.Errorf("update booking request: %w", err)
+		}
+		if err := q.ClearBookingRequestBookables(ctx, uid); err != nil {
+			return fmt.Errorf("clear bookables: %w", err)
+		}
+		if err := q.AddBookingRequestBookables(ctx, db.AddBookingRequestBookablesParams{
+			BookableIds:      bookableIDs,
+			BookingRequestID: uid,
+		}); err != nil {
+			return fmt.Errorf("link bookables: %w", err)
+		}
+		if err := setAccess(ctx, q, uid, access); err != nil {
+			return err
+		}
+		// A still-accepted request (an admin edit keeps the status) gets its
+		// door access re-granted for the new time/doors/members; any other
+		// status loses whatever an earlier acceptance granted.
+		if status == db.BookingRequestStatusACCEPTED {
+			return grantDoorAccess(ctx, q, uid)
+		}
+		if err := q.ClearBookingDoorAccess(ctx, uid); err != nil {
+			return fmt.Errorf("clear booking door access: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, nil, err
 	}
 
 	conflicts, err := s.conflicts(ctx, bookableIDs, in.Start, in.End, &uid)
@@ -522,21 +585,21 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return invalidf("invalid id: %v", err)
 	}
-	existing, err := s.queries.GetBookingRequestByID(ctx, uid)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return ErrNotFound
+	return s.inTx(ctx, func(q *db.Queries) error {
+		existing, err := lockBookingRequest(ctx, q, uid)
+		if err != nil {
+			return err
 		}
-		return fmt.Errorf("get booking request: %w", err)
-	}
-	isOwner := existing.BookerID.Valid && dbutil.UUIDStr(existing.BookerID) == identity.MemberID
-	if !identity.Has(apinames.BookingRequestDelete) && !isOwner {
-		return auth.ErrForbidden
-	}
-	if err := s.queries.DeleteBookingRequest(ctx, uid); err != nil {
-		return fmt.Errorf("delete booking request: %w", err)
-	}
-	return nil
+		isOwner := existing.BookerID.Valid &&
+			dbutil.UUIDStr(existing.BookerID) == identity.MemberID
+		if !identity.Has(apinames.BookingRequestDelete) && !isOwner {
+			return auth.ErrForbidden
+		}
+		if err := q.DeleteBookingRequest(ctx, uid); err != nil {
+			return fmt.Errorf("delete booking request: %w", err)
+		}
+		return nil
+	})
 }
 
 // SetStatus is the accept/reject admin action - requires BookingRequestUpdate
@@ -562,13 +625,6 @@ func (s *Service) SetStatus(
 	if err != nil {
 		return nil, invalidf("invalid id: %v", err)
 	}
-	existing, err := s.queries.GetBookingRequestByID(ctx, uid)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrNotFound
-		}
-		return nil, fmt.Errorf("get booking request: %w", err)
-	}
 
 	status := db.BookingRequestStatusDENIED
 	statusText := "denied"
@@ -576,23 +632,38 @@ func (s *Service) SetStatus(
 		status = db.BookingRequestStatusACCEPTED
 		statusText = "accepted"
 	}
-	if accepted && access != nil {
-		if err := s.setAccess(ctx, uid, *access); err != nil {
-			return nil, err
+	var existing db.LockBookingRequestRow
+	err = s.inTx(ctx, func(q *db.Queries) error {
+		var err error
+		existing, err = lockBookingRequest(ctx, q, uid)
+		if err != nil {
+			return err
 		}
-	}
-	if _, err := s.queries.UpdateBookingRequestStatus(ctx, db.UpdateBookingRequestStatusParams{
-		ID:     uid,
-		Status: status,
-	}); err != nil {
-		return nil, fmt.Errorf("update booking request status: %w", err)
-	}
-	if accepted {
-		if err := s.grantDoorAccess(ctx, uid); err != nil {
-			return nil, err
+		if accepted && access != nil {
+			checked, err := checkAccess(ctx, q, *access)
+			if err != nil {
+				return err
+			}
+			if err := setAccess(ctx, q, uid, checked); err != nil {
+				return err
+			}
 		}
-	} else if err := s.queries.ClearBookingDoorAccess(ctx, uid); err != nil {
-		return nil, fmt.Errorf("clear booking door access: %w", err)
+		if _, err := q.UpdateBookingRequestStatus(ctx, db.UpdateBookingRequestStatusParams{
+			ID:     uid,
+			Status: status,
+		}); err != nil {
+			return fmt.Errorf("update booking request status: %w", err)
+		}
+		if accepted {
+			return grantDoorAccess(ctx, q, uid)
+		}
+		if err := q.ClearBookingDoorAccess(ctx, uid); err != nil {
+			return fmt.Errorf("clear booking door access: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	result, err := s.getFull(ctx, uid)

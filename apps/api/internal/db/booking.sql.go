@@ -93,6 +93,17 @@ func (q *Queries) ClearBookingRequestBookables(ctx context.Context, bookingReque
 	return err
 }
 
+const countBookablesByID = `-- name: CountBookablesByID :one
+SELECT count(*) FROM bookables WHERE id = ANY($1::uuid[])
+`
+
+func (q *Queries) CountBookablesByID(ctx context.Context, ids []pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countBookablesByID, ids)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countDoorsByName = `-- name: CountDoorsByName :one
 SELECT count(*) FROM doors WHERE name = ANY($1::text[])
 `
@@ -786,6 +797,25 @@ func (q *Queries) ListUpcomingBookingRequests(ctx context.Context, since pgtype.
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockBookingRequest = `-- name: LockBookingRequest :one
+SELECT id, booker_id, status FROM booking_requests WHERE id = $1 FOR UPDATE
+`
+
+type LockBookingRequestRow struct {
+	ID       pgtype.UUID          `json:"id"`
+	BookerID pgtype.UUID          `json:"booker_id"`
+	Status   BookingRequestStatus `json:"status"`
+}
+
+// Locks the request row for the rest of the transaction, so concurrent
+// edits and accept/reject of one request run one after another.
+func (q *Queries) LockBookingRequest(ctx context.Context, id pgtype.UUID) (LockBookingRequestRow, error) {
+	row := q.db.QueryRow(ctx, lockBookingRequest, id)
+	var i LockBookingRequestRow
+	err := row.Scan(&i.ID, &i.BookerID, &i.Status)
+	return i, err
 }
 
 const updateBookable = `-- name: UpdateBookable :one
