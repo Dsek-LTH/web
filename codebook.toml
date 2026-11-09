@@ -125,6 +125,7 @@ ignore_patterns = [
     '[Nn]0llegeneral',
     '[Nn]0llning',
     '[Nn]0llor', # This looks better than the English or null plural-form.
+    '[Nn]0llu',
     'N0LLA',
     'N0LLNING',
 
@@ -157,6 +158,7 @@ ignore_patterns = [
     'phaddrar', # Should be "phadders".
     'see_staben',
     'Tomembers',
+    'cafe24',
 
     # TODO: Remove these when `/expenses` is removed.
     'D-sektionen Expense Report',

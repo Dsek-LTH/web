@@ -17,7 +17,7 @@
   <div class="flex items-center gap-2">
     {#if isAuthorized(apiNames.N0LLNING.MANAGE_PHADDER_GROUPS, data.user)}
       <Button href="/committees/nollu/groups/manage" variant="outline">
-        {m.nollu_manage_pageTitle()}
+        {m.n0llu_manage_pageTitle()}
       </Button>
     {/if}
     <YearSelector />

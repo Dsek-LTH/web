@@ -135,7 +135,7 @@
       months: [
         {
           name: m.volunteer_month_aug_oct(),
-          desc: m.volunteer_timeline_nollning(),
+          desc: m.volunteer_timeline_n0llning(),
         },
         { name: m.volunteer_month_oct(), desc: m.volunteer_timeline_oct() },
         { name: m.volunteer_month_nov(), desc: m.volunteer_timeline_nov() },

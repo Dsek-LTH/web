@@ -75,11 +75,11 @@
       <input type="hidden" name="id" value={group.id} />
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div class="flex flex-col gap-2">
-          <Label for="name-{group.id}">{m.nollu_manage_groupName()}</Label>
+          <Label for="name-{group.id}">{m.n0llu_manage_groupName()}</Label>
           <Input id="name-{group.id}" name="name" bind:value={$form.name} />
         </div>
         <div class="flex flex-col gap-2">
-          <Label for="year-{group.id}">{m.nollu_manage_groupYear()}</Label>
+          <Label for="year-{group.id}">{m.n0llu_manage_groupYear()}</Label>
           <Input
             id="year-{group.id}"
             name="year"
@@ -89,7 +89,7 @@
         </div>
       </div>
       <div class="flex flex-col gap-2">
-        <Label for="imageUrl-{group.id}">{m.nollu_manage_groupImage()}</Label>
+        <Label for="imageUrl-{group.id}">{m.n0llu_manage_groupImage()}</Label>
         <Input
           id="imageUrl-{group.id}"
           name="imageUrl"
@@ -98,7 +98,7 @@
       </div>
       <div class="flex flex-col gap-2">
         <Label for="description-{group.id}"
-          >{m.nollu_manage_groupDescription()}</Label
+          >{m.n0llu_manage_groupDescription()}</Label
         >
         <Textarea
           id="description-{group.id}"
@@ -110,7 +110,7 @@
         <p class="text-destructive text-sm font-medium">{$errors.name}</p>
       {/if}
       <div class="flex justify-end">
-        <Button type="submit" size="sm">{m.nollu_manage_save()}</Button>
+        <Button type="submit" size="sm">{m.n0llu_manage_save()}</Button>
       </div>
     </form>
 
@@ -160,7 +160,7 @@
             type="submit"
             size="icon-sm"
             variant="outline"
-            aria-label={m.nollu_manage_addNolla()}
+            aria-label={m.n0llu_manage_addN0lla()}
           >
             <Plus class="h-4 w-4" />
           </Button>
@@ -216,7 +216,7 @@
             type="submit"
             size="icon-sm"
             variant="outline"
-            aria-label={m.nollu_manage_addPhadder()}
+            aria-label={m.n0llu_manage_addPhadder()}
           >
             <Plus class="h-4 w-4" />
           </Button>
@@ -230,11 +230,11 @@
         class={buttonVariants({ variant: "destructive", size: "sm" })}
       >
         <Trash class="h-4 w-4" />
-        {m.nollu_manage_deleteGroup()}
+        {m.n0llu_manage_deleteGroup()}
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{m.nollu_manage_deleteGroup()}</AlertDialog.Title>
+          <AlertDialog.Title>{m.n0llu_manage_deleteGroup()}</AlertDialog.Title>
           <AlertDialog.Description>{group.name}</AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
