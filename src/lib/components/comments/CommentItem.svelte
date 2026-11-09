@@ -26,6 +26,7 @@
     removeCommentForm,
     canReply,
     onReply,
+    isReply = false,
   }: {
     comment: CommentWithMember;
     type: CommentType;
@@ -33,7 +34,11 @@
     removeCommentForm: SuperValidated<RemoveCommentSchema>;
     canReply: boolean;
     onReply: () => void;
+    isReply?: boolean;
   } = $props();
+
+  // Deleted comments that still have replies keep their place in the thread, without content.
+  const isRemoved = $derived(comment.content === null);
 
   // svelte-ignore state_referenced_locally
   const { errors, constraints, enhance } = superForm(removeCommentForm, {
@@ -51,43 +56,55 @@
   );
 </script>
 
-<article id="comment-{comment.id}" class="flex gap-3 py-3">
-  <a
-    href="/members/{comment.member.studentId}"
-    class="shrink-0 transition-opacity hover:opacity-80"
-  >
-    <MemberAvatar member={comment.member} />
-  </a>
+<article
+  id="comment-{comment.id}"
+  class="flex scroll-mt-24 {isReply ? 'gap-2 py-2' : 'gap-3 py-3'}"
+>
+  {#if isRemoved || !comment.member}
+    <div
+      class="bg-muted-background shrink-0 rounded-full {isReply
+        ? 'size-6'
+        : 'size-8'}"
+      aria-hidden="true"
+    ></div>
+    <p class="text-muted-foreground self-center text-sm italic">
+      {m.comments_removedPlaceholder()}
+    </p>
+  {:else}
+    <a
+      href="/members/{comment.member.studentId}"
+      class="shrink-0 transition-opacity hover:opacity-80"
+    >
+      <MemberAvatar member={comment.member} class={isReply ? "size-6" : ""} />
+    </a>
 
-  <div class="flex min-w-0 flex-1 flex-col gap-1">
-    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <a
-        href="/members/{comment.member.studentId}"
-        class="font-medium break-words hover:underline"
-      >
-        {getFullName(comment.member)}
-      </a>
-      <time
-        datetime={comment.published.toISOString()}
-        class="text-muted-foreground text-xs"
-      >
-        {relativeDate(comment.published)}
-      </time>
-
-      <div class="ml-auto flex flex-row gap-1">
-        {#if canReply}
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={m.comments_reply()}
-            title={m.comments_reply()}
-            onclick={onReply}
+    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+      <!-- Name and time may wrap; the delete button stays pinned top-right instead of wrapping with them. -->
+      <div class="flex items-start gap-2">
+        <div
+          class="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 gap-y-0.5"
+        >
+          <a
+            href="/members/{comment.member.studentId}"
+            class="text-sm font-medium break-words hover:underline"
           >
-            <Reply />
-          </Button>
-        {/if}
+            {getFullName(comment.member)}
+          </a>
+          <time
+            datetime={comment.published.toISOString()}
+            class="text-muted-foreground text-xs"
+          >
+            {relativeDate(comment.published)}
+          </time>
+        </div>
+
         {#if canDelete}
-          <form method="POST" action="?/removeComment" use:enhance>
+          <form
+            method="POST"
+            action="?/removeComment"
+            use:enhance
+            class="-mt-1 shrink-0"
+          >
             <input
               type="hidden"
               name="commentId"
@@ -111,8 +128,20 @@
           </form>
         {/if}
       </div>
-    </div>
 
-    <MarkdownBody body={content} class="text-sm [&_p]:my-1" />
-  </div>
+      <MarkdownBody body={content} class="text-sm [&_p]:my-1" />
+
+      {#if canReply}
+        <Button
+          variant="ghost"
+          size="sm"
+          class="-ml-2.5 w-fit"
+          onclick={onReply}
+        >
+          <Reply aria-hidden="true" />
+          {m.comments_reply()}
+        </Button>
+      {/if}
+    </div>
+  {/if}
 </article>

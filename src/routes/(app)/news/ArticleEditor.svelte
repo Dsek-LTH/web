@@ -13,6 +13,7 @@
   import type { CommitteeOption } from "$lib/news/committees";
   import { buildArticlePreview } from "$lib/news/preview";
   import * as m from "$paraglide/messages";
+  import * as Tabs from "$lib/components/ui/tabs";
 
   let {
     data,
@@ -24,6 +25,7 @@
     now,
     isEditing = false,
     formAction,
+    cancelHref = "/news",
   }: {
     allTags: Array<ExtendedPrismaModel<"Tag">>;
     authorOptions: AuthorOption[];
@@ -34,6 +36,7 @@
     now: Date;
     isEditing?: boolean;
     formAction?: string;
+    cancelHref?: string;
   } = $props();
 
   const { form } = $derived(superform);
@@ -95,68 +98,85 @@
   });
 </script>
 
-<div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:*:w-1/2 sm:*:min-w-0">
+<!-- Side by side only from lg: below that both columns are too narrow to be useful. -->
+<div class="grid min-w-0 grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
   <ArticleForm
     bind:activeTab
     {authorOptions}
     {superform}
     {allTags}
     {committees}
+    {isEditing}
+    {cancelHref}
+    imageFileUrls={uploadedImageUrls}
     action={formAction}
   />
-  <section class="flex min-w-0 flex-col gap-6">
-    <div class="flex min-w-0 flex-col gap-3">
-      <h2 class="text-lg font-semibold">{m.news_preview()}</h2>
-      <ArticleContent article={preview.article} isPreview>
-        {#snippet byline()}
-          <ArticleByline
-            links={false}
-            member={$form.author.member}
-            position={$form.author.mandate?.position}
-            customAuthor={$form.author.customAuthor}
-            type={$form.author.type}
-            committee={preview.committee}
-          />
-        {/snippet}
-      </ArticleContent>
-    </div>
-
-    <div class="border-border flex min-w-0 flex-col gap-5 border-t pt-6">
-      <div class="flex flex-col gap-1">
-        <h3 class="text-base font-semibold">{m.news_appearances()}</h3>
-        <p class="text-muted-foreground text-sm">
-          {m.news_appearances_description()}
-        </p>
+  <!-- Sticky on wide screens so the preview stays visible while editing a long form.
+       top-24 clears the sticky site header. -->
+  <section
+    class="flex min-w-0 flex-col gap-3 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto"
+  >
+    <Tabs.Root value="article" class="min-w-0 gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="text-lg">{m.news_preview()}</h2>
+        <Tabs.List>
+          <Tabs.Trigger value="article">{m.news_preview_article()}</Tabs.Trigger
+          >
+          <Tabs.Trigger value="news">{m.news_listing_preview()}</Tabs.Trigger>
+          <Tabs.Trigger value="home">{m.news_home_card_preview()}</Tabs.Trigger>
+        </Tabs.List>
       </div>
 
-      <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <div class="flex min-w-0 flex-col gap-3">
-          <h4
-            class="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
-          >
-            {m.news_home_card_preview()}
-          </h4>
-          <ArticleSmallCard
-            article={{
-              slug: "",
-              header: preview.article.header,
-              publishedAt: preview.cardPublishedAt,
-              imageUrl: preview.cardImageUrl,
-              committee: preview.committee,
-              youtubeUrl: $form.youtubeUrl ?? null,
-            }}
-            isPreview={true}
+      <Tabs.Content value="article" class="min-w-0">
+        <ArticleContent
+          article={{
+            ...preview.article,
+            imageUrl: preview.cardImageUrl,
+            publishedAt: preview.cardPublishedAt,
+          }}
+          isPreview
+        >
+          {#snippet byline(date)}
+            <ArticleByline
+              links={false}
+              member={$form.author.member}
+              position={$form.author.mandate?.position}
+              customAuthor={$form.author.customAuthor}
+              type={$form.author.type}
+              committee={preview.committee}
+              {date}
+            />
+          {/snippet}
+        </ArticleContent>
+      </Tabs.Content>
+
+      <!-- Same card as the /news grid, at roughly one grid column's width. -->
+      <Tabs.Content value="news" class="min-w-0">
+        <div class="max-w-sm">
+          <ArticleCard
+            article={previewCardArticle}
+            index={0}
+            isPreview
+            variant="editorial"
+            tags={preview.article.tags}
           />
         </div>
-        <div class="flex min-w-0 flex-col gap-3">
-          <h4
-            class="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
-          >
-            {m.news_listing_preview()}
-          </h4>
-          <ArticleCard article={previewCardArticle} index={0} isPreview />
-        </div>
-      </div>
-    </div>
+      </Tabs.Content>
+
+      <!-- The home page shows four cards per row on lg; half of this half-width column matches that. -->
+      <Tabs.Content value="home" class="min-w-0 lg:w-1/2">
+        <ArticleSmallCard
+          article={{
+            slug: "",
+            header: preview.article.header,
+            publishedAt: preview.cardPublishedAt,
+            imageUrl: preview.cardImageUrl,
+            committee: preview.committee,
+            youtubeUrl: $form.youtubeUrl ?? null,
+          }}
+          isPreview={true}
+        />
+      </Tabs.Content>
+    </Tabs.Root>
   </section>
 </div>

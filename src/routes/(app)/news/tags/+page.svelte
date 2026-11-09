@@ -15,6 +15,7 @@
   import * as m from "$paraglide/messages.js";
   import Pen from "@lucide/svelte/icons/pen";
   import Plus from "@lucide/svelte/icons/plus";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
 
   let { data } = $props();
 
@@ -49,6 +50,10 @@
 <SetPageTitle title={m.news_tags_newsTags()} />
 
 <div class="mx-auto w-full max-w-4xl px-4 py-8">
+  <Button variant="ghost" href="/news" class="mb-4 -ml-3">
+    <ArrowLeft />
+    {m.back()}
+  </Button>
   <h1 class="mb-6 text-3xl font-bold">{m.news_tags_newsTags()}</h1>
 
   <Card class="mb-6">

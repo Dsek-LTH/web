@@ -12,26 +12,41 @@
   import type { CommentSchema } from "$lib/zod/comments";
   import * as m from "$paraglide/messages";
   import type { SuperValidated } from "sveltekit-superforms";
-  import { tick } from "svelte";
+  import { onMount, tick } from "svelte";
   import type { MentionRequest } from "./types";
 
   let {
     author,
     commentForm,
     mentionRequest = null,
+    parentId,
+    onCancel,
+    onPosted,
   }: {
     author: ExtendedPrismaModel<"Member">;
     commentForm: SuperValidated<CommentSchema>;
     mentionRequest?: MentionRequest | null;
+    /** Makes this an inline reply form for the given comment's thread. */
+    parentId?: string;
+    onCancel?: () => void;
+    onPosted?: () => void;
   } = $props();
+
+  // svelte-ignore state_referenced_locally
+  const isReply = !!parentId;
 
   // svelte-ignore state_referenced_locally
   const { form, errors, constraints, enhance, delayed } = superForm(
     commentForm,
     {
+      // Each open reply form needs its own id, or they would share state with the main form.
+      id: parentId ? `reply-${parentId}` : undefined,
       resetForm: true,
       invalidateAll: true,
-      onResult: ({ result }) => toastFormMessage(result),
+      onResult: ({ result }) => {
+        toastFormMessage(result);
+        if (result.type === "success") onPosted?.();
+      },
     },
   );
 
@@ -140,7 +155,14 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (!mentionOpen) return;
+    if (!mentionOpen) {
+      // Escape closes the mention list first, and only then the reply form.
+      if (event.key === "Escape" && onCancel) {
+        event.preventDefault();
+        onCancel();
+      }
+      return;
+    }
 
     if (event.key === "Escape") {
       event.preventDefault();
@@ -162,6 +184,11 @@
       if (member) selectMember(member);
     }
   }
+
+  // A reply form is opened by clicking "Reply", so the cursor should be ready in it.
+  onMount(() => {
+    if (isReply && !mentionRequest) textarea?.focus();
+  });
 
   $effect(() => {
     const request = mentionRequest;
@@ -193,15 +220,20 @@
   class="flex flex-col gap-2"
   onsubmit={closeMention}
 >
+  {#if parentId}
+    <input type="hidden" name="parentId" value={parentId} />
+  {/if}
   <div class="flex gap-3">
-    <MemberAvatar member={author} class="shrink-0" />
+    <MemberAvatar member={author} class="shrink-0 {isReply ? 'size-6' : ''}" />
     <div class="flex min-w-0 flex-1 flex-col gap-2">
       <Textarea
         bind:ref={textarea}
-        id="comment-content"
+        id={parentId ? `comment-reply-${parentId}` : "comment-content"}
         name="content"
-        rows={3}
-        placeholder={m.comments_placeholder()}
+        rows={isReply ? 2 : 3}
+        placeholder={isReply
+          ? m.comments_replyPlaceholder()
+          : m.comments_placeholder()}
         bind:value={$form.content}
         aria-invalid={!!$errors.content}
         aria-errormessage={$errors.content?.at(0)}
@@ -217,9 +249,20 @@
         <p class="text-muted-foreground text-xs">
           {m.comments_mentionHint()}
         </p>
-        <Button type="submit" disabled={$delayed}>
-          {$delayed ? m.comments_sending() : m.comments_send()}
-        </Button>
+        <div class="flex shrink-0 gap-2">
+          {#if onCancel}
+            <Button type="button" variant="ghost" onclick={onCancel}>
+              {m.cancel()}
+            </Button>
+          {/if}
+          <Button type="submit" disabled={$delayed}>
+            {$delayed
+              ? m.comments_sending()
+              : isReply
+                ? m.comments_reply()
+                : m.comments_send()}
+          </Button>
+        </div>
       </div>
     </div>
   </div>

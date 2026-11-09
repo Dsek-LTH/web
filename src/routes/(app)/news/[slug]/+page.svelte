@@ -1,7 +1,6 @@
 <script lang="ts">
   import CommentSection from "$lib/components/comments/CommentSection.svelte";
   import ArticleByline from "../ArticleByline.svelte";
-  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import Article from "../Article.svelte";
 
@@ -9,8 +8,6 @@
 
   let article = $derived(data.article);
 </script>
-
-<SetPageTitle title={article.header} />
 
 <SEO
   data={{
@@ -37,11 +34,14 @@
       removeCommentForm={data.removeCommentForm}
     />
   {/snippet}
-  <ArticleByline
-    member={article.author.member}
-    customAuthor={article.author.customAuthor}
-    position={article.author.mandate?.position}
-    type={article.author.type}
-    committee={article.committee}
-  />
+  {#snippet children(date)}
+    <ArticleByline
+      member={article.author.member}
+      customAuthor={article.author.customAuthor}
+      position={article.author.mandate?.position}
+      type={article.author.type}
+      committee={article.committee}
+      {date}
+    />
+  {/snippet}
 </Article>

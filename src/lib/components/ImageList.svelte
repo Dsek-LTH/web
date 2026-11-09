@@ -1,33 +1,42 @@
 <script lang="ts">
   import * as Dialog from "$lib/components/ui/dialog/index.js";
+  import { cn } from "$lib/utils";
 
-  let { images }: { images: string[] } = $props();
+  let { images, class: klass }: { images: string[]; class?: string } = $props();
 </script>
 
 {#if images.length > 0}
-  <div
+  <!-- Square thumbnails in a grid; click opens the full image. -->
+  <ul
     data-sveltekit-preload-data="off"
-    class="bg-muted-background border-border mt-2 flex h-40 w-full flex-row overflow-auto rounded-md border-[1px] p-2"
+    class={cn(
+      "ml-0 grid list-none grid-cols-2 gap-2 sm:grid-cols-3 [&>li]:my-0",
+      klass,
+    )}
   >
-    {#each images as image (image)}
-      <Dialog.Root>
-        <Dialog.Trigger
-          class="mx-1 block h-full min-h-full shrink-0 cursor-pointer "
-          ><img
-            class="relative block h-full object-contain"
-            src={image}
-            alt={image}
-          /></Dialog.Trigger
-        >
-        <Dialog.Content class="sm:max-w-[625px]">
-          <Dialog.Header>
-            <Dialog.Title class="p-1"></Dialog.Title>
-            <Dialog.Description>
-              <img class="m-4 mx-auto" src={image} alt={image} />
-            </Dialog.Description>
-          </Dialog.Header>
-        </Dialog.Content>
-      </Dialog.Root>
+    {#each images as image, index (`${index}:${image}`)}
+      <li>
+        <Dialog.Root>
+          <Dialog.Trigger
+            class="bg-muted-background focus-visible:ring-ring block aspect-square w-full cursor-zoom-in overflow-hidden rounded-lg focus-visible:ring-2 focus-visible:outline-none"
+          >
+            <img
+              class="size-full object-cover transition-transform duration-300 hover:scale-105"
+              src={image}
+              alt=""
+              loading="lazy"
+            />
+          </Dialog.Trigger>
+          <Dialog.Content class="p-2 sm:max-w-3xl">
+            <Dialog.Title class="sr-only">{image}</Dialog.Title>
+            <img
+              class="max-h-[80vh] w-full rounded-md object-contain"
+              src={image}
+              alt=""
+            />
+          </Dialog.Content>
+        </Dialog.Root>
+      </li>
     {/each}
-  </div>
+  </ul>
 {/if}

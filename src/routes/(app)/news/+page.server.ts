@@ -11,22 +11,24 @@ import {
 import { isAuthorized } from "$lib/utils/authorization";
 import apiNames from "$lib/utils/apiNames";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+import { NEWS_VIEW_COOKIE, parseNewsViewMode } from "$lib/news/viewMode";
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals, url, cookies }) => {
   const { prisma, member, user } = locals;
 
   // News admins can see everyone's scheduled articles, not just their own.
   const canSeeAllScheduled = isAuthorized(apiNames.NEWS.UPDATE, user);
 
   const articleCount = await prisma.article.count();
-  const pageSize = getPageSizeOrThrowSvelteError(url);
+  // 12 divides evenly into the 1-, 2- and 3-column card grid, so full pages never leave a ragged last row.
+  const pageSize = getPageSizeOrThrowSvelteError(url, { fallbackValue: 12 });
   const page = getPageOrThrowSvelteError(url, {
     fallbackValue: 1,
     lowerBound: 1,
     upperBound: Math.ceil(articleCount / pageSize),
   });
 
-  const [[articles, pageCount], allTags] = await Promise.all([
+  const [[articles, pageCount, totalCount], allTags] = await Promise.all([
     getAllArticles(prisma, {
       tags: url.searchParams.getAll("tags"),
       search: url.searchParams.get("search") ?? undefined,
@@ -42,6 +44,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
           publishedAt: {
             gt: new Date(),
           },
+          // Deleting only sets removedAt, so deleted articles must be filtered out here.
+          OR: [{ removedAt: { gt: new Date() } }, { removedAt: null }],
           tags: {
             none: {
               nameSv: {
@@ -72,6 +76,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
             },
           },
           tags: true,
+          committee: true,
         },
         orderBy: {
           publishedAt: "asc",
@@ -122,10 +127,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   return {
     articles,
     pageCount,
+    totalCount,
+    page,
+    pageSize,
     allTags,
     likeForm: await superValidate(zod4(likeSchema)),
     scheduledArticles,
     nollningArticles,
+    viewMode: parseNewsViewMode(cookies.get(NEWS_VIEW_COOKIE)),
   };
 };
 
