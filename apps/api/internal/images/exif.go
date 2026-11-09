@@ -84,3 +84,32 @@ func tiffOrientation(t []byte) int {
 	}
 	return 1
 }
+
+// jpegProgressive reports whether a JPEG is progressive (its frame header
+// is SOF2), which makes the decoder keep all of its coefficients.
+func jpegProgressive(b []byte) bool {
+	if len(b) < 4 || b[0] != 0xFF || b[1] != 0xD8 {
+		return false
+	}
+	i := 2
+	for i+4 <= len(b) {
+		if b[i] != 0xFF {
+			return false
+		}
+		marker := b[i+1]
+		switch {
+		case marker == 0xFF:
+			i++
+			continue
+		case marker == 0xD9 || marker == 0xDA:
+			return false
+		case marker == 0x01 || (marker >= 0xD0 && marker <= 0xD7):
+			i += 2
+			continue
+		case marker == 0xC2 || marker == 0xC6 || marker == 0xCA || marker == 0xCE:
+			return true
+		}
+		i += 2 + int(binary.BigEndian.Uint16(b[i+2:]))
+	}
+	return false
+}

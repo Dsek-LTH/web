@@ -34,6 +34,15 @@ const MaxWidth = 1920
 // megapixels is more than phone cameras take by default.
 const MaxPixels = 40_000_000
 
+// MaxSide is the longest side accepted, and maxAspect how many times
+// longer than the other one it may be: scaling holds a band of a whole
+// factor of rows (see boxReduce), and pictures like 4000000x10 are not
+// photos.
+const (
+	MaxSide   = 30_000
+	maxAspect = 100
+)
+
 // maxDecodedBytes caps the memory a decoded picture may take, which
 // depends on its colour model as well as its size: a 16-bit PNG takes
 // twice the memory of an 8-bit one.
@@ -131,9 +140,26 @@ func process(data []byte, maxWidth int) (*Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: could not read the image: %v", ErrInvalidImage, err)
 	}
+	if cfg.Width <= 0 || cfg.Height <= 0 {
+		return nil, fmt.Errorf("%w: the image is empty", ErrInvalidImage)
+	}
+	long, short := max(cfg.Width, cfg.Height), min(cfg.Width, cfg.Height)
+	if long > MaxSide || long > maxAspect*short {
+		return nil, fmt.Errorf(
+			"%w: the image can be at most %d pixels on a side and %d times as wide as tall (or the other way)",
+			ErrInvalidImage,
+			MaxSide,
+			maxAspect,
+		)
+	}
 	pixels := int64(cfg.Width) * int64(cfg.Height)
-	if cfg.Width <= 0 || cfg.Height <= 0 || pixels > MaxPixels ||
-		pixels*bytesPerPixel(cfg.ColorModel) > maxDecodedBytes {
+	perPixel := bytesPerPixel(cfg.ColorModel)
+	if contentType == "image/jpeg" && jpegProgressive(data) {
+		// The decoder keeps every DCT coefficient of a progressive JPEG:
+		// 2 bytes a pixel per component.
+		perPixel += 6
+	}
+	if pixels > MaxPixels || pixels*perPixel > maxDecodedBytes {
 		return nil, fmt.Errorf(
 			"%w: the image can be at most %d megapixels (fewer for 16-bit images)",
 			ErrInvalidImage,
@@ -234,7 +260,7 @@ func boxReduce(src image.Image, k int) *image.RGBA {
 	sb := src.Bounds()
 	w, h := sb.Dx(), sb.Dy()
 	out := image.NewRGBA(image.Rect(0, 0, (w+k-1)/k, (h+k-1)/k))
-	band := image.NewRGBA(image.Rect(0, 0, w, k))
+	band := image.NewRGBA(image.Rect(0, 0, w, min(k, h)))
 	sums := make([][4]uint32, out.Rect.Dx())
 	for oy := range out.Rect.Dy() {
 		rows := min(k, h-oy*k)

@@ -11,6 +11,7 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -326,5 +327,176 @@ func TestWaitsForASlot(t *testing.T) {
 	}
 	if _, err := Process(context.Background(), data, MaxWidth); err != nil {
 		t.Errorf("slots free: %v", err)
+	}
+}
+
+func TestExtremeShapes(t *testing.T) {
+	encodeGray := func(w, h int) []byte {
+		var buf bytes.Buffer
+		enc := png.Encoder{CompressionLevel: png.BestSpeed}
+		if err := enc.Encode(&buf, image.NewGray(image.Rect(0, 0, w, h))); err != nil {
+			t.Fatal(err)
+		}
+		return buf.Bytes()
+	}
+	allocated := func(f func()) uint64 {
+		runtime.GC()
+		var before, after runtime.MemStats
+		runtime.ReadMemStats(&before)
+		f()
+		runtime.ReadMemStats(&after)
+		return after.TotalAlloc - before.TotalAlloc
+	}
+
+	// 4 MP but 40000 times as wide as tall: once asked for a band of
+	// gigabytes. Refused from the header.
+	wide := encodeGray(400_000, 10)
+	var err error
+	n := allocated(func() { _, err = Process(context.Background(), wide, MaxWidth) })
+	if !errors.Is(err, ErrInvalidImage) {
+		t.Errorf("400000x10: got %v, want ErrInvalidImage", err)
+	}
+	if n > 20_000_000 {
+		t.Errorf("400000x10: allocated %d bytes", n)
+	}
+	for _, size := range [][2]int{{10, 400_000}, {MaxSide + 1, MaxSide/maxAspect + 1}} {
+		if _, err := Process(
+			context.Background(),
+			encodeGray(size[0], size[1]),
+			MaxWidth,
+		); !errors.Is(
+			err,
+			ErrInvalidImage,
+		) {
+			t.Errorf("%dx%d: got %v, want ErrInvalidImage", size[0], size[1], err)
+		}
+	}
+
+	// The widest accepted shape scales with little more than its own
+	// decoded size (9 MB).
+	edge := encodeGray(MaxSide, MaxSide/maxAspect)
+	var img *Image
+	n = allocated(func() { img, err = Process(context.Background(), edge, MaxWidth) })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b := decode(t, img).Bounds(); b.Dx() != MaxWidth || b.Dy() != 19 {
+		t.Errorf("size %v, want 1920x19", b.Size())
+	}
+	if n > 60_000_000 {
+		t.Errorf("%dx%d: allocated %d bytes", MaxSide, MaxSide/maxAspect, n)
+	}
+}
+
+func TestJPEGProgressive(t *testing.T) {
+	data := encodeJPEG(t, halves(8, 8))
+	if jpegProgressive(data) {
+		t.Fatal("baseline JPEG reported progressive")
+	}
+	sof := bytes.Index(data, []byte{0xFF, 0xC0})
+	if sof < 0 {
+		t.Fatal("no SOF0")
+	}
+	data[sof+1] = 0xC2
+	if !jpegProgressive(data) {
+		t.Error("SOF2 JPEG not reported progressive")
+	}
+	for n := range 40 {
+		jpegProgressive(data[:n])
+	}
+}
+
+// gradient is a w x h RGBA image at bounds starting at (x0, y0) whose red
+// is the column and green ten times the row, both relative to the bounds.
+func gradient(x0, y0, w, h int) *image.RGBA {
+	m := image.NewRGBA(image.Rect(x0, y0, x0+w, y0+h))
+	for y := range h {
+		for x := range w {
+			m.SetRGBA(x0+x, y0+y, color.RGBA{uint8(x), uint8(10 * y), 0, 255})
+		}
+	}
+	return m
+}
+
+func TestBoxReduce(t *testing.T) {
+	// 7x5 at (5, 7) in blocks of 3: columns {0,1,2} {3,4,5} {6} and rows
+	// {0,1,2} {3,4} - the partial blocks average what they have.
+	out := boxReduce(gradient(5, 7, 7, 5), 3)
+	if out.Rect != image.Rect(0, 0, 3, 2) {
+		t.Fatalf("bounds %v, want 3x2 at 0,0", out.Rect)
+	}
+	wantR := []uint8{1, 4, 6}
+	wantG := []uint8{10, 35}
+	for oy, g := range wantG {
+		for ox, r := range wantR {
+			if got := out.RGBAAt(ox, oy); got != (color.RGBA{r, g, 0, 255}) {
+				t.Errorf("(%d, %d) = %v, want %v", ox, oy, got, color.RGBA{r, g, 0, 255})
+			}
+		}
+	}
+
+	// A factor far larger than the height must not size the band by the
+	// factor: that asked for terabytes here (a fatal out-of-memory).
+	var before, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	out = boxReduce(image.NewGray(image.Rect(0, 0, 1_000_000, 1)), 500_000)
+	runtime.ReadMemStats(&after)
+	if out.Rect != image.Rect(0, 0, 2, 1) {
+		t.Fatalf("bounds %v, want 2x1", out.Rect)
+	}
+	if n := after.TotalAlloc - before.TotalAlloc; n > 20_000_000 {
+		t.Errorf("allocated %d bytes for a 1000000x1 picture", n)
+	}
+
+	// Fewer rows than the factor: one short band.
+	out = boxReduce(gradient(0, 0, 9, 1), 4)
+	if out.Rect != image.Rect(0, 0, 3, 1) {
+		t.Fatalf("bounds %v, want 3x1", out.Rect)
+	}
+	if got := out.RGBAAt(2, 0); got != (color.RGBA{8, 0, 0, 255}) {
+		t.Errorf("last column %v, want red 8", got)
+	}
+}
+
+func TestScaleOffsetBounds(t *testing.T) {
+	// A GIF frame can start anywhere on its canvas.
+	pal := color.Palette{red, blue}
+	m := image.NewPaletted(image.Rect(5, 7, 5+4000, 7+100), pal)
+	for y := m.Rect.Min.Y; y < m.Rect.Max.Y; y++ {
+		for x := m.Rect.Min.X + 2000; x < m.Rect.Max.X; x++ {
+			m.SetColorIndex(x, y, 1)
+		}
+	}
+	out := scale(m, MaxWidth, false)
+	if out.Rect != image.Rect(0, 0, 1920, 48) {
+		t.Fatalf("bounds %v, want 1920x48", out.Rect)
+	}
+	near(t, out, 10, 24, red)
+	near(t, out, 1910, 24, blue)
+	near(t, out, 900, 0, red)
+	near(t, out, 1000, 47, blue)
+
+	var buf bytes.Buffer
+	if err := gif.Encode(&buf, m, nil); err != nil {
+		t.Fatal(err)
+	}
+	img, err := Process(context.Background(), buf.Bytes(), MaxWidth)
+	if err != nil {
+		t.Fatal(err)
+	}
+	near(t, decode(t, img), 10, 24, red)
+
+	// Turning a picture at non-zero bounds.
+	turned := orient(gradient(5, 7, 4, 2), 6)
+	if turned.Rect != image.Rect(0, 0, 2, 4) {
+		t.Fatalf("turned bounds %v, want 2x4", turned.Rect)
+	}
+	// The source's top-left ends up top-right.
+	if got := turned.RGBAAt(1, 0); got != (color.RGBA{0, 0, 0, 255}) {
+		t.Errorf("top-right %v, want the source's top-left", got)
+	}
+	if got := turned.RGBAAt(0, 3); got != (color.RGBA{3, 10, 0, 255}) {
+		t.Errorf("bottom-left %v, want the source's bottom-right", got)
 	}
 }
