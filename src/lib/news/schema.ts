@@ -3,7 +3,7 @@ import { authorSchema, tagSchema } from "$lib/zod/schemas";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
 import * as messages from "$paraglide/messages";
-import { getYoutubeVideoId } from "$lib/utils/youtube";
+import { getYouTubeVideoId } from "$lib/utils/youtube";
 
 export const articleSchema = z.object({
   slug: z.string(),
@@ -25,7 +25,7 @@ export const articleSchema = z.object({
     .string()
     .optional()
     .nullable()
-    .refine((value) => !value || getYoutubeVideoId(value) !== null, {
+    .refine((value) => !value || getYouTubeVideoId(value) !== null, {
       message: "Invalid YouTube URL",
     }),
   publishTime: z.date().optional().nullable(),

@@ -15,8 +15,8 @@
   import apiNames from "$lib/utils/apiNames";
   import { mayWatchVideos } from "../helpers";
   import { Separator } from "$lib/components/ui/separator/index.js";
-  import { getYoutubeEmbedUrlFromUrl } from "$lib/utils/youtube";
-  import YoutubeFrame from "$lib/components/YoutubeFrame.svelte";
+  import { getYouTubeEmbedUrlFromUrl } from "$lib/utils/youtube";
+  import YouTubeFrame from "$lib/components/YouTubeFrame.svelte";
 
   let { data } = $props();
   let song = $derived(data.song);
@@ -26,7 +26,7 @@
   );
   const canWatchVideo = $derived(song.video && mayWatchVideos(data.user));
 
-  const youtubeEmbedUrl = $derived(getYoutubeEmbedUrlFromUrl(song.video));
+  const youtubeEmbedUrl = $derived(getYouTubeEmbedUrlFromUrl(song.video));
 </script>
 
 <div class="mx-auto max-w-3xl px-4 py-8">
@@ -111,7 +111,7 @@
           >
             {#if youtubeEmbedUrl}
               <div class="aspect-video w-full">
-                <YoutubeFrame src={youtubeEmbedUrl} title={song.title} lazy />
+                <YouTubeFrame src={youtubeEmbedUrl} title={song.title} lazy />
               </div>
             {:else}
               <video

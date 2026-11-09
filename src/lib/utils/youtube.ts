@@ -1,7 +1,7 @@
 const VIDEO_ID_PATTERN = /^[\w-]{11}$/;
 const NOCOOKIE_EMBED_ORIGIN = "https://www.youtube-nocookie.com";
 
-export type YoutubeThumbnailQuality = "sddefault" | "hqdefault";
+export type YouTubeThumbnailQuality = "sddefault" | "hqdefault";
 
 function toVideoId(candidate: string | null | undefined): string | null {
   return candidate && VIDEO_ID_PATTERN.test(candidate) ? candidate : null;
@@ -19,7 +19,7 @@ function assertVideoId(videoId: string): string {
  * (watch, youtu.be, shorts, embed, live, music, ...). Bare ids are accepted
  * too. Returns null for anything that does not look like a YouTube video.
  */
-export function getYoutubeVideoId(
+export function getYouTubeVideoId(
   url: string | null | undefined,
 ): string | null {
   if (!url) return null;
@@ -64,7 +64,7 @@ export function getYoutubeVideoId(
  * only non-default parameters we want; autoplay is opt-in because it requires
  * a user gesture for sound.
  */
-export function getYoutubeEmbedUrl(videoId: string, autoplay = false): string {
+export function getYouTubeEmbedUrl(videoId: string, autoplay = false): string {
   const id = assertVideoId(videoId);
   const params = new URLSearchParams({ rel: "0", playsinline: "1" });
   if (autoplay) params.set("autoplay", "1");
@@ -72,24 +72,24 @@ export function getYoutubeEmbedUrl(videoId: string, autoplay = false): string {
 }
 
 /** Convenience wrapper for when you only have the URL that was stored. */
-export function getYoutubeEmbedUrlFromUrl(
+export function getYouTubeEmbedUrlFromUrl(
   url: string | null | undefined,
 ): string | null {
-  const videoId = getYoutubeVideoId(url);
-  return videoId ? getYoutubeEmbedUrl(videoId) : null;
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? getYouTubeEmbedUrl(videoId) : null;
 }
 
-export function getYoutubeThumbnailUrl(
+export function getYouTubeThumbnailUrl(
   videoId: string,
-  quality: YoutubeThumbnailQuality = "sddefault",
+  quality: YouTubeThumbnailQuality = "sddefault",
 ): string {
   const id = assertVideoId(videoId);
   return `https://i.ytimg.com/vi/${id}/${quality}.jpg`;
 }
 
 /** Returns the next thumbnail size to try, or null when none are left. */
-export function nextYoutubeThumbnailQuality(
-  quality: YoutubeThumbnailQuality,
-): YoutubeThumbnailQuality | null {
+export function nextYouTubeThumbnailQuality(
+  quality: YouTubeThumbnailQuality,
+): YouTubeThumbnailQuality | null {
   return quality === "sddefault" ? "hqdefault" : null;
 }

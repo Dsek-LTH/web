@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import GuildLogo from "$lib/components/GuildLogo.svelte";
 
   import { getFooterRoutes } from "../routes";
   import ExternalLink from "@lucide/svelte/icons/external-link";
@@ -43,7 +43,7 @@
     >
       {@render socialIcons("flex md:hidden")}
       <div class="mt-7 flex flex-row items-center md:mt-0">
-        <DsekLogo
+        <GuildLogo
           variant="letter"
           class="hover:fill-rosa-400 fill-rosa-400 size-6"
         />

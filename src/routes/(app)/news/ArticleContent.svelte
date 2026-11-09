@@ -2,7 +2,7 @@
   import dayjs from "dayjs";
   import ImageList from "$lib/components/ImageList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
-  import YoutubeEmbed from "$lib/components/YoutubeEmbed.svelte";
+  import YouTubeEmbed from "$lib/components/YouTubeEmbed.svelte";
   import TagChip from "$lib/components/TagChip.svelte";
   import type { ArticleContentData } from "$lib/news/types";
   import type { Snippet } from "svelte";
@@ -45,7 +45,7 @@
     {/each}
   </div>
 
-  <YoutubeEmbed url={article.youtubeUrl} title={article.header} />
+  <YouTubeEmbed url={article.youtubeUrl} title={article.header} />
   <MarkdownBody
     class="article-body text-foreground min-w-0 overflow-x-auto break-words"
     body={article.body}

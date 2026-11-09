@@ -246,7 +246,7 @@
         {route.title}
         {#if route.children}
           <svg
-            class="chev"
+            class="chevron"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -385,12 +385,12 @@
     color: var(--foreground);
     font-weight: 600;
   }
-  .nav-trigger .chev {
+  .nav-trigger .chevron {
     width: 11px;
     height: 11px;
     transition: transform 0.32s var(--ease-spring);
   }
-  .nav-trigger[data-open="true"] .chev {
+  .nav-trigger[data-open="true"] .chevron {
     transform: rotate(185deg) scale(1.05);
   }
   .nav-trigger::after {
@@ -593,7 +593,7 @@
   }
   .child-row :global(.icon) {
     /* explicit size here, not left to each icon's own `size` prop: the two custom (non-lucide)
-       icons used in routes.ts -- Cap and DsekLogo -- don't accept a `size` prop at all and
+       icons used in routes.ts -- Cap and GuildLogo -- don't accept a `size` prop at all and
        render at width/height: 100% of whatever contains them, so without this they blow up to
        fill the row. */
     width: 18px;
@@ -615,7 +615,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .nav-trigger,
-    .nav-trigger .chev,
+    .nav-trigger .chevron,
     .nav-trigger::after,
     .nav-panel,
     .child-row,

@@ -1,4 +1,4 @@
-import DsekLogo from "$lib/components/DsekLogo.svelte";
+import GuildLogo from "$lib/components/GuildLogo.svelte";
 
 import { getFileUrl } from "$lib/files/client";
 import apiNames from "$lib/utils/apiNames";
@@ -85,7 +85,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/about",
-          icon: DsekLogo,
+          icon: GuildLogo,
         },
       ],
     },
@@ -130,7 +130,7 @@ export const getRoutes = (): Route[] =>
           accessRequired: null,
           appBehaviour: "none",
           path: "/about#committees",
-          icon: DsekLogo,
+          icon: GuildLogo,
           hideOnDesktop: true,
         },
         {
