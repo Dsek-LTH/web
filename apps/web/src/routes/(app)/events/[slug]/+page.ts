@@ -9,7 +9,11 @@ import type { PageLoad } from "./$types";
 export const load: PageLoad = async ({ fetch, params }) => {
   const res = await api.GET("/events/{slug}", {
     fetch,
-    params: { path: { slug: params.slug } },
+    // Go returns a removed event only to those who may edit or delete it
+    // (with removedAt set) and answers 404 to everyone else, so asking
+    // for it always is safe and lets admins open links from
+    // /events/all-events.
+    params: { path: { slug: params.slug }, query: { includeDeleted: true } },
   });
   if (res.error) {
     error(404, { message: m.events_errors_eventNotFound() });

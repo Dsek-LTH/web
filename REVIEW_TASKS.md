@@ -361,7 +361,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Old: `DOMPurify.sanitize` in `main:src/lib/news/markdown/mutations.server.ts`.
 - Fix: sanitize with the T03 helper.
 
-### [ ] T24 Admins can't open removed events
+### [x] T24 Admins can't open removed events
 
 - New: `routes/(app)/events/[slug]/+page.ts` never asks for deleted events,
   so links from `/events/all-events` 404.
