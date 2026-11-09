@@ -706,16 +706,22 @@ func (s *Service) ListCustomAuthors(ctx context.Context) ([]CustomAuthor, error)
 	return customAuthors, nil
 }
 
-// UploadImage stores an article image via the (currently mocked) Uploader
-// and returns its URL. Gated on NewsArticleCreate since today the only
-// caller is the create/edit flow - revisit if uploads grow other uses.
+// UploadImage stores an image for an article or an event and returns its
+// URL. Anyone who may write either can upload: the event form uses it for
+// header images, and someone who may create events but not articles must
+// still be able to save an event with an image.
 func (s *Service) UploadImage(
 	ctx context.Context,
 	filename string,
 	data io.Reader,
 ) (string, error) {
-	if err := auth.Require(ctx, apinames.NewsArticleCreate); err != nil {
-		return "", err
+	identity, ok := auth.FromContext(ctx)
+	if !ok {
+		return "", auth.ErrUnauthenticated
+	}
+	if !identity.Has(apinames.NewsArticleCreate) && !identity.Has(apinames.EventCreate) &&
+		!identity.Has(apinames.EventUpdate) {
+		return "", auth.ErrForbidden
 	}
 	url, err := s.uploader.Upload(ctx, filename, data)
 	if err != nil {

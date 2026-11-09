@@ -91,9 +91,13 @@ func TestArticleAccess(t *testing.T) {
 		{e.as(1), http.MethodGet, draft + "?includeUnpublished=true", nil, ok},
 	})
 
-	// Images for article bodies, and tags.
-	e.check(t, e.gate(http.MethodPost, "/images",
-		form{files: map[string][]formFile{"file": {pngFile}}}, ok, apinames.NewsArticleCreate))
+	// Images for articles and events, and tags.
+	image := form{files: map[string][]formFile{"file": {pngFile}}}
+	e.check(t, e.gate(http.MethodPost, "/images", image, ok, apinames.NewsArticleCreate))
+	e.check(t, []accessCase{
+		{e.as(1, apinames.EventCreate), http.MethodPost, "/images", image, ok},
+		{e.as(1, apinames.EventUpdate), http.MethodPost, "/images", image, ok},
+	})
 	e.check(t, e.gate(http.MethodPost, "/tags", map[string]any{"nameSv": "Authz tag"}, ok,
 		apinames.TagsCreate))
 	tagID := e.one(t, `SELECT id::text FROM tags WHERE name_sv = 'Authz tag'`)

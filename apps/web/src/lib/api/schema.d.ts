@@ -1183,7 +1183,7 @@ export interface paths {
     put?: never;
     /**
      * Upload an image
-     * @description For article bodies. Needs news:article:create.
+     * @description For articles and event header images. Needs news:article:create, event:create or event:update.
      */
     post: operations["upload-image"];
     delete?: never;

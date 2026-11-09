@@ -186,7 +186,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   requires but the form doesn't send (compare `MemberProfileInput` in
   `internal/members/types.go` with the form schema).
 
-### [ ] T09 Event image upload needs `news:article:create`
+### [x] T09 Event image upload needs `news:article:create`
 
 - New: `apps/web/src/lib/events/server/actions.ts` uploads through
   `POST /images` (`articles.Service.UploadImage`, needs

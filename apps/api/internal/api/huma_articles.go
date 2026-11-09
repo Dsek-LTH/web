@@ -342,7 +342,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Path:          "/images",
 		Tags:          []string{"Files"},
 		Summary:       "Upload an image",
-		Description:   "For article bodies. Needs news:article:create.",
+		Description:   "For articles and event header images. Needs news:article:create, event:create or event:update.",
 		DefaultStatus: http.StatusCreated,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
