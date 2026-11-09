@@ -229,6 +229,14 @@ func TestNollningAccess(t *testing.T) {
 	path := "/nollning/phadder-groups/" + e.one(t,
 		`SELECT id::text FROM phadder_groups WHERE name = 'Authz group'`)
 	e.check(t, e.gate(http.MethodPut, path, group, ok, apinames.NollningPhadderGroupsManage))
+	// A group's members and anyone's phadder role name members, so they
+	// are for signed-in members only, like the member directory.
+	for _, p := range []string{path, "/members/" + e.members[4].StudentID + "/phadder-role"} {
+		e.check(t, []accessCase{
+			{anonymous, http.MethodGet, p, nil, denied},
+			{e.as(1), http.MethodGet, p, nil, ok},
+		})
+	}
 	nolla := map[string]any{"studentIds": []string{e.members[4].StudentID}}
 	e.check(t, e.gate(http.MethodPost, path+"/nollor", nolla, ok,
 		apinames.NollningPhadderGroupsManage))

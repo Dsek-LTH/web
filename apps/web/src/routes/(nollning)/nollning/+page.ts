@@ -16,18 +16,18 @@ export const load = async (event) => {
     : undefined;
   const summaries = summariesRes?.data ?? [];
 
-  const phadderGroups = (
-    await Promise.all(
-      summaries.map((g) =>
-        api
-          .GET("/nollning/phadder-groups/{id}", {
-            fetch: event.fetch,
-            params: { path: { id: g.id } },
-          })
-          .then((res) => res.data),
-      ),
-    )
-  ).filter((g) => g !== undefined);
+  // The detail (member names) is for signed-in members; others get the
+  // summary.
+  const phadderGroups = await Promise.all(
+    summaries.map((g) =>
+      api
+        .GET("/nollning/phadder-groups/{id}", {
+          fetch: event.fetch,
+          params: { path: { id: g.id } },
+        })
+        .then((res) => res.data ?? g),
+    ),
+  );
 
   return {
     phadderGroups,
