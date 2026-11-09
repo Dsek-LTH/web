@@ -418,7 +418,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: add optional `rawTitle`/`rawLyrics` to the song response (only for
   callers who can edit) and seed the form with them.
 
-### [ ] T30 Booking notifications: UTC times and no sender
+### [x] T30 Booking notifications: UTC times and no sender
 
 - New: `notifications/notifier.go` ~114 formats booking times without
   converting to Europe/Stockholm; `NotifyBookingRequestStatus` doesn't set

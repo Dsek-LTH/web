@@ -59,11 +59,13 @@ type EventNotification struct {
 // set for the latter - real implementations ignore fields they don't need,
 // same as ArticleNotification above.
 type BookingRequestNotification struct {
-	BookingRequestID  string
-	Event             string
-	Start             time.Time
-	End               time.Time
-	BookableNames     []string
+	BookingRequestID string
+	Event            string
+	Start            time.Time
+	End              time.Time
+	BookableNames    []string
+	// RequesterMemberID is who acted: the booker for a new request, the
+	// reviewing admin for a status change (and so its sender).
 	RequesterMemberID string
 	RecipientMemberID string
 	Status            string
