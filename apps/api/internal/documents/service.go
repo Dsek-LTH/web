@@ -121,7 +121,7 @@ func (s *Service) ListRequirements(
 	yearStr := strconv.Itoa(year)
 	files, err := s.store.List(ctx, s.filesBucket, "public/kravprofiler/"+yearStr, true)
 	if err != nil {
-		return nil, invalidf("list requirements for %d: %w", year, err)
+		return nil, fmt.Errorf("list requirements for %d: %w", year, err)
 	}
 
 	groups := make(map[string][]storage.Object)
@@ -428,7 +428,7 @@ func (s *Service) ListMisc(ctx context.Context) ([]StoredFile, error) {
 	}
 	files, err := s.store.List(ctx, s.filesBucket, miscPrefix, true)
 	if err != nil {
-		return nil, invalidf("list misc files: %w", err)
+		return nil, fmt.Errorf("list misc files: %w", err)
 	}
 	out := make([]StoredFile, len(files))
 	for i, f := range files {
@@ -484,7 +484,7 @@ func (s *Service) UploadMisc(
 	key := miscUploadKey(prefix, name, file.Filename)
 	url, err := s.store.Put(ctx, s.filesBucket, key, file.Data, -1)
 	if err != nil {
-		return nil, invalidf("upload %s: %w", key, err)
+		return nil, fmt.Errorf("upload %s: %w", key, err)
 	}
 	return &StoredFile{ID: key, Name: path.Base(key), URL: url}, nil
 }

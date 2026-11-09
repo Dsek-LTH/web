@@ -491,7 +491,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [ ] T45 `/admin/minio` needs `requirePolicy(FILES.BUCKET("files").CREATE)`.
 - [ ] T46 `/admin/settings` load should accept `admin:settings:read` (or
       `MANAGE_SEASONS`) like the old page.
-- [ ] T47 Storage failures in `internal/documents` come back as 422
+- [x] T47 Storage failures in `internal/documents` come back as 422
       (`invalidf`): return plain errors (500).
 - [ ] T48 Album detail lists sibling albums with the same prefix: append
       `/` to the prefix in `gallery.Service.GetAlbum`; apply ListAlbums'
