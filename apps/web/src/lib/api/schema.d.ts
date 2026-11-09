@@ -2273,7 +2273,7 @@ export interface paths {
     };
     /**
      * Get a song
-     * @description Needs song:read. A deleted song is returned too to someone with song:delete.
+     * @description Needs song:read. A deleted song is returned too to someone with song:delete; the stored text before the typographic replacements (rawTitle, rawLyrics) to someone with song:update.
      */
     get: operations["get-song"];
     /**
@@ -4170,6 +4170,10 @@ export interface components {
       lyrics: string;
       /** @description The tune it's sung to. */
       melody?: string;
+      /** @description The lyrics as stored, before the typographic replacements. Only for callers who may edit songs (song:update). */
+      rawLyrics?: string;
+      /** @description The title as stored, before the typographic replacements. Only for callers who may edit songs (song:update). */
+      rawTitle?: string;
       slug: string;
       title: string;
       /** Format: date-time */
