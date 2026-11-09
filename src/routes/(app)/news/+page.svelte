@@ -3,10 +3,9 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SEO from "$lib/seo/SEO.svelte";
   import NewsSearch from "./NewsSearch.svelte";
-  import { Button, buttonVariants } from "$lib/components/ui/button";
+  import { Button } from "$lib/components/ui/button";
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
   import * as Tooltip from "$lib/components/ui/tooltip";
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import Pagination from "$lib/components/Pagination.svelte";
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -20,7 +19,6 @@
   import { toAppTime } from "$lib/utils/datetime";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import Plus from "@lucide/svelte/icons/plus";
-  import Ellipsis from "@lucide/svelte/icons/ellipsis";
   import Tags from "@lucide/svelte/icons/tags";
   import NewsList from "./NewsList.svelte";
   import {
@@ -32,7 +30,7 @@
   let { data } = $props();
 
   const canCreate = $derived(isAuthorized(apiNames.NEWS.CREATE, data.user));
-  const canManageTags = $derived(isAuthorized(apiNames.TAGS.READ, data.user));
+  const canManageTags = $derived(isAuthorized(apiNames.TAGS.UPDATE, data.user));
 
   // Initial value comes from the cookie (read on the server), so SSR renders the right view.
   let viewMode = $derived(data.viewMode);
@@ -152,24 +150,10 @@
     {#if canCreate || canManageTags}
       <div class="flex items-center gap-2">
         {#if canManageTags}
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger
-              class={buttonVariants({ variant: "outline", size: "icon" })}
-              aria-label={m.news_moreActions()}
-            >
-              <Ellipsis />
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content align="end">
-              <DropdownMenu.Item>
-                {#snippet child({ props })}
-                  <a href="/news/tags" {...props}>
-                    <Tags />
-                    {m.news_manageTags()}
-                  </a>
-                {/snippet}
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+          <Button variant="outline" href="/news/tags">
+            <Tags />
+            {m.news_manageTags()}
+          </Button>
         {/if}
         {#if canCreate}
           <Button href="/news/create">
