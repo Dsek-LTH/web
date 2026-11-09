@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte";
   import Button from "$lib/components/ui/button/button.svelte";
-  import ImagePlus from "@lucide/svelte/icons/image-plus";
+  import FileUpload from "$lib/components/FileUpload.svelte";
   import Star from "@lucide/svelte/icons/star";
   import X from "@lucide/svelte/icons/x";
   import { isFileImage } from "$lib/files/utils";
@@ -40,8 +40,7 @@
   const existing = $derived(existingProp ?? []);
   const images = $derived(imagesProp ?? []);
 
-  let inputElement: HTMLInputElement | undefined = $state();
-  let isDraggingOver = $state(false);
+  let pickedFiles: FileList | undefined = $state();
   let notice = $state("");
 
   const fileKey = (file: File) =>
@@ -121,17 +120,15 @@
     if (accepted.length > 0) imagesProp = [...images, ...accepted];
   }
 
-  function onInputChange(event: Event & { currentTarget: HTMLInputElement }) {
-    addFiles(Array.from(event.currentTarget.files ?? []));
-    // Without this, picking the same file again would not fire `change`.
-    event.currentTarget.value = "";
-  }
-
-  function onDrop(event: DragEvent) {
-    event.preventDefault();
-    isDraggingOver = false;
-    addFiles(Array.from(event.dataTransfer?.files ?? []));
-  }
+  // FileUpload fills `pickedFiles` for both the file input, drops and the URL
+  // dialog. Move them into `images` and clear it so it shows no preview of its
+  // own.
+  $effect(() => {
+    const picked = pickedFiles;
+    if (!picked || picked.length === 0) return;
+    untrack(() => addFiles(Array.from(picked)));
+    pickedFiles = new DataTransfer().files;
+  });
 
   function makeCover(tile: Tile) {
     if (tile.kind === "existing") {
@@ -164,38 +161,7 @@
 </script>
 
 <div class="flex w-full flex-col gap-3">
-  <input
-    bind:this={inputElement}
-    type="file"
-    accept="image/*"
-    multiple
-    class="hidden"
-    onchange={onInputChange}
-  />
-
-  <div
-    role="group"
-    aria-label={m.news_images()}
-    class={cn(
-      "bg-secondary-background border-border flex flex-wrap items-center justify-between gap-3 rounded-md border border-dashed p-4",
-      isDraggingOver && "border-primary",
-    )}
-    ondragover={(event) => {
-      event.preventDefault();
-      isDraggingOver = true;
-    }}
-    ondragleave={() => (isDraggingOver = false)}
-    ondrop={onDrop}
-  >
-    <p class="text-muted-foreground min-w-0 text-sm">{m.news_images_drop()}</p>
-    <Button
-      type="button"
-      variant="outline"
-      onclick={() => inputElement?.click()}
-    >
-      <ImagePlus />{m.news_images_add()}
-    </Button>
-  </div>
+  <FileUpload multiple bind:files={pickedFiles} />
 
   <p class="text-destructive min-h-5 text-sm" role="status" aria-live="polite">
     {notice}
@@ -208,7 +174,7 @@
       {m.news_images_empty()}
     </p>
   {:else}
-    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 ml-0">
+    <ul class="ml-0 grid grid-cols-2 gap-3 sm:grid-cols-3">
       {#each tiles as tile (tile.key)}
         <li
           class={cn(
