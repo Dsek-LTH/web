@@ -123,7 +123,8 @@ type Querier interface {
 	DeleteNotifications(ctx context.Context, arg DeleteNotificationsParams) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
 	DeleteSongBookEntry(ctx context.Context, arg DeleteSongBookEntryParams) (int64, error)
-	// pattern is built by the caller as "{prefix}%" - a real SQL LIKE
+	// pattern is built by the caller as "{prefix}%", with prefix's own LIKE
+	// wildcards escaped (dbutil.EscapeLike) - a real SQL LIKE
 	// wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
 	// literal-escaping of startsWith) only ever matched a position id that
 	// literally contained a "%" character, i.e. never. Role-based

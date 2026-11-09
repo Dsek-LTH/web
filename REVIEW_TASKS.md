@@ -456,7 +456,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       create/update and load, admin access delete/create actions,
       admin/settings actions, booking `saveBookingRequest`,
       `api/notifications/uploadToken` (401 not 500).
-- [ ] T35 Escape `\`, `%`, `_` in ILIKE/LIKE search terms (events, songs,
+- [x] T35 Escape `\`, `%`, `_` in ILIKE/LIKE search terms (events, songs,
       songbook, `CountSongSlugsWithPrefix`, Salto role prefixes in
       `internal/doors`).
 - [ ] T36 Go validation the old zod had: article header min/max lengths,

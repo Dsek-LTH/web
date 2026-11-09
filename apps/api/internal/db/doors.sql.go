@@ -84,7 +84,8 @@ const existsPositionWithPrefix = `-- name: ExistsPositionWithPrefix :one
 SELECT EXISTS(SELECT 1 FROM positions WHERE id LIKE $1::text) AS exists
 `
 
-// pattern is built by the caller as "{prefix}%" - a real SQL LIKE
+// pattern is built by the caller as "{prefix}%", with prefix's own LIKE
+// wildcards escaped (dbutil.EscapeLike) - a real SQL LIKE
 // wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
 // literal-escaping of startsWith) only ever matched a position id that
 // literally contained a "%" character, i.e. never. Role-based

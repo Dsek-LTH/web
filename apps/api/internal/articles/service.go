@@ -79,7 +79,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	if err != nil {
 		return nil, 0, invalidf("invalid committee id: %v", err)
 	}
-	search := dbutil.TextOrInvalid(params.Search)
+	search := dbutil.TextOrInvalid(dbutil.EscapeLikePtr(params.Search))
 	authorStudentID := dbutil.TextOrInvalid(params.AuthorStudentID)
 	nollningSeasonID, err := dbutil.ParseUUIDPtr(params.NollningSeasonID)
 	if err != nil {
@@ -812,7 +812,10 @@ func (s *Service) setTags(ctx context.Context, articleID pgtype.UUID, tagIDs []p
 // use.
 func (s *Service) uniqueSlug(ctx context.Context, headerSv string) (string, error) {
 	base := slug.Slugify(headerSv)
-	count, err := s.queries.CountArticleSlugsWithPrefix(ctx, pgtype.Text{String: base, Valid: true})
+	count, err := s.queries.CountArticleSlugsWithPrefix(
+		ctx,
+		pgtype.Text{String: dbutil.EscapeLike(base), Valid: true},
+	)
 	if err != nil {
 		return "", fmt.Errorf("count slugs: %w", err)
 	}

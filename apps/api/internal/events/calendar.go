@@ -140,7 +140,10 @@ func (s *Service) SlugForID(ctx context.Context, eventID string) (string, error)
 	}
 
 	base := slug.Slugify(row.TitleSv)
-	count, err := s.queries.CountEventSlugsWithPrefix(ctx, pgtype.Text{String: base, Valid: true})
+	count, err := s.queries.CountEventSlugsWithPrefix(
+		ctx,
+		pgtype.Text{String: dbutil.EscapeLike(base), Valid: true},
+	)
 	if err != nil {
 		return "", fmt.Errorf("count slugs: %w", err)
 	}

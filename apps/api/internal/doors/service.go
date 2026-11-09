@@ -181,7 +181,7 @@ func (s *Service) CreateAccessPolicy(
 			return nil, fmt.Errorf("look up member: %w", err)
 		}
 	} else if !isVirtualRole(in.Subject) {
-		exists, err := s.queries.ExistsPositionWithPrefix(ctx, in.Subject+"%")
+		exists, err := s.queries.ExistsPositionWithPrefix(ctx, dbutil.EscapeLike(in.Subject)+"%")
 		if err != nil {
 			return nil, fmt.Errorf("look up position: %w", err)
 		}
@@ -309,7 +309,15 @@ func (s *Service) resolveAllowedStudentIDs(ctx context.Context, doorName string)
 			}
 			continue
 		}
-		rolePatterns = append(rolePatterns, role+"%")
+		if role == "_" {
+			// "_" (every logged-in member) names no position; as an
+			// unescaped LIKE pattern it has always matched every
+			// position id, i.e. every current mandate holder. Keep that
+			// explicitly so escaping doesn't change the door's list.
+			rolePatterns = append(rolePatterns, "%")
+			continue
+		}
+		rolePatterns = append(rolePatterns, dbutil.EscapeLike(role)+"%")
 	}
 
 	var studentsFromPositions []string

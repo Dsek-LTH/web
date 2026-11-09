@@ -43,7 +43,8 @@ DELETE FROM door_access_policies
 WHERE id = sqlc.arg('id') AND door_name = sqlc.arg('door_name');
 
 -- name: ExistsPositionWithPrefix :one
--- pattern is built by the caller as "{prefix}%" - a real SQL LIKE
+-- pattern is built by the caller as "{prefix}%", with prefix's own LIKE
+-- wildcards escaped (dbutil.EscapeLike) - a real SQL LIKE
 -- wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
 -- literal-escaping of startsWith) only ever matched a position id that
 -- literally contained a "%" character, i.e. never. Role-based
