@@ -71,9 +71,10 @@ type BookingRequest struct {
 	// AccessDoors/AccessMembers are the doors the booker asked to have
 	// opened for the booking and who should get in (upstream #1184).
 	// Accepting the request grants exactly that door access, for the
-	// booking's time plus a buffer (see Service.SetStatus).
-	AccessDoors   []BookingDoor     `json:"accessDoors"   doc:"Doors to open for the booking."`
-	AccessMembers []apitypes.Member `json:"accessMembers" doc:"Members who get door access for the booking."`
+	// booking's time plus a buffer (see Service.SetStatus). Only the booker
+	// and booking_request:update holders see them (see attachAccess).
+	AccessDoors   []BookingDoor     `json:"accessDoors"   doc:"Doors to open for the booking. Empty unless the caller is the booker or holds booking_request:update."`
+	AccessMembers []apitypes.Member `json:"accessMembers" doc:"Members who get door access for the booking. Empty unless the caller is the booker or holds booking_request:update."`
 }
 
 type BookingDoor struct {

@@ -219,10 +219,52 @@ func TestBookingAccess(t *testing.T) {
 		{e.as(2), http.MethodDelete, path, nil, denied},
 		{e.as(1), http.MethodDelete, path, nil, ok},
 	})
+	withAccess := request("Authz booking 2")
+	withAccess["accessMemberIds"] = []string{e.members[3].ID}
 	e.mustCall(t, e.as(1, apinames.BookingRequestCreate), http.MethodPost, "/booking-requests",
-		request("Authz booking 2"))
-	second := "/booking-requests/" + e.one(t,
-		`SELECT id::text FROM booking_requests WHERE event = 'Authz booking 2'`)
+		withAccess)
+	secondID := e.one(t, `SELECT id::text FROM booking_requests WHERE event = 'Authz booking 2'`)
+	second := "/booking-requests/" + secondID
+
+	// The access lists are only for the booker and booking_request:update
+	// holders, on both the single request and the list.
+	for _, c := range []struct {
+		as   caller
+		want bool
+	}{
+		{e.as(2, apinames.BookingRequestRead), false},
+		{e.as(1, apinames.BookingRequestRead), true},
+		{e.as(2, apinames.BookingRequestRead, apinames.BookingRequestUpdate), true},
+	} {
+		var one struct {
+			AccessMembers []any `json:"accessMembers"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, second, nil).decode(t, &one)
+		if got := len(one.AccessMembers) > 0; got != c.want {
+			t.Errorf("GET %s as %s: access members shown %v, want %v",
+				second, c.as.label, got, c.want)
+		}
+		var list []struct {
+			ID            string `json:"id"`
+			AccessMembers []any  `json:"accessMembers"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, "/booking-requests", nil).decode(t, &list)
+		found := false
+		for _, r := range list {
+			if r.ID != secondID {
+				continue
+			}
+			found = true
+			if got := len(r.AccessMembers) > 0; got != c.want {
+				t.Errorf("GET /booking-requests as %s: access members shown %v, want %v",
+					c.as.label, got, c.want)
+			}
+		}
+		if !found {
+			t.Errorf("GET /booking-requests as %s: %s missing", c.as.label, secondID)
+		}
+	}
+
 	e.check(t, []accessCase{
 		{e.as(2, apinames.BookingRequestDelete), http.MethodDelete, second, nil, ok},
 	})
