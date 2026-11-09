@@ -90,6 +90,19 @@ export const actions: Actions = {
     const { studentId } = params;
     const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
+    // Go's member update replaces every profile field, and MemberForm has
+    // no graduation year input, so it's carried over from the current
+    // profile rather than cleared (as onboarding does).
+    const currentRes = await api.GET("/members/{studentId}", {
+      params: { path: { studentId } },
+    });
+    if (currentRes.error)
+      return message(
+        form,
+        { message: m.members_errors_couldntFetchMember(), type: "error" },
+        { status: currentRes.response.status as NumericRange<400, 599> },
+      );
+
     const res = await api.PUT("/members/{studentId}", {
       params: { path: { studentId } },
       body: {
@@ -98,7 +111,8 @@ export const actions: Actions = {
         nickname: profileFields.nickname ?? undefined,
         classProgramme: profileFields.classProgramme ?? undefined,
         classYear: profileFields.classYear ?? undefined,
-        graduationYear: profileFields.graduationYear ?? undefined,
+        graduationYear:
+          profileFields.graduationYear ?? currentRes.data.graduationYear,
         language: profileFields.language ?? undefined,
         bio: profileFields.bio ?? undefined,
         birthDate: toBirthDateString(profileFields.birthDate),

@@ -174,7 +174,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   value changed, and surface errors. Add authz cases (self allowed, other
   member denied, manager allowed).
 
-### [ ] T08 Any profile save clears `graduationYear`
+### [x] T08 Any profile save clears `graduationYear`
 
 - New: `members/[studentId]/+page.server.ts` and `edit/+page.server.ts`
   `PUT /members/{studentId}` (full replace) with
@@ -185,6 +185,8 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   already does this), in both actions. Check the other fields the PUT
   requires but the form doesn't send (compare `MemberProfileInput` in
   `internal/members/types.go` with the form schema).
+- Done: both actions carry `graduationYear` over from the current profile.
+  It was the only `ProfileInput` field `MemberForm` doesn't submit.
 
 ### [x] T09 Event image upload needs `news:article:create`
 
