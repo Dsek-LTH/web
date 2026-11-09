@@ -5,7 +5,6 @@ import {
   type Infer,
 } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
-import * as messages from "$paraglide/messages";
 
 import { z } from "zod";
 import DOMPurify from "isomorphic-dompurify";
