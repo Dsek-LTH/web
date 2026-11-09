@@ -295,7 +295,12 @@ export const actions: Actions = {
         { status: res.response.status as NumericRange<400, 599> },
       );
 
-    const groupError = await setNollningGroup(api, studentId, nollningGroupId);
+    const groupError = await setNollningGroup(
+      api,
+      studentId,
+      nollningGroupId,
+      res.data,
+    );
     if (groupError)
       return message(
         form,

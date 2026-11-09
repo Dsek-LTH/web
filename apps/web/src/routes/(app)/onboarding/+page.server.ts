@@ -124,7 +124,12 @@ export const actions: Actions = {
       });
     }
 
-    const groupError = await setNollningGroup(api, studentId, nollningGroupId);
+    const groupError = await setNollningGroup(
+      api,
+      studentId,
+      nollningGroupId,
+      profileRes.data,
+    );
     if (groupError)
       return message(
         form,

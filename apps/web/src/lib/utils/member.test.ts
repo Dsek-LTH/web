@@ -33,6 +33,31 @@ test("an unchanged group isn't sent", async () => {
   expect(api.PUT).not.toHaveBeenCalled();
 });
 
+test("a past season's group posted back unchanged isn't sent", async () => {
+  // The select only offers this season's groups, but its hidden input
+  // posts the prefilled id, so a plain save posts last year's group.
+  current = { nollningGroupId: OTHER };
+  expect(await setNollningGroup(client, "ab1234cd-s", OTHER)).toBeNull();
+  expect(api.PUT).not.toHaveBeenCalled();
+});
+
+test("a passed profile is compared without fetching it", async () => {
+  current = { nollningGroupId: OTHER };
+  await setNollningGroup(client, "ab1234cd-s", GROUP, {
+    nollningGroupId: GROUP,
+  });
+  expect(api.GET).not.toHaveBeenCalled();
+  expect(api.PUT).not.toHaveBeenCalled();
+  await setNollningGroup(client, "ab1234cd-s", null, {
+    nollningGroupId: GROUP,
+  });
+  expect(api.GET).not.toHaveBeenCalled();
+  expect(api.PUT).toHaveBeenCalledWith("/members/{studentId}/phadder-group", {
+    params: { path: { studentId: "ab1234cd-s" } },
+    body: {},
+  });
+});
+
 test("a changed group is sent", async () => {
   current = { nollningGroupId: GROUP };
   await setNollningGroup(client, "ab1234cd-s", OTHER);
