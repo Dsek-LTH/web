@@ -471,7 +471,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       in `ListMandatesForPosition` / `ListAllMandatesForPosition`.
 - [ ] T38 Committee member/mandate counts ignore `?year=`
       (`GetCommitteeByShortName`).
-- [ ] T39 Medal endpoints return `null` for empty lists
+- [x] T39 Medal endpoints return `null` for empty lists
       (`medals.Service.MemberMedals`, `MedalRecipients`): initialize slices.
 - [ ] T40 `/news?tags=<name>` gives 422: map tag names to ids in the load
       or ignore non-UUIDs.
