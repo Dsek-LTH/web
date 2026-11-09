@@ -280,7 +280,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   from Go's `internal/doors`, keeping both in sync with a comment). Output
   for the normal case must stay byte-identical.
 
-### [ ] T16 A session for a deleted member breaks the whole site
+### [x] T16 A session for a deleted member breaks the whole site
 
 - New: `apps/api/internal/auth/real.go` `resolveIdentity` returns
   `pgx.ErrNoRows` as an error; `Middleware` answers 401 on every route
