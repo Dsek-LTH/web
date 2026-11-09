@@ -451,6 +451,8 @@
   "positions_errors_mandateNotFound": "Kunde inte hitta mandatet",
   "positions_errors_positionNotFound": "Kunde inte hitta posten",
   "positions_errors_memberNotFound": "Kunde inte hitta medlem",
+  "positions_showExtended": "Visa utökad beskrivning",
+  "positions_longDescription": "Utökad beskrivning",
   "news_header": "Rubrik",
   "news_description": "Beskrivning",
   "news_author": "Författare",
