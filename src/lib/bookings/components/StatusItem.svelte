@@ -56,8 +56,7 @@
 {:else}
   <Item.Root class="py-4" variant="muted">
     <Item.Content>
-      <Item.Description
-        class={`mx-auto text-3xl font-bold ${descriptionColor}`}
+      <Item.Description class={`mx-auto text-3xl font-bold ${descriptionColor}`}
         >{count}</Item.Description
       >
       <Item.Title class={variants({ variant, mode })}

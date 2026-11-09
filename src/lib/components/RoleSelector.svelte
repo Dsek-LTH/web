@@ -57,7 +57,7 @@
       { id: "nolla", label: m.role_n0lla() },
       { id: "dsek.styr", label: m.role_boardMembers() },
     ];
-    const programRoles = programmes.flatMap(program =>
+    const programRoles = programmes.flatMap((program) =>
       Array.from({ length: YEARS_BACK + 1 }, (_, i) => {
         const year = currentYear - i;
         const shortYear = String(year % 100).padStart(2, "0");
