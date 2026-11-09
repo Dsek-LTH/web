@@ -198,7 +198,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   under `public/events/`). Update the operation description and the authz
   test for `/images`. Image validation/compression is T21.
 
-### [ ] T10 Migration `20261103200001` can abort the cutover
+### [x] T10 Migration `20261103200001` can abort the cutover
 
 - New: `apps/api/internal/db/migrations/20261103200001_access_policy_exactly_one_of_role_or_student.up.sql`
   adds `CHECK ((role IS NOT NULL) <> (student_id IS NOT NULL))` with no
