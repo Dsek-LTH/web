@@ -207,7 +207,14 @@ SELECT id FROM events WHERE slug = $1;
 -- Phase 9: setAttendance needs the organizer/title/slug to notify on
 -- going/interested (see integrations.EventNotification), not just the id
 -- GetEventIDBySlug returns.
-SELECT id, slug, title_sv, author_id FROM events WHERE slug = $1;
+-- Removed events take no RSVPs, as the old app couldn't even read them.
+SELECT id, slug, title_sv, author_id FROM events
+WHERE slug = $1 AND (removed_at IS NULL OR removed_at > now());
+
+-- name: GetLiveEventIDBySlug :one
+-- For new comments: a removed event takes none.
+SELECT id FROM events
+WHERE slug = $1 AND (removed_at IS NULL OR removed_at > now());
 
 -- name: CountEventSlugsWithPrefix :one
 SELECT count(*) FROM events WHERE slug LIKE $1 || '%';

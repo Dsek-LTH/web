@@ -214,6 +214,7 @@ type Querier interface {
 	// Phase 9: setAttendance needs the organizer/title/slug to notify on
 	// going/interested (see integrations.EventNotification), not just the id
 	// GetEventIDBySlug returns.
+	// Removed events take no RSVPs, as the old app couldn't even read them.
 	GetEventForAttendance(ctx context.Context, slug pgtype.Text) (GetEventForAttendanceRow, error)
 	GetEventIDBySlug(ctx context.Context, slug pgtype.Text) (pgtype.UUID, error)
 	// Unfiltered lookup: no removed_at filter. Used internally after
@@ -228,6 +229,11 @@ type Querier interface {
 	// The newest season whose theme has been revealed, current or past: what
 	// the nollning site shows between seasons.
 	GetLatestRevealedSeason(ctx context.Context) (NollningSeason, error)
+	// For new likes and comments: only on articles readers can see, as the old
+	// app couldn't even read the others.
+	GetLiveArticleIDBySlug(ctx context.Context, slug string) (pgtype.UUID, error)
+	// For new comments: a removed event takes none.
+	GetLiveEventIDBySlug(ctx context.Context, slug pgtype.Text) (pgtype.UUID, error)
 	// Used to verify a caller posting "as" a mandate actually holds it.
 	// custom_authors has no owner column in the schema (they're shared
 	// personas, e.g. "Styrelsen"), so there's no equivalent check for those.

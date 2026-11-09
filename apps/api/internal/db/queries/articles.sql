@@ -273,3 +273,11 @@ WHERE a.announced_at IS NULL
   AND a.published_datetime <= now()
 ORDER BY a.published_datetime
 LIMIT 100;
+
+-- name: GetLiveArticleIDBySlug :one
+-- For new likes and comments: only on articles readers can see, as the old
+-- app couldn't even read the others.
+SELECT id FROM articles
+WHERE slug = $1
+  AND published_datetime <= now()
+  AND (removed_at IS NULL OR removed_at > now());

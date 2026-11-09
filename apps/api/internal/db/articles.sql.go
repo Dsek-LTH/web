@@ -447,6 +447,22 @@ func (q *Queries) GetArticleRowBySlug(ctx context.Context, slug string) (GetArti
 	return i, err
 }
 
+const getLiveArticleIDBySlug = `-- name: GetLiveArticleIDBySlug :one
+SELECT id FROM articles
+WHERE slug = $1
+  AND published_datetime <= now()
+  AND (removed_at IS NULL OR removed_at > now())
+`
+
+// For new likes and comments: only on articles readers can see, as the old
+// app couldn't even read the others.
+func (q *Queries) GetLiveArticleIDBySlug(ctx context.Context, slug string) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getLiveArticleIDBySlug, slug)
+	var id pgtype.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const listArticles = `-- name: ListArticles :many
 
 SELECT

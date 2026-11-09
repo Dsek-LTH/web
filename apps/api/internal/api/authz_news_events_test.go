@@ -71,6 +71,18 @@ func TestArticleAccess(t *testing.T) {
 	})
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.NewsArticleDelete))
 
+	// A deleted article takes no likes or comments.
+	e.check(t, []accessCase{
+		{e.as(2, apinames.NewsArticleLike), http.MethodPut, path + "/like", nil, hidden},
+		{
+			e.as(2, apinames.NewsArticleComment),
+			http.MethodPost,
+			path + "/comments",
+			comment,
+			hidden,
+		},
+	})
+
 	// A deleted article is only shown to someone who may edit it.
 	hidden := path + "?includeDeleted=true"
 	e.check(t, []accessCase{
@@ -206,6 +218,12 @@ func TestEventAccess(t *testing.T) {
 	// Deleting needs event:delete, author or not.
 	e.check(t, []accessCase{{e.as(1), http.MethodDelete, path, nil, denied}})
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.EventDelete))
+
+	// A removed event takes no RSVPs or comments.
+	e.check(t, []accessCase{
+		{e.as(2), http.MethodPut, path + "/attendance", map[string]any{"status": "going"}, hidden},
+		{e.as(2, apinames.EventComment), http.MethodPost, path + "/comments", comment, hidden},
+	})
 
 	hiddenPath := path + "?includeDeleted=true"
 	e.check(t, []accessCase{

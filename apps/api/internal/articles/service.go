@@ -443,11 +443,16 @@ func (s *Service) Like(ctx context.Context, slug string) error {
 	}
 	identity, _ := auth.FromContext(ctx)
 
-	row, err := s.queries.GetArticleRowBySlug(ctx, slug)
-	if err != nil {
+	// Only articles readers can see take likes, as the old app couldn't even
+	// read the others.
+	if _, err := s.queries.GetLiveArticleIDBySlug(ctx, slug); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return ErrNotFound
 		}
+		return fmt.Errorf("find article: %w", err)
+	}
+	row, err := s.queries.GetArticleRowBySlug(ctx, slug)
+	if err != nil {
 		return fmt.Errorf("find article: %w", err)
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -507,7 +512,7 @@ func (s *Service) AddComment(ctx context.Context, slug, content string) (*Commen
 	}
 	identity, _ := auth.FromContext(ctx)
 
-	articleID, err := s.queries.GetArticleIDBySlug(ctx, slug)
+	articleID, err := s.queries.GetLiveArticleIDBySlug(ctx, slug)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound

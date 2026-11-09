@@ -649,7 +649,7 @@ func (s *Service) AddComment(ctx context.Context, eventSlug, content string) (*C
 	}
 	identity, _ := auth.FromContext(ctx)
 
-	eventID, err := s.queries.GetEventIDBySlug(ctx, dbutil.ToText(&eventSlug))
+	eventID, err := s.queries.GetLiveEventIDBySlug(ctx, dbutil.ToText(&eventSlug))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound

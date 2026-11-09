@@ -477,7 +477,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       or ignore non-UUIDs.
 - [ ] T41 Nollning tags show in the public `/events` tag filter: filter by
       the nollning prefix in `EventPageLoad.ts`.
-- [ ] T42 Removed events accept RSVPs and comments, removed/unpublished
+- [x] T42 Removed events accept RSVPs and comments, removed/unpublished
       articles accept likes and comments: add the removed/published filter
       to `GetEventForAttendance`, `GetEventIDBySlug`,
       `GetArticleIDBySlug` (as used by like/comment).
