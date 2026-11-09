@@ -520,7 +520,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       (`api/events_feeds.go`), and `/nollning/messages` and
       `/nollning/events` are empty outside a season: use the latest revealed
       season.
-- [ ] T57 `/nollning/events` lists season events before reveal and computes
+- [x] T57 `/nollning/events` lists season events before reveal and computes
       week boundaries in the runtime's timezone.
 - [x] T58 The nolla notification feed lost purchase notification types
       (`queries/notifications.sql`): check which types tickets now send and
