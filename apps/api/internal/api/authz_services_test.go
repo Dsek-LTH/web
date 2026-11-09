@@ -514,3 +514,33 @@ func TestPublicReads(t *testing.T) {
 		e.check(t, []accessCase{{anonymous, http.MethodGet, p, nil, ok}})
 	}
 }
+
+// GET /positions carries each position's committee, which /positions groups
+// by.
+func TestPositionsListCarriesCommittee(t *testing.T) {
+	e := requireDB(t)
+	id := e.one(t, `SELECT id FROM positions WHERE committee_id IS NOT NULL LIMIT 1`)
+	shortName := e.one(
+		t,
+		`SELECT c.short_name FROM positions p JOIN committees c ON c.id = p.committee_id WHERE p.id = $1`,
+		id,
+	)
+	var positions []struct {
+		ID        string `json:"id"`
+		Committee *struct {
+			Name      string `json:"name"`
+			ShortName string `json:"shortName"`
+		} `json:"committee"`
+	}
+	e.mustCall(t, anonymous, http.MethodGet, "/positions", nil).decode(t, &positions)
+	for _, p := range positions {
+		if p.ID != id {
+			continue
+		}
+		if p.Committee == nil || p.Committee.ShortName != shortName || p.Committee.Name == "" {
+			t.Fatalf("position %s: committee %+v, want %s", id, p.Committee, shortName)
+		}
+		return
+	}
+	t.Fatalf("position %s not listed", id)
+}

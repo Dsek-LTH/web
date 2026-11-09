@@ -237,7 +237,7 @@ type Querier interface {
 	// resolution).
 	GetMemberProfile(ctx context.Context, studentID pgtype.Text) (GetMemberProfileRow, error)
 	GetPhadderGroup(ctx context.Context, id pgtype.UUID) (PhadderGroup, error)
-	// Joins the committee (name/shortName), unlike ListPositions/UpdatePosition -
+	// Joins the committee (name/shortName), unlike UpdatePosition -
 	// the position detail page links/displays the committee without a second
 	// request.
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
@@ -506,6 +506,8 @@ type Querier interface {
 	// role a door policy names - see ExistsPositionWithPrefix's doc comment for
 	// why this is a real prefix match, not the old app's broken literal one.
 	ListPositionIDsMatchingPrefixes(ctx context.Context, patterns []string) ([]string, error)
+	// Joins the committee (name/shortName) like GetPosition, so GET /positions
+	// can group positions by committee.
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 	ListPositionsForSearch(ctx context.Context) ([]ListPositionsForSearchRow, error)
 	ListPushEnabledMemberIDs(ctx context.Context, arg ListPushEnabledMemberIDsParams) ([]pgtype.UUID, error)
