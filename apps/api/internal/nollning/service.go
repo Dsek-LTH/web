@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
@@ -216,6 +217,9 @@ func (s *Service) CreateSeason(
 		return nil, err
 	}
 
+	if err := s.validateSeason(ctx, pgtype.UUID{}, in); err != nil {
+		return nil, err
+	}
 	committeeID, err := s.resolveOrganizingCommittee(ctx, in.OrganizingCommitteeID)
 	if err != nil {
 		return nil, err
@@ -229,6 +233,9 @@ func (s *Service) CreateSeason(
 		OrganizingCommitteeID: committeeID,
 	})
 	if err != nil {
+		if isUniqueViolation(err) {
+			return nil, fmt.Errorf("%w: %d", ErrYearTaken, in.Year)
+		}
 		return nil, fmt.Errorf("create season: %w", err)
 	}
 	season := toSeason(created)
@@ -248,6 +255,15 @@ func (s *Service) UpdateSeason(
 	if err != nil {
 		return nil, invalidf("invalid season id: %v", err)
 	}
+	if _, err := s.queries.GetSeason(ctx, seasonID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get season: %w", err)
+	}
+	if err := s.validateSeason(ctx, seasonID, in); err != nil {
+		return nil, err
+	}
 
 	committeeID, err := s.resolveOrganizingCommittee(ctx, in.OrganizingCommitteeID)
 	if err != nil {
@@ -266,10 +282,74 @@ func (s *Service) UpdateSeason(
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
 		}
+		if isUniqueViolation(err) {
+			return nil, fmt.Errorf("%w: %d", ErrYearTaken, in.Year)
+		}
 		return nil, fmt.Errorf("update season: %w", err)
 	}
 	season := toSeason(updated)
 	return &season, nil
+}
+
+// validateSeason checks a season's dates are in order, that its year is
+// free and that it overlaps no other season (excluding the one being
+// updated): GetCurrentSeason assumes at most one season is active at a
+// time.
+func (s *Service) validateSeason(
+	ctx context.Context,
+	excludeID pgtype.UUID,
+	in NollningSeasonInput,
+) error {
+	if in.RevealAt.Before(in.NollaStartAt) {
+		return invalidf("revealAt is before nollaStartAt")
+	}
+	if in.EndAt.Before(in.RevealAt) {
+		return invalidf("endAt is before revealAt")
+	}
+	if !in.EndAt.After(in.NollaStartAt) {
+		return invalidf("endAt must be after nollaStartAt")
+	}
+	taken, err := s.queries.SeasonYearTaken(ctx, db.SeasonYearTakenParams{
+		Year:      int32(in.Year),
+		ExcludeID: excludeID,
+	})
+	if err != nil {
+		return fmt.Errorf("check season year: %w", err)
+	}
+	if taken {
+		return fmt.Errorf("%w: %d", ErrYearTaken, in.Year)
+	}
+	year, err := s.queries.FindOverlappingSeason(ctx, db.FindOverlappingSeasonParams{
+		ExcludeID: excludeID,
+		StartAt:   dbutil.ToTimestamptz(&in.NollaStartAt),
+		EndAt:     dbutil.ToTimestamptz(&in.EndAt),
+	})
+	switch {
+	case err == nil:
+		return invalidf("overlaps the %d season", year)
+	case !errors.Is(err, pgx.ErrNoRows):
+		return fmt.Errorf("find overlapping season: %w", err)
+	}
+	return nil
+}
+
+// isUniqueViolation reports whether err is Postgres refusing a duplicate
+// (the year check above can race with a concurrent write).
+func isUniqueViolation(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505" // unique_violation
+}
+
+// requireSeason answers 422 for a season id that doesn't exist, which the
+// phadder_groups foreign key would otherwise turn into a 500.
+func (s *Service) requireSeason(ctx context.Context, id pgtype.UUID) error {
+	if _, err := s.queries.GetSeason(ctx, id); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return invalidf("season not found")
+		}
+		return fmt.Errorf("get season: %w", err)
+	}
+	return nil
 }
 
 func (s *Service) resolveOrganizingCommittee(
@@ -280,6 +360,13 @@ func (s *Service) resolveOrganizingCommittee(
 		id, err := dbutil.ParseUUID(*explicit)
 		if err != nil {
 			return pgtype.UUID{}, invalidf("invalid organizing committee id: %v", err)
+		}
+		exists, err := s.queries.CommitteeExists(ctx, id)
+		if err != nil {
+			return pgtype.UUID{}, fmt.Errorf("check organizing committee: %w", err)
+		}
+		if !exists {
+			return pgtype.UUID{}, invalidf("organizing committee not found")
 		}
 		return id, nil
 	}
@@ -371,6 +458,9 @@ func (s *Service) CreateGroup(ctx context.Context, in PhadderGroupInput) (*Phadd
 	if err != nil {
 		return nil, invalidf("invalid season id: %v", err)
 	}
+	if err := s.requireSeason(ctx, seasonID); err != nil {
+		return nil, err
+	}
 	created, err := s.queries.CreatePhadderGroup(ctx, db.CreatePhadderGroupParams{
 		Name:        in.Name,
 		Description: dbutil.ToText(s.sanitizeDescription(in.Description)),
@@ -399,6 +489,9 @@ func (s *Service) UpdateGroup(
 	seasonID, err := dbutil.ParseUUID(in.SeasonID)
 	if err != nil {
 		return nil, invalidf("invalid season id: %v", err)
+	}
+	if err := s.requireSeason(ctx, seasonID); err != nil {
+		return nil, err
 	}
 	updated, err := s.queries.UpdatePhadderGroup(ctx, db.UpdatePhadderGroupParams{
 		ID:          groupID,
@@ -450,6 +543,12 @@ func (s *Service) AddNollor(ctx context.Context, groupID string, studentIDs []st
 	gID, err := dbutil.ParseUUID(groupID)
 	if err != nil {
 		return invalidf("invalid group id: %v", err)
+	}
+	if _, err := s.queries.GetPhadderGroup(ctx, gID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("get phadder group: %w", err)
 	}
 	members, err := s.membersByStudentID(ctx, studentIDs)
 	if err != nil {

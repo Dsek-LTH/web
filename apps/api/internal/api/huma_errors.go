@@ -100,6 +100,7 @@ var conflict = []error{
 	tickets.ErrClosed,
 	search.ErrSyncRunning,
 	documents.ErrFileExists,
+	nollning.ErrYearTaken,
 }
 
 // humaServiceError maps a domain-package error to a huma.StatusError (an

@@ -242,3 +242,65 @@ func TestNollningAccess(t *testing.T) {
 		apinames.NollningPhadderGroupsManage))
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.NollningPhadderGroupsManage))
 }
+
+// TestNollningValidation: bad season and phadder-group input answers 4xx,
+// not the 500 a foreign key, unique or ordering violation used to give.
+func TestNollningValidation(t *testing.T) {
+	e := requireDB(t)
+	year := time.Now().Year() + 7
+	start := time.Date(year, 8, 1, 0, 0, 0, 0, time.UTC)
+	season := func(year int, start time.Time) map[string]any {
+		return map[string]any{
+			"year": year, "nollaStartAt": start, "revealAt": start.AddDate(0, 0, 20),
+			"endAt": start.AddDate(0, 2, 0), "organizingCommitteeId": nil,
+		}
+	}
+	expect := func(method, path string, body any, want int) {
+		t.Helper()
+		if res := e.call(t, e.admin(), method, path, body); res.status != want {
+			t.Errorf("%s %s: got %d %s, want %d", method, path, res.status, res.body, want)
+		}
+	}
+
+	e.mustCall(t, e.admin(), http.MethodPost, "/nollning/seasons", season(year, start))
+	seasonID := e.one(t, `SELECT id::text FROM nollning_seasons WHERE year = $1`, year)
+
+	// Same year again: 409.
+	expect(http.MethodPost, "/nollning/seasons", season(year, start.AddDate(1, 0, 0)), 409)
+	// Overlapping another season: 422.
+	expect(http.MethodPost, "/nollning/seasons", season(year+1, start.AddDate(0, 1, 0)), 422)
+	// Dates out of order: 422.
+	backwards := season(year+1, start.AddDate(1, 0, 0))
+	backwards["revealAt"] = start.AddDate(0, 11, 0)
+	expect(http.MethodPost, "/nollning/seasons", backwards, 422)
+	backwards = season(year+1, start.AddDate(1, 0, 0))
+	backwards["endAt"] = start.AddDate(1, 0, 10)
+	expect(http.MethodPost, "/nollning/seasons", backwards, 422)
+	// Unknown organizing committee: 422.
+	unknownCommittee := season(year+1, start.AddDate(1, 0, 0))
+	unknownCommittee["organizingCommitteeId"] = "00000000-0000-0000-0000-000000000000"
+	expect(http.MethodPost, "/nollning/seasons", unknownCommittee, 422)
+	// Updating a season keeps its own year and window without conflicting
+	// with itself; an unknown season is 404.
+	expect(http.MethodPut, "/nollning/seasons/"+seasonID, season(year, start), 200)
+	expect(http.MethodPut, "/nollning/seasons/00000000-0000-0000-0000-000000000000",
+		season(year+1, start.AddDate(1, 0, 0)), 404)
+
+	group := map[string]any{
+		"name": "Validation group", "description": nil, "imageUrl": nil,
+		"seasonId": "00000000-0000-0000-0000-000000000000",
+	}
+	// Unknown season: 422 on create and update.
+	expect(http.MethodPost, "/nollning/phadder-groups", group, 422)
+	group["seasonId"] = seasonID
+	e.mustCall(t, e.admin(), http.MethodPost, "/nollning/phadder-groups", group)
+	path := "/nollning/phadder-groups/" + e.one(t,
+		`SELECT id::text FROM phadder_groups WHERE name = 'Validation group'`)
+	group["seasonId"] = "00000000-0000-0000-0000-000000000000"
+	expect(http.MethodPut, path, group, 422)
+	// Unknown group: 404.
+	nolla := map[string]any{"studentIds": []string{e.members[4].StudentID}}
+	expect(http.MethodPost,
+		"/nollning/phadder-groups/00000000-0000-0000-0000-000000000000/nollor", nolla, 404)
+	e.mustCall(t, e.admin(), http.MethodDelete, path, nil)
+}
