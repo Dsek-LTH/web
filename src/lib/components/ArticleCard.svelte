@@ -105,14 +105,9 @@
 
 {#if variant === "editorial"}
   <article
-    class="group animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] bg-card hover:bg-muted relative flex flex-col rounded-[26px] p-1.5 shadow-[0_1px_2px_rgb(0_0_0/0.04),0_4px_14px_rgb(0_0_0/0.05)] transition-[background-color,box-shadow] duration-300 hover:shadow-[0_1px_2px_rgb(0_0_0/0.05),0_8px_24px_rgb(0_0_0/0.08)] dark:shadow-[0_1px_2px_rgb(0_0_0/0.3),0_4px_14px_rgb(0_0_0/0.25)]"
+    class="group animate-in fade-in fill-mode-backwards slide-in-from-bottom-[2rem] bg-card hover:bg-muted relative flex flex-col rounded-xl border p-3 transition-colors duration-300"
     style="animation-delay:{index * 50}ms"
   >
-    <!-- Tinted tray: the image sits inset inside the tint with its own corners, so the
-         entry reads as one unit without looking like a plain card. The tray's radius is
-         the image's (rounded-lg, 20px in this theme) plus the 6px inset, so the curves
-         run parallel. A soft two-layer shadow (tight edge plus wide, faint depth) lifts
-         it off the page; it grows a little on hover. -->
     <div
       class="bg-muted-background relative aspect-[16/9] w-full overflow-hidden rounded-lg ring-1 ring-black/5 dark:ring-white/10"
     >
@@ -128,9 +123,8 @@
         />
       {/if}
     </div>
-    <!-- flex-1, so trays in a grid row stretch to the same height. The 6px tray padding
-         plus this padding puts the text 12px from the tray's edge. -->
-    <div class="flex flex-1 flex-col px-1.5 pt-3 pb-1.5">
+    <!-- flex-1, so cards in a grid row stretch to the same height. -->
+    <div class="flex flex-1 flex-col pt-3">
       <h3 class="line-clamp-2 text-lg leading-snug break-words">
         <!-- Stretched link: the whole card is clickable, while the author link below stays usable. -->
         <svelte:element
