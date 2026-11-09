@@ -114,7 +114,7 @@
               >
                 <ChevronDown class="size-5 shrink-0 transition-transform" />
                 <span class="text-2xl font-semibold">{group.year}</span>
-                <span class="text-muted-foreground text-sm">
+                <span class="text-muted-foreground text-sm lowercase">
                   {group.albums.length}
                   {group.albums.length === 1
                     ? m.gallery_album()

@@ -6,9 +6,10 @@
   import { page } from "$app/state";
   import PictureWall from "./PictureWall.svelte";
   import MemberList from "./MemberList.svelte";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import type { FileData } from "$lib/files/fileHandler";
   import type { AlbumSchema } from "../../schema";
-  import { buttonVariants } from "$lib/components/ui/button";
+  import { Button, buttonVariants } from "$lib/components/ui/button";
   import { cn } from "$lib/utils";
   import { Pen } from "@lucide/svelte";
 
@@ -33,10 +34,8 @@
 
 <div class="layout-container">
   <div class="flex flex-row items-center justify-between pb-3">
-    <a
-      href="/gallery"
-      class={buttonVariants({ size: "sm", variant: "outline" })}
-      >{m.gallery_back()}</a
+    <Button href="/gallery" variant="ghost"
+      ><ArrowLeft />{m.gallery_back()}</Button
     >
     {#if canEdit}
       <a
