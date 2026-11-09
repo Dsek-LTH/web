@@ -86,7 +86,27 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		return nil, 0, invalidf("invalid nollning season id: %v", err)
 	}
 
+	var viewerMemberID pgtype.UUID
+	allAuthors := false
+	if params.OnlyUnpublished {
+		identity, _ := auth.FromContext(ctx)
+		if identity == nil || identity.MemberID == "" {
+			return []ArticleSummary{}, 0, nil
+		}
+		// The same author-or-policy rule as editing (see detail), since
+		// the list exists to find the articles to edit.
+		allAuthors = identity.Has(apinames.NewsArticleUpdate)
+		id, err := dbutil.ParseUUID(identity.MemberID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("parse member id: %w", err)
+		}
+		viewerMemberID = id
+	}
+
 	rows, err := s.queries.ListArticles(ctx, db.ListArticlesParams{
+		OnlyUnpublished:  params.OnlyUnpublished,
+		AllAuthors:       allAuthors,
+		ViewerMemberID:   viewerMemberID,
 		Search:           search,
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,
@@ -101,6 +121,9 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	}
 
 	total, err := s.queries.CountArticles(ctx, db.CountArticlesParams{
+		OnlyUnpublished:  params.OnlyUnpublished,
+		AllAuthors:       allAuthors,
+		ViewerMemberID:   viewerMemberID,
 		Search:           search,
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,

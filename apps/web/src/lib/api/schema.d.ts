@@ -269,7 +269,7 @@ export interface paths {
     };
     /**
      * List published articles
-     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.
+     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10. onlyUnpublished lists scheduled articles instead: the caller's own, or everyone's with news:article:update.
      */
     get: operations["list-articles"];
     put?: never;
@@ -4965,6 +4965,8 @@ export interface operations {
         nollningSeasonId?: string;
         /** @description Also list nollning season articles, which are left out unless nollningSeasonId is set. */
         includeNollning?: boolean;
+        /** @description List only scheduled articles (publishedAt in the future), soonest first: the caller's own, or everyone's with news:article:update. Empty for an anonymous caller. */
+        onlyUnpublished?: boolean;
         /** @description 1-based page number. Defaults to 1. */
         page?: number;
         /** @description Items per page. Each endpoint has its own default and maximum. */

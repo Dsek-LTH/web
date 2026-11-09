@@ -41,39 +41,58 @@ const countArticles = `-- name: CountArticles :one
 SELECT count(*) FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
-WHERE a.published_datetime IS NOT NULL
-  AND a.published_datetime <= now()
-  AND (a.removed_at IS NULL OR a.removed_at > now())
+WHERE (a.removed_at IS NULL OR a.removed_at > now())
+  -- Published articles, or with only_unpublished the scheduled ones
+  -- instead: everyone's with all_authors, otherwise only those written by
+  -- viewer_member_id (none if it's unset).
   AND (
-    $1::text IS NULL
-    OR a.header_sv ILIKE '%' || $1::text || '%'
-    OR a.header_en ILIKE '%' || $1::text || '%'
-    OR a.body_sv ILIKE '%' || $1::text || '%'
-    OR a.body_en ILIKE '%' || $1::text || '%'
-  )
-  AND (
-    $2::uuid[] IS NULL
-    OR EXISTS (
-        SELECT 1 FROM _article_tags t
-        WHERE t."A" = a.id AND t."B" = ANY($2::uuid[])
+    (
+      NOT $1::bool
+      AND a.published_datetime IS NOT NULL
+      AND a.published_datetime <= now()
+    )
+    OR (
+      $1::bool
+      AND a.published_datetime > now()
+      AND (
+        $2::bool
+        OR m.id = $3::uuid
+      )
     )
   )
-  AND ($3::uuid IS NULL OR a.committee_id = $3::uuid)
-  AND ($4::text IS NULL OR m.student_id = $4::text)
   AND (
-    $5::uuid IS NULL
-    OR a.nollning_season_id = $5::uuid
+    $4::text IS NULL
+    OR a.header_sv ILIKE '%' || $4::text || '%'
+    OR a.header_en ILIKE '%' || $4::text || '%'
+    OR a.body_sv ILIKE '%' || $4::text || '%'
+    OR a.body_en ILIKE '%' || $4::text || '%'
+  )
+  AND (
+    $5::uuid[] IS NULL
+    OR EXISTS (
+        SELECT 1 FROM _article_tags t
+        WHERE t."A" = a.id AND t."B" = ANY($5::uuid[])
+    )
+  )
+  AND ($6::uuid IS NULL OR a.committee_id = $6::uuid)
+  AND ($7::text IS NULL OR m.student_id = $7::text)
+  AND (
+    $8::uuid IS NULL
+    OR a.nollning_season_id = $8::uuid
   )
   -- Nollning content stays out of the general feeds (it has its own
   -- pages), unless asked for or filtered to one season.
   AND (
-    $6::bool
-    OR $5::uuid IS NOT NULL
+    $9::bool
+    OR $8::uuid IS NOT NULL
     OR a.nollning_season_id IS NULL
   )
 `
 
 type CountArticlesParams struct {
+	OnlyUnpublished  bool          `json:"only_unpublished"`
+	AllAuthors       bool          `json:"all_authors"`
+	ViewerMemberID   pgtype.UUID   `json:"viewer_member_id"`
 	Search           pgtype.Text   `json:"search"`
 	TagIds           []pgtype.UUID `json:"tag_ids"`
 	CommitteeID      pgtype.UUID   `json:"committee_id"`
@@ -84,6 +103,9 @@ type CountArticlesParams struct {
 
 func (q *Queries) CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countArticles,
+		arg.OnlyUnpublished,
+		arg.AllAuthors,
+		arg.ViewerMemberID,
 		arg.Search,
 		arg.TagIds,
 		arg.CommitteeID,
@@ -457,41 +479,62 @@ LEFT JOIN LATERAL (
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM _article_likes WHERE "A" = a.id
 ) lk ON true
-WHERE a.published_datetime IS NOT NULL
-  AND a.published_datetime <= now()
-  AND (a.removed_at IS NULL OR a.removed_at > now())
+WHERE (a.removed_at IS NULL OR a.removed_at > now())
+  -- Published articles, or with only_unpublished the scheduled ones
+  -- instead: everyone's with all_authors, otherwise only those written by
+  -- viewer_member_id (none if it's unset).
   AND (
-    $1::text IS NULL
-    OR a.header_sv ILIKE '%' || $1::text || '%'
-    OR a.header_en ILIKE '%' || $1::text || '%'
-    OR a.body_sv ILIKE '%' || $1::text || '%'
-    OR a.body_en ILIKE '%' || $1::text || '%'
-  )
-  AND (
-    $2::uuid[] IS NULL
-    OR EXISTS (
-        SELECT 1 FROM _article_tags t
-        WHERE t."A" = a.id AND t."B" = ANY($2::uuid[])
+    (
+      NOT $1::bool
+      AND a.published_datetime IS NOT NULL
+      AND a.published_datetime <= now()
+    )
+    OR (
+      $1::bool
+      AND a.published_datetime > now()
+      AND (
+        $2::bool
+        OR m.id = $3::uuid
+      )
     )
   )
-  AND ($3::uuid IS NULL OR a.committee_id = $3::uuid)
-  AND ($4::text IS NULL OR m.student_id = $4::text)
   AND (
-    $5::uuid IS NULL
-    OR a.nollning_season_id = $5::uuid
+    $4::text IS NULL
+    OR a.header_sv ILIKE '%' || $4::text || '%'
+    OR a.header_en ILIKE '%' || $4::text || '%'
+    OR a.body_sv ILIKE '%' || $4::text || '%'
+    OR a.body_en ILIKE '%' || $4::text || '%'
+  )
+  AND (
+    $5::uuid[] IS NULL
+    OR EXISTS (
+        SELECT 1 FROM _article_tags t
+        WHERE t."A" = a.id AND t."B" = ANY($5::uuid[])
+    )
+  )
+  AND ($6::uuid IS NULL OR a.committee_id = $6::uuid)
+  AND ($7::text IS NULL OR m.student_id = $7::text)
+  AND (
+    $8::uuid IS NULL
+    OR a.nollning_season_id = $8::uuid
   )
   -- Nollning content stays out of the general feeds (it has its own
   -- pages), unless asked for or filtered to one season.
   AND (
-    $6::bool
-    OR $5::uuid IS NOT NULL
+    $9::bool
+    OR $8::uuid IS NOT NULL
     OR a.nollning_season_id IS NULL
   )
-ORDER BY a.published_datetime DESC
-LIMIT $8 OFFSET $7
+ORDER BY
+    CASE WHEN $1::bool THEN a.published_datetime END ASC,
+    a.published_datetime DESC
+LIMIT $11 OFFSET $10
 `
 
 type ListArticlesParams struct {
+	OnlyUnpublished  bool          `json:"only_unpublished"`
+	AllAuthors       bool          `json:"all_authors"`
+	ViewerMemberID   pgtype.UUID   `json:"viewer_member_id"`
 	Search           pgtype.Text   `json:"search"`
 	TagIds           []pgtype.UUID `json:"tag_ids"`
 	CommitteeID      pgtype.UUID   `json:"committee_id"`
@@ -550,8 +593,12 @@ type ListArticlesRow struct {
 // author (member / mandate+position / custom author) + comment & like
 // counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
 // because sqlc has no macro/fragment support.
+// Scheduled articles soonest first, published ones newest first.
 func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]ListArticlesRow, error) {
 	rows, err := q.db.Query(ctx, listArticles,
+		arg.OnlyUnpublished,
+		arg.AllAuthors,
+		arg.ViewerMemberID,
 		arg.Search,
 		arg.TagIds,
 		arg.CommitteeID,
