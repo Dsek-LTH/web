@@ -264,7 +264,9 @@ func withCORS(allowedOrigin string) func(http.Handler) http.Handler {
 // Origin is the frontend's, or when it carries neither header - a
 // server-to-server call (SvelteKit's server, the search cron job, the
 // native app), which no browser can be tricked into making with someone
-// else's cookies.
+// else's cookies. SvelteKit's server must make its writes with Node's global
+// fetch (serverApi does): the event's fetch adds the SvelteKit server's own
+// Origin to a cross-origin POST, which need not be PUBLIC_FRONTEND_URL's.
 func withCrossOriginProtection(frontendOrigin string) func(http.Handler) http.Handler {
 	protection := http.NewCrossOriginProtection()
 	origin, err := originOf(frontendOrigin)
