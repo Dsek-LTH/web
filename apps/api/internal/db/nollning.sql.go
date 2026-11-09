@@ -50,6 +50,17 @@ func (q *Queries) ClearMemberPhadderGroup(ctx context.Context, arg ClearMemberPh
 	return err
 }
 
+const committeeExists = `-- name: CommitteeExists :one
+SELECT EXISTS (SELECT 1 FROM committees WHERE id = $1)
+`
+
+func (q *Queries) CommitteeExists(ctx context.Context, id pgtype.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, committeeExists, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createPhadderGroup = `-- name: CreatePhadderGroup :one
 INSERT INTO phadder_groups (name, description, image_url, season_id)
 VALUES ($1, $2, $3, $4)
@@ -165,6 +176,33 @@ func (q *Queries) FindActivePhadderMandate(ctx context.Context, arg FindActivePh
 	return i, err
 }
 
+const findOverlappingSeason = `-- name: FindOverlappingSeason :one
+SELECT year
+FROM nollning_seasons
+WHERE ($1::uuid IS NULL OR id <> $1::uuid)
+  AND nolla_start_at <= $2
+  AND end_at >= $3
+ORDER BY nolla_start_at
+LIMIT 1
+`
+
+type FindOverlappingSeasonParams struct {
+	ExcludeID pgtype.UUID        `json:"exclude_id"`
+	EndAt     pgtype.Timestamptz `json:"end_at"`
+	StartAt   pgtype.Timestamptz `json:"start_at"`
+}
+
+// Backs CreateSeason/UpdateSeason's "at most one season at a time" check
+// (see GetCurrentSeason): the year of any other season whose window shares
+// a moment with [start_at, end_at], both ends inclusive like
+// GetCurrentSeason's.
+func (q *Queries) FindOverlappingSeason(ctx context.Context, arg FindOverlappingSeasonParams) (int32, error) {
+	row := q.db.QueryRow(ctx, findOverlappingSeason, arg.ExcludeID, arg.EndAt, arg.StartAt)
+	var year int32
+	err := row.Scan(&year)
+	return year, err
+}
+
 const getCurrentSeason = `-- name: GetCurrentSeason :one
 SELECT id, year, nolla_start_at, reveal_at, end_at, organizing_committee_id
 FROM nollning_seasons
@@ -179,6 +217,30 @@ LIMIT 1
 // data error, not a normal state).
 func (q *Queries) GetCurrentSeason(ctx context.Context) (NollningSeason, error) {
 	row := q.db.QueryRow(ctx, getCurrentSeason)
+	var i NollningSeason
+	err := row.Scan(
+		&i.ID,
+		&i.Year,
+		&i.NollaStartAt,
+		&i.RevealAt,
+		&i.EndAt,
+		&i.OrganizingCommitteeID,
+	)
+	return i, err
+}
+
+const getLatestRevealedSeason = `-- name: GetLatestRevealedSeason :one
+SELECT id, year, nolla_start_at, reveal_at, end_at, organizing_committee_id
+FROM nollning_seasons
+WHERE reveal_at <= now()
+ORDER BY reveal_at DESC
+LIMIT 1
+`
+
+// The newest season whose theme has been revealed, current or past: what
+// the nollning site shows between seasons.
+func (q *Queries) GetLatestRevealedSeason(ctx context.Context) (NollningSeason, error) {
+	row := q.db.QueryRow(ctx, getLatestRevealedSeason)
 	var i NollningSeason
 	err := row.Scan(
 		&i.ID,
@@ -462,6 +524,27 @@ func (q *Queries) ListSeasons(ctx context.Context) ([]NollningSeason, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const seasonYearTaken = `-- name: SeasonYearTaken :one
+SELECT EXISTS (
+    SELECT 1
+    FROM nollning_seasons
+    WHERE year = $1
+      AND ($2::uuid IS NULL OR id <> $2::uuid)
+)
+`
+
+type SeasonYearTakenParams struct {
+	Year      int32       `json:"year"`
+	ExcludeID pgtype.UUID `json:"exclude_id"`
+}
+
+func (q *Queries) SeasonYearTaken(ctx context.Context, arg SeasonYearTakenParams) (bool, error) {
+	row := q.db.QueryRow(ctx, seasonYearTaken, arg.Year, arg.ExcludeID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const setMandatePhadderGroup = `-- name: SetMandatePhadderGroup :exec

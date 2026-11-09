@@ -174,7 +174,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   value changed, and surface errors. Add authz cases (self allowed, other
   member denied, manager allowed).
 
-### [ ] T08 Any profile save clears `graduationYear`
+### [x] T08 Any profile save clears `graduationYear`
 
 - New: `members/[studentId]/+page.server.ts` and `edit/+page.server.ts`
   `PUT /members/{studentId}` (full replace) with
@@ -185,6 +185,8 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   already does this), in both actions. Check the other fields the PUT
   requires but the form doesn't send (compare `MemberProfileInput` in
   `internal/members/types.go` with the form schema).
+- Done: both actions carry `graduationYear` over from the current profile.
+  It was the only `ProfileInput` field `MemberForm` doesn't submit.
 
 ### [x] T09 Event image upload needs `news:article:create`
 
@@ -242,7 +244,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 
 ## P2: should fix
 
-### [ ] T13 Booking writes aren't transactional
+### [x] T13 Booking writes aren't transactional
 
 - New: `apps/api/internal/booking/service.go` `Create` (~361-401), `Update`
   (~467-495), `SetStatus` (~580-594), `Delete` run separate auto-committed
@@ -255,7 +257,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `db.DBTX`), validate doors/members/bookables before the first write, and
   lock the request row (`SELECT ... FOR UPDATE`) in Update/SetStatus.
 
-### [ ] T14 Booking admin pages lack an update gate; access lists leak to readers
+### [x] T14 Booking admin pages lack an update gate; access lists leak to readers
 
 - New: `apps/web/src/routes/(app)/bookings/admin/+page.server.ts` and
   `admin/[id]/+page.server.ts` have no `requirePolicy`. Go's List/Get attach
@@ -266,7 +268,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   loads; in Go only attach access lists for `booking_request:update`
   holders or the booker. Authz case.
 
-### [ ] T15 Salto loses its backup-list fallback when Go is down
+### [x] T15 Salto loses its backup-list fallback when Go is down
 
 - New: `hooks.server.ts` calls Go `/me` for every request and returns 502
   if it fails (`apps/web/src/lib/server/goAuth.ts`), and
@@ -280,7 +282,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   from Go's `internal/doors`, keeping both in sync with a comment). Output
   for the normal case must stay byte-identical.
 
-### [ ] T16 A session for a deleted member breaks the whole site
+### [x] T16 A session for a deleted member breaks the whole site
 
 - New: `apps/api/internal/auth/real.go` `resolveIdentity` returns
   `pgx.ErrNoRows` as an error; `Middleware` answers 401 on every route
@@ -290,7 +292,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: treat a missing member as an invalid session: clear the cookie and
   continue as anonymous. Unit test in `internal/auth` if a harness exists.
 
-### [ ] T17 No CSRF protection on Go writes
+### [x] T17 No CSRF protection on Go writes
 
 - New: `apps/api/internal/api/router.go` `withCORS` sets headers only;
   `SameSite=Lax` cookies ride on simple cross-origin POSTs from sibling
@@ -301,7 +303,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   exempt). Check the e2e tests and `make dev` still work (frontend on
   another origin in dev too).
 
-### [ ] T18 `/positions` lists everything under "No committee"
+### [x] T18 `/positions` lists everything under "No committee"
 
 - New: `GET /positions` (`committees.Service.ListPositions`,
   `queries/positions.sql`) doesn't return the committee;
@@ -309,7 +311,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: join the committee (name sv/en, short name) and set
   `Position.Committee`.
 
-### [ ] T19 Café schedule week numbering breaks in 2027
+### [x] T19 Café schedule week numbering breaks in 2027
 
 - New: Go uses ISO weeks (`cafe.Service.GetSchedule`, `mondayOfISOWeek`);
   `routes/(app)/committees/cafe/schedule/+page.svelte` builds the week with
@@ -319,7 +321,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `isoWeekYear(year).isoWeek(week)` and navigate with `isoWeek()` /
   `isoWeekYear()`, sending `year`.
 
-### [ ] T20 Scheduled articles can't be found
+### [x] T20 Scheduled articles can't be found
 
 - New: no endpoint lists unpublished articles and `/news` lost the
   "Scheduled news" section (`main:src/routes/(app)/news/+page.server.ts`
@@ -391,7 +393,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: join `phadder_groups` and filter on the current season; phadder
   mandates newest first within the season window.
 
-### [ ] T27 Season and phadder-group writes answer 500 on bad input
+### [x] T27 Season and phadder-group writes answer 500 on bad input
 
 - New: `nollning.Service.CreateSeason`/`UpdateSeason`/`CreateGroup`/
   `UpdateGroup`/`AddNollor` pass input straight to SQL; duplicate year,
@@ -418,7 +420,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: add optional `rawTitle`/`rawLyrics` to the song response (only for
   callers who can edit) and seed the form with them.
 
-### [ ] T30 Booking notifications: UTC times and no sender
+### [x] T30 Booking notifications: UTC times and no sender
 
 - New: `notifications/notifier.go` ~114 formats booking times without
   converting to Europe/Stockholm; `NotifyBookingRequestStatus` doesn't set
@@ -446,7 +448,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 
 ## P3: low priority
 
-- [ ] T34 Pass Go's status/detail on instead of fixed 404/500 or thrown
+- [x] T34 Pass Go's status/detail on instead of fixed 404/500 or thrown
       errors: `news/[slug]/+page.ts`, like action in
       `news/[slug]/+page.server.ts`, `events/EventPageLoad.ts`,
       `events/[slug]/+page.ts` and `edit/+page.ts`,
@@ -469,62 +471,64 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       in `ListMandatesForPosition` / `ListAllMandatesForPosition`.
 - [ ] T38 Committee member/mandate counts ignore `?year=`
       (`GetCommitteeByShortName`).
-- [ ] T39 Medal endpoints return `null` for empty lists
+- [x] T39 Medal endpoints return `null` for empty lists
       (`medals.Service.MemberMedals`, `MedalRecipients`): initialize slices.
 - [ ] T40 `/news?tags=<name>` gives 422: map tag names to ids in the load
       or ignore non-UUIDs.
 - [ ] T41 Nollning tags show in the public `/events` tag filter: filter by
       the nollning prefix in `EventPageLoad.ts`.
-- [ ] T42 Removed events accept RSVPs and comments, removed/unpublished
+- [x] T42 Removed events accept RSVPs and comments, removed/unpublished
       articles accept likes and comments: add the removed/published filter
       to `GetEventForAttendance`, `GetEventIDBySlug`,
       `GetArticleIDBySlug` (as used by like/comment).
-- [ ] T43 Ticket roster: order by `requested_at` (old order) and build
+- [x] T43 Ticket roster: order by `requested_at` (old order) and build
       `member` whenever the join matched (`ListTicketRoster`,
       `admin/tickets/[releaseId]/loadRoster.ts`).
-- [ ] T44 API doc fixes: `TicketQueueEntry.QueuePosition` is 0-based;
+- [x] T44 API doc fixes: `TicketQueueEntry.QueuePosition` is 0-based;
       `cancel-ticket-request` doesn't cancel accepted tickets; comment
       operations don't notify mentions; `ArticleInput.PublishedAt` unset
       means now; `ArticleSummary.Body` is markdown.
-- [ ] T45 `/admin/minio` needs `requirePolicy(FILES.BUCKET("files").CREATE)`.
+- [x] T45 `/admin/minio` needs `requirePolicy(FILES.BUCKET("files").CREATE)`.
 - [ ] T46 `/admin/settings` load should accept `admin:settings:read` (or
       `MANAGE_SEASONS`) like the old page.
-- [ ] T47 Storage failures in `internal/documents` come back as 422
+- [x] T47 Storage failures in `internal/documents` come back as 422
       (`invalidf`): return plain errors (500).
 - [ ] T48 Album detail lists sibling albums with the same prefix: append
       `/` to the prefix in `gallery.Service.GetAlbum`; apply ListAlbums'
       season check there too.
-- [ ] T49 `{@html}` delete messages interpolate file names and governing
+- [x] T49 `{@html}` delete messages interpolate file names and governing
       document titles (`documents/DeleteFileForm.svelte`,
       `documents/requirements/+page.svelte`,
       `documents/governing/+page.svelte`): escape them.
-- [ ] T50 `javascript:` links in markdown render clickable
+- [x] T50 `javascript:` links in markdown render clickable
       (`MarkdownBody.svelte`, `{@html marked(body)}`): drop non-http(s),
       mailto and relative hrefs with a marked hook (pre-existing).
-- [ ] T51 `accesspolicies.Service.Delete` and `alerts.Service.Delete` answer
+- [x] T51 `accesspolicies.Service.Delete` and `alerts.Service.Delete` answer
       204 for unknown ids; `alerts.Service.Close` gives 500 for an unknown
       alert; Shlink errors all become 422 (`links/client.go`).
-- [ ] T52 Session cookie `Secure` is opt-in via an undocumented
+- [x] T52 Session cookie `Secure` is opt-in via an undocumented
       `AUTH_COOKIE_SECURE`: derive it from `PUBLIC_FRONTEND_URL`'s scheme and
       document it.
-- [ ] T53 Push metrics in `apps/web/src/lib/server/metrics.ts` are never
+- [x] T53 Push metrics in `apps/web/src/lib/server/metrics.ts` are never
       incremented: remove them.
-- [ ] T54 Contact page drops a mandate holder at 00:00 UTC on their last
+- [x] T54 Contact page drops a mandate holder at 00:00 UTC on their last
       day (`contact/+page.ts` compares a date-only string as UTC).
-- [ ] T55 Season lookups run on every request (`auth/real.go` calls
+- [x] T55 Season lookups run on every request (`auth/real.go` calls
       `NollaYear` and `InjectStabenPolicy`, each querying the season):
       compute once per request or cache briefly.
-- [ ] T56 Nollning ICS feed falls back to the general feed after the season
+- [x] T56 Nollning ICS feed falls back to the general feed after the season
       (`api/events_feeds.go`), and `/nollning/messages` and
       `/nollning/events` are empty outside a season: use the latest revealed
       season.
-- [ ] T57 `/nollning/events` lists season events before reveal and computes
+- [x] T57 `/nollning/events` lists season events before reveal and computes
       week boundaries in the runtime's timezone.
-- [ ] T58 The nolla notification feed lost purchase notification types
+- [x] T58 The nolla notification feed lost purchase notification types
       (`queries/notifications.sql`): check which types tickets now send and
       include them.
-- [ ] T59 Booking review queue runs ~6 queries per pending request
+      Won't fix: only the removed webshop sent the purchase types; the old
+      ticket-service and the Go tickets domain send no notifications.
+- [x] T59 Booking review queue runs ~6 queries per pending request
       (`booking.Service.ReviewQueue`).
-- [ ] T60 Cafe shifts created by the old app may be stored at 22:00/23:00
+- [x] T60 Cafe shifts created by the old app may be stored at 22:00/23:00
       UTC the previous day: check `SELECT DISTINCT date::time FROM
 cafe_shifts` on prod and match days with a half-open range if needed.

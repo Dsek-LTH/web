@@ -26,6 +26,7 @@ type Querier interface {
 	AddEventGoing(ctx context.Context, arg AddEventGoingParams) error
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
+	AlertExists(ctx context.Context, id pgtype.UUID) (bool, error)
 	AnyAlarmActiveEventNow(ctx context.Context) (bool, error)
 	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
 	// Claims an article's one go-live announcement: affects the row only if
@@ -49,12 +50,16 @@ type Querier interface {
 	// the old Prisma `disconnect`, which is a no-op unless the relation
 	// actually exists.
 	ClearMemberPhadderGroup(ctx context.Context, arg ClearMemberPhadderGroupParams) error
-	CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) error
+	// Affects no rows for an alert that doesn't exist (or was removed), and
+	// for one the member already closed - the service tells those apart.
+	CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) (int64, error)
 	// Moves everyone behind a waitlist position that was just vacated (e.g. by a
 	// cancellation) one step forward, keeping positions contiguous.
 	CloseWaitlistGap(ctx context.Context, arg CloseWaitlistGapParams) error
+	CommitteeExists(ctx context.Context, id pgtype.UUID) (bool, error)
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
+	CountBookablesByID(ctx context.Context, ids []pgtype.UUID) (int64, error)
 	CountDoorsByName(ctx context.Context, names []string) (int64, error)
 	CountEventSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountEvents(ctx context.Context, arg CountEventsParams) (int64, error)
@@ -108,7 +113,7 @@ type Querier interface {
 	// now() - the application's clock can be off from it.
 	DatabaseNow(ctx context.Context) (pgtype.Timestamptz, error)
 	DecrementWaitlistPositions(ctx context.Context, arg DecrementWaitlistPositionsParams) error
-	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
+	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteAdminSetting(ctx context.Context, key string) (int64, error)
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
@@ -138,6 +143,11 @@ type Querier interface {
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
+	// Backs CreateSeason/UpdateSeason's "at most one season at a time" check
+	// (see GetCurrentSeason): the year of any other season whose window shares
+	// a moment with [start_at, end_at], both ends inclusive like
+	// GetCurrentSeason's.
+	FindOverlappingSeason(ctx context.Context, arg FindOverlappingSeasonParams) (int32, error)
 	// The pair's row, whichever direction the first ping went.
 	FindPingBetween(ctx context.Context, arg FindPingBetweenParams) (FindPingBetweenRow, error)
 	GetAdminSettings(ctx context.Context, keys []string) ([]GetAdminSettingsRow, error)
@@ -204,6 +214,7 @@ type Querier interface {
 	// Phase 9: setAttendance needs the organizer/title/slug to notify on
 	// going/interested (see integrations.EventNotification), not just the id
 	// GetEventIDBySlug returns.
+	// Removed events take no RSVPs, as the old app couldn't even read them.
 	GetEventForAttendance(ctx context.Context, slug pgtype.Text) (GetEventForAttendanceRow, error)
 	GetEventIDBySlug(ctx context.Context, slug pgtype.Text) (pgtype.UUID, error)
 	// Unfiltered lookup: no removed_at filter. Used internally after
@@ -215,6 +226,14 @@ type Querier interface {
 	// Constrained to POLICY/GUIDELINE, matching the old app's edit-lookup
 	// query - the other enum values have no create/edit UI anywhere.
 	GetGoverningDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error)
+	// The newest season whose theme has been revealed, current or past: what
+	// the nollning site shows between seasons.
+	GetLatestRevealedSeason(ctx context.Context) (NollningSeason, error)
+	// For new likes and comments: only on articles readers can see, as the old
+	// app couldn't even read the others.
+	GetLiveArticleIDBySlug(ctx context.Context, slug string) (pgtype.UUID, error)
+	// For new comments: a removed event takes none.
+	GetLiveEventIDBySlug(ctx context.Context, slug pgtype.Text) (pgtype.UUID, error)
 	// Used to verify a caller posting "as" a mandate actually holds it.
 	// custom_authors has no owner column in the schema (they're shared
 	// personas, e.g. "Styrelsen"), so there's no equivalent check for those.
@@ -236,7 +255,7 @@ type Querier interface {
 	// resolution).
 	GetMemberProfile(ctx context.Context, studentID pgtype.Text) (GetMemberProfileRow, error)
 	GetPhadderGroup(ctx context.Context, id pgtype.UUID) (PhadderGroup, error)
-	// Joins the committee (name/shortName), unlike ListPositions/UpdatePosition -
+	// Joins the committee (name/shortName), unlike UpdatePosition -
 	// the position detail page links/displays the committee without a second
 	// request.
 	GetPosition(ctx context.Context, id string) (GetPositionRow, error)
@@ -323,6 +342,7 @@ type Querier interface {
 	// author (member / mandate+position / custom author) + comment & like
 	// counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
 	// because sqlc has no macro/fragment support.
+	// Scheduled articles soonest first, published ones newest first.
 	ListArticles(ctx context.Context, arg ListArticlesParams) ([]ListArticlesRow, error)
 	// Same visibility rule as the public article list (published, not
 	// scheduled for later, not removed).
@@ -486,7 +506,7 @@ type Querier interface {
 	// name), same fields the old page's committee `select` projected.
 	ListOpenElections(ctx context.Context) ([]ListOpenElectionsRow, error)
 	// The review queue: pending requests that haven't ended yet.
-	ListPendingBookingRequestIDs(ctx context.Context) ([]pgtype.UUID, error)
+	ListPendingBookingRequests(ctx context.Context) ([]ListPendingBookingRequestsRow, error)
 	ListPendingForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	// Nolla/phadder counts alongside each group, mirroring
 	// ListCommitteesWithCounts' count-subquery pattern.
@@ -505,6 +525,8 @@ type Querier interface {
 	// role a door policy names - see ExistsPositionWithPrefix's doc comment for
 	// why this is a real prefix match, not the old app's broken literal one.
 	ListPositionIDsMatchingPrefixes(ctx context.Context, patterns []string) ([]string, error)
+	// Joins the committee (name/shortName) like GetPosition, so GET /positions
+	// can group positions by committee.
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 	ListPositionsForSearch(ctx context.Context) ([]ListPositionsForSearchRow, error)
 	ListPushEnabledMemberIDs(ctx context.Context, arg ListPushEnabledMemberIDsParams) ([]pgtype.UUID, error)
@@ -544,8 +566,9 @@ type Querier interface {
 	ListTagsByIDs(ctx context.Context, ids []pgtype.UUID) ([]ListTagsByIDsRow, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
-	// Everyone with a confirmed ticket for one release, oldest first, with
-	// the member behind each (member_id holds a student id).
+	// Everyone with a confirmed ticket for one release, in the order they
+	// asked for it (the old roster's order), with the member behind each
+	// (member_id holds a student id).
 	ListTicketRoster(ctx context.Context, releaseID pgtype.UUID) ([]ListTicketRosterRow, error)
 	// Mirrors the old app's getUpcomingBookingRequests: every request starting
 	// on or after `since` (callers pass now-1week, matching the old hardcoded
@@ -556,6 +579,9 @@ type Querier interface {
 	// decided in Go (members.BirthdayOn), which also handles 29 February.
 	ListVisibleMembersWithBirthDate(ctx context.Context) ([]ListVisibleMembersWithBirthDateRow, error)
 	ListWaitlistFrontForUpdate(ctx context.Context, arg ListWaitlistFrontForUpdateParams) ([]TicketQueueEntry, error)
+	// Locks the request row for the rest of the transaction, so concurrent
+	// edits and accept/reject of one request run one after another.
+	LockBookingRequest(ctx context.Context, id pgtype.UUID) (LockBookingRequestRow, error)
 	LockRelease(ctx context.Context, id pgtype.UUID) (TicketRelease, error)
 	MarkNotificationsRead(ctx context.Context, arg MarkNotificationsReadParams) error
 	// sent_by_from_member says which direction this ping went relative to the
@@ -571,12 +597,13 @@ type Querier interface {
 	ReplaceSubscribedTags(ctx context.Context, a pgtype.UUID) error
 	ReplaceSubscriptionSettings(ctx context.Context, memberID pgtype.UUID) error
 	RestoreSong(ctx context.Context, id pgtype.UUID) error
+	SeasonYearTaken(ctx context.Context, arg SeasonYearTakenParams) (bool, error)
 	SetEventSlug(ctx context.Context, arg SetEventSlugParams) error
 	SetMandatePhadderGroup(ctx context.Context, arg SetMandatePhadderGroupParams) error
 	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
 	SetMemberPicturePath(ctx context.Context, arg SetMemberPicturePathParams) (int64, error)
 	SetReleaseStatus(ctx context.Context, arg SetReleaseStatusParams) error
-	SoftDeleteAlert(ctx context.Context, id pgtype.UUID) error
+	SoftDeleteAlert(ctx context.Context, id pgtype.UUID) (int64, error)
 	SoftDeleteArticle(ctx context.Context, slug string) error
 	SoftDeleteEvent(ctx context.Context, id pgtype.UUID) error
 	// Powers both FUTURE (min_start_datetime set) and ALL (narg'd out) series

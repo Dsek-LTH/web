@@ -37,6 +37,7 @@ export const scheduleLoad = async (event: PageServerLoadEvent) => {
   return {
     shifts: scheduleRes.data.shifts ?? [],
     ciabattaOfTheWeek: scheduleRes.data.ciabatta ?? null,
+    year: scheduleRes.data.year,
     week: scheduleRes.data.week,
   };
 };

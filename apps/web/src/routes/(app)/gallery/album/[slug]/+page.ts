@@ -1,5 +1,5 @@
 import { api } from "$lib/api/client";
-import { error } from "@sveltejs/kit";
+import { goError } from "$lib/utils/access";
 import type { PageLoad } from "./$types";
 
 // Ported from +page.server.ts to a universal load calling the Go backend
@@ -10,7 +10,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
     fetch,
     params: { path: { slug: params.slug } },
   });
-  if (res.error) throw error(404, "Album not found");
+  if (res.error) goError(res.response, res.error, "Album not found");
 
   return {
     album: params.slug,

@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 	"os"
+	"strings"
 )
 
 // CookieDomain scopes the session cookie to the same registrable domain
@@ -17,12 +18,19 @@ func CookieDomain() string {
 	return "localhost"
 }
 
-// cookieSecure reports whether the session cookie should carry the Secure
-// attribute. Explicit env var rather than an environment guess, same "loud,
-// never a silent default" principle as AUTH_MOCK -
-// must be set true in any deployment actually served over HTTPS.
+// cookieSecure reports whether the session cookies should carry the Secure
+// attribute: AUTH_COOKIE_SECURE if it's set ("true"/"false"), otherwise
+// whether the frontend is served over HTTPS (PUBLIC_FRONTEND_URL), so a
+// deployment can't send the session over plain HTTP by forgetting a
+// variable.
 func cookieSecure() bool {
-	return os.Getenv("AUTH_COOKIE_SECURE") == "true"
+	switch os.Getenv("AUTH_COOKIE_SECURE") {
+	case "true":
+		return true
+	case "false":
+		return false
+	}
+	return strings.HasPrefix(os.Getenv("PUBLIC_FRONTEND_URL"), "https://")
 }
 
 // sessionCookieMaxAge keeps the session across browser restarts, as Auth.js's

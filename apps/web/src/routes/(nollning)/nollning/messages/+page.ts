@@ -2,12 +2,14 @@ import { api } from "$lib/api/client";
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
 
-// The current nollning season's articles, newest first.
+// The nollning season's articles, newest first: the current season's, or
+// between seasons the latest revealed one's, like the old page that listed
+// every nollning article.
 export const load: PageLoad = async ({ fetch }) => {
   const current = await api.GET("/nollning/current", { fetch });
   if (current.error)
     error(current.response.status, current.error.detail ?? "Failed to load");
-  const seasonId = current.data.season?.id;
+  const seasonId = (current.data.season ?? current.data.latestRevealed)?.id;
   if (!seasonId) return { messages: [] };
 
   const res = await api.GET("/articles", {

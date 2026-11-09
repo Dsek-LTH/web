@@ -2,12 +2,11 @@ import { getEventCommitteeOptions } from "$lib/events/committees";
 import { actionType, eventSchema } from "$lib/events/schema";
 import { api } from "$lib/api/client";
 import * as m from "$paraglide/messages";
-import { error } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { PageLoad } from "./$types";
-import { requireCanEdit } from "$lib/utils/access";
+import { goError, requireCanEdit } from "$lib/utils/access";
 
 export const load: PageLoad = async ({ fetch, params, parent }) => {
   const [eventRes, tagsRes, committees] = await Promise.all([
@@ -18,7 +17,8 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
     api.GET("/tags", { fetch }),
     getEventCommitteeOptions(fetch),
   ]);
-  if (eventRes.error) throw error(404, m.events_errors_eventNotFound());
+  if (eventRes.error)
+    goError(eventRes.response, eventRes.error, m.events_errors_eventNotFound());
   const event = eventRes.data;
   requireCanEdit((await parent()).user, event.canEdit);
 

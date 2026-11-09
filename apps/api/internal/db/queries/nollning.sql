@@ -1,3 +1,12 @@
+-- name: GetLatestRevealedSeason :one
+-- The newest season whose theme has been revealed, current or past: what
+-- the nollning site shows between seasons.
+SELECT id, year, nolla_start_at, reveal_at, end_at, organizing_committee_id
+FROM nollning_seasons
+WHERE reveal_at <= now()
+ORDER BY reveal_at DESC
+LIMIT 1;
+
 -- name: GetCurrentSeason :one
 -- The season whose window covers right now, if any - internal/nollning
 -- treats "at most one season active at a time" as an invariant (not
@@ -141,3 +150,27 @@ WHERE member_id = $1
   AND "phadderInId" IS NOT NULL
 ORDER BY position_id ASC, start_date ASC
 LIMIT 1;
+
+-- name: FindOverlappingSeason :one
+-- Backs CreateSeason/UpdateSeason's "at most one season at a time" check
+-- (see GetCurrentSeason): the year of any other season whose window shares
+-- a moment with [start_at, end_at], both ends inclusive like
+-- GetCurrentSeason's.
+SELECT year
+FROM nollning_seasons
+WHERE (sqlc.narg('exclude_id')::uuid IS NULL OR id <> sqlc.narg('exclude_id')::uuid)
+  AND nolla_start_at <= sqlc.arg('end_at')
+  AND end_at >= sqlc.arg('start_at')
+ORDER BY nolla_start_at
+LIMIT 1;
+
+-- name: SeasonYearTaken :one
+SELECT EXISTS (
+    SELECT 1
+    FROM nollning_seasons
+    WHERE year = sqlc.arg('year')
+      AND (sqlc.narg('exclude_id')::uuid IS NULL OR id <> sqlc.narg('exclude_id')::uuid)
+);
+
+-- name: CommitteeExists :one
+SELECT EXISTS (SELECT 1 FROM committees WHERE id = sqlc.arg('id'));

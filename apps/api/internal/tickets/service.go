@@ -762,9 +762,10 @@ type RosterEntry struct {
 	FoodPreference *string
 	RequestedAt    time.Time
 	UpdatedAt      time.Time
+	IsMember       bool
 }
 
-// ListRoster lists a release's confirmed tickets, oldest first. Requires
+// ListRoster lists a release's confirmed tickets, in request order. Requires
 // webshop:manage - the same policy that gates reading members' food
 // preferences, which the roster shows.
 func (s *Service) ListRoster(ctx context.Context, releaseID string) ([]RosterEntry, error) {
@@ -796,6 +797,7 @@ func (s *Service) ListRoster(ctx context.Context, releaseID string) ([]RosterEnt
 			FoodPreference: dbutil.TextPtr(r.FoodPreference),
 			RequestedAt:    r.RequestedAt.Time,
 			UpdatedAt:      r.UpdatedAt.Time,
+			IsMember:       r.IsMember,
 		}
 	}
 	return out, nil

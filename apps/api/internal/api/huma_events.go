@@ -194,7 +194,7 @@ func registerEventRoutes(api huma.API, svc *events.Service) {
 		Path:          "/events/{slug}/comments",
 		Tags:          tags,
 		Summary:       "Comment on an event",
-		Description:   "As the signed-in member. Needs event:comment. Mentioned members are notified.",
+		Description:   "As the signed-in member. Needs event:comment.",
 		DefaultStatus: http.StatusCreated,
 	}, func(ctx context.Context, input *struct {
 		Slug string `path:"slug"`

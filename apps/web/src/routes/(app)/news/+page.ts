@@ -19,7 +19,7 @@ function intParam(
   return value;
 }
 
-export const load: PageLoad = async ({ fetch, url }) => {
+export const load: PageLoad = async ({ fetch, url, parent }) => {
   const pageSize = intParam(
     url,
     "pageSize",
@@ -37,7 +37,9 @@ export const load: PageLoad = async ({ fetch, url }) => {
     m.error_invalid_page(),
   );
 
-  const [articlesRes, tagsRes] = await Promise.all([
+  const { member } = await parent();
+
+  const [articlesRes, tagsRes, scheduledRes] = await Promise.all([
     api.GET("/articles", {
       fetch,
       params: {
@@ -55,6 +57,14 @@ export const load: PageLoad = async ({ fetch, url }) => {
     // call from a page that's otherwise fully off Prisma. Acceptable: the
     // consequence is a few extra tags in the list.
     api.GET("/tags", { fetch }),
+    // The caller's own scheduled articles (everyone's for news editors);
+    // Go decides which.
+    member
+      ? api.GET("/articles", {
+          fetch,
+          params: { query: { onlyUnpublished: true, pageSize: 100 } },
+        })
+      : undefined,
   ]);
   if (articlesRes.error)
     error(
@@ -71,5 +81,6 @@ export const load: PageLoad = async ({ fetch, url }) => {
     articles: articles ?? [],
     pageCount,
     allTags: tagsRes.data ?? [],
+    scheduledArticles: scheduledRes?.data?.articles ?? [],
   };
 };

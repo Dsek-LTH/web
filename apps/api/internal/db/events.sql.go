@@ -330,7 +330,8 @@ func (q *Queries) GetEventBySlug(ctx context.Context, slug pgtype.Text) (GetEven
 }
 
 const getEventForAttendance = `-- name: GetEventForAttendance :one
-SELECT id, slug, title_sv, author_id FROM events WHERE slug = $1
+SELECT id, slug, title_sv, author_id FROM events
+WHERE slug = $1 AND (removed_at IS NULL OR removed_at > now())
 `
 
 type GetEventForAttendanceRow struct {
@@ -343,6 +344,7 @@ type GetEventForAttendanceRow struct {
 // Phase 9: setAttendance needs the organizer/title/slug to notify on
 // going/interested (see integrations.EventNotification), not just the id
 // GetEventIDBySlug returns.
+// Removed events take no RSVPs, as the old app couldn't even read them.
 func (q *Queries) GetEventForAttendance(ctx context.Context, slug pgtype.Text) (GetEventForAttendanceRow, error) {
 	row := q.db.QueryRow(ctx, getEventForAttendance, slug)
 	var i GetEventForAttendanceRow
@@ -495,6 +497,19 @@ func (q *Queries) GetEventSlugByID(ctx context.Context, id pgtype.UUID) (GetEven
 	var i GetEventSlugByIDRow
 	err := row.Scan(&i.ID, &i.Slug, &i.TitleSv)
 	return i, err
+}
+
+const getLiveEventIDBySlug = `-- name: GetLiveEventIDBySlug :one
+SELECT id FROM events
+WHERE slug = $1 AND (removed_at IS NULL OR removed_at > now())
+`
+
+// For new comments: a removed event takes none.
+func (q *Queries) GetLiveEventIDBySlug(ctx context.Context, slug pgtype.Text) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getLiveEventIDBySlug, slug)
+	var id pgtype.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getRecurringEvent = `-- name: GetRecurringEvent :one

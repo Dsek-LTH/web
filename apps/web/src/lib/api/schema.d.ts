@@ -269,7 +269,7 @@ export interface paths {
     };
     /**
      * List published articles
-     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.
+     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10. onlyUnpublished lists scheduled articles instead: the caller's own, or everyone's with news:article:update.
      */
     get: operations["list-articles"];
     put?: never;
@@ -323,7 +323,7 @@ export interface paths {
     put?: never;
     /**
      * Comment on an article
-     * @description As the signed-in member. Needs news:article:comment. Mentioned members are notified.
+     * @description As the signed-in member. Needs news:article:comment.
      */
     post: operations["create-article-comment"];
     delete?: never;
@@ -1043,7 +1043,7 @@ export interface paths {
     put?: never;
     /**
      * Comment on an event
-     * @description As the signed-in member. Needs event:comment. Mentioned members are notified.
+     * @description As the signed-in member. Needs event:comment.
      */
     post: operations["create-event-comment"];
     delete?: never;
@@ -1701,7 +1701,7 @@ export interface paths {
     };
     /**
      * Nollning events as an ICS calendar feed
-     * @description The current season's events once it has been revealed, otherwise the general feed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most three months ahead.
+     * @description The latest revealed season's events, also after it has ended; the general feed while the next season's theme is still secret (before its reveal) or before any season has been revealed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most three months ahead.
      */
     get: operations["get-nollning-events-calendar"];
     put?: never;
@@ -2464,7 +2464,7 @@ export interface paths {
     post: operations["request-ticket"];
     /**
      * Cancel your ticket request
-     * @description Withdraws the signed-in member's request, offer, ticket or waitlist spot.
+     * @description Withdraws the signed-in member's request, offer or waitlist spot. An accepted ticket can't be cancelled (404).
      */
     delete: operations["cancel-ticket-request"];
     options?: never;
@@ -2612,7 +2612,7 @@ export interface components {
       /** @description Only on create/update: the article was saved, but its notification or Discord post failed. */
       announcementFailed?: boolean;
       author: components["schemas"]["ArticleAuthor"];
-      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Markdown (any HTML in it sanitized on save). */
       body: string;
       bodyEn?: string;
       bodySv: string;
@@ -2683,7 +2683,7 @@ export interface components {
       notificationText: string | null;
       /**
        * Format: date-time
-       * @description When it goes live. Unset keeps it a draft; omitting it on update un-publishes it.
+       * @description When it goes live. Omitted on create, it goes live now; omitted on update, it's un-published.
        */
       publishedAt: string | null;
       /** @description Notify subscribers when it goes live. */
@@ -2740,7 +2740,7 @@ export interface components {
     ArticleStatus: "draft" | "approved" | "rejected";
     ArticleSummary: {
       author: components["schemas"]["ArticleAuthor"];
-      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Markdown (any HTML in it sanitized on save). */
       body: string;
       bodyEn?: string;
       bodySv: string;
@@ -2842,9 +2842,9 @@ export interface components {
       verboseName: string;
     };
     BookingRequest: {
-      /** @description Doors to open for the booking. */
+      /** @description Doors to open for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessDoors: components["schemas"]["BookingDoor"][];
-      /** @description Members who get door access for the booking. */
+      /** @description Members who get door access for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessMembers: components["schemas"]["Member"][];
       bookables: components["schemas"]["Bookable"][];
       /** @description Who asked for the booking. */
@@ -2881,9 +2881,9 @@ export interface components {
     /** @enum {string} */
     BookingRequestStatus: "PENDING" | "ACCEPTED" | "DENIED";
     BookingReviewItem: {
-      /** @description Doors to open for the booking. */
+      /** @description Doors to open for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessDoors: components["schemas"]["BookingDoor"][];
-      /** @description Members who get door access for the booking. */
+      /** @description Members who get door access for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessMembers: components["schemas"]["Member"][];
       bookables: components["schemas"]["Bookable"][];
       /** @description Who asked for the booking. */
@@ -3796,7 +3796,7 @@ export interface components {
       offerExpiresAt?: string;
       /**
        * Format: int64
-       * @description Place on the waitlist, from 1.
+       * @description Place on the waitlist, from 0 (the next in line).
        */
       queuePosition?: number;
       releaseId: string;
@@ -3841,6 +3841,8 @@ export interface components {
       year: number;
     };
     NollningStatus: {
+      /** @description The newest season whose theme has been revealed, current or past. Omitted if none has been. */
+      latestRevealed?: components["schemas"]["NollningSeason"];
       /** @description off outside a season; pre_reveal before the theme is revealed; post_reveal after. */
       phase: components["schemas"]["NollningPhase"];
       /** @description The active season. Omitted when phase is off. */
@@ -4316,7 +4318,7 @@ export interface components {
       offerExpiresAt?: string;
       /**
        * Format: int64
-       * @description Place on the waitlist, from 1.
+       * @description Place on the waitlist, from 0 (the next in line).
        */
       queuePosition?: number;
       /** @description granted: offered a ticket, to accept before offerExpiresAt. accepted: has a ticket. */
@@ -4426,6 +4428,8 @@ export interface components {
       firstName?: string;
       /** @description Free text, e.g. allergies. */
       foodPreference?: string;
+      /** @description Whether studentId belongs to a member; the name fields are empty when it doesn't. */
+      isMember: boolean;
       lastName?: string;
       nickname?: string;
       /** @description Profile picture URL. */
@@ -4991,6 +4995,8 @@ export interface operations {
         nollningSeasonId?: string;
         /** @description Also list nollning season articles, which are left out unless nollningSeasonId is set. */
         includeNollning?: boolean;
+        /** @description List only scheduled articles (publishedAt in the future), soonest first: the caller's own, or everyone's with news:article:update. Empty for an anonymous caller. */
+        onlyUnpublished?: boolean;
         /** @description 1-based page number. Defaults to 1. */
         page?: number;
         /** @description Items per page. Each endpoint has its own default and maximum. */
