@@ -29,6 +29,10 @@ import {
 // dsek_session cookie) and sets locals.user/locals.member from the answer.
 // Go's /auth/callback creates the member row on first login.
 const identityHandle: Handle = async ({ event, resolve }) => {
+  if (skipsIdentity(event.url)) {
+    event.locals.user = { policies: [], roles: [] };
+    return resolve(event);
+  }
   const identity = await fetchIdentity(event);
 
   if (!identity.studentId || !identity.member) {
@@ -66,6 +70,16 @@ const identityHandle: Handle = async ({ event, resolve }) => {
 
   return resolve(event);
 };
+
+/**
+ * Requests that never ask Go who the caller is. The university's Salto door
+ * system polls /salto/{door} without a session, and that route has its own
+ * fallback for when Go is down (routes/(app)/salto/[door]/+server.ts), which
+ * a failing /me call here (a 502) would otherwise never let it reach.
+ */
+function skipsIdentity(url: URL): boolean {
+  return url.pathname.startsWith("/salto/");
+}
 
 const APP_INSETS_REGEX = /APP-INSETS\s*\(([^)]*)\)/;
 const appHandle: Handle = async ({ event, resolve }) => {
@@ -176,6 +190,7 @@ const paraglideHandle: Handle = ({ event, resolve }) =>
 defineCustomServerStrategy("custom-userPreference", {
   getLocale: async () => {
     const event = getRequestEvent();
+    if (skipsIdentity(event.url)) return undefined;
     // Same fetchIdentity call identityHandle makes further down the chain -
     // this strategy fires from inside paraglideHandle, before identityHandle
     // populates locals. fetchIdentity is memoized per request, so this is
