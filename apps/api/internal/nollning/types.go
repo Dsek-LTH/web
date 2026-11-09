@@ -26,6 +26,10 @@ var ErrNotFound = errors.New("nollning: not found")
 // mandate for), so the API layer can map them to 422 instead of 500.
 var ErrInvalidInput = errors.New("nollning: invalid input")
 
+// ErrYearTaken is returned when a season is created or moved to a year
+// another season already has.
+var ErrYearTaken = errors.New("nollning: a season already exists for that year")
+
 func invalidf(format string, args ...any) error {
 	return fmt.Errorf("%w: "+format, append([]any{ErrInvalidInput}, args...)...)
 }

@@ -391,7 +391,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: join `phadder_groups` and filter on the current season; phadder
   mandates newest first within the season window.
 
-### [ ] T27 Season and phadder-group writes answer 500 on bad input
+### [x] T27 Season and phadder-group writes answer 500 on bad input
 
 - New: `nollning.Service.CreateSeason`/`UpdateSeason`/`CreateGroup`/
   `UpdateGroup`/`AddNollor` pass input straight to SQL; duplicate year,

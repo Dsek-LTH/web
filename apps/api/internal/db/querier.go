@@ -53,6 +53,7 @@ type Querier interface {
 	// Moves everyone behind a waitlist position that was just vacated (e.g. by a
 	// cancellation) one step forward, keeping positions contiguous.
 	CloseWaitlistGap(ctx context.Context, arg CloseWaitlistGapParams) error
+	CommitteeExists(ctx context.Context, id pgtype.UUID) (bool, error)
 	CountArticleSlugsWithPrefix(ctx context.Context, dollar_1 pgtype.Text) (int64, error)
 	CountArticles(ctx context.Context, arg CountArticlesParams) (int64, error)
 	CountDoorsByName(ctx context.Context, names []string) (int64, error)
@@ -138,6 +139,11 @@ type Querier interface {
 	// Authors are reused across articles: an author row is the (member,
 	// mandate, custom-author) triple, so the same byline is only created once.
 	FindAuthor(ctx context.Context, arg FindAuthorParams) (pgtype.UUID, error)
+	// Backs CreateSeason/UpdateSeason's "at most one season at a time" check
+	// (see GetCurrentSeason): the year of any other season whose window shares
+	// a moment with [start_at, end_at], both ends inclusive like
+	// GetCurrentSeason's.
+	FindOverlappingSeason(ctx context.Context, arg FindOverlappingSeasonParams) (int32, error)
 	// The pair's row, whichever direction the first ping went.
 	FindPingBetween(ctx context.Context, arg FindPingBetweenParams) (FindPingBetweenRow, error)
 	GetAdminSettings(ctx context.Context, keys []string) ([]GetAdminSettingsRow, error)
@@ -571,6 +577,7 @@ type Querier interface {
 	ReplaceSubscribedTags(ctx context.Context, a pgtype.UUID) error
 	ReplaceSubscriptionSettings(ctx context.Context, memberID pgtype.UUID) error
 	RestoreSong(ctx context.Context, id pgtype.UUID) error
+	SeasonYearTaken(ctx context.Context, arg SeasonYearTakenParams) (bool, error)
 	SetEventSlug(ctx context.Context, arg SetEventSlugParams) error
 	SetMandatePhadderGroup(ctx context.Context, arg SetMandatePhadderGroupParams) error
 	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
