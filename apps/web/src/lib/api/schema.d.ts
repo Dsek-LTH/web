@@ -4402,6 +4402,8 @@ export interface components {
       firstName?: string;
       /** @description Free text, e.g. allergies. */
       foodPreference?: string;
+      /** @description Whether studentId belongs to a member; the name fields are empty when it doesn't. */
+      isMember: boolean;
       lastName?: string;
       nickname?: string;
       /** @description Profile picture URL. */

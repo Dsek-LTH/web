@@ -719,11 +719,12 @@ func (q *Queries) ListScheduledReleases(ctx context.Context) ([]TicketRelease, e
 
 const listTicketRoster = `-- name: ListTicketRoster :many
 SELECT e.member_id, e.requested_at, e.updated_at, e.status,
-       m.first_name, m.last_name, m.nickname, m.picture_path, m.food_preference
+       m.first_name, m.last_name, m.nickname, m.picture_path, m.food_preference,
+       (m.id IS NOT NULL)::bool AS is_member
 FROM ticket_queue_entry e
 LEFT JOIN members m ON m.student_id = e.member_id
 WHERE e.release_id = $1 AND e.status = 'accepted'
-ORDER BY e.updated_at
+ORDER BY e.requested_at
 `
 
 type ListTicketRosterRow struct {
@@ -736,10 +737,12 @@ type ListTicketRosterRow struct {
 	Nickname       pgtype.Text        `json:"nickname"`
 	PicturePath    pgtype.Text        `json:"picture_path"`
 	FoodPreference pgtype.Text        `json:"food_preference"`
+	IsMember       bool               `json:"is_member"`
 }
 
-// Everyone with a confirmed ticket for one release, oldest first, with
-// the member behind each (member_id holds a student id).
+// Everyone with a confirmed ticket for one release, in the order they
+// asked for it (the old roster's order), with the member behind each
+// (member_id holds a student id).
 func (q *Queries) ListTicketRoster(ctx context.Context, releaseID pgtype.UUID) ([]ListTicketRosterRow, error) {
 	rows, err := q.db.Query(ctx, listTicketRoster, releaseID)
 	if err != nil {
@@ -759,6 +762,7 @@ func (q *Queries) ListTicketRoster(ctx context.Context, releaseID pgtype.UUID) (
 			&i.Nickname,
 			&i.PicturePath,
 			&i.FoodPreference,
+			&i.IsMember,
 		); err != nil {
 			return nil, err
 		}

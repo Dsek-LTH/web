@@ -121,6 +121,7 @@ type TicketRosterEntry struct {
 	FoodPreference *string   `json:"foodPreference,omitempty" doc:"Free text, e.g. allergies."`
 	RequestedAt    time.Time `json:"requestedAt"`
 	UpdatedAt      time.Time `json:"updatedAt"`
+	IsMember       bool      `json:"isMember"                 doc:"Whether studentId belongs to a member; the name fields are empty when it doesn't."`
 }
 
 // CreateTicketReleaseInput is a new release.

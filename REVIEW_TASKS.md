@@ -481,7 +481,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       articles accept likes and comments: add the removed/published filter
       to `GetEventForAttendance`, `GetEventIDBySlug`,
       `GetArticleIDBySlug` (as used by like/comment).
-- [ ] T43 Ticket roster: order by `requested_at` (old order) and build
+- [x] T43 Ticket roster: order by `requested_at` (old order) and build
       `member` whenever the join matched (`ListTicketRoster`,
       `admin/tickets/[releaseId]/loadRoster.ts`).
 - [x] T44 API doc fixes: `TicketQueueEntry.QueuePosition` is 0-based;

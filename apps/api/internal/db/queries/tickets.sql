@@ -188,14 +188,16 @@ JOIN ticket_queue_entry q ON q.release_id = r.id
 WHERE q.status = 'granted';
 
 -- name: ListTicketRoster :many
--- Everyone with a confirmed ticket for one release, oldest first, with
--- the member behind each (member_id holds a student id).
+-- Everyone with a confirmed ticket for one release, in the order they
+-- asked for it (the old roster's order), with the member behind each
+-- (member_id holds a student id).
 SELECT e.member_id, e.requested_at, e.updated_at, e.status,
-       m.first_name, m.last_name, m.nickname, m.picture_path, m.food_preference
+       m.first_name, m.last_name, m.nickname, m.picture_path, m.food_preference,
+       (m.id IS NOT NULL)::bool AS is_member
 FROM ticket_queue_entry e
 LEFT JOIN members m ON m.student_id = e.member_id
 WHERE e.release_id = $1 AND e.status = 'accepted'
-ORDER BY e.updated_at;
+ORDER BY e.requested_at;
 
 -- name: GetTicketEventEnd :one
 -- A release expires when its event ends (see CreateRelease).

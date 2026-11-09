@@ -559,8 +559,9 @@ type Querier interface {
 	ListTagsByIDs(ctx context.Context, ids []pgtype.UUID) ([]ListTagsByIDsRow, error)
 	ListTagsForArticles(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForArticlesRow, error)
 	ListTagsForEvents(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListTagsForEventsRow, error)
-	// Everyone with a confirmed ticket for one release, oldest first, with
-	// the member behind each (member_id holds a student id).
+	// Everyone with a confirmed ticket for one release, in the order they
+	// asked for it (the old roster's order), with the member behind each
+	// (member_id holds a student id).
 	ListTicketRoster(ctx context.Context, releaseID pgtype.UUID) ([]ListTicketRosterRow, error)
 	// Mirrors the old app's getUpcomingBookingRequests: every request starting
 	// on or after `since` (callers pass now-1week, matching the old hardcoded
