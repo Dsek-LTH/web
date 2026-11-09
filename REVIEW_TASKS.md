@@ -446,7 +446,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 
 ## P3: low priority
 
-- [ ] T34 Pass Go's status/detail on instead of fixed 404/500 or thrown
+- [x] T34 Pass Go's status/detail on instead of fixed 404/500 or thrown
       errors: `news/[slug]/+page.ts`, like action in
       `news/[slug]/+page.server.ts`, `events/EventPageLoad.ts`,
       `events/[slug]/+page.ts` and `edit/+page.ts`,

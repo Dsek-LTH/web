@@ -5,6 +5,7 @@ import {
   getPageOrThrowSvelteError,
   getPageSizeOrThrowSvelteError,
 } from "$lib/utils/url";
+import { goError } from "$lib/utils/access";
 import * as m from "$paraglide/messages";
 import { error, type LoadEvent } from "@sveltejs/kit";
 import dayjs from "dayjs";
@@ -108,11 +109,8 @@ const eventPageLoad =
             },
           },
         });
-    if (eventsRes?.error) {
-      error(eventsRes.response.status === 403 ? 403 : 500, {
-        message: m.events_errors_eventNotFound(),
-      });
-    }
+    if (eventsRes?.error)
+      goError(eventsRes.response, eventsRes.error, "Failed to load events");
     const events = eventsRes?.data.events ?? [];
     const pageCount = eventsRes?.data.pageCount ?? 0;
 

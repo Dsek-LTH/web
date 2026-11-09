@@ -54,7 +54,8 @@ export const actions: Actions = {
         committeeId,
       },
     });
-    if (created.error) throw new Error("Failed to create election");
+    if (created.error)
+      goError(created.response, created.error, "Failed to create election");
     throw redirect(
       "/elections",
       {
