@@ -309,7 +309,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: join the committee (name sv/en, short name) and set
   `Position.Committee`.
 
-### [ ] T19 Café schedule week numbering breaks in 2027
+### [x] T19 Café schedule week numbering breaks in 2027
 
 - New: Go uses ISO weeks (`cafe.Service.GetSchedule`, `mondayOfISOWeek`);
   `routes/(app)/committees/cafe/schedule/+page.svelte` builds the week with
