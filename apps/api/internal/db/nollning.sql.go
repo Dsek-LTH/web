@@ -192,34 +192,57 @@ func (q *Queries) GetCurrentSeason(ctx context.Context) (NollningSeason, error) 
 }
 
 const getMemberNollaGroupID = `-- name: GetMemberNollaGroupID :one
-SELECT nollning_group_id FROM members WHERE id = $1
+SELECT g.id
+FROM members m
+JOIN phadder_groups g ON g.id = m.nollning_group_id
+JOIN nollning_seasons s ON s.id = g.season_id
+WHERE m.id = $1
+  AND s.year = $2
 `
 
-// Backs PhadderRoleFor's "nolla" branch.
-func (q *Queries) GetMemberNollaGroupID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
-	row := q.db.QueryRow(ctx, getMemberNollaGroupID, id)
-	var nollning_group_id pgtype.UUID
-	err := row.Scan(&nollning_group_id)
-	return nollning_group_id, err
+type GetMemberNollaGroupIDParams struct {
+	MemberID   pgtype.UUID `json:"member_id"`
+	SeasonYear int32       `json:"season_year"`
+}
+
+// Backs PhadderRoleFor's "nolla" branch: the member's nolla group, only if
+// it belongs to the season of the given year (members.nollning_group_id
+// is never cleared after a season, so last year's nollor still have one).
+func (q *Queries) GetMemberNollaGroupID(ctx context.Context, arg GetMemberNollaGroupIDParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getMemberNollaGroupID, arg.MemberID, arg.SeasonYear)
+	var id pgtype.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getMemberPhadderGroupID = `-- name: GetMemberPhadderGroupID :one
-SELECT "phadderInId"
-FROM mandates
-WHERE member_id = $1
-  AND position_id IN ('dsek.noll.phadder', 'dsek.noll.uppdrag')
-  AND "phadderInId" IS NOT NULL
-ORDER BY position_id ASC, start_date ASC
+SELECT g.id
+FROM mandates m
+JOIN phadder_groups g ON g.id = m."phadderInId"
+JOIN nollning_seasons s ON s.id = g.season_id
+WHERE m.member_id = $1
+  AND m.position_id IN ('dsek.noll.phadder', 'dsek.noll.uppdrag')
+  AND s.year = $2
+  AND m.start_date <= (s.end_at AT TIME ZONE 'Europe/Stockholm')::date
+  AND m.end_date >= (s.nolla_start_at AT TIME ZONE 'Europe/Stockholm')::date
+ORDER BY m.start_date DESC, m.position_id ASC
 LIMIT 1
 `
 
-// Backs PhadderRoleFor's "phadder" branch: which group (if any) this
-// member holds an active phadder/uppdrag mandate pointed at.
-func (q *Queries) GetMemberPhadderGroupID(ctx context.Context, memberID pgtype.UUID) (pgtype.UUID, error) {
-	row := q.db.QueryRow(ctx, getMemberPhadderGroupID, memberID)
-	var phadderInId pgtype.UUID
-	err := row.Scan(&phadderInId)
-	return phadderInId, err
+type GetMemberPhadderGroupIDParams struct {
+	MemberID   pgtype.UUID `json:"member_id"`
+	SeasonYear int32       `json:"season_year"`
+}
+
+// Backs PhadderRoleFor's "phadder" branch: the group of the given year's
+// season this member holds a phadder/uppdrag mandate pointed at, the
+// mandate overlapping the season's days (Swedish time, like
+// FindActivePhadderMandate). Newest mandate first.
+func (q *Queries) GetMemberPhadderGroupID(ctx context.Context, arg GetMemberPhadderGroupIDParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getMemberPhadderGroupID, arg.MemberID, arg.SeasonYear)
+	var id pgtype.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getPhadderGroup = `-- name: GetPhadderGroup :one

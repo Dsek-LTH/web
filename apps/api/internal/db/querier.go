@@ -225,11 +225,15 @@ type Querier interface {
 	// synthesizes itself (e.g. "X har gillat din nyhet") - mirrors getFullName's
 	// inputs exactly (fullName in service.go is the Go port of getFullName).
 	GetMemberNameForNotification(ctx context.Context, id pgtype.UUID) (GetMemberNameForNotificationRow, error)
-	// Backs PhadderRoleFor's "nolla" branch.
-	GetMemberNollaGroupID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
-	// Backs PhadderRoleFor's "phadder" branch: which group (if any) this
-	// member holds an active phadder/uppdrag mandate pointed at.
-	GetMemberPhadderGroupID(ctx context.Context, memberID pgtype.UUID) (pgtype.UUID, error)
+	// Backs PhadderRoleFor's "nolla" branch: the member's nolla group, only if
+	// it belongs to the season of the given year (members.nollning_group_id
+	// is never cleared after a season, so last year's nollor still have one).
+	GetMemberNollaGroupID(ctx context.Context, arg GetMemberNollaGroupIDParams) (pgtype.UUID, error)
+	// Backs PhadderRoleFor's "phadder" branch: the group of the given year's
+	// season this member holds a phadder/uppdrag mandate pointed at, the
+	// mandate overlapping the season's days (Swedish time, like
+	// FindActivePhadderMandate). Newest mandate first.
+	GetMemberPhadderGroupID(ctx context.Context, arg GetMemberPhadderGroupIDParams) (pgtype.UUID, error)
 	GetMemberPicturePath(ctx context.Context, studentID pgtype.Text) (pgtype.Text, error)
 	// Full column set for a member's own profile page, unlike
 	// GetMemberByStudentID's minimal projection (built only for author
