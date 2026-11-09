@@ -22,7 +22,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
   const current = await api.GET("/nollning/current", { fetch });
   if (current.error)
     error(current.response.status, current.error.detail ?? "Failed to load");
-  const season = current.data.season;
+  // Between seasons, the latest revealed season's weeks.
+  const season = current.data.season ?? current.data.latestRevealed;
   if (!season) return { week: 0, events: [], weeks: 0 };
 
   const weekStarts = seasonWeekStarts(season.nollaStartAt, season.endAt);
@@ -44,7 +45,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
   // Before the reveal the season's events (and with them its theme) stay
   // hidden, and the week shows the guild's general events instead, like the
   // old page did.
-  const revealed = current.data.phase === "post_reveal";
+  const revealed = current.data.phase !== "pre_reveal";
   const res = await api.GET("/events", {
     fetch,
     params: {

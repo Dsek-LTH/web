@@ -516,7 +516,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [ ] T55 Season lookups run on every request (`auth/real.go` calls
       `NollaYear` and `InjectStabenPolicy`, each querying the season):
       compute once per request or cache briefly.
-- [ ] T56 Nollning ICS feed falls back to the general feed after the season
+- [x] T56 Nollning ICS feed falls back to the general feed after the season
       (`api/events_feeds.go`), and `/nollning/messages` and
       `/nollning/events` are empty outside a season: use the latest revealed
       season.

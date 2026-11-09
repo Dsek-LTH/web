@@ -1681,7 +1681,7 @@ export interface paths {
     };
     /**
      * Nollning events as an ICS calendar feed
-     * @description The current season's events once it has been revealed, otherwise the general feed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most three months ahead.
+     * @description The latest revealed season's events, also after it has ended; the general feed while the next season's theme is still secret (before its reveal) or before any season has been revealed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most three months ahead.
      */
     get: operations["get-nollning-events-calendar"];
     put?: never;
@@ -3815,6 +3815,8 @@ export interface components {
       year: number;
     };
     NollningStatus: {
+      /** @description The newest season whose theme has been revealed, current or past. Omitted if none has been. */
+      latestRevealed?: components["schemas"]["NollningSeason"];
       /** @description off outside a season; pre_reveal before the theme is revealed; post_reveal after. */
       phase: components["schemas"]["NollningPhase"];
       /** @description The active season. Omitted when phase is off. */

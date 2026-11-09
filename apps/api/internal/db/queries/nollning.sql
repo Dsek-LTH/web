@@ -1,3 +1,12 @@
+-- name: GetLatestRevealedSeason :one
+-- The newest season whose theme has been revealed, current or past: what
+-- the nollning site shows between seasons.
+SELECT id, year, nolla_start_at, reveal_at, end_at, organizing_committee_id
+FROM nollning_seasons
+WHERE reveal_at <= now()
+ORDER BY reveal_at DESC
+LIMIT 1;
+
 -- name: GetCurrentSeason :one
 -- The season whose window covers right now, if any - internal/nollning
 -- treats "at most one season active at a time" as an invariant (not

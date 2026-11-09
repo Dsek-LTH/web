@@ -72,14 +72,32 @@ func phaseFor(season *NollningSeason) Phase {
 	return PhasePostReveal
 }
 
-// GetCurrent backs GET /nollning/current - phase and active season (if
-// any) in one call.
+// LatestRevealed is the newest season whose theme has been revealed,
+// current or past, or nil if none has been.
+func (s *Service) LatestRevealed(ctx context.Context) (*NollningSeason, error) {
+	row, err := s.queries.GetLatestRevealedSeason(ctx)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get latest revealed season: %w", err)
+	}
+	season := toSeason(row)
+	return &season, nil
+}
+
+// GetCurrent backs GET /nollning/current - phase, active season (if any)
+// and the latest revealed season in one call.
 func (s *Service) GetCurrent(ctx context.Context) (*NollningStatus, error) {
 	season, err := s.Current(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &NollningStatus{Phase: phaseFor(season), Season: season}, nil
+	latest, err := s.LatestRevealed(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &NollningStatus{Phase: phaseFor(season), Season: season, LatestRevealed: latest}, nil
 }
 
 // NollaYear is the year auth.DerivedRoles' "nolla" pseudo-role should

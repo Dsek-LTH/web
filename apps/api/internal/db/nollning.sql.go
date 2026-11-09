@@ -229,6 +229,30 @@ func (q *Queries) GetCurrentSeason(ctx context.Context) (NollningSeason, error) 
 	return i, err
 }
 
+const getLatestRevealedSeason = `-- name: GetLatestRevealedSeason :one
+SELECT id, year, nolla_start_at, reveal_at, end_at, organizing_committee_id
+FROM nollning_seasons
+WHERE reveal_at <= now()
+ORDER BY reveal_at DESC
+LIMIT 1
+`
+
+// The newest season whose theme has been revealed, current or past: what
+// the nollning site shows between seasons.
+func (q *Queries) GetLatestRevealedSeason(ctx context.Context) (NollningSeason, error) {
+	row := q.db.QueryRow(ctx, getLatestRevealedSeason)
+	var i NollningSeason
+	err := row.Scan(
+		&i.ID,
+		&i.Year,
+		&i.NollaStartAt,
+		&i.RevealAt,
+		&i.EndAt,
+		&i.OrganizingCommitteeID,
+	)
+	return i, err
+}
+
 const getMemberNollaGroupID = `-- name: GetMemberNollaGroupID :one
 SELECT nollning_group_id FROM members WHERE id = $1
 `

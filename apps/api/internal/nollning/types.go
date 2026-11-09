@@ -128,6 +128,9 @@ type PhadderGroupInput struct {
 type NollningStatus struct {
 	Phase  Phase           `json:"phase"            doc:"off outside a season; pre_reveal before the theme is revealed; post_reveal after."`
 	Season *NollningSeason `json:"season,omitempty" doc:"The active season. Omitted when phase is off."`
+	// LatestRevealed lets the nollning site keep showing last season's
+	// messages and events between seasons, like the old site did.
+	LatestRevealed *NollningSeason `json:"latestRevealed,omitempty" doc:"The newest season whose theme has been revealed, current or past. Omitted if none has been."`
 }
 
 // MemberPhadderRole is what GET /members/{studentId}/phadder-role returns.

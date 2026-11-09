@@ -222,6 +222,9 @@ type Querier interface {
 	// Constrained to POLICY/GUIDELINE, matching the old app's edit-lookup
 	// query - the other enum values have no create/edit UI anywhere.
 	GetGoverningDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error)
+	// The newest season whose theme has been revealed, current or past: what
+	// the nollning site shows between seasons.
+	GetLatestRevealedSeason(ctx context.Context) (NollningSeason, error)
 	// Used to verify a caller posting "as" a mandate actually holds it.
 	// custom_authors has no owner column in the schema (they're shared
 	// personas, e.g. "Styrelsen"), so there's no equivalent check for those.
