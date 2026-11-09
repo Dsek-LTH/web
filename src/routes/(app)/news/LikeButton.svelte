@@ -75,7 +75,6 @@
     </Button>
   </form>
 {:else}
-  <!-- Logged-out readers can't like; offer the way in instead of a dead, disabled button. -->
   <Button variant="outline" onclick={() => signIn()}>
     <ThumbsUp />
     {m.news_logInToLike()}

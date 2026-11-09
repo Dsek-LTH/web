@@ -242,10 +242,6 @@
   };
 </script>
 
-{#snippet sectionHeading(title: string)}
-  <h2 class="text-lg font-semibold">{title}</h2>
-{/snippet}
-
 <form
   method="POST"
   {action}
@@ -256,7 +252,7 @@
   <!-- Content -->
   <section class="flex flex-col gap-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      {@render sectionHeading(m.news_section_content())}
+      <h2 class="text-lg">{m.news_section_content()}</h2>
       <!-- Language of the header and text being edited. The check marks which
            versions have been written. Deselecting is ignored, so one is always active. -->
       <ToggleGroup.Root
@@ -371,7 +367,7 @@
 
   <!-- Details -->
   <section class="flex flex-col gap-4 border-t pt-6">
-    {@render sectionHeading(m.news_section_details())}
+    <h2 class="text-lg">{m.news_section_details()}</h2>
 
     <div class="flex flex-col gap-1.5">
       <Label for="author">{m.news_author()}</Label>
@@ -444,7 +440,7 @@
 
   <!-- Publishing -->
   <section class="flex flex-col gap-4 border-t pt-6">
-    {@render sectionHeading(m.news_section_publishing())}
+    <h2 class="text-lg">{m.news_section_publishing()}</h2>
 
     {#if alreadyPublished && initialPublishTime}
       <p class="text-muted-foreground text-sm">

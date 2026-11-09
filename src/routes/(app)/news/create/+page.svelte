@@ -28,7 +28,7 @@
     <ArrowLeft />
     {m.back()}
   </Button>
-  <h1 class="text-3xl font-bold">{m.news_newArticle()}</h1>
+  <h1 class="text-3xl">{m.news_newArticle()}</h1>
 </div>
 
 <ArticleEditor

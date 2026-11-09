@@ -118,7 +118,7 @@
   >
     <Tabs.Root value="article" class="min-w-0 gap-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <h2 class="text-lg font-semibold">{m.news_preview()}</h2>
+        <h2 class="text-lg">{m.news_preview()}</h2>
         <Tabs.List>
           <Tabs.Trigger value="article">{m.news_preview_article()}</Tabs.Trigger
           >

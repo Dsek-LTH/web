@@ -146,7 +146,7 @@
   <!-- Page-level actions live here, above the author panels, so they are always in reach.
        The list toolbar below only holds controls that affect the list itself. -->
   <div class="flex items-center justify-between gap-4">
-    <h1 class="text-3xl font-bold">{m.news()}</h1>
+    <h1 class="text-3xl">{m.news()}</h1>
     {#if canCreate || canManageTags}
       <div class="flex items-center gap-2">
         {#if canManageTags}
@@ -168,7 +168,7 @@
   {#if data.scheduledArticles.length > 0}
     <section class="flex flex-col gap-3">
       <header class="flex items-center gap-2">
-        <h2 class="text-base font-semibold">{m.news_scheduledNews()}</h2>
+        <h2 class="text-base">{m.news_scheduledNews()}</h2>
         <span class="text-muted-foreground text-sm"
           >{data.scheduledArticles.length}</span
         >
@@ -246,7 +246,7 @@
         aria-expanded={showNollning}
         onclick={() => (showNollning = !showNollning)}
       >
-        <h2 class="text-base font-semibold">{m.news_nollningNews()}</h2>
+        <h2 class="text-base">{m.news_nollningNews()}</h2>
         <span class="text-muted-foreground text-sm"
           >{data.nollningArticles.length}</span
         >
@@ -265,8 +265,6 @@
     </section>
   {/if}
 
-  <!-- No frame around the articles: cards and rows sit on the page itself, aligned
-       with the heading above. The toolbar is a plain row. -->
   <section class="flex flex-col gap-6">
     <header class="flex items-center gap-3">
       <div class="min-w-0 flex-1">
