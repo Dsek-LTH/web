@@ -671,7 +671,8 @@ func toTag(
 
 // ListActiveMandatesForMember lists a member's currently-active mandates
 // (see ListActiveMandatesForMember's SQL doc comment for "active") - used
-// for the "post as" author picker.
+// for the "post as" author picker. Staben mandates are left out for callers
+// who may not see staben (nollning.StabenView), unless they're the member's.
 func (s *Service) ListActiveMandatesForMember(
 	ctx context.Context,
 	studentID string,
@@ -681,10 +682,14 @@ func (s *Service) ListActiveMandatesForMember(
 		return nil, fmt.Errorf("list mandates: %w", err)
 	}
 	loc := locale.FromContext(ctx)
-	mandates := make([]Mandate, len(rows))
-	for i, r := range rows {
+	staben := nollning.StabenViewFor(ctx)
+	mandates := make([]Mandate, 0, len(rows))
+	for _, r := range rows {
+		if staben.HidesMandate(r.PositionID, dbutil.UUIDStr(r.MemberID)) {
+			continue
+		}
 		nameEn := dbutil.TextPtr(r.PositionNameEn)
-		mandates[i] = Mandate{
+		mandates = append(mandates, Mandate{
 			ID: dbutil.UUIDStr(r.ID),
 			Position: &Position{
 				ID:     r.PositionID,
@@ -692,7 +697,7 @@ func (s *Service) ListActiveMandatesForMember(
 				NameSv: r.PositionNameSv,
 				NameEn: nameEn,
 			},
-		}
+		})
 	}
 	return mandates, nil
 }

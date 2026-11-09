@@ -372,6 +372,12 @@ func (s *Service) resolveAuthorDisplay(
 		}
 		return nil, fmt.Errorf("get author for notification: %w", err)
 	}
+	// A sender who is in staben, or wrote as a staben mandate, isn't shown
+	// to callers who may not see staben - like an article byline.
+	if !row.IsCustom &&
+		nollning.StabenViewFor(ctx).HidesMember(dbutil.UUIDStr(row.MemberID), row.AuthorIsStaben) {
+		return nil, nil
+	}
 	fullName := fullName(
 		dbutil.TextPtr(row.FirstName),
 		dbutil.TextPtr(row.Nickname),

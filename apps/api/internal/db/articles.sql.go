@@ -74,8 +74,8 @@ WHERE a.published_datetime IS NOT NULL
               SELECT 1 FROM mandates sm
               WHERE sm.member_id = au.member_id
                 AND sm.position_id LIKE 'dsek.noll.stab.%'
-                AND sm.start_date <= CURRENT_DATE
-                AND sm.end_date >= CURRENT_DATE
+                AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+                AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
           )
       )
   )
@@ -200,8 +200,8 @@ SELECT
             SELECT 1 FROM mandates sm
             WHERE sm.member_id = au.member_id
               AND sm.position_id LIKE 'dsek.noll.stab.%'
-              AND sm.start_date <= CURRENT_DATE
-              AND sm.end_date >= CURRENT_DATE
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
         )
     )::bool AS author_is_staben
 FROM articles a
@@ -357,8 +357,8 @@ SELECT
             SELECT 1 FROM mandates sm
             WHERE sm.member_id = au.member_id
               AND sm.position_id LIKE 'dsek.noll.stab.%'
-              AND sm.start_date <= CURRENT_DATE
-              AND sm.end_date >= CURRENT_DATE
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
         )
     )::bool AS author_is_staben
 FROM articles a
@@ -506,8 +506,8 @@ SELECT
             SELECT 1 FROM mandates sm
             WHERE sm.member_id = au.member_id
               AND sm.position_id LIKE 'dsek.noll.stab.%'
-              AND sm.start_date <= CURRENT_DATE
-              AND sm.end_date >= CURRENT_DATE
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
         )
     )::bool AS author_is_staben
 FROM articles a
@@ -555,8 +555,8 @@ WHERE a.published_datetime IS NOT NULL
               SELECT 1 FROM mandates sm
               WHERE sm.member_id = au.member_id
                 AND sm.position_id LIKE 'dsek.noll.stab.%'
-                AND sm.start_date <= CURRENT_DATE
-                AND sm.end_date >= CURRENT_DATE
+                AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+                AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
           )
       )
   )

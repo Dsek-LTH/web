@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -296,6 +297,22 @@ func TestStabenAccess(t *testing.T) {
 		),
 	}
 
+	// New-article notifications from both bylines, to the two members the
+	// callers below are.
+	for _, header := range []string{"Authz staben mandate", "Authz staben member"} {
+		for _, to := range []string{e.members[1].ID, stab.ID} {
+			if _, err := e.pool.Exec(ctx, `
+				INSERT INTO notifications (title, message, type, link, member_id, from_author_id)
+				SELECT header_sv, 'Text', 'NEW_ARTICLE', '/news/' || slug, $2, author_id
+				FROM articles WHERE header_sv = $1`, header, to); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	t.Cleanup(func() {
+		_, _ = e.pool.Exec(ctx, `DELETE FROM notifications WHERE title LIKE 'Authz staben%'`)
+	})
+
 	year := today.Year()
 	for _, c := range []struct {
 		as   caller
@@ -368,6 +385,43 @@ func TestStabenAccess(t *testing.T) {
 			if !c.sees && article.Author.Position != nil {
 				t.Errorf("%s as %s: staben position shown", path, c.as.label)
 			}
+		}
+
+		var active []struct {
+			ID string `json:"id"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, "/members/"+stab.StudentID+"/mandates", nil).
+			decode(t, &active)
+		if got := slices.ContainsFunc(active, func(m struct {
+			ID string `json:"id"`
+		},
+		) bool {
+			return m.ID == mandateID
+		}); got != c.sees {
+			t.Errorf("active mandates as %s: staben mandate shown %v, want %v",
+				c.as.label, got, c.sees)
+		}
+
+		var bell struct {
+			Notifications []struct {
+				Title   string `json:"title"`
+				Authors []any  `json:"authors"`
+			} `json:"notifications"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, "/notifications?pageSize=50", nil).decode(t, &bell)
+		found := 0
+		for _, n := range bell.Notifications {
+			if !strings.HasPrefix(n.Title, "Authz staben") {
+				continue
+			}
+			found++
+			if got := len(n.Authors) > 0; got != c.sees {
+				t.Errorf("notification %q as %s: sender shown %v, want %v",
+					n.Title, c.as.label, got, c.sees)
+			}
+		}
+		if found != 2 {
+			t.Errorf("notifications as %s: found %d of the test's, want 2", c.as.label, found)
 		}
 
 		var list struct {

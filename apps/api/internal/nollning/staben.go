@@ -13,7 +13,8 @@ import (
 // (dsek.noll.stab.oph, dsek.noll.stab.mdlm). It is a position prefix, not
 // the season's organizing committee, because that committee (nollu) also
 // holds the phadder, pepp and funk positions, which were never hidden.
-// The SQL in queries/articles.sql matches the same prefix.
+// The SQL in queries/articles.sql and queries/notifications.sql matches
+// the same prefix.
 const StabenPositionPrefix = "dsek.noll.stab."
 
 // IsStabenPosition reports whether positionID is one of staben's positions.
@@ -73,6 +74,9 @@ func IsCurrentStabenMandate(positionID string, start, end time.Time) bool {
 	if !IsStabenPosition(positionID) {
 		return false
 	}
-	today := time.Now().UTC().Truncate(24 * time.Hour)
+	// Today in Stockholm, as a date like pgtype.Date's (midnight UTC); the
+	// SQL versions of this check use the same date.
+	y, m, d := time.Now().In(stockholm).Date()
+	today := time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
 	return !start.After(today) && !end.Before(today)
 }
