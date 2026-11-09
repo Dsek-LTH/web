@@ -109,7 +109,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Verify: unit test with a string of `å` crossing the limit gives valid
   UTF-8 (`utf8.ValidString`).
 
-### [ ] T05 Staben is only hidden on /board and in the gallery
+### [x] T05 Staben is only hidden on /board and in the gallery
 
 - Old: `main:src/database/schema.zmodel` denied reading mandates on
   `dsek.noll.stab.mdlm` / `dsek.noll.stab.oph` without `member:see_staben`
@@ -137,6 +137,9 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   a member without `member:see_staben` doesn't see stab mandates on a
   profile, the nollu committee, the position page or an article byline; the
   stab member sees their own.
+- Done with a position check (`nollning.StabenView`, ids starting
+  `dsek.noll.stab.`), not the board's organizing-committee check: nollu
+  also holds the phadder, pepp and funk positions, which were never hidden.
 
 ### [x] T06 `foodPreference` is returned to every signed-in member
 

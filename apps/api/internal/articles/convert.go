@@ -3,14 +3,24 @@ package articles
 import (
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
+	"github.com/dsek-lth/web/apps/api/internal/nollning"
 )
 
 // toArticleSummary builds the DTO from the joined article-row shape shared
 // by ListArticles/GetArticleBySlug/GetArticleRowBySlug. The three sqlc row
 // types are structurally identical (same SELECT list, same column order) so
 // callers convert with a plain Go type conversion, e.g.
-// toArticleSummary(db.ListArticlesRow(row), locale).
-func toArticleSummary(row db.ListArticlesRow, loc string) ArticleSummary {
+// toArticleSummary(db.ListArticlesRow(row), locale, staben).
+//
+// A byline showing who is in staben (author_is_staben) is blanked for
+// callers who may not see staben, like the old Author read rule: the
+// member, mandate and author ids are left out. Custom bylines stay, since
+// they don't show the member behind them.
+func toArticleSummary(
+	row db.ListArticlesRow,
+	loc string,
+	staben nollning.StabenView,
+) ArticleSummary {
 	summary := ArticleSummary{
 		ID:                     dbutil.UUIDStr(row.ID),
 		Slug:                   row.Slug,
@@ -82,6 +92,11 @@ func toArticleSummary(row db.ListArticlesRow, loc string) ArticleSummary {
 			ShortName: dbutil.TextPtr(row.CommitteeShortName),
 			SymbolURL: dbutil.TextPtr(row.CommitteeSymbolUrl),
 		}
+	}
+
+	if summary.Author.Type != AuthorTypeCustom &&
+		staben.HidesMember(summary.Author.Member.ID, row.AuthorIsStaben) {
+		summary.Author = ArticleAuthor{Type: summary.Author.Type, Member: Member{}}
 	}
 
 	return summary

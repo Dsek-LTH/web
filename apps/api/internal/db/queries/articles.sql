@@ -20,7 +20,20 @@ SELECT
     ca.id AS custom_author_id, ca.name_sv AS custom_author_name_sv,
     ca.name_en AS custom_author_name_en, ca.image_url AS custom_author_image_url,
     COALESCE(cm.n, 0)::int AS comment_count,
-    COALESCE(lk.n, 0)::int AS like_count
+    COALESCE(lk.n, 0)::int AS like_count,
+    -- Posted as a staben mandate (nollning.StabenPositionPrefix), or by a
+    -- member in staben today: articles.Service hides the byline from
+    -- callers who may not see staben.
+    (
+        COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+        OR EXISTS (
+            SELECT 1 FROM mandates sm
+            WHERE sm.member_id = au.member_id
+              AND sm.position_id LIKE 'dsek.noll.stab.%'
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+        )
+    )::bool AS author_is_staben
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
@@ -53,6 +66,24 @@ WHERE a.published_datetime IS NOT NULL
   )
   AND (sqlc.narg('committee_id')::uuid IS NULL OR a.committee_id = sqlc.narg('committee_id')::uuid)
   AND (sqlc.narg('author_student_id')::text IS NULL OR m.student_id = sqlc.narg('author_student_id')::text)
+  -- A staben byline the caller may not see doesn't count as the member's
+  -- (see author_is_staben above): their profile doesn't list it.
+  AND (
+    sqlc.narg('author_student_id')::text IS NULL
+    OR NOT sqlc.arg('hide_staben')::bool
+    OR au.custom_id IS NOT NULL
+    OR au.member_id = sqlc.narg('viewer_member_id')::uuid
+    OR NOT (
+          COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+          OR EXISTS (
+              SELECT 1 FROM mandates sm
+              WHERE sm.member_id = au.member_id
+                AND sm.position_id LIKE 'dsek.noll.stab.%'
+                AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+                AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+          )
+      )
+  )
   AND (
     sqlc.narg('nollning_season_id')::uuid IS NULL
     OR a.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
@@ -71,6 +102,7 @@ LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 SELECT count(*) FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
+LEFT JOIN mandates mn ON mn.id = au.mandate_id
 WHERE a.published_datetime IS NOT NULL
   AND a.published_datetime <= now()
   AND (a.removed_at IS NULL OR a.removed_at > now())
@@ -90,6 +122,24 @@ WHERE a.published_datetime IS NOT NULL
   )
   AND (sqlc.narg('committee_id')::uuid IS NULL OR a.committee_id = sqlc.narg('committee_id')::uuid)
   AND (sqlc.narg('author_student_id')::text IS NULL OR m.student_id = sqlc.narg('author_student_id')::text)
+  -- A staben byline the caller may not see doesn't count as the member's
+  -- (see author_is_staben above): their profile doesn't list it.
+  AND (
+    sqlc.narg('author_student_id')::text IS NULL
+    OR NOT sqlc.arg('hide_staben')::bool
+    OR au.custom_id IS NOT NULL
+    OR au.member_id = sqlc.narg('viewer_member_id')::uuid
+    OR NOT (
+          COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+          OR EXISTS (
+              SELECT 1 FROM mandates sm
+              WHERE sm.member_id = au.member_id
+                AND sm.position_id LIKE 'dsek.noll.stab.%'
+                AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+                AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+          )
+      )
+  )
   AND (
     sqlc.narg('nollning_season_id')::uuid IS NULL
     OR a.nollning_season_id = sqlc.narg('nollning_season_id')::uuid
@@ -120,7 +170,20 @@ SELECT
     ca.id AS custom_author_id, ca.name_sv AS custom_author_name_sv,
     ca.name_en AS custom_author_name_en, ca.image_url AS custom_author_image_url,
     COALESCE(cm.n, 0)::int AS comment_count,
-    COALESCE(lk.n, 0)::int AS like_count
+    COALESCE(lk.n, 0)::int AS like_count,
+    -- Posted as a staben mandate (nollning.StabenPositionPrefix), or by a
+    -- member in staben today: articles.Service hides the byline from
+    -- callers who may not see staben.
+    (
+        COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+        OR EXISTS (
+            SELECT 1 FROM mandates sm
+            WHERE sm.member_id = au.member_id
+              AND sm.position_id LIKE 'dsek.noll.stab.%'
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+        )
+    )::bool AS author_is_staben
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
@@ -162,7 +225,20 @@ SELECT
     ca.id AS custom_author_id, ca.name_sv AS custom_author_name_sv,
     ca.name_en AS custom_author_name_en, ca.image_url AS custom_author_image_url,
     COALESCE(cm.n, 0)::int AS comment_count,
-    COALESCE(lk.n, 0)::int AS like_count
+    COALESCE(lk.n, 0)::int AS like_count,
+    -- Posted as a staben mandate (nollning.StabenPositionPrefix), or by a
+    -- member in staben today: articles.Service hides the byline from
+    -- callers who may not see staben.
+    (
+        COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+        OR EXISTS (
+            SELECT 1 FROM mandates sm
+            WHERE sm.member_id = au.member_id
+              AND sm.position_id LIKE 'dsek.noll.stab.%'
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+        )
+    )::bool AS author_is_staben
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id

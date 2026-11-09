@@ -91,7 +91,8 @@
     props.push(["og:type", "article"]);
     props.push(["og:title", article.header]);
     props.push(["og:description", article.body]);
-    props.push(["og:article:author", article.authorName]);
+    if (article.authorName)
+      props.push(["og:article:author", article.authorName]);
     if (article.publishedAt)
       props.push(["article:published_time", article.publishedAt.toISOString()]);
     if (article.updatedAt)

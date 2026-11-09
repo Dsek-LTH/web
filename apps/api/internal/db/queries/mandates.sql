@@ -59,7 +59,8 @@ DELETE FROM mandates WHERE id = $1;
 -- name: ListActiveMandatesForMember :many
 -- "Active" mirrors the old TS backend's author-options query: currently
 -- within the mandate's start/end date range. $1 is the member's student id.
-SELECT m.id, p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en
+SELECT m.id, p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
+       mem.id AS member_id
 FROM mandates m
 JOIN positions p ON p.id = m.position_id
 JOIN members mem ON mem.id = m.member_id

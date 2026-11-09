@@ -20,7 +20,13 @@
       publishedAt: article.publishedAt ? new Date(article.publishedAt) : null,
       updatedAt: article.updatedAt ? new Date(article.updatedAt) : null,
       imageUrl: article.imageUrl ?? null,
-      authorName: `${article.author.member.firstName} ${article.author.member.lastName}`,
+      // A custom byline's name; otherwise the member's, which is blank
+      // for a staben byline hidden during nollning.
+      authorName:
+        article.author.customAuthor?.name ??
+        [article.author.member.firstName, article.author.member.lastName]
+          .filter(Boolean)
+          .join(" "),
     },
   }}
 />

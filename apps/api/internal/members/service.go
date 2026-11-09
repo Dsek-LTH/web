@@ -18,6 +18,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
+	"github.com/dsek-lth/web/apps/api/internal/nollning"
 	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/storage"
 )
@@ -136,7 +137,10 @@ func (s *Service) listBirthdays(
 // Profile fetches a member's full profile, including mandate history.
 // Email is only resolved if the caller is viewing their own profile or
 // holds MemberSeeEmail, and the food preference for themselves or
-// MemberUpdate - matching the old TS behavior exactly.
+// MemberUpdate - matching the old TS behavior exactly. During a nollning
+// season, a caller without member:see_staben gets neither the member's
+// staben mandates nor, while they are in staben, their email (see
+// nollning.StabenView).
 func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile, error) {
 	identity, err := requireMember(ctx)
 	if err != nil {
@@ -156,8 +160,17 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 		return nil, fmt.Errorf("list mandates: %w", err)
 	}
 	loc := locale.FromContext(ctx)
-	mandates := make([]Mandate, len(mandateRows))
-	for i, m := range mandateRows {
+	staben := nollning.StabenViewFor(ctx)
+	memberID := dbutil.UUIDStr(row.ID)
+	isStaben := false
+	mandates := make([]Mandate, 0, len(mandateRows))
+	for _, m := range mandateRows {
+		if nollning.IsCurrentStabenMandate(m.PositionID, m.StartDate.Time, m.EndDate.Time) {
+			isStaben = true
+		}
+		if staben.HidesMandate(m.PositionID, memberID) {
+			continue
+		}
 		var committee *apitypes.Committee
 		if m.CommitteeID.Valid {
 			committeeNameEn := dbutil.TextPtr(m.CommitteeNameEn)
@@ -178,7 +191,7 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 				ImageURL: dbutil.TextPtr(m.PhadderGroupImageUrl),
 			}
 		}
-		mandates[i] = Mandate{
+		mandates = append(mandates, Mandate{
 			PhadderIn: phadderIn,
 			ID:        dbutil.UUIDStr(m.ID),
 			StartDate: dbutil.DatePtr(m.StartDate),
@@ -195,11 +208,11 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 				CommitteeID: dbutil.UUIDStrPtr(m.CommitteeID),
 				Committee:   committee,
 			},
-		}
+		})
 	}
 
 	member := MemberProfile{
-		ID:             dbutil.UUIDStr(row.ID),
+		ID:             memberID,
 		StudentID:      dbutil.TextPtr(row.StudentID),
 		FirstName:      dbutil.TextPtr(row.FirstName),
 		Nickname:       dbutil.TextPtr(row.Nickname),
@@ -214,7 +227,8 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 		Mandates:       mandates,
 	}
 
-	if identity.StudentID == studentID || identity.Has(apinames.MemberSeeEmail) {
+	if (identity.StudentID == studentID || identity.Has(apinames.MemberSeeEmail)) &&
+		!staben.HidesMember(memberID, isStaben) {
 		member.Email = dbutil.TextPtr(row.Email)
 	}
 	// Food preferences (allergies) were only readable by the member
