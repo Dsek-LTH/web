@@ -8,7 +8,6 @@ import { redirect } from "@sveltejs/kit";
 import { slugifyWithYear, findAvailableSlug } from "$lib/utils/slugify";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { randomUUID } from "node:crypto";
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -20,9 +19,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
-    console.log("Received album upload request");
     const { user, prisma } = locals;
-    authorize(apiNames.GALLERY.CREATE, user);
 
     const rawFormData = await request.formData();
 
@@ -37,7 +34,6 @@ export const actions: Actions = {
     const slug = await findAvailableSlug(baseSlug, async (candidate) =>
       Boolean(await prisma.album.findFirst({ where: { slug: candidate } })),
     );
-    console.log("Generated slug:", slug);
     const albumId = randomUUID();
 
     if (!form.valid) return fail(400, withFiles({ form }));
@@ -58,33 +54,20 @@ export const actions: Actions = {
       );
     }
 
-    console.log(
-      "Preparing photographer coonnections for database insertion: ",
-      photographers,
-    );
     const photographerConnect = photographers
       .filter((p) => p?.studentId != null)
       .map((p) => ({ studentId: p.studentId! }));
-    console.log("Photographer connections prepared: ", photographerConnect);
-    console.log(
-      "Preparing editor connections for database insertion: ",
-      editors,
-    );
+
     const editorConnect = editors
       .filter((e) => e?.studentId != null)
       .map((e) => ({ studentId: e.studentId! }));
-    console.log("Editor connections prepared: ", editorConnect);
 
     // Verify photographers and editors exist before connecting
     let validPhotographers: Array<{ studentId: string }> = [];
     let validEditors: Array<{ studentId: string }> = [];
 
-    console.log(
-      "Verifying photographers exist in database: ",
-      photographerConnect,
-    );
     if (photographerConnect.length > 0) {
-      const existingPhotographers = await locals.prisma.member.findMany({
+      const existingPhotographers = await prisma.member.findMany({
         where: {
           studentId: { in: photographerConnect.map((p) => p.studentId) },
         },
@@ -97,11 +80,9 @@ export const actions: Actions = {
         existingIds.has(p.studentId),
       );
     }
-    console.log("Valid photographers after verification: ", validPhotographers);
 
-    console.log("Verifying editors exist in database: ", editorConnect);
     if (editorConnect.length > 0) {
-      const existingEditors = await locals.prisma.member.findMany({
+      const existingEditors = await prisma.member.findMany({
         where: {
           studentId: { in: editorConnect.map((e) => e.studentId) },
         },
@@ -110,12 +91,9 @@ export const actions: Actions = {
       const existingIds = new Set(existingEditors.map((e) => e.studentId));
       validEditors = editorConnect.filter((e) => existingIds.has(e.studentId));
     }
-    console.log("Valid editors after verification: ", validEditors);
 
-    let result: { id: string };
     try {
-      console.log("Creating album in database with title:", title);
-      result = await authorizedPrismaClient.album.create({
+      await prisma.album.create({
         data: {
           id: albumId,
           title,
@@ -133,7 +111,6 @@ export const actions: Actions = {
         },
         select: { id: true },
       });
-      console.log("Album created in database with ID:", result.id);
     } catch (e) {
       console.error("Error creating album in database:", e);
       return message(
@@ -146,8 +123,6 @@ export const actions: Actions = {
       );
     }
 
-    console.log("Album created with ID:", result.id);
-    console.log("Redirecting to album page with slug:", slug);
     redirect(303, "/gallery/album/" + slug);
   },
 };

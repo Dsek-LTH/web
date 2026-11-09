@@ -61,7 +61,7 @@
       </Dialog.Trigger>
     {/each}
   </div>
-  <Dialog.Content class="w-fit !max-w-[90vw]">
+  <Dialog.Content class="w-fit max-w-[90vw]!">
     <div class="flex flex-col items-center justify-center">
       <img
         src={selectedModalUrl}

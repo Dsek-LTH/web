@@ -4,11 +4,11 @@
   import ImageIcon from "@lucide/svelte/icons/image";
   import type { AlbumSchema } from "./schema";
 
-  let { album, class: clazz = "" }: { album: AlbumSchema; class?: string } =
+  let { album, class: klass = "" }: { album: AlbumSchema; class?: string } =
     $props();
 </script>
 
-<a href={`/gallery/album/${album.slug}`} class={clazz}>
+<a href={`/gallery/album/${album.slug}`} class={klass}>
   <Card.Root
     class="group gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md"
   >
@@ -28,7 +28,7 @@
         </div>
       {/if}
       <div
-        class="bg-background/70 absolute inset-0 flex items-center justify-center opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+        class="bg-background/40 absolute inset-0 flex items-center justify-center opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
       >
         <span class="font-medium">{m.gallery_show_pictures()}</span>
       </div>

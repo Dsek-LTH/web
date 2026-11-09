@@ -1149,6 +1149,7 @@
   "gallery_downloading": "Downloading...",
   "gallery_album_deleted": "Album deleted",
   "gallery_errors_invalidDate": "Invalid date",
+  "gallery_album_shortDescription": "Short description of the album",
   "positions_removeMandate": "Remove mandate",
   "positions": "Positions",
   "positions_active": "Active",

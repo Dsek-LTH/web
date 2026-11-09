@@ -1,6 +1,5 @@
 import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
 import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
-import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 import { findAvailableSlug, slugifyWithYear } from "$lib/utils/slugify";
@@ -13,9 +12,11 @@ import { editSchema } from "../types";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  authorize(apiNames.GALLERY.UPDATE, locals.user);
+  const { prisma, user } = locals;
 
-  const album = await locals.prisma.album.findFirst({
+  authorize(apiNames.GALLERY.UPDATE, user);
+
+  const album = await prisma.album.findFirst({
     where: { slug: params.slug },
     include: {
       photographers: true,
@@ -35,8 +36,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         title: album.title,
         date: album.date,
         description: album.description ?? undefined,
-        photographers: album.photographers.map(({ id, ...member }) => member),
-        editors: album.editors.map(({ id, ...member }) => member),
+        photographers: album.photographers.map(({ ...member }) => member),
+        editors: album.editors.map(({ ...member }) => member),
       },
       zod4(editSchema),
     ),
@@ -46,7 +47,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
   save: async (event) => {
     const { request, locals, params } = event;
-    authorize(apiNames.GALLERY.UPDATE, locals.user);
+    const { prisma } = locals;
 
     const form = await superValidate(
       await request.formData(),
@@ -58,7 +59,7 @@ export const actions: Actions = {
     }
 
     const { title, date, description, photographers, editors } = form.data;
-    const album = await locals.prisma.album.findFirst({
+    const album = await prisma.album.findFirst({
       where: { slug: params.slug },
       select: { id: true },
     });
@@ -70,7 +71,7 @@ export const actions: Actions = {
     const baseSlug = slugifyWithYear(title, new Date(date).getFullYear());
     const newSlug = await findAvailableSlug(baseSlug, async (candidate) =>
       Boolean(
-        await locals.prisma.album.findFirst({
+        await prisma.album.findFirst({
           where: { slug: candidate, id: { not: album.id } },
         }),
       ),
@@ -84,13 +85,13 @@ export const actions: Actions = {
     );
 
     const [existingPhotographers, existingEditors] = await Promise.all([
-      locals.prisma.member.findMany({
+      prisma.member.findMany({
         where: {
           studentId: { in: photographerStudentIds },
         },
         select: { id: true },
       }),
-      locals.prisma.member.findMany({
+      prisma.member.findMany({
         where: {
           studentId: { in: editorStudentIds },
         },
@@ -98,7 +99,7 @@ export const actions: Actions = {
       }),
     ]);
 
-    await authorizedPrismaClient.album.update({
+    await prisma.album.update({
       where: { id: album.id },
       data: {
         title,
@@ -120,9 +121,10 @@ export const actions: Actions = {
 
   delete: async (event) => {
     const { locals, params } = event;
-    authorize(apiNames.GALLERY.DELETE, locals.user);
+    const { prisma, user } = locals;
+    authorize(apiNames.GALLERY.DELETE, user);
 
-    const album = await locals.prisma.album.findFirst({
+    const album = await prisma.album.findFirst({
       where: { slug: params.slug },
       select: { id: true },
     });
@@ -133,12 +135,12 @@ export const actions: Actions = {
 
     // Remove files from MinIO before deleting the album record
     // to avoid orphaned objects if the deletion fails
-    await removeFilesWithoutAccessCheck(locals.user, PUBLIC_BUCKETS_ALBUMS, [
+    await removeFilesWithoutAccessCheck(user, PUBLIC_BUCKETS_ALBUMS, [
       `public/${album.id}/album/`,
       `public/${album.id}/cover/`,
     ]);
 
-    await authorizedPrismaClient.album.delete({
+    await prisma.album.delete({
       where: { id: album.id },
     });
 

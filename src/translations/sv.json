@@ -1149,6 +1149,7 @@
   "gallery_downloading": "Laddar ner...",
   "gallery_album_deleted": "Albumet borttaget",
   "gallery_errors_invalidDate": "Ogiltigt datum",
+  "gallery_album_shortDescription": "Kort beskrivning av albumet",
   "positions_removeMandate": "Ta bort mandat",
   "positions": "Poster",
   "positions_active": "Aktiv",
