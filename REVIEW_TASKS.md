@@ -522,9 +522,11 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       season.
 - [ ] T57 `/nollning/events` lists season events before reveal and computes
       week boundaries in the runtime's timezone.
-- [ ] T58 The nolla notification feed lost purchase notification types
+- [x] T58 The nolla notification feed lost purchase notification types
       (`queries/notifications.sql`): check which types tickets now send and
       include them.
+      Won't fix: only the removed webshop sent the purchase types; the old
+      ticket-service and the Go tickets domain send no notifications.
 - [x] T59 Booking review queue runs ~6 queries per pending request
       (`booking.Service.ReviewQueue`).
 - [x] T60 Cafe shifts created by the old app may be stored at 22:00/23:00
