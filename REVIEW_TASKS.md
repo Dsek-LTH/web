@@ -321,7 +321,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `isoWeekYear(year).isoWeek(week)` and navigate with `isoWeek()` /
   `isoWeekYear()`, sending `year`.
 
-### [ ] T20 Scheduled articles can't be found
+### [x] T20 Scheduled articles can't be found
 
 - New: no endpoint lists unpublished articles and `/news` lost the
   "Scheduled news" section (`main:src/routes/(app)/news/+page.server.ts`

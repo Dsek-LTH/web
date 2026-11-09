@@ -181,6 +181,10 @@ type ListParams struct {
 	// IncludeNollning lists nollning season content too, which is left out
 	// unless NollningSeasonID picks a season.
 	IncludeNollning bool
+	// OnlyUnpublished lists scheduled articles (publishedAt in the future)
+	// instead of published ones: the caller's own, or everyone's with
+	// news:article:update. Nothing for an anonymous caller.
+	OnlyUnpublished bool
 	Page            int
 	PageSize        int
 }

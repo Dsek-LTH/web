@@ -336,6 +336,7 @@ type Querier interface {
 	// author (member / mandate+position / custom author) + comment & like
 	// counts. Duplicated across ListArticles/GetArticleBySlug/GetArticleRowBySlug
 	// because sqlc has no macro/fragment support.
+	// Scheduled articles soonest first, published ones newest first.
 	ListArticles(ctx context.Context, arg ListArticlesParams) ([]ListArticlesRow, error)
 	// Same visibility rule as the public article list (published, not
 	// scheduled for later, not removed).

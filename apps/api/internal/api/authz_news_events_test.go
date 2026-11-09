@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"slices"
 	"testing"
 	"time"
 
@@ -90,6 +91,40 @@ func TestArticleAccess(t *testing.T) {
 		{e.as(2), http.MethodGet, draft + "?includeUnpublished=true", nil, hiddenOutcome()},
 		{e.as(1), http.MethodGet, draft + "?includeUnpublished=true", nil, ok},
 	})
+
+	// The scheduled list shows it to its author and news:article:update,
+	// not to other members or anonymous callers.
+	scheduled := func(c caller) []string {
+		t.Helper()
+		var list struct {
+			Articles []struct {
+				Header string `json:"header"`
+			} `json:"articles"`
+		}
+		e.mustCall(t, c, http.MethodGet, "/articles?onlyUnpublished=true&pageSize=100", nil).
+			decode(t, &list)
+		headers := make([]string, len(list.Articles))
+		for i, a := range list.Articles {
+			headers[i] = a.Header
+		}
+		return headers
+	}
+	for _, c := range []struct {
+		as   caller
+		want bool
+	}{
+		{anonymous, false},
+		{e.as(2), false},
+		{e.as(1), true},
+		{e.as(2, apinames.NewsArticleUpdate), true},
+	} {
+		if got := slices.Contains(scheduled(c.as), "Authz draft"); got != c.want {
+			t.Errorf("scheduled list as %s: has the draft = %v, want %v", c.as.label, got, c.want)
+		}
+	}
+	if slices.Contains(scheduled(e.as(1)), "Authz article") {
+		t.Error("scheduled list includes a published (deleted) article")
+	}
 
 	// Images for articles and events, and tags.
 	image := form{files: map[string][]formFile{"file": {pngFile}}}
