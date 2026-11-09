@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 
@@ -25,6 +26,23 @@ func NewRealNotifier(svc *Service) *RealNotifier {
 }
 
 var _ integrations.Notifier = (*RealNotifier)(nil)
+
+// stockholm is the time zone booking times are written in, like the old
+// app's toAppTime: they're stored and passed around in UTC.
+var stockholm = mustLoadLocation("Europe/Stockholm")
+
+func mustLoadLocation(name string) *time.Location {
+	loc, err := time.LoadLocation(name)
+	if err != nil {
+		panic(err)
+	}
+	return loc
+}
+
+// bookingTime formats t as the old app's "DD/MM HH:mm" in Swedish time.
+func bookingTime(t time.Time) string {
+	return t.In(stockholm).Format("02/01 15:04")
+}
 
 // NotifyNewArticle mirrors sendNewArticleNotification.
 func (n *RealNotifier) NotifyNewArticle(
@@ -111,7 +129,7 @@ func (n *RealNotifier) NotifyNewBookingRequest(
 		Message: fmt.Sprintf(
 			"%s wants to book '%s' from %s until %s.",
 			requesterName, strings.Join(b.BookableNames, ", "),
-			b.Start.Format("02/01 15:04"), b.End.Format("02/01 15:04"),
+			bookingTime(b.Start), bookingTime(b.End),
 		),
 		Type:      TypeBookingRequest,
 		Link:      "/bookings/admin/" + b.BookingRequestID,
@@ -119,18 +137,25 @@ func (n *RealNotifier) NotifyNewBookingRequest(
 	})
 }
 
-// NotifyBookingRequestStatus mirrors performAction's sendNotification call.
+// NotifyBookingRequestStatus mirrors notifyBooker. The reviewing admin
+// (RequesterMemberID here) is the sender, so they're shown as such and
+// aren't notified when reviewing their own request.
 func (n *RealNotifier) NotifyBookingRequestStatus(
 	ctx context.Context,
 	b integrations.BookingRequestNotification,
 ) error {
-	return n.svc.Send(ctx, SendParams{
+	params := SendParams{
 		Title:     fmt.Sprintf("Booking request %s", b.Status),
 		Message:   fmt.Sprintf("Your booking request for %s has been %s", b.Event, b.Status),
 		Type:      TypeBookingRequest,
 		Link:      "/bookings",
 		MemberIDs: []string{b.RecipientMemberID},
-	})
+	}
+	if b.RequesterMemberID != "" {
+		fromMemberID := b.RequesterMemberID
+		params.FromMemberID = &fromMemberID
+	}
+	return n.svc.Send(ctx, params)
 }
 
 // NotifyEventGoing mirrors interestedGoing.ts's isGoing branch.
