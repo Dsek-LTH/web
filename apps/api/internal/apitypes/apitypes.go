@@ -124,7 +124,7 @@ type Position struct {
 	EmailAliases []string `json:"emailAliases,omitempty" doc:"Email aliases that forward to the holders. Only set on detail responses."`
 	// Committee is only populated where a consumer needs to render/link a
 	// position's committee without a second request (e.g. a member's
-	// mandate history) - nil elsewhere (CommitteeID alone is enough when
+	// mandate history, GET /positions) - nil elsewhere (CommitteeID alone is enough when
 	// the position is already being shown in the context of its own
 	// committee, e.g. GET /committees/{shortName}).
 	Committee *Committee `json:"committee,omitempty" doc:"Only set where the committee isn't otherwise known, e.g. a member's mandate history."`

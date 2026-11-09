@@ -301,7 +301,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   exempt). Check the e2e tests and `make dev` still work (frontend on
   another origin in dev too).
 
-### [ ] T18 `/positions` lists everything under "No committee"
+### [x] T18 `/positions` lists everything under "No committee"
 
 - New: `GET /positions` (`committees.Service.ListPositions`,
   `queries/positions.sql`) doesn't return the committee;
