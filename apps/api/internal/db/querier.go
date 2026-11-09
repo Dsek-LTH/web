@@ -225,6 +225,10 @@ type Querier interface {
 	// synthesizes itself (e.g. "X har gillat din nyhet") - mirrors getFullName's
 	// inputs exactly (fullName in service.go is the Go port of getFullName).
 	GetMemberNameForNotification(ctx context.Context, id pgtype.UUID) (GetMemberNameForNotificationRow, error)
+	// The phadder group the member was a nolla in, whatever season - the
+	// profile's permanent "nolla in" record (members.nollning_group_id is
+	// never cleared after a season).
+	GetMemberNollaGroup(ctx context.Context, memberID pgtype.UUID) (GetMemberNollaGroupRow, error)
 	// Backs PhadderRoleFor's "nolla" branch: the member's nolla group, only if
 	// it belongs to the season of the given year (members.nollning_group_id
 	// is never cleared after a season, so last year's nollor still have one).

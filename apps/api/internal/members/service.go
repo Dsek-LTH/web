@@ -214,6 +214,19 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 		Mandates:       mandates,
 	}
 
+	nollaGroup, err := s.queries.GetMemberNollaGroup(ctx, row.ID)
+	switch {
+	case err == nil:
+		member.NollaIn = &MemberNollaGroup{
+			ID:       dbutil.UUIDStr(nollaGroup.ID),
+			Name:     nollaGroup.Name,
+			ImageURL: dbutil.TextPtr(nollaGroup.ImageUrl),
+			Year:     nollaGroup.Year,
+		}
+	case !errors.Is(err, pgx.ErrNoRows):
+		return nil, fmt.Errorf("get nolla group: %w", err)
+	}
+
 	if identity.StudentID == studentID || identity.Has(apinames.MemberSeeEmail) {
 		member.Email = dbutil.TextPtr(row.Email)
 	}

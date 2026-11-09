@@ -3,7 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/dsek-lth/web/apps/api/internal/nollning"
 )
@@ -99,4 +101,57 @@ func TestPhadderRoleOnlyCountsTheCurrentSeason(t *testing.T) {
 	mandate(currentGroup, date(year, "-01-01"), date(year, "-12-31"))
 	mandate(otherCurrentGroup, date(year, "-08-01"), date(year, "-12-31"))
 	expect(phadder, nollning.PhadderRolePhadder, otherCurrentGroup)
+}
+
+// TestProfileShowsAPastNollaGroup checks that a member's profile keeps the
+// group they were a nolla in after its season, for any signed-in viewer
+// (the phadder role above only covers the current season).
+func TestProfileShowsAPastNollaGroup(t *testing.T) {
+	e := requireDB(t)
+	ctx := context.Background()
+	year := time.Now().Year() - 20
+	seasonID := e.one(t, `INSERT INTO nollning_seasons (year, nolla_start_at, reveal_at, end_at)
+		VALUES ($1, make_date($1, 8, 18), make_date($1, 8, 25), make_date($1, 10, 1))
+		RETURNING id::text`, year)
+	groupID := e.one(t, `INSERT INTO phadder_groups (name, season_id)
+		VALUES ('Old nolla group', $1) RETURNING id::text`, seasonID)
+	nolla := e.members[3]
+	if _, err := e.pool.Exec(ctx, `UPDATE members SET nollning_group_id = $2 WHERE id = $1`,
+		nolla.ID, groupID); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_, _ = e.pool.Exec(
+			ctx,
+			`UPDATE members SET nollning_group_id = NULL WHERE id = $1`,
+			nolla.ID,
+		)
+		_, _ = e.pool.Exec(ctx, `DELETE FROM phadder_groups WHERE id = $1`, groupID)
+		_, _ = e.pool.Exec(ctx, `DELETE FROM nollning_seasons WHERE id = $1`, seasonID)
+	})
+
+	path := "/members/" + nolla.StudentID
+	e.check(t, []accessCase{{anonymous, http.MethodGet, path, nil, denied}})
+	for _, c := range []caller{e.as(1), e.as(3)} {
+		var profile struct {
+			NollaIn *struct {
+				ID   string `json:"id"`
+				Name string `json:"name"`
+				Year int    `json:"year"`
+			} `json:"nollaIn"`
+		}
+		e.mustCall(t, c, http.MethodGet, path, nil).decode(t, &profile)
+		if profile.NollaIn == nil || profile.NollaIn.ID != groupID ||
+			profile.NollaIn.Name != "Old nolla group" || profile.NollaIn.Year != year {
+			t.Errorf("GET %s as %s: nollaIn %+v, want group %s of %d",
+				path, c.label, profile.NollaIn, groupID, year)
+		}
+	}
+
+	var other map[string]any
+	e.mustCall(t, e.as(3), http.MethodGet, "/members/"+e.members[1].StudentID, nil).
+		decode(t, &other)
+	if _, has := other["nollaIn"]; has {
+		t.Errorf("nollaIn on a member who was never a nolla: %v", other["nollaIn"])
+	}
 }

@@ -24,9 +24,7 @@ export const load: PageServerLoad = async (event) => {
     memberRes,
     publishedArticlesResult,
     phadderGroupsResult,
-    phadderRoleResult,
     currentNollningResult,
-    seasonsResult,
     medalsResult,
   ] = await Promise.allSettled([
     api.GET("/members/{studentId}", {
@@ -50,11 +48,7 @@ export const load: PageServerLoad = async (event) => {
           ) ?? [],
       ),
     api.GET("/nollning/phadder-groups", {}),
-    api.GET("/members/{studentId}/phadder-role", {
-      params: { path: { studentId } },
-    }),
     api.GET("/nollning/current", {}),
-    api.GET("/nollning/seasons", {}),
     api.GET("/members/{studentId}/medals", {
       params: { path: { studentId } },
     }),
@@ -75,15 +69,11 @@ export const load: PageServerLoad = async (event) => {
     phadderGroupsResult.value.error
   )
     throw error(500, "Failed to fetch phadder groups");
-  if (phadderRoleResult.status === "rejected" || phadderRoleResult.value.error)
-    throw error(500, "Failed to fetch phadder role");
   if (
     currentNollningResult.status === "rejected" ||
     currentNollningResult.value.error
   )
     throw error(500, "Failed to fetch current nollning season");
-  if (seasonsResult.status === "rejected" || seasonsResult.value.error)
-    throw error(500, "Failed to fetch nollning seasons");
   if (medalsResult.status === "rejected" || medalsResult.value.error)
     throw error(500, "Failed to fetch medals");
 
@@ -91,25 +81,9 @@ export const load: PageServerLoad = async (event) => {
   if (!profile) throw error(404, m.members_errors_memberNotFound());
 
   const phadderGroups = phadderGroupsResult.value.data ?? [];
-  const seasons = seasonsResult.value.data ?? [];
-  const phadderRole = phadderRoleResult.value.data;
-  const nollaGroupId =
-    phadderRole?.role === "nolla" ? (phadderRole.groupId ?? null) : null;
-  // The full display object the profile page needs ({name, imageUrl,
-  // year}), not just the bare id - the old Prisma shape (member.nollaIn as
-  // the PhadderGroup relation object) is reconstructed from the already-
-  // fetched groups/seasons lists rather than a third round-trip.
-  const nollaGroup = phadderGroups.find((g) => g.id === nollaGroupId);
-  const nollaSeason = seasons.find((s) => s.id === nollaGroup?.seasonId);
-  const nollaIn =
-    nollaGroup && nollaSeason
-      ? {
-          id: nollaGroup.id,
-          name: nollaGroup.name,
-          imageUrl: nollaGroup.imageUrl ?? null,
-          year: nollaSeason.year,
-        }
-      : null;
+  // The group the member was a nolla in, in any season - a permanent
+  // part of their profile, unlike the current-season phadder role.
+  const nollaIn = profile.nollaIn ?? null;
 
   const birthday = profile.birthDate
     ? formatBirthday(new Date(profile.birthDate), getLocale())
@@ -147,7 +121,7 @@ export const load: PageServerLoad = async (event) => {
     return {
       form: await superValidate(member, zod4(memberSchema)),
       phadderGroupForm: await superValidate(
-        { classYear: member.classYear, nollningGroupId: nollaGroupId },
+        { classYear: member.classYear, nollningGroupId: nollaIn?.id ?? null },
         zod4(phadderGroupSchema),
       ),
       viewedMember: member, // https://github.com/Dsek-LTH/web/issues/194
