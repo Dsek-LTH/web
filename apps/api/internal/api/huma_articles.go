@@ -223,7 +223,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Path:          "/articles/{slug}/comments",
 		Tags:          tags,
 		Summary:       "Comment on an article",
-		Description:   "As the signed-in member. Needs news:article:comment. Mentioned members are notified.",
+		Description:   "As the signed-in member. Needs news:article:comment.",
 		DefaultStatus: http.StatusCreated,
 	}, func(ctx context.Context, input *struct {
 		Slug string `path:"slug"`

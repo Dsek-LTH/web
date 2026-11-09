@@ -323,7 +323,7 @@ export interface paths {
     put?: never;
     /**
      * Comment on an article
-     * @description As the signed-in member. Needs news:article:comment. Mentioned members are notified.
+     * @description As the signed-in member. Needs news:article:comment.
      */
     post: operations["create-article-comment"];
     delete?: never;
@@ -1043,7 +1043,7 @@ export interface paths {
     put?: never;
     /**
      * Comment on an event
-     * @description As the signed-in member. Needs event:comment. Mentioned members are notified.
+     * @description As the signed-in member. Needs event:comment.
      */
     post: operations["create-event-comment"];
     delete?: never;
@@ -2444,7 +2444,7 @@ export interface paths {
     post: operations["request-ticket"];
     /**
      * Cancel your ticket request
-     * @description Withdraws the signed-in member's request, offer, ticket or waitlist spot.
+     * @description Withdraws the signed-in member's request, offer or waitlist spot. An accepted ticket can't be cancelled (404).
      */
     delete: operations["cancel-ticket-request"];
     options?: never;
@@ -2592,7 +2592,7 @@ export interface components {
       /** @description Only on create/update: the article was saved, but its notification or Discord post failed. */
       announcementFailed?: boolean;
       author: components["schemas"]["ArticleAuthor"];
-      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Markdown (any HTML in it sanitized on save). */
       body: string;
       bodyEn?: string;
       bodySv: string;
@@ -2663,7 +2663,7 @@ export interface components {
       notificationText: string | null;
       /**
        * Format: date-time
-       * @description When it goes live. Unset keeps it a draft; omitting it on update un-publishes it.
+       * @description When it goes live. Omitted on create, it goes live now; omitted on update, it's un-published.
        */
       publishedAt: string | null;
       /** @description Notify subscribers when it goes live. */
@@ -2720,7 +2720,7 @@ export interface components {
     ArticleStatus: "draft" | "approved" | "rejected";
     ArticleSummary: {
       author: components["schemas"]["ArticleAuthor"];
-      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Markdown (any HTML in it sanitized on save). */
       body: string;
       bodyEn?: string;
       bodySv: string;
@@ -3770,7 +3770,7 @@ export interface components {
       offerExpiresAt?: string;
       /**
        * Format: int64
-       * @description Place on the waitlist, from 1.
+       * @description Place on the waitlist, from 0 (the next in line).
        */
       queuePosition?: number;
       releaseId: string;
@@ -4292,7 +4292,7 @@ export interface components {
       offerExpiresAt?: string;
       /**
        * Format: int64
-       * @description Place on the waitlist, from 1.
+       * @description Place on the waitlist, from 0 (the next in line).
        */
       queuePosition?: number;
       /** @description granted: offered a ticket, to accept before offerExpiresAt. accepted: has a ticket. */

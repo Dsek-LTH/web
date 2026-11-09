@@ -90,7 +90,7 @@ func toTicketReleaseSummary(r tickets.Release, c tickets.Counts) TicketReleaseSu
 // TicketQueueEntry is a member's request in a release's queue.
 type TicketQueueEntry struct {
 	Status         TicketRequestStatus `json:"status"                   doc:"granted: offered a ticket, to accept before offerExpiresAt. accepted: has a ticket."`
-	QueuePosition  *int                `json:"queuePosition,omitempty"  doc:"Place on the waitlist, from 1."`
+	QueuePosition  *int                `json:"queuePosition,omitempty"  doc:"Place on the waitlist, from 0 (the next in line)."`
 	OfferExpiresAt *time.Time          `json:"offerExpiresAt,omitempty" doc:"When a granted offer lapses."`
 }
 
@@ -312,7 +312,7 @@ func registerTicketRoutes(api huma.API, svc *tickets.Service, scheduler *tickets
 		Path:          "/ticket-releases/{id}/request",
 		Tags:          tags,
 		Summary:       "Cancel your ticket request",
-		Description:   "Withdraws the signed-in member's request, offer, ticket or waitlist spot.",
+		Description:   "Withdraws the signed-in member's request, offer or waitlist spot. An accepted ticket can't be cancelled (404).",
 		DefaultStatus: http.StatusNoContent,
 	}, func(ctx context.Context, in *IDPath) (*struct{}, error) {
 		studentID, err := tickets.ActingStudentID(ctx)

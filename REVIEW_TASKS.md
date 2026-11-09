@@ -484,7 +484,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [ ] T43 Ticket roster: order by `requested_at` (old order) and build
       `member` whenever the join matched (`ListTicketRoster`,
       `admin/tickets/[releaseId]/loadRoster.ts`).
-- [ ] T44 API doc fixes: `TicketQueueEntry.QueuePosition` is 0-based;
+- [x] T44 API doc fixes: `TicketQueueEntry.QueuePosition` is 0-based;
       `cancel-ticket-request` doesn't cancel accepted tickets; comment
       operations don't notify mentions; `ArticleInput.PublishedAt` unset
       means now; `ArticleSummary.Body` is markdown.
