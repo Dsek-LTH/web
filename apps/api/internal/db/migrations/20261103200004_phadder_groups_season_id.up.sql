@@ -7,11 +7,12 @@ ALTER TABLE phadder_groups ADD COLUMN season_id UUID REFERENCES nollning_seasons
 -- Backfill: ensure a season exists for every year phadder_groups currently
 -- references (fallback dates match the previous migration's rule), then
 -- point each group at it.
-INSERT INTO nollning_seasons (year, nolla_start_at, reveal_at, end_at)
+INSERT INTO nollning_seasons (year, nolla_start_at, reveal_at, end_at, organizing_committee_id)
 SELECT DISTINCT g.year,
-       make_date(g.year, 8, 1)::timestamptz,
-       make_date(g.year, 8, 27)::timestamptz + interval '14 hours',
-       make_date(g.year, 10, 1)::timestamptz
+       (make_date(g.year, 8, 1) + time '00:00') AT TIME ZONE 'Europe/Stockholm',
+       (make_date(g.year, 8, 27) + time '14:00') AT TIME ZONE 'Europe/Stockholm',
+       (make_date(g.year, 10, 1) + time '00:00') AT TIME ZONE 'Europe/Stockholm',
+       (SELECT id FROM committees WHERE short_name = 'nollu')
 FROM phadder_groups g
 ON CONFLICT (year) DO NOTHING;
 

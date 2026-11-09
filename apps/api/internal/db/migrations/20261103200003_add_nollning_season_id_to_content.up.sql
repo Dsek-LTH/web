@@ -15,11 +15,14 @@ ALTER TABLE events ADD COLUMN nollning_season_id UUID REFERENCES nollning_season
 -- phadderMandateFilter's Aug 1 - Oct 1 window) - these are necessarily
 -- approximate for past years since the old data model never stored real
 -- season boundaries, only a tag-name convention.
-INSERT INTO nollning_seasons (year, nolla_start_at, reveal_at, end_at)
+-- The dates are Swedish time, and the season is nollu's, like a season
+-- created without a committee.
+INSERT INTO nollning_seasons (year, nolla_start_at, reveal_at, end_at, organizing_committee_id)
 SELECT DISTINCT y,
-       make_date(y, 8, 1)::timestamptz,
-       make_date(y, 8, 27)::timestamptz + interval '14 hours',
-       make_date(y, 10, 1)::timestamptz
+       (make_date(y, 8, 1) + time '00:00') AT TIME ZONE 'Europe/Stockholm',
+       (make_date(y, 8, 27) + time '14:00') AT TIME ZONE 'Europe/Stockholm',
+       (make_date(y, 10, 1) + time '00:00') AT TIME ZONE 'Europe/Stockholm',
+       (SELECT id FROM committees WHERE short_name = 'nollu')
 FROM (
     SELECT EXTRACT(YEAR FROM COALESCE(a.published_datetime, a.created_datetime))::int AS y
     FROM articles a

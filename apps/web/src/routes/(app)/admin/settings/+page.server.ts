@@ -11,10 +11,9 @@ import type { PageServerLoad } from "./$types";
 import { requirePolicy } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
-// The nollning period form edits the latest nollning season (Phase 2's
-// nollning_seasons, which replaced the old nollning_start/nollning_end
-// AdminSetting keys this form used to write): its start, reveal and end.
-// Saving with no season yet creates one for the start date's year.
+// The nollning seasons (which replaced the old nollning_start/nollning_end
+// AdminSetting keys): the current and coming ones to edit, the ended ones
+// behind a fold, and a form for a new one.
 //
 // admin:settings:read/update/delete (Go's apinames.AdminSettings*) are
 // enforced by Go itself now (internal/adminsettings) - no authorize() call
@@ -44,6 +43,7 @@ export const load: PageServerLoad = async (event) => {
       revealAt: toLocalInput(season.revealAt),
       endAt: toLocalInput(season.endAt),
       organizingCommitteeId: season.organizingCommitteeId ?? "",
+      ended: dayjs(season.endAt).isBefore(dayjs()),
     })),
     updateForm: await superValidate(zod4(updateSchema)),
   };

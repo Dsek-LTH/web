@@ -61,6 +61,7 @@ test("create and edit a nollning season", async ({ page }) => {
   // A year no seeded season uses.
   const year = 2090 + (Date.now() % 9);
   await page.goto("/admin/settings");
+  await page.getByRole("button", { name: "New season" }).click();
   const create = page.locator('form[action="?/saveSeason"]').first();
   await create.locator('input[name="year"]').fill(String(year));
   await create
@@ -68,12 +69,12 @@ test("create and edit a nollning season", async ({ page }) => {
     .fill(`${year}-08-20T10:00`);
   await create.locator('input[name="revealAt"]').fill(`${year}-08-27T14:00`);
   await create.locator('input[name="endAt"]').fill(`${year}-09-20T23:00`);
-  await create.getByRole("button").click();
+  await create.getByRole("button", { name: "Create season" }).click();
   await expect(page.getByText(`Nollning ${year} created`)).toBeVisible();
 
-  // Its own row, with the times as entered: seasons are newest first, and
-  // no other season is this late, so it's the one after the "new" form.
-  const row = page.locator('form[action="?/saveSeason"]').nth(1);
+  // The form closes, and the season is the first of the coming ones:
+  // seasons are newest first, and no other season is this late.
+  const row = page.locator('form[action="?/saveSeason"]').first();
   await expect(row.locator('input[name="year"]')).toHaveValue(String(year));
   await expect(row.locator('input[name="revealAt"]')).toHaveValue(
     `${year}-08-27T14:00`,
