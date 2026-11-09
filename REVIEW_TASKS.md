@@ -500,7 +500,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       document titles (`documents/DeleteFileForm.svelte`,
       `documents/requirements/+page.svelte`,
       `documents/governing/+page.svelte`): escape them.
-- [ ] T50 `javascript:` links in markdown render clickable
+- [x] T50 `javascript:` links in markdown render clickable
       (`MarkdownBody.svelte`, `{@html marked(body)}`): drop non-http(s),
       mailto and relative hrefs with a marked hook (pre-existing).
 - [x] T51 `accesspolicies.Service.Delete` and `alerts.Service.Delete` answer

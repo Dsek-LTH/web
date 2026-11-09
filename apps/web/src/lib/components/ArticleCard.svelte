@@ -2,6 +2,7 @@
   import type { ArticleCardData } from "$lib/news/types";
   import dayjs from "dayjs";
   import AuthorCard from "./AuthorCard.svelte";
+  import DOMPurify from "isomorphic-dompurify";
   import { Marked } from "marked";
   import type { Tokens } from "marked";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
@@ -122,8 +123,10 @@
     <div
       class="prose-p:text-foreground line-clamp-2 px-2 break-words overflow-ellipsis"
     >
-      <!-- eslint-disable-next-line svelte/no-at-html-tags this should already be sanitized -->
-      {@html previewMarked.parse(article.body)}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized right here -->
+      {@html DOMPurify.sanitize(
+        previewMarked.parse(article.body, { async: false }),
+      )}
     </div>
   </svelte:element>
   <div class="mt-auto flex flex-row items-center justify-between pt-2">
