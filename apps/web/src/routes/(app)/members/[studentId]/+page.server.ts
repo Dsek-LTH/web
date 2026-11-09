@@ -237,13 +237,20 @@ export const actions: Actions = {
       case "never":
         cookies.set("phadder_group_modal_never", "1", { path: "/" });
         break;
-      default:
-        await setNollningGroup(
+      default: {
+        const groupError = await setNollningGroup(
           serverApi(event),
           studentId,
-          form.data.nollningGroupId ?? null,
+          form.data.nollningGroupId,
         );
+        if (groupError)
+          return message(
+            form,
+            { message: groupError.message, type: "error" },
+            { status: groupError.status },
+          );
         break;
+      }
     }
 
     if (form.data.nollningGroupId !== null)
@@ -288,7 +295,13 @@ export const actions: Actions = {
         { status: res.response.status as NumericRange<400, 599> },
       );
 
-    await setNollningGroup(api, studentId, nollningGroupId ?? null);
+    const groupError = await setNollningGroup(api, studentId, nollningGroupId);
+    if (groupError)
+      return message(
+        form,
+        { message: groupError.message, type: "error" },
+        { status: groupError.status },
+      );
 
     return message(form, {
       message: m.members_memberUpdated(),

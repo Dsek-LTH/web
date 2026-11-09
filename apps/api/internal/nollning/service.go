@@ -485,6 +485,59 @@ func (s *Service) RemoveNolla(ctx context.Context, groupID, studentID string) er
 	return nil
 }
 
+// SetMemberGroup puts studentID in phadder group groupID, or takes them
+// out of whichever group they're in when groupID is nil or empty. The
+// member themselves may do this (the old Member model let a member update
+// their own nollningGroupId), as may NollningPhadderGroupsManage. Only
+// groups of the current season can be picked: last year's groups are
+// history, and outside a season there's nothing to join.
+func (s *Service) SetMemberGroup(ctx context.Context, studentID string, groupID *string) error {
+	identity, ok := auth.FromContext(ctx)
+	if !ok || identity.MemberID == "" {
+		return auth.ErrUnauthenticated
+	}
+	if identity.StudentID != studentID {
+		if err := auth.Require(ctx, apinames.NollningPhadderGroupsManage); err != nil {
+			return err
+		}
+	}
+	member, err := s.queries.GetMemberByStudentID(ctx, pgtype.Text{String: studentID, Valid: true})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("get member: %w", err)
+	}
+
+	var gID pgtype.UUID
+	if groupID != nil && *groupID != "" {
+		gID, err = dbutil.ParseUUID(*groupID)
+		if err != nil {
+			return invalidf("invalid group id: %v", err)
+		}
+		group, err := s.queries.GetPhadderGroup(ctx, gID)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return invalidf("phadder group not found")
+			}
+			return fmt.Errorf("get phadder group: %w", err)
+		}
+		season, err := s.Current(ctx)
+		if err != nil {
+			return err
+		}
+		if season == nil || dbutil.UUIDStr(group.SeasonID) != season.ID {
+			return invalidf("the phadder group isn't in the current nollning season")
+		}
+	}
+	if err := s.queries.SetMemberPhadderGroup(ctx, db.SetMemberPhadderGroupParams{
+		ID: member.ID, NollningGroupID: gID,
+	}); err != nil {
+		return fmt.Errorf("set phadder group: %w", err)
+	}
+	return nil
+}
+
 // AddPhaddrar/RemovePhadder set/clear mandates.phadderInId on the members'
 // phadder/uppdrag mandate(s), scoped to the group's season window (Decision
 // #5: this uses the season's real nolla_start_at/end_at instead of the old

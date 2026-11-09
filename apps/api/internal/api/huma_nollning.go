@@ -235,6 +235,25 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
+		OperationID:   "set-member-phadder-group",
+		Method:        http.MethodPut,
+		Path:          "/members/{studentId}/phadder-group",
+		Tags:          tags,
+		Summary:       "Set a member's phadder group",
+		Description:   "Puts the member in a phadder group of the current season as a nolla, or takes them out of their group when groupId is omitted; 422 for a group outside the current season. The member themselves, or nollning:phaddrar:groups:manage.",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, input *struct {
+		StudentIDPath
+		Body nollning.MemberPhadderGroupInput
+	},
+	) (*struct{}, error) {
+		if err := svc.SetMemberGroup(ctx, input.StudentID, input.Body.GroupID); err != nil {
+			return nil, humaServiceError(err)
+		}
+		return nil, nil
+	})
+
+	huma.Register(api, huma.Operation{
 		OperationID: "get-member-phadder-role",
 		Method:      http.MethodGet,
 		Path:        "/members/{studentId}/phadder-role",

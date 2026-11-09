@@ -171,7 +171,8 @@
                 ? 'text-foreground'
                 : 'text-muted-foreground'}"
               ><Users />{$form.nollningGroupId
-                ? phaddergroups.find((g) => g.id == $form.nollningGroupId)!.name
+                ? (phaddergroups.find((g) => g.id == $form.nollningGroupId)
+                    ?.name ?? m.onboarding_choose())
                 : m.onboarding_choose()}</Select.Trigger
             >
             <Select.Content>

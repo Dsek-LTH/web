@@ -1588,6 +1588,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/members/{studentId}/phadder-group": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Set a member's phadder group
+     * @description Puts the member in a phadder group of the current season as a nolla, or takes them out of their group when groupId is omitted; 422 for a group outside the current season. The member themselves, or nollning:phaddrar:groups:manage.
+     */
+    put: operations["set-member-phadder-group"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/members/{studentId}/phadder-role": {
     parameters: {
       query?: never;
@@ -3692,6 +3712,10 @@ export interface components {
       /** @description Medal name, e.g. Gammal och Äcklig. */
       medal: string;
     };
+    MemberPhadderGroupInput: {
+      /** @description A phadder group of the current season. Omit (or leave empty) to take the member out of their group. */
+      groupId?: string;
+    };
     MemberPhadderRole: {
       /** @description The phadder group, if any. */
       groupId?: string;
@@ -3730,6 +3754,8 @@ export interface components {
       /** @description Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}. */
       mandates?: components["schemas"]["Mandate"][];
       nickname?: string;
+      /** @description The phadder group the member is a nolla in. Only for the member themselves or nollning:phaddrar:groups:manage. */
+      nollningGroupId?: string;
       /** @description Public URL of the profile picture. */
       picturePath?: string;
       studentId?: string;
@@ -7981,6 +8007,40 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["MemberMedal"][];
         };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "set-member-phadder-group": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MemberPhadderGroupInput"];
+      };
+    };
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Error */
       default: {

@@ -1,7 +1,11 @@
 import { memberSchema } from "$lib/zod/schemas";
 import { serverApi } from "$lib/server/apiClient";
 import { toBirthDateString } from "$lib/utils/birthdays";
-import { superValidate, type Infer } from "sveltekit-superforms/server";
+import {
+  message,
+  superValidate,
+  type Infer,
+} from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import type { Actions, PageServerLoad } from "./$types";
 import { error, fail } from "@sveltejs/kit";
@@ -120,7 +124,13 @@ export const actions: Actions = {
       });
     }
 
-    await setNollningGroup(api, studentId, nollningGroupId ?? null);
+    const groupError = await setNollningGroup(api, studentId, nollningGroupId);
+    if (groupError)
+      return message(
+        form,
+        { message: groupError.message, type: "error" },
+        { status: groupError.status },
+      );
 
     return redirect(
       "/",

@@ -150,7 +150,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Verify: authz test: another member gets no `foodPreference`; self and
   `core:member:update` do.
 
-### [ ] T07 Nollor can't pick their own phadder group; profile saves can remove one
+### [x] T07 Nollor can't pick their own phadder group; profile saves can remove one
 
 - New: `apps/web/src/lib/utils/member.ts` `setNollningGroup` calls
   `POST /nollning/phadder-groups/{id}/nollor` and
