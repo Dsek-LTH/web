@@ -110,7 +110,11 @@ const eventPageLoad =
           },
         });
     if (eventsRes?.error)
-      goError(eventsRes.response, eventsRes.error, "Failed to load events");
+      goError(
+        eventsRes.response,
+        eventsRes.error,
+        m.events_errors_couldNotLoadEvents(),
+      );
     const events = eventsRes?.data.events ?? [];
     const pageCount = eventsRes?.data.pageCount ?? 0;
 
