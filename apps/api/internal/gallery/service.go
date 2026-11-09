@@ -150,10 +150,6 @@ func (s *Service) GetAlbum(ctx context.Context, slug string) (*AlbumDetail, erro
 // MaxPictureSize is the largest file UploadAlbum accepts per picture.
 const MaxPictureSize = 25_000_000
 
-// processLimit is how many pictures UploadAlbum decodes at once: each can
-// take a few hundred MB while it's decoded.
-const processLimit = 3
-
 // UploadAlbum uploads every file into the "public/{year}/{date} {name}"
 // folder and waits for all of them to finish before returning - fixes
 // gallery/upload/uploadFiles.ts's fire-and-forget bug, which pushed upload
@@ -162,7 +158,8 @@ const processLimit = 3
 // Every file must be a JPEG, PNG, WebP or GIF; each is turned upright,
 // scaled down to images.MaxWidth and re-encoded (see internal/images), so
 // it's stored as .jpg or .png. All of them are checked before any is
-// stored, so one bad file uploads nothing.
+// stored, so one bad file uploads nothing; internal/images bounds how
+// many are decoded at once, and a cancelled request stops the rest.
 func (s *Service) UploadAlbum(
 	ctx context.Context,
 	name, date string,
@@ -173,11 +170,10 @@ func (s *Service) UploadAlbum(
 	}
 
 	processed := make([]*images.Image, len(files))
-	var pg errgroup.Group
-	pg.SetLimit(processLimit)
+	pg, pctx := errgroup.WithContext(ctx)
 	for i, f := range files {
 		pg.Go(func() error {
-			img, err := images.Read(f.Data, MaxPictureSize, images.MaxWidth)
+			img, err := images.Read(pctx, f.Data, MaxPictureSize, images.MaxWidth)
 			if err != nil {
 				return fmt.Errorf("%s: %w", f.Filename, err)
 			}

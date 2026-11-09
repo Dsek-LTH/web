@@ -2,14 +2,17 @@ package images
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"errors"
+	"hash/crc32"
 	"image"
 	"image/color"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"testing"
+	"time"
 )
 
 var (
@@ -127,7 +130,7 @@ func TestProcessRotates(t *testing.T) {
 	// 40x20, left half red. Orientation 6 means "turn 90 degrees
 	// clockwise to display", so the result is 20x40 with red on top.
 	data := withOrientation(encodeJPEG(t, halves(40, 20)), 6, binary.LittleEndian)
-	img, err := Process(data, MaxWidth)
+	img, err := Process(context.Background(), data, MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +146,7 @@ func TestProcessRotates(t *testing.T) {
 
 	// Orientation 8 is the other way: blue on top.
 	data = withOrientation(encodeJPEG(t, halves(40, 20)), 8, binary.BigEndian)
-	img, err = Process(data, MaxWidth)
+	img, err = Process(context.Background(), data, MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,7 +156,7 @@ func TestProcessRotates(t *testing.T) {
 
 	// Orientation 3 is upside down: blue on the left.
 	data = withOrientation(encodeJPEG(t, halves(40, 20)), 3, binary.BigEndian)
-	img, err = Process(data, MaxWidth)
+	img, err = Process(context.Background(), data, MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +166,7 @@ func TestProcessRotates(t *testing.T) {
 }
 
 func TestProcessScalesDown(t *testing.T) {
-	img, err := Process(encodePNG(t, halves(4000, 100)), MaxWidth)
+	img, err := Process(context.Background(), encodePNG(t, halves(4000, 100)), MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,7 +182,7 @@ func TestProcessScalesDown(t *testing.T) {
 	// The width limit applies after turning it upright: 100x4000 shown
 	// sideways is 4000 wide.
 	data := withOrientation(encodeJPEG(t, halves(100, 4000)), 6, binary.BigEndian)
-	img, err = Process(data, MaxWidth)
+	img, err = Process(context.Background(), data, MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +191,7 @@ func TestProcessScalesDown(t *testing.T) {
 	}
 
 	// Small pictures aren't enlarged.
-	img, err = Process(encodePNG(t, halves(30, 10)), MaxWidth)
+	img, err = Process(context.Background(), encodePNG(t, halves(30, 10)), MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,7 +203,7 @@ func TestProcessScalesDown(t *testing.T) {
 func TestProcessKeepsTransparency(t *testing.T) {
 	m := halves(10, 10)
 	m.Set(0, 0, color.RGBA{})
-	img, err := Process(encodePNG(t, m), MaxWidth)
+	img, err := Process(context.Background(), encodePNG(t, m), MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -217,7 +220,7 @@ func TestProcessGIF(t *testing.T) {
 	if err := gif.Encode(&buf, halves(10, 10), nil); err != nil {
 		t.Fatal(err)
 	}
-	img, err := Process(buf.Bytes(), MaxWidth)
+	img, err := Process(context.Background(), buf.Bytes(), MaxWidth)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +249,14 @@ func TestProcessRejects(t *testing.T) {
 		"too large": hugeGIF,
 	}
 	for name, data := range cases {
-		if _, err := Process(data, MaxWidth); !errors.Is(err, ErrInvalidImage) {
+		if _, err := Process(
+			context.Background(),
+			data,
+			MaxWidth,
+		); !errors.Is(
+			err,
+			ErrInvalidImage,
+		) {
 			t.Errorf("%s: got %v, want ErrInvalidImage", name, err)
 		}
 	}
@@ -254,13 +264,67 @@ func TestProcessRejects(t *testing.T) {
 
 func TestReadLimit(t *testing.T) {
 	data := encodePNG(t, halves(10, 10))
-	if _, err := Read(bytes.NewReader(data), int64(len(data)), MaxWidth); err != nil {
+	if _, err := Read(
+		context.Background(),
+		bytes.NewReader(data),
+		int64(len(data)),
+		MaxWidth,
+	); err != nil {
 		t.Errorf("at the limit: %v", err)
 	}
-	if _, err := Read(bytes.NewReader(data), int64(len(data)-1), MaxWidth); !errors.Is(
+	if _, err := Read(
+		context.Background(),
+		bytes.NewReader(data),
+		int64(len(data)-1),
+		MaxWidth,
+	); !errors.Is(
 		err,
 		ErrInvalidImage,
 	) {
 		t.Errorf("over the limit: got %v, want ErrInvalidImage", err)
+	}
+}
+
+func TestDecodedSizeLimit(t *testing.T) {
+	// A 16-bit PNG takes 8 bytes a pixel decoded: 1000x30000 is under
+	// MaxPixels but over maxDecodedBytes. Only the header is read, so a
+	// 1x1 picture with a patched IHDR is enough.
+	data := encodePNG(t, image.NewRGBA64(image.Rect(0, 0, 1, 1)))
+	binary.BigEndian.PutUint32(data[16:], 1000)
+	binary.BigEndian.PutUint32(data[20:], 30000)
+	binary.BigEndian.PutUint32(data[29:], crc32.ChecksumIEEE(data[12:29]))
+	cfg, err := png.DecodeConfig(bytes.NewReader(data))
+	if err != nil || bytesPerPixel(cfg.ColorModel) != 8 {
+		t.Fatalf("patched header: %v %v", cfg.ColorModel, err)
+	}
+	if _, err := Process(context.Background(), data, MaxWidth); !errors.Is(err, ErrInvalidImage) {
+		t.Errorf("got %v, want ErrInvalidImage", err)
+	}
+	if got := bytesPerPixel(color.Palette{red, blue}); got != 1 {
+		t.Errorf("palette: %d bytes per pixel, want 1", got)
+	}
+}
+
+func TestWaitsForASlot(t *testing.T) {
+	data := encodePNG(t, halves(10, 10))
+	// Take every slot, so Process has to wait.
+	for range cap(slots) {
+		slots <- struct{}{}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer cancel()
+	_, err := Process(ctx, data, MaxWidth)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("all slots taken: got %v, want the context's error", err)
+	}
+	_, err = Read(ctx, bytes.NewReader(data), int64(len(data)), MaxWidth)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("Read, all slots taken: got %v, want the context's error", err)
+	}
+	for range cap(slots) {
+		<-slots
+	}
+	if _, err := Process(context.Background(), data, MaxWidth); err != nil {
+		t.Errorf("slots free: %v", err)
 	}
 }

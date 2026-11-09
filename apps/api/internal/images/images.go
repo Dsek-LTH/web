@@ -11,9 +11,11 @@ package images
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
@@ -28,10 +30,19 @@ import (
 // resize({ width: 1920 }).
 const MaxWidth = 1920
 
-// MaxPixels is the largest picture decoded (width times height), so an
-// upload can't make the server allocate gigabytes: 50 megapixels is more
-// than any phone camera takes.
-const MaxPixels = 50_000_000
+// MaxPixels is the largest picture decoded (width times height): 40
+// megapixels is more than phone cameras take by default.
+const MaxPixels = 40_000_000
+
+// maxDecodedBytes caps the memory a decoded picture may take, which
+// depends on its colour model as well as its size: a 16-bit PNG takes
+// twice the memory of an 8-bit one.
+const maxDecodedBytes = 200_000_000
+
+// slots bounds how many pictures are decoded at once across every caller
+// (article images, album uploads, concurrent requests), since a decoded
+// picture can take up to maxDecodedBytes.
+var slots = make(chan struct{}, 2)
 
 // jpegQuality is the quality the result is encoded with when it's a JPEG.
 const jpegQuality = 85
@@ -62,8 +73,15 @@ var formats = map[string]format{
 	"image/webp": {webp.Decode, webp.DecodeConfig},
 }
 
-// Read reads at most maxBytes from r and processes it with Process.
-func Read(r io.Reader, maxBytes int64, maxWidth int) (*Image, error) {
+// Read reads at most maxBytes from r and processes it like Process. The
+// file is only read once a decoding slot is free, so callers waiting for
+// one don't hold their files in memory.
+func Read(ctx context.Context, r io.Reader, maxBytes int64, maxWidth int) (*Image, error) {
+	release, err := acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
 	data, err := io.ReadAll(io.LimitReader(r, maxBytes+1))
 	if err != nil {
 		return nil, fmt.Errorf("read image: %w", err)
@@ -75,13 +93,32 @@ func Read(r io.Reader, maxBytes int64, maxWidth int) (*Image, error) {
 			maxBytes/1_000_000,
 		)
 	}
-	return Process(data, maxWidth)
+	return process(data, maxWidth)
 }
 
 // Process checks that data is a JPEG, PNG, WebP or GIF image, turns it
 // upright, scales it down to at most maxWidth pixels wide and re-encodes
-// it.
-func Process(data []byte, maxWidth int) (*Image, error) {
+// it. It waits for a free decoding slot (see slots), or for ctx to end.
+func Process(ctx context.Context, data []byte, maxWidth int) (*Image, error) {
+	release, err := acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+	return process(data, maxWidth)
+}
+
+// acquire waits for a decoding slot; release gives it back.
+func acquire(ctx context.Context) (release func(), err error) {
+	select {
+	case slots <- struct{}{}:
+		return func() { <-slots }, nil
+	case <-ctx.Done():
+		return nil, fmt.Errorf("process image: %w", ctx.Err())
+	}
+}
+
+func process(data []byte, maxWidth int) (*Image, error) {
 	contentType := http.DetectContentType(data)
 	f, ok := formats[contentType]
 	if !ok {
@@ -94,31 +131,38 @@ func Process(data []byte, maxWidth int) (*Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: could not read the image: %v", ErrInvalidImage, err)
 	}
-	if cfg.Width <= 0 || cfg.Height <= 0 ||
-		int64(cfg.Width)*int64(cfg.Height) > MaxPixels {
+	pixels := int64(cfg.Width) * int64(cfg.Height)
+	if cfg.Width <= 0 || cfg.Height <= 0 || pixels > MaxPixels ||
+		pixels*bytesPerPixel(cfg.ColorModel) > maxDecodedBytes {
 		return nil, fmt.Errorf(
-			"%w: the image can be at most %d megapixels",
+			"%w: the image can be at most %d megapixels (fewer for 16-bit images)",
 			ErrInvalidImage,
 			MaxPixels/1_000_000,
 		)
 	}
+
 	src, err := f.decode(bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("%w: could not read the image: %v", ErrInvalidImage, err)
 	}
-
 	orientation := 1
 	if contentType == "image/jpeg" {
 		orientation = jpegOrientation(data)
 	}
 	// Scale first, so turning it upright works on the small picture. When
 	// the orientation swaps the axes, the source's height becomes the
-	// result's width.
-	img := scale(src, maxWidth, orientation >= 5)
-	img = orient(img, orientation)
+	// result's width. A picture that needs neither is encoded as decoded,
+	// without a copy.
+	img := src
+	if scaled := scale(src, maxWidth, orientation >= 5); scaled != nil {
+		img = scaled
+	}
+	if orientation >= 2 && orientation <= 8 {
+		img = orient(img, orientation)
+	}
 
 	var buf bytes.Buffer
-	if img.Opaque() {
+	if o, ok := img.(interface{ Opaque() bool }); ok && o.Opaque() {
 		if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: jpegQuality}); err != nil {
 			return nil, fmt.Errorf("encode jpeg: %w", err)
 		}
@@ -130,9 +174,36 @@ func Process(data []byte, maxWidth int) (*Image, error) {
 	return &Image{Data: buf.Bytes(), Ext: "png", ContentType: "image/png"}, nil
 }
 
+// bytesPerPixel is how much memory a decoded picture of model takes per
+// pixel, at most.
+func bytesPerPixel(model color.Model) int64 {
+	// A palette is a slice, which == can't compare.
+	if _, ok := model.(color.Palette); ok {
+		return 1
+	}
+	switch model {
+	case color.GrayModel, color.AlphaModel:
+		return 1
+	case color.Gray16Model:
+		return 2
+	case color.YCbCrModel:
+		return 3
+	case color.RGBA64Model, color.NRGBA64Model:
+		return 8
+	default:
+		return 4
+	}
+}
+
 // scale draws src into a new RGBA image at most maxWidth wide (after
-// orientation, hence swapped), keeping the aspect ratio and never
-// enlarging.
+// orientation, hence swapped), keeping the aspect ratio. It returns nil
+// when src is narrow enough already: pictures are never enlarged.
+//
+// x/image/draw's kernel scalers (CatmullRom, BiLinear) allocate 32 bytes
+// for every destination column times source row - hundreds of MB for a
+// large photo. Instead, src is first averaged down by a whole factor to
+// less than twice the target width, a band of rows at a time, and the rest
+// is bilinear, which needs no extra memory.
 func scale(src image.Image, maxWidth int, swapped bool) *image.RGBA {
 	sb := src.Bounds()
 	w, h := sb.Dx(), sb.Dy()
@@ -141,24 +212,81 @@ func scale(src image.Image, maxWidth int, swapped bool) *image.RGBA {
 		finalWidth = h
 	}
 	if finalWidth <= maxWidth {
-		dst := image.NewRGBA(image.Rect(0, 0, w, h))
-		draw.Draw(dst, dst.Bounds(), src, sb.Min, draw.Src)
-		return dst
+		return nil
 	}
 	ratio := float64(maxWidth) / float64(finalWidth)
 	dw := max(1, int(float64(w)*ratio+0.5))
 	dh := max(1, int(float64(h)*ratio+0.5))
+	if k := finalWidth / maxWidth; k >= 2 {
+		src = boxReduce(src, k)
+		sb = src.Bounds()
+	}
 	dst := image.NewRGBA(image.Rect(0, 0, dw, dh))
-	draw.CatmullRom.Scale(dst, dst.Bounds(), src, sb, draw.Src, nil)
+	draw.ApproxBiLinear.Scale(dst, dst.Bounds(), src, sb, draw.Src, nil)
 	return dst
 }
 
-// orient applies an EXIF orientation (1-8) to m, which starts at (0, 0).
-func orient(m *image.RGBA, orientation int) *image.RGBA {
-	if orientation < 2 || orientation > 8 {
-		return m
+// boxReduce averages every k x k block of src into one pixel (partial
+// blocks at the right and bottom edges average what they have). Rows are
+// converted to RGBA k at a time, so only one band is held besides the
+// result.
+func boxReduce(src image.Image, k int) *image.RGBA {
+	sb := src.Bounds()
+	w, h := sb.Dx(), sb.Dy()
+	out := image.NewRGBA(image.Rect(0, 0, (w+k-1)/k, (h+k-1)/k))
+	band := image.NewRGBA(image.Rect(0, 0, w, k))
+	sums := make([][4]uint32, out.Rect.Dx())
+	for oy := range out.Rect.Dy() {
+		rows := min(k, h-oy*k)
+		draw.Draw(band, band.Bounds(), src, image.Pt(sb.Min.X, sb.Min.Y+oy*k), draw.Src)
+		clear(sums)
+		for y := range rows {
+			row := band.Pix[y*band.Stride : y*band.Stride+w*4]
+			for x := range w {
+				p := row[x*4 : x*4+4]
+				s := &sums[x/k]
+				s[0] += uint32(p[0])
+				s[1] += uint32(p[1])
+				s[2] += uint32(p[2])
+				s[3] += uint32(p[3])
+			}
+		}
+		for ox, s := range sums {
+			n := uint32(min(k, w-ox*k) * rows)
+			d := oy*out.Stride + ox*4
+			for c := range 4 {
+				out.Pix[d+c] = uint8((s[c] + n/2) / n)
+			}
+		}
 	}
-	w, h := m.Rect.Dx(), m.Rect.Dy()
+	return out
+}
+
+// orient applies an EXIF orientation (2-8) to m, into a new RGBA image.
+// RGBA (a scaled picture) and YCbCr (a JPEG as decoded) are read directly;
+// anything else is converted to RGBA first.
+func orient(m image.Image, orientation int) *image.RGBA {
+	var pixel func(x, y int) [4]byte
+	switch src := m.(type) {
+	case *image.RGBA:
+		pixel = func(x, y int) [4]byte {
+			i := src.PixOffset(x, y)
+			return [4]byte(src.Pix[i : i+4])
+		}
+	case *image.YCbCr:
+		pixel = func(x, y int) [4]byte {
+			yi, ci := src.YOffset(x, y), src.COffset(x, y)
+			r, g, b := color.YCbCrToRGB(src.Y[yi], src.Cb[ci], src.Cr[ci])
+			return [4]byte{r, g, b, 0xff}
+		}
+	default:
+		rgba := image.NewRGBA(m.Bounds())
+		draw.Draw(rgba, rgba.Bounds(), m, m.Bounds().Min, draw.Src)
+		return orient(rgba, orientation)
+	}
+
+	b := m.Bounds()
+	w, h := b.Dx(), b.Dy()
 	dw, dh := w, h
 	if orientation >= 5 {
 		dw, dh = h, w
@@ -183,9 +311,9 @@ func orient(m *image.RGBA, orientation int) *image.RGBA {
 			case 8: // needs a 90 degree counterclockwise turn
 				dx, dy = sy, w-1-sx
 			}
-			s := sy*m.Stride + sx*4
+			p := pixel(b.Min.X+sx, b.Min.Y+sy)
 			d := dy*dst.Stride + dx*4
-			copy(dst.Pix[d:d+4], m.Pix[s:s+4])
+			copy(dst.Pix[d:d+4], p[:])
 		}
 	}
 	return dst

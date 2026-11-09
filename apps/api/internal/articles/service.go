@@ -732,7 +732,7 @@ func (s *Service) UploadImage(
 		!identity.Has(apinames.EventUpdate) {
 		return "", auth.ErrForbidden
 	}
-	img, err := images.Read(data, MaxImageSize, images.MaxWidth)
+	img, err := images.Read(ctx, data, MaxImageSize, images.MaxWidth)
 	if err != nil {
 		return "", err
 	}
