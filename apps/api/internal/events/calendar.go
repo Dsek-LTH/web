@@ -53,7 +53,7 @@ func (s *Service) CalendarICS(ctx context.Context, feed CalendarFeed) ([]byte, e
 	now := icsTime(time.Now())
 	var b strings.Builder
 	b.WriteString("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\n")
-	b.WriteString("PRODID:-//D-sektionen//Events//SV\r\nMETHOD:PUBLISH\r\n")
+	b.WriteString("PRODID:-//D-sektionen//Events//SV\r\nMETHOD:PUBLISH\r\nX-PUBLISHED-TTL:PT1H\r\n")
 	for _, row := range rows {
 		b.WriteString("BEGIN:VEVENT\r\n")
 		writeICSLine(&b, "UID", dbutil.UUIDStr(row.ID))
