@@ -370,7 +370,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `event:update` (Go's `GetDeleted` already checks), and show a "removed"
   notice.
 
-### [ ] T25 Any article creator can post as any custom author
+### [x] T25 Any article creator can post as any custom author
 
 - New: `ListCustomAuthors` (`queries/custom_authors.sql`) is unfiltered and
   `resolveAuthor` accepts any `customId`.

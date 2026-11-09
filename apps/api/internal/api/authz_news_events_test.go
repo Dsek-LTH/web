@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -179,5 +181,77 @@ func TestEventAccess(t *testing.T) {
 		{e.as(2), http.MethodGet, hiddenPath, nil, hidden},
 		{e.as(1), http.MethodGet, hiddenPath, nil, ok},
 		{e.as(4, apinames.EventUpdate), http.MethodGet, hiddenPath, nil, ok},
+	})
+}
+
+// withRoles is c with these derived roles on top of "*" and "_".
+func withRoles(c caller, roles ...string) caller {
+	id := *c.identity
+	id.Roles = append([]string{"*", "_"}, roles...)
+	c.identity = &id
+	c.label += " in " + strings.Join(roles, ", ")
+	return c
+}
+
+// A custom author is only offered to, and usable by, members with one of
+// its custom_author_roles (prefixes included), unless they may manage or
+// edit articles; an edit keeps the article's current one.
+func TestCustomAuthorAccess(t *testing.T) {
+	e := requireDB(t)
+	board := e.one(t,
+		`INSERT INTO custom_authors (name_sv) VALUES ('Authz board') RETURNING id::text`)
+	other := e.one(t,
+		`INSERT INTO custom_authors (name_sv) VALUES ('Authz other') RETURNING id::text`)
+	e.one(t, `INSERT INTO custom_author_roles (custom_author_id, role)
+		VALUES ($1, 'dsek.authz'), ($2, 'dsek.other') RETURNING id::text`, board, other)
+
+	byline := func(header, customID string) map[string]any {
+		body := articleBody(header, nil)
+		body["author"] = map[string]any{"customId": customID}
+		return body
+	}
+	writer := withRoles(e.as(1, apinames.NewsArticleCreate), "dsek", "dsek.authz", "dsek.authz.x")
+
+	listed := func(c caller) []string {
+		var authors []struct {
+			ID string `json:"id"`
+		}
+		e.mustCall(t, c, http.MethodGet, "/custom-authors", nil).decode(t, &authors)
+		var ids []string
+		for _, a := range authors {
+			if a.ID == board || a.ID == other {
+				ids = append(ids, a.ID)
+			}
+		}
+		return ids
+	}
+	if got := listed(writer); !slices.Equal(got, []string{board}) {
+		t.Errorf("custom authors for %s: got %v, want only %s", writer.label, got, board)
+	}
+	if got := listed(e.as(1)); len(got) != 0 {
+		t.Errorf("custom authors for member 1 without roles: got %v, want none", got)
+	}
+	if got := listed(e.as(2, apinames.NewsArticleManage)); len(got) != 2 {
+		t.Errorf("custom authors for an article manager: got %v, want both", got)
+	}
+
+	e.check(t, []accessCase{
+		{writer, http.MethodPost, "/articles", byline("Authz board article", board), ok},
+		{writer, http.MethodPost, "/articles", byline("Authz other article", other), denied},
+		{
+			e.as(2, apinames.NewsArticleCreate, apinames.NewsArticleManage), http.MethodPost,
+			"/articles", byline("Authz managed article", other), ok,
+		},
+	})
+
+	// Without the role any more, the author may keep the byline but not
+	// switch to one they lack.
+	path := "/articles/" + e.one(
+		t,
+		`SELECT slug FROM articles WHERE header_sv = 'Authz board article'`,
+	)
+	e.check(t, []accessCase{
+		{e.as(1), http.MethodPut, path, byline("Authz board article", board), ok},
+		{e.as(1), http.MethodPut, path, byline("Authz board article", other), denied},
 	})
 }

@@ -104,6 +104,9 @@ type Querier interface {
 	CreateSong(ctx context.Context, arg CreateSongParams) (Song, error)
 	CreateSongBookEntry(ctx context.Context, arg CreateSongBookEntryParams) error
 	CreateTag(ctx context.Context, nameSv string) (Tag, error)
+	// Whether one of the given roles may post as the custom author; see
+	// ListCustomAuthorsForRoles.
+	CustomAuthorAllowedForRoles(ctx context.Context, arg CustomAuthorAllowedForRolesParams) (bool, error)
 	// The database's current time, for comparing with timestamps it set with
 	// now() - the application's clock can be off from it.
 	DatabaseNow(ctx context.Context) (pgtype.Timestamptz, error)
@@ -215,9 +218,9 @@ type Querier interface {
 	// Constrained to POLICY/GUIDELINE, matching the old app's edit-lookup
 	// query - the other enum values have no create/edit UI anywhere.
 	GetGoverningDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error)
-	// Used to verify a caller posting "as" a mandate actually holds it.
-	// custom_authors has no owner column in the schema (they're shared
-	// personas, e.g. "Styrelsen"), so there's no equivalent check for those.
+	// Used to verify a caller posting "as" a mandate actually holds it. Custom
+	// authors are checked against custom_author_roles instead
+	// (CustomAuthorAllowedForRoles).
 	GetMandateMemberID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	GetMarkdown(ctx context.Context, name string) (Markdown, error)
 	GetMemberByStudentID(ctx context.Context, studentID pgtype.Text) (GetMemberByStudentIDRow, error)
@@ -357,11 +360,14 @@ type Querier interface {
 	// DENIED requests never conflict; exclude_id lets an edit ignore its own
 	// pre-existing row (NULL/unset on create, where nothing to exclude yet).
 	ListConflictingBookingRequests(ctx context.Context, arg ListConflictingBookingRequestsParams) ([]ListConflictingBookingRequestsRow, error)
-	// Unfiltered: every member can choose from every custom author. The old
-	// TS backend restricted this list to custom authors whose
-	// custom_author_roles matched one of the member's roles; that filter isn't
-	// ported.
+	// Every custom author, for those who may post as any of them (see
+	// articles.Service.ListCustomAuthors).
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
+	// The custom authors one of the given roles may post as: those with a
+	// custom_author_roles row naming one of them. Roles are the caller's
+	// derived roles (auth.DerivedRoles), so a row for "dsek.infu" matches
+	// everyone in "dsek.infu.mdlm", like the old TS getCustomAuthorOptions.
+	ListCustomAuthorsForRoles(ctx context.Context, roles []string) ([]ListCustomAuthorsForRolesRow, error)
 	ListDefaultTagIDs(ctx context.Context) ([]pgtype.UUID, error)
 	ListDistinctSongCategories(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
 	ListDistinctSongMelodies(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
