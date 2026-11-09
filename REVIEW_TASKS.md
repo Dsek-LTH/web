@@ -266,7 +266,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   loads; in Go only attach access lists for `booking_request:update`
   holders or the booker. Authz case.
 
-### [ ] T15 Salto loses its backup-list fallback when Go is down
+### [x] T15 Salto loses its backup-list fallback when Go is down
 
 - New: `hooks.server.ts` calls Go `/me` for every request and returns 502
   if it fails (`apps/web/src/lib/server/goAuth.ts`), and

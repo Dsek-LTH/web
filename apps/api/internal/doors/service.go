@@ -40,7 +40,9 @@ func invalidf(format string, args ...any) error {
 // resolution itself errors), so a DB hiccup or a misconfigured door never
 // locks out the people who need physical access to fix it. Needs updating
 // at the turn of every year by the Head of Faculties (Källarmästare) - not
-// something to "clean up" here.
+// something to "clean up" here. The SvelteKit proxy has a copy
+// (apps/web/src/routes/(app)/salto/[door]/constants.ts) for when Go itself
+// is down; keep the two identical.
 var backupStudentIDs = []string{
 	"em8241he-s", // Källarmästare, Emil Helander
 	"da1677ag-s", // Processmästare, David Agardh
