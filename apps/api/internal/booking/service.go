@@ -304,18 +304,9 @@ func (s *Service) List(ctx context.Context) ([]BookingRequest, error) {
 		return nil, fmt.Errorf("list booking requests: %w", err)
 	}
 
-	ids := make([]pgtype.UUID, len(rows))
+	reqRows := make([]bookingRequestRow, len(rows))
 	for i, row := range rows {
-		ids[i] = row.ID
-	}
-	bookablesByRequest, err := s.bookablesForRequests(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]BookingRequest, len(rows))
-	for i, row := range rows {
-		br := toBookingRequest(bookingRequestRow{
+		reqRows[i] = bookingRequestRow{
 			ID: row.ID, BookerID: row.BookerID, Start: row.Start, End: row.End,
 			Created: row.Created, Event: row.Event, Status: row.Status,
 			bookerRow: bookerRow{
@@ -326,18 +317,9 @@ func (s *Service) List(ctx context.Context) ([]BookingRequest, error) {
 				BookerNickname:    row.BookerNickname,
 				BookerPicturePath: row.BookerPicturePath,
 			},
-		})
-		br.Bookables = orEmptyBookables(bookablesByRequest[dbutil.UUIDStr(row.ID)])
-		out[i] = br
+		}
 	}
-	ptrs := make([]*BookingRequest, len(out))
-	for i := range out {
-		ptrs[i] = &out[i]
-	}
-	if err := s.attachAccess(ctx, ptrs); err != nil {
-		return nil, err
-	}
-	return out, nil
+	return s.withDetails(ctx, reqRows)
 }
 
 // ReviewQueue lists the pending requests that haven't ended yet, each with
@@ -347,17 +329,34 @@ func (s *Service) ReviewQueue(ctx context.Context) ([]BookingReviewItem, error) 
 	if err := auth.Require(ctx, apinames.BookingRequestUpdate); err != nil {
 		return nil, err
 	}
-	ids, err := s.queries.ListPendingBookingRequestIDs(ctx)
+	rows, err := s.queries.ListPendingBookingRequests(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list pending booking requests: %w", err)
 	}
-	items := make([]BookingReviewItem, 0, len(ids))
-	for _, id := range ids {
-		br, err := s.getFull(ctx, id)
-		if err != nil {
-			return nil, err
+	reqRows := make([]bookingRequestRow, len(rows))
+	for i, row := range rows {
+		reqRows[i] = bookingRequestRow{
+			ID: row.ID, BookerID: row.BookerID, Start: row.Start, End: row.End,
+			Created: row.Created, Event: row.Event, Status: row.Status,
+			bookerRow: bookerRow{
+				BookerMemberID:    row.BookerMemberID,
+				BookerStudentID:   row.BookerStudentID,
+				BookerFirstName:   row.BookerFirstName,
+				BookerLastName:    row.BookerLastName,
+				BookerNickname:    row.BookerNickname,
+				BookerPicturePath: row.BookerPicturePath,
+			},
 		}
-		item := BookingReviewItem{BookingRequest: *br, Conflicts: []BookingRequest{}}
+	}
+	// Bookables and access lists for the whole queue in one go; only the
+	// conflicts are looked up per request.
+	requests, err := s.withDetails(ctx, reqRows)
+	if err != nil {
+		return nil, err
+	}
+	items := make([]BookingReviewItem, 0, len(requests))
+	for i, br := range requests {
+		item := BookingReviewItem{BookingRequest: br, Conflicts: []BookingRequest{}}
 		if br.Start != nil && br.End != nil {
 			bookableIDs := make([]pgtype.UUID, 0, len(br.Bookables))
 			for _, b := range br.Bookables {
@@ -367,7 +366,7 @@ func (s *Service) ReviewQueue(ctx context.Context) ([]BookingReviewItem, error) 
 				}
 				bookableIDs = append(bookableIDs, bid)
 			}
-			conflicts, err := s.conflicts(ctx, bookableIDs, *br.Start, *br.End, &id)
+			conflicts, err := s.conflicts(ctx, bookableIDs, *br.Start, *br.End, &rows[i].ID)
 			if err != nil {
 				return nil, err
 			}
@@ -809,6 +808,33 @@ func (s *Service) conflicts(
 		})
 		br.Bookables = orEmptyBookables(bookablesByRequest[dbutil.UUIDStr(row.ID)])
 		out[i] = br
+	}
+	return out, nil
+}
+
+// withDetails builds requests from rows, with their bookables and (for
+// those allowed to see them) access lists, in one query each.
+func (s *Service) withDetails(
+	ctx context.Context,
+	rows []bookingRequestRow,
+) ([]BookingRequest, error) {
+	ids := make([]pgtype.UUID, len(rows))
+	for i, row := range rows {
+		ids[i] = row.ID
+	}
+	bookablesByRequest, err := s.bookablesForRequests(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]BookingRequest, len(rows))
+	ptrs := make([]*BookingRequest, len(rows))
+	for i, row := range rows {
+		out[i] = toBookingRequest(row)
+		out[i].Bookables = orEmptyBookables(bookablesByRequest[dbutil.UUIDStr(row.ID)])
+		ptrs[i] = &out[i]
+	}
+	if err := s.attachAccess(ctx, ptrs); err != nil {
+		return nil, err
 	}
 	return out, nil
 }

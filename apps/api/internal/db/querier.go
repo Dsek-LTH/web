@@ -487,7 +487,7 @@ type Querier interface {
 	// name), same fields the old page's committee `select` projected.
 	ListOpenElections(ctx context.Context) ([]ListOpenElectionsRow, error)
 	// The review queue: pending requests that haven't ended yet.
-	ListPendingBookingRequestIDs(ctx context.Context) ([]pgtype.UUID, error)
+	ListPendingBookingRequests(ctx context.Context) ([]ListPendingBookingRequestsRow, error)
 	ListPendingForUpdate(ctx context.Context, releaseID pgtype.UUID) ([]TicketQueueEntry, error)
 	// Nolla/phadder counts alongside each group, mirroring
 	// ListCommitteesWithCounts' count-subquery pattern.

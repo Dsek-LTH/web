@@ -525,7 +525,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [ ] T58 The nolla notification feed lost purchase notification types
       (`queries/notifications.sql`): check which types tickets now send and
       include them.
-- [ ] T59 Booking review queue runs ~6 queries per pending request
+- [x] T59 Booking review queue runs ~6 queries per pending request
       (`booking.Service.ReviewQueue`).
 - [x] T60 Cafe shifts created by the old app may be stored at 22:00/23:00
       UTC the previous day: check `SELECT DISTINCT date::time FROM
