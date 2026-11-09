@@ -41,16 +41,26 @@ export const load: PageServerLoad = async (event) => {
   // group's detail. Low-traffic page, small N (one nollning year's worth
   // of groups), so the N+1 isn't worth a broader API change for. The
   // detail (member names) is for signed-in members; others get the
-  // summary, so they still see the groups.
-  const phadderGroups = await Promise.all(
-    summaries.map((g) =>
-      api
-        .GET("/nollning/phadder-groups/{id}", {
-          params: { path: { id: g.id } },
-        })
-        .then((res) => res.data ?? g),
-    ),
-  );
+  // summaries, so they still see the groups. A group deleted in between
+  // (404) is dropped.
+  const phadderGroups = event.locals.user?.memberId
+    ? (
+        await Promise.all(
+          summaries.map(async (g) => {
+            const res = await api.GET("/nollning/phadder-groups/{id}", {
+              params: { path: { id: g.id } },
+            });
+            if (res.data) return res.data;
+            if (res.response.status === 401) return g;
+            if (res.response.status === 404) return undefined;
+            error(
+              res.response.status,
+              res.error?.detail ?? "Failed to load phadder group",
+            );
+          }),
+        )
+      ).filter((g) => g !== undefined)
+    : summaries;
 
   return committeeLoad(fetch, "nollu", url).then((data) => ({
     ...data,
