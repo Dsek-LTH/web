@@ -10,7 +10,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
@@ -20,6 +19,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/integrations"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
 	"github.com/dsek-lth/web/apps/api/internal/mentions"
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/slug"
 )
 
@@ -50,7 +50,7 @@ const defaultPageSize = 10
 type Service struct {
 	pool      *pgxpool.Pool
 	queries   *db.Queries
-	sanitizer *bluemonday.Policy
+	sanitizer *sanitize.Policy
 	notifier  integrations.Notifier
 }
 
@@ -58,7 +58,7 @@ func NewService(pool *pgxpool.Pool, notifier integrations.Notifier) *Service {
 	return &Service{
 		pool:      pool,
 		queries:   db.New(pool),
-		sanitizer: bluemonday.UGCPolicy(),
+		sanitizer: sanitize.UGC(),
 		notifier:  notifier,
 	}
 }
@@ -318,7 +318,7 @@ func (s *Service) createParams(
 		TitleSv:            in.TitleSv,
 		TitleEn:            dbutil.ToText(in.TitleEn),
 		DescriptionSv:      s.sanitizer.Sanitize(in.DescriptionSv),
-		DescriptionEn:      dbutil.ToText(sanitizePtr(s.sanitizer, in.DescriptionEn)),
+		DescriptionEn:      dbutil.ToText(s.sanitizer.SanitizePtr(in.DescriptionEn)),
 		Link:               dbutil.ToText(in.Link),
 		Location:           dbutil.ToText(in.Location),
 		Organizer:          in.Organizer,
@@ -475,7 +475,7 @@ func (s *Service) Update(
 			TitleSv:            occIn.TitleSv,
 			TitleEn:            dbutil.ToText(occIn.TitleEn),
 			DescriptionSv:      s.sanitizer.Sanitize(occIn.DescriptionSv),
-			DescriptionEn:      dbutil.ToText(sanitizePtr(s.sanitizer, occIn.DescriptionEn)),
+			DescriptionEn:      dbutil.ToText(s.sanitizer.SanitizePtr(occIn.DescriptionEn)),
 			Link:               dbutil.ToText(occIn.Link),
 			Location:           dbutil.ToText(occIn.Location),
 			Organizer:          occIn.Organizer,
@@ -661,11 +661,12 @@ func (s *Service) AddComment(ctx context.Context, eventSlug, content string) (*C
 		return nil, invalidf("invalid member id: %v", err)
 	}
 
-	content, err = comments.Normalize(content)
+	// Checked after sanitizing too: escaping & and < can push a comment
+	// past the column's length, and stripping tags can leave it empty.
+	sanitized, err := comments.Normalize(s.sanitizer.Sanitize(content))
 	if err != nil {
 		return nil, invalidf("%v", err)
 	}
-	sanitized := s.sanitizer.Sanitize(content)
 	created, err := s.queries.CreateEventComment(ctx, db.CreateEventCommentParams{
 		EventID:  eventID,
 		MemberID: memberUUID,
@@ -893,12 +894,4 @@ func (s *Service) tagsByEvent(ctx context.Context, ids []pgtype.UUID) (map[strin
 		})
 	}
 	return result, nil
-}
-
-func sanitizePtr(p *bluemonday.Policy, s *string) *string {
-	if s == nil {
-		return nil
-	}
-	sanitized := p.Sanitize(*s)
-	return &sanitized
 }

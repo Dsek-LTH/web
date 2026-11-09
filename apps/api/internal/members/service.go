@@ -11,7 +11,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/apitypes"
@@ -19,6 +18,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/storage"
 )
 
@@ -33,7 +33,7 @@ func invalidf(format string, args ...any) error {
 
 type Service struct {
 	queries       *db.Queries
-	sanitizer     *bluemonday.Policy
+	sanitizer     *sanitize.Policy
 	storage       storage.Backend
 	membersBucket string
 }
@@ -43,7 +43,7 @@ type Service struct {
 func NewService(dbtx db.DBTX, store storage.Backend, membersBucket string) *Service {
 	return &Service{
 		queries:       db.New(dbtx),
-		sanitizer:     bluemonday.UGCPolicy(),
+		sanitizer:     sanitize.UGC(),
 		storage:       store,
 		membersBucket: membersBucket,
 	}
@@ -259,7 +259,7 @@ func (s *Service) UpdateProfile(
 		ClassYear:      dbutil.ToInt4(in.ClassYear),
 		GraduationYear: dbutil.ToInt4(in.GraduationYear),
 		Language:       dbutil.ToText((*string)(in.Language)),
-		Bio:            dbutil.ToText(sanitizePtr(s.sanitizer, in.Bio)),
+		Bio:            dbutil.ToText(s.sanitizer.SanitizePtr(in.Bio)),
 		BirthDate:      birthDate,
 	})
 	if err != nil {
@@ -323,12 +323,4 @@ func (s *Service) authorizeSelfOrUpdate(ctx context.Context, studentID string) e
 		return nil
 	}
 	return auth.Require(ctx, apinames.MemberUpdate)
-}
-
-func sanitizePtr(p *bluemonday.Policy, s *string) *string {
-	if s == nil {
-		return nil
-	}
-	sanitized := p.Sanitize(*s)
-	return &sanitized
 }

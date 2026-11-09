@@ -10,7 +10,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
@@ -20,6 +19,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/integrations"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
 	"github.com/dsek-lth/web/apps/api/internal/mentions"
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/slug"
 )
 
@@ -40,7 +40,7 @@ const defaultPageSize = 10
 
 type Service struct {
 	queries   *db.Queries
-	sanitizer *bluemonday.Policy
+	sanitizer *sanitize.Policy
 	notifier  integrations.Notifier
 	webhooker integrations.Webhooker
 	uploader  integrations.Uploader
@@ -54,7 +54,7 @@ func NewService(
 ) *Service {
 	return &Service{
 		queries:   db.New(dbtx),
-		sanitizer: bluemonday.UGCPolicy(),
+		sanitizer: sanitize.UGC(),
 		notifier:  notifier,
 		webhooker: webhooker,
 		uploader:  uploader,
@@ -234,7 +234,7 @@ func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, 
 		HeaderSv:               in.HeaderSv,
 		HeaderEn:               dbutil.ToText(in.HeaderEn),
 		BodySv:                 s.sanitizer.Sanitize(in.BodySv),
-		BodyEn:                 dbutil.ToText(sanitizePtr(s.sanitizer, in.BodyEn)),
+		BodyEn:                 dbutil.ToText(s.sanitizer.SanitizePtr(in.BodyEn)),
 		ImageUrl:               dbutil.ToText(imageURL),
 		ImageUrls:              in.ImageURLs,
 		YoutubeUrl:             dbutil.ToText(in.YoutubeURL),
@@ -350,7 +350,7 @@ func (s *Service) Update(
 		HeaderSv:               in.HeaderSv,
 		HeaderEn:               dbutil.ToText(in.HeaderEn),
 		BodySv:                 s.sanitizer.Sanitize(in.BodySv),
-		BodyEn:                 dbutil.ToText(sanitizePtr(s.sanitizer, in.BodyEn)),
+		BodyEn:                 dbutil.ToText(s.sanitizer.SanitizePtr(in.BodyEn)),
 		ImageUrl:               dbutil.ToText(imageURL),
 		ImageUrls:              in.ImageURLs,
 		YoutubeUrl:             dbutil.ToText(in.YoutubeURL),
@@ -496,11 +496,12 @@ func (s *Service) AddComment(ctx context.Context, slug, content string) (*Commen
 		return nil, invalidf("invalid member id: %v", err)
 	}
 
-	content, err = comments.Normalize(content)
+	// Checked after sanitizing too: escaping & and < can push a comment
+	// past the column's length, and stripping tags can leave it empty.
+	sanitized, err := comments.Normalize(s.sanitizer.Sanitize(content))
 	if err != nil {
 		return nil, invalidf("%v", err)
 	}
-	sanitized := s.sanitizer.Sanitize(content)
 	created, err := s.queries.CreateArticleComment(ctx, db.CreateArticleCommentParams{
 		ArticleID: articleID,
 		MemberID:  memberUUID,
@@ -926,14 +927,6 @@ func (s *Service) tagsByArticle(ctx context.Context, ids []pgtype.UUID) (map[str
 		})
 	}
 	return result, nil
-}
-
-func sanitizePtr(p *bluemonday.Policy, s *string) *string {
-	if s == nil {
-		return nil
-	}
-	sanitized := p.Sanitize(*s)
-	return &sanitized
 }
 
 // orEmptyTags normalizes a nil tags slice (an article with no tags never

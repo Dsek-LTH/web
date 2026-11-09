@@ -69,7 +69,7 @@ Decided and not tasks (confirmed with the maintainers):
   transaction) that an update by another member with
   `news:article:update` keeps `author_id`.
 
-### [ ] T03 Write-time sanitizing turns `'` and `"` into `&#39;` / `&#34;`
+### [x] T03 Write-time sanitizing turns `'` and `"` into `&#39;` / `&#34;`
 
 - New: `bluemonday.UGCPolicy().Sanitize` runs on markdown and plain text at
   write time in `internal/articles` (bodies, comments), `internal/events`

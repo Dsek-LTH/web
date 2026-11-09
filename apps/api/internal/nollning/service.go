@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/microcosm-cc/bluemonday"
-
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
@@ -17,15 +15,16 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/auth"
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 )
 
 type Service struct {
 	queries   *db.Queries
-	sanitizer *bluemonday.Policy
+	sanitizer *sanitize.Policy
 }
 
 func NewService(dbtx db.DBTX) *Service {
-	return &Service{queries: db.New(dbtx), sanitizer: bluemonday.UGCPolicy()}
+	return &Service{queries: db.New(dbtx), sanitizer: sanitize.UGC()}
 }
 
 // sanitizeDescription cleans a phadder group's description, which is

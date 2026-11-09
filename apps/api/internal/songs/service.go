@@ -6,14 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/slug"
 )
 
@@ -30,11 +31,11 @@ const defaultPageSize = 20
 
 type Service struct {
 	queries   *db.Queries
-	sanitizer *bluemonday.Policy
+	sanitizer *sanitize.Policy
 }
 
 func NewService(dbtx db.DBTX) *Service {
-	return &Service{queries: db.New(dbtx), sanitizer: bluemonday.UGCPolicy()}
+	return &Service{queries: db.New(dbtx), sanitizer: sanitize.UGC()}
 }
 
 // canSeeDeleted mirrors the old app's canAccessDeletedSongs: only a caller
@@ -132,7 +133,7 @@ func (s *Service) Create(ctx context.Context, in SongInput) (*Song, error) {
 	row, err := s.queries.CreateSong(ctx, db.CreateSongParams{
 		Title:    s.sanitizer.Sanitize(in.Title),
 		Lyrics:   s.sanitizer.Sanitize(in.Lyrics),
-		Melody:   dbutil.ToText(sanitizePtr(s.sanitizer, in.Melody)),
+		Melody:   dbutil.ToText(trimPtr(in.Melody)),
 		Category: dbutil.ToText(in.Category),
 		Video:    dbutil.ToText(in.Video),
 		Slug:     uniqueSlug,
@@ -167,7 +168,7 @@ func (s *Service) Update(ctx context.Context, slugStr string, in SongInput) (*So
 		ID:       existing.ID,
 		Title:    s.sanitizer.Sanitize(in.Title),
 		Lyrics:   s.sanitizer.Sanitize(in.Lyrics),
-		Melody:   dbutil.ToText(sanitizePtr(s.sanitizer, in.Melody)),
+		Melody:   dbutil.ToText(trimPtr(in.Melody)),
 		Category: dbutil.ToText(in.Category),
 		Video:    dbutil.ToText(in.Video),
 	})
@@ -295,10 +296,12 @@ func (s *Service) uniqueSlug(ctx context.Context, title string) (string, error) 
 	return slug.SlugWithCount(base, int(count)), nil
 }
 
-func sanitizePtr(p *bluemonday.Policy, s *string) *string {
+// trimPtr trims *s, keeping nil as nil. The melody is shown as plain text and
+// was only ever trimmed, never sanitized.
+func trimPtr(s *string) *string {
 	if s == nil {
 		return nil
 	}
-	sanitized := p.Sanitize(*s)
-	return &sanitized
+	trimmed := strings.TrimSpace(*s)
+	return &trimmed
 }

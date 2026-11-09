@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
@@ -17,22 +17,29 @@ import (
 // editor became the author and the author lost the right to edit it.
 func TestEditingSomeoneElsesArticleKeepsTheAuthor(t *testing.T) {
 	h := newHarness(t)
-	h.svc.sanitizer = bluemonday.UGCPolicy()
+	h.svc.sanitizer = sanitize.UGC()
 	ctx := context.Background()
 
 	var authorMemberID, editorID pgtype.UUID
-	if err := h.tx.QueryRow(ctx,
-		"SELECT member_id FROM authors WHERE id = $1", h.authorID).Scan(&authorMemberID); err != nil {
+	if err := h.tx.QueryRow(
+		ctx,
+		"SELECT member_id FROM authors WHERE id = $1",
+		h.authorID,
+	).Scan(&authorMemberID); err != nil {
 		t.Fatal(err)
 	}
-	if err := h.tx.QueryRow(ctx,
-		"SELECT id FROM members WHERE id <> $1 LIMIT 1", authorMemberID).Scan(&editorID); err != nil {
+	if err := h.tx.QueryRow(
+		ctx,
+		"SELECT id FROM members WHERE id <> $1 LIMIT 1",
+		authorMemberID,
+	).Scan(&editorID); err != nil {
 		t.Skipf("no second member: %v", err)
 	}
 
 	id := h.article(time.Now().Add(-time.Hour), false)
 	var slug string
-	if err := h.tx.QueryRow(ctx, "SELECT slug FROM articles WHERE id = $1", id).Scan(&slug); err != nil {
+	if err := h.tx.QueryRow(ctx, "SELECT slug FROM articles WHERE id = $1", id).
+		Scan(&slug); err != nil {
 		t.Fatal(err)
 	}
 
@@ -55,6 +62,10 @@ func TestEditingSomeoneElsesArticleKeepsTheAuthor(t *testing.T) {
 		t.Fatal(err)
 	}
 	if authorID != h.authorID {
-		t.Errorf("author changed to %s, want %s", dbutil.UUIDStr(authorID), dbutil.UUIDStr(h.authorID))
+		t.Errorf(
+			"author changed to %s, want %s",
+			dbutil.UUIDStr(authorID),
+			dbutil.UUIDStr(h.authorID),
+		)
 	}
 }

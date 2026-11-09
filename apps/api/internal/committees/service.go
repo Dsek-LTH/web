@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/microcosm-cc/bluemonday"
-
 	"github.com/jackc/pgx/v5"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
@@ -19,6 +17,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
 	"github.com/dsek-lth/web/apps/api/internal/nollning"
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 )
 
 var (
@@ -33,7 +32,7 @@ func invalidf(format string, args ...any) error {
 type Service struct {
 	queries   *db.Queries
 	nollning  *nollning.Service
-	sanitizer *bluemonday.Policy
+	sanitizer *sanitize.Policy
 }
 
 // nollning is used by ListBoard to know which committee's positions to
@@ -44,7 +43,7 @@ func NewService(dbtx db.DBTX, nollningSvc *nollning.Service) *Service {
 	return &Service{
 		queries:   db.New(dbtx),
 		nollning:  nollningSvc,
-		sanitizer: bluemonday.UGCPolicy(),
+		sanitizer: sanitize.UGC(),
 	}
 }
 

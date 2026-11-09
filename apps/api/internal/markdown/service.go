@@ -15,13 +15,13 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
+	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 )
 
 var (
@@ -45,11 +45,11 @@ func pageUpdatePolicy(name string) string {
 
 type Service struct {
 	queries   *db.Queries
-	sanitizer *bluemonday.Policy
+	sanitizer *sanitize.Policy
 }
 
 func NewService(dbtx db.DBTX) *Service {
-	return &Service{queries: db.New(dbtx), sanitizer: bluemonday.UGCPolicy()}
+	return &Service{queries: db.New(dbtx), sanitizer: sanitize.UGC()}
 }
 
 // Get is a public read (matches the old ZModel's @@allow("read", true)).
@@ -108,7 +108,7 @@ func (s *Service) Create(ctx context.Context, name string, in InfoPageInput) (*I
 	row, err := s.queries.UpsertMarkdown(ctx, db.UpsertMarkdownParams{
 		Name:       name,
 		MarkdownSv: s.sanitizer.Sanitize(in.MarkdownSv),
-		MarkdownEn: dbutil.ToText(sanitizePtr(s.sanitizer, in.MarkdownEn)),
+		MarkdownEn: dbutil.ToText(s.sanitizer.SanitizePtr(in.MarkdownEn)),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("create markdown: %w", err)
@@ -153,7 +153,7 @@ func (s *Service) Update(ctx context.Context, name string, in InfoPageInput) (*I
 	row, err := s.queries.UpsertMarkdown(ctx, db.UpsertMarkdownParams{
 		Name:       name,
 		MarkdownSv: s.sanitizer.Sanitize(in.MarkdownSv),
-		MarkdownEn: dbutil.ToText(sanitizePtr(s.sanitizer, in.MarkdownEn)),
+		MarkdownEn: dbutil.ToText(s.sanitizer.SanitizePtr(in.MarkdownEn)),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("update markdown: %w", err)
@@ -170,12 +170,4 @@ func toPage(row db.Markdown, loc string) *InfoPage {
 		MarkdownSv: row.MarkdownSv,
 		MarkdownEn: dbutil.TextPtr(row.MarkdownEn),
 	}
-}
-
-func sanitizePtr(p *bluemonday.Policy, s *string) *string {
-	if s == nil {
-		return nil
-	}
-	sanitized := p.Sanitize(*s)
-	return &sanitized
 }
