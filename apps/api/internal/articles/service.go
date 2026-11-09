@@ -297,15 +297,23 @@ func (s *Service) Update(
 		return nil, fmt.Errorf("get article: %w", err)
 	}
 
-	if identity.MemberID == "" || dbutil.UUIDStr(current.MemberID) != identity.MemberID {
+	isAuthor := identity.MemberID != "" && dbutil.UUIDStr(current.MemberID) == identity.MemberID
+	if !isAuthor {
 		if err := auth.Require(ctx, apinames.NewsArticleUpdate); err != nil {
 			return nil, err
 		}
 	}
 
-	authorID, err := s.resolveAuthor(ctx, identity.MemberID, in.Author)
-	if err != nil {
-		return nil, err
+	// Only the author can change the byline. Anyone else editing keeps the
+	// article's current author, like the old edit page did - otherwise the
+	// editor would take the article over and the author would lose the
+	// right to edit it.
+	authorID := current.AuthorID
+	if isAuthor {
+		authorID, err = s.resolveAuthor(ctx, identity.MemberID, in.Author)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	committeeID, err := dbutil.ParseUUIDPtr(in.CommitteeID)

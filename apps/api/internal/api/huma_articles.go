@@ -158,7 +158,8 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Tags:        tags,
 		Summary:     "Replace an article",
 		Description: "Replaces every field, so omitting publishedAt un-publishes the article. " +
-			"Needs news:article:update, or being its author. The editor becomes the author.",
+			"Needs news:article:update, or being its author. Only the author can change the byline; " +
+			"anyone else editing keeps the current author and author is ignored.",
 	}, func(ctx context.Context, input *struct {
 		Slug string `path:"slug"`
 		Body articles.ArticleInput

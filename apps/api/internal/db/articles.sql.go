@@ -159,7 +159,7 @@ SELECT
     a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
-    au.type AS author_type,
+    au.type AS author_type, au.mandate_id AS author_mandate_id,
     m.id AS member_id, m.student_id AS member_student_id,
     m.first_name AS member_first_name, m.last_name AS member_last_name,
     m.nickname AS member_nickname, m.picture_path AS member_picture_path,
@@ -213,6 +213,7 @@ type GetArticleBySlugRow struct {
 	CommitteeShortName     pgtype.Text        `json:"committee_short_name"`
 	CommitteeSymbolUrl     pgtype.Text        `json:"committee_symbol_url"`
 	AuthorType             pgtype.Text        `json:"author_type"`
+	AuthorMandateID        pgtype.UUID        `json:"author_mandate_id"`
 	MemberID               pgtype.UUID        `json:"member_id"`
 	MemberStudentID        pgtype.Text        `json:"member_student_id"`
 	MemberFirstName        pgtype.Text        `json:"member_first_name"`
@@ -260,6 +261,7 @@ func (q *Queries) GetArticleBySlug(ctx context.Context, slug string) (GetArticle
 		&i.CommitteeShortName,
 		&i.CommitteeSymbolUrl,
 		&i.AuthorType,
+		&i.AuthorMandateID,
 		&i.MemberID,
 		&i.MemberStudentID,
 		&i.MemberFirstName,
@@ -299,7 +301,7 @@ SELECT
     a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
-    au.type AS author_type,
+    au.type AS author_type, au.mandate_id AS author_mandate_id,
     m.id AS member_id, m.student_id AS member_student_id,
     m.first_name AS member_first_name, m.last_name AS member_last_name,
     m.nickname AS member_nickname, m.picture_path AS member_picture_path,
@@ -350,6 +352,7 @@ type GetArticleRowBySlugRow struct {
 	CommitteeShortName     pgtype.Text        `json:"committee_short_name"`
 	CommitteeSymbolUrl     pgtype.Text        `json:"committee_symbol_url"`
 	AuthorType             pgtype.Text        `json:"author_type"`
+	AuthorMandateID        pgtype.UUID        `json:"author_mandate_id"`
 	MemberID               pgtype.UUID        `json:"member_id"`
 	MemberStudentID        pgtype.Text        `json:"member_student_id"`
 	MemberFirstName        pgtype.Text        `json:"member_first_name"`
@@ -402,6 +405,7 @@ func (q *Queries) GetArticleRowBySlug(ctx context.Context, slug string) (GetArti
 		&i.CommitteeShortName,
 		&i.CommitteeSymbolUrl,
 		&i.AuthorType,
+		&i.AuthorMandateID,
 		&i.MemberID,
 		&i.MemberStudentID,
 		&i.MemberFirstName,
@@ -431,7 +435,7 @@ SELECT
     a.nollning_season_id,
     c.name_sv AS committee_name_sv, c.name_en AS committee_name_en,
     c.short_name AS committee_short_name, c.symbol_url AS committee_symbol_url,
-    au.type AS author_type,
+    au.type AS author_type, au.mandate_id AS author_mandate_id,
     m.id AS member_id, m.student_id AS member_student_id,
     m.first_name AS member_first_name, m.last_name AS member_last_name,
     m.nickname AS member_nickname, m.picture_path AS member_picture_path,
@@ -524,6 +528,7 @@ type ListArticlesRow struct {
 	CommitteeShortName     pgtype.Text        `json:"committee_short_name"`
 	CommitteeSymbolUrl     pgtype.Text        `json:"committee_symbol_url"`
 	AuthorType             pgtype.Text        `json:"author_type"`
+	AuthorMandateID        pgtype.UUID        `json:"author_mandate_id"`
 	MemberID               pgtype.UUID        `json:"member_id"`
 	MemberStudentID        pgtype.Text        `json:"member_student_id"`
 	MemberFirstName        pgtype.Text        `json:"member_first_name"`
@@ -589,6 +594,7 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 			&i.CommitteeShortName,
 			&i.CommitteeSymbolUrl,
 			&i.AuthorType,
+			&i.AuthorMandateID,
 			&i.MemberID,
 			&i.MemberStudentID,
 			&i.MemberFirstName,

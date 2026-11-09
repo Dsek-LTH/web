@@ -298,7 +298,7 @@ export interface paths {
     get: operations["get-article"];
     /**
      * Replace an article
-     * @description Replaces every field, so omitting publishedAt un-publishes the article. Needs news:article:update, or being its author. The editor becomes the author.
+     * @description Replaces every field, so omitting publishedAt un-publishes the article. Needs news:article:update, or being its author. Only the author can change the byline; anyone else editing keeps the current author and author is ignored.
      */
     put: operations["replace-article"];
     post?: never;
@@ -2577,6 +2577,8 @@ export interface components {
       /** @description Set for a Custom byline. */
       customAuthor?: components["schemas"]["CustomAuthor"];
       id: string;
+      /** @description The mandate behind a Mandate byline (what AuthorInput.mandateId takes). */
+      mandateId?: string;
       /** @description The member who wrote it, whatever the byline. */
       member: components["schemas"]["Member"];
       /** @description Set for a Mandate byline. */

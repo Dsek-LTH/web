@@ -23,6 +23,7 @@ export function buildAuthorOptions(
       type: "Mandate" as const,
       member: self,
       position: mandate.position,
+      mandateId: mandate.id,
     })),
     ...customAuthors.map((customAuthor) => ({
       type: "Custom" as const,
@@ -39,7 +40,7 @@ export function sameAuthorOption(
   return (
     a.type === b.type &&
     a.member.id === b.member.id &&
-    a.position?.id === b.position?.id &&
+    a.mandateId === b.mandateId &&
     a.customAuthor?.id === b.customAuthor?.id
   );
 }
@@ -51,7 +52,7 @@ export function toAuthorInput(author: AuthorOptionSchema): {
   mandateId?: string;
   customId?: string;
 } {
-  if (author.type === "Mandate") return { mandateId: author.position?.id };
+  if (author.type === "Mandate") return { mandateId: author.mandateId };
   if (author.type === "Custom") return { customId: author.customAuthor?.id };
   return {};
 }

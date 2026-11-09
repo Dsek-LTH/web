@@ -32,7 +32,7 @@ Decided and not tasks (confirmed with the maintainers):
 
 ## P1: fix before cutover
 
-### [ ] T01 Posting an article under a mandate byline always fails
+### [x] T01 Posting an article under a mandate byline always fails
 
 - New: `apps/web/src/lib/news/authorOptions.ts` maps each mandate to
   `{ type: "Mandate", member, position }` and drops `mandate.id`;
@@ -50,7 +50,7 @@ Decided and not tasks (confirmed with the maintainers):
 - Verify: unit test for `toAuthorInput`; create an article as a mandate in
   dev.
 
-### [ ] T02 Editing an article makes the editor its author
+### [x] T02 Editing an article makes the editor its author
 
 - New: `articles.Service.Update` (`apps/api/internal/articles/service.go`
   ~line 306) calls `resolveAuthor(ctx, identity.MemberID, in.Author)`, so an

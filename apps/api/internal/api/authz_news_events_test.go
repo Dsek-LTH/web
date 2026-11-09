@@ -23,7 +23,7 @@ func TestArticleAccess(t *testing.T) {
 	past := time.Now().Add(-time.Hour)
 
 	// Member 1 writes an article; only they or news:article:update may edit
-	// it, and saving makes the editor the author.
+	// it, and someone else saving it keeps member 1 as the author.
 	e.check(t, e.gate(http.MethodPost, "/articles", articleBody("Authz article", &past), ok,
 		apinames.NewsArticleCreate))
 	slug := e.one(t, `SELECT slug FROM articles WHERE header_sv = 'Authz article'`)
@@ -36,8 +36,8 @@ func TestArticleAccess(t *testing.T) {
 			e.as(2, apinames.NewsArticleUpdate), http.MethodPut, path,
 			articleBody("Authz article", &past), ok,
 		},
-		// Member 2 is the author now.
-		{e.as(1), http.MethodPut, path, articleBody("Authz article", &past), denied},
+		// Member 1 is still the author.
+		{e.as(1), http.MethodPut, path, articleBody("Authz article", &past), ok},
 	})
 
 	// Likes and comments, as the signed-in member.
@@ -75,8 +75,8 @@ func TestArticleAccess(t *testing.T) {
 	e.check(t, []accessCase{
 		{anonymous, http.MethodGet, path, nil, hiddenOutcome()},
 		{anonymous, http.MethodGet, hidden, nil, hiddenOutcome()},
-		{e.as(1), http.MethodGet, hidden, nil, hiddenOutcome()},
-		{e.as(2), http.MethodGet, hidden, nil, ok},
+		{e.as(1), http.MethodGet, hidden, nil, ok},
+		{e.as(2), http.MethodGet, hidden, nil, hiddenOutcome()},
 		{e.as(4, apinames.NewsArticleUpdate), http.MethodGet, hidden, nil, ok},
 	})
 

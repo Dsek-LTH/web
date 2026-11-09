@@ -60,6 +60,7 @@ type ArticleAuthor struct {
 	Type         AuthorType    `json:"type"                   doc:"Member: the member themselves. Mandate: as a position they hold. Custom: a shared byline."`
 	Member       Member        `json:"member"                 doc:"The member who wrote it, whatever the byline."`
 	Position     *Position     `json:"position,omitempty"     doc:"Set for a Mandate byline."`
+	MandateID    *string       `json:"mandateId,omitempty"    doc:"The mandate behind a Mandate byline (what AuthorInput.mandateId takes)."`
 	CustomAuthor *CustomAuthor `json:"customAuthor,omitempty" doc:"Set for a Custom byline."`
 }
 

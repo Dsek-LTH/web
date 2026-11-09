@@ -34,8 +34,9 @@ func toArticleSummary(row db.ListArticlesRow, loc string) ArticleSummary {
 		NotificationText:       dbutil.TextPtr(row.NotificationText),
 		NollningSeasonID:       dbutil.UUIDStrPtr(row.NollningSeasonID),
 		Author: ArticleAuthor{
-			ID:   dbutil.UUIDStr(row.AuthorID),
-			Type: AuthorType(dbutil.StringOr(dbutil.TextPtr(row.AuthorType), "Member")),
+			ID:        dbutil.UUIDStr(row.AuthorID),
+			Type:      AuthorType(dbutil.StringOr(dbutil.TextPtr(row.AuthorType), "Member")),
+			MandateID: dbutil.UUIDStrPtr(row.AuthorMandateID),
 			Member: Member{
 				ID:          dbutil.UUIDStr(row.MemberID),
 				StudentID:   dbutil.TextPtr(row.MemberStudentID),

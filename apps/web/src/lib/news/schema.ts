@@ -30,6 +30,7 @@ export const authorOptionSchema = z.object({
   type: z.enum(["Member", "Mandate", "Custom"]),
   member: memberSchema,
   position: positionSchema.optional(),
+  mandateId: z.string().optional(),
   customAuthor: customAuthorSchema.optional(),
 });
 export type AuthorOptionSchema = Infer<typeof authorOptionSchema>;

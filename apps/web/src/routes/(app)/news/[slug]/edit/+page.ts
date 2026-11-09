@@ -49,28 +49,30 @@ export const load: PageLoad = async ({ fetch, params, parent }) => {
     nickname: member.nickname,
     picturePath: member.picturePath,
   };
-  const authorOptions = buildAuthorOptions(
-    self,
-    mandatesRes.data ?? [],
-    customAuthorsRes.data ?? [],
-  );
-
-  // Saving always re-resolves the author's member to whoever is editing
-  // (see apps/api/internal/articles' resolveAuthor) - there's no way to
-  // "keep" a different original author. Pick the option matching the
-  // article's current byline (self/one of the editor's mandates/a custom
-  // author) if one exists; otherwise fall back to "post as yourself",
-  // since the article will be re-attributed to the editor on save either
-  // way.
+  // Only the author can change the byline; Go keeps the current author when
+  // anyone else saves (see apps/api/internal/articles' Update), so they
+  // only get the current byline to pick. The author also keeps their
+  // current byline as an option when its mandate has since ended.
+  const isAuthor = article.author.member.id === member.id;
   const currentAsOption = {
     type: article.author.type,
-    member: self,
+    member: isAuthor ? self : article.author.member,
     position: article.author.position,
+    mandateId: article.author.mandateId,
     customAuthor: article.author.customAuthor,
   };
+  const authorOptions = isAuthor
+    ? buildAuthorOptions(
+        self,
+        mandatesRes.data ?? [],
+        customAuthorsRes.data ?? [],
+      )
+    : [];
   const selectedAuthor =
     authorOptions.find((option) => sameAuthorOption(option, currentAsOption)) ??
-    authorOptions[0];
+    currentAsOption;
+  if (!authorOptions.includes(selectedAuthor))
+    authorOptions.unshift(selectedAuthor);
 
   return {
     allTags: tagsRes.data ?? [],
