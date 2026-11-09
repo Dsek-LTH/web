@@ -253,9 +253,7 @@ func postDiscordWebhook(ctx context.Context, webhookURL string, body []byte) err
 // faithfully rather than "fixed", absent evidence it's a bug).
 func limitDescription(text string) string {
 	description := strings.ReplaceAll(text, "\n", " ")
-	if len(description) > 256-3 {
-		description = description[:256-3] + "..."
-	}
+	description = truncate(description, 256)
 	rows := strings.Split(description, "\n")
 	if len(rows) > 4 {
 		description = strings.Join(rows[:4], "\n") + "..."

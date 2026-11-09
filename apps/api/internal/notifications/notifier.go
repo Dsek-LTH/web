@@ -58,7 +58,7 @@ func (n *RealNotifier) NotifyNewArticle(
 
 	message := a.NotificationText
 	if message == "" {
-		message = stripToText(a.BodySv, 254)
+		message = cut(plainText(a.BodySv), 254)
 	}
 
 	params := SendParams{
@@ -224,15 +224,4 @@ func (s *Service) memberPlainName(ctx context.Context, memberID string) (string,
 		last = row.LastName.String
 	}
 	return strings.TrimSpace(fmt.Sprintf("%s %s", first, last)), nil
-}
-
-// stripToText is a lightweight stand-in for markdownToTxt(...).slice(0,254):
-// collapses newlines to spaces and truncates. Accepted simplification, not a
-// full markdown-to-plaintext port.
-func stripToText(s string, limit int) string {
-	s = strings.Join(strings.Fields(s), " ")
-	if len(s) > limit {
-		return s[:limit]
-	}
-	return s
 }

@@ -150,13 +150,7 @@ func (s *Service) Send(ctx context.Context, p SendParams) error {
 		return nil
 	}
 
-	title, message := p.Title, p.Message
-	if len(title) > 255 {
-		title = title[:251] + "..."
-	}
-	if len(message) > 255 {
-		message = message[:251] + "..."
-	}
+	title, message := truncate(p.Title, 255), truncate(p.Message, 255)
 
 	if err := s.queries.CreateNotifications(ctx, db.CreateNotificationsParams{
 		Title:        title,
@@ -404,8 +398,8 @@ func (s *Service) resolveAuthorDisplay(
 // `firstName lastName`, else whichever of the two is set, else "No name".
 func fullName(firstName, nickname, lastName *string) string {
 	nick := nickname
-	if nick != nil && len(*nick) > 60 {
-		truncated := (*nick)[:57] + "..."
+	if nick != nil {
+		truncated := truncate(*nick, 60)
 		nick = &truncated
 	}
 	if nick != nil && *nick != "" {

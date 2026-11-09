@@ -92,7 +92,7 @@ Decided and not tasks (confirmed with the maintainers):
 title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 ./...`.
 
-### [ ] T04 Notification text is cut by bytes, splitting å/ä/ö, and the insert fails
+### [x] T04 Notification text is cut by bytes, splitting å/ä/ö, and the insert fails
 
 - New: `apps/api/internal/notifications/notifier.go` `stripToText` returns
   `s[:limit]`; `service.go` `Send` cuts `title[:251]` / `message[:251]`;
