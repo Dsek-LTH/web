@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -179,5 +181,104 @@ func TestEventAccess(t *testing.T) {
 		{e.as(2), http.MethodGet, hiddenPath, nil, hidden},
 		{e.as(1), http.MethodGet, hiddenPath, nil, ok},
 		{e.as(4, apinames.EventUpdate), http.MethodGet, hiddenPath, nil, ok},
+	})
+}
+
+// withRoles is c with these derived roles on top of "*" and "_".
+func withRoles(c caller, roles ...string) caller {
+	id := *c.identity
+	id.Roles = append([]string{"*", "_"}, roles...)
+	c.identity = &id
+	c.label += " in " + strings.Join(roles, ", ")
+	return c
+}
+
+// A custom author is only offered to, and usable by, members holding an
+// active mandate for a position under one of its custom_author_roles
+// (prefixes included) or with one of them among their session's roles,
+// unless they may manage or edit articles; an edit keeps the article's
+// current one.
+func TestCustomAuthorAccess(t *testing.T) {
+	e := requireDB(t)
+	newAuthor := func(name, role string) string {
+		id := e.one(t, `INSERT INTO custom_authors (name_sv) VALUES ($1) RETURNING id::text`, name)
+		e.one(t, `INSERT INTO custom_author_roles (custom_author_id, role) VALUES ($1, $2)
+			RETURNING id::text`, id, role)
+		return id
+	}
+	board := newAuthor("Authz board", "dsek.authzca")
+	other := newAuthor("Authz other", "dsek.authzother")
+	group := newAuthor("Authz group", "dsek.authzgroup")
+	ours := []string{board, other, group}
+
+	// Member 1 holds a mandate today for a position under board's role.
+	e.one(t, `INSERT INTO positions (id, name_sv) VALUES ('dsek.authzca.x', 'Authz x')
+		RETURNING id`)
+	mandate := e.one(t, `INSERT INTO mandates (member_id, position_id, start_date, end_date,
+		last_synced) VALUES ($1, 'dsek.authzca.x', CURRENT_DATE - 1, CURRENT_DATE + 1, CURRENT_DATE)
+		RETURNING id::text`, e.members[1].ID)
+
+	byline := func(header, customID string) map[string]any {
+		body := articleBody(header, nil)
+		body["author"] = map[string]any{"customId": customID}
+		return body
+	}
+	writer := e.as(1, apinames.NewsArticleCreate)
+	// Member 3 has group's role only through the session (Authentik groups).
+	grouped := withRoles(e.as(3, apinames.NewsArticleCreate), "dsek", "dsek.authzgroup")
+	manager := e.as(2, apinames.NewsArticleCreate, apinames.NewsArticleManage)
+
+	listed := func(c caller) []string {
+		var authors []struct {
+			ID string `json:"id"`
+		}
+		e.mustCall(t, c, http.MethodGet, "/custom-authors", nil).decode(t, &authors)
+		var ids []string
+		for _, a := range authors {
+			if slices.Contains(ours, a.ID) {
+				ids = append(ids, a.ID)
+			}
+		}
+		slices.Sort(ids)
+		return ids
+	}
+	sorted := func(ids ...string) []string {
+		slices.Sort(ids)
+		return ids
+	}
+	for _, c := range []struct {
+		as   caller
+		want []string
+	}{
+		{writer, []string{board}},
+		{grouped, []string{group}},
+		{e.as(4), nil},
+		{anonymous, nil},
+		{manager, sorted(board, other, group)},
+	} {
+		if got := listed(c.as); !slices.Equal(got, c.want) {
+			t.Errorf("custom authors for %s: got %v, want %v", c.as.label, got, c.want)
+		}
+	}
+
+	e.check(t, []accessCase{
+		{writer, http.MethodPost, "/articles", byline("Authz board article", board), ok},
+		{writer, http.MethodPost, "/articles", byline("Authz other article", other), denied},
+		{grouped, http.MethodPost, "/articles", byline("Authz group article", group), ok},
+		{grouped, http.MethodPost, "/articles", byline("Authz group article 2", board), denied},
+		{manager, http.MethodPost, "/articles", byline("Authz managed article", other), ok},
+	})
+
+	// Once the mandate is gone, member 1 may keep the byline on their
+	// article but not pick it again or switch to one they lack.
+	e.one(t, `DELETE FROM mandates WHERE id = $1 RETURNING id::text`, mandate)
+	path := "/articles/" + e.one(
+		t,
+		`SELECT slug FROM articles WHERE header_sv = 'Authz board article'`,
+	)
+	e.check(t, []accessCase{
+		{writer, http.MethodPut, path, byline("Authz board article", board), ok},
+		{writer, http.MethodPut, path, byline("Authz board article", other), denied},
+		{writer, http.MethodPost, "/articles", byline("Authz board article 2", board), denied},
 	})
 }

@@ -793,7 +793,7 @@ export interface paths {
     };
     /**
      * List custom authors
-     * @description Shared bylines that aren't a member, e.g. Styrelsen.
+     * @description Shared bylines that aren't a member, e.g. Styrelsen, that the caller may post as: those granted to one of their roles, or all of them with news:article:manage or news:article:update.
      */
     get: operations["list-custom-authors"];
     put?: never;
@@ -2768,7 +2768,7 @@ export interface components {
       status: components["schemas"]["EventAttendanceStatus"];
     };
     AuthorInput: {
-      /** @description Post as this custom author. */
+      /** @description Post as this custom author, one GET /custom-authors lists for the caller (an edit may keep the article's current one). */
       customId?: string;
       /** @description Post as this mandate, which the caller must hold. */
       mandateId?: string;

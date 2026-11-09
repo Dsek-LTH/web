@@ -11,6 +11,56 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const customAuthorAllowedForRoles = `-- name: CustomAuthorAllowedForRoles :one
+SELECT EXISTS (
+    SELECT 1 FROM custom_author_roles
+    WHERE custom_author_id = $1::uuid
+      AND role = ANY($2::text[])
+)
+`
+
+type CustomAuthorAllowedForRolesParams struct {
+	CustomAuthorID pgtype.UUID `json:"custom_author_id"`
+	Roles          []string    `json:"roles"`
+}
+
+// Whether one of the given roles may post as the custom author; see
+// ListCustomAuthorsForRoles.
+func (q *Queries) CustomAuthorAllowedForRoles(ctx context.Context, arg CustomAuthorAllowedForRolesParams) (bool, error) {
+	row := q.db.QueryRow(ctx, customAuthorAllowedForRoles, arg.CustomAuthorID, arg.Roles)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const listActivePositionIDsForMember = `-- name: ListActivePositionIDsForMember :many
+SELECT DISTINCT position_id FROM mandates
+WHERE member_id = $1::uuid
+  AND start_date <= CURRENT_DATE AND end_date >= CURRENT_DATE
+`
+
+// The positions the member holds a mandate for today, for the custom
+// author roles (see ListCustomAuthorsForRoles).
+func (q *Queries) ListActivePositionIDsForMember(ctx context.Context, memberID pgtype.UUID) ([]string, error) {
+	rows, err := q.db.Query(ctx, listActivePositionIDsForMember, memberID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var position_id string
+		if err := rows.Scan(&position_id); err != nil {
+			return nil, err
+		}
+		items = append(items, position_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listCustomAuthors = `-- name: ListCustomAuthors :many
 SELECT id, name_sv, name_en, image_url FROM custom_authors ORDER BY name_sv
 `
@@ -22,10 +72,8 @@ type ListCustomAuthorsRow struct {
 	ImageUrl pgtype.Text `json:"image_url"`
 }
 
-// Unfiltered: every member can choose from every custom author. The old
-// TS backend restricted this list to custom authors whose
-// custom_author_roles matched one of the member's roles; that filter isn't
-// ported.
+// Every custom author, for those who may post as any of them (see
+// articles.Service.ListCustomAuthors).
 func (q *Queries) ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error) {
 	rows, err := q.db.Query(ctx, listCustomAuthors)
 	if err != nil {
@@ -35,6 +83,56 @@ func (q *Queries) ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow
 	items := []ListCustomAuthorsRow{}
 	for rows.Next() {
 		var i ListCustomAuthorsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.NameSv,
+			&i.NameEn,
+			&i.ImageUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCustomAuthorsForRoles = `-- name: ListCustomAuthorsForRoles :many
+SELECT ca.id, ca.name_sv, ca.name_en, ca.image_url
+FROM custom_authors ca
+WHERE EXISTS (
+    SELECT 1 FROM custom_author_roles car
+    WHERE car.custom_author_id = ca.id
+      AND car.role = ANY($1::text[])
+)
+ORDER BY ca.name_sv
+`
+
+type ListCustomAuthorsForRolesRow struct {
+	ID       pgtype.UUID `json:"id"`
+	NameSv   string      `json:"name_sv"`
+	NameEn   pgtype.Text `json:"name_en"`
+	ImageUrl pgtype.Text `json:"image_url"`
+}
+
+// The custom authors one of the given roles may post as: those with a
+// custom_author_roles row naming one of them. The roles are built by
+// articles.Service.customAuthorRoles: the ids of the positions the caller
+// holds a mandate for today, each expanded to its dot-separated prefixes,
+// plus "*" and "_" (like the old TS getCustomAuthorOptions), together with
+// the identity's own derived roles. So a row for "dsek.infu" matches
+// everyone in "dsek.infu.mdlm".
+func (q *Queries) ListCustomAuthorsForRoles(ctx context.Context, roles []string) ([]ListCustomAuthorsForRolesRow, error) {
+	rows, err := q.db.Query(ctx, listCustomAuthorsForRoles, roles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListCustomAuthorsForRolesRow{}
+	for rows.Next() {
+		var i ListCustomAuthorsForRolesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.NameSv,

@@ -308,7 +308,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Path:        "/custom-authors",
 		Tags:        tags,
 		Summary:     "List custom authors",
-		Description: "Shared bylines that aren't a member, e.g. Styrelsen.",
+		Description: "Shared bylines that aren't a member, e.g. Styrelsen, that the caller may post as: those granted to one of their roles, or all of them with news:article:manage or news:article:update.",
 	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []articles.CustomAuthor }, error) {
 		customAuthors, err := svc.ListCustomAuthors(ctx)
 		if err != nil {
