@@ -3,39 +3,39 @@ import type { CalendarType } from "@schedule-x/calendar";
 export type CalendarStatusCategory = "ACCEPTED" | "PENDING" | "DENIED";
 
 type ConfigMode = "tailwind" | "css";
-type CalendarStatusColours = Record<CalendarStatusCategory, string>;
+type CalendarStatusColors = Record<CalendarStatusCategory, string>;
 
-const baseColors: CalendarStatusColours = {
+const baseColors: CalendarStatusColors = {
   ACCEPTED: "primary",
   PENDING: "color-lila-400",
   DENIED: "destructive",
 };
 
-const backgroundColors: CalendarStatusColours = {
+const backgroundColors: CalendarStatusColors = {
   ACCEPTED: "bg-primary/15",
   PENDING: "bg-lila-400/15",
   DENIED: "bg-destructive/15",
 };
 
-const textColors: CalendarStatusColours = {
+const textColors: CalendarStatusColors = {
   ACCEPTED: "text-primary",
   PENDING: "text-lila-400",
   DENIED: "text-destructive",
 };
 
-const beforeColors: CalendarStatusColours = {
+const beforeColors: CalendarStatusColors = {
   ACCEPTED: "before:bg-primary",
   PENDING: "before:bg-lila-400",
   DENIED: "before:bg-destructive",
 };
 
-export const backgroundColorsModal: CalendarStatusColours = {
+export const backgroundColorsModal: CalendarStatusColors = {
   ACCEPTED: "bg-primary",
   PENDING: "bg-lila-400",
   DENIED: "bg-destructive",
 };
 
-export const shadowColorsModal: CalendarStatusColours = {
+export const shadowColorsModal: CalendarStatusColors = {
   ACCEPTED: "shadow-[0_0_4px_var(--primary)]",
   PENDING: "shadow-[0_0_4px_var(--color-lila-400)]",
   DENIED: "shadow-[0_0_4px_var(--destructive)]",

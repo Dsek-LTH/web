@@ -135,12 +135,10 @@ const gammalOchÄckligSemester = (
   boardSemesters: Semester[],
   volunteerSemesters: Semester[],
 ): Semester | undefined => {
-  if (
-    !(
-      volunteerSemesters.length >= 8 ||
-      (volunteerSemesters.length >= 6 && boardSemesters.length >= 2)
-    )
-  )
+  if (!(
+    volunteerSemesters.length >= 8 ||
+    (volunteerSemesters.length >= 6 && boardSemesters.length >= 2)
+  ))
     return undefined;
   const vs = volunteerSemesters.toSorted();
   const bs = boardSemesters.toSorted();

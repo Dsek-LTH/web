@@ -3,9 +3,6 @@ import { z } from "zod";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "sveltekit-flash-message/server";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import * as m from "$paraglide/messages";
 import apiNames from "$lib/utils/apiNames";
 import { authorize, isAuthorized } from "$lib/utils/authorization";
@@ -19,9 +16,7 @@ import type {
   ExtendedPrisma,
   ExtendedPrismaModel,
 } from "$lib/server/extendedPrisma";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { toAppTime } from "$lib/utils/datetime";
 
 type BookingRequestWithBookables = ExtendedPrismaModel<"BookingRequest"> & {
   bookables: Array<ExtendedPrismaModel<"Bookable">>;
@@ -59,7 +54,7 @@ export async function sendNotificationToKM(
 
   await sendNotification({
     title: `New booking request: ${bookingRequest.event}`,
-    message: `${bookerName} wants to book '${bookablesString}' from ${dayjs(bookingRequest.start).format("DD/MM HH:mm")} until ${dayjs(bookingRequest.end).format("DD/MM HH:mm")}.`,
+    message: `${bookerName} wants to book '${bookablesString}' from ${toAppTime(bookingRequest.start).format("DD/MM HH:mm")} until ${toAppTime(bookingRequest.end).format("DD/MM HH:mm")}.`,
     type: NotificationType.BOOKING_REQUEST,
     link: `/bookings/admin/${bookingRequest.id}`,
     memberIds: [källarmästare.id],

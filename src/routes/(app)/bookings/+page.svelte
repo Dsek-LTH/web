@@ -118,17 +118,13 @@
   class="sx-calendar:gap-6 sx-calendar:mt-10 mx-auto mt-6 mb-6 flex w-[var(--sx-calendar-width)] max-w-[var(--sx-calendar-max-width)] flex-col gap-5"
 >
   <div
-    class="sx-calendar:flex-row sx-calendar:items-end sx-calendar:justify-between flex w-full flex-col gap-4"
+    class="sx-calendar:flex-row sx-calendar:items-end sx-calendar:justify-between flex w-full flex-col gap-4 pb-2"
   >
-    <div class="sx-calendar:gap-3 flex flex-col gap-2.5">
-      <span
-        class="text-foreground sx-calendar:text-5xl -ml-0.5 text-4xl leading-none font-semibold tracking-tight"
-      >
+    <div class="flex flex-col gap-1">
+      <h1 class="-ml-0.5">
         {m.booking_title()}
-      </span>
-      <span
-        class="text-muted-foreground sx-calendar:text-lg max-w-lg text-base leading-tight font-light"
-      >
+      </h1>
+      <span class="text-muted-foreground max-w-lg text-base">
         {m.booking_subtitle()}
       </span>
     </div>

@@ -3,18 +3,30 @@
   import * as Avatar from "$lib/components/ui/avatar";
   import type { CalendarEventExternal } from "@schedule-x/calendar";
   import type { BookingCalendarEvent } from "$lib/bookings/eventTypes";
-  import { formatBookingTime } from "$lib/bookings/calendar/dateUtils";
   import * as m from "$paraglide/messages";
   import {
     calendarStatusCategoriesTailwind,
     type CalendarStatusCategory,
   } from "../../config";
+  import dayjs from "dayjs";
 
   const { calendarEvent }: { calendarEvent: CalendarEventExternal } = $props();
   const bookingEvent = $derived(calendarEvent as BookingCalendarEvent);
 
-  const startTime = $derived(formatBookingTime(calendarEvent.start));
-  const endTime = $derived(formatBookingTime(calendarEvent.end));
+  const dStartDate = $derived(
+    dayjs(
+      calendarEvent.start instanceof Temporal.ZonedDateTime
+        ? calendarEvent.start.epochMilliseconds
+        : calendarEvent.start.toString(),
+    ),
+  );
+  const dEndDate = $derived(
+    dayjs(
+      calendarEvent.end instanceof Temporal.ZonedDateTime
+        ? calendarEvent.end.epochMilliseconds
+        : calendarEvent.end.toString(),
+    ),
+  );
 
   const category = $derived(
     calendarStatusCategoriesTailwind[
@@ -59,7 +71,7 @@
   <div class="flex min-w-0 flex-col">
     {#if showTime}
       <span class="text-[0.6rem] font-medium">
-        {startTime} - {endTime}
+        {dStartDate.format("HH:mm")} - {dEndDate.format("HH:mm")}
       </span>
     {/if}
 

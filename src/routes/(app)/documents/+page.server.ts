@@ -2,9 +2,17 @@ import {
   PUBLIC_BUCKETS_DOCUMENTS,
   PUBLIC_BUCKETS_FILES,
 } from "$env/static/public";
+import type { AuthUser } from "@zenstackhq/runtime";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
-import { error, fail } from "@sveltejs/kit";
+import {
+  isReservedGroupName,
+  readGroupMap,
+  updateGroupMap,
+  type DocumentGroupMap,
+} from "$lib/files/documentGroups";
+import apiNames from "$lib/utils/apiNames";
+import { error, fail, isHttpError } from "@sveltejs/kit";
 import {
   message,
   superValidate,
@@ -15,7 +23,17 @@ import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
+import {
+  getMeetingFileKey,
+  getMeetingFolder,
+  groupDocuments,
+  mergeMeetings,
+  splitDocumentPath,
+  type DocumentMeeting,
+} from "./grouping";
 import { DocumentTypes as dt } from "./types";
+import { deleteFileSchema } from "./schemas";
+import { groupNameSchema, isSafePathSegment } from "./groupName";
 
 const validDocumentTypes = [
   dt.boardMeeting,
@@ -40,7 +58,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     throw error(400, m.documents_errors_invalidType());
   }
 
-  const files: FileData[] = await fileHandler
+  let loadError = false;
+  const documentsFiles: FileData[] = await fileHandler
     .getInBucket(
       user,
       PUBLIC_BUCKETS_DOCUMENTS,
@@ -49,104 +68,255 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     )
     .catch((err) => {
       console.error("Error fetching files", err);
-      return [];
-    });
-  const SRDFiles = await fileHandler
-    .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
-    .catch((err) => {
-      console.error("Error fetching files", err);
+      loadError = true;
       return [];
     });
 
-  let filteredFiles = files;
-  const oldFormatSRDFiles: FileData[] = [];
+  const documentsGroupMaps = await readGroupMaps(
+    user,
+    PUBLIC_BUCKETS_DOCUMENTS,
+    documentsFiles,
+    `public/${year}/`,
+  );
+  const documentMeetings = groupDocuments(documentsFiles, `public/${year}/`, {
+    groupMaps: documentsGroupMaps,
+  });
+
+  let meetings: DocumentMeeting[];
   switch (type) {
     case dt.guildMeeting:
-      filteredFiles = files.filter((file) => {
-        const fileParts = file.id.split("/");
-        const meeting =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
-        return meeting.startsWith("HTM") || meeting.startsWith("VTM");
-      });
+      meetings = documentMeetings.filter(
+        (meeting) =>
+          meeting.name.startsWith("HTM") || meeting.name.startsWith("VTM"),
+      );
       break;
 
-    case dt.SRDMeeting:
-      SRDFiles.forEach((file) => {
-        const fileParts = file.id.split("/");
-        const meetingName =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
-
-        const isSrdMeeting = meetingName.startsWith("SRD");
-        const oldStyle = meetingName.startsWith("Möte");
-        const isCorrectFormat = isSrdMeeting || oldStyle;
-
-        const targetFiles = isCorrectFormat ? filteredFiles : oldFormatSRDFiles;
-        targetFiles.push(file);
+    case dt.SRDMeeting: {
+      const srdFiles: FileData[] = await fileHandler
+        .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
+        .catch((err) => {
+          console.error("Error fetching files", err);
+          loadError = true;
+          return [];
+        });
+      const srdGroupMaps = await readGroupMaps(
+        user,
+        PUBLIC_BUCKETS_FILES,
+        srdFiles,
+        `public/srd/${year}/`,
+      );
+      const srdMeetings = groupDocuments(srdFiles, `public/srd/${year}/`, {
+        oldSrdFormat: true,
+        meetingFilter: (name) =>
+          name.startsWith("SRD") || name.startsWith("Möte"),
+        groupMaps: srdGroupMaps,
       });
+      meetings = mergeMeetings([...documentMeetings, ...srdMeetings]);
       break;
+    }
 
     case dt.other:
-      filteredFiles = files.filter((file) => {
-        const fileParts = file.id.split("/");
-        const meeting =
-          fileParts[fileParts.length - 2] ?? m.documents_unknown();
-        return (
-          !meeting.startsWith("HTM") &&
-          !meeting.startsWith("VTM") &&
-          !meeting.startsWith("S") &&
-          meeting != year.toString()
-        );
-      });
+      meetings = documentMeetings.filter(
+        (meeting) =>
+          !meeting.name.startsWith("HTM") &&
+          !meeting.name.startsWith("VTM") &&
+          !meeting.name.startsWith("S") &&
+          meeting.name !== String(year),
+      );
       break;
+
+    default:
+      meetings = documentMeetings;
   }
 
-  const oldSRDGroupedByMeeting = oldFormatSRDFiles.reduce<
-    Record<string, FileData[]>
-  >((acc, file) => {
-    const fileParts = file.id.split("/");
-    const fileName = fileParts[fileParts.length - 1] ?? m.documents_unknown();
-    const extensions = ["pdf", "html"];
-    const fileExtension = extensions.find((ext) => fileName.endsWith(ext));
-    const meeting = fileName.substring(
-      0,
-      fileName.length - (fileExtension ? fileExtension.length : 0),
-    );
-
-    if (!acc[meeting]) acc[meeting] = [];
-    acc[meeting]!.push(file);
-    return acc;
-  }, {});
-
-  const filesGroupedByMeeting = filteredFiles.reduce<
-    Record<string, FileData[]>
-  >((acc, file) => {
-    const fileParts = file.id.split("/");
-    const meeting = fileParts[fileParts.length - 2] ?? m.documents_unknown();
-    if (!acc[meeting]) acc[meeting] = [];
-    acc[meeting]!.push(file);
-    return acc;
-  }, oldSRDGroupedByMeeting);
   return {
-    files,
-    meetings: filesGroupedByMeeting,
+    meetings,
+    loadError,
     deleteForm: await superValidate(zod4(deleteSchema)),
+    editForm: await superValidate(zod4(editFileSchema)),
   };
 };
 
-const deleteSchema = z.object({
-  id: z.string(),
+async function readGroupMaps(
+  user: AuthUser | undefined,
+  bucket: string,
+  files: FileData[],
+  prefix: string,
+): Promise<Record<string, DocumentGroupMap>> {
+  const meetings = new Set(
+    files.flatMap(({ id, isDir }) => {
+      const parsed = isDir ? null : splitDocumentPath(id, prefix);
+      return parsed ? [parsed.meeting] : [];
+    }),
+  );
+
+  return Object.fromEntries(
+    await Promise.all(
+      [...meetings].map(
+        async (meeting) =>
+          [
+            meeting,
+            await readGroupMap(user, bucket, `${prefix}${meeting}`),
+          ] as const,
+      ),
+    ),
+  );
+}
+
+const documentBuckets = [
+  PUBLIC_BUCKETS_DOCUMENTS,
+  PUBLIC_BUCKETS_FILES,
+] as const;
+
+const deleteSchema = deleteFileSchema.extend({
+  // Meeting documents live in the documents bucket, but SRD meeting documents
+  // live in the files bucket. The bucket must be sent along with the file id.
+  bucket: z.enum(documentBuckets),
 });
-export type DeleteSchema = Infer<typeof deleteSchema>;
+
+const editFileSchema = z.object({
+  id: z.string().min(1),
+  bucket: z.enum(documentBuckets),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(200)
+    .refine(
+      (value) => !isReservedGroupName(value) && isSafePathSegment(value),
+      { message: m.documents_errors_invalidFileName() },
+    ),
+  group: groupNameSchema.default(""),
+});
+export type EditSchema = Infer<typeof editFileSchema>;
+
+const isDocumentGroupsFile = (id: string) =>
+  isReservedGroupName(id.split("/").at(-1) ?? "");
 
 export const actions: Actions = {
   deleteFile: async ({ request, locals }) => {
     const { user } = locals;
     const form = await superValidate(request, zod4(deleteSchema));
     if (!form.valid) return fail(400, { form });
-    const { id } = form.data;
-    await fileHandler.remove(user, PUBLIC_BUCKETS_DOCUMENTS, [id]);
+    const { id, bucket } = form.data;
+    if (isDocumentGroupsFile(id)) {
+      return message(
+        form,
+        { message: m.documents_errors_invalidFileName(), type: "error" },
+        { status: 400 },
+      );
+    }
+
+    const meetingFolder = getMeetingFolder(
+      id,
+      bucket,
+      PUBLIC_BUCKETS_DOCUMENTS,
+      PUBLIC_BUCKETS_FILES,
+    );
+    // Delete the object first so a failed delete never strips a surviving
+    // file's group. If the sidecar update then fails, the stale key only
+    // matters if a new file reuses the same path.
+    await fileHandler.remove(user, bucket, [id]);
+
+    if (meetingFolder) {
+      const fileKey = getMeetingFileKey(id, meetingFolder);
+      await updateGroupMap(
+        user,
+        bucket,
+        meetingFolder,
+        (map) => (fileKey in map ? delete map[fileKey] : false),
+        apiNames.FILES.BUCKET(bucket).DELETE,
+      );
+    }
+
     return message(form, {
       message: m.documents_fileDeleted(),
+      type: "success",
+    });
+  },
+
+  editFile: async ({ request, locals }) => {
+    const { user } = locals;
+    const form = await superValidate(request, zod4(editFileSchema));
+    if (!form.valid) return fail(400, { form });
+
+    const { id, bucket, name, group } = form.data;
+    if (isDocumentGroupsFile(id)) {
+      return message(
+        form,
+        { message: m.documents_errors_invalidFileName(), type: "error" },
+        { status: 400 },
+      );
+    }
+
+    const isOldSrdFile =
+      bucket === PUBLIC_BUCKETS_FILES &&
+      id.startsWith("public/srd/") &&
+      id.split("/").length === 4;
+    const meetingFolder = isOldSrdFile
+      ? null
+      : getMeetingFolder(
+          id,
+          bucket,
+          PUBLIC_BUCKETS_DOCUMENTS,
+          PUBLIC_BUCKETS_FILES,
+        );
+    if (!meetingFolder && !isOldSrdFile) {
+      return message(
+        form,
+        { message: m.documents_errors_invalidFileName(), type: "error" },
+        { status: 400 },
+      );
+    }
+    if (isOldSrdFile && group) {
+      return message(
+        form,
+        { message: m.documents_errors_oldSrdGroup(), type: "error" },
+        { status: 400 },
+      );
+    }
+
+    const fileName = id.split("/").at(-1)!;
+    const fileKey = meetingFolder ? getMeetingFileKey(id, meetingFolder) : null;
+    if (name !== fileName) {
+      // Rename first so a failed sidecar write can be reported without
+      // claiming the rename failed; a stale key leaves the file ungrouped
+      // until it is edited again.
+      try {
+        await fileHandler.rename(user, bucket, id, name);
+      } catch (e) {
+        if (isHttpError(e) && e.status === 409) {
+          return message(
+            form,
+            { message: m.documents_errors_fileExists(), type: "error" },
+            { status: 409 },
+          );
+        }
+        throw e;
+      }
+    }
+
+    if (meetingFolder && fileKey) {
+      const nextKey = fileKey.replace(/[^/]+$/, () => name);
+      try {
+        await updateGroupMap(user, bucket, meetingFolder, (map) => {
+          if (!(fileKey in map) && !group) return false;
+          if (name === fileName && (map[fileKey] ?? "") === group) return false;
+          delete map[fileKey];
+          if (group) map[nextKey] = group;
+          return true;
+        });
+      } catch (error) {
+        console.error("Could not update document group", error);
+        return message(form, {
+          message: m.documents_errors_groupNotUpdated(),
+          type: "warning",
+        });
+      }
+    }
+
+    return message(form, {
+      message: m.documents_fileUpdated(),
       type: "success",
     });
   },

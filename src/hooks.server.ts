@@ -144,7 +144,10 @@ const { handle: authHandle } = SvelteKitAuth({
       // Handle callback URLs to trusted domains
       const hostname = new URL(url).hostname;
       const allowedHostnames = ["localhost", "dsek.se"];
-      if (allowedHostnames.some((h) => hostname.endsWith(h))) return url;
+      const isAllowed = allowedHostnames.some(
+        (h) => hostname === h || hostname.endsWith(`.${h}`),
+      );
+      if (isAllowed) return url;
 
       return baseUrl;
     },
@@ -347,7 +350,7 @@ defineCustomServerStrategy("custom-userPreference", {
 
 export const handle = sequence(
   async ({ event, resolve }) => {
-    const route = event.url.pathname || "-";
+    const route = event.route.id ?? "unmatched";
     const method = event.request.method;
 
     inflightRequests.inc();

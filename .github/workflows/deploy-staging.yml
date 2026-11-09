@@ -12,16 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to image registry
         id: registry-login
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
       - name: Build and push website
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             "PUBLIC_MINIO_BASE_URL=https://files-sandbox.dsek.se"
@@ -37,16 +37,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to image registry
         id: registry-login
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
       - name: Build and push poppler
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: "{{defaultContext}}:poppler-server"
           push: true
@@ -56,17 +56,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to image registry
         id: registry-login
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.IMAGEREPO_USERNAME }}
           password: ${{ secrets.IMAGEREPO_PASSWORD }}
           registry: registry.dsek.se
       - name: Build and push scheduler
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: "{{defaultContext}}:scheduler-service"
           push: true
           tags: registry.dsek.se/web-staging/scheduler:latest
+
+  ticket-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Login to image registry
+        id: registry-login
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.IMAGEREPO_USERNAME }}
+          password: ${{ secrets.IMAGEREPO_PASSWORD }}
+          registry: registry.dsek.se
+      - name: Build and push ticket-service
+        uses: docker/build-push-action@v7
+        with:
+          context: "{{defaultContext}}:ticket-service"
+          push: true
+          tags: registry.dsek.se/web-staging/ticket-service:latest

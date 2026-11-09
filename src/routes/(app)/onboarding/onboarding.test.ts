@@ -37,6 +37,7 @@ const submittedFields = {
   foodPreference: "Vegetarian",
   classProgramme: "D",
   classYear: String(new Date().getFullYear()),
+  birthDate: "2000-01-15",
 };
 
 test("onboarding does not overwrite fields missing from the form", async () => {
@@ -51,5 +52,6 @@ test("onboarding saves the submitted fields", async () => {
   expect(data).toMatchObject({
     ...submittedFields,
     classYear: new Date().getFullYear(),
+    birthDate: new Date("2000-01-15"),
   });
 });

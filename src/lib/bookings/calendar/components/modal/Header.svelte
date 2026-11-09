@@ -15,12 +15,10 @@
   const shadow = $derived(shadowColorsModal[status]);
 </script>
 
-<div class="mb-6 flex items-start justify-between">
+<div class="mb-6 flex items-center justify-between">
   <div class="flex items-center gap-2 pt-1">
     <div class={`h-3 w-3 rounded-[3px] ${backgroundColor} ${shadow}`}></div>
-    <span
-      class="-mt-[1px] text-lg leading-none font-black tracking-tight uppercase"
-    >
+    <span class="-mt-[1px] text-lg leading-none font-black tracking-tight">
       {title}
     </span>
   </div>

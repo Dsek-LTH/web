@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
+  import { APP_TIMEZONE } from "$lib/utils/datetime";
   import * as m from "$paraglide/messages";
   import { ChevronLeft, ChevronRight } from "@lucide/svelte";
 
@@ -33,6 +34,6 @@
 <Button
   class="not-sx-calendar:hidden -ml-3 p-4 uppercase"
   variant="ghost"
-  onclick={() => (currentDate = Temporal.Now.plainDateISO("Europe/Stockholm"))}
+  onclick={() => (currentDate = Temporal.Now.plainDateISO(APP_TIMEZONE))}
   >{m.booking_today()}</Button
 >

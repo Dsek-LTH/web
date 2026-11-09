@@ -8,12 +8,19 @@
     compact = false,
   }: {
     mandate: ExtendedPrismaModel<"Mandate"> & {
+      phadderIn: ExtendedPrismaModel<"PhadderGroup"> | null;
       position: (ExtendedPrismaModel<"Position"> | null) & {
         committee: ExtendedPrismaModel<"Committee"> | null;
       };
     };
     compact?: boolean;
   } = $props();
+
+  const title = $derived(
+    mandate.phadderIn
+      ? `${mandate.position?.name} i ${mandate.phadderIn.name}`
+      : mandate.position?.name,
+  );
 </script>
 
 <div
@@ -23,16 +30,25 @@
 >
   {#if mandate.position && mandate.position.committee}<a
       href="/committees/{mandate.position.committee.shortName}"
-      ><CommitteeSymbol size="sm" committee={mandate.position.committee} /></a
-    >{/if}
+    >
+      {#if mandate.phadderIn?.imageUrl}
+        <img
+          src={mandate.phadderIn.imageUrl}
+          alt="{mandate.phadderIn.name} logo"
+          class="size-6 rounded-sm object-contain"
+        />
+      {:else}
+        <CommitteeSymbol size="sm" committee={mandate.position.committee} />
+      {/if}
+    </a>{/if}
   <div class="flex flex-col justify-center">
     <a href={getPositionLink(mandate.position.id)}>
       {#if compact}
         <h5 class="hover:text-muted-foreground transition-all">
-          {mandate.position?.name}
+          {title}
         </h5>
       {:else}<h6 class="hover:text-muted-foreground transition-all">
-          {mandate.position?.name}
+          {title}
         </h6>{/if}
     </a>
     {#if !compact}

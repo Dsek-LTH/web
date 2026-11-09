@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -26,6 +26,8 @@ type createScheduledTaskResponse struct {
 	ScheduledTaskID uint `json:"scheduledTaskID"`
 }
 
+var retryDelays = []time.Duration{time.Minute, 5 * time.Minute, 15 * time.Minute}
+
 var timerManager = struct {
 	timers   map[uint]*time.Timer
 	timersMu sync.Mutex
@@ -43,12 +45,7 @@ func scheduleTaskExecution(ctx context.Context, task scheduledTask) {
 
 	delay := time.Until(runTime)
 
-	if timer, ok := timerManager.timers[task.ID]; ok {
-		timer.Stop()
-		timerManager.timersMu.Lock()
-		delete(timerManager.timers, task.ID)
-		timerManager.timersMu.Unlock()
-	}
+	stopTaskTimer(task.ID)
 
 	if delay <= 0 {
 		log.Printf("RunTimestamp for task ID %d is in the past. Executing immediately.", task.ID)
@@ -72,6 +69,28 @@ func scheduleTaskExecution(ctx context.Context, task scheduledTask) {
 	timerManager.timersMu.Unlock()
 }
 
+func stopTaskTimer(taskID uint) {
+	timerManager.timersMu.Lock()
+	defer timerManager.timersMu.Unlock()
+
+	if timer, ok := timerManager.timers[taskID]; ok {
+		timer.Stop()
+		delete(timerManager.timers, taskID)
+	}
+}
+
+// cancelTaskExecution stops the timer of a task deleted through the API, so that it doesn't fire.
+func cancelTaskExecution(taskID string) {
+	id, err := strconv.ParseUint(taskID, 10, strconv.IntSize)
+	if err != nil {
+		log.Printf("Invalid task ID %q: %v", taskID, err)
+
+		return
+	}
+
+	stopTaskTimer(uint(id))
+}
+
 func rescheduleTaskExecution(ctx context.Context, taskID uint) {
 	log.Printf("Rescheduling task ID %d", taskID)
 	task, err := gorm.G[scheduledTask](db).
@@ -86,55 +105,79 @@ func rescheduleTaskExecution(ctx context.Context, taskID uint) {
 	scheduleTaskExecution(ctx, task)
 }
 
-// TODO: Decide how to handle failures/retries
+// executeTask retries failed requests, e.g. when the target is restarting during a deploy.
+// A task that still hasn't succeeded afterwards is tried again the next time this service starts.
 func executeTask(ctx context.Context, task scheduledTask) {
+	retryAttempts(retryDelays, time.Sleep, func() bool {
+		// Reload the task, as it may have been edited or deleted since it was scheduled
+		current, err := gorm.G[scheduledTask](db).
+			Where("id = ? AND has_executed = ?", task.ID, false).
+			First(ctx)
+		if err != nil {
+			log.Printf("Not executing task ID %d: %v", task.ID, err)
+
+			return true
+		}
+
+		if !sendTaskRequest(current) {
+			return false
+		}
+
+		setTaskExecuted(ctx, task.ID)
+
+		return true
+	})
+}
+
+// retryAttempts calls attempt until it reports being done, waiting for each delay in between.
+func retryAttempts(delays []time.Duration, sleep func(time.Duration), attempt func() bool) {
+	for _, delay := range delays {
+		if attempt() {
+			return
+		}
+
+		sleep(delay)
+	}
+
+	attempt()
+}
+
+func sendTaskRequest(task scheduledTask) bool {
 	log.Printf("Executing task ID: %d to %s", task.ID, task.EndpointURL)
 
-	var bodyMap map[string]any
-	if err := json.Unmarshal([]byte(task.Body), &bodyMap); err != nil {
-		log.Printf("Error unmarshaling body for task ID %d: %v", task.ID, err)
-
-		return
-	}
-	bodyMap["password"] = os.Getenv("PASSWORD")
-	bodyBytes, err := json.Marshal(bodyMap)
-	if err != nil {
-		log.Printf("Error marshalling body for task ID %d: %v", task.ID, err)
-
-		return
-	}
-	req, err := http.NewRequest(http.MethodPost, task.EndpointURL, bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequest(http.MethodPost, task.EndpointURL, bytes.NewBufferString(task.Body))
 	if err != nil {
 		log.Printf("Error creating request for task ID %d: %v", task.ID, err)
 
-		return
+		return false
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(sharedSecretHeader, os.Getenv("PASSWORD"))
 
 	client := &http.Client{
-		Timeout: 30 * time.Second,
+		Timeout: 2 * time.Minute,
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error executing request for task ID %d: %v", task.ID, err)
 
-		return
+		return false
 	}
 	defer func() {
 		_ = resp.Body.Close()
 	}()
 
-	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		log.Printf("Task ID %d executed successfully. Status: %d", task.ID, resp.StatusCode)
-	} else {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Printf("Task ID %d executed with non-success status: %d", task.ID, resp.StatusCode)
 
-		return
+		return false
 	}
 
-	setTaskExecuted(ctx, task.ID)
+	log.Printf("Task ID %d executed successfully. Status: %d", task.ID, resp.StatusCode)
+
+	return true
 }
 
 // TODO: Decide how to handle failures/retries

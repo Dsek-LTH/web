@@ -1,26 +1,27 @@
 import { env } from "$env/dynamic/private";
-import { sendNewArticleNotification } from "$lib/news/server/notifications";
-import { sendNewArticleWebhook } from "$lib/news/server/webhooks";
+import { announceArticle } from "$lib/news/server/notifications";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import type { RequestHandler } from "@sveltejs/kit";
 
 export const POST: RequestHandler = async ({ request }) => {
-  const body: ExtendedPrismaModel<"Article"> & {
-    tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
-    author: ExtendedPrismaModel<"Author">;
-    password: string;
-    notificationText: string;
-  } = await request.json();
-
-  const { password, notificationText } = body;
-  if (!password || password !== env.SCHEDULER_PASSWORD) {
+  const secret = request.headers.get("X-Scheduler-Secret");
+  if (!secret || secret !== env.SCHEDULER_PASSWORD) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  await Promise.allSettled([
-    await sendNewArticleNotification(body, notificationText),
-    await sendNewArticleWebhook(body, notificationText),
-  ]);
+  const body: ExtendedPrismaModel<"Article"> & {
+    tags: Array<Pick<ExtendedPrismaModel<"Tag">, "id">>;
+    author: ExtendedPrismaModel<"Author">;
+    notificationText: string;
+  } = await request.json();
+
+  const { notificationText } = body;
+
+  // A non-2xx response makes the scheduler retry. That's safe, as sendNotification
+  // skips members who already have this notification and the webhook only posts once.
+  if (!(await announceArticle(body, notificationText))) {
+    return new Response("Failed to announce article", { status: 500 });
+  }
 
   return new Response("Article created", { status: 201 });
 };

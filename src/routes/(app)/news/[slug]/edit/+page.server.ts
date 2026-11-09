@@ -10,6 +10,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { updateArticle } from "$lib/news/server/actions";
 import { updateSchema } from "$lib/news/schema";
 import { getAllTags } from "$lib/news/tags";
+import { getCommitteeOptions } from "$lib/news/committees";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
@@ -35,12 +36,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         tags: true,
       },
     }),
-    prisma.committee.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-    }),
+    getCommitteeOptions(prisma),
   ]);
 
   if (article?.author.id !== undefined) article.author.id = "";
@@ -77,6 +73,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   );
 
   const canDelete = isAuthorized(apiNames.NEWS.DELETE, user);
+  const now = new Date();
 
   return {
     allTags,
@@ -92,6 +89,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     committees,
     canDelete,
     slug: article.slug,
+    createdAt: article.createdAt,
+    now,
   };
 };
 

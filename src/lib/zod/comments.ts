@@ -9,9 +9,10 @@ import * as messages from "$paraglide/messages";
 
 import { z } from "zod";
 import DOMPurify from "isomorphic-dompurify";
+import * as m from "$paraglide/messages";
 
 export const commentSchema = z.object({
-  content: z.string().min(1),
+  content: z.string().trim().min(1).max(255),
 });
 export type CommentSchema = Infer<typeof commentSchema>;
 
@@ -54,8 +55,8 @@ export const commentAction =
         entityType satisfies never;
     }
     return message(form, {
-      message: messages.comments_sent(),
-      type: "hidden",
+      message: m.comments_posted(),
+      type: "success",
     });
   };
 
@@ -86,7 +87,7 @@ export const removeCommentAction =
         entityType satisfies never;
     }
     return message(form, {
-      message: messages.comments_removed(),
+      message: m.comments_removed(),
       type: "success",
     });
   };

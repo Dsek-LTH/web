@@ -36,21 +36,19 @@ export const scheduleExecution = async <T>(
   const jwt = await getDecryptedJWT(request);
   let result;
   try {
-    result = await fetch(
-      `${env.SCHEDULER_ENDPOINT}?password=${env.SCHEDULER_PASSWORD}`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          body: JSON.stringify(data),
-          endpointURL,
-          runTimestamp: publishTime,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt?.["id_token"]}`,
-        },
+    result = await fetch(env.SCHEDULER_ENDPOINT, {
+      method: "POST",
+      body: JSON.stringify({
+        body: JSON.stringify(data),
+        endpointURL,
+        runTimestamp: publishTime,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt?.["id_token"]}`,
+        "X-Scheduler-Secret": env.SCHEDULER_PASSWORD,
       },
-    );
+    });
   } catch (error) {
     return fail(500, {
       form,

@@ -32,6 +32,12 @@
   let pathInfo = $derived(typeToPath[$form.type]);
   let fileErrors = $derived($errors.file as string | string[] | undefined);
 
+  $effect(() => {
+    if ($form.type === "requirement") {
+      $form.group = "";
+    }
+  });
+
   let meetingPlaceholder = $derived.by(() => {
     switch ($form.type) {
       case "requirement":
@@ -113,6 +119,27 @@
         {/if}
       </div>
     </div>
+
+    {#if $form.type !== "requirement"}
+      <div class="flex flex-col gap-1.5">
+        <Label for="group">
+          {m.documents_group()}
+        </Label>
+        <Input
+          id="group"
+          name="group"
+          bind:value={$form.group}
+          type="text"
+          placeholder={m.documents_groupPlaceholder()}
+          aria-invalid={!!$errors.group}
+          aria-errormessage={$errors.group?.at(0)}
+          {...$constraints.group}
+        />
+        <p class="text-base-content/70 mt-0 text-sm italic">
+          {m.documents_groupInfo()}
+        </p>
+      </div>
+    {/if}
 
     <div class="flex flex-col gap-1.5">
       <Label for="file">

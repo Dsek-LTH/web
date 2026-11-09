@@ -7,7 +7,6 @@
   import EventCard from "$lib/components/EventCard.svelte";
   import HomeCalendar from "$lib/components/homeCalendar/HomeCalendar.svelte";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import NotImplemented from "$lib/components/NotImplemented.svelte";
   import * as ButtonGroup from "$lib/components/ui/button-group/index";
   import Button from "$lib/components/ui/button/button.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
@@ -15,6 +14,7 @@
 
   import EventFilters from "./EventFilters.svelte";
   import type { Display, EventPageLoadData } from "./EventPageLoad.js";
+  import MonthCalendar from "./MonthCalendar.svelte";
 
   const { data }: { data: EventPageLoadData } = $props();
 
@@ -81,15 +81,15 @@
 {#if display === "week"}
   <HomeCalendar
     events={data.events.map((event) => ({
+      id: event.id,
       startDate: event.startDatetime,
       endDate: event.endDatetime,
-      slug: event.slug ?? "",
+      slug: event.slug,
       title: event.title,
     }))}
   />
 {:else if display === "month"}
-  <!-- TODO: Implement this when the month calendar gets added. -->
-  <NotImplemented />
+  <MonthCalendar events={data.events} month={data.month} />
 {:else}
   <div class="flex flex-col gap-4 pt-8">
     {#each eventPairs as { last, event }, index (event.id)}

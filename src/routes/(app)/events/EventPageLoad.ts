@@ -1,4 +1,6 @@
 import { getEvents, type EventSpan } from "$lib/events/getEvents";
+import { getMonthRange } from "$lib/events/monthCalendar";
+import { APP_TIMEZONE, appDayStart } from "$lib/utils/datetime";
 import { interestedGoingSchema } from "$lib/events/schema";
 import { getAllTags } from "$lib/news/tags";
 import {
@@ -15,21 +17,35 @@ import { z } from "zod";
 const displaySchema = z.enum(["week", "month", "upcoming", "past"]);
 export type Display = z.infer<typeof displaySchema>;
 
+const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+
 const eventPageLoad =
   (adminMode = false) =>
   async ({ locals, url }: ServerLoadEvent) => {
     const { prisma } = locals;
 
     const display = displaySchema.parse(
-      url.searchParams.get("display") ?? "week",
+      url.searchParams.get("display") ?? "month",
     );
+
+    const requestedMonth = monthSchema.safeParse(url.searchParams.get("month"));
+    const monthKey = requestedMonth.success
+      ? requestedMonth.data
+      : dayjs().tz(APP_TIMEZONE).format("YYYY-MM");
 
     let spanFilter: EventSpan;
 
     if (display === "week") {
-      spanFilter = { weekStartingAt: dayjs().startOf("day").toDate() };
+      const todayKey = dayjs().tz(APP_TIMEZONE).format("YYYY-MM-DD");
+      const endKey = dayjs.utc(todayKey).add(7, "day").format("YYYY-MM-DD");
+
+      spanFilter = {
+        startingAt: appDayStart(todayKey),
+        endingAt: appDayStart(endKey),
+      };
     } else if (display === "month") {
-      spanFilter = { monthStartingAt: dayjs().startOf("month").toDate() };
+      const { startingAt, endingAt } = getMonthRange(monthKey);
+      spanFilter = { startingAt, endingAt };
     } else {
       const pageSize = getPageSizeOrThrowSvelteError(url);
       // The upper bound depends on the search/tag filters, so it is checked
@@ -65,6 +81,7 @@ const eventPageLoad =
       pageCount,
       allTags,
       display,
+      month: monthKey,
       interestedGoingForm: await superValidate(zod4(interestedGoingSchema)),
     };
   };

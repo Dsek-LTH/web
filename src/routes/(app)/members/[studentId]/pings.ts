@@ -130,6 +130,7 @@ const findPreviousPing = (
     },
     select: {
       fromMemberId: true,
+      toMemberId: true,
     },
   });
 
@@ -152,14 +153,18 @@ const performSubsequentPing = (
   prisma: ExtendedPrisma,
   fromMemberId: string,
   toMemberId: string,
-  previousPing: Pick<ExtendedPrismaModel<"Ping">, "fromMemberId">,
+  previousPing: Pick<
+    ExtendedPrismaModel<"Ping">,
+    "fromMemberId" | "toMemberId"
+  >,
 ) => {
   const isSenderFromColumn = previousPing.fromMemberId === fromMemberId;
   return prisma.ping.update({
     where: {
+      // The row keeps the direction of the first ping, which may be the opposite of this one
       fromMemberId_toMemberId: {
-        fromMemberId: fromMemberId,
-        toMemberId: toMemberId,
+        fromMemberId: previousPing.fromMemberId!,
+        toMemberId: previousPing.toMemberId!,
       },
     },
     data: {

@@ -88,6 +88,7 @@ const updateSchema = memberSchema
     firstName: true,
     lastName: true,
     nickname: true,
+    birthDate: true,
     foodPreference: true,
     classProgramme: true,
     classYear: true,
@@ -140,7 +141,7 @@ export const actions: Actions = {
       );
       const res = await fetch(putUrl, {
         method: "PUT",
-        body: buffer,
+        body: new Uint8Array(buffer),
       });
       if (!res.ok)
         return message(

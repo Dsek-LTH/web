@@ -1,45 +1,38 @@
 <script lang="ts">
   import * as m from "$paraglide/messages";
   import { Clock } from "@lucide/svelte";
-  import {
-    formatBookingTime,
-    bookingMonthLabels,
-    bookingWeekdayLabels,
-  } from "$lib/bookings/calendar/dateUtils";
   import Section from "./Section.svelte";
 
-  type PropDate = Temporal.ZonedDateTime | Temporal.PlainDate;
+  import dayjs from "dayjs";
+  import localeData from "dayjs/plugin/localeData";
 
-  const { startDate, endDate }: { startDate: PropDate; endDate: PropDate } =
+  dayjs.extend(localeData);
+
+  const {
+    startDate,
+    endDate,
+  }: { startDate: Temporal.ZonedDateTime; endDate: Temporal.ZonedDateTime } =
     $props();
 
-  const startTime = $derived(formatBookingTime(startDate));
-  const startDay = $derived(startDate.day);
-  const startWeekday = $derived(bookingWeekdayLabels[startDate.dayOfWeek - 1]);
-  const startMonth = $derived(bookingMonthLabels[startDate.month - 1]);
-  const startYear = $derived(startDate.year);
-
-  const endTime = $derived(formatBookingTime(endDate));
-  const endDay = $derived(endDate.day);
-  const endMonth = $derived(bookingMonthLabels[endDate.month - 1]);
-  const endYear = $derived(endDate.year);
+  const dStartDate = $derived(dayjs(startDate.epochMilliseconds));
+  const dEndDate = $derived(dayjs(endDate.epochMilliseconds));
 
   let header = $state("");
   let description = $state("");
 
   $effect(() => {
-    const isSameDay = startDay === endDay;
-    const isSameYear = startYear === endYear;
+    const isSameDay = dStartDate.day === dEndDate.day;
+    const isSameYear = dStartDate.year === dEndDate.year;
 
     if (isSameDay) {
-      header = `${startDay} ${startMonth} ${startYear}`;
-      description = `${startTime} - ${endTime}`;
+      header = dStartDate.format("DD MMMM YYYY");
+      description = `${dStartDate.format("HH:MM")} - ${dEndDate.format("HH:MM")}`;
     } else {
       header = isSameYear
-        ? `${startDay} ${startMonth} - ${endDay} ${endMonth} ${endYear}`
-        : `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
+        ? `${dStartDate.format("DD MMMM")} - ${dEndDate.format("DD MMMM YYYY")}`
+        : `${dStartDate.format("DD MMMM YYYY")} - ${dEndDate.format("DD MMMM YYYY")}`;
 
-      description = `${m.events_startTime()} ${startWeekday} @ ${startTime}`;
+      description = `${m.events_startTime()} ${dStartDate.format("dddd @ HH:mm")}`;
     }
   });
 </script>

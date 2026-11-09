@@ -3,8 +3,6 @@ import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { redirect } from "sveltekit-flash-message/server";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import * as m from "$paraglide/messages";
 import apiNames from "$lib/utils/apiNames";
 import { isAuthorized } from "$lib/utils/authorization";
@@ -19,14 +17,14 @@ import {
   grantBookingDoorAccess,
 } from "$lib/bookings/server/doorAccess";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
+import { APP_TIMEZONE } from "$lib/utils/datetime";
 import type { Actions, PageServerLoad } from "./$types";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   const { prisma, user } = locals;
-  const bookables = await prisma.bookable.findMany();
+  const bookables = await authorizedPrismaClient.bookable.findMany({
+    include: { category: true },
+  });
   const doors = await authorizedPrismaClient.door.findMany();
 
   const booking = await getBookingRequestOrThrow(prisma, params.id);
@@ -65,11 +63,11 @@ export const actions: Actions = {
       where: { id: params.id },
       data: {
         start: dayjs
-          .tz(start, "Europe/Stockholm")
+          .tz(start, APP_TIMEZONE)
           .tz("Etc/UTC")
           .format("YYYY-MM-DDTHH:mm:ssZ"),
         end: dayjs
-          .tz(end, "Europe/Stockholm")
+          .tz(end, APP_TIMEZONE)
           .tz("Etc/UTC")
           .format("YYYY-MM-DDTHH:mm:ssZ"),
         event: name,

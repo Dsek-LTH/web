@@ -1,4 +1,5 @@
 import { fileHandler } from "$lib/files";
+import { isReservedGroupName } from "$lib/files/documentGroups";
 import type { AuthUser } from "@zenstackhq/runtime";
 import * as m from "$paraglide/messages";
 import sharp, { type ResizeOptions, type WebpOptions } from "sharp";
@@ -28,7 +29,7 @@ export const compressImage = async (
     .webp(options?.webp)
     .toBuffer();
 
-export const uploadFile = async (
+export const uploadFileWithKey = async (
   user: AuthUser,
   file: File,
   prefix: string,
@@ -46,10 +47,12 @@ export const uploadFile = async (
   //   create: { title: meeting, date, url: folderPath },
   // });
 
-  let dataToUpload: File | Buffer = file;
+  let dataToUpload: File | Uint8Array<ArrayBuffer> = file;
   if (isFileImage(file) && compressionOptions !== false) {
     try {
-      dataToUpload = await compressImage(file, compressionOptions);
+      dataToUpload = new Uint8Array(
+        await compressImage(file, compressionOptions),
+      );
       formattedName = prepareNameForFilesystem(
         name ?? getNameOfFile(file.name),
         file.name,
@@ -57,8 +60,12 @@ export const uploadFile = async (
       );
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : String(e);
-      throw new Error(`Could not compress image: ${errMsg}`);
+      throw new Error(`Could not compress image: ${errMsg}`, { cause: e });
     }
+  }
+
+  if (isReservedGroupName(formattedName)) {
+    throw new Error(m.documents_errors_invalidFileName());
   }
 
   const filePath = `${prefix}/${formattedName}`;
@@ -78,10 +85,19 @@ export const uploadFile = async (
       throw new Error(
         `${m.members_errors_couldNotUploadFile()}: ${await res.text()}`,
       );
-    return `${MINIO_BASE_URL}${bucket}/${filePath}`;
+    return {
+      url: `${MINIO_BASE_URL}${bucket}/${filePath}`,
+      key: filePath,
+    };
   } catch (e) {
     console.error(e);
     const errMsg = e instanceof Error ? e.message : String(e);
-    throw new Error(`${m.members_errors_couldNotUploadFile()}: ${errMsg}`);
+    throw new Error(`${m.members_errors_couldNotUploadFile()}: ${errMsg}`, {
+      cause: e,
+    });
   }
 };
+
+export const uploadFile = async (
+  ...args: Parameters<typeof uploadFileWithKey>
+) => (await uploadFileWithKey(...args)).url;

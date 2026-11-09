@@ -7,20 +7,16 @@
   import CircleUserRound from "@lucide/svelte/icons/circle-user-round";
   import Coffee from "@lucide/svelte/icons/coffee";
 
-  import dayjs from "dayjs";
   import { signIn } from "$lib/utils/auth";
 
-  import utc from "dayjs/plugin/utc";
-  import timezone from "dayjs/plugin/timezone";
   import { m } from "$paraglide/messages";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
+  import BirthdayList from "$lib/components/BirthdayList.svelte";
   import { Spinner } from "$lib/components/ui/spinner";
   import { page } from "$app/state";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
   const { data } = $props();
 
   let isLoggingIn = $state(false);
@@ -114,12 +110,13 @@
               publishedAt: newsArticle.publishedAt,
               committee: newsArticle.committee,
               imageUrl: newsArticle.imageUrl,
+              youtubeUrl: newsArticle.youtubeUrl,
             }}
             isPreview={false}
           />
         {:else}
           <div
-            class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
+            class="text-muted-foreground flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
           >
             <span class="font-medium">{m.home_newsEmpty()}</span>
           </div>
@@ -140,12 +137,15 @@
       </h2>
       <HomeCalendar
         events={data.events.map((e) => ({
+          id: e.id,
           startDate: e.startDatetime,
           endDate: e.endDatetime,
-          slug: e.slug ?? "",
+          slug: e.slug,
           title: e.title,
         }))}
       />
     </div>
+
+    <BirthdayList birthdays={data.birthdays} />
   </div>
 </div>
