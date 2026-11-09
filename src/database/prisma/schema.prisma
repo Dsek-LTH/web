@@ -680,20 +680,22 @@ model PhadderGroup {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
-  id            String       @id() @db.VarChar(255)
-  nameSv        String       @map("name_sv") @db.VarChar(255)
-  nameEn        String?      @map("name_en") @db.VarChar(255)
-  committeeId   String?      @map("committee_id") @db.Uuid()
-  email         String?      @db.VarChar(255)
-  active        Boolean      @default(true)
-  boardMember   Boolean      @default(false) @map("board_member")
-  descriptionSv String?      @map("description_sv")
-  descriptionEn String?      @map("description_en")
-  startMonth    Int          @default(0) @map("start_month")
-  endMonth      Int          @default(11) @map("end_month")
-  committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
-  emailAliases  EmailAlias[]
-  mandates      Mandate[]
+  id                String       @id() @db.VarChar(255)
+  nameSv            String       @map("name_sv") @db.VarChar(255)
+  nameEn            String?      @map("name_en") @db.VarChar(255)
+  committeeId       String?      @map("committee_id") @db.Uuid()
+  email             String?      @db.VarChar(255)
+  active            Boolean      @default(true)
+  boardMember       Boolean      @default(false) @map("board_member")
+  descriptionSv     String?      @map("description_sv")
+  descriptionEn     String?      @map("description_en")
+  longDescriptionSv String?      @map("long_description_sv")
+  longDescriptionEn String?      @map("long_description_en")
+  startMonth        Int          @default(0) @map("start_month")
+  endMonth          Int          @default(11) @map("end_month")
+  committee         Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
+  emailAliases      EmailAlias[]
+  mandates          Mandate[]
 
   @@map("positions")
 }
