@@ -2,7 +2,8 @@ import { POST_REVEAL_PREFIX } from "$lib/components/postReveal/types";
 import { api } from "$lib/api/client";
 import { commentSchema, removeCommentSchema } from "$lib/zod/comments";
 import * as m from "$paraglide/messages";
-import { error, redirect } from "@sveltejs/kit";
+import { goError } from "$lib/utils/access";
+import { redirect } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { likeSchema } from "../likes";
@@ -13,9 +14,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
     fetch,
     params: { path: { slug: params.slug } },
   });
-  if (res.error) {
-    throw error(404, { message: m.news_errors_articleNotFound() });
-  }
+  if (res.error)
+    goError(res.response, res.error, m.news_errors_articleNotFound());
   const article = res.data;
 
   // Nollning articles are shown on the nollning pages.

@@ -7,6 +7,7 @@ import * as m from "$paraglide/messages";
 import { bookingSchema } from "$lib/bookings/schema";
 import { stockholmToIso } from "$lib/bookings/server/queries";
 import { serverApi } from "$lib/server/apiClient";
+import { goError } from "$lib/utils/access";
 
 // Every booking mutation is a Go call (apps/api/internal/booking): who may
 // create/edit/accept/delete, the KM notification on a new request, the
@@ -39,7 +40,8 @@ export async function saveBookingRequest(event: RequestEvent, id?: string) {
     if (res.response.status === 403) {
       error(403, m.booking_errors_notAuthorized());
     }
-    return fail(400, { form });
+    // Go's reason (an overlap, a bad time range, ...) is the form's toast.
+    goError(res.response, res.error, "Failed to save booking request");
   }
 
   throw redirect(

@@ -1,5 +1,5 @@
 import { api } from "$lib/api/client";
-import { error } from "@sveltejs/kit";
+import { goError } from "$lib/utils/access";
 import type { PageLoad } from "./$types";
 
 // The printed songbook's entries in page order. A numeric search finds a
@@ -12,7 +12,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
     fetch,
     params: { query: { search: search || undefined, page, pageSize: 20 } },
   });
-  if (res.error) error(res.response.status === 403 ? 403 : 500);
+  if (res.error)
+    goError(res.response, res.error, "Failed to load the songbook");
 
   return {
     songs: res.data.entries ?? [],

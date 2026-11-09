@@ -6,7 +6,7 @@ import { governingDocumentSchema } from "../schemas";
 import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
-import { requirePolicy } from "$lib/utils/access";
+import { goError, requirePolicy } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
 // governing_document:write is enforced by the Go API itself
@@ -27,7 +27,12 @@ export const actions: Actions = {
     const created = await serverApi(event).POST("/governing-documents", {
       body: { url, title, type },
     });
-    if (created.error) throw new Error("Failed to create governing document");
+    if (created.error)
+      goError(
+        created.response,
+        created.error,
+        "Failed to create governing document",
+      );
     throw redirect(
       "/documents/governing",
       {

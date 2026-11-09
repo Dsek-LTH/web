@@ -19,8 +19,7 @@ export const POST: RequestHandler = async (event) => {
   const res = await serverApi(event).PUT("/notifications/push-token", {
     body: { token: body.notificationToken },
   });
-  if (res.error) {
-    error(500, "Couldn't save token");
-  }
+  if (res.error)
+    error(res.response.status, res.error.detail ?? "Couldn't save token");
   return new Response("Token saved");
 };
