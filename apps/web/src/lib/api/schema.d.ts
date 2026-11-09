@@ -2822,9 +2822,9 @@ export interface components {
       verboseName: string;
     };
     BookingRequest: {
-      /** @description Doors to open for the booking. */
+      /** @description Doors to open for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessDoors: components["schemas"]["BookingDoor"][];
-      /** @description Members who get door access for the booking. */
+      /** @description Members who get door access for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessMembers: components["schemas"]["Member"][];
       bookables: components["schemas"]["Bookable"][];
       /** @description Who asked for the booking. */
@@ -2861,9 +2861,9 @@ export interface components {
     /** @enum {string} */
     BookingRequestStatus: "PENDING" | "ACCEPTED" | "DENIED";
     BookingReviewItem: {
-      /** @description Doors to open for the booking. */
+      /** @description Doors to open for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessDoors: components["schemas"]["BookingDoor"][];
-      /** @description Members who get door access for the booking. */
+      /** @description Members who get door access for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessMembers: components["schemas"]["Member"][];
       bookables: components["schemas"]["Bookable"][];
       /** @description Who asked for the booking. */

@@ -255,7 +255,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `db.DBTX`), validate doors/members/bookables before the first write, and
   lock the request row (`SELECT ... FOR UPDATE`) in Update/SetStatus.
 
-### [ ] T14 Booking admin pages lack an update gate; access lists leak to readers
+### [x] T14 Booking admin pages lack an update gate; access lists leak to readers
 
 - New: `apps/web/src/routes/(app)/bookings/admin/+page.server.ts` and
   `admin/[id]/+page.server.ts` have no `requirePolicy`. Go's List/Get attach

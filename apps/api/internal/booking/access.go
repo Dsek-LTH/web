@@ -121,22 +121,32 @@ func grantDoorAccess(ctx context.Context, q *db.Queries, id pgtype.UUID) error {
 	return nil
 }
 
-// attachAccess fills in each request's AccessDoors/AccessMembers.
+// attachAccess fills in each request's AccessDoors/AccessMembers, but only
+// for its booker and booking_request:update holders (who review and edit
+// them); everyone else gets empty lists, like the old app, whose plain
+// booking list didn't include them.
 func (s *Service) attachAccess(ctx context.Context, requests []*BookingRequest) error {
-	if len(requests) == 0 {
-		return nil
-	}
+	identity, _ := auth.FromContext(ctx)
+	isAdmin := identity != nil && identity.Has(apinames.BookingRequestUpdate)
 	ids := make([]pgtype.UUID, 0, len(requests))
 	byID := make(map[string]*BookingRequest, len(requests))
 	for _, r := range requests {
 		r.AccessDoors = []BookingDoor{}
 		r.AccessMembers = []apitypes.Member{}
+		isBooker := identity != nil && identity.MemberID != "" &&
+			r.Booker != nil && r.Booker.ID == identity.MemberID
+		if !isAdmin && !isBooker {
+			continue
+		}
 		id, err := dbutil.ParseUUID(r.ID)
 		if err != nil {
 			return fmt.Errorf("parse booking request id: %w", err)
 		}
 		ids = append(ids, id)
 		byID[r.ID] = r
+	}
+	if len(ids) == 0 {
+		return nil
 	}
 
 	doors, err := s.queries.ListAccessDoorsForBookingRequests(ctx, ids)
