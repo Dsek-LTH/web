@@ -156,7 +156,14 @@ export const meetingDocumentPrefixes = {
     "dagordning",
     "agenda",
   ],
-  minutes: ["protokoll", "minutes", "minute", "protocol"],
+  minutes: [
+    "motesprotokoll",
+    "mötesprotokoll",
+    "protokoll",
+    "minutes",
+    "minute",
+    "protocol",
+  ],
 } as const;
 
 export function findLatestFile(
