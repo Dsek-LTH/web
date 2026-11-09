@@ -511,7 +511,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       document it.
 - [ ] T53 Push metrics in `apps/web/src/lib/server/metrics.ts` are never
       incremented: remove them.
-- [ ] T54 Contact page drops a mandate holder at 00:00 UTC on their last
+- [x] T54 Contact page drops a mandate holder at 00:00 UTC on their last
       day (`contact/+page.ts` compares a date-only string as UTC).
 - [x] T55 Season lookups run on every request (`auth/real.go` calls
       `NollaYear` and `InjectStabenPolicy`, each querying the season):
