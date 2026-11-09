@@ -128,16 +128,29 @@ WHERE member_id = $1
   AND position_id IN ('dsek.noll.phadder', 'dsek.noll.uppdrag');
 
 -- name: GetMemberNollaGroupID :one
--- Backs PhadderRoleFor's "nolla" branch.
-SELECT nollning_group_id FROM members WHERE id = $1;
+-- Backs PhadderRoleFor's "nolla" branch: the member's nolla group, only if
+-- it belongs to the season of the given year (members.nollning_group_id
+-- is never cleared after a season, so last year's nollor still have one).
+SELECT g.id
+FROM members m
+JOIN phadder_groups g ON g.id = m.nollning_group_id
+JOIN nollning_seasons s ON s.id = g.season_id
+WHERE m.id = sqlc.arg('member_id')
+  AND s.year = sqlc.arg('season_year');
 
 -- name: GetMemberPhadderGroupID :one
--- Backs PhadderRoleFor's "phadder" branch: which group (if any) this
--- member holds an active phadder/uppdrag mandate pointed at.
-SELECT "phadderInId"
-FROM mandates
-WHERE member_id = $1
-  AND position_id IN ('dsek.noll.phadder', 'dsek.noll.uppdrag')
-  AND "phadderInId" IS NOT NULL
-ORDER BY position_id ASC, start_date ASC
+-- Backs PhadderRoleFor's "phadder" branch: the group of the given year's
+-- season this member holds a phadder/uppdrag mandate pointed at, the
+-- mandate overlapping the season's days (Swedish time, like
+-- FindActivePhadderMandate). Newest mandate first.
+SELECT g.id
+FROM mandates m
+JOIN phadder_groups g ON g.id = m."phadderInId"
+JOIN nollning_seasons s ON s.id = g.season_id
+WHERE m.member_id = sqlc.arg('member_id')
+  AND m.position_id IN ('dsek.noll.phadder', 'dsek.noll.uppdrag')
+  AND s.year = sqlc.arg('season_year')
+  AND m.start_date <= (s.end_at AT TIME ZONE 'Europe/Stockholm')::date
+  AND m.end_date >= (s.nolla_start_at AT TIME ZONE 'Europe/Stockholm')::date
+ORDER BY m.start_date DESC, m.position_id ASC
 LIMIT 1;

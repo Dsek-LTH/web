@@ -111,6 +111,36 @@ func (q *Queries) GetMemberByStudentID(ctx context.Context, studentID pgtype.Tex
 	return i, err
 }
 
+const getMemberNollaGroup = `-- name: GetMemberNollaGroup :one
+SELECT g.id, g.name, g.image_url, s.year
+FROM members m
+JOIN phadder_groups g ON g.id = m.nollning_group_id
+JOIN nollning_seasons s ON s.id = g.season_id
+WHERE m.id = $1
+`
+
+type GetMemberNollaGroupRow struct {
+	ID       pgtype.UUID `json:"id"`
+	Name     string      `json:"name"`
+	ImageUrl pgtype.Text `json:"image_url"`
+	Year     int32       `json:"year"`
+}
+
+// The phadder group the member was a nolla in, whatever season - the
+// profile's permanent "nolla in" record (members.nollning_group_id is
+// never cleared after a season).
+func (q *Queries) GetMemberNollaGroup(ctx context.Context, memberID pgtype.UUID) (GetMemberNollaGroupRow, error) {
+	row := q.db.QueryRow(ctx, getMemberNollaGroup, memberID)
+	var i GetMemberNollaGroupRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.ImageUrl,
+		&i.Year,
+	)
+	return i, err
+}
+
 const getMemberPicturePath = `-- name: GetMemberPicturePath :one
 SELECT picture_path FROM members WHERE student_id = $1
 `

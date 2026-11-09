@@ -384,7 +384,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `resolveAuthor` for create (on edit, keeping the existing custom author is
   allowed).
 
-### [ ] T26 `phadder-role` isn't limited to the current season
+### [x] T26 `phadder-role` isn't limited to the current season
 
 - New: `nollning/service.go` ~162-189 returns `members.nollning_group_id`
   regardless of season; the phadder branch takes the oldest mandate.

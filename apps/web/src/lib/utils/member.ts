@@ -17,11 +17,11 @@ export const setNollningGroup = async (
     return;
   }
 
-  const roleRes = await api.GET("/members/{studentId}/phadder-role", {
+  // The member's nolla group in any season, not only the current one.
+  const profileRes = await api.GET("/members/{studentId}", {
     params: { path: { studentId } },
   });
-  const currentGroupId =
-    roleRes.data?.role === "nolla" ? roleRes.data.groupId : undefined;
+  const currentGroupId = profileRes.data?.nollaIn?.id;
   if (currentGroupId) {
     await api.DELETE("/nollning/phadder-groups/{id}/nollor/{studentId}", {
       params: { path: { id: currentGroupId, studentId } },

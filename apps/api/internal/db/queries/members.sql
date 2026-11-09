@@ -70,3 +70,13 @@ UPDATE members SET picture_path = sqlc.narg('picture_path') WHERE student_id = s
 
 -- name: UpdateMemberLanguage :execrows
 UPDATE members SET language = sqlc.arg('language') WHERE student_id = sqlc.arg('student_id');
+
+-- name: GetMemberNollaGroup :one
+-- The phadder group the member was a nolla in, whatever season - the
+-- profile's permanent "nolla in" record (members.nollning_group_id is
+-- never cleared after a season).
+SELECT g.id, g.name, g.image_url, s.year
+FROM members m
+JOIN phadder_groups g ON g.id = m.nollning_group_id
+JOIN nollning_seasons s ON s.id = g.season_id
+WHERE m.id = sqlc.arg('member_id');
