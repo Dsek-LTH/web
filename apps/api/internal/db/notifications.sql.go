@@ -176,6 +176,19 @@ func (q *Queries) GetAuthorForNotification(ctx context.Context, id pgtype.UUID) 
 	return i, err
 }
 
+const getAuthorMemberID = `-- name: GetAuthorMemberID :one
+SELECT member_id FROM authors WHERE id = $1
+`
+
+// The member behind an author row, so Send can leave them out of their own
+// notification when it is sent with FromAuthorID.
+func (q *Queries) GetAuthorMemberID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, getAuthorMemberID, id)
+	var member_id pgtype.UUID
+	err := row.Scan(&member_id)
+	return member_id, err
+}
+
 const getMemberNameForNotification = `-- name: GetMemberNameForNotification :one
 SELECT first_name, nickname, last_name FROM members WHERE id = $1
 `

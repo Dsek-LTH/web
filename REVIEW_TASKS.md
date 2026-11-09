@@ -426,7 +426,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: `.In(stockholm)` (see `cafe/service.go` for the location) and set
   `FromMemberID` to the reviewing admin.
 
-### [ ] T31 An article's author gets their own NEW_ARTICLE notification
+### [x] T31 An article's author gets their own NEW_ARTICLE notification
 
 - New: `notifications/service.go` excludes the sender only for
   `FromMemberID`; `NotifyNewArticle` sends with `FromAuthorID`.

@@ -109,10 +109,19 @@ func (s *Service) Send(ctx context.Context, p SendParams) error {
 	}
 
 	var excludeMemberID pgtype.UUID
-	if p.FromMemberID != nil {
+	switch {
+	case p.FromMemberID != nil:
 		id, err := dbutil.ParseUUID(*p.FromMemberID)
 		if err != nil {
 			return invalidf("invalid from member id: %v", err)
+		}
+		excludeMemberID = id
+	case fromAuthorID.Valid:
+		// Sent as an author (e.g. NotifyNewArticle): the member behind it
+		// mustn't be notified about their own article either.
+		id, err := s.queries.GetAuthorMemberID(ctx, fromAuthorID)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("get author member: %w", err)
 		}
 		excludeMemberID = id
 	}
