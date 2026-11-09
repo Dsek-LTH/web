@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { escapeHtml } from "$lib/utils/html";
   import FileLink from "$lib/components/files/FileLink.svelte";
   import YearSelector from "$lib/components/YearSelector.svelte";
   import { Button, buttonVariants } from "$lib/components/ui/button";
@@ -89,7 +90,7 @@
                     <AlertDialog.Title
                       ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
                       {@html m.documents_deleteAreYouSure({
-                        fileName: doc.title,
+                        fileName: escapeHtml(doc.title),
                       })}</AlertDialog.Title
                     >
                     <AlertDialog.Description>

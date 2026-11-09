@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { escapeHtml } from "$lib/utils/html";
   import type { components } from "$lib/api/schema";
   import { api } from "$lib/api/client";
   import { invalidateAll } from "$app/navigation";
@@ -51,7 +52,9 @@
     <AlertDialog.Header>
       <AlertDialog.Title
         ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html m.documents_deleteAreYouSure({ fileName })}</AlertDialog.Title
+        {@html m.documents_deleteAreYouSure({
+          fileName: escapeHtml(fileName),
+        })}</AlertDialog.Title
       >
       <AlertDialog.Description>
         {m.documents_modal_subtitle()}

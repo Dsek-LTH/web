@@ -496,7 +496,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [ ] T48 Album detail lists sibling albums with the same prefix: append
       `/` to the prefix in `gallery.Service.GetAlbum`; apply ListAlbums'
       season check there too.
-- [ ] T49 `{@html}` delete messages interpolate file names and governing
+- [x] T49 `{@html}` delete messages interpolate file names and governing
       document titles (`documents/DeleteFileForm.svelte`,
       `documents/requirements/+page.svelte`,
       `documents/governing/+page.svelte`): escape them.
