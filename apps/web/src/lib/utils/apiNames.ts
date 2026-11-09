@@ -86,6 +86,7 @@ const apiNames = {
   NOLLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
     MANAGE_SEASONS: "nollning:season:manage",
+    ASSOCIATE_CONTENT: "nollning:content:associate",
   },
   CAFE: {
     EDIT_WORKERS: "cafe:edit_workers",

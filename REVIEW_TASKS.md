@@ -212,7 +212,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `SELECT * FROM api_access_policies WHERE (role IS NULL) = (student_id IS NULL)`
   on prod to see what will change.
 
-### [ ] T11 New policies are granted to nobody in prod
+### [x] T11 New policies are granted to nobody in prod
 
 - New: `nollning:season:manage` and `nollning:content:associate`
   (`internal/apinames`) are only granted by the dev seed. After cutover
