@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -253,6 +254,42 @@ func TestNotificationAccess(t *testing.T) {
 		})
 	}
 	e.check(t, []accessCase{{anonymous, http.MethodGet, "/me", nil, ok}})
+}
+
+// A settings save that fails part-way (here a tag that doesn't exist, which
+// only the database rejects) leaves the previous settings as they were.
+func TestNotificationSettingsAtomic(t *testing.T) {
+	e := requireDB(t)
+	member := e.as(4)
+	before := map[string]any{
+		"subscriptions": []string{"LIKE"}, "pushSubscriptions": []string{"LIKE"},
+		"subscribedTagIds": []string{},
+	}
+	e.mustCall(t, member, http.MethodPut, "/notification-settings", before)
+
+	broken := map[string]any{
+		"subscriptions": []string{"COMMENT"}, "pushSubscriptions": []string{},
+		"subscribedTagIds": []string{"00000000-0000-0000-0000-000000000000"},
+	}
+	if res := e.call(
+		t,
+		member,
+		http.MethodPut,
+		"/notification-settings",
+		broken,
+	); res.status < 400 {
+		t.Fatalf("save with a missing tag: %d %s", res.status, res.body)
+	}
+
+	var got struct {
+		Subscriptions     []string `json:"subscriptions"`
+		PushSubscriptions []string `json:"pushSubscriptions"`
+	}
+	e.mustCall(t, member, http.MethodGet, "/notification-settings", nil).decode(t, &got)
+	if !slices.Equal(got.Subscriptions, []string{"LIKE"}) ||
+		!slices.Equal(got.PushSubscriptions, []string{"LIKE"}) {
+		t.Fatalf("settings after a failed save = %+v, want the earlier LIKE/LIKE", got)
+	}
 }
 
 func TestAdminAccess(t *testing.T) {

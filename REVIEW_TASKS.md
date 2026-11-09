@@ -432,7 +432,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `FromMemberID`; `NotifyNewArticle` sends with `FromAuthorID`.
 - Fix: look up the author's member id and exclude it too.
 
-### [ ] T32 Notification settings save isn't transactional
+### [x] T32 Notification settings save isn't transactional
 
 - New: `notifications.Service.PutSettings` deletes then inserts row by row.
 - Fix: run it in a transaction.

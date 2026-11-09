@@ -7,6 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/dsek-lth/web/apps/api/internal/auth"
 	"github.com/dsek-lth/web/apps/api/internal/db"
@@ -36,6 +37,7 @@ func toInt4(id *int32) pgtype.Int4 {
 // booking's real Notifier - see notifier.go - all funnel through, mirroring
 // src/lib/utils/notifications/index.ts's sendNotification).
 type Service struct {
+	pool     *pgxpool.Pool
 	queries  *db.Queries
 	nollning *nollning.Service
 	pushMock bool
@@ -46,8 +48,8 @@ type Service struct {
 // always created, push is the part that no-ops in dev" split. Default true
 // (mock/no-op) unless PUSH_MOCK=false is set explicitly, mirroring AUTH_MOCK/
 // STORAGE_MOCK's "opt-in to real, loud either way" shape - see cmd/api.
-func NewService(dbtx db.DBTX, nollningSvc *nollning.Service, pushMock bool) *Service {
-	return &Service{queries: db.New(dbtx), nollning: nollningSvc, pushMock: pushMock}
+func NewService(pool *pgxpool.Pool, nollningSvc *nollning.Service, pushMock bool) *Service {
+	return &Service{pool: pool, queries: db.New(pool), nollning: nollningSvc, pushMock: pushMock}
 }
 
 // SendParams mirrors SendNotificationProps. MemberIDs narrows the audience
@@ -521,10 +523,9 @@ func (s *Service) getSettings(
 
 // PutSettings mirrors updateSettings/settingsActions.default: a full
 // delete-then-recreate of the member's subscription_settings rows plus a
-// full replace (`set`) of subscribedTags, in one write (not a real DB
-// transaction across both, same as the old settings.remote.ts, which
-// commits the subscription-settings transaction and the tag update as two
-// separate statements too).
+// full replace (`set`) of subscribedTags. Everything runs in one
+// transaction, so a failure part-way (a bad tag id, a deleted tag) leaves
+// the member's previous settings intact instead of wiping them.
 func (s *Service) PutSettings(ctx context.Context, in NotificationSettings) error {
 	identity, ok := auth.FromContext(ctx)
 	if !ok || identity.MemberID == "" {
@@ -534,16 +535,28 @@ func (s *Service) PutSettings(ctx context.Context, in NotificationSettings) erro
 	if err != nil {
 		return invalidf("invalid member id: %v", err)
 	}
+	tagIDs, err := dbutil.ParseUUIDs(in.SubscribedTagIDs)
+	if err != nil {
+		return invalidf("invalid tag id: %v", err)
+	}
 
 	pushSet := make(map[SettingType]bool, len(in.PushSubscriptions))
 	for _, t := range in.PushSubscriptions {
 		pushSet[t] = true
 	}
-	if err := s.queries.ReplaceSubscriptionSettings(ctx, memberUUID); err != nil {
+
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck // no-op once committed
+	qtx := s.queries.WithTx(tx)
+
+	if err := qtx.ReplaceSubscriptionSettings(ctx, memberUUID); err != nil {
 		return fmt.Errorf("clear subscription settings: %w", err)
 	}
 	for _, t := range in.Subscriptions {
-		if err := s.queries.InsertSubscriptionSetting(ctx, db.InsertSubscriptionSettingParams{
+		if err := qtx.InsertSubscriptionSetting(ctx, db.InsertSubscriptionSettingParams{
 			MemberID:         memberUUID,
 			Type:             string(t),
 			PushNotification: pushSet[t],
@@ -552,20 +565,19 @@ func (s *Service) PutSettings(ctx context.Context, in NotificationSettings) erro
 		}
 	}
 
-	tagIDs, err := dbutil.ParseUUIDs(in.SubscribedTagIDs)
-	if err != nil {
-		return invalidf("invalid tag id: %v", err)
-	}
-	if err := s.queries.ReplaceSubscribedTags(ctx, memberUUID); err != nil {
+	if err := qtx.ReplaceSubscribedTags(ctx, memberUUID); err != nil {
 		return fmt.Errorf("clear subscribed tags: %w", err)
 	}
 	for _, tagID := range tagIDs {
-		if err := s.queries.InsertSubscribedTag(ctx, db.InsertSubscribedTagParams{
+		if err := qtx.InsertSubscribedTag(ctx, db.InsertSubscribedTagParams{
 			A: memberUUID,
 			B: tagID,
 		}); err != nil {
 			return fmt.Errorf("insert subscribed tag: %w", err)
 		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("commit: %w", err)
 	}
 	return nil
 }
