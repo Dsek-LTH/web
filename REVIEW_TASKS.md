@@ -513,7 +513,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       incremented: remove them.
 - [ ] T54 Contact page drops a mandate holder at 00:00 UTC on their last
       day (`contact/+page.ts` compares a date-only string as UTC).
-- [ ] T55 Season lookups run on every request (`auth/real.go` calls
+- [x] T55 Season lookups run on every request (`auth/real.go` calls
       `NollaYear` and `InjectStabenPolicy`, each querying the season):
       compute once per request or cache briefly.
 - [x] T56 Nollning ICS feed falls back to the general feed after the season

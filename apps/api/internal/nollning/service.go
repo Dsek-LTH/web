@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -40,8 +41,50 @@ func (s *Service) sanitizeDescription(d *string) *string {
 }
 
 // Current returns the season whose window covers right now, or nil (not an
-// error) if none does.
+// error) if none does. Within a request (see WithRequestCache) it's looked
+// up once: authentication alone asks twice, and the board, gallery and
+// feeds ask again.
 func (s *Service) Current(ctx context.Context) (*NollningSeason, error) {
+	cache, ok := ctx.Value(seasonCacheKey{}).(*seasonCache)
+	if !ok {
+		return s.lookupCurrent(ctx)
+	}
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+	if !cache.done {
+		season, err := s.lookupCurrent(ctx)
+		if err != nil {
+			return nil, err
+		}
+		cache.season, cache.done = season, true
+	}
+	return cache.season, nil
+}
+
+type (
+	seasonCacheKey struct{}
+	seasonCache    struct {
+		mu     sync.Mutex
+		done   bool
+		season *NollningSeason
+	}
+)
+
+// WithRequestCache returns ctx with room to remember the current season
+// for the rest of the request. Writing a season forgets it.
+func WithRequestCache(ctx context.Context) context.Context {
+	return context.WithValue(ctx, seasonCacheKey{}, &seasonCache{})
+}
+
+func forgetCurrent(ctx context.Context) {
+	if cache, ok := ctx.Value(seasonCacheKey{}).(*seasonCache); ok {
+		cache.mu.Lock()
+		cache.done, cache.season = false, nil
+		cache.mu.Unlock()
+	}
+}
+
+func (s *Service) lookupCurrent(ctx context.Context) (*NollningSeason, error) {
 	row, err := s.queries.GetCurrentSeason(ctx)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -256,6 +299,7 @@ func (s *Service) CreateSeason(
 		}
 		return nil, fmt.Errorf("create season: %w", err)
 	}
+	forgetCurrent(ctx)
 	season := toSeason(created)
 	return &season, nil
 }
@@ -305,6 +349,7 @@ func (s *Service) UpdateSeason(
 		}
 		return nil, fmt.Errorf("update season: %w", err)
 	}
+	forgetCurrent(ctx)
 	season := toSeason(updated)
 	return &season, nil
 }

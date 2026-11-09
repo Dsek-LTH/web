@@ -105,7 +105,7 @@ func NewRouter(
 
 	return tracing.Handler(withLogging(
 		withCORS(frontendOrigin)(withCrossOriginProtection(frontendOrigin)(
-			auth.Middleware(authenticator)(withMemberLog(locale.Middleware(mux))),
+			withSeasonCache(auth.Middleware(authenticator)(withMemberLog(locale.Middleware(mux)))),
 		)),
 	))
 }
@@ -301,4 +301,12 @@ func originOf(rawURL string) (string, error) {
 		return "", fmt.Errorf("%q has no scheme or host", rawURL)
 	}
 	return u.Scheme + "://" + u.Host, nil
+}
+
+// withSeasonCache lets a request look the current nollning season up once,
+// however many places ask (authentication alone asks twice).
+func withSeasonCache(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r.WithContext(nollning.WithRequestCache(r.Context())))
+	})
 }
