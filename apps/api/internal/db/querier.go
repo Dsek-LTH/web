@@ -124,11 +124,10 @@ type Querier interface {
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
 	DeleteSongBookEntry(ctx context.Context, arg DeleteSongBookEntryParams) (int64, error)
 	// pattern is built by the caller as "{prefix}%", with prefix's own LIKE
-	// wildcards escaped (dbutil.EscapeLike) - a real SQL LIKE
-	// wildcard, unlike the old TS's `startsWith(`${p}%`)`, which (per Prisma's
-	// literal-escaping of startsWith) only ever matched a position id that
-	// literally contained a "%" character, i.e. never. Role-based
-	// door/create-form validation now does a real prefix match.
+	// wildcards escaped (dbutil.EscapeLike), so this is a literal prefix match.
+	// The old TS's Prisma `startsWith(`${p}%`)` sent the prefix unescaped
+	// (LIKE 'dsek.infu%%'), so "_" or "%" in a role acted as wildcards; real
+	// role names match the same positions either way.
 	ExistsPositionWithPrefix(ctx context.Context, pattern string) (bool, error)
 	ExpireEntry(ctx context.Context, id pgtype.UUID) error
 	// The member's phadder/uppdrag mandate overlapping the group's season
@@ -503,8 +502,9 @@ type Querier interface {
 	// an undefined filter.
 	ListPoliciesForRolesOrStudentID(ctx context.Context, arg ListPoliciesForRolesOrStudentIDParams) ([]string, error)
 	// patterns are caller-built "{role}%" LIKE patterns, one per non-wildcard
-	// role a door policy names - see ExistsPositionWithPrefix's doc comment for
-	// why this is a real prefix match, not the old app's broken literal one.
+	// role a door policy names, escaped as in ExistsPositionWithPrefix. The
+	// exception is the virtual role "_", which the caller passes as "%": the
+	// old app's unescaped '_%%' matched every position, and Go keeps that.
 	ListPositionIDsMatchingPrefixes(ctx context.Context, patterns []string) ([]string, error)
 	ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 	ListPositionsForSearch(ctx context.Context) ([]ListPositionsForSearchRow, error)
