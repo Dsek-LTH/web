@@ -19,6 +19,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/integrations"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
 	"github.com/dsek-lth/web/apps/api/internal/mentions"
+	"github.com/dsek-lth/web/apps/api/internal/nollning"
 	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/slug"
 )
@@ -86,11 +87,22 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		return nil, 0, invalidf("invalid nollning season id: %v", err)
 	}
 
+	staben := nollning.StabenViewFor(ctx)
+	var viewerID pgtype.UUID
+	if identity, ok := auth.FromContext(ctx); ok && identity.MemberID != "" {
+		viewerID, err = dbutil.ParseUUID(identity.MemberID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("parse caller member id: %w", err)
+		}
+	}
+
 	rows, err := s.queries.ListArticles(ctx, db.ListArticlesParams{
 		Search:           search,
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,
 		AuthorStudentID:  authorStudentID,
+		HideStaben:       staben.Hides(),
+		ViewerMemberID:   viewerID,
 		NollningSeasonID: nollningSeasonID,
 		IncludeNollning:  params.IncludeNollning,
 		Limit:            int32(pageSize),
@@ -105,6 +117,8 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,
 		AuthorStudentID:  authorStudentID,
+		HideStaben:       staben.Hides(),
+		ViewerMemberID:   viewerID,
 		NollningSeasonID: nollningSeasonID,
 		IncludeNollning:  params.IncludeNollning,
 	})
@@ -116,7 +130,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	ids := make([]pgtype.UUID, len(rows))
 	summaries := make([]ArticleSummary, len(rows))
 	for i, row := range rows {
-		summaries[i] = toArticleSummary(row, loc)
+		summaries[i] = toArticleSummary(row, loc, staben)
 		ids[i] = row.ID
 	}
 
@@ -831,7 +845,7 @@ func (s *Service) getBySlugUnfiltered(ctx context.Context, slug string) (*Articl
 }
 
 func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleDetail, error) {
-	summary := toArticleSummary(row, locale.FromContext(ctx))
+	summary := toArticleSummary(row, locale.FromContext(ctx), nollning.StabenViewFor(ctx))
 
 	tagsByArticle, err := s.tagsByArticle(ctx, []pgtype.UUID{row.ID})
 	if err != nil {

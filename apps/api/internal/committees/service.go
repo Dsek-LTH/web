@@ -378,7 +378,9 @@ func (s *Service) ListBoard(ctx context.Context) ([]BoardPosition, error) {
 // GetPosition returns a position's full (unscoped, not year-filtered)
 // mandate history - the position detail page groups it client-side by
 // year for historical study-year statistics, unlike the committee detail
-// page's single-year view (GetByShortName).
+// page's single-year view (GetByShortName). Staben's mandates are left out
+// for callers who may not see staben (nollning.StabenView), here and on
+// the committee page.
 func (s *Service) GetPosition(ctx context.Context, id string) (*PositionDetail, error) {
 	row, err := s.queries.GetPosition(ctx, id)
 	if err != nil {
@@ -393,9 +395,13 @@ func (s *Service) GetPosition(ctx context.Context, id string) (*PositionDetail, 
 	if err != nil {
 		return nil, fmt.Errorf("list mandates for position: %w", err)
 	}
-	mandates := make([]Mandate, len(mandateRows))
-	for i, m := range mandateRows {
-		mandates[i] = Mandate{
+	staben := nollning.StabenViewFor(ctx)
+	mandates := make([]Mandate, 0, len(mandateRows))
+	for _, m := range mandateRows {
+		if staben.HidesMandate(id, dbutil.UUIDStr(m.MemberID)) {
+			continue
+		}
+		mandates = append(mandates, Mandate{
 			ID:        dbutil.UUIDStr(m.ID),
 			StartDate: dbutil.DatePtr(m.StartDate),
 			EndDate:   dbutil.DatePtr(m.EndDate),
@@ -409,7 +415,7 @@ func (s *Service) GetPosition(ctx context.Context, id string) (*PositionDetail, 
 				ClassYear:      dbutil.Int4Ptr(m.ClassYear),
 				ClassProgramme: dbutil.TextPtr(m.ClassProgramme),
 			},
-		}
+		})
 	}
 
 	aliases, err := s.emailAliasesForPosition(ctx, id)
@@ -509,9 +515,13 @@ func (s *Service) mandatesForPosition(
 	if err != nil {
 		return nil, fmt.Errorf("list mandates for position: %w", err)
 	}
-	mandates := make([]Mandate, len(rows))
-	for i, m := range rows {
-		mandates[i] = Mandate{
+	staben := nollning.StabenViewFor(ctx)
+	mandates := make([]Mandate, 0, len(rows))
+	for _, m := range rows {
+		if staben.HidesMandate(positionID, dbutil.UUIDStr(m.MemberID)) {
+			continue
+		}
+		mandates = append(mandates, Mandate{
 			ID:        dbutil.UUIDStr(m.ID),
 			StartDate: dbutil.DatePtr(m.StartDate),
 			EndDate:   dbutil.DatePtr(m.EndDate),
@@ -523,7 +533,7 @@ func (s *Service) mandatesForPosition(
 				LastName:    dbutil.TextPtr(m.LastName),
 				PicturePath: dbutil.TextPtr(m.PicturePath),
 			},
-		}
+		})
 	}
 	return mandates, nil
 }

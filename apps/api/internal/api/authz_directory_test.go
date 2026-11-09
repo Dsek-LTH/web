@@ -1,7 +1,10 @@
 package api
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"slices"
 	"testing"
 	"time"
 
@@ -241,4 +244,150 @@ func TestNollningAccess(t *testing.T) {
 	e.check(t, e.gate(http.MethodDelete, path+"/phaddrar/"+e.members[4].StudentID, nil, allowed,
 		apinames.NollningPhadderGroupsManage))
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.NollningPhadderGroupsManage))
+}
+
+// TestStabenAccess: who holds staben's positions is hidden from callers
+// without member:see_staben (everyone, during a season), except from the
+// member themselves. Test callers get no injected policies, so a caller
+// without it here is a caller during a season.
+func TestStabenAccess(t *testing.T) {
+	e := requireDB(t)
+	ctx := context.Background()
+	stab := e.members[3]
+	const position = "dsek.noll.stab.authz"
+	today := time.Now().UTC()
+	if _, err := e.pool.Exec(ctx, `
+		INSERT INTO positions (id, name_sv, committee_id, active, board_member)
+		SELECT $1, 'Authz stab', id, true, false FROM committees WHERE short_name = 'nollu'`,
+		position); err != nil {
+		t.Fatal(err)
+	}
+	var mandateID string
+	if err := e.pool.QueryRow(ctx, `
+		INSERT INTO mandates (member_id, position_id, start_date, end_date, last_synced)
+		VALUES ($1, $2, $3, $4, $3) RETURNING id::text`,
+		stab.ID, position, today.AddDate(0, -1, 0), today.AddDate(0, 1, 0),
+	).Scan(&mandateID); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_, _ = e.pool.Exec(ctx, `DELETE FROM articles WHERE header_sv LIKE 'Authz staben%'`)
+		_, _ = e.pool.Exec(ctx, `DELETE FROM authors WHERE mandate_id = $1`, mandateID)
+		_, _ = e.pool.Exec(ctx, `DELETE FROM mandates WHERE id = $1`, mandateID)
+		_, _ = e.pool.Exec(ctx, `DELETE FROM positions WHERE id = $1`, position)
+	})
+
+	// Member 3 writes one article as the staben mandate and one as
+	// themselves (hidden too, since they're in staben today).
+	past := time.Now().Add(-time.Hour)
+	asMandate := articleBody("Authz staben mandate", &past)
+	asMandate["author"] = map[string]any{"mandateId": mandateID}
+	writer := e.as(3, apinames.NewsArticleCreate)
+	e.mustCall(t, writer, http.MethodPost, "/articles", asMandate)
+	e.mustCall(t, writer, http.MethodPost, "/articles", articleBody("Authz staben member", &past))
+	articles := []string{
+		"/articles/" + e.one(
+			t,
+			`SELECT slug FROM articles WHERE header_sv = 'Authz staben mandate'`,
+		),
+		"/articles/" + e.one(
+			t,
+			`SELECT slug FROM articles WHERE header_sv = 'Authz staben member'`,
+		),
+	}
+
+	year := today.Year()
+	for _, c := range []struct {
+		as   caller
+		sees bool
+	}{
+		{e.as(1, apinames.MemberSeeEmail), false},
+		{e.as(1, apinames.MemberSeeEmail, apinames.MemberSeeStaben), true},
+		{e.as(3), true},
+	} {
+		var profile struct {
+			Email    *string `json:"email"`
+			Mandates []struct {
+				ID string `json:"id"`
+			} `json:"mandates"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, "/members/"+stab.StudentID, nil).decode(t, &profile)
+		if got := slices.ContainsFunc(profile.Mandates, func(m struct {
+			ID string `json:"id"`
+		},
+		) bool {
+			return m.ID == mandateID
+		}); got != c.sees {
+			t.Errorf("profile as %s: staben mandate shown %v, want %v", c.as.label, got, c.sees)
+		}
+		if got := profile.Email != nil; got != c.sees {
+			t.Errorf("profile as %s: email shown %v, want %v", c.as.label, got, c.sees)
+		}
+
+		var detail struct {
+			Mandates []struct {
+				ID string `json:"id"`
+			} `json:"mandates"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, "/positions/"+position, nil).decode(t, &detail)
+		if got := len(detail.Mandates) > 0; got != c.sees {
+			t.Errorf("position as %s: mandates shown %v, want %v", c.as.label, got, c.sees)
+		}
+
+		var committee struct {
+			Positions []struct {
+				ID       string `json:"id"`
+				Mandates []any  `json:"mandates"`
+			} `json:"positions"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, fmt.Sprintf("/committees/nollu?year=%d", year), nil).
+			decode(t, &committee)
+		shown := false
+		for _, p := range committee.Positions {
+			if p.ID == position {
+				shown = len(p.Mandates) > 0
+			}
+		}
+		if shown != c.sees {
+			t.Errorf("nollu committee as %s: mandates shown %v, want %v", c.as.label, shown, c.sees)
+		}
+
+		for _, path := range articles {
+			var article struct {
+				Author struct {
+					Member struct {
+						ID string `json:"id"`
+					} `json:"member"`
+					Position *struct{} `json:"position"`
+				} `json:"author"`
+			}
+			e.mustCall(t, c.as, http.MethodGet, path, nil).decode(t, &article)
+			if got := article.Author.Member.ID == stab.ID; got != c.sees {
+				t.Errorf("%s as %s: author shown %v, want %v", path, c.as.label, got, c.sees)
+			}
+			if !c.sees && article.Author.Position != nil {
+				t.Errorf("%s as %s: staben position shown", path, c.as.label)
+			}
+		}
+
+		var list struct {
+			Articles []struct {
+				Slug string `json:"slug"`
+			} `json:"articles"`
+		}
+		e.mustCall(t, c.as, http.MethodGet,
+			"/articles?pageSize=100&authorStudentId="+stab.StudentID, nil).decode(t, &list)
+		listed := 0
+		for _, a := range list.Articles {
+			for _, path := range articles {
+				if "/articles/"+a.Slug == path {
+					listed++
+				}
+			}
+		}
+		if want := map[bool]int{true: 2, false: 0}[c.sees]; listed != want {
+			t.Errorf("articles by member 3 as %s: %d of theirs listed, want %d",
+				c.as.label, listed, want)
+		}
+	}
 }
