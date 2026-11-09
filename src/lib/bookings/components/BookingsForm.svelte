@@ -105,7 +105,7 @@
       : (data.initialAccessMembers ?? []),
   );
 
-  // The bookable's own door should be obviously included among the
+  // The door for the bookable should obviously be included among the
   // selectable doors once it's booked, without overriding manual edits. Only
   // newly selected bookables add their door, so unticking it again sticks.
   let previousBookables: string[] = untrack(

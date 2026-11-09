@@ -1,6 +1,7 @@
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 import { env } from "$env/dynamic/private";
 import { error } from "@sveltejs/kit";
+import * as messages from "$paraglide/messages";
 
 export class TicketServiceError extends Error {
   status: number;
@@ -131,7 +132,7 @@ export const getTicketReleaseOr404 = async (
       err instanceof TicketServiceError &&
       (err.status === 404 || err.status === 400)
     ) {
-      error(404, "Biljettsläppet hittades inte");
+      error(404, messages.ticketRelease_errors_notFound());
     }
     throw err;
   }

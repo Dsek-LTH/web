@@ -135,7 +135,7 @@
       months: [
         {
           name: m.volunteer_month_aug_oct(),
-          desc: m.volunteer_timeline_nollning(),
+          desc: m.volunteer_timeline_n0llning(),
         },
         { name: m.volunteer_month_oct(), desc: m.volunteer_timeline_oct() },
         { name: m.volunteer_month_nov(), desc: m.volunteer_timeline_nov() },
@@ -245,9 +245,9 @@
   <!-- Bigger events -->
   <section class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
-      <h2>{m.volunteer_bigevents_title()}</h2>
+      <h2>{m.volunteer_bigEvents_title()}</h2>
       <p class="text-muted-foreground max-w-3xl text-base leading-relaxed">
-        {m.volunteer_bigevents_subtitle()}
+        {m.volunteer_bigEvents_subtitle()}
       </p>
     </div>
 

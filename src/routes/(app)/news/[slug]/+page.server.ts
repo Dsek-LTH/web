@@ -1,5 +1,5 @@
 import {
-  NOLLNING_TAG_PREFIX,
+  N0LLNING_TAG_PREFIX,
   POST_REVEAL_PREFIX,
 } from "$lib/components/postReveal/types";
 import { getArticle } from "$lib/news/getArticles";
@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       message: m.news_errors_articleNotFound(),
     });
   }
-  if (article.tags.some((t) => t.name.startsWith(NOLLNING_TAG_PREFIX))) {
+  if (article.tags.some((t) => t.name.startsWith(N0LLNING_TAG_PREFIX))) {
     throw redirect(302, `${POST_REVEAL_PREFIX}/messages`);
   }
   const allTaggedMembers = await getAllTaggedMembers(prisma, article.comments);

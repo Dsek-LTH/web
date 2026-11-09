@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import GuildLogo from "$lib/components/GuildLogo.svelte";
 
   import { getFooterRoutes } from "../routes";
   import ExternalLink from "@lucide/svelte/icons/external-link";
@@ -28,7 +28,8 @@
         <blockquote
           class="text-foreground text-3xl leading-9 font-medium tracking-tight md:text-5xl md:leading-[56px]"
         >
-          <p>Er linje,<br class="hidden md:inline" /> Er färg!</p>
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          <p>{@html m.footer_quote()}</p>
         </blockquote>
         <p class="m-0 md:mt-2">– Evert Taube</p>
         {@render socialIcons("hidden md:flex")}
@@ -42,7 +43,7 @@
     >
       {@render socialIcons("flex md:hidden")}
       <div class="mt-7 flex flex-row items-center md:mt-0">
-        <DsekLogo
+        <GuildLogo
           variant="letter"
           class="hover:fill-rosa-400 fill-rosa-400 size-6"
         />
@@ -57,7 +58,7 @@
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         <span>{@html m.nav_visitor_address()}</span>
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        <span>{@html m.nav_organisation_number()}</span>
+        <span>{@html m.nav_organization_number()}</span>
       </div>
     </section>
   </div>
@@ -197,7 +198,7 @@
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           <span>{@html m.nav_visitor_address()}</span>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          <span>{@html m.nav_organisation_number()}</span>
+          <span>{@html m.nav_organization_number()}</span>
         </div>
       </div>
     </details>

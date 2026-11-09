@@ -25,7 +25,7 @@
   });
 </script>
 
-<SetPageTitle title={m.nollu_manage_pageTitle()} />
+<SetPageTitle title={m.n0llu_manage_pageTitle()} />
 
 <div class="mx-auto w-full max-w-4xl px-4 py-8">
   <Button
@@ -37,11 +37,11 @@
     {m.back()}
   </Button>
 
-  <h1 class="mb-6 text-3xl font-bold">{m.nollu_manage_pageTitle()}</h1>
+  <h1 class="mb-6 text-3xl font-bold">{m.n0llu_manage_pageTitle()}</h1>
 
   <Card class="mb-6">
     <CardHeader>
-      <CardTitle>{m.nollu_manage_createGroup()}</CardTitle>
+      <CardTitle>{m.n0llu_manage_createGroup()}</CardTitle>
     </CardHeader>
     <CardContent>
       <form
@@ -52,11 +52,11 @@
       >
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="flex flex-col gap-2">
-            <Label for="new-name">{m.nollu_manage_groupName()}</Label>
+            <Label for="new-name">{m.n0llu_manage_groupName()}</Label>
             <Input id="new-name" name="name" bind:value={$form.name} required />
           </div>
           <div class="flex flex-col gap-2">
-            <Label for="new-year">{m.nollu_manage_groupYear()}</Label>
+            <Label for="new-year">{m.n0llu_manage_groupYear()}</Label>
             <Input
               id="new-year"
               name="year"
@@ -66,7 +66,7 @@
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          <Label for="new-imageUrl">{m.nollu_manage_groupImage()}</Label>
+          <Label for="new-imageUrl">{m.n0llu_manage_groupImage()}</Label>
           <Input
             id="new-imageUrl"
             name="imageUrl"
@@ -75,7 +75,7 @@
         </div>
         <div class="flex flex-col gap-2">
           <Label for="new-description"
-            >{m.nollu_manage_groupDescription()}</Label
+            >{m.n0llu_manage_groupDescription()}</Label
           >
           <Textarea
             id="new-description"
@@ -89,7 +89,7 @@
         <div class="flex justify-end">
           <Button type="submit" class="flex items-center gap-2">
             <Plus class="h-4 w-4" />
-            {m.nollu_manage_createGroup()}
+            {m.n0llu_manage_createGroup()}
           </Button>
         </div>
       </form>

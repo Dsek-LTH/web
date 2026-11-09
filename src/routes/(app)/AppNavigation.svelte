@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import GuildLogo from "$lib/components/GuildLogo.svelte";
   import { cn } from "$lib/utils";
   import Calendar from "@lucide/svelte/icons/calendar";
   import FileText from "@lucide/svelte/icons/file-text";
@@ -8,7 +8,7 @@
   import Newspaper from "@lucide/svelte/icons/newspaper";
 
   const PAGES = [
-    { title: "Home", icon: DsekLogo, link: "/app/home" },
+    { title: "Home", icon: GuildLogo, link: "/app/home" },
     { title: "News", icon: Newspaper, link: "/news" },
     { title: "Events", icon: Calendar, link: "/events" },
     { title: "Documents", icon: FileText, link: "/documents" },

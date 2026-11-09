@@ -42,8 +42,8 @@ func main() {
 	}
 	defer pool.Close()
 
-	svc := releases.NewService(pool)
-	scheduler := releases.NewScheduler(svc)
+	service := releases.NewService(pool)
+	scheduler := releases.NewScheduler(service)
 	validator := authjwt.NewValidator(jwtIssuer, jwtAudience, jwksEndpoint)
 
 	if err := scheduler.RestoreOnStartup(ctx); err != nil {
@@ -51,7 +51,7 @@ func main() {
 	}
 	go scheduler.RunSweepLoop(ctx, sweepInterval)
 
-	router := api.NewRouter(svc, scheduler, validator)
+	router := api.NewRouter(service, scheduler, validator)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", serverPort),

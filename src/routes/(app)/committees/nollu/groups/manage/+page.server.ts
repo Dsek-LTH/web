@@ -23,7 +23,7 @@ const getPhadderMandates = async (
     },
     orderBy: [
       {
-        positionId: "asc", // regular phadder comes before uppdrag
+        positionId: "asc", // regular phadder comes before mission
       },
       {
         startDate: "asc",
@@ -33,7 +33,7 @@ const getPhadderMandates = async (
 
 export const load = async ({ locals }) => {
   const { user, prisma } = locals;
-  authorize(apiNames.NOLLNING.MANAGE_PHADDER_GROUPS, user);
+  authorize(apiNames.N0LLNING.MANAGE_PHADDER_GROUPS, user);
 
   const phadderGroups = await prisma.phadderGroup.findMany({
     include: {
@@ -90,7 +90,7 @@ export const actions = {
       data: form.data,
     });
     return message(form, {
-      message: m.nollu_manage_groupCreated(),
+      message: m.n0llu_manage_groupCreated(),
       type: "success",
     });
   },
@@ -109,7 +109,7 @@ export const actions = {
     });
     console.log(res);
     return message(form, {
-      message: m.nollu_manage_groupUpdated(),
+      message: m.n0llu_manage_groupUpdated(),
       type: "success",
     });
   },
@@ -123,11 +123,11 @@ export const actions = {
       },
     });
     return message(form, {
-      message: m.nollu_manage_groupDeleted(),
+      message: m.n0llu_manage_groupDeleted(),
       type: "success",
     });
   },
-  addNolla: async ({ locals, request }) => {
+  addN0lla: async ({ locals, request }) => {
     const form = await superValidate(request, zod4(addPersonSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
@@ -135,7 +135,7 @@ export const actions = {
       where: { studentId: { in: form.data.studentId } },
     });
     if (members.length !== form.data.studentId.length) {
-      return setError(form, m.nollu_manage_membersNotFound());
+      return setError(form, m.n0llu_manage_membersNotFound());
     }
     await prisma.phadderGroup.update({
       where: {
@@ -148,11 +148,11 @@ export const actions = {
       },
     });
     return message(form, {
-      message: m.nollu_manage_nollaAdded(),
+      message: m.n0llu_manage_n0llaAdded(),
       type: "success",
     });
   },
-  removeNolla: async ({ locals, request }) => {
+  removeN0lla: async ({ locals, request }) => {
     const form = await superValidate(request, zod4(personSchema));
     if (!form.valid) return fail(400, { form });
     const { prisma } = locals;
@@ -160,7 +160,7 @@ export const actions = {
       where: { studentId: form.data.studentId },
     });
     if (!member)
-      return setError(form, "studentId", m.nollu_manage_memberNotFound());
+      return setError(form, "studentId", m.n0llu_manage_memberNotFound());
     await prisma.phadderGroup.update({
       where: {
         id: form.data.groupId,
@@ -174,7 +174,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: m.nollu_manage_nollaRemoved(),
+      message: m.n0llu_manage_n0llaRemoved(),
       type: "success",
     });
   },
@@ -188,12 +188,12 @@ export const actions = {
       },
     });
     if (!group)
-      return setError(form, "groupId", m.nollu_manage_groupNotFound());
+      return setError(form, "groupId", m.n0llu_manage_groupNotFound());
     const members = await prisma.member.findMany({
       where: { studentId: { in: form.data.studentId } },
     });
     if (members.length !== form.data.studentId.length) {
-      return setError(form, m.nollu_manage_membersNotFound());
+      return setError(form, m.n0llu_manage_membersNotFound());
     }
     const withMandates = await Promise.all(
       members.map(async (member) => ({
@@ -205,7 +205,7 @@ export const actions = {
     if (missingMandate.length > 0) {
       return setError(
         form,
-        m.nollu_manage_notPhadderThatYear({
+        m.n0llu_manage_notPhadderThatYear({
           names: missingMandate
             .map(
               (entry) => `${entry.member.firstName} ${entry.member.lastName}`,
@@ -225,7 +225,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: m.nollu_manage_phadderAdded(),
+      message: m.n0llu_manage_phadderAdded(),
       type: "success",
     });
   },
@@ -239,18 +239,18 @@ export const actions = {
       },
     });
     if (!group)
-      return setError(form, "groupId", m.nollu_manage_groupNotFound());
+      return setError(form, "groupId", m.n0llu_manage_groupNotFound());
     const member = await prisma.member.findUnique({
       where: { studentId: form.data.studentId },
     });
     if (!member)
-      return setError(form, "studentId", m.nollu_manage_memberNotFound());
+      return setError(form, "studentId", m.n0llu_manage_memberNotFound());
     const mandates = await getPhadderMandates(prisma, member.id, group?.year);
     if (mandates.length === 0)
       return setError(
         form,
         "studentId",
-        m.nollu_manage_personNotPhadderThatYear(),
+        m.n0llu_manage_personNotPhadderThatYear(),
       );
     await prisma.phadderGroup.update({
       where: {
@@ -265,7 +265,7 @@ export const actions = {
       },
     });
     return message(form, {
-      message: m.nollu_manage_phadderRemoved(),
+      message: m.n0llu_manage_phadderRemoved(),
       type: "success",
     });
   },

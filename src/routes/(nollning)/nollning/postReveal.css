@@ -4,18 +4,18 @@
 
 @utility post-reveal {
   scroll-behavior: smooth;
-  @apply font-nolla-post-reveal;
+  @apply font-n0lla-post-reveal;
   font-display: auto;
   & * {
     scroll-behavior: smooth;
   }
-  @apply font-nolla-post-reveal text-sm leading-tight md:text-base;
+  @apply font-n0lla-post-reveal text-sm leading-tight md:text-base;
   & .page-title {
     /* figma: page title */
     @apply text-xl font-medium tracking-wider;
   }
 
-  & .nolla-list-item {
+  & .n0lla-list-item {
     @apply text-base;
   }
 
@@ -43,7 +43,7 @@
     @apply hover:text-base-100;
   }
 
-  & .nolla-prose {
+  & .n0lla-prose {
     @apply my-4;
   }
 }
@@ -55,7 +55,7 @@
   }
 }
 
-@utility nolla-list-item {
+@utility n0lla-list-item {
   .post-reveal & {
     @apply text-base;
   }
@@ -111,7 +111,7 @@
   }
 }
 
-@utility nolla-prose {
+@utility n0lla-prose {
   .post-reveal & {
     @apply my-4;
   }
@@ -120,9 +120,9 @@
 /* Here you will find styles that are specific to the /nolla pages. */
 @reference "../../../app.css";
 
-[data-theme="nollningPostReveal"] {
+[data-theme="n0llningPostReveal"] {
   scroll-behavior: smooth;
-  @apply font-nolla-post-reveal;
+  @apply font-n0lla-post-reveal;
   font-display: auto;
   color-scheme: dark;
 }

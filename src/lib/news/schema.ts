@@ -2,7 +2,8 @@ import { isFileImage } from "$lib/files/utils";
 import { authorSchema, tagSchema } from "$lib/zod/schemas";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
-import { getYoutubeVideoId } from "$lib/utils/youtube";
+import * as messages from "$paraglide/messages";
+import { getYouTubeVideoId } from "$lib/utils/youtube";
 
 export const articleSchema = z.object({
   slug: z.string(),
@@ -24,15 +25,15 @@ export const articleSchema = z.object({
     .string()
     .optional()
     .nullable()
-    .refine((value) => !value || getYoutubeVideoId(value) !== null, {
+    .refine((value) => !value || getYouTubeVideoId(value) !== null, {
       message: "Invalid YouTube URL",
     }),
   publishTime: z.date().optional().nullable(),
   // https://github.com/colinhacks/zod/pull/3118
   images: z
-    .instanceof(File, { message: "Please upload a file." })
+    .instanceof(File, { error: () => messages.file_upload_please() })
     .refine((file) => !file || isFileImage(file), {
-      message: "Måste vara en bild",
+      error: () => messages.file_upload_must_be_an_image(),
     })
     .array()
     .default([]),

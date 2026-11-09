@@ -170,7 +170,7 @@
     {/each}
   </section>
 
-  <!-- Sektionskarta -->
+  <!-- Guild Map -->
   <section class="flex flex-col gap-5">
     <div class="flex flex-col gap-2">
       <h2>{m.volunteer_about_map_title()}</h2>

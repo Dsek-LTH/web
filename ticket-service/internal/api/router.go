@@ -10,14 +10,14 @@ import (
 	"github.com/Dsek-LTH/ticket-service/internal/releases"
 )
 
-func NewRouter(svc *releases.Service, scheduler *releases.Scheduler, validator *authjwt.Validator) http.Handler {
+func NewRouter(service *releases.Service, scheduler *releases.Scheduler, validator *authjwt.Validator) http.Handler {
 	mux := http.NewServeMux()
 	config := huma.DefaultConfig("Ticket Service", "1.0.0")
 	humaAPI := humago.New(mux, config)
 
 	humaAPI.UseMiddleware(authMiddleware(humaAPI, validator))
 
-	h := NewHandlers(svc, scheduler)
+	h := NewHandlers(service, scheduler)
 
 	huma.Register(humaAPI, huma.Operation{
 		OperationID: "create-release",

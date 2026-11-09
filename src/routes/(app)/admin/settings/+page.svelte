@@ -24,7 +24,7 @@
     form,
     errors,
     enhance: nollningEnhance,
-  } = superForm(data.updateNollningForm, { id: "nollning" });
+  } = superForm(data.updateN0llningForm, { id: "n0llning" });
 </script>
 
 <SetPageTitle title={m.admin_settings_pageTitle()} />
@@ -34,7 +34,7 @@
 
   <Card class="mb-6">
     <CardHeader>
-      <CardTitle>{m.admin_settings_nollningPeriod()}</CardTitle>
+      <CardTitle>{m.admin_settings_n0llningPeriod()}</CardTitle>
     </CardHeader>
     <CardContent>
       <form
@@ -44,21 +44,21 @@
         class="flex flex-wrap items-end gap-4"
       >
         <div class="flex flex-col gap-1.5">
-          <Label>{m.admin_settings_nollningStart()}</Label>
+          <Label>{m.admin_settings_n0llningStart()}</Label>
           <DatePicker
             name="start"
             iso
-            value={data.nollning?.start.toISOString().split("T")[0] ??
+            value={data.n0llning?.start.toISOString().split("T")[0] ??
               $form.start?.toISOString().split("T")[0]}
             error={!!$errors.start}
           />
         </div>
         <div class="flex flex-col gap-1.5">
-          <Label>{m.admin_settings_nollningEnd()}</Label>
+          <Label>{m.admin_settings_n0llningEnd()}</Label>
           <DatePicker
             name="end"
             iso
-            value={data.nollning?.end.toISOString().split("T")[0] ??
+            value={data.n0llning?.end.toISOString().split("T")[0] ??
               $form.end?.toISOString().split("T")[0]}
             error={!!$errors.end}
           />

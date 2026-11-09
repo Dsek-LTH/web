@@ -2,6 +2,7 @@ import { toast } from "$lib/stores/toast";
 import type { ActionResult } from "@sveltejs/kit";
 // eslint-disable-next-line no-restricted-imports -- this is the only place it is actually supposed to be used
 import { superForm as SKSuperForms } from "sveltekit-superforms/client";
+import * as messages from "$paraglide/messages";
 
 /** Toast the message returned by `message(form, ...)` after a successful form action. */
 export function toastFormMessage(result: ActionResult) {
@@ -23,11 +24,11 @@ export function superForm<T extends Record<string, unknown>, M = Message>(
         toast(
           hasMessage
             ? response.result.error.message
-            : "Du måste vara inloggad för att göra detta",
+            : messages.you_need_to_be_logged_in_to_do_this(),
           "error",
         );
       } else if (response.result.status === 403) {
-        toast("Du har inte acccess för att göra detta", "error");
+        toast(messages.you_do_not_have_access_to_do_this(), "error");
       } else {
         toast(response.result.error.message, "error");
       }

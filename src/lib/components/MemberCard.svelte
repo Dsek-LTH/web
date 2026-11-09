@@ -1,7 +1,7 @@
 <script lang="ts">
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
   import { Badge } from "$lib/components/ui/badge";
-  import { getBadgeVariantFromProgramme } from "$lib/components/ui/badge/badge.svelte";
+  import { getBadgeVariantFromProgram } from "$lib/components/ui/badge/badge.svelte";
 
   import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
   import { cn } from "$lib/utils";
@@ -9,7 +9,7 @@
   import type { Snippet } from "svelte";
 
   let {
-    class: clazz,
+    class: klass,
     member,
     links = true,
     nickname = true,
@@ -40,7 +40,7 @@
 <div
   class={cn(
     "flex h-fit w-fit min-w-0 flex-row items-center gap-2 rounded-md border-[1px] p-1 px-2",
-    clazz,
+    klass,
   )}
 >
   <a
@@ -80,7 +80,7 @@
     <div class="ml-0 shrink-0 gap-2">
       <Badge
         class="shrink-0"
-        variant={getBadgeVariantFromProgramme(member.classProgramme)}
+        variant={getBadgeVariantFromProgram(member.classProgramme)}
       >
         {`${member.classProgramme}${member.classYear?.toString().slice(2)}`}
       </Badge>

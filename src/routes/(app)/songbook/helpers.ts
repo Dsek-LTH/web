@@ -28,11 +28,11 @@ export async function getExistingCategories(
           },
     })
   ).reduce<Array<NonNullable<ExtendedPrismaModel<"Song">["category"]>>>(
-    (acc, cur) => {
+    (accumulator, cur) => {
       if (cur.category !== null) {
-        acc.push(cur.category);
+        accumulator.push(cur.category);
       }
-      return acc;
+      return accumulator;
     },
     [],
   );
@@ -63,11 +63,11 @@ export async function getExistingMelodies(
           },
     })
   ).reduce<Array<NonNullable<ExtendedPrismaModel<"Song">["melody"]>>>(
-    (acc, cur) => {
+    (accumulator, cur) => {
       if (cur.melody !== null) {
-        acc.push(cur.melody);
+        accumulator.push(cur.melody);
       }
-      return acc;
+      return accumulator;
     },
     [],
   );

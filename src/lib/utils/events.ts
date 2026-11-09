@@ -1,3 +1,4 @@
+import * as m from "$paraglide/messages";
 import type { recurringType } from "@prisma/client";
 
 // Vite doesn't support importing prisma enums into the browser, so we have to do this "hack" to use the following object as an enum.
@@ -9,11 +10,11 @@ export const recurringTypeValues: Record<RecurringType, RecurringType> = {
   MONTHLY: "MONTHLY",
   YEARLY: "YEARLY",
 } as const;
-export const recurringTypes: Record<RecurringType, string> = {
-  DAILY: "Dagsvis",
-  WEEKLY: "Veckovis",
-  MONTHLY: "Månadsvis",
-  YEARLY: "Årsvis",
+export const recurringTypes: Record<RecurringType, () => string> = {
+  DAILY: m.events_create_daily,
+  WEEKLY: m.events_create_weekly,
+  MONTHLY: m.events_create_monthly,
+  YEARLY: m.events_create_yearly,
 };
 export const recurringTypesList = Object.keys(recurringTypeValues);
 export function isRecurringType(str: string): str is RecurringType {

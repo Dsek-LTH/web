@@ -3,8 +3,8 @@
   import dayjs from "dayjs";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import CommitteeSymbol from "$lib/components/images/CommitteeSymbol.svelte";
-  import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
-  import { getYoutubeVideoId } from "$lib/utils/youtube";
+  import YouTubeThumbnail from "./YouTubeThumbnail.svelte";
+  import { getYouTubeVideoId } from "$lib/utils/youtube";
 
   let {
     article,
@@ -18,7 +18,7 @@
   let loadedImageUrl = $state<string | null>(null);
   let failedVideoId = $state<string | null>(null);
   let loadedVideoId = $state<string | null>(null);
-  const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
+  const videoId = $derived(getYouTubeVideoId(article.youtubeUrl));
   const imageVisible = $derived(
     (!videoId || failedVideoId === videoId) &&
       !!article.imageUrl &&
@@ -70,7 +70,7 @@
   {/if}
   {#if videoId && videoVisible}
     {@const id = videoId}
-    <YoutubeThumbnail
+    <YouTubeThumbnail
       videoId={id}
       class="absolute inset-0 size-full object-cover"
       onready={() => (loadedVideoId = id)}

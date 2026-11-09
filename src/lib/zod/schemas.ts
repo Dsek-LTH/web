@@ -1,6 +1,7 @@
-import { programmes } from "$lib/utils/programmes";
+import { programs } from "$lib/utils/programs";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
+import * as messages from "$paraglide/messages";
 
 export const emptySchema = z.object({}); // for forms without a body
 export type EmptySchema = Infer<typeof emptySchema>;
@@ -22,8 +23,8 @@ export const memberSchema = z.object({
   classProgramme: z
     .string()
     .nullable()
-    .refine((p) => p == null || programmes.some((c) => c.id === p), {
-      message: "Ogiltigt program",
+    .refine((p) => p == null || programs.some((c) => c.id === p), {
+      error: () => messages.invalid_program(),
     }),
   graduationYear: z.number().min(1962).nullable().default(null),
   birthDate: z.preprocess(

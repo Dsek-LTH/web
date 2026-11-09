@@ -1,5 +1,5 @@
 import { dev } from "$app/environment";
-import { isNollningPeriod } from "$lib/utils/adminSettings/nollning";
+import { isN0llningPeriod } from "$lib/utils/adminSettings/nollning";
 import apiNames from "$lib/utils/apiNames";
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 
@@ -8,7 +8,7 @@ const fetchAccessPolicies = async (
   roles: string[],
   studentId?: string,
 ) => {
-  const isNollning = await isNollningPeriod();
+  const isN0llning = await isN0llningPeriod();
   return prisma.accessPolicy
     .findMany({
       where: {
@@ -18,12 +18,12 @@ const fetchAccessPolicies = async (
     .then((policies) => policies.map((p) => p.apiName))
     .then((policies) => {
       /**
-       * Stab hide functionality: when outside of the nollning everyone has the
-       * access policy "SEE_STABEN", but during nollning only those who get it
-       * due to their roles can see staben.
+       * Stab hide functionality: when outside of the n0llning everyone has the
+       * access policy "SEE_THE_STAB", but during n0llning only those who get it
+       * due to their roles can see the stab.
        */
-      if (!isNollning && !policies.includes(apiNames.MEMBER.SEE_STABEN)) {
-        policies.push(apiNames.MEMBER.SEE_STABEN);
+      if (!isN0llning && !policies.includes(apiNames.MEMBER.SEE_THE_STAB)) {
+        policies.push(apiNames.MEMBER.SEE_THE_STAB);
       }
       return policies;
     });

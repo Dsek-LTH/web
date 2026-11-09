@@ -8,12 +8,12 @@ import (
 )
 
 type Handlers struct {
-	svc       *releases.Service
+	service   *releases.Service
 	scheduler *releases.Scheduler
 }
 
-func NewHandlers(svc *releases.Service, scheduler *releases.Scheduler) *Handlers {
-	return &Handlers{svc: svc, scheduler: scheduler}
+func NewHandlers(service *releases.Service, scheduler *releases.Scheduler) *Handlers {
+	return &Handlers{service: service, scheduler: scheduler}
 }
 
 // ---- shared response bodies ----
@@ -69,7 +69,7 @@ type ReleaseSummary struct {
 }
 
 func (h *Handlers) toReleaseSummary(ctx context.Context, r releases.Release) (ReleaseSummary, error) {
-	counts, err := h.svc.GetCounts(ctx, r.ID)
+	counts, err := h.service.GetCounts(ctx, r.ID)
 	if err != nil {
 		return ReleaseSummary{}, err
 	}
@@ -129,7 +129,7 @@ type ReleaseOutput struct {
 func (h *Handlers) createRelease(ctx context.Context, input *CreateReleaseInput) (*ReleaseOutput, error) {
 	identity := IdentityFromContext(ctx)
 
-	r, err := h.svc.CreateRelease(ctx, releases.CreateReleaseInput{
+	r, err := h.service.CreateRelease(ctx, releases.CreateReleaseInput{
 		EventID:     input.Body.EventID,
 		Title:       input.Body.Title,
 		Description: input.Body.Description,
@@ -160,7 +160,7 @@ type ListReleasesOutput struct {
 }
 
 func (h *Handlers) listReleases(ctx context.Context, input *ListReleasesInput) (*ListReleasesOutput, error) {
-	all, err := h.svc.ListReleases(ctx, input.IncludeExpired)
+	all, err := h.service.ListReleases(ctx, input.IncludeExpired)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -168,7 +168,7 @@ func (h *Handlers) listReleases(ctx context.Context, input *ListReleasesInput) (
 	for i, r := range all {
 		ids[i] = r.ID
 	}
-	counts, err := h.svc.GetCountsForReleases(ctx, ids)
+	counts, err := h.service.GetCountsForReleases(ctx, ids)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -190,7 +190,7 @@ type GetReleaseOutput struct {
 }
 
 func (h *Handlers) getRelease(ctx context.Context, input *GetReleaseInput) (*GetReleaseOutput, error) {
-	r, err := h.svc.GetRelease(ctx, input.ID)
+	r, err := h.service.GetRelease(ctx, input.ID)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -213,7 +213,7 @@ type QueueEntryOutput struct {
 
 func (h *Handlers) requestTicket(ctx context.Context, input *MemberActionInput) (*QueueEntryOutput, error) {
 	identity := IdentityFromContext(ctx)
-	entry, err := h.svc.RequestTicket(ctx, input.ID, identity.MemberID)
+	entry, err := h.service.RequestTicket(ctx, input.ID, identity.MemberID)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -222,10 +222,10 @@ func (h *Handlers) requestTicket(ctx context.Context, input *MemberActionInput) 
 
 func (h *Handlers) acceptOffer(ctx context.Context, input *MemberActionInput) (*QueueEntryOutput, error) {
 	identity := IdentityFromContext(ctx)
-	if err := h.svc.Accept(ctx, input.ID, identity.MemberID); err != nil {
+	if err := h.service.Accept(ctx, input.ID, identity.MemberID); err != nil {
 		return nil, mapServiceError(err)
 	}
-	entry, err := h.svc.Status(ctx, input.ID, identity.MemberID)
+	entry, err := h.service.Status(ctx, input.ID, identity.MemberID)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -236,7 +236,7 @@ type CancelOutput struct{}
 
 func (h *Handlers) cancelEntry(ctx context.Context, input *MemberActionInput) (*CancelOutput, error) {
 	identity := IdentityFromContext(ctx)
-	if err := h.svc.Cancel(ctx, input.ID, identity.MemberID); err != nil {
+	if err := h.service.Cancel(ctx, input.ID, identity.MemberID); err != nil {
 		return nil, mapServiceError(err)
 	}
 	return &CancelOutput{}, nil
@@ -244,7 +244,7 @@ func (h *Handlers) cancelEntry(ctx context.Context, input *MemberActionInput) (*
 
 func (h *Handlers) statusEntry(ctx context.Context, input *MemberActionInput) (*QueueEntryOutput, error) {
 	identity := IdentityFromContext(ctx)
-	entry, err := h.svc.Status(ctx, input.ID, identity.MemberID)
+	entry, err := h.service.Status(ctx, input.ID, identity.MemberID)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -267,7 +267,7 @@ type MyTicketsOutput struct {
 
 func (h *Handlers) myTickets(ctx context.Context, _ *MyTicketsInput) (*MyTicketsOutput, error) {
 	identity := IdentityFromContext(ctx)
-	entries, err := h.svc.ListEntriesForMember(ctx, identity.MemberID)
+	entries, err := h.service.ListEntriesForMember(ctx, identity.MemberID)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -306,7 +306,7 @@ type ListEntriesOutput struct {
 }
 
 func (h *Handlers) listEntries(ctx context.Context, input *ListEntriesInput) (*ListEntriesOutput, error) {
-	entries, err := h.svc.ListAcceptedEntriesForRelease(ctx, input.ID)
+	entries, err := h.service.ListAcceptedEntriesForRelease(ctx, input.ID)
 	if err != nil {
 		return nil, mapServiceError(err)
 	}
@@ -336,7 +336,7 @@ type UpdateReleaseInput struct {
 }
 
 func (h *Handlers) updateRelease(ctx context.Context, input *UpdateReleaseInput) (*ReleaseOutput, error) {
-	r, err := h.svc.UpdateRelease(ctx, input.ID, releases.UpdateReleaseInput{
+	r, err := h.service.UpdateRelease(ctx, input.ID, releases.UpdateReleaseInput{
 		Title:       input.Body.Title,
 		Description: input.Body.Description,
 		Location:    input.Body.Location,

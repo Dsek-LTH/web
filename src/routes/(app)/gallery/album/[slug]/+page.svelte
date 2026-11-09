@@ -11,7 +11,7 @@
   let { data } = $props();
 
   let selectedIndex = $state<number | null>(null);
-  let lightboxOpen = $derived(selectedIndex !== null);
+  let lightBoxOpen = $derived(selectedIndex !== null);
 
   function next() {
     if (selectedIndex === null) return;
@@ -24,7 +24,7 @@
   }
 
   $effect(() => {
-    if (!lightboxOpen) return;
+    if (!lightBoxOpen) return;
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") next();
       else if (e.key === "ArrowLeft") prev();
@@ -76,7 +76,7 @@
 </div>
 
 <Dialog.Root
-  open={lightboxOpen}
+  open={lightBoxOpen}
   onOpenChange={(open) => {
     if (!open) selectedIndex = null;
   }}

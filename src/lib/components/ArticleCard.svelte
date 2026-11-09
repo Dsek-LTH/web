@@ -5,8 +5,8 @@
   import { Marked } from "marked";
   import type { Tokens } from "marked";
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
-  import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
-  import { getYoutubeVideoId } from "$lib/utils/youtube";
+  import YouTubeThumbnail from "./YouTubeThumbnail.svelte";
+  import { getYouTubeVideoId } from "$lib/utils/youtube";
   import Play from "@lucide/svelte/icons/play";
 
   let {
@@ -19,7 +19,7 @@
     isPreview?: boolean;
   } = $props();
 
-  const videoId = $derived(getYoutubeVideoId(article.youtubeUrl));
+  const videoId = $derived(getYouTubeVideoId(article.youtubeUrl));
   const articleUrl = $derived(`/news/${article.slug}`);
   let failedImageUrl = $state<string | null>(null);
   let unavailableVideoId = $state<string | null>(null);
@@ -99,7 +99,7 @@
         {/key}
       {/if}
       {#if videoId}
-        <YoutubeThumbnail
+        <YouTubeThumbnail
           {videoId}
           class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           onunavailable={() => (unavailableVideoId = videoId)}

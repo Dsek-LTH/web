@@ -133,7 +133,7 @@
                 class={buttonVariants({ variant: "destructive" })}
               >
                 <Trash class="h-4 w-4" />
-                {m.songbook_removesongbookentry()}
+                {m.songbook_removeSongBookEntry()}
               </AlertDialog.Trigger>
               <AlertDialog.Content>
                 <AlertDialog.Header>
@@ -152,7 +152,7 @@
                       type="submit"
                       class={buttonVariants({ variant: "destructive" })}
                     >
-                      {m.songbook_removesongbookentry()}
+                      {m.songbook_removeSongBookEntry()}
                     </AlertDialog.Action>
                   </form>
                 </AlertDialog.Footer>
