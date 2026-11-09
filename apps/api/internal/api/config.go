@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -76,7 +77,43 @@ func newHumaAPI(mux *http.ServeMux) huma.API {
 		span.SetAttributes(semconv.HTTPRoute(route))
 		next(ctx)
 	})
+	api.UseMiddleware(limitMultipartBody(api))
 	return api
+}
+
+// Upload size limits (MaxBodyBytes) for the multipart operations, which
+// limitMultipartBody enforces. multipartSlack is room for the boundaries
+// and the other form fields on top of a single file.
+const (
+	multipartSlack    = 1_000_000
+	maxAlbumUpload    = 1_000_000_000
+	maxDocumentUpload = 200_000_000
+)
+
+// limitMultipartBody enforces an operation's MaxBodyBytes on multipart
+// uploads: huma applies it only to bodies it reads itself, and parses
+// multipart forms from the raw request with no limit at all. Every upload
+// operation sets MaxBodyBytes.
+func limitMultipartBody(api huma.API) func(huma.Context, func(huma.Context)) {
+	return func(ctx huma.Context, next func(huma.Context)) {
+		op := ctx.Operation()
+		limit := op.MaxBodyBytes
+		if limit <= 0 || op.RequestBody == nil ||
+			op.RequestBody.Content["multipart/form-data"] == nil {
+			next(ctx)
+			return
+		}
+		r, w := humago.Unwrap(ctx)
+		if r.ContentLength > limit {
+			_ = huma.WriteErr(api, ctx, http.StatusRequestEntityTooLarge,
+				fmt.Sprintf("request body is too large (limit %d bytes)", limit))
+			return
+		}
+		// Without a Content-Length (chunked), parsing fails once the
+		// limit is passed.
+		r.Body = http.MaxBytesReader(w, r.Body, limit)
+		next(ctx)
+	}
 }
 
 // nonNilSlices replaces every nil slice in a response body with an empty

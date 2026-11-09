@@ -167,7 +167,7 @@ export interface paths {
     put?: never;
     /**
      * Upload pictures to an album
-     * @description Creates the album "{date} {name}" if it doesn't exist. Needs fileHandler:albums:create.
+     * @description Creates the album "{date} {name}" if it doesn't exist. Every picture must be a JPEG, PNG, WebP or GIF of at most 25 MB; each is turned upright, scaled down to at most 1920 pixels wide and stored as a JPEG (a PNG if it has transparency). Needs fileHandler:albums:create.
      */
     post: operations["upload-album-pictures"];
     delete?: never;
@@ -1183,7 +1183,7 @@ export interface paths {
     put?: never;
     /**
      * Upload an image
-     * @description For articles and event header images. Needs news:article:create, event:create or event:update.
+     * @description For articles and event header images: a JPEG, PNG, WebP or GIF of at most 25 MB. It's turned upright (EXIF orientation), scaled down to at most 1920 pixels wide and stored as a JPEG, or a PNG if it has transparency. Needs news:article:create, event:create or event:update.
      */
     post: operations["upload-image"];
     delete?: never;

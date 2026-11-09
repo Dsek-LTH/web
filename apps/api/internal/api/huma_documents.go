@@ -45,6 +45,7 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		Summary:       "Upload a meeting document",
 		Description:   "Into public/{year}/{folder} (SRD: public/srd/{year}/{folder}), optionally in a group. Needs fileHandler:documents:create (fileHandler:files:create for SRD).",
 		DefaultStatus: http.StatusCreated,
+		MaxBodyBytes:  maxDocumentUpload,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			Type   documents.MeetingUploadType `form:"type"   required:"true"`
@@ -143,6 +144,7 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		Summary:       "Upload a requirement profile",
 		Description:   "Into public/kravprofiler/{year}/{folder}. Needs fileHandler:files:create.",
 		DefaultStatus: http.StatusCreated,
+		MaxBodyBytes:  maxDocumentUpload,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			Year   int           `form:"year"   required:"true"`
@@ -212,6 +214,7 @@ func registerDocumentRoutes(api huma.API, svc *documents.Service) {
 		Summary:       "Upload a miscellaneous file",
 		Description:   "Needs fileHandler:files:create.",
 		DefaultStatus: http.StatusCreated,
+		MaxBodyBytes:  maxDocumentUpload,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			Prefix string        `form:"prefix" required:"false" doc:"Subfolder under public/miscellaneous; / if empty."`

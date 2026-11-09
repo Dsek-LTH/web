@@ -1,10 +1,12 @@
 package articles
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
+	"path"
 	"strings"
 	"time"
 
@@ -16,6 +18,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/comments"
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
+	"github.com/dsek-lth/web/apps/api/internal/images"
 	"github.com/dsek-lth/web/apps/api/internal/integrations"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
 	"github.com/dsek-lth/web/apps/api/internal/mentions"
@@ -706,8 +709,14 @@ func (s *Service) ListCustomAuthors(ctx context.Context) ([]CustomAuthor, error)
 	return customAuthors, nil
 }
 
+// MaxImageSize is the largest file UploadImage accepts.
+const MaxImageSize = 25_000_000
+
 // UploadImage stores an image for an article or an event and returns its
-// URL. Anyone who may write either can upload: the event form uses it for
+// URL. Only JPEG, PNG, WebP and GIF are accepted; the picture is turned
+// upright, scaled down to images.MaxWidth and re-encoded (see
+// internal/images), so the stored file is a .jpg or .png whatever the
+// upload's name. Anyone who may write either can upload: the event form uses it for
 // header images, and someone who may create events but not articles must
 // still be able to save an event with an image.
 func (s *Service) UploadImage(
@@ -723,7 +732,12 @@ func (s *Service) UploadImage(
 		!identity.Has(apinames.EventUpdate) {
 		return "", auth.ErrForbidden
 	}
-	url, err := s.uploader.Upload(ctx, filename, data)
+	img, err := images.Read(data, MaxImageSize, images.MaxWidth)
+	if err != nil {
+		return "", err
+	}
+	name := strings.TrimSuffix(filename, path.Ext(filename)) + "." + img.Ext
+	url, err := s.uploader.Upload(ctx, name, bytes.NewReader(img.Data))
 	if err != nil {
 		return "", fmt.Errorf("upload image: %w", err)
 	}
