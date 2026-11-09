@@ -640,55 +640,55 @@ model Meeting {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
-    id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    studentId               String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-    email                   String?                 @unique @db.VarChar(255) @deny("read", (!has(auth().policies, "member:see_email")) || (mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != id))
-    firstName               String?                 @map("first_name") @db.VarChar(255)
-    nickname                String?                 @db.VarChar(255) @deny("read", auth() == null)
-    lastName                String?                 @map("last_name") @db.VarChar(255)
-    bio                     String?                 @db.Text
-    picturePath             String?                 @map("picture_path") @db.Text
-    classProgramme          String?                 @map("class_programme") @db.VarChar(255)
-    classYear               Int?                    @map("class_year")
-    graduationYear          Int?                    @map("graduation_year")
-    birthDate               DateTime?               @map("birth_date") @db.Date @allow("read", has(auth().policies, "member:user"))
-    visible                 Boolean                 @default(true)
-    foodPreference          String?                 @map("food_preference") @db.VarChar(255) @allow("read", (auth().memberId == id) || (has(auth().policies, "webshop:manage")) || has(auth().policies, "core:member:update"))
-    language                String?                 @map("language") @db.VarChar(255)
-    stripeCustomerId        String?                 @map("stripe_customer_id")
+    id                           String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    studentId                    String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
+    email                        String?                 @unique @db.VarChar(255) @deny("read", (!has(auth().policies, "member:see_email")) || (mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != id))
+    firstName                    String?                 @map("first_name") @db.VarChar(255)
+    nickname                     String?                 @db.VarChar(255) @deny("read", auth() == null)
+    lastName                     String?                 @map("last_name") @db.VarChar(255)
+    bio                          String?                 @db.Text
+    picturePath                  String?                 @map("picture_path") @db.Text
+    classProgramme               String?                 @map("class_programme") @db.VarChar(255)
+    classYear                    Int?                    @map("class_year")
+    graduationYear               Int?                    @map("graduation_year")
+    birthDate                    DateTime?               @map("birth_date") @db.Date @allow("read", has(auth().policies, "member:user"))
+    visible                      Boolean                 @default(true)
+    foodPreference               String?                 @map("food_preference") @db.VarChar(255) @allow("read", (auth().memberId == id) || (has(auth().policies, "webshop:manage")) || has(auth().policies, "core:member:update"))
+    language                     String?                 @map("language") @db.VarChar(255)
+    stripeCustomerId             String?                 @map("stripe_customer_id")
 
-    nollningGroupId         String?                 @map("nollning_group_id") @db.Uuid
-    nollaIn                 PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
+    nollningGroupId              String?                 @map("nollning_group_id") @db.Uuid
+    nollaIn                      PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
 
-    pingsFromMe             Ping[]                  @relation("pings_from_memberTomembers")
-    pingsToMe               Ping[]                  @relation("pings_to_memberTomembers")
-    likedArticles           Article[]               @relation("article_likes")
-    articleComments         ArticleComment[]
-    articleRequests         ArticleRequest[]
-    authors                 Author[]
-    eventComments           EventComment[]
-    eventsGoingTos          Event[]                 @relation("event_going")
-    eventsInterestedIns     Event[]                 @relation("event_interested")
-    subscribedTags          Tag[]                   @relation("member_tag_subscriptions")
-    authoredEvents          Event[]
-    mandates                Mandate[]
-    notifications           Notification[]
-    subscriptionSettings    SubscriptionSetting[]
-    memberSpecificPolicies  AccessPolicy[]
-    doorAccessPolicies      DoorAccessPolicy[]
-    shoppableAccessPolicies ShoppableAccessPolicy[]
-    authoredShoppables      Shoppable[]
-    inventory               Consumable[]
-    shopReservations        ConsumableReservation[]
-    bookingRequests         BookingRequest[]
-    accessGrantedBookingRequests BookingRequest[]   @relation("booking_requests_access_members")
-    recurringEvent          RecurringEvent[]
-    tokens                  ExpoToken[]
-    expenses                Expense[]
-    expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
-    signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
-    closedAlerts            Alert[]                 @relation("alerts_closed_by")
-    cafeShifts              CafeShift[]
+    pingsFromMe                  Ping[]                  @relation("pings_from_memberTomembers")
+    pingsToMe                    Ping[]                  @relation("pings_to_memberTomembers")
+    likedArticles                Article[]               @relation("article_likes")
+    articleComments              ArticleComment[]
+    articleRequests              ArticleRequest[]
+    authors                      Author[]
+    eventComments                EventComment[]
+    eventsGoingTos               Event[]                 @relation("event_going")
+    eventsInterestedIns          Event[]                 @relation("event_interested")
+    subscribedTags               Tag[]                   @relation("member_tag_subscriptions")
+    authoredEvents               Event[]
+    mandates                     Mandate[]
+    notifications                Notification[]
+    subscriptionSettings         SubscriptionSetting[]
+    memberSpecificPolicies       AccessPolicy[]
+    doorAccessPolicies           DoorAccessPolicy[]
+    shoppableAccessPolicies      ShoppableAccessPolicy[]
+    authoredShoppables           Shoppable[]
+    inventory                    Consumable[]
+    shopReservations             ConsumableReservation[]
+    bookingRequests              BookingRequest[]
+    accessGrantedBookingRequests BookingRequest[]        @relation("booking_requests_access_members")
+    recurringEvent               RecurringEvent[]
+    tokens                       ExpoToken[]
+    expenses                     Expense[]
+    expensesToSign               ExpenseItem[]           @relation("expense_item_signer")
+    signedExpenses               ExpenseItem[]           @relation("expense_item_signed_by")
+    closedAlerts                 Alert[]                 @relation("alerts_closed_by")
+    cafeShifts                   CafeShift[]
 
     @@allow('create', has(auth().policies, "core:member:create"))
     @@allow('create', auth().studentId == studentId)
@@ -804,20 +804,22 @@ model PhadderGroup {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
-    id            String       @id @db.VarChar(255)
-    nameSv        String       @map("name_sv") @db.VarChar(255)
-    nameEn        String?      @map("name_en") @db.VarChar(255)
-    committeeId   String?      @map("committee_id") @db.Uuid
-    email         String?      @db.VarChar(255)
-    active        Boolean      @default(true)
-    boardMember   Boolean      @default(false) @map("board_member")
-    descriptionSv String?      @map("description_sv")
-    descriptionEn String?      @map("description_en")
-    startMonth    Int          @default(0) @map("start_month")
-    endMonth      Int          @default(11) @map("end_month")
-    committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
-    emailAliases  EmailAlias[]
-    mandates      Mandate[]
+    id                String       @id @db.VarChar(255)
+    nameSv            String       @map("name_sv") @db.VarChar(255)
+    nameEn            String?      @map("name_en") @db.VarChar(255)
+    committeeId       String?      @map("committee_id") @db.Uuid
+    email             String?      @db.VarChar(255)
+    active            Boolean      @default(true)
+    boardMember       Boolean      @default(false) @map("board_member")
+    descriptionSv     String?      @map("description_sv")
+    descriptionEn     String?      @map("description_en")
+    longDescriptionSv String?      @map("long_description_sv")
+    longDescriptionEn String?      @map("long_description_en")
+    startMonth        Int          @default(0) @map("start_month")
+    endMonth          Int          @default(11) @map("end_month")
+    committee         Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
+    emailAliases      EmailAlias[]
+    mandates          Mandate[]
 
     @@allow("create", has(auth().policies, "core:position:create"))
     @@allow("read", has(auth().policies, "core:position:read"))
@@ -899,16 +901,16 @@ model ProductInventory {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Song {
-    id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    title     String    @db.VarChar(255)
-    lyrics    String
-    slug      String    @unique(map: "songs_slug_unique") @db.VarChar(255)
-    melody    String?   @db.VarChar(255)
-    category  String?   @db.VarChar(255)
-    createdAt DateTime? @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
-    deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-    video     String?
+    id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    title         String         @db.VarChar(255)
+    lyrics        String
+    slug          String         @unique(map: "songs_slug_unique") @db.VarChar(255)
+    melody        String?        @db.VarChar(255)
+    category      String?        @db.VarChar(255)
+    createdAt     DateTime?      @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime?      @map("updated_at") @db.Timestamptz(6)
+    deletedAt     DateTime?      @map("deleted_at") @db.Timestamptz(6)
+    video         String?
 
     songBookEntry SongBookEntry?
 
@@ -920,12 +922,12 @@ model Song {
 }
 
 model SongBookEntry {
-    songId          String   @unique @map("song_id") @db.Uuid
-    song            Song     @relation(fields: [songId], references: [id])
-    page            Int
-    numberOnPage    Int      @map("number_on_page")
-    createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+    songId       String   @unique @map("song_id") @db.Uuid
+    song         Song     @relation(fields: [songId], references: [id])
+    page         Int
+    numberOnPage Int      @map("number_on_page")
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
     @@id([page, numberOnPage])
 

@@ -451,6 +451,8 @@
   "positions_errors_mandateNotFound": "Mandate not found",
   "positions_errors_positionNotFound": "Position not found",
   "positions_errors_memberNotFound": "Member not found",
+  "positions_showExtended": "Show extended description",
+  "positions_longDescription": "Extended description",
   "news_header": "Header",
   "news_description": "Description",
   "news_author": "Author",

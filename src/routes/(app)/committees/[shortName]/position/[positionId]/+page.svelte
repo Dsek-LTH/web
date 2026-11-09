@@ -16,6 +16,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import { Progress } from "$lib/components/ui/progress";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import * as Accordion from "$lib/components/ui/accordion/";
 
   let { data }: { data: PageData } = $props();
 
@@ -142,6 +143,18 @@
 
     {#if data.position.description}
       <MarkdownBody body={data.position.description} />
+    {/if}
+    {#if data.position.longDescription}
+      <Accordion.Root type="single">
+        <Accordion.Item>
+          <Accordion.Trigger class="pt-1"
+            >{m.positions_showExtended()}</Accordion.Trigger
+          >
+          <Accordion.Content>
+            <MarkdownBody class="pt-0" body={data.position.longDescription} />
+          </Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>
     {/if}
 
     {#if data.position.email}
