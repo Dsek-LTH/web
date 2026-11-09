@@ -527,6 +527,6 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       include them.
 - [ ] T59 Booking review queue runs ~6 queries per pending request
       (`booking.Service.ReviewQueue`).
-- [ ] T60 Cafe shifts created by the old app may be stored at 22:00/23:00
+- [x] T60 Cafe shifts created by the old app may be stored at 22:00/23:00
       UTC the previous day: check `SELECT DISTINCT date::time FROM
 cafe_shifts` on prod and match days with a half-open range if needed.
