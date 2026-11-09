@@ -3719,7 +3719,7 @@ export interface components {
       /** @description Only for the member themselves, or with member:see_email. */
       email?: string;
       firstName?: string;
-      /** @description Free text, e.g. allergies. */
+      /** @description Free text, e.g. allergies. Only for the member themselves or core:member:update. */
       foodPreference?: string;
       /** Format: int32 */
       graduationYear?: number;

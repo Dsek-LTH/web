@@ -135,7 +135,8 @@ func (s *Service) listBirthdays(
 
 // Profile fetches a member's full profile, including mandate history.
 // Email is only resolved if the caller is viewing their own profile or
-// holds MemberSeeEmail - matching the old TS behavior exactly.
+// holds MemberSeeEmail, and the food preference for themselves or
+// MemberUpdate - matching the old TS behavior exactly.
 func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile, error) {
 	identity, err := requireMember(ctx)
 	if err != nil {
@@ -207,7 +208,6 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 		ClassProgramme: dbutil.TextPtr(row.ClassProgramme),
 		ClassYear:      dbutil.Int4Ptr(row.ClassYear),
 		Visible:        row.Visible,
-		FoodPreference: dbutil.TextPtr(row.FoodPreference),
 		Bio:            dbutil.TextPtr(row.Bio),
 		GraduationYear: dbutil.Int4Ptr(row.GraduationYear),
 		Language:       (*apitypes.Language)(dbutil.TextPtr(row.Language)),
@@ -216,6 +216,11 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 
 	if identity.StudentID == studentID || identity.Has(apinames.MemberSeeEmail) {
 		member.Email = dbutil.TextPtr(row.Email)
+	}
+	// Food preferences (allergies) were only readable by the member
+	// themselves and those who may edit members.
+	if identity.StudentID == studentID || identity.Has(apinames.MemberUpdate) {
+		member.FoodPreference = dbutil.TextPtr(row.FoodPreference)
 	}
 	if identity.StudentID == studentID || identity.Has(apinames.MemberUser) {
 		member.BirthDate = dbutil.DatePtr(row.BirthDate)

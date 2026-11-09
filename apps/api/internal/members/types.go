@@ -24,7 +24,7 @@ type MemberProfile struct {
 	ClassProgramme *string            `json:"classProgramme,omitempty" doc:"Programme code, e.g. D or C."`
 	ClassYear      *int32             `json:"classYear,omitempty"      doc:"Year the member started."`
 	Visible        bool               `json:"visible"`
-	FoodPreference *string            `json:"foodPreference,omitempty" doc:"Free text, e.g. allergies."`
+	FoodPreference *string            `json:"foodPreference,omitempty" doc:"Free text, e.g. allergies. Only for the member themselves or core:member:update."`
 	Bio            *string            `json:"bio,omitempty"            doc:"HTML, sanitized on save."`
 	GraduationYear *int32             `json:"graduationYear,omitempty"`
 	Language       *apitypes.Language `json:"language,omitempty"       doc:"Preferred UI language."`

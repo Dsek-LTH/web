@@ -44,24 +44,27 @@ func TestMemberAccess(t *testing.T) {
 		})
 	}
 
-	// Email and birth date only for the member themselves or with the
-	// policy that reveals them.
+	// Email, birth date and food preference only for the member themselves
+	// or with the policy that reveals them. The writes above left a food
+	// preference set.
 	for _, c := range []struct {
-		as          caller
-		email, born bool
+		as                caller
+		email, born, food bool
 	}{
-		{e.as(1), false, false},
-		{e.as(1, apinames.MemberSeeEmail), true, false},
-		{e.as(1, apinames.MemberUser), false, true},
-		{e.as(2), true, true},
+		{e.as(1), false, false, false},
+		{e.as(1, apinames.MemberSeeEmail), true, false, false},
+		{e.as(1, apinames.MemberUser), false, true, false},
+		{e.as(1, apinames.MemberUpdate), false, false, true},
+		{e.as(2), true, true, true},
 	} {
 		var profile map[string]any
 		e.mustCall(t, c.as, http.MethodGet, path, nil).decode(t, &profile)
 		_, hasEmail := profile["email"]
 		_, hasBirth := profile["birthDate"]
-		if hasEmail != c.email || hasBirth != c.born {
-			t.Errorf("GET %s as %s: email %v, birthDate %v; want %v, %v",
-				path, c.as.label, hasEmail, hasBirth, c.email, c.born)
+		_, hasFood := profile["foodPreference"]
+		if hasEmail != c.email || hasBirth != c.born || hasFood != c.food {
+			t.Errorf("GET %s as %s: email %v, birthDate %v, foodPreference %v; want %v, %v, %v",
+				path, c.as.label, hasEmail, hasBirth, hasFood, c.email, c.born, c.food)
 		}
 	}
 

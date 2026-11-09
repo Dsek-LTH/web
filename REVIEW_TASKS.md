@@ -138,7 +138,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   profile, the nollu committee, the position page or an article byline; the
   stab member sees their own.
 
-### [ ] T06 `foodPreference` is returned to every signed-in member
+### [x] T06 `foodPreference` is returned to every signed-in member
 
 - New: `members.Service.Profile` (`apps/api/internal/members/service.go`
   ~line 210) always sets `FoodPreference`.

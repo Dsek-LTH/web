@@ -261,7 +261,7 @@ func (s *Service) upsertMarkdown(
 		return nil, err
 	}
 	row, err := s.queries.UpsertMarkdown(ctx, db.UpsertMarkdownParams{
-		Name:       name,
+		Name: name,
 		// Rendered with {@html}, so sanitized like every other markdown.
 		MarkdownSv: s.sanitizer.Sanitize(in.MarkdownSv),
 		MarkdownEn: dbutil.ToText(s.sanitizer.SanitizePtr(in.MarkdownEn)),
