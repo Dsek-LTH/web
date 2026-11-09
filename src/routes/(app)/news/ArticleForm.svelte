@@ -5,7 +5,7 @@
   import * as ButtonGroup from "$lib/components/ui/button-group";
   import * as Select from "$lib/components/ui/select";
 
-  import FileUpload from "$lib/components/FileUpload.svelte";
+  import ImagePicker from "./ImagePicker.svelte";
   import Editor from "$lib/components/Editor.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
 
@@ -98,18 +98,6 @@
     a.mandateId === b.mandateId &&
     a.customId === b.customId &&
     a.type === b.type;
-
-  let filelist: FileList | undefined = $state();
-
-  $form.images.forEach((f) => {
-    const dt = new DataTransfer();
-    dt.items.add(f);
-    filelist = dt.files;
-  });
-  function onFileUpload() {
-    // @ts-expect-error -- expected
-    $form.images = [...filelist];
-  }
 </script>
 
 <form
@@ -243,10 +231,11 @@
     </Select.Root>
   </div>
 
-  <FileUpload
-    multiple
-    onchange={() => onFileUpload()}
-    bind:files={() => filelist, (f) => (filelist = f)}
+  <ImagePicker
+    bind:existing={$form.imageUrls}
+    bind:images={$form.images}
+    bind:coverUrl={$form.imageUrl}
+    bind:coverNewIndex={$form.coverNewIndex}
   />
 
   <div class="flex w-full flex-col gap-1.5">
