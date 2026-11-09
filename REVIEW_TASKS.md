@@ -488,7 +488,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       `cancel-ticket-request` doesn't cancel accepted tickets; comment
       operations don't notify mentions; `ArticleInput.PublishedAt` unset
       means now; `ArticleSummary.Body` is markdown.
-- [ ] T45 `/admin/minio` needs `requirePolicy(FILES.BUCKET("files").CREATE)`.
+- [x] T45 `/admin/minio` needs `requirePolicy(FILES.BUCKET("files").CREATE)`.
 - [ ] T46 `/admin/settings` load should accept `admin:settings:read` (or
       `MANAGE_SEASONS`) like the old page.
 - [x] T47 Storage failures in `internal/documents` come back as 422
