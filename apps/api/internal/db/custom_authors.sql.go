@@ -33,6 +33,34 @@ func (q *Queries) CustomAuthorAllowedForRoles(ctx context.Context, arg CustomAut
 	return exists, err
 }
 
+const listActivePositionIDsForMember = `-- name: ListActivePositionIDsForMember :many
+SELECT DISTINCT position_id FROM mandates
+WHERE member_id = $1::uuid
+  AND start_date <= CURRENT_DATE AND end_date >= CURRENT_DATE
+`
+
+// The positions the member holds a mandate for today, for the custom
+// author roles (see ListCustomAuthorsForRoles).
+func (q *Queries) ListActivePositionIDsForMember(ctx context.Context, memberID pgtype.UUID) ([]string, error) {
+	rows, err := q.db.Query(ctx, listActivePositionIDsForMember, memberID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var position_id string
+		if err := rows.Scan(&position_id); err != nil {
+			return nil, err
+		}
+		items = append(items, position_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listCustomAuthors = `-- name: ListCustomAuthors :many
 SELECT id, name_sv, name_en, image_url FROM custom_authors ORDER BY name_sv
 `
@@ -90,9 +118,12 @@ type ListCustomAuthorsForRolesRow struct {
 }
 
 // The custom authors one of the given roles may post as: those with a
-// custom_author_roles row naming one of them. Roles are the caller's
-// derived roles (auth.DerivedRoles), so a row for "dsek.infu" matches
-// everyone in "dsek.infu.mdlm", like the old TS getCustomAuthorOptions.
+// custom_author_roles row naming one of them. The roles are built by
+// articles.Service.customAuthorRoles: the ids of the positions the caller
+// holds a mandate for today, each expanded to its dot-separated prefixes,
+// plus "*" and "_" (like the old TS getCustomAuthorOptions), together with
+// the identity's own derived roles. So a row for "dsek.infu" matches
+// everyone in "dsek.infu.mdlm".
 func (q *Queries) ListCustomAuthorsForRoles(ctx context.Context, roles []string) ([]ListCustomAuthorsForRolesRow, error) {
 	rows, err := q.db.Query(ctx, listCustomAuthorsForRoles, roles)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 	"time"
 
@@ -687,8 +688,8 @@ func (s *Service) ListActiveMandatesForMember(
 
 // ListCustomAuthors lists the custom bylines (e.g. "Styrelsen") the caller
 // may post as, for the "post as" author picker: those granted to one of
-// their roles (custom_author_roles), or every one for someone who may post
-// as any of them (see mayUseAnyCustomAuthor).
+// their roles (custom_author_roles, see customAuthorRoles), or every one
+// for someone who may post as any of them (see mayUseAnyCustomAuthor).
 func (s *Service) ListCustomAuthors(ctx context.Context) ([]CustomAuthor, error) {
 	var rows []db.ListCustomAuthorsRow
 	identity, _ := auth.FromContext(ctx)
@@ -699,9 +700,9 @@ func (s *Service) ListCustomAuthors(ctx context.Context) ([]CustomAuthor, error)
 			return nil, fmt.Errorf("list custom authors: %w", err)
 		}
 	} else {
-		var roles []string
-		if identity != nil {
-			roles = identity.Roles
+		roles, err := s.customAuthorRoles(ctx, identity)
+		if err != nil {
+			return nil, err
 		}
 		forRoles, err := s.queries.ListCustomAuthorsForRoles(ctx, roles)
 		if err != nil {
@@ -751,6 +752,43 @@ func (s *Service) UploadImage(
 	return url, nil
 }
 
+// customAuthorRoles is the roles custom_author_roles is matched against,
+// like the old TS getCustomAuthorOptions: the ids of the positions the
+// member holds a mandate for today, each expanded to its dot-separated
+// prefixes, plus "*" and "_". The identity's own derived roles (from its
+// Authentik groups, refreshed only with the session) are added too, so
+// neither source can take a custom author away. An anonymous identity gets
+// its roles only.
+func (s *Service) customAuthorRoles(
+	ctx context.Context,
+	identity *auth.Identity,
+) ([]string, error) {
+	if identity == nil {
+		return []string{"*"}, nil
+	}
+	roles := slices.Clone(identity.Roles)
+	if identity.MemberID == "" {
+		return roles, nil
+	}
+	memberID, err := dbutil.ParseUUID(identity.MemberID)
+	if err != nil {
+		return nil, invalidf("invalid member id: %v", err)
+	}
+	positionIDs, err := s.queries.ListActivePositionIDsForMember(ctx, memberID)
+	if err != nil {
+		return nil, fmt.Errorf("list active positions: %w", err)
+	}
+	roles = append(roles, "*", "_")
+	for _, id := range positionIDs {
+		parts := strings.Split(id, ".")
+		for i := range parts {
+			roles = append(roles, strings.Join(parts[:i+1], "."))
+		}
+	}
+	slices.Sort(roles)
+	return slices.Compact(roles), nil
+}
+
 // mayUseAnyCustomAuthor reports whether the identity may post as every
 // custom author, not only those granted to one of its roles: article
 // managers and editors.
@@ -764,7 +802,7 @@ func mayUseAnyCustomAuthor(identity *auth.Identity) bool {
 // articles. The member is always the authenticated acting identity, never
 // client input (see Create/Update). If in.MandateID is set, it's verified
 // to actually belong to that member; if in.CustomID is set, the identity
-// must be allowed to post as it (one of its roles is in
+// must be allowed to post as it (one of its customAuthorRoles is in
 // custom_author_roles, or mayUseAnyCustomAuthor), unless it is keepCustomID
 // - the custom author the article being edited already has.
 func (s *Service) resolveAuthor(
@@ -801,9 +839,13 @@ func (s *Service) resolveAuthor(
 	}
 
 	if customID.Valid && customID != keepCustomID && !mayUseAnyCustomAuthor(identity) {
+		roles, err := s.customAuthorRoles(ctx, identity)
+		if err != nil {
+			return pgtype.UUID{}, err
+		}
 		allowed, err := s.queries.CustomAuthorAllowedForRoles(
 			ctx,
-			db.CustomAuthorAllowedForRolesParams{CustomAuthorID: customID, Roles: identity.Roles},
+			db.CustomAuthorAllowedForRolesParams{CustomAuthorID: customID, Roles: roles},
 		)
 		if err != nil {
 			return pgtype.UUID{}, fmt.Errorf("check custom author roles: %w", err)

@@ -302,6 +302,9 @@ type Querier interface {
 	// "Active" mirrors the old TS backend's author-options query: currently
 	// within the mandate's start/end date range. $1 is the member's student id.
 	ListActiveMandatesForMember(ctx context.Context, studentID pgtype.Text) ([]ListActiveMandatesForMemberRow, error)
+	// The positions the member holds a mandate for today, for the custom
+	// author roles (see ListCustomAuthorsForRoles).
+	ListActivePositionIDsForMember(ctx context.Context, memberID pgtype.UUID) ([]string, error)
 	// Backs the member profile page's own "which doors do I have access to"
 	// widget (self-view only) - a member's currently-held positions, used to
 	// both derive candidate door-policy roles and to display position names
@@ -364,9 +367,12 @@ type Querier interface {
 	// articles.Service.ListCustomAuthors).
 	ListCustomAuthors(ctx context.Context) ([]ListCustomAuthorsRow, error)
 	// The custom authors one of the given roles may post as: those with a
-	// custom_author_roles row naming one of them. Roles are the caller's
-	// derived roles (auth.DerivedRoles), so a row for "dsek.infu" matches
-	// everyone in "dsek.infu.mdlm", like the old TS getCustomAuthorOptions.
+	// custom_author_roles row naming one of them. The roles are built by
+	// articles.Service.customAuthorRoles: the ids of the positions the caller
+	// holds a mandate for today, each expanded to its dot-separated prefixes,
+	// plus "*" and "_" (like the old TS getCustomAuthorOptions), together with
+	// the identity's own derived roles. So a row for "dsek.infu" matches
+	// everyone in "dsek.infu.mdlm".
 	ListCustomAuthorsForRoles(ctx context.Context, roles []string) ([]ListCustomAuthorsForRolesRow, error)
 	ListDefaultTagIDs(ctx context.Context) ([]pgtype.UUID, error)
 	ListDistinctSongCategories(ctx context.Context, includeDeleted pgtype.Bool) ([]pgtype.Text, error)
