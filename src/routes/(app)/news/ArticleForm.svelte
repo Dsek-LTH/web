@@ -262,7 +262,6 @@
       <ToggleGroup.Root
         type="single"
         variant="outline"
-        size="sm"
         aria-label={m.news_language()}
         bind:value={
           () => activeTab,

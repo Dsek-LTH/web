@@ -2,8 +2,7 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { cn } from "$lib/utils";
 
-  let { images, class: className }: { images: string[]; class?: string } =
-    $props();
+  let { images, class: klass }: { images: string[]; class?: string } = $props();
 </script>
 
 {#if images.length > 0}
@@ -12,7 +11,7 @@
     data-sveltekit-preload-data="off"
     class={cn(
       "ml-0 grid list-none grid-cols-2 gap-2 sm:grid-cols-3 [&>li]:my-0",
-      className,
+      klass,
     )}
   >
     {#each images as image, index (`${index}:${image}`)}

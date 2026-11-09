@@ -132,14 +132,15 @@
       <MarkdownBody body={content} class="text-sm [&_p]:my-1" />
 
       {#if canReply}
-        <button
-          type="button"
-          class="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1 text-xs font-medium transition-colors"
+        <Button
+          variant="ghost"
+          size="sm"
+          class="-ml-2.5 w-fit"
           onclick={onReply}
         >
-          <Reply class="size-3.5" aria-hidden="true" />
+          <Reply aria-hidden="true" />
           {m.comments_reply()}
-        </button>
+        </Button>
       {/if}
     </div>
   {/if}

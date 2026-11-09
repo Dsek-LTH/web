@@ -77,8 +77,8 @@
   <!-- The whole zone is the file input's label, so clicking anywhere opens the picker. -->
   <label
     for={id}
-    class="border-border text-muted-foreground hover:bg-muted/50 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed px-4 py-6 text-center text-sm transition-colors {dragging
-      ? 'bg-muted/50 border-primary'
+    class="border-border text-muted-foreground hover:bg-muted flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed px-4 py-6 text-center text-sm transition-colors {dragging
+      ? 'bg-muted border-primary'
       : ''} {error ? 'border-destructive' : ''}"
     ondragover={(event) => {
       event.preventDefault();

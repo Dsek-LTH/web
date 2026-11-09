@@ -6,7 +6,7 @@
   let {
     url,
     title,
-    class: className,
+    class: klass,
   }: {
     /** The raw URL that was stored on the article. */
     url: string | null | undefined;
@@ -20,10 +20,7 @@
 
 {#if embedUrl}
   <div
-    class={cn(
-      "aspect-video w-full overflow-hidden rounded-xl border",
-      className,
-    )}
+    class={cn("aspect-video w-full overflow-hidden rounded-xl border", klass)}
   >
     <YoutubeFrame src={embedUrl} {title} lazy />
   </div>

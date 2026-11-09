@@ -99,8 +99,8 @@
 
 <!-- Plain text, so paragraphs run on as one line instead of stacking with gaps.
      A div: the global `p` style would add a top margin when it is not a first child. -->
-{#snippet excerpt(className: string)}
-  <div class={className}>{excerptText}</div>
+{#snippet excerpt(klass: string)}
+  <div class={klass}>{excerptText}</div>
 {/snippet}
 
 {#if variant === "editorial"}
@@ -151,7 +151,7 @@
         <!-- The committee goes under the name: on one line, counts and date would leave
            room for neither. -->
         <span class="flex min-w-0 flex-1 items-center gap-2">
-          <AuthorAvatar author={article.author} class="size-6 shrink-0" />
+          <AuthorAvatar author={article.author} />
           <span class="flex min-w-0 flex-col leading-tight">
             {#if article.author.type !== "Custom" && !isPreview}
               <a
