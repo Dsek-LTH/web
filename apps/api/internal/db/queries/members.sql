@@ -33,7 +33,8 @@ ORDER BY first_name, last_name;
 -- GetMemberByStudentID's minimal projection (built only for author
 -- resolution).
 SELECT id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-       class_year, visible, food_preference, bio, email, graduation_year, language, birth_date
+       class_year, visible, food_preference, bio, email, graduation_year, language, birth_date,
+       nollning_group_id
 FROM members
 WHERE student_id = $1;
 

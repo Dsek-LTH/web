@@ -131,7 +131,18 @@ export const actions: Actions = {
         { status: res.response.status as NumericRange<400, 599> },
       );
 
-    await setNollningGroup(api, studentId, nollningGroupId ?? null);
+    const groupError = await setNollningGroup(
+      api,
+      studentId,
+      nollningGroupId,
+      res.data,
+    );
+    if (groupError)
+      return message(
+        form,
+        { message: groupError.message, type: "error" },
+        { status: groupError.status },
+      );
 
     throw redirect(302, `/members/${params.studentId}`);
   },

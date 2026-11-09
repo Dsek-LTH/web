@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -245,6 +246,95 @@ func TestNollningAccess(t *testing.T) {
 	e.check(t, e.gate(http.MethodDelete, path+"/phaddrar/"+e.members[4].StudentID, nil, allowed,
 		apinames.NollningPhadderGroupsManage))
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.NollningPhadderGroupsManage))
+}
+
+// A member picks their own phadder group, and a manager anyone's, but only
+// among the current season's groups.
+func TestMemberPhadderGroupAccess(t *testing.T) {
+	e := requireDB(t)
+	now := time.Now()
+	// A season running right now and one that's over, each with a group.
+	current := e.one(t, `INSERT INTO nollning_seasons (year, nolla_start_at, reveal_at, end_at)
+		VALUES ($1, $2, $2, $3) RETURNING id::text`,
+		now.Year()+10, now.Add(-time.Hour), now.Add(time.Hour))
+	past := e.one(t, `INSERT INTO nollning_seasons (year, nolla_start_at, reveal_at, end_at)
+		VALUES ($1, $2, $2, $3) RETURNING id::text`,
+		now.Year()+11, now.AddDate(0, 0, -30), now.AddDate(0, 0, -20))
+	group := e.one(t, `INSERT INTO phadder_groups (name, season_id)
+		VALUES ('Current authz group', $1) RETURNING id::text`, current)
+	oldGroup := e.one(t, `INSERT INTO phadder_groups (name, season_id)
+		VALUES ('Past authz group', $1) RETURNING id::text`, past)
+	t.Cleanup(func() {
+		// The running season would hide staben from the other tests.
+		_, err := e.pool.Exec(context.Background(),
+			`DELETE FROM phadder_groups WHERE season_id IN ($1, $2)`, current, past)
+		if err == nil {
+			_, err = e.pool.Exec(context.Background(),
+				`DELETE FROM nollning_seasons WHERE id IN ($1, $2)`, current, past)
+		}
+		if err != nil {
+			t.Errorf("clean up seasons: %v", err)
+		}
+	})
+
+	self := e.members[2].StudentID
+	path := "/members/" + self + "/phadder-group"
+	join := map[string]any{"groupId": group}
+	leave := map[string]any{}
+	groupOf := func() string {
+		return e.one(t, `SELECT coalesce(nollning_group_id::text, '') FROM members
+			WHERE student_id = $1`, self)
+	}
+
+	e.check(t, []accessCase{
+		{anonymous, http.MethodPut, path, join, denied},
+		{e.as(1), http.MethodPut, path, join, denied},
+		{e.as(1, apinames.MemberUpdate), http.MethodPut, path, join, denied},
+		{e.as(2), http.MethodPut, path, join, ok},
+	})
+	if got := groupOf(); got != group {
+		t.Errorf("after joining: group %q, want %q", got, group)
+	}
+
+	// The group is on the profile for those who may change it.
+	for _, c := range []struct {
+		as   caller
+		want bool
+	}{
+		{e.as(1), false},
+		{e.as(1, apinames.MemberUpdate), false},
+		{e.as(1, apinames.NollningPhadderGroupsManage), true},
+		{e.as(2), true},
+	} {
+		var profile map[string]any
+		e.mustCall(t, c.as, http.MethodGet, "/members/"+self, nil).decode(t, &profile)
+		if _, has := profile["nollningGroupId"]; has != c.want {
+			t.Errorf("GET /members/%s as %s: nollningGroupId %v, want %v",
+				self, c.as.label, has, c.want)
+		}
+	}
+
+	// Last season's group can't be picked, even by a manager.
+	res := e.call(t, e.as(2), http.MethodPut, path, map[string]any{"groupId": oldGroup})
+	if res.status != http.StatusUnprocessableEntity {
+		t.Errorf("joining a past season's group: got %d, want 422", res.status)
+	}
+	res = e.call(t, e.as(1, apinames.NollningPhadderGroupsManage), http.MethodPut, path,
+		map[string]any{"groupId": oldGroup})
+	if res.status != http.StatusUnprocessableEntity {
+		t.Errorf("a manager joining a past season's group: got %d, want 422", res.status)
+	}
+
+	e.check(t, []accessCase{
+		{e.as(1, apinames.NollningPhadderGroupsManage), http.MethodPut, path, leave, ok},
+	})
+	if got := groupOf(); got != "" {
+		t.Errorf("after leaving: group %q, want none", got)
+	}
+	e.check(t, []accessCase{
+		{e.as(2), http.MethodPut, path, join, ok},
+		{e.as(2), http.MethodPut, path, leave, ok},
+	})
 }
 
 // TestNollningValidation: bad season and phadder-group input answers 4xx,

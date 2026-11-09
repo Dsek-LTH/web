@@ -81,7 +81,8 @@
         >
           <Select.Trigger class="w-full"
             ><Users />{$form.nollningGroupId
-              ? phadderGroups.find((g) => g.id == $form.nollningGroupId)!.name
+              ? (phadderGroups.find((g) => g.id == $form.nollningGroupId)
+                  ?.name ?? "")
               : ""}</Select.Trigger
           >
           <Select.Content>

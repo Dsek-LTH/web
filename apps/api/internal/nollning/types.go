@@ -139,6 +139,11 @@ type MemberPhadderRole struct {
 	GroupID *string     `json:"groupId,omitempty" doc:"The phadder group, if any."`
 }
 
+// MemberPhadderGroupInput sets the phadder group a member is a nolla in.
+type MemberPhadderGroupInput struct {
+	GroupID *string `json:"groupId,omitempty" doc:"A phadder group of the current season. Omit (or leave empty) to take the member out of their group."`
+}
+
 // PhadderGroupMembersInput adds members to a phadder group.
 type PhadderGroupMembersInput struct {
 	StudentIDs []string `json:"studentIds" minItems:"1" doc:"All are added, or none."`
