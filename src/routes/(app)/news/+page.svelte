@@ -11,14 +11,13 @@
   import ArticleCard from "$lib/components/ArticleCard.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
-  import dayjs from "dayjs";
   import LayoutGrid from "@lucide/svelte/icons/layout-grid";
   import List from "@lucide/svelte/icons/list";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import CalendarClock from "@lucide/svelte/icons/calendar-clock";
-  import { NEWS_TIME_ZONE } from "$lib/news/format";
-  import { getLocale } from "$paraglide/runtime";
+  import { formatDateTimeShort } from "$lib/news/format";
+  import { toAppTime } from "$lib/utils/datetime";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import Plus from "@lucide/svelte/icons/plus";
   import Ellipsis from "@lucide/svelte/icons/ellipsis";
@@ -65,15 +64,7 @@
   let showNollning = $state(false);
 
   const formatDateTime = (date: Date | null) =>
-    dayjs(date).format("YYYY-MM-DD HH:mm");
-
-  // Medium date style so "Scheduled for …" fits on one line above a card.
-  const formatScheduledFor = (date: Date) =>
-    date.toLocaleString(getLocale(), {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: NEWS_TIME_ZONE,
-    });
+    toAppTime(date).format("YYYY-MM-DD HH:mm");
 
   // Scheduled row: arrows and edge fades only show when there is something to scroll.
   let scheduledRow = $state<HTMLElement>();
@@ -243,7 +234,7 @@
                 <span class="truncate">
                   {m.news_scheduledFor()}
                   <time datetime={article.publishedAt.toISOString()}>
-                    {formatScheduledFor(article.publishedAt)}
+                    {formatDateTimeShort(article.publishedAt)}
                   </time>
                 </span>
               </span>

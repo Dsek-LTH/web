@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { getLocale } from "$paraglide/runtime";
-  import { NEWS_TIME_ZONE, formatPublishedFull } from "$lib/news/format";
+  import { formatDateLong, formatPublishedFull } from "$lib/news/format";
   import ImageList from "$lib/components/ImageList.svelte";
   import MarkdownBody from "$lib/components/MarkdownBody.svelte";
   import YoutubeEmbed from "$lib/components/YoutubeEmbed.svelte";
@@ -38,14 +37,7 @@
   const published = $derived(
     new Date(article.publishedAt ?? article.createdAt),
   );
-  const publishedLabel = $derived(
-    published.toLocaleDateString(getLocale(), {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: NEWS_TIME_ZONE,
-    }),
-  );
+  const publishedLabel = $derived(formatDateLong(published));
   const publishedFull = $derived(formatPublishedFull(published));
 </script>
 

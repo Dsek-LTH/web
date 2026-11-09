@@ -14,9 +14,9 @@
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
   import TimePicker from "$lib/components/datetime-selector/TimePicker.svelte";
   import ArticleImages from "./ArticleImages.svelte";
+  import { formatDateTimeShort } from "$lib/news/format";
 
   import * as m from "$paraglide/messages";
-  import { getLocale } from "$paraglide/runtime";
 
   import Pen from "@lucide/svelte/icons/pen";
   import User from "@lucide/svelte/icons/user";
@@ -202,12 +202,6 @@
     }
   }
 
-  const formatDateTime = (date: Date) =>
-    date.toLocaleString(getLocale(), {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-
   const scheduleInPast = $derived(
     publishMode === "schedule" &&
       !!$form.publishTime &&
@@ -224,7 +218,7 @@
     if (isEditing) return m.news_submit_save();
     if (publishMode === "schedule" && $form.publishTime)
       return m.news_submit_schedule({
-        date: formatDateTime($form.publishTime),
+        date: formatDateTimeShort($form.publishTime),
       });
     return m.news_submit_publish();
   });
@@ -455,7 +449,7 @@
 
     {#if alreadyPublished && initialPublishTime}
       <p class="text-muted-foreground text-sm">
-        {m.news_published({ date: formatDateTime(initialPublishTime) })}
+        {m.news_published({ date: formatDateTimeShort(initialPublishTime) })}
       </p>
     {:else}
       <RadioGroup.Root

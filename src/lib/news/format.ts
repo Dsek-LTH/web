@@ -1,11 +1,20 @@
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/sv";
 import { getFullName } from "$lib/utils/client/member";
+import { toAppTime } from "$lib/utils/datetime";
 import { getLocale } from "$paraglide/runtime";
 import type { ArticleAuthorSummary } from "./types";
 
-/** Fixed time zone so server and client render the same day around midnight. */
-export const NEWS_TIME_ZONE = "Europe/Stockholm";
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+/**
+ * In the app time zone, so server and client render the same day around midnight,
+ * and in the current language.
+ */
+const inAppTime = (date: Date) => toAppTime(date).locale(getLocale());
 
 /** The custom author's name when the article uses one, otherwise the member's. */
 export const getAuthorName = (
@@ -15,36 +24,27 @@ export const getAuthorName = (
     ? author.customAuthor.name
     : getFullName(author.member);
 
-/**
- * Compact date for list rows: "3 hours ago" / "2 days ago" for the last week, otherwise
- * "3 Nov" (plus the year if it isn't this year). Shorter than `relativeDate`, which
- * spells out weekday and month for comments.
- */
-export const formatPublishedShort = (date: Date) => {
-  const diff = date.getTime() - Date.now();
-  if (Math.abs(diff) < 7 * DAY_MS) {
-    const rtf = new Intl.RelativeTimeFormat(getLocale(), { numeric: "auto" });
-    const hours = Math.round(diff / (60 * 60 * 1000));
-    if (Math.abs(hours) < 24)
-      return hours === 0
-        ? rtf.format(Math.round(diff / 60000), "minute")
-        : rtf.format(hours, "hour");
-    return rtf.format(Math.round(diff / DAY_MS), "day");
-  }
-  const yearOf = (d: Date) =>
-    d.toLocaleDateString("en", { year: "numeric", timeZone: NEWS_TIME_ZONE });
-  return date.toLocaleDateString(getLocale(), {
-    day: "numeric",
-    month: "short",
-    year: yearOf(date) === yearOf(new Date()) ? undefined : "numeric",
-    timeZone: NEWS_TIME_ZONE,
-  });
-};
+/** E.g. "Nov 3, 2026" / "3 nov 2026". */
+export const formatDateShort = (date: Date) => inAppTime(date).format("ll");
+
+/** E.g. "November 3, 2026" / "3 november 2026". */
+export const formatDateLong = (date: Date) => inAppTime(date).format("LL");
+
+/** E.g. "Nov 3, 2026 2:30 PM" / "3 nov 2026 14:30". */
+export const formatDateTimeShort = (date: Date) =>
+  inAppTime(date).format("lll");
 
 /** Full date and time, e.g. for a `title` tooltip. */
 export const formatPublishedFull = (date: Date) =>
-  date.toLocaleString(getLocale(), {
-    dateStyle: "long",
-    timeStyle: "short",
-    timeZone: NEWS_TIME_ZONE,
-  });
+  inAppTime(date).format("LLL");
+
+/**
+ * Compact date for list rows: "3 hours ago" / "2 days ago" for the last week, otherwise
+ * "3 Nov" (plus the year if it isn't this year).
+ */
+export const formatPublishedShort = (date: Date) => {
+  const published = inAppTime(date);
+  const now = toAppTime(new Date());
+  if (now.diff(published, "day") < 7) return published.fromNow();
+  return published.format(published.isSame(now, "year") ? "D MMM" : "ll");
+};

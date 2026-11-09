@@ -7,8 +7,8 @@
   import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
   import YoutubeThumbnail from "./YoutubeThumbnail.svelte";
   import { getYoutubeVideoId } from "$lib/utils/youtube";
-  import { getAuthorName, NEWS_TIME_ZONE } from "$lib/news/format";
-  import { getLocale } from "$paraglide/runtime";
+  import { formatDateShort, getAuthorName } from "$lib/news/format";
+  import { appDateKey } from "$lib/utils/datetime";
   import * as m from "$paraglide/messages";
   import Heart from "@lucide/svelte/icons/heart";
   import MessageCircle from "@lucide/svelte/icons/message-circle";
@@ -53,19 +53,8 @@
 
   const excerptText = $derived(toExcerpt(article.body));
   const date = $derived(new Date(article.publishedAt ?? article.createdAt));
-  // In the fixed news time zone, so server and client agree on the day around midnight.
-  const shortDate = $derived(
-    date.toLocaleDateString(getLocale(), {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      timeZone: NEWS_TIME_ZONE,
-    }),
-  );
-  // sv-SE formats as YYYY-MM-DD.
-  const isoDate = $derived(
-    date.toLocaleDateString("sv-SE", { timeZone: NEWS_TIME_ZONE }),
-  );
+  const shortDate = $derived(formatDateShort(date));
+  const isoDate = $derived(appDateKey(date));
   const likeCount = $derived(article.likers?.length ?? 0);
   const commentCount = $derived(article._count?.comments ?? 0);
 </script>
