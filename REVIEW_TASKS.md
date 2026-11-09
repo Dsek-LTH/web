@@ -292,7 +292,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: treat a missing member as an invalid session: clear the cookie and
   continue as anonymous. Unit test in `internal/auth` if a harness exists.
 
-### [ ] T17 No CSRF protection on Go writes
+### [x] T17 No CSRF protection on Go writes
 
 - New: `apps/api/internal/api/router.go` `withCORS` sets headers only;
   `SameSite=Lax` cookies ride on simple cross-origin POSTs from sibling

@@ -5,8 +5,11 @@ package api
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -101,9 +104,9 @@ func NewRouter(
 	}
 
 	return tracing.Handler(withLogging(
-		withCORS(frontendOrigin)(
+		withCORS(frontendOrigin)(withCrossOriginProtection(frontendOrigin)(
 			auth.Middleware(authenticator)(withMemberLog(locale.Middleware(mux))),
-		),
+		)),
 	))
 }
 
@@ -248,4 +251,52 @@ func withCORS(allowedOrigin string) func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// withCrossOriginProtection rejects cross-origin writes from browsers (CSRF):
+// the session cookie is SameSite=Lax and scoped to the parent domain, so a
+// page on any sibling host (or one that is merely same-site) could otherwise
+// POST to the API with the member's session, and huma decodes a body sent
+// without a JSON Content-Type (a "simple" request needing no preflight)
+// all the same. GET, HEAD and OPTIONS always pass, so /auth/* and the
+// preflights withCORS answers keep working. A write passes when the browser
+// says it is same-origin (Sec-Fetch-Site, or Origin matching Host), when its
+// Origin is the frontend's, or when it carries neither header - a
+// server-to-server call (SvelteKit's server, the search cron job, the
+// native app), which no browser can be tricked into making with someone
+// else's cookies.
+func withCrossOriginProtection(frontendOrigin string) func(http.Handler) http.Handler {
+	protection := http.NewCrossOriginProtection()
+	origin, err := originOf(frontendOrigin)
+	if err == nil {
+		err = protection.AddTrustedOrigin(origin)
+	}
+	if err != nil {
+		panic(
+			fmt.Sprintf("api: PUBLIC_FRONTEND_URL %q as a trusted origin: %v", frontendOrigin, err),
+		)
+	}
+	protection.SetDenyHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/problem+json")
+		w.WriteHeader(http.StatusForbidden)
+		_ = json.NewEncoder(w).Encode(huma.ErrorModel{
+			Title:  http.StatusText(http.StatusForbidden),
+			Status: http.StatusForbidden,
+			Detail: "cross-origin request rejected",
+		})
+	}))
+	return protection.Handler
+}
+
+// originOf reduces a URL such as PUBLIC_FRONTEND_URL to its origin
+// (scheme://host[:port]), dropping any path or trailing slash.
+func originOf(rawURL string) (string, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return "", err
+	}
+	if u.Scheme == "" || u.Host == "" {
+		return "", fmt.Errorf("%q has no scheme or host", rawURL)
+	}
+	return u.Scheme + "://" + u.Host, nil
 }
