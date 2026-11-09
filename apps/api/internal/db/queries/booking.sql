@@ -83,6 +83,11 @@ UPDATE booking_requests SET status = $2
 WHERE id = $1
 RETURNING id, booker_id, start, "end", created, event, status;
 
+-- name: LockBookingRequest :one
+-- Locks the request row for the rest of the transaction, so concurrent
+-- edits and accept/reject of one request run one after another.
+SELECT id, booker_id, status FROM booking_requests WHERE id = $1 FOR UPDATE;
+
 -- name: DeleteBookingRequest :exec
 DELETE FROM booking_requests WHERE id = $1;
 
@@ -163,6 +168,9 @@ SELECT sqlc.arg(id), unnest(sqlc.arg(member_ids)::uuid[]);
 
 -- name: CountDoorsByName :one
 SELECT count(*) FROM doors WHERE name = ANY(sqlc.arg(names)::text[]);
+
+-- name: CountBookablesByID :one
+SELECT count(*) FROM bookables WHERE id = ANY(sqlc.arg(ids)::uuid[]);
 
 -- name: CountMembersByID :one
 SELECT count(*) FROM members WHERE id = ANY(sqlc.arg(ids)::uuid[]);

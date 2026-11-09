@@ -242,7 +242,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 
 ## P2: should fix
 
-### [ ] T13 Booking writes aren't transactional
+### [x] T13 Booking writes aren't transactional
 
 - New: `apps/api/internal/booking/service.go` `Create` (~361-401), `Update`
   (~467-495), `SetStatus` (~580-594), `Delete` run separate auto-committed
