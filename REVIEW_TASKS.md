@@ -228,7 +228,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   index; use `WHERE NOT EXISTS`). Real `.down.sql` deleting those rows. Add
   the missing name to the frontend apiNames.
 
-### [ ] T12 Phadder mandate check requires covering the whole season
+### [x] T12 Phadder mandate check requires covering the whole season
 
 - New: `apps/api/internal/db/queries/nollning.sql` `FindActivePhadderMandate`
   has `start_date <= $2 AND end_date >= $3`, called with

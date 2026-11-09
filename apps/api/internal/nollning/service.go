@@ -537,9 +537,10 @@ func (s *Service) AddPhaddrar(ctx context.Context, groupID string, studentIDs []
 	var notPhadder []string
 	for _, m := range members {
 		mandate, err := s.queries.FindActivePhadderMandate(ctx, db.FindActivePhadderMandateParams{
-			MemberID:  m.ID,
-			StartDate: pgtype.Date{Time: season.NollaStartAt.Time, Valid: true},
-			EndDate:   pgtype.Date{Time: season.EndAt.Time, Valid: true},
+			MemberID: m.ID,
+			// The season's days in Swedish time; the API runs in UTC.
+			SeasonStart: pgtype.Date{Time: season.NollaStartAt.Time.In(stockholm), Valid: true},
+			SeasonEnd:   pgtype.Date{Time: season.EndAt.Time.In(stockholm), Valid: true},
 		})
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -615,3 +616,11 @@ func (s *Service) membersByStudentID(
 	}
 	return members, nil
 }
+
+var stockholm = func() *time.Location {
+	loc, err := time.LoadLocation("Europe/Stockholm")
+	if err != nil {
+		panic(err)
+	}
+	return loc
+}()

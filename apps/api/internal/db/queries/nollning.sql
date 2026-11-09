@@ -108,8 +108,8 @@ SELECT id, position_id, start_date, end_date
 FROM mandates
 WHERE member_id = $1
   AND position_id IN ('dsek.noll.phadder', 'dsek.noll.uppdrag')
-  AND start_date <= $2
-  AND end_date >= $3
+  AND start_date <= sqlc.arg('season_end')
+  AND end_date >= sqlc.arg('season_start')
 ORDER BY position_id ASC, start_date ASC
 LIMIT 1;
 

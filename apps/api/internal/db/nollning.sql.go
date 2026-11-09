@@ -137,9 +137,9 @@ LIMIT 1
 `
 
 type FindActivePhadderMandateParams struct {
-	MemberID  pgtype.UUID `json:"member_id"`
-	StartDate pgtype.Date `json:"start_date"`
-	EndDate   pgtype.Date `json:"end_date"`
+	MemberID    pgtype.UUID `json:"member_id"`
+	SeasonEnd   pgtype.Date `json:"season_end"`
+	SeasonStart pgtype.Date `json:"season_start"`
 }
 
 type FindActivePhadderMandateRow struct {
@@ -154,7 +154,7 @@ type FindActivePhadderMandateRow struct {
 // "phadder" before "uppdrag", then start_date asc) so the first row is the
 // same one the old TS picked with `mandates?.[0]`.
 func (q *Queries) FindActivePhadderMandate(ctx context.Context, arg FindActivePhadderMandateParams) (FindActivePhadderMandateRow, error) {
-	row := q.db.QueryRow(ctx, findActivePhadderMandate, arg.MemberID, arg.StartDate, arg.EndDate)
+	row := q.db.QueryRow(ctx, findActivePhadderMandate, arg.MemberID, arg.SeasonEnd, arg.SeasonStart)
 	var i FindActivePhadderMandateRow
 	err := row.Scan(
 		&i.ID,
