@@ -151,7 +151,9 @@ globally.
 - **Auth.** Go is the OIDC client (Authentik, PKCE) and the session
   authority: `/auth/login`, `/auth/callback`, `/auth/logout`. The session
   is an encrypted cookie (`dsek_session`, no server-side store), scoped by
-  `AUTH_COOKIE_DOMAIN` so both origins get it. Expired sessions refresh
+  `AUTH_COOKIE_DOMAIN` so both origins get it, and `Secure` when
+  `PUBLIC_FRONTEND_URL` is https (`AUTH_COOKIE_SECURE=true`/`false`
+  overrides it). Expired sessions refresh
   transparently. Members are only ever created in `/auth/callback`.
 - **Identity.** `auth.Middleware` resolves every request to an
   `auth.Identity` (member, roles, policies); a caller without a session is

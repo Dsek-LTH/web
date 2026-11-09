@@ -506,7 +506,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [ ] T51 `accesspolicies.Service.Delete` and `alerts.Service.Delete` answer
       204 for unknown ids; `alerts.Service.Close` gives 500 for an unknown
       alert; Shlink errors all become 422 (`links/client.go`).
-- [ ] T52 Session cookie `Secure` is opt-in via an undocumented
+- [x] T52 Session cookie `Secure` is opt-in via an undocumented
       `AUTH_COOKIE_SECURE`: derive it from `PUBLIC_FRONTEND_URL`'s scheme and
       document it.
 - [x] T53 Push metrics in `apps/web/src/lib/server/metrics.ts` are never
