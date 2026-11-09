@@ -262,8 +262,9 @@ func (s *Service) upsertMarkdown(
 	}
 	row, err := s.queries.UpsertMarkdown(ctx, db.UpsertMarkdownParams{
 		Name:       name,
-		MarkdownSv: in.MarkdownSv,
-		MarkdownEn: dbutil.ToText(in.MarkdownEn),
+		// Rendered with {@html}, so sanitized like every other markdown.
+		MarkdownSv: s.sanitizer.Sanitize(in.MarkdownSv),
+		MarkdownEn: dbutil.ToText(s.sanitizer.SanitizePtr(in.MarkdownEn)),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("upsert markdown %q: %w", name, err)

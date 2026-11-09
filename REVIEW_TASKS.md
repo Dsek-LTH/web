@@ -354,7 +354,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   `apps/api/internal/events/calendar.go` (the old `ics` library emitted
   it).
 
-### [ ] T23 Committee page markdown is stored unsanitized and rendered with `{@html}`
+### [x] T23 Committee page markdown is stored unsanitized and rendered with `{@html}`
 
 - New: `committees.Service.upsertMarkdown` writes raw input; rendered by
   `committees/+layout.svelte` and `MarkdownBody.svelte` with `{@html}`.
