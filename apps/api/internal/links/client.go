@@ -83,13 +83,24 @@ func (c *client) do(
 	if resp.StatusCode >= 400 {
 		var problem problemDetails
 		_ = json.Unmarshal(respBody, &problem)
-		if problem.Detail != "" {
-			return nil, invalidf("shlink error: %s", problem.Detail)
+		reason := problem.Detail
+		if reason == "" {
+			reason = problem.Title
 		}
-		if problem.Title != "" {
-			return nil, invalidf("shlink error: %s", problem.Title)
+		if reason == "" {
+			reason = fmt.Sprintf("status %d", resp.StatusCode)
 		}
-		return nil, invalidf("shlink error: status %d", resp.StatusCode)
+		// Keep what kind of failure it was, as the old app passed Shlink's
+		// status on: a missing link is a 404, Shlink failing is a server
+		// error, the rest is the caller's input.
+		switch {
+		case resp.StatusCode == http.StatusNotFound:
+			return nil, fmt.Errorf("%w: shlink: %s", ErrNotFound, reason)
+		case resp.StatusCode >= 500:
+			return nil, fmt.Errorf("links: shlink %s %s: %s", method, path, reason)
+		default:
+			return nil, invalidf("shlink error: %s", reason)
+		}
 	}
 
 	if len(respBody) == 0 {

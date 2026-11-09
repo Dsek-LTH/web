@@ -76,9 +76,19 @@ func TestAlertAccess(t *testing.T) {
 	e.check(t, []accessCase{
 		{anonymous, http.MethodPost, "/alerts/" + id + "/dismiss", nil, denied},
 		{e.as(2), http.MethodPost, "/alerts/" + id + "/dismiss", nil, ok},
+		// Dismissing twice is fine; an alert that doesn't exist is a 404.
+		{e.as(2), http.MethodPost, "/alerts/" + id + "/dismiss", nil, ok},
+		{e.as(2), http.MethodPost, "/alerts/" + missingID + "/dismiss", nil, hidden},
 	})
 	e.check(t, e.gate(http.MethodDelete, "/alerts/"+id, nil, ok, apinames.AlertManage))
+	e.check(t, []accessCase{
+		{e.as(1, apinames.AlertManage), http.MethodDelete, "/alerts/" + id, nil, hidden},
+		{e.as(1, apinames.AlertManage), http.MethodDelete, "/alerts/" + missingID, nil, hidden},
+	})
 }
+
+// missingID is a well-formed id nothing has.
+const missingID = "00000000-0000-0000-0000-000000000000"
 
 func TestElectionAccess(t *testing.T) {
 	e := requireDB(t)

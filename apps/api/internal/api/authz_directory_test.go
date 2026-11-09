@@ -166,6 +166,10 @@ func TestAccessPolicyAccess(t *testing.T) {
 		t,
 		e.gate(http.MethodDelete, "/access-policies/"+id, nil, ok, apinames.AccessPolicyDelete),
 	)
+	e.check(t, []accessCase{{
+		e.as(1, apinames.AccessPolicyDelete), http.MethodDelete, "/access-policies/" + id, nil,
+		hidden,
+	}})
 }
 
 func TestDoorAccess(t *testing.T) {

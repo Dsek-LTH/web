@@ -503,7 +503,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [ ] T50 `javascript:` links in markdown render clickable
       (`MarkdownBody.svelte`, `{@html marked(body)}`): drop non-http(s),
       mailto and relative hrefs with a marked hook (pre-existing).
-- [ ] T51 `accesspolicies.Service.Delete` and `alerts.Service.Delete` answer
+- [x] T51 `accesspolicies.Service.Delete` and `alerts.Service.Delete` answer
       204 for unknown ids; `alerts.Service.Close` gives 500 for an unknown
       alert; Shlink errors all become 422 (`links/client.go`).
 - [x] T52 Session cookie `Secure` is opt-in via an undocumented

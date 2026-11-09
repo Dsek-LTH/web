@@ -26,6 +26,7 @@ type Querier interface {
 	AddEventGoing(ctx context.Context, arg AddEventGoingParams) error
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
+	AlertExists(ctx context.Context, id pgtype.UUID) (bool, error)
 	AnyAlarmActiveEventNow(ctx context.Context) (bool, error)
 	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
 	// Claims an article's one go-live announcement: affects the row only if
@@ -49,7 +50,9 @@ type Querier interface {
 	// the old Prisma `disconnect`, which is a no-op unless the relation
 	// actually exists.
 	ClearMemberPhadderGroup(ctx context.Context, arg ClearMemberPhadderGroupParams) error
-	CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) error
+	// Affects no rows for an alert that doesn't exist (or was removed), and
+	// for one the member already closed - the service tells those apart.
+	CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) (int64, error)
 	// Moves everyone behind a waitlist position that was just vacated (e.g. by a
 	// cancellation) one step forward, keeping positions contiguous.
 	CloseWaitlistGap(ctx context.Context, arg CloseWaitlistGapParams) error
@@ -110,7 +113,7 @@ type Querier interface {
 	// now() - the application's clock can be off from it.
 	DatabaseNow(ctx context.Context) (pgtype.Timestamptz, error)
 	DecrementWaitlistPositions(ctx context.Context, arg DecrementWaitlistPositionsParams) error
-	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error
+	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteAdminSetting(ctx context.Context, key string) (int64, error)
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
@@ -592,7 +595,7 @@ type Querier interface {
 	SetMemberPhadderGroup(ctx context.Context, arg SetMemberPhadderGroupParams) error
 	SetMemberPicturePath(ctx context.Context, arg SetMemberPicturePathParams) (int64, error)
 	SetReleaseStatus(ctx context.Context, arg SetReleaseStatusParams) error
-	SoftDeleteAlert(ctx context.Context, id pgtype.UUID) error
+	SoftDeleteAlert(ctx context.Context, id pgtype.UUID) (int64, error)
 	SoftDeleteArticle(ctx context.Context, slug string) error
 	SoftDeleteEvent(ctx context.Context, id pgtype.UUID) error
 	// Powers both FUTURE (min_start_datetime set) and ALL (narg'd out) series

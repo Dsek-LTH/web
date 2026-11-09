@@ -88,13 +88,16 @@ func (q *Queries) CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicy
 	return i, err
 }
 
-const deleteAccessPolicy = `-- name: DeleteAccessPolicy :exec
+const deleteAccessPolicy = `-- name: DeleteAccessPolicy :execrows
 DELETE FROM api_access_policies WHERE id = $1
 `
 
-func (q *Queries) DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteAccessPolicy, id)
-	return err
+func (q *Queries) DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteAccessPolicy, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const listAPINameGrantCounts = `-- name: ListAPINameGrantCounts :many
