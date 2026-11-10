@@ -98,6 +98,18 @@
     a.mandateId === b.mandateId &&
     a.customId === b.customId &&
     a.type === b.type;
+
+  // Select values must be strings, so use the option id and map back to the
+  // full author object when the selection changes.
+  const selectedAuthorId = $derived(
+    authorOptions.find((option) => sameAuthorOption(option, $form.author))
+      ?.id ?? "",
+  );
+
+  function selectAuthor(id: string) {
+    const author = authorOptions.find((option) => option.id === id);
+    if (author) $form.author = author as unknown as ArticleSchema["author"];
+  }
 </script>
 
 <form
@@ -170,7 +182,11 @@
 
   <div class="flex w-full flex-col gap-1.5">
     <Label for="author">{m.news_author()}</Label>
-    <Select.Root type="single" bind:value={$form.author as unknown as string}>
+    <Select.Root
+      type="single"
+      value={selectedAuthorId}
+      onValueChange={selectAuthor}
+    >
       <Select.Trigger class="w-full"
         ><User
         />{#if $form.author.type === "Custom" && $form.author.customAuthor != null}{$form
@@ -182,10 +198,7 @@
       >
       <Select.Content>
         {#each authorOptions as authorOption (authorOption.id)}
-          <Select.Item
-            value={sameAuthorOption(authorOption, $form.author)
-              ? ($form.author as unknown as string)
-              : (authorOption as unknown as string)}
+          <Select.Item value={authorOption.id}
             >{#if authorOption.type === "Custom" && authorOption.customAuthor != null}
               {authorOption.customAuthor.name}
             {:else}
