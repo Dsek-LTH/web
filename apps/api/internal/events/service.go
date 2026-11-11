@@ -77,7 +77,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]EventSummary, 
 	if err != nil {
 		return nil, 0, invalidf("invalid tag id: %v", err)
 	}
-	search := dbutil.TextOrInvalid(params.Search)
+	search := dbutil.TextOrInvalid(dbutil.EscapeLikePtr(params.Search))
 	nollningSeasonID, err := dbutil.ParseUUIDPtr(params.NollningSeasonID)
 	if err != nil {
 		return nil, 0, invalidf("invalid nollning season id: %v", err)
@@ -224,7 +224,7 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 	base := slug.Slugify(in.TitleSv)
 	slugCount, err := s.queries.CountEventSlugsWithPrefix(
 		ctx,
-		pgtype.Text{String: base, Valid: true},
+		pgtype.Text{String: dbutil.EscapeLike(base), Valid: true},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("count slugs: %w", err)

@@ -64,10 +64,13 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]Song, int, err
 	}
 	showDeleted := params.OnlyDeleted && canSeeDeleted(ctx)
 
-	search := dbutil.TextOrInvalid(params.Search)
+	search := dbutil.TextOrInvalid(dbutil.EscapeLikePtr(params.Search))
 	var categories []string
 	if len(params.Categories) > 0 {
-		categories = params.Categories
+		categories = make([]string, len(params.Categories))
+		for i, c := range params.Categories {
+			categories[i] = dbutil.EscapeLike(c)
+		}
 	}
 
 	rows, err := s.queries.ListSongs(ctx, db.ListSongsParams{
@@ -289,7 +292,8 @@ func (s *Service) Melodies(ctx context.Context, includeDeleted bool) ([]string, 
 // suffix with a count if that slug prefix is already in use.
 func (s *Service) uniqueSlug(ctx context.Context, title string) (string, error) {
 	base := slug.Slugify(title)
-	count, err := s.queries.CountSongSlugsWithPrefix(ctx, dbutil.ToText(&base))
+	prefix := dbutil.EscapeLike(base)
+	count, err := s.queries.CountSongSlugsWithPrefix(ctx, dbutil.ToText(&prefix))
 	if err != nil {
 		return "", fmt.Errorf("count slugs: %w", err)
 	}
