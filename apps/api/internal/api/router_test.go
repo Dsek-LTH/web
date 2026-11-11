@@ -1,8 +1,10 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -38,6 +40,10 @@ func TestOperationsAreDocumented(t *testing.T) {
 			}
 			if len(op.Tags) != 1 || !known[op.Tags[0]] {
 				t.Errorf("%s: needs exactly one tag from apiTags, has %v", name, op.Tags)
+			}
+			if op.RequestBody != nil && op.RequestBody.Content["multipart/form-data"] != nil &&
+				op.MaxBodyBytes <= 0 {
+				t.Errorf("%s: an upload needs a MaxBodyBytes", name)
 			}
 		}
 	}
@@ -146,5 +152,51 @@ func TestEmptyListIsArray(t *testing.T) {
 	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/things", nil))
 	if got := rec.Body.String(); got != "[]\n" {
 		t.Errorf("got %q, want []", got)
+	}
+}
+
+func TestMultipartBodyLimit(t *testing.T) {
+	mux := http.NewServeMux()
+	api := newHumaAPI(mux)
+	huma.Register(api, huma.Operation{
+		OperationID:  "upload",
+		Method:       http.MethodPost,
+		Path:         "/upload",
+		MaxBodyBytes: 1000,
+	}, func(_ context.Context, input *struct {
+		RawBody huma.MultipartFormFiles[struct {
+			File huma.FormFile `form:"file" required:"true"`
+		}]
+	},
+	) (*struct{}, error) {
+		return nil, nil
+	})
+
+	upload := func(size int, chunked bool) int {
+		var body bytes.Buffer
+		w := multipart.NewWriter(&body)
+		part, err := w.CreateFormFile("file", "a.txt")
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, _ = part.Write(bytes.Repeat([]byte("a"), size))
+		_ = w.Close()
+		req := httptest.NewRequest(http.MethodPost, "/upload", &body)
+		req.Header.Set("Content-Type", w.FormDataContentType())
+		if chunked {
+			req.ContentLength = -1
+		}
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+		return rec.Code
+	}
+	if got := upload(100, false); got != http.StatusNoContent {
+		t.Errorf("small upload: got %d, want 204", got)
+	}
+	if got := upload(2000, false); got != http.StatusRequestEntityTooLarge {
+		t.Errorf("large upload: got %d, want 413", got)
+	}
+	if got := upload(2000, true); got < 400 {
+		t.Errorf("large chunked upload: got %d, want an error", got)
 	}
 }

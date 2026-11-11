@@ -341,13 +341,16 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "upload-image",
-		Method:        http.MethodPost,
-		Path:          "/images",
-		Tags:          []string{"Files"},
-		Summary:       "Upload an image",
-		Description:   "For articles and event header images. Needs news:article:create, event:create or event:update.",
+		OperationID: "upload-image",
+		Method:      http.MethodPost,
+		Path:        "/images",
+		Tags:        []string{"Files"},
+		Summary:     "Upload an image",
+		Description: "For articles and event header images: a JPEG, PNG, WebP or GIF of at most 25 MB. " +
+			"It's turned upright (EXIF orientation), scaled down to at most 1920 pixels wide and stored as " +
+			"a JPEG, or a PNG if it has transparency. Needs news:article:create, event:create or event:update.",
 		DefaultStatus: http.StatusCreated,
+		MaxBodyBytes:  articles.MaxImageSize + multipartSlack,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			File huma.FormFile `form:"file" required:"true" doc:"The image."`

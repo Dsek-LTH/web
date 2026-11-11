@@ -1,6 +1,7 @@
 package gallery
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
+	"github.com/dsek-lth/web/apps/api/internal/images"
 	"github.com/dsek-lth/web/apps/api/internal/nollning"
 	"github.com/dsek-lth/web/apps/api/internal/storage"
 )
@@ -145,10 +147,19 @@ func (s *Service) GetAlbum(ctx context.Context, slug string) (*AlbumDetail, erro
 	return detail, nil
 }
 
+// MaxPictureSize is the largest file UploadAlbum accepts per picture.
+const MaxPictureSize = 25_000_000
+
 // UploadAlbum uploads every file into the "public/{year}/{date} {name}"
 // folder and waits for all of them to finish before returning - fixes
 // gallery/upload/uploadFiles.ts's fire-and-forget bug, which pushed upload
 // promises into a list it never awaited. Returns the album's key.
+//
+// Every file must be a JPEG, PNG, WebP or GIF; each is turned upright,
+// scaled down to images.MaxWidth and re-encoded (see internal/images), so
+// it's stored as .jpg or .png. All of them are checked before any is
+// stored, so one bad file uploads nothing; internal/images bounds how
+// many are decoded at once, and a cancelled request stops the rest.
 func (s *Service) UploadAlbum(
 	ctx context.Context,
 	name, date string,
@@ -158,15 +169,37 @@ func (s *Service) UploadAlbum(
 		return "", err
 	}
 
+	processed := make([]*images.Image, len(files))
+	pg, pctx := errgroup.WithContext(ctx)
+	for i, f := range files {
+		pg.Go(func() error {
+			img, err := images.Read(pctx, f.Data, MaxPictureSize, images.MaxWidth)
+			if err != nil {
+				return fmt.Errorf("%s: %w", f.Filename, err)
+			}
+			processed[i] = img
+			return nil
+		})
+	}
+	if err := pg.Wait(); err != nil {
+		return "", err
+	}
+
 	folder := storage.AlbumFolderName(date, name)
 	prefix := "public/" + storage.YearFromDate(date) + "/" + folder
 
 	g, gctx := errgroup.WithContext(ctx)
-	for _, f := range files {
-		f := f
+	for i, f := range files {
+		img := processed[i]
 		g.Go(func() error {
-			key := prefix + "/" + storage.PreparedFilename(f.Filename, f.Filename)
-			_, err := s.store.Put(gctx, s.bucket, key, f.Data, -1)
+			key := prefix + "/" + storage.PreparedFilenameWithExt(f.Filename, img.Ext)
+			_, err := s.store.Put(
+				gctx,
+				s.bucket,
+				key,
+				bytes.NewReader(img.Data),
+				int64(len(img.Data)),
+			)
 			return err
 		})
 	}

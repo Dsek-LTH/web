@@ -330,7 +330,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   articles, or all with `news:article:update`; restore the section on
   `/news` (signed-in only). Additive API change.
 
-### [ ] T21 Image uploads: no type check, no resize, no orientation fix
+### [x] T21 Image uploads: no type check, no resize, no orientation fix
 
 - New: `POST /images` (`articles.Service.UploadImage`), gallery
   `UploadAlbum` and documents image uploads store the raw bytes;
