@@ -89,6 +89,9 @@ type EventDetail struct {
 	// and last day), nil for a one-off event - so the edit form can show
 	// the series' own settings instead of form defaults.
 	Recurring *Recurrence `json:"recurring,omitempty" doc:"The series this event belongs to. Omitted for a one-off event."`
+	// RemovedAt is only ever set by GetDeleted (includeDeleted=true), the
+	// one read that returns a removed event, so the page can say so.
+	RemovedAt *time.Time `json:"removedAt,omitempty" doc:"When the event was removed. Omitted for an event that isn't removed."`
 }
 
 // EventList is one page of events.

@@ -993,7 +993,7 @@ export interface paths {
     };
     /**
      * Get an event
-     * @description A non-deleted event, with its comments, attendees and recurring series.
+     * @description A non-deleted event, with its comments, attendees and recurring series. With includeDeleted, also a removed one to its author or holders of event:update or event:delete.
      */
     get: operations["get-event"];
     /**
@@ -3327,6 +3327,11 @@ export interface components {
       recurring?: components["schemas"]["Recurrence"];
       /** @description The recurring series this event is an occurrence of. */
       recurringParentId?: string;
+      /**
+       * Format: date-time
+       * @description When the event was removed. Omitted for an event that isn't removed.
+       */
+      removedAt?: string;
       /** @description shortDescriptionEn or shortDescriptionSv, resolved from Accept-Language. */
       shortDescription?: string;
       shortDescriptionEn?: string;
@@ -6588,7 +6593,7 @@ export interface operations {
   "get-event": {
     parameters: {
       query?: {
-        /** @description Also return a soft-deleted event, to someone who may edit it. */
+        /** @description Also return a soft-deleted event, to someone who may edit or delete it (its author, event:update or event:delete). */
         includeDeleted?: boolean;
       };
       header?: never;

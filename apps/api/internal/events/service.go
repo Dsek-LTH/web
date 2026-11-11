@@ -158,7 +158,9 @@ func (s *Service) Get(ctx context.Context, slug string) (*EventDetail, error) {
 
 // GetDeleted returns an event by slug like Get, but also when it is
 // soft-deleted - for an editor loading an event they might need to manage.
-// A deleted event is only returned to someone who may edit it.
+// A deleted event is only returned to someone who may edit or delete it
+// (the old app let event:delete holders read removed events), with
+// RemovedAt set.
 func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetail, error) {
 	row, err := s.queries.GetEventRowBySlug(ctx, dbutil.ToText(&eventSlug))
 	if err != nil {
@@ -177,8 +179,11 @@ func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetai
 	if err != nil {
 		return nil, fmt.Errorf("get database time: %w", err)
 	}
-	if row.RemovedAt.Valid && !row.RemovedAt.Time.After(now.Time) && !detail.CanEdit {
-		return nil, ErrNotFound
+	if row.RemovedAt.Valid && !row.RemovedAt.Time.After(now.Time) {
+		if !detail.CanEdit && !detail.CanDelete {
+			return nil, ErrNotFound
+		}
+		detail.RemovedAt = &row.RemovedAt.Time
 	}
 	return detail, nil
 }

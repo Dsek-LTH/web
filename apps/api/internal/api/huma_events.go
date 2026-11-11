@@ -25,7 +25,7 @@ type listEventsInput struct {
 
 type getEventInput struct {
 	Slug           string `path:"slug"`
-	IncludeDeleted bool   `            query:"includeDeleted" doc:"Also return a soft-deleted event, to someone who may edit it."`
+	IncludeDeleted bool   `            query:"includeDeleted" doc:"Also return a soft-deleted event, to someone who may edit or delete it (its author, event:update or event:delete)."`
 }
 
 type eventOutput struct {
@@ -91,7 +91,7 @@ func registerEventRoutes(api huma.API, svc *events.Service) {
 		Path:        "/events/{slug}",
 		Tags:        tags,
 		Summary:     "Get an event",
-		Description: "A non-deleted event, with its comments, attendees and recurring series.",
+		Description: "A non-deleted event, with its comments, attendees and recurring series. With includeDeleted, also a removed one to its author or holders of event:update or event:delete.",
 	}, func(ctx context.Context, input *getEventInput) (*eventOutput, error) {
 		var (
 			event *events.EventDetail
