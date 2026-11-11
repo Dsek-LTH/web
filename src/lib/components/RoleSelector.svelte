@@ -22,6 +22,7 @@
     label: string;
     sublabel?: string;
     committee?: PositionSearchReturnAttributes["committee"];
+    logoUrl?: string | null;
   };
 
   let {
@@ -111,6 +112,7 @@
             ? data.committeeNameSv
             : data.committeeNameEn) ?? undefined,
         committee: data.committee,
+        logoUrl: data.roleLogoUrl,
       };
       return selectedRoles.some((r) => r.id === role.id) ? [] : [role];
     }),
@@ -217,7 +219,15 @@
             class="hover:bg-muted bg-background h-full cursor-pointer gap-1 rounded-full p-1 pr-2"
             onclick={() => removeRole(role)}
           >
-            {#if role.committee}
+            {#if role.logoUrl}
+              <Avatar.Root class="size-5">
+                <img
+                  src={role.logoUrl}
+                  alt=""
+                  class="size-full object-contain"
+                />
+              </Avatar.Root>
+            {:else if role.committee}
               <Avatar.Root class="size-5">
                 <CommitteeIcon committee={role.committee} class="size-5" />
               </Avatar.Root>
@@ -289,7 +299,15 @@
                       onclick={() => addRole(role)}
                       class="mb-2 flex w-full cursor-pointer items-center gap-2 rounded-md p-2 opacity-80 data-selected:opacity-100"
                     >
-                      {#if role.committee}
+                      {#if role.logoUrl}
+                        <Avatar.Root class="size-6 shrink-0">
+                          <img
+                            src={role.logoUrl}
+                            alt=""
+                            class="size-full object-contain"
+                          />
+                        </Avatar.Root>
+                      {:else if role.committee}
                         <Avatar.Root class="size-6 shrink-0">
                           <CommitteeIcon committee={role.committee} />
                         </Avatar.Root>

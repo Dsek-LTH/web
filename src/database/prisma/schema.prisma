@@ -700,6 +700,13 @@ model Position {
   @@map("positions")
 }
 
+model RoleLogo {
+  path    String @id() @db.VarChar(255)
+  logoUrl String @db.Text()
+
+  @@map("role_logos")
+}
+
 model Product {
   id                 String              @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
   name               String              @db.VarChar(255)
