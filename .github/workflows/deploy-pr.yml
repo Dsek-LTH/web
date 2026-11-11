@@ -45,11 +45,36 @@ jobs:
           script: |
             const pr = context.payload.pull_request.number;
             const url = `https://web-pr-${pr}.apps.okd.dsek.se`;
+            const marker = '<!-- deploy-pr-preview -->';
+
+            // Delete earlier preview comments so pushes don't pile them up.
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr,
+              per_page: 100
+            });
+            for (const comment of comments) {
+              if (comment.user?.login !== 'github-actions[bot]' || !comment.body?.includes(marker)) {
+                continue;
+              }
+              try {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: comment.id
+                });
+              } catch (error) {
+                // Another run may have deleted it already.
+                if (error.status !== 404) throw error;
+              }
+            }
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr,
-              body: `Preview image built. ArgoCD should deploy it shortly:\n\n${url}`
+              body: `${marker}\nPreview image built. ArgoCD should deploy it shortly:\n\n${url}`
             });
   poppler:
     if: >
