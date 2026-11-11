@@ -32,7 +32,16 @@ export const load: LayoutLoad = async ({ fetch, params }) => {
 
   return {
     song,
-    updateForm: await superValidate(song, zod4(updateSongSchema)),
+    // The form gets the stored text: song.title/lyrics have the typographic
+    // replacements applied, which saving would otherwise persist.
+    updateForm: await superValidate(
+      {
+        ...song,
+        title: song.rawTitle ?? song.title,
+        lyrics: song.rawLyrics ?? song.lyrics,
+      },
+      zod4(updateSongSchema),
+    ),
     existingCategories: categoriesRes.data ?? [],
     existingMelodies: melodiesRes.data ?? [],
   };

@@ -25,6 +25,41 @@ func TestSongAccess(t *testing.T) {
 	e.check(t, e.gate(http.MethodGet, path, nil, ok, apinames.SongRead))
 	e.check(t, e.gate(http.MethodPut, path, song, ok, apinames.SongUpdate))
 
+	// The stored text, before the typographic replacements, is only for
+	// those who may edit the song (it seeds the edit form).
+	raw := map[string]any{"title": "Authz -- raw", "lyrics": "|: La -- la :|"}
+	if res := e.call(t, e.admin(), http.MethodPut, path, raw); res.status != http.StatusOK {
+		t.Fatalf("PUT %s: %d %s", path, res.status, res.body)
+	}
+	for _, c := range []struct {
+		who     caller
+		wantRaw bool
+	}{
+		{e.as(1, apinames.SongRead), false},
+		{e.as(1, apinames.SongRead, apinames.SongUpdate), true},
+	} {
+		res := e.call(t, c.who, http.MethodGet, path, nil)
+		var got struct {
+			Title, Lyrics       string
+			RawTitle, RawLyrics *string
+		}
+		res.decode(t, &got)
+		if got.Title == raw["title"] {
+			t.Errorf("%s: title %q has no replacements applied", c.who.label, got.Title)
+		}
+		if !c.wantRaw {
+			if got.RawTitle != nil || got.RawLyrics != nil {
+				t.Errorf("%s: got raw text, want none", c.who.label)
+			}
+			continue
+		}
+		if got.RawTitle == nil || *got.RawTitle != raw["title"] ||
+			got.RawLyrics == nil || *got.RawLyrics != raw["lyrics"] {
+			t.Errorf("%s: raw text = %v/%v, want the stored %q/%q",
+				c.who.label, got.RawTitle, got.RawLyrics, raw["title"], raw["lyrics"])
+		}
+	}
+
 	songID := e.one(t, `SELECT id::text FROM songs WHERE slug = $1`, slug)
 	entry := map[string]any{"songId": songID, "page": 900, "numberOnPage": 1}
 	e.check(t, e.gate(http.MethodPost, "/songbook-entries", entry, ok, apinames.SongCreate))
