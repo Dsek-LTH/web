@@ -115,7 +115,7 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 		Path:        "/nollning/phadder-groups/{id}",
 		Tags:        tags,
 		Summary:     "Get a phadder group",
-		Description: "With its nollor and phaddrar.",
+		Description: "With its nollor and phaddrar. Needs a signed-in member.",
 	}, func(ctx context.Context, input *IDPath) (*struct{ Body nollning.PhadderGroup }, error) {
 		group, err := svc.GetGroup(ctx, input.ID)
 		if err != nil {
@@ -259,7 +259,7 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 		Path:        "/members/{studentId}/phadder-role",
 		Tags:        tags,
 		Summary:     "Get a member's phadder role",
-		Description: "Whether the member is a nolla or phadder this season, and in which group.",
+		Description: "Whether the member is a nolla or phadder this season, and in which group. Needs a signed-in member.",
 	}, func(ctx context.Context, input *StudentIDPath) (*struct{ Body nollning.MemberPhadderRole }, error) {
 		role, groupID, err := svc.PhadderRoleFor(ctx, input.StudentID)
 		if err != nil {

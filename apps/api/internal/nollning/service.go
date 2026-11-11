@@ -213,16 +213,30 @@ func (s *Service) IsStaben(ctx context.Context, memberID string) (bool, error) {
 	return active, nil
 }
 
+// requireSignedIn returns auth.ErrUnauthenticated unless the caller is a
+// signed-in member - the member directory's bar, for reads that name
+// members.
+func requireSignedIn(ctx context.Context) error {
+	identity, ok := auth.FromContext(ctx)
+	if !ok || identity.MemberID == "" {
+		return auth.ErrUnauthenticated
+	}
+	return nil
+}
+
 // PhadderRoleFor reports studentID's PhadderRole and, if any, the group
 // they hold it in - collapsing the old dual-path lookup (members.
 // nollning_group_id for "nolla", a mandate-based scan for "phadder") into
 // one answer. A member can in principle be both; nolla takes precedence
 // since that's the more common case this endpoint exists for (the nolla's
-// own layout looking up their own group).
+// own layout looking up their own group). Signed-in members only.
 func (s *Service) PhadderRoleFor(
 	ctx context.Context,
 	studentID string,
 ) (PhadderRole, *string, error) {
+	if err := requireSignedIn(ctx); err != nil {
+		return PhadderRoleNone, nil, err
+	}
 	member, err := s.queries.GetMemberByStudentID(ctx, pgtype.Text{String: studentID, Valid: true})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -478,7 +492,13 @@ func (s *Service) ListGroups(ctx context.Context, seasonID *string) ([]PhadderGr
 	return groups, nil
 }
 
+// GetGroup returns a group with its nollor and phaddrar. Those are member
+// names, so like the member directory it is for signed-in members only;
+// ListGroups (counts only) stays public.
 func (s *Service) GetGroup(ctx context.Context, id string) (*PhadderGroup, error) {
+	if err := requireSignedIn(ctx); err != nil {
+		return nil, err
+	}
 	groupID, err := dbutil.ParseUUID(id)
 	if err != nil {
 		return nil, invalidf("invalid group id: %v", err)

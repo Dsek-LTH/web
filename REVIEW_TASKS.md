@@ -402,7 +402,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: validate in the service (422 for order/overlap/unknown ids, 409 for
   a duplicate year, 404 for an unknown group).
 
-### [ ] T28 Phadder-group members are readable anonymously
+### [x] T28 Phadder-group members are readable anonymously
 
 - New: `GET /nollning/phadder-groups/{id}` and
   `GET /members/{studentId}/phadder-role` have no auth check and return
@@ -411,6 +411,10 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   to anonymous.
 - Fix: require a signed-in member for both (like the member directory).
   Check the nollning pages still load for logged-in users.
+- Done: both need a signed-in member (401 otherwise). The nollu groups
+  page and the nollning start page fall back to the public group summary
+  for logged-out visitors, so they still list the groups without names, as
+  the old ZenStack-filtered page did.
 
 ### [ ] T29 Editing a song saves display-transformed text
 
