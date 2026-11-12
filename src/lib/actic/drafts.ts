@@ -25,7 +25,8 @@ export type DraftMandate = MandateValue;
  * present, and the other families' fields are optional. Signature images are
  * persisted as data URLs.
  */
-export type Draft = {
+export type WriteDraft = {
+  kind: "write";
   id: string;
   updatedAt: number;
   family: FamilyId;
@@ -51,6 +52,20 @@ export type Draft = {
   signatures?: Array<{ path: string; dataUrl: string }>;
 };
 
+/** A saved draft of an edited governing document's Typst source. */
+export type DiffDraft = {
+  kind: "diff";
+  id: string;
+  updatedAt: number;
+  slug: string;
+  title: string;
+  source: string;
+};
+
+export type Draft = WriteDraft | DiffDraft;
+
+type StoredDraft = Partial<WriteDraft> & Partial<DiffDraft>;
+
 const KEY = "actic.drafts";
 const MAX = 50;
 
@@ -66,9 +81,20 @@ function todayIso(): string {
  * Back-fill a stored draft to the current shape. Drafts saved before families
  * existed have no `family`, so they are treated as deliberations.
  */
-function normalizeDraft(raw: Partial<Draft>): Draft {
+function normalizeDraft(raw: StoredDraft): Draft {
+  if (raw.kind === "diff") {
+    return {
+      kind: "diff",
+      id: raw.id ?? crypto.randomUUID(),
+      updatedAt: raw.updatedAt ?? Date.now(),
+      slug: raw.slug ?? "",
+      title: raw.title ?? "",
+      source: raw.source ?? "",
+    };
+  }
   const type = raw.type ?? "motion";
   return {
+    kind: "write",
     id: raw.id ?? crypto.randomUUID(),
     updatedAt: raw.updatedAt ?? Date.now(),
     family: raw.family ?? getDocumentType(type).family,
@@ -98,7 +124,7 @@ export function listDrafts(): Draft[] {
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) ?? "[]");
     return Array.isArray(parsed)
-      ? (parsed as Array<Partial<Draft>>).map(normalizeDraft)
+      ? (parsed as StoredDraft[]).map(normalizeDraft)
       : [];
   } catch {
     return [];

@@ -10,13 +10,17 @@ import {
   validateDocument,
   type DocumentInput,
 } from "$lib/actic/dsek";
-import { getDraft, saveDraft, type Draft } from "$lib/actic/drafts";
+import { getDraft, saveDraft, type WriteDraft } from "$lib/actic/drafts";
 import {
   restoreSignature,
   signatureDataUrl,
   signatureFiles,
 } from "$lib/actic/signatures";
-import { createPreview, renderTypstToPdf, type Preview } from "$lib/actic/typst";
+import {
+  createPreview,
+  renderTypstToPdf,
+  type Preview,
+} from "$lib/actic/typst";
 import { nextId, type AuthorRow, type YrkandeRow } from "$lib/actic/fields";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
@@ -85,8 +89,8 @@ export class Writer {
   readonly draftId: string | null = page.url.searchParams.get("draft");
 
   private readonly getInput: () => DocumentInput;
-  private readonly applyFamilyDraft: (draft: Draft) => void;
-  private readonly buildFamilyDraft: () => Partial<Draft>;
+  private readonly applyFamilyDraft: (draft: WriteDraft) => void;
+  private readonly buildFamilyDraft: () => Partial<WriteDraft>;
   private draftLoaded = false;
   private inFlight = false;
   private queued: string | null = null;
@@ -101,8 +105,8 @@ export class Writer {
     buildFamilyDraft = () => ({}),
   }: {
     getInput: () => DocumentInput;
-    applyFamilyDraft?: (draft: Draft) => void;
-    buildFamilyDraft?: () => Partial<Draft>;
+    applyFamilyDraft?: (draft: WriteDraft) => void;
+    buildFamilyDraft?: () => Partial<WriteDraft>;
   }) {
     this.getInput = getInput;
     this.applyFamilyDraft = applyFamilyDraft;
@@ -163,7 +167,8 @@ export class Writer {
   private getPreview(): Promise<Preview> {
     if (!this.previewHost) return Promise.reject(new Error("no preview host"));
     const root =
-      this.previewHost.shadowRoot ?? this.previewHost.attachShadow({ mode: "open" });
+      this.previewHost.shadowRoot ??
+      this.previewHost.attachShadow({ mode: "open" });
     // The host element is torn down while required fields are missing (the
     // checklist replaces it), so a cached preview can point at a detached
     // shadow root — recreate it whenever the host changes.
@@ -174,7 +179,10 @@ export class Writer {
     return this.previewPromise;
   }
 
-  private async renderPreview(current: string, currentFiles: typeof this.files) {
+  private async renderPreview(
+    current: string,
+    currentFiles: typeof this.files,
+  ) {
     this.inFlight = true;
     this.compiling = true;
     const started = performance.now();
@@ -225,7 +233,7 @@ export class Writer {
       if (!this.draftId || this.draftLoaded) return;
       this.draftLoaded = true;
       const draft = getDraft(this.draftId);
-      if (!draft) return;
+      if (!draft || draft.kind !== "write") return;
       void (async () => {
         // Restore signature images before assigning the authors so the preview
         // (which reads them synchronously) picks them up on the first render.
@@ -270,7 +278,7 @@ export class Writer {
   }
 
   // --- drafts ----------------------------------------------------------------
-  applyDraft(draft: Draft) {
+  applyDraft(draft: WriteDraft) {
     this.authors = draft.authors.length
       ? draft.authors.map((author) => ({ ...author, id: nextId("author") }))
       : [{ id: nextId("author"), name: "" }];
@@ -284,8 +292,9 @@ export class Writer {
     this.applyFamilyDraft(draft);
   }
 
-  private buildDraft(): Draft {
+  private buildDraft(): WriteDraft {
     return {
+      kind: "write",
       id: this.draftId ?? crypto.randomUUID(),
       updatedAt: Date.now(),
       family: this.input.family,

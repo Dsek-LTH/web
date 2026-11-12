@@ -1,14 +1,26 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { resolve } from "$app/paths";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Card, CardContent } from "$lib/components/ui/card/index.js";
   import { DOCUMENT_TYPES, FAMILIES, getDocumentType } from "$lib/actic/dsek";
   import { deleteDraft, listDrafts, type Draft } from "$lib/actic/drafts";
+  import type { GoverningGroupId } from "$lib/actic/governing";
+  import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import Trash2 from "@lucide/svelte/icons/trash-2";
 
+  let { data }: { data: PageData } = $props();
   let drafts = $state<Draft[]>([]);
+
+  const diffGroupLabels: Record<GoverningGroupId, () => string> = {
+    statutes: m.actic_diff_group_statutes,
+    regulations: m.actic_diff_group_regulations,
+    "strategic-goals": m.actic_diff_group_strategic_goals,
+    policies: m.actic_diff_group_policies,
+    guidelines: m.actic_diff_group_guidelines,
+  };
 
   // Drafts live in localStorage, so only read them on the client.
   onMount(() => {
@@ -67,21 +79,36 @@
           class="border-border flex items-center justify-between gap-3 rounded-md border p-3"
         >
           <div class="min-w-0">
-            <p class="truncate text-sm font-medium">
-              {draft.title || draft.meeting || m.actic_landing_untitled()}
-            </p>
-            <p class="text-muted-foreground truncate text-xs">
-              {getDocumentType(draft.type).label()}{draft.meeting
-                ? " · " + draft.meeting
-                : ""} · {relativeTime(draft.updatedAt)}
-            </p>
+            {#if draft.kind === "diff"}
+              <p class="truncate text-sm font-medium">{draft.title}</p>
+              <p class="text-muted-foreground truncate text-xs">
+                {m.actic_diff_draft_label()} · {relativeTime(draft.updatedAt)}
+              </p>
+            {:else}
+              <p class="truncate text-sm font-medium">
+                {draft.title || draft.meeting || m.actic_landing_untitled()}
+              </p>
+              <p class="text-muted-foreground truncate text-xs">
+                {getDocumentType(draft.type).label()}{draft.meeting
+                  ? " · " + draft.meeting
+                  : ""} · {relativeTime(draft.updatedAt)}
+              </p>
+            {/if}
           </div>
           <div class="flex shrink-0 items-center gap-1">
-            <Button
-              size="sm"
-              href={`/actic/write/${draft.family}?draft=${draft.id}`}
-              >{m.actic_landing_open()}</Button
-            >
+            {#if draft.kind === "diff"}
+              <Button
+                size="sm"
+                href={`/actic/diff/${draft.slug}?draft=${draft.id}`}
+                >{m.actic_landing_open()}</Button
+              >
+            {:else}
+              <Button
+                size="sm"
+                href={`/actic/write/${draft.family}?draft=${draft.id}`}
+                >{m.actic_landing_open()}</Button
+              >
+            {/if}
             <Button
               variant="ghost"
               size="icon-sm"
@@ -112,7 +139,7 @@
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {#each group.types as type (type.id)}
                 <a
-                  href={`/actic/write/${type.family}`}
+                  href={resolve(`/actic/write/${type.family}`)}
                   class="group"
                   onclick={() =>
                     sessionStorage.setItem("actic.newType", type.id)}
@@ -135,4 +162,40 @@
       {/each}
     </section>
   </div>
+
+  <section class="flex flex-col gap-4">
+    <div class="flex max-w-2xl flex-col gap-1">
+      <h2 class="text-sm font-bold tracking-widest uppercase">
+        {m.actic_diff_title()}
+      </h2>
+      <p class="text-muted-foreground text-sm">
+        {m.actic_diff_description()}
+      </p>
+    </div>
+    {#if data.governingCatalogError}
+      <p class="text-muted-foreground text-sm">
+        {m.actic_diff_upstream_error()}
+      </p>
+    {:else}
+      {#each data.governingCatalog as group (group.id)}
+        {#if group.documents.length > 0}
+          <div class="flex flex-col gap-2">
+            <h3 class="text-muted-foreground text-xs font-medium">
+              {diffGroupLabels[group.id]()}
+            </h3>
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {#each group.documents as document (document.slug)}
+                <a
+                  href={resolve(`/actic/diff/${document.slug}`)}
+                  class="border-border hover:bg-muted rounded-md border p-3 text-sm transition-colors"
+                >
+                  {document.title}
+                </a>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      {/each}
+    {/if}
+  </section>
 </div>
