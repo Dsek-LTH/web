@@ -22,8 +22,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         slug: albumData.slug,
         description: albumData.description || undefined,
         imageCount: albumData.imageCount,
-        photographers: albumData.photographers.map(({ id, ...rest }) => rest),
-        editors: albumData.editors.map(({ id, ...rest }) => rest),
+        photographers: albumData.photographers.map(({ ...rest }) => rest),
+        editors: albumData.editors.map(({ ...rest }) => rest),
       }
     : null;
 

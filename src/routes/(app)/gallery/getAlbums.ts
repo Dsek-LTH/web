@@ -41,12 +41,8 @@ export const getAlbums = async (
       slug: album.slug,
       imageCount: album.imageCount,
       coverURL: await getCoverURL(album.id),
-      photographers: album.photographers.map(
-        ({ id, visible, stripeCustomerId, ...rest }) => rest,
-      ),
-      editors: album.editors.map(
-        ({ id, visible, stripeCustomerId, ...rest }) => rest,
-      ),
+      photographers: album.photographers.map(({ ...rest }) => rest),
+      editors: album.editors.map(({ ...rest }) => rest),
     })),
   );
 };
