@@ -4,8 +4,10 @@
   import ImageIcon from "@lucide/svelte/icons/image";
   import type { AlbumSchema } from "./schema";
 
-  let { album, class: klass = "" }: { album: AlbumSchema; class?: string } =
-    $props();
+  let {
+    album,
+    class: klass = "",
+  }: { album: AlbumSchema & { imageCount: number }; class?: string } = $props();
 </script>
 
 <a href={`/gallery/album/${album.slug}`} class={klass}>

@@ -18,7 +18,7 @@ export const getAlbums = async (
     },
   });
 
-  function getCoverURL(albumId: string): Promise<string> {
+  async function getCoverURL(albumId: string): Promise<string> {
     return fileHandler
       .getInBucket(
         user,
@@ -33,13 +33,28 @@ export const getAlbums = async (
       });
   }
 
+  async function getAlbumLength(albumId: string): Promise<number> {
+    return fileHandler
+      .getInBucket(
+        user,
+        PUBLIC_BUCKETS_ALBUMS,
+        "public/" + albumId + "/album",
+        true,
+      )
+      .then((files) => files.length || 0)
+      .catch((err) => {
+        console.error("Error fetching files", err);
+        return 0;
+      });
+  }
+
   return Promise.all(
     albums.map(async (album) => ({
       id: album.id,
       title: album.title,
       date: album.date.toISOString(),
       slug: album.slug,
-      imageCount: album.imageCount,
+      imageCount: await getAlbumLength(album.id),
       coverURL: await getCoverURL(album.id),
       photographers: album.photographers.map(({ ...rest }) => rest),
       editors: album.editors.map(({ ...rest }) => rest),

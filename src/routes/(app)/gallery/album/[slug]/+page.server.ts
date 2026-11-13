@@ -21,7 +21,6 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         date: albumData.date.toISOString(),
         slug: albumData.slug,
         description: albumData.description || undefined,
-        imageCount: albumData.imageCount,
         photographers: albumData.photographers.map(({ ...rest }) => rest),
         editors: albumData.editors.map(({ ...rest }) => rest),
       }
@@ -58,7 +57,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   console.log("Loaded album data for slug:", params.slug);
 
   return {
-    album: album,
+    album: { imageCount: pictures.length, ...album },
     cover: cover,
     pictures: pictures,
   };
