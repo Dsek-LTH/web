@@ -27,8 +27,7 @@ export const actions: Actions = {
       allowFiles: true,
     });
 
-    const { title, date, description, photographers, editors, albumFiles } =
-      form.data;
+    const { title, date, description, photographers, editors } = form.data;
 
     const baseSlug = slugifyWithYear(title, new Date(date).getFullYear());
     const slug = await findAvailableSlug(baseSlug, async (candidate) =>
@@ -101,7 +100,6 @@ export const actions: Actions = {
           date: new Date(date),
           updatedAt: new Date(date),
           slug,
-          imageCount: albumFiles.length,
           photographers:
             validPhotographers.length > 0
               ? { connect: validPhotographers }

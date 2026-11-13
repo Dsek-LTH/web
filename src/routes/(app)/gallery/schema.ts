@@ -8,6 +8,7 @@ export const albumSchema = z.object({
   date: z.string(),
   slug: z.string(),
   coverURL: z.string().optional(),
+  imageCount: z.number(),
   description: z.string().optional(),
   photographers: z.array(memberSchema),
   editors: z.array(memberSchema),

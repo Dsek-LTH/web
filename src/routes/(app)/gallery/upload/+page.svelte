@@ -59,7 +59,7 @@
 
   let date = $derived<string | undefined>(
     $form.date
-      ? toCalendarDate(fromDate($form.date, tz)).toString()
+      ? toCalendarDate(fromDate($form.date, "UTC")).toString()
       : toCalendarDate(fromDate(new Date(), tz)).toString(),
   );
 
@@ -67,13 +67,14 @@
     if (date) {
       const parsed = parseDate(date);
       const dt = new CalendarDateTime(parsed.year, parsed.month, parsed.day);
-      $form.date = dt.toDate(tz);
+      $form.date = dt.toDate("UTC");
     }
   }
 </script>
 
 <SetPageTitle title={m.gallery_upload_album()} />
 <div class="layout-container">
+  {$form.date}
   <Button href="/gallery" variant="ghost"
     ><ArrowLeft /> {m.gallery_back()}</Button
   >
@@ -90,13 +91,11 @@
 
       <DatePicker
         name="date"
-        bind:value={
-          () => date,
-          (value) => {
-            date = value;
-            updateDate();
-          }
-        }
+        bind:value={() => date,
+        (value) => {
+          date = value;
+          updateDate();
+        }}
         aria-invalid={$errors.date ? true : false}
         aria-errormessage={$errors.date?.at(0)}
         {...$constraints.date}
