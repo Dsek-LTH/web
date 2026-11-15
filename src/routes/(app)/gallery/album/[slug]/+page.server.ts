@@ -5,8 +5,8 @@ import type { AlbumSchema } from "../../schema";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-  const { user } = locals;
-  const albumData = await locals.prisma.album.findFirst({
+  const { user, prisma } = locals;
+  const albumData = await prisma.album.findFirst({
     where: { slug: params.slug },
     include: {
       photographers: true,
@@ -23,6 +23,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         description: albumData.description || undefined,
         photographers: albumData.photographers.map(({ ...rest }) => rest),
         editors: albumData.editors.map(({ ...rest }) => rest),
+        imageCount: 0,
       }
     : null;
 

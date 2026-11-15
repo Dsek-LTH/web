@@ -18,7 +18,6 @@
   import {
     CalendarDateTime,
     fromDate,
-    getLocalTimeZone,
     parseDate,
     toCalendarDate,
   } from "@internationalized/date";
@@ -55,12 +54,10 @@
     }
   }
 
-  const tz = getLocalTimeZone();
-
   let date = $derived<string | undefined>(
     $form.date
       ? toCalendarDate(fromDate($form.date, "UTC")).toString()
-      : toCalendarDate(fromDate(new Date(), tz)).toString(),
+      : toCalendarDate(fromDate(new Date(), "UTC")).toString(),
   );
 
   function updateDate() {
@@ -91,11 +88,13 @@
 
       <DatePicker
         name="date"
-        bind:value={() => date,
-        (value) => {
-          date = value;
-          updateDate();
-        }}
+        bind:value={
+          () => date,
+          (value) => {
+            date = value;
+            updateDate();
+          }
+        }
         aria-invalid={$errors.date ? true : false}
         aria-errormessage={$errors.date?.at(0)}
         {...$constraints.date}

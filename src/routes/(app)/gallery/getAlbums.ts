@@ -61,30 +61,3 @@ export const getAlbums = async (
     })),
   );
 };
-
-export const getAlbum = async (
-  prisma: ExtendedPrisma,
-  slug: string,
-): Promise<AlbumSchema | null> => {
-  const album = await prisma.album.findFirst({
-    where: { slug: slug },
-    include: {
-      photographers: true,
-      editors: true,
-    },
-  });
-
-  if (!album) {
-    return null;
-  }
-
-  return {
-    id: album.id,
-    title: album.title,
-    date: album.date.toISOString(),
-    slug: album.slug,
-    imageCount: album.imageCount,
-    photographers: album.photographers,
-    editors: album.editors,
-  };
-};
