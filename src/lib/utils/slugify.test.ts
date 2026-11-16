@@ -70,13 +70,13 @@ test("slugify string with uppercase characters should be converted to lowercase"
   expect(slugify("UpperCase")).toBe("uppercase");
 });
 
-test("slugifyWithYear 'Nollefredagen' 2026 should equal 'nollefredagen-2026'", () => {
-  expect(slugifyWithYear("Nollefredagen", 2026)).toBe("nollefredagen-2026");
+test("slugifyWithYear 'N0llefredagen' 2026 should equal 'n0llefredagen-2026'", () => {
+  expect(slugifyWithYear("N0llefredagen", 2026)).toBe("n0llefredagen-2026");
 });
 
 test("slugifyWithYear should not add the year twice", () => {
-  expect(slugifyWithYear("Nollefredagen 2026", 2026)).toBe(
-    "nollefredagen-2026",
+  expect(slugifyWithYear("N0llefredagen 2026", 2026)).toBe(
+    "n0llefredagen-2026",
   );
 });
 
@@ -87,16 +87,16 @@ test("slugifyWithYear should truncate the title but keep the year", () => {
 });
 
 test("findAvailableSlug should return the base slug when it is free", async () => {
-  expect(await findAvailableSlug("nollefredagen-2026", async () => false)).toBe(
-    "nollefredagen-2026",
+  expect(await findAvailableSlug("n0llefredagen-2026", async () => false)).toBe(
+    "n0llefredagen-2026",
   );
 });
 
 test("findAvailableSlug should append a counter on collisions", async () => {
-  const taken = new Set(["nollefredagen-2026", "nollefredagen-2026-2"]);
+  const taken = new Set(["n0llefredagen-2026", "n0llefredagen-2026-2"]);
   expect(
-    await findAvailableSlug("nollefredagen-2026", async (slug) =>
+    await findAvailableSlug("n0llefredagen-2026", async (slug) =>
       taken.has(slug),
     ),
-  ).toBe("nollefredagen-2026-3");
+  ).toBe("n0llefredagen-2026-3");
 });

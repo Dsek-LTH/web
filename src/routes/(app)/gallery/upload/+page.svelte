@@ -110,7 +110,7 @@
         name="title"
         bind:value={$form.title}
         type="text"
-        placeholder="Nollefredagen"
+        placeholder="N0llefredagen"
         {...$constraints.title}
       />
     </div>

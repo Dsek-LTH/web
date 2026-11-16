@@ -98,7 +98,7 @@
         name="title"
         bind:value={$form.title}
         type="text"
-        placeholder="Nollefredagen"
+        placeholder="N0llefredagen"
         aria-invalid={$errors.title ? true : false}
         aria-errormessage={$errors.title?.at(0)}
         {...$constraints.title}

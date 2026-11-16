@@ -105,7 +105,7 @@ ignore_patterns = [
     'Intl', # Some JS shit
     'klass', # Svelte uses "klass" as a misspelling of "class".
     'M{3,4}', # dayjs format fragment
-    'uneval',
+    'UUIDs',
 
     # Other Abbreviations
     'dchip',
@@ -119,6 +119,7 @@ ignore_patterns = [
 
     # Swedish words sanctioned for code use.
     '[Nn]0lla',
+    '[Nn]0llefredagen',
     '[Nn]0llegasque',
     '[Nn]0llegeneral',
     '[Nn]0llning',
@@ -329,6 +330,7 @@ ignore_patterns = [
 words = [
     # English words
     'approvements',
+    'archiver',
     'bindable',
     'bookables',
     'breakpoint',
@@ -362,6 +364,7 @@ words = [
     'shoppable',
     'shoppables',
     'shortener',
+    'slugifies',
     'sponsorships',
     'strikethrough', # Noun
     'sublabel',
@@ -457,6 +460,7 @@ words = [
     'authentik',
     'cjs',
     'clsx',
+    'croppie',
     'daygrid',
     'dayjs',
     'dompurify',
@@ -488,6 +492,7 @@ words = [
     'stocklist',
     'superform',
     'superforms',
+    'uneval',
     'vaul',
     'vitest',
     'zenstack',
@@ -1059,6 +1064,8 @@ extra_words = [
     'fredragningslista',
     'föredragningslista',
     'kallelse',
+    'motesprotokoll',
+    'mötesprotokoll',
     'protokoll',
 ]
 
