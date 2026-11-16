@@ -39,7 +39,7 @@ jobs:
             "VERSION=${{ github.ref_name }}"
           push: true
           tags: registry.dsek.se/web-pr-${{ github.event.number }}/website:latest
-      - name: Comment preview URL
+      - name: Update preview comment
         uses: actions/github-script@v9
         with:
           script: |
@@ -47,17 +47,11 @@ jobs:
             const url = `https://web-pr-${pr}.apps.okd.dsek.se`;
             const marker = '<!-- deploy-pr-preview -->';
 
-            const buildTime = new Intl.DateTimeFormat('sv-SE', {
+            const timestamp = new Intl.DateTimeFormat('sv-SE', {
               timeZone: 'Europe/Stockholm',
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            }).formatToParts(new Date());
-            const part = (type) => buildTime.find((p) => p.type === type)?.value;
-            const timestamp = `${part('year')}-${part('month')}-${part('day')} ${part('hour')}:${part('minute')}`;
+              dateStyle: 'short',
+              timeStyle: 'short'
+            }).format(new Date());
 
             const body = `${marker}\nPreview image built. ArgoCD should deploy it shortly:\n\n${url}\n\n$\\color{gray}{\\textsf{\\emph{Last build: ${timestamp}}}}$`;
 
