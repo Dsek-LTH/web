@@ -177,6 +177,9 @@ type Querier interface {
 	// bylines never send notifications in practice (no call site does), so
 	// that branch isn't modeled here.
 	GetAuthorForNotification(ctx context.Context, id pgtype.UUID) (GetAuthorForNotificationRow, error)
+	// The member behind an author row, so Send can leave them out of their own
+	// notification when it is sent with FromAuthorID.
+	GetAuthorMemberID(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	GetBookableByID(ctx context.Context, id pgtype.UUID) (GetBookableByIDRow, error)
 	GetBookableCategoryByID(ctx context.Context, id pgtype.UUID) (BookableCategory, error)
 	GetBookingRequestByID(ctx context.Context, id pgtype.UUID) (GetBookingRequestByIDRow, error)
