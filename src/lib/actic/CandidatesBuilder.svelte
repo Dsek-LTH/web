@@ -8,7 +8,11 @@
   import SortableItem from "$lib/actic/SortableItem.svelte";
   import { attachAction } from "$lib/actic/attachAction";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
-  import { nextId, type CandidateRow, type NomineeRow } from "$lib/actic/fields";
+  import {
+    nextId,
+    type CandidateRow,
+    type NomineeRow,
+  } from "$lib/actic/fields";
   import * as m from "$paraglide/messages";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
@@ -158,7 +162,9 @@
         accept="candidate"
       >
         {#snippet children({ handle })}
-          <div class="border-border flex flex-col gap-2 rounded-md border p-2">
+          <div
+            class="border-border bg-background flex flex-col gap-2 rounded-md border p-2"
+          >
             <div class="flex items-center gap-2">
               <span
                 use:attachAction={handle}
@@ -172,7 +178,7 @@
               <div class="min-w-0 flex-1">
                 <PositionInput
                   bind:position={candidate.position}
-                  placeholder={m.actic_candidate_position()}
+                  placeholder={m.actic_field_position()}
                 />
               </div>
               {#if statsEnabled}
@@ -185,10 +191,8 @@
                     type="button"
                     class="text-muted-foreground hover:text-foreground flex h-full items-center px-1 disabled:pointer-events-none disabled:opacity-50"
                     aria-label={m.actic_stats_decrease()}
-                    disabled={
-                      statBaseIndex(candidate.stat) === null ||
-                      statBaseIndex(candidate.stat) === 0
-                    }
+                    disabled={statBaseIndex(candidate.stat) === null ||
+                      statBaseIndex(candidate.stat) === 0}
                     onclick={() => {
                       const base = statBaseIndex(candidate.stat);
                       if (base === null || base === 0) return;
@@ -220,10 +224,7 @@
                         // `--` form, selected so typing replaces it.
                         const trimmed = candidate.stat.trim();
                         candidate.stat = trimmed
-                          ? trimmed.replace(
-                              /(\d)\s*-{1,2}\s*(\d)/g,
-                              "$1 -- $2",
-                            )
+                          ? trimmed.replace(/(\d)\s*-{1,2}\s*(\d)/g, "$1 -- $2")
                           : statValue(0);
                         editingStatId = candidate.id;
                       }}
@@ -275,12 +276,19 @@
               onreorder={(sourceId, slot) =>
                 reorderNominee(candidate.id, sourceId, slot)}
             >
-              {#snippet children({ handle: nomineeHandle, isDragging, index: ni, helpers })}
+              {#snippet children({
+                handle: nomineeHandle,
+                isDragging,
+                index: ni,
+                helpers,
+              })}
                 {@const nominee = candidate.nominees[ni]!}
                 <div
-                  class={`flex items-stretch gap-1.5 pl-1 ${isDragging
-                    ? `${FIELD_BG} border-border rounded-md border shadow-md`
-                    : `border-border ${ni > 0 ? "border-t" : ""}`}`}
+                  class={`flex items-stretch gap-1.5 pl-1 ${
+                    isDragging
+                      ? `${FIELD_BG} border-border rounded-md border shadow-md`
+                      : `border-border ${ni > 0 ? "border-t" : ""}`
+                  }`}
                 >
                   {#if nominee.name.trim()}
                     <!-- The whole left side is grabbable. -->
@@ -309,7 +317,7 @@
                     <MemberNameInput
                       bind:value={nominee.name}
                       unstyled
-                      placeholder={m.actic_candidate_nominee_placeholder()}
+                      placeholder={m.actic_author_name()}
                       oninput={helpers.oninput}
                       onenter={helpers.onenter}
                       onescape={helpers.onescape}
@@ -352,15 +360,21 @@
     {m.actic_candidate_add_position()}
   </button>
 
-  <div class="flex flex-col gap-1">
-    <label class="flex items-center gap-2 text-sm">
-      <input
-        type="checkbox"
-        bind:checked={statsEnabled}
-        class="accent-primary"
-      />
-      {m.actic_stats_toggle()}
-    </label>
-    <p class="text-muted-foreground text-xs">{m.actic_stats_description()}</p>
-  </div>
+  <label
+    class={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm transition-colors ${
+      statsEnabled ? "border-primary bg-primary/5" : ""
+    }`}
+  >
+    <input
+      type="checkbox"
+      bind:checked={statsEnabled}
+      class="accent-primary mt-0.5"
+    />
+    <span class="flex flex-col gap-1">
+      <span>{m.actic_stats_toggle()}</span>
+      <span class="text-muted-foreground text-xs"
+        >{m.actic_stats_description()}</span
+      >
+    </span>
+  </label>
 </div>

@@ -2,10 +2,14 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import { cjsInterop } from "vite-plugin-cjs-interop";
 import { defineConfig } from "vitest/config";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
+import wasm from "vite-plugin-wasm";
 
 export default defineConfig({
   plugins: [
     sveltekit(),
+    // The Typstyle formatter ships wasm-bindgen's ESM wasm integration,
+    // which Vite only supports through this plugin.
+    wasm(),
     paraglideVitePlugin({
       project: "./project.inlang",
       outdir: "./src/translations/paraglide",

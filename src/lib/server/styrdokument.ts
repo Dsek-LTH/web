@@ -2,7 +2,6 @@ import { env } from "$env/dynamic/private";
 import {
   buildCatalog,
   findDocument,
-  findManifestDocument,
   type GoverningDocument,
   type GoverningGroup,
 } from "$lib/actic/governing";
@@ -27,7 +26,7 @@ export type ResolveResult =
   | { status: "unavailable" };
 
 function repoRef(): string {
-  return env["STYRDOKUMENT_REF"] || "switch-to-typst";
+  return env["STYRDOKUMENT_REF"] || "main";
 }
 
 function grafikRef(): string {
@@ -95,17 +94,41 @@ export function getGoverningCatalog(): Promise<GoverningGroup[]> {
           entry.path.endsWith(".typ"),
       )
       .map((entry) => entry.path as string);
-    return buildCatalog(paths);
+
+    // Titles and groups are read from each document's head (the `#show:`
+    // wrapper and its `subject`), so new documents need no list updates
+    // here. Failed head fetches fall back to path-derived descriptions.
+    const results = await Promise.allSettled(
+      paths.map((path) => fetchHead(path)),
+    );
+    return buildCatalog(
+      paths.map((path, index) => {
+        const result = results[index];
+        return {
+          path,
+          head: result?.status === "fulfilled" ? result.value : "",
+        };
+      }),
+    );
   });
+}
+
+/** The first few KiB are enough for the `#show:` wrapper and its subject. */
+async function fetchHead(path: string): Promise<string> {
+  const response = await fetch(
+    `https://raw.githubusercontent.com/${REPO}/${repoRef()}/${path}`,
+    { headers: { ...headers(), Range: "bytes=0-4095" } },
+  );
+  if (!response.ok) {
+    throw new Error(`GitHub head request failed: ${response.status}`);
+  }
+  return response.text();
 }
 
 export async function resolveGoverningDocument(
   slug: string,
 ): Promise<ResolveResult> {
   if (!/^[a-z0-9-]+$/.test(slug)) return { status: "unknown" };
-
-  const manifest = findManifestDocument(slug);
-  if (manifest) return { status: "ok", document: manifest };
 
   try {
     const catalog = await getGoverningCatalog();

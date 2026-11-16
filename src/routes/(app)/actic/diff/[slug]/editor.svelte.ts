@@ -7,6 +7,10 @@ import {
   type TypstFile,
 } from "$lib/actic/typst";
 import { saveDraft, type DiffDraft } from "$lib/actic/drafts";
+import {
+  parseTypstDiagnostics,
+  type TypstDiagnostic,
+} from "$lib/actic/diagnostics";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
 
@@ -30,8 +34,7 @@ export type DiffSessionOptions = {
 
 /**
  * The state and machinery for editing one governing document: the raw source,
- * the updated/diff preview tabs, drafts, downloads and the reset-to-upstream
- * action.
+ * the updated/diff preview tabs, drafts and downloads.
  */
 export class DiffSession {
   source = $state("");
@@ -43,6 +46,8 @@ export class DiffSession {
   downloading = $state(false);
   diffReady = $state(false);
   error = $state("");
+  /** The last compile's diagnostics, for the source editor's squiggles. */
+  diagnostics = $state<TypstDiagnostic[]>([]);
   diffError = $state("");
 
   private savedSource = $state("");
@@ -161,11 +166,16 @@ export class DiffSession {
       const preview = await this.getPreview();
       await preview.update(current, this.files);
       this.error = "";
+      this.diagnostics = [];
       this.rendered = true;
       await tick();
       if (this.scrollBox) this.scrollBox.scrollTop = scrollTop;
     } catch (e) {
       this.error = formatError(e);
+      this.diagnostics = parseTypstDiagnostics(
+        e instanceof Error ? e.message : String(e),
+        current,
+      );
     } finally {
       this.lastRenderMs = performance.now() - started;
       this.inFlight = false;
@@ -194,13 +204,12 @@ export class DiffSession {
     toast(m.actic_draft_saved(), "success");
   }
 
+  /** Discard the edits and return to the upstream document, on confirmation. */
   reset() {
-    const upstream = this.upstreamSource;
-    if (upstream === null) return;
+    if (this.upstreamSource === null) return;
     if (!window.confirm(m.actic_diff_reset_confirm())) return;
-    this.source = upstream;
+    this.source = this.upstreamSource;
     this.savedSource = this.source;
-    this.tab = "updated";
   }
 
   downloadSource() {

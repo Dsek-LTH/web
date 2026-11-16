@@ -3,23 +3,27 @@
   import { resolve } from "$app/paths";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Card, CardContent } from "$lib/components/ui/card/index.js";
   import { DOCUMENT_TYPES, FAMILIES, getDocumentType } from "$lib/actic/dsek";
   import { deleteDraft, listDrafts, type Draft } from "$lib/actic/drafts";
-  import type { GoverningGroupId } from "$lib/actic/governing";
+  import { diffGroupViews, type DiffGroupId } from "./landing-groups";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
   import Trash2 from "@lucide/svelte/icons/trash-2";
+  import FileDiff from "@lucide/svelte/icons/file-diff";
+  import SquarePen from "@lucide/svelte/icons/square-pen";
+
+  /** How many drafts the top grid shows before the "+ X till" card. */
+  const RECENT_DRAFTS = 3;
 
   let { data }: { data: PageData } = $props();
   let drafts = $state<Draft[]>([]);
+  /** Whether the drafts section shows every draft as a list. */
+  let showAllDrafts = $state(false);
 
-  const diffGroupLabels: Record<GoverningGroupId, () => string> = {
-    statutes: m.actic_diff_group_statutes,
-    regulations: m.actic_diff_group_regulations,
-    "strategic-goals": m.actic_diff_group_strategic_goals,
-    policies: m.actic_diff_group_policies,
-    guidelines: m.actic_diff_group_guidelines,
+  const diffGroupLabels: Record<DiffGroupId, () => string> = {
+    overview: m.actic_diff_group_overview,
+    policies: m.documents_governing_policies,
+    guidelines: m.documents_governing_guidelines,
   };
 
   // Drafts live in localStorage, so only read them on the client.
@@ -28,6 +32,7 @@
   });
 
   function remove(id: string) {
+    if (!window.confirm(m.actic_landing_delete_confirm())) return;
     deleteDraft(id);
     drafts = listDrafts();
   }
@@ -49,6 +54,15 @@
     },
   ]);
 
+  const diffGroups = $derived(diffGroupViews(data.governingCatalog));
+
+  /** The most recent drafts, newest first. */
+  const recentDrafts = $derived(
+    [...drafts]
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, RECENT_DRAFTS),
+  );
+
   function relativeTime(timestamp: number): string {
     const minutes = Math.round((Date.now() - timestamp) / 60000);
     const formatter = new Intl.RelativeTimeFormat(m.locale(), {
@@ -59,143 +73,235 @@
     if (Math.abs(hours) < 24) return formatter.format(-hours, "hour");
     return formatter.format(-Math.round(hours / 24), "day");
   }
+
+  /** Per-row hover treatment shared by the two portals. */
+  const ROW =
+    "flex items-baseline justify-between gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-secondary-hover";
 </script>
 
 <SetPageTitle title={m.actic_title()} />
 
-<div class="layout-container flex flex-col gap-6">
-  <div class="flex max-w-2xl flex-col gap-2">
+{#snippet draftCircle(draft: Draft)}
+  <span
+    class={`flex size-7 shrink-0 items-center justify-center rounded-full ${
+      draft.kind === "diff"
+        ? "bg-lila-100 text-lila-600 dark:bg-lila-400/15 dark:text-lila-300"
+        : "bg-rosa-100 text-rosa-600 dark:bg-rosa-400/15 dark:text-rosa-300"
+    }`}
+  >
+    {#if draft.kind === "diff"}
+      <FileDiff class="size-4" />
+    {:else}
+      <SquarePen class="size-4" />
+    {/if}
+  </span>
+{/snippet}
+
+{#snippet draftTitle(draft: Draft)}
+  {#if draft.kind === "diff"}
+    <a
+      href={resolve(`/actic/diff/${draft.slug}?draft=${draft.id}`)}
+      class="block truncate text-sm font-medium after:absolute after:inset-0 after:rounded-lg"
+    >
+      {draft.title}
+    </a>
+  {:else}
+    <a
+      href={resolve(`/actic/write/${draft.family}?draft=${draft.id}`)}
+      class="block truncate text-sm font-medium after:absolute after:inset-0 after:rounded-lg"
+    >
+      {draft.title || draft.meeting || m.actic_landing_untitled()}
+    </a>
+  {/if}
+{/snippet}
+
+{#snippet draftMeta(draft: Draft)}
+  {#if draft.kind === "diff"}
+    {m.actic_diff_draft_label()} — {relativeTime(draft.updatedAt)}
+  {:else}
+    {getDocumentType(draft.type).label()}{draft.meeting
+      ? " · " + draft.meeting
+      : ""} — {relativeTime(draft.updatedAt)}
+  {/if}
+{/snippet}
+
+<div class="layout-container flex flex-col gap-8">
+  <div class="flex max-w-2xl flex-col gap-1">
     <h1 class="text-3xl font-bold">{m.actic_title()}</h1>
     <p class="text-muted-foreground">{m.actic_description()}</p>
   </div>
 
-  <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.4fr]">
+  {#if drafts.length > 0}
     <section class="flex flex-col gap-3">
-      <h2 class="text-sm font-bold tracking-widest uppercase">
-        {m.actic_landing_drafts()}
-      </h2>
-      {#each drafts as draft (draft.id)}
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-sm font-bold tracking-widest uppercase">
+          {m.actic_landing_drafts()}
+        </h2>
+        {#if drafts.length > RECENT_DRAFTS}
+          <button
+            type="button"
+            class="text-rosa-600 dark:text-rosa-300 text-sm font-medium hover:underline"
+            onclick={() => (showAllDrafts = !showAllDrafts)}
+          >
+            {#if showAllDrafts}
+              {m.actic_landing_show_fewer()}
+            {:else}
+              {m.actic_landing_show_all_drafts()}
+            {/if}
+          </button>
+        {/if}
+      </div>
+      {#if showAllDrafts}
+        <!-- The full list, one divided box. -->
         <div
-          class="border-border flex items-center justify-between gap-3 rounded-md border p-3"
+          class="border-border bg-background divide-border divide-y overflow-hidden rounded-lg border"
         >
-          <div class="min-w-0">
-            {#if draft.kind === "diff"}
-              <p class="truncate text-sm font-medium">{draft.title}</p>
-              <p class="text-muted-foreground truncate text-xs">
-                {m.actic_diff_draft_label()} · {relativeTime(draft.updatedAt)}
-              </p>
-            {:else}
-              <p class="truncate text-sm font-medium">
-                {draft.title || draft.meeting || m.actic_landing_untitled()}
-              </p>
-              <p class="text-muted-foreground truncate text-xs">
-                {getDocumentType(draft.type).label()}{draft.meeting
-                  ? " · " + draft.meeting
-                  : ""} · {relativeTime(draft.updatedAt)}
-              </p>
-            {/if}
-          </div>
-          <div class="flex shrink-0 items-center gap-1">
-            {#if draft.kind === "diff"}
-              <Button
-                size="sm"
-                href={`/actic/diff/${draft.slug}?draft=${draft.id}`}
-                >{m.actic_landing_open()}</Button
-              >
-            {:else}
-              <Button
-                size="sm"
-                href={`/actic/write/${draft.family}?draft=${draft.id}`}
-                >{m.actic_landing_open()}</Button
-              >
-            {/if}
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={m.actic_landing_delete()}
-              onclick={() => remove(draft.id)}
+          {#each drafts as draft (draft.id)}
+            <div
+              class="hover:bg-secondary-hover relative flex items-center gap-2.5 p-3 transition-colors"
             >
-              <Trash2 class="h-4 w-4" />
-            </Button>
-          </div>
+              {@render draftCircle(draft)}
+              <div class="min-w-0 flex-1">
+                {@render draftTitle(draft)}
+                <p class="text-muted-foreground mt-0.5 truncate text-xs">
+                  {@render draftMeta(draft)}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                class="relative z-10"
+                aria-label={m.actic_landing_delete()}
+                onclick={() => remove(draft.id)}
+              >
+                <Trash2 class="h-4 w-4" />
+              </Button>
+            </div>
+          {/each}
         </div>
       {:else}
-        <p class="text-muted-foreground text-sm">
-          {m.actic_landing_no_drafts()}
-        </p>
-      {/each}
+        <!-- One row of the most recent drafts. -->
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {#each recentDrafts as draft (draft.id)}
+            <div
+              class="border-border hover:border-foreground/30 relative flex items-center gap-2.5 rounded-lg border p-3 transition-colors hover:shadow-sm"
+            >
+              {@render draftCircle(draft)}
+              <div class="min-w-0 flex-1">
+                {@render draftTitle(draft)}
+                <p class="text-muted-foreground mt-0.5 truncate text-xs">
+                  {@render draftMeta(draft)}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                class="relative z-10"
+                aria-label={m.actic_landing_delete()}
+                onclick={() => remove(draft.id)}
+              >
+                <Trash2 class="h-4 w-4" />
+              </Button>
+            </div>
+          {/each}
+          {#if drafts.length > RECENT_DRAFTS}
+            <button
+              type="button"
+              class="text-muted-foreground hover:border-foreground/30 hover:text-foreground flex items-center justify-center rounded-lg border p-3 text-sm transition-colors hover:shadow-sm"
+              onclick={() => (showAllDrafts = true)}
+            >
+              {m.actic_landing_more_drafts({
+                count: drafts.length - RECENT_DRAFTS,
+              })}
+            </button>
+          {/if}
+        </div>
+      {/if}
     </section>
+  {/if}
 
-    <section class="flex flex-col gap-5">
-      <h2 class="text-sm font-bold tracking-widest uppercase">
-        {m.actic_landing_create()}
-      </h2>
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <!-- Write portal: every document type, one row each. -->
+    <section
+      class="border-border bg-background flex flex-col rounded-lg border p-5"
+    >
+      <div class="flex items-center gap-2.5">
+        <span
+          class="bg-rosa-100 text-rosa-600 dark:bg-rosa-400/15 dark:text-rosa-300 flex size-7 items-center justify-center rounded-full"
+        >
+          <SquarePen class="size-4" />
+        </span>
+        <h2 class="text-base font-semibold">{m.actic_landing_write_title()}</h2>
+      </div>
+      <p class="text-muted-foreground mt-1.5 text-sm">
+        {m.actic_landing_write_description()}
+      </p>
       {#each groups as group (group.key)}
         {#if group.types.length > 0}
-          <div class="flex flex-col gap-2">
-            <h3 class="text-muted-foreground text-xs font-medium">
-              {group.label}
-            </h3>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {#each group.types as type (type.id)}
-                <a
-                  href={resolve(`/actic/write/${type.family}`)}
-                  class="group"
-                  onclick={() =>
-                    sessionStorage.setItem("actic.newType", type.id)}
-                >
-                  <Card
-                    class="h-full transition-all group-hover:-translate-y-1 group-hover:shadow-xl"
-                  >
-                    <CardContent class="flex h-full flex-col gap-1 p-4">
-                      <h3 class="text-lg font-bold">{type.label()}</h3>
-                      <p class="text-muted-foreground text-xs leading-relaxed">
-                        {type.blurb()}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </a>
-              {/each}
-            </div>
-          </div>
+          <h3 class="text-muted-foreground mt-4 mb-1 text-xs font-medium">
+            {group.label}
+          </h3>
+          {#each group.types as type (type.id)}
+            <a
+              href={resolve(`/actic/write/${type.family}`)}
+              class={ROW}
+              title={type.blurb()}
+              onclick={() => sessionStorage.setItem("actic.newType", type.id)}
+            >
+              <span class="shrink-0 text-sm">{type.label()}</span>
+              <span
+                class="text-muted-foreground min-w-0 truncate text-right text-xs"
+              >
+                {type.blurb()}
+              </span>
+            </a>
+          {/each}
         {/if}
       {/each}
+      <p
+        class="text-muted-foreground my-auto pt-5 text-center text-xs leading-relaxed"
+      >
+        {m.actic_landing_write_hint()}
+        <a class="link" href="https://typst.app/universe/package/dsek">
+          {m.actic_landing_write_hint_link()}
+        </a>
+        {m.actic_landing_write_hint_after()}
+      </p>
     </section>
-  </div>
 
-  <section class="flex flex-col gap-4">
-    <div class="flex max-w-2xl flex-col gap-1">
-      <h2 class="text-sm font-bold tracking-widest uppercase">
-        {m.actic_diff_title()}
-      </h2>
-      <p class="text-muted-foreground text-sm">
+    <!-- Diff portal: the governing documents, grouped for browsing. -->
+    <section
+      class="border-border bg-background flex flex-col rounded-lg border p-5"
+    >
+      <div class="flex items-center gap-2.5">
+        <span
+          class="bg-lila-100 text-lila-600 dark:bg-lila-400/15 dark:text-lila-300 flex size-7 items-center justify-center rounded-full"
+        >
+          <FileDiff class="size-4" />
+        </span>
+        <h2 class="text-base font-semibold">
+          {m.documents_governing_editDocument()}
+        </h2>
+      </div>
+      <p class="text-muted-foreground mt-1.5 text-sm">
         {m.actic_diff_description()}
       </p>
-    </div>
-    {#if data.governingCatalogError}
-      <p class="text-muted-foreground text-sm">
-        {m.actic_diff_upstream_error()}
-      </p>
-    {:else}
-      {#each data.governingCatalog as group (group.id)}
-        {#if group.documents.length > 0}
-          <div class="flex flex-col gap-2">
-            <h3 class="text-muted-foreground text-xs font-medium">
-              {diffGroupLabels[group.id]()}
-            </h3>
-            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {#each group.documents as document (document.slug)}
-                <a
-                  href={resolve(`/actic/diff/${document.slug}`)}
-                  class="border-border hover:bg-muted rounded-md border p-3 text-sm transition-colors"
-                >
-                  {document.title}
-                </a>
-              {/each}
-            </div>
-          </div>
-        {/if}
-      {/each}
-    {/if}
-  </section>
+      {#if data.governingCatalogError}
+        <p class="text-muted-foreground mt-4 text-sm">
+          {m.actic_diff_upstream_error()}
+        </p>
+      {:else}
+        {#each diffGroups as group (group.id)}
+          <h3 class="text-muted-foreground mt-4 mb-1 text-xs font-medium">
+            {diffGroupLabels[group.id]()}
+          </h3>
+          {#each group.docs as document (document.slug)}
+            <a href={resolve(`/actic/diff/${document.slug}`)} class={ROW}>
+              <span class="text-sm">{document.title}</span>
+            </a>
+          {/each}
+        {/each}
+      {/if}
+    </section>
+  </div>
 </div>

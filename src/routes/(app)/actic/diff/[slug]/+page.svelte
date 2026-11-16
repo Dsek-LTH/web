@@ -2,11 +2,9 @@
   import { onMount } from "svelte";
   import * as Tabs from "$lib/components/ui/tabs";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
-  import { Textarea } from "$lib/components/ui/textarea/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import { FIELD_BG } from "$lib/actic/fieldStyles";
+  import SourceEditor from "$lib/actic/SourceEditor.svelte";
   import { getDraft } from "$lib/actic/drafts";
   import { page } from "$app/state";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
@@ -18,7 +16,7 @@
   let { data }: { data: PageData } = $props();
 
   let session = $state<DiffSession>();
-  const upstreamRef = $derived(data.ref ?? data.commit ?? "");
+  const title = $derived(data.document?.title ?? data.slug);
 
   onMount(() => {
     const id = page.url.searchParams.get("draft");
@@ -39,23 +37,13 @@
   });
 </script>
 
-<SetPageTitle title={data.document?.title ?? data.slug} />
+<SetPageTitle {title} />
 
 <div class="layout-container flex flex-col gap-4">
   <Button variant="ghost" href="/actic" class="self-start">
     <ChevronLeft class="mr-1 h-4 w-4" />
-    {m.actic_diff_back()}
+    {m.back()}
   </Button>
-
-  <div class="flex flex-col gap-1">
-    <h1 class="text-lg font-semibold">{data.document?.title ?? data.slug}</h1>
-    {#if upstreamRef}
-      <p class="text-muted-foreground text-sm">
-        {m.actic_diff_upstream_ref({ ref: upstreamRef })}
-      </p>
-    {/if}
-    <p class="text-muted-foreground text-sm">{m.actic_diff_source_label()}</p>
-  </div>
 
   {#if data.error === "upstream" && !data.source && !session}
     <div class="border-border bg-muted rounded-md border p-4 text-sm">
@@ -75,25 +63,37 @@
       </p>
     {/if}
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {#snippet trailing()}
+        <button
+          type="button"
+          class="text-muted-foreground hover:bg-accent hover:text-foreground rounded p-2 disabled:pointer-events-none disabled:opacity-50"
+          aria-label={m.actic_diff_reset()}
+          title={m.actic_diff_reset()}
+          disabled={!session!.canReset}
+          onclick={() => session!.reset()}
+        >
+          <RotateCcw class="size-4" />
+        </button>
+      {/snippet}
       <div class="flex flex-col gap-2">
-        <Textarea
-          id="source"
+        <SourceEditor
           bind:value={session.source}
-          spellcheck={false}
-          class="{FIELD_BG} min-h-[32rem] font-mono text-sm"
+          diagnostics={session.diagnostics}
+          {title}
+          {trailing}
         />
+        <div class="flex justify-end">
+          <Button variant="outline" onclick={() => session!.downloadSource()}>
+            <FileCode class="mr-2 h-4 w-4" />
+            {m.actic_download_source()}
+          </Button>
+        </div>
       </div>
 
       <div
         class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <Label>{m.actic_preview_label()}</Label>
-            {#if session.compiling}
-              <Spinner class="text-muted-foreground h-4 w-4" />
-            {/if}
-          </div>
           <Tabs.Root value={session.tab}>
             <Tabs.List class="w-auto">
               <Tabs.Trigger
@@ -113,69 +113,62 @@
               </Tabs.Trigger>
             </Tabs.List>
           </Tabs.Root>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onclick={() => session!.saveDraftNow()}
-            disabled={!session.dirty || !session.source.trim()}
-          >
-            <Save class="mr-1 h-4 w-4" />
-            {m.actic_draft_save()}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onclick={() => session!.reset()}
-            disabled={!session.canReset}
-          >
-            <RotateCcw class="mr-1 h-4 w-4" />
-            {m.actic_diff_reset()}
-          </Button>
-          <Button size="sm" onclick={() => session!.downloadSource()}>
-            <FileCode class="mr-1 h-4 w-4" />
-            {m.actic_download_source()}
-          </Button>
-          <Button
-            size="sm"
-            onclick={() => session!.downloadPdf()}
-            disabled={session.downloading}
-          >
-            {#if session.downloading}
-              <Spinner class="mr-2" />
-            {:else}
-              <Download class="mr-1 h-4 w-4" />
+          <div class="flex items-center gap-2">
+            {#if session.compiling}
+              <Spinner class="text-muted-foreground h-4 w-4" />
             {/if}
-            {m.actic_download()}
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onclick={() => session!.saveDraftNow()}
+              disabled={!session.dirty || !session.source.trim()}
+            >
+              <Save class="mr-1 h-4 w-4" />
+              {m.actic_draft_save()}
+            </Button>
+            <Button
+              size="sm"
+              onclick={() => session!.downloadPdf()}
+              disabled={session.downloading}
+            >
+              {#if session.downloading}
+                <Spinner class="mr-2" />
+              {:else}
+                <Download class="mr-1 h-4 w-4" />
+              {/if}
+              {m.actic_download()}
+            </Button>
+          </div>
         </div>
 
         <div
           bind:this={session.scrollBox}
           class="bg-muted border-border min-h-[28rem] overflow-auto rounded-md border p-4 lg:min-h-0 lg:flex-1"
         >
-          {#if session.error}
-            <p
-              class="text-destructive mb-4 text-sm break-words whitespace-pre-wrap"
-            >
-              {session.error}
-            </p>
-          {/if}
-          {#if session.diffError}
-            <p
-              class="text-destructive mb-4 text-sm break-words whitespace-pre-wrap"
-            >
-              {session.diffError}
-            </p>
-          {/if}
-          {#if session.diffResult.error}
-            <p
-              class="text-destructive mb-4 text-sm break-words whitespace-pre-wrap"
-            >
-              {session.diffResult.error}
-            </p>
+          {#if session.error || session.diffError || session.diffResult.error}
+            <div class="bg-muted sticky top-0 z-10 flex flex-col gap-2 pb-4">
+              {#if session.error}
+                <p
+                  class="text-destructive text-sm break-words whitespace-pre-wrap"
+                >
+                  {session.error}
+                </p>
+              {/if}
+              {#if session.diffError}
+                <p
+                  class="text-destructive text-sm break-words whitespace-pre-wrap"
+                >
+                  {session.diffError}
+                </p>
+              {/if}
+              {#if session.diffResult.error}
+                <p
+                  class="text-destructive text-sm break-words whitespace-pre-wrap"
+                >
+                  {session.diffResult.error}
+                </p>
+              {/if}
+            </div>
           {/if}
           <div
             bind:this={session.previewHost}

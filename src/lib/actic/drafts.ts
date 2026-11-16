@@ -49,6 +49,9 @@ export type WriteDraft = {
   mandate?: DraftMandate;
   candidates?: DraftCandidate[];
   statsEnabled?: boolean;
+  /** The header's document-type label (plain documents). */
+  docType?: string;
+  useCoverPage?: boolean;
   signatures?: Array<{ path: string; dataUrl: string }>;
 };
 
@@ -115,6 +118,8 @@ function normalizeDraft(raw: StoredDraft): Draft {
     mandate: raw.mandate ?? { mode: "year", year: new Date().getFullYear() },
     candidates: raw.candidates ?? [],
     statsEnabled: raw.statsEnabled ?? false,
+    docType: raw.docType ?? "",
+    useCoverPage: raw.useCoverPage ?? false,
     signatures: raw.signatures,
   };
 }

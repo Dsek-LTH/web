@@ -85,37 +85,45 @@
   >
     {#snippet children({ handle, isDragging, index: i, helpers })}
       {@const row = items[i]!}
+      {@const open =
+        !!row.clause.trim() && (expanded[row.id] ?? !!row.description.trim())}
       <div
-        class={`flex flex-col ${isDragging
-          ? `${FIELD_BG} border-border rounded-md border shadow-md`
-          : `border-border ${i > 0 ? "border-t" : ""}`}`}
+        class={`flex flex-col ${
+          isDragging
+            ? `${FIELD_BG} border-border rounded-md border shadow-md`
+            : `border-border ${i > 0 ? "border-t" : ""}`
+        }`}
       >
         <div class="flex items-stretch gap-1 pl-1">
           {#if row.clause.trim()}
             <span
               use:attachAction={handle}
-              class="text-muted-foreground flex cursor-grab items-center gap-1"
+              class="text-muted-foreground flex h-9 cursor-grab items-center gap-1 self-start"
               role="button"
               tabindex="0"
               aria-label={m.actic_author_drag()}
             >
               <GripVertical class="h-4 w-4" />
-              <span class="mr-1 text-xs">{i + 1}</span>
+              <span class="relative top-px mr-1 text-xs">{i + 1}</span>
             </span>
           {:else}
             <!-- The free row: the grab indicator is disabled with it. -->
             <span
-              class="text-muted-foreground flex items-center gap-1 opacity-30"
+              class="text-muted-foreground flex h-9 items-center gap-1 self-start opacity-30"
               aria-hidden="true"
             >
               <GripVertical class="h-4 w-4" />
-              <span class="mr-1 text-xs">{i + 1}</span>
+              <span class="relative top-px mr-1 text-xs">{i + 1}</span>
             </span>
           {/if}
-          <span class="text-muted-foreground flex items-center text-sm font-bold"
+          <span
+            class="text-muted-foreground flex h-9 items-center self-start text-sm font-bold"
             >{m.actic_yrkanden_att({}, { locale: lang })}</span
           >
-          <div class="flex min-w-0 flex-1 flex-col" use:helpers.trackInput={row.id}>
+          <div
+            class="flex min-w-0 flex-1 flex-col"
+            use:helpers.trackInput={row.id}
+          >
             <Textarea
               bind:value={row.clause}
               placeholder={m.actic_yrkanden_clause_placeholder(
@@ -135,9 +143,9 @@
                 }
               }}
             />
-            {#if row.clause.trim() && (expanded[row.id] ?? !!row.description.trim())}
+            {#if open}
               <!-- The description sub-box, contained within the row. -->
-              <div class="px-3 py-2">
+              <div class="py-2 pr-3 pl-0.5">
                 <Textarea
                   bind:value={row.description}
                   placeholder={m.actic_yrkanden_desc_placeholder(
@@ -152,12 +160,12 @@
           {#if row.clause.trim()}
             <button
               type="button"
-              class="text-muted-foreground hover:text-foreground flex items-center gap-1 px-1"
+              class="text-muted-foreground hover:text-foreground flex h-9 items-center gap-1 self-start px-1"
               aria-label={m.actic_yrkanden_description()}
-              aria-expanded={expanded[row.id] ?? !!row.description.trim()}
+              aria-expanded={open}
               onclick={() => toggleExpand(row.id)}
             >
-              {#if expanded[row.id] ?? !!row.description.trim()}
+              {#if open}
                 <ChevronDown class="h-4 w-4" />
               {:else}
                 <!-- Dot marks a collapsed description that isn't empty. -->
@@ -170,7 +178,7 @@
             <Button
               variant="ghost"
               size="icon-sm"
-              class="self-center"
+              class="mt-0.5 self-start"
               aria-label={m.actic_yrkanden_remove()}
               onclick={() => remove(i)}
             >
@@ -178,10 +186,16 @@
             </Button>
           {:else}
             <!-- The free row: nothing to expand or remove. -->
-            <span class="flex items-center px-1 opacity-0" aria-hidden="true">
+            <span
+              class="flex h-9 items-center self-start px-1 opacity-0"
+              aria-hidden="true"
+            >
               <ChevronRight class="h-4 w-4" />
             </span>
-            <span class="flex items-center opacity-0" aria-hidden="true">
+            <span
+              class="flex h-9 items-center self-start opacity-0"
+              aria-hidden="true"
+            >
               <X class="h-4 w-4" />
             </span>
           {/if}

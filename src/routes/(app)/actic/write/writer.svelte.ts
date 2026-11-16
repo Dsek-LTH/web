@@ -22,6 +22,10 @@ import {
   type Preview,
 } from "$lib/actic/typst";
 import { nextId, type AuthorRow, type YrkandeRow } from "$lib/actic/fields";
+import {
+  parseTypstDiagnostics,
+  type TypstDiagnostic,
+} from "$lib/actic/diagnostics";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
 
@@ -81,6 +85,8 @@ export class Writer {
   scrollBox = $state<HTMLElement | undefined>();
   compiling = $state(false);
   error = $state("");
+  /** The last compile's diagnostics, for the source editor's squiggles. */
+  diagnostics = $state<TypstDiagnostic[]>([]);
   rendered = $state(false);
 
   // --- drafts & download -----------------------------------------------------
@@ -191,11 +197,16 @@ export class Writer {
       const preview = await this.getPreview();
       await preview.update(current, currentFiles);
       this.error = "";
+      this.diagnostics = [];
       this.rendered = true;
       await tick();
       if (this.scrollBox) this.scrollBox.scrollTop = scrollTop;
     } catch (e) {
       this.error = this.formatError(e);
+      this.diagnostics = parseTypstDiagnostics(
+        e instanceof Error ? e.message : String(e),
+        current,
+      );
     } finally {
       this.lastRenderMs = performance.now() - started;
       this.inFlight = false;

@@ -10,8 +10,8 @@
   import { Writer } from "../writer.svelte";
 
   let committee = $state<KeyedValue | undefined>(undefined);
-  /** The plan year; null shows (and sends) the package default: next year. */
-  let planYear = $state<number | null>(null);
+  /** The plan year, defaulting to (and sending) the package default: next year. */
+  let planYear = $state<number | null>(defaultPlanYear());
 
   const writer = new Writer({
     getInput: (): DocumentInput => ({
@@ -25,7 +25,7 @@
     }),
     applyFamilyDraft: (draft) => {
       committee = draft.committee;
-      planYear = draft.year ?? null;
+      planYear = draft.year ?? defaultPlanYear();
     },
     buildFamilyDraft: () => ({
       committee,

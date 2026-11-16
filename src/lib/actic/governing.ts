@@ -25,121 +25,6 @@ export const GOVERNING_GROUPS: readonly GoverningGroupId[] = [
   "guidelines",
 ];
 
-export const GOVERNING_MANIFEST = [
-  { path: "stadgar.typ", title: "Stadgar", group: "statutes" },
-  { path: "reglemente.typ", title: "Reglemente", group: "regulations" },
-  {
-    path: "strategiska-mal.typ",
-    title: "Strategiska mål",
-    group: "strategic-goals",
-  },
-  {
-    path: "policyer/policy-for-alkohol-och-droger.typ",
-    title: "Policy för alkohol och droger",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-ekonomi.typ",
-    title: "Policy för ekonomi",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-hantering-av-nya-poster.typ",
-    title: "Policy för hantering av nya poster",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-hantering-av-personuppgifter.typ",
-    title: "Policy för hantering av personuppgifter",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-jamlikhet.typ",
-    title: "Policy för jämlikhet",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-motestider.typ",
-    title: "Policy för mötestider",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-samverkan-med-dchip.typ",
-    title: "Policy för samverkan med D-Chip",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-sektionsbil.typ",
-    title: "Policy för sektionsbil",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-styrdokument.typ",
-    title: "Policy för styrdokument",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-tackverksamhet.typ",
-    title: "Policy för tackverksamhet",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-val.typ",
-    title: "Policy för val",
-    group: "policies",
-  },
-  {
-    path: "policyer/policy-for-valberedningsarbete.typ",
-    title: "Policy för valberedningsarbete",
-    group: "policies",
-  },
-  {
-    path: "riktlinjer/krishanteringsplan.typ",
-    title: "Krishanteringsplan",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-anmodanden-och-inbjudningar.typ",
-    title: "Riktlinje för anmodanden och inbjudningar",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-arkivering.typ",
-    title: "Riktlinje för arkivering",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-grafisk-profil.typ",
-    title: "Riktlinje för grafisk profil",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-internationalisering.typ",
-    title: "Riktlinje för internationalisering",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-marknadsforing-och-prissattning.typ",
-    title: "Riktlinje för marknadsföring och prissättning",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-overlamning.typ",
-    title: "Riktlinje för överlämning",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-sektionsbilens-anvandning.typ",
-    title: "Riktlinje för sektionsbilens användning",
-    group: "guidelines",
-  },
-  {
-    path: "riktlinjer/riktlinje-for-utmarkelsen-DuCtig.typ",
-    title: "Riktlinje för utmärkelsen DuCtig",
-    group: "guidelines",
-  },
-] as const;
-
 function basename(path: string): string {
   return path.split("/").pop() ?? path;
 }
@@ -180,13 +65,55 @@ function groupFromPath(path: string): GoverningGroupId {
   return "policies";
 }
 
-export function buildCatalog(paths: string[]): GoverningGroup[] {
-  const unique = [...new Set(paths.filter((path) => path.endsWith(".typ")))];
+/**
+ * Titles as the dsek package renders them: fixed per wrapper for the
+ * constitutional documents, prefix + subject for policies/guidelines —
+ * or just the subject when the document opts into a cover page
+ * (`use-cover-page: true`).
+ */
+export function describeGoverningDocument(
+  path: string,
+  head: string,
+): { title: string | null; group: GoverningGroupId } {
+  const wrapper = /#show:\s*([a-zA-Z-]+)/.exec(head)?.[1];
+  const subject = /subject:\s*"([^"]+)"/.exec(head)?.[1];
+  const coverPage = /use-cover-page:\s*true/.test(head);
+
+  if (wrapper === "statutes") return { title: "Stadgar", group: "statutes" };
+  if (wrapper === "regulations") {
+    return { title: "Reglemente", group: "regulations" };
+  }
+  if (wrapper === "strategic-goals") {
+    return { title: "Strategiska mål", group: "strategic-goals" };
+  }
+  if (wrapper === "policy" && subject) {
+    return {
+      title: coverPage ? subject : `Policy för ${subject}`,
+      group: "policies",
+    };
+  }
+  if (wrapper === "guideline" && subject) {
+    return {
+      title: coverPage ? subject : `Riktlinje för ${subject}`,
+      group: "guidelines",
+    };
+  }
+  return { title: null, group: groupFromPath(path) };
+}
+
+export function buildCatalog(
+  entries: Array<{ path: string; head: string }>,
+): GoverningGroup[] {
+  // Dedupe by path; the last entry for a path wins.
+  const heads = new Map<string, string>();
+  for (const entry of entries) {
+    if (entry.path.endsWith(".typ")) heads.set(entry.path, entry.head);
+  }
   const used = new Set<string>();
   const documents: GoverningDocument[] = [];
 
-  for (const path of unique) {
-    const manifest = GOVERNING_MANIFEST.find((entry) => entry.path === path);
+  for (const [path, head] of heads) {
+    const described = describeGoverningDocument(path, head);
     const base = slugFromPath(path);
     let slug = base;
     let suffix = 2;
@@ -195,8 +122,8 @@ export function buildCatalog(paths: string[]): GoverningGroup[] {
     documents.push({
       slug,
       path,
-      title: manifest?.title ?? titleFromPath(path),
-      group: manifest?.group ?? groupFromPath(path),
+      title: described.title ?? titleFromPath(path),
+      group: described.group,
     });
   }
 
@@ -215,19 +142,4 @@ export function findDocument(
   return groups
     .flatMap((group) => group.documents)
     .find((document) => document.slug === slug);
-}
-
-export function findManifestDocument(
-  slug: string,
-): GoverningDocument | undefined {
-  const manifest = GOVERNING_MANIFEST.find(
-    (entry) => slugFromPath(entry.path) === slug,
-  );
-  if (!manifest) return undefined;
-  return {
-    slug,
-    path: manifest.path,
-    title: manifest.title,
-    group: manifest.group,
-  };
 }

@@ -84,7 +84,10 @@
         id="title"
         class={FIELD_BG}
         bind:value={title}
-        placeholder={m.actic_field_title_placeholder()}
+        placeholder={m.actic_field_title_placeholder_nomination(
+          {},
+          { locale: writer.lang },
+        )}
         aria-invalid={writer.touched.title && !title.trim()}
         onblur={() => (writer.touched.title = true)}
       />

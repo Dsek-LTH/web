@@ -32,6 +32,7 @@ export default [
       "src/translations/paraglide",
       "src/lib/actic/diff/generated",
       "tools/typdiff-wasm/target",
+      ".superpowers",
       "**/*.tsbuildinfo",
       "**/pnpm-lock.yaml",
       "**/package-lock.json",

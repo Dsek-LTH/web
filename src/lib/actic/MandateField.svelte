@@ -49,8 +49,7 @@
 
     {#if value?.mode === "year"}
       <label class="flex items-center gap-2 text-sm">
-        <span class="text-muted-foreground">{m.actic_mandate_year_label()}</span
-        >
+        <span class="text-muted-foreground">{m.actic_field_year()}</span>
         <Input type="number" class="{FIELD_BG} w-24" bind:value={value.year} />
       </label>
     {:else if value?.mode === "custom"}

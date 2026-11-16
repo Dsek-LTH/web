@@ -1,11 +1,9 @@
 <script lang="ts">
   import * as Tabs from "$lib/components/ui/tabs";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
-  import { Textarea } from "$lib/components/ui/textarea/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import { FIELD_BG } from "$lib/actic/fieldStyles";
+  import SourceEditor from "$lib/actic/SourceEditor.svelte";
   import type { Snippet } from "svelte";
   import {
     Download,
@@ -38,12 +36,12 @@
 <div class="layout-container flex flex-col gap-4">
   <Button variant="ghost" href="/actic" class="self-start">
     <ChevronLeft class="mr-1 h-4 w-4" />
-    {m.actic_back()}
+    {m.back()}
   </Button>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <!-- Left: form -->
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-7">
       <div class="flex items-center justify-between gap-4">
         <p class="text-muted-foreground text-sm">{writer.activeType.blurb()}</p>
         <Tabs.Root value={writer.advanced ? "advanced" : "guided"}>
@@ -77,19 +75,26 @@
               />
               <div class="flex flex-col items-start gap-2">
                 <p>{m.actic_forked_notice()}</p>
-                <Button variant="outline" size="sm" onclick={() => writer.resetFork()}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onclick={() => writer.resetFork()}
                   >{m.actic_forked_reset()}</Button
                 >
               </div>
             </div>
           {/if}
-          <Textarea
-            id="source"
+          <SourceEditor
             bind:value={writer.manualSource}
+            diagnostics={writer.diagnostics}
             oninput={() => (writer.forked = true)}
-            spellcheck={false}
-            class="{FIELD_BG} min-h-[32rem] font-mono text-sm"
           />
+          <div class="flex justify-end">
+            <Button variant="outline" onclick={() => writer.downloadSource()}>
+              <FileCode class="mr-2 h-4 w-4" />
+              {m.actic_download_source()}
+            </Button>
+          </div>
         </div>
       {:else}
         {@render children?.()}
@@ -102,7 +107,6 @@
     >
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <Label>{m.actic_preview_label()}</Label>
           {#if writer.compiling}
             <Spinner class="text-muted-foreground h-4 w-4" />
           {/if}
@@ -116,10 +120,6 @@
           >
             <Save class="mr-1 h-4 w-4" />
             {m.actic_draft_save()}
-          </Button>
-          <Button onclick={() => writer.downloadSource()}>
-            <FileCode class="mr-2 h-4 w-4" />
-            {m.actic_download_source()}
           </Button>
           <Button
             onclick={() => writer.download()}
@@ -139,11 +139,11 @@
         class="bg-muted border-border min-h-[28rem] overflow-auto rounded-md border p-4 lg:min-h-0 lg:flex-1"
       >
         {#if writer.error}
-          <p
-            class="text-destructive mb-4 text-sm break-words whitespace-pre-wrap"
-          >
-            {writer.error}
-          </p>
+          <div class="bg-muted sticky top-0 z-10 pb-4">
+            <p class="text-destructive text-sm break-words whitespace-pre-wrap">
+              {writer.error}
+            </p>
+          </div>
         {/if}
         {#if !writer.ready && !writer.forked}
           <div class="py-6 text-sm">

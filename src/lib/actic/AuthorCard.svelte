@@ -180,7 +180,7 @@
 
   <div class="flex flex-col gap-1">
     <Label for={`author-position-${index}`} class="text-xs"
-      >{m.actic_author_position()}</Label
+      >{m.actic_field_position()}</Label
     >
     <PositionInput
       id={`author-position-${index}`}

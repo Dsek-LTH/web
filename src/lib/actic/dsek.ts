@@ -16,14 +16,18 @@ export type FamilyId =
   | "deliberation"
   | "equal-treatment-plan"
   | "requirements-profile"
-  | "nomination";
+  | "nomination"
+  | "plan-of-operations"
+  | "plain-document";
 
 /** Every concrete document template actic can produce. */
 export type DocumentTypeId =
   | DeliberationTypeId
   | "equal-treatment-plan"
   | "requirements-profile"
-  | "nomination";
+  | "nomination"
+  | "plan-of-operations"
+  | "plain-document";
 
 /** A value picked from the package `strings` (a key path) or typed freely. */
 export type KeyedValue =
@@ -99,6 +103,19 @@ export type DocumentInput =
       candidates: CandidateGroup[];
       statsEnabled: boolean;
       yrkanden?: YrkandenInput;
+    })
+  | (CommonInput & {
+      family: "plan-of-operations";
+      /** The year the plan is active for. */
+      year: number;
+    })
+  | (CommonInput & {
+      family: "plain-document";
+      title: string;
+      meeting: string;
+      /** The header's document-type label (the template's `doc-type`). */
+      docType: string;
+      useCoverPage: boolean;
     });
 
 export type FamilyGroup = "meetings" | "other";
@@ -145,6 +162,22 @@ export const FAMILIES: FamilyMeta[] = [
     hasResolutions: true,
     hasMeeting: true,
     typeIds: ["nomination"],
+  },
+  {
+    id: "plan-of-operations",
+    group: "other",
+    hasAuthors: false,
+    hasResolutions: false,
+    hasMeeting: false,
+    typeIds: ["plan-of-operations"],
+  },
+  {
+    id: "plain-document",
+    group: "other",
+    hasAuthors: false,
+    hasResolutions: false,
+    hasMeeting: true,
+    typeIds: ["plain-document"],
   },
 ];
 
@@ -206,6 +239,20 @@ export const DOCUMENT_TYPES: DocumentTypeMeta[] = [
     typstFunction: "nomination-proposal",
     label: m.actic_type_nomination,
     blurb: m.actic_type_nomination_blurb,
+  },
+  {
+    id: "plan-of-operations",
+    family: "plan-of-operations",
+    typstFunction: "plan-of-operations",
+    label: m.actic_type_planOfOperations,
+    blurb: m.actic_type_planOfOperations_blurb,
+  },
+  {
+    id: "plain-document",
+    family: "plain-document",
+    typstFunction: "plain-document",
+    label: m.actic_type_plainDocument,
+    blurb: m.actic_type_plainDocument_blurb,
   },
 ];
 
@@ -469,6 +516,40 @@ function nominationSource(
   );
 }
 
+function planOfOperationsSource(
+  input: Extract<DocumentInput, { family: "plan-of-operations" }>,
+): string {
+  // The package default is next year, so emit `year` explicitly — a saved
+  // draft must mean the same thing next year (same rationale as the
+  // requirements profile's mandate year).
+  const showArgs = [`  year: ${input.year}`, ...langDateArgs(input)];
+  return assemble(
+    "plan-of-operations",
+    showArgs,
+    [input.body.trim()].filter(Boolean),
+  );
+}
+
+function plainDocumentSource(
+  input: Extract<DocumentInput, { family: "plain-document" }>,
+): string {
+  // `meeting` is optional (the template defaults to `none`), so only emit it
+  // when filled — the header then just shows the date.
+  const meeting = input.meeting.trim();
+  const showArgs = [
+    `  title: ${content(input.title)}`,
+    ...(meeting ? [`  meeting: ${content(meeting)}`] : []),
+    `  doc-type: ${q(input.docType)}`,
+    `  use-cover-page: ${input.useCoverPage}`,
+    ...langDateArgs(input),
+  ];
+  return assemble(
+    "plain-document",
+    showArgs,
+    [input.body.trim()].filter(Boolean),
+  );
+}
+
 /** Build the full Typst source for a document of any family. */
 export function buildDocumentSource(input: DocumentInput): string {
   switch (input.family) {
@@ -480,6 +561,10 @@ export function buildDocumentSource(input: DocumentInput): string {
       return requirementsProfileSource(input);
     case "nomination":
       return nominationSource(input);
+    case "plan-of-operations":
+      return planOfOperationsSource(input);
+    case "plain-document":
+      return plainDocumentSource(input);
   }
 }
 
@@ -515,6 +600,12 @@ export function validateDocument(input: DocumentInput): string[] {
       if (!input.authors.some((a) => a.name.trim()))
         out.push(m.actic_missing_authors());
       break;
+    case "plan-of-operations":
+      // The year is always set; nothing is required.
+      break;
+    case "plain-document":
+      if (!input.title.trim()) out.push(m.actic_missing_title());
+      break;
   }
   return out;
 }
@@ -544,6 +635,16 @@ export function hasDocumentContent(input: DocumentInput): boolean {
         input.body.trim() ||
         input.candidates.length > 0
       );
+    case "plan-of-operations":
+      // The year alone isn't content — it sits on the package default.
+      return !!input.body.trim();
+    case "plain-document":
+      return !!(
+        input.title.trim() ||
+        input.meeting.trim() ||
+        input.docType.trim() ||
+        input.body.trim()
+      );
   }
 }
 
@@ -560,6 +661,16 @@ export function documentSlug(input: DocumentInput): string {
       return `kravprofil-${keyedSlug(input.position)}`;
     case "nomination":
       return `nomination-${slugify(input.meeting)}-${slugify(input.title)}`;
+    case "plan-of-operations":
+      return `verksamhetsplan-${input.year}`;
+    case "plain-document": {
+      // `meeting` is optional, so empty parts fall away instead of becoming
+      // the "dokument" fallback.
+      const parts = [input.meeting, input.title]
+        .filter((value) => value.trim())
+        .map((value) => slugify(value));
+      return parts.length > 0 ? `dokument-${parts.join("-")}` : "dokument";
+    }
   }
 }
 

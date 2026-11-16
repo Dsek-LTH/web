@@ -3,7 +3,11 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import AuthorsField from "$lib/actic/AuthorsField.svelte";
   import ResolutionsField from "$lib/actic/ResolutionsField.svelte";
-  import { DOCUMENT_TYPES, type DeliberationTypeId, type DocumentInput } from "$lib/actic/dsek";
+  import {
+    DOCUMENT_TYPES,
+    type DeliberationTypeId,
+    type DocumentInput,
+  } from "$lib/actic/dsek";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
@@ -61,7 +65,10 @@
         id="title"
         class={FIELD_BG}
         bind:value={title}
-        placeholder={m.actic_field_title_placeholder()}
+        placeholder={m.actic_field_title_placeholder(
+          {},
+          { locale: writer.lang },
+        )}
         aria-invalid={writer.touched.title && !title.trim()}
         onblur={() => (writer.touched.title = true)}
       />
@@ -84,13 +91,13 @@
 
   <!-- document type -->
   <div class="flex flex-wrap items-end gap-4">
-    <div class="flex flex-col gap-1.5">
+    <div class="flex w-full flex-col gap-1.5">
       <Label>{m.actic_field_type()}</Label>
       <div class="border-border flex overflow-hidden rounded-md border">
         {#each familyTypes as type (type.id)}
           <button
             type="button"
-            class="px-3 py-1.5 text-sm whitespace-nowrap"
+            class="flex-1 px-3 py-1.5 text-sm whitespace-nowrap"
             class:bg-primary={deliberationType === type.id}
             class:text-primary-foreground={deliberationType === type.id}
             onclick={() => (deliberationType = type.id as DeliberationTypeId)}

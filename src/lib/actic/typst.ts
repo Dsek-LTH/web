@@ -1,4 +1,5 @@
 import rendererWasmUrl from "@myriaddreamin/typst-ts-renderer/wasm?url";
+import { layoutPages } from "./pageLayout";
 
 /** A file made available to the compiler at a virtual path (e.g. a signature). */
 export type TypstFile = { path: string; bytes: Uint8Array };
@@ -125,57 +126,13 @@ export async function createPreview(
   return { update };
 }
 
-const SVG_NS = "http://www.w3.org/2000/svg";
-const PAGE_GAP = 16;
-
 function applySvg(root: ShadowRoot, svg: string) {
   const box = document.createElement("div");
   box.innerHTML = svg;
   const next = box.firstElementChild as SVGElement | null;
   if (!next) return;
-  addPageBackgrounds(next);
+  layoutPages(next);
   const prev = root.querySelector("svg");
   if (prev) prev.replaceWith(next);
   else root.append(next);
-}
-
-/**
- * Typst renders all pages into one `<svg>` stacked edge-to-edge. Paint each
- * page white and pull them apart by a small gap so multi-page documents read
- * as separate sheets (the gap shows the preview's background through).
- */
-function addPageBackgrounds(svg: SVGElement) {
-  const pages = [...svg.querySelectorAll("g.typst-page")];
-  if (pages.length === 0) return;
-  const viewBox = (svg.getAttribute("viewBox") ?? "0 0 0 0")
-    .trim()
-    .split(/\s+/)
-    .map(Number);
-  const width = viewBox[2] ?? 0;
-  const height = viewBox[3] ?? 0;
-  const pageHeight = height / pages.length;
-
-  pages.forEach((page, i) => {
-    if (pages.length > 1) {
-      page.setAttribute(
-        "transform",
-        `translate(0, ${i * (pageHeight + PAGE_GAP)})`,
-      );
-    }
-    const rect = document.createElementNS(SVG_NS, "rect");
-    rect.setAttribute("x", "0");
-    rect.setAttribute("y", "0");
-    rect.setAttribute("width", String(width));
-    rect.setAttribute("height", String(pageHeight));
-    rect.setAttribute("fill", "#ffffff");
-    rect.setAttribute("pointer-events", "none");
-    page.insertBefore(rect, page.firstChild);
-  });
-
-  if (pages.length > 1) {
-    const newHeight = height + PAGE_GAP * (pages.length - 1);
-    svg.setAttribute("viewBox", `0 0 ${width} ${newHeight}`);
-    svg.setAttribute("height", String(newHeight));
-    svg.setAttribute("data-height", String(newHeight));
-  }
 }
