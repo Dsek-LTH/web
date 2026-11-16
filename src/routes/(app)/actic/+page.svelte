@@ -73,9 +73,11 @@
     return formatter.format(-Math.round(hours / 24), "day");
   }
 
-  /** Per-row hover treatment shared by the two portals. */
+  /** Per-row treatment shared by the two portals — rows sit inside the
+   *  divided box (the same surface as the form fields), so the hover has to
+   *  read on that tint rather than on the page background. */
   const ROW =
-    "flex items-baseline justify-between gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-secondary-hover";
+    "flex items-baseline justify-between gap-3 px-3 py-2 transition-colors hover:bg-foreground/5";
 </script>
 
 <SetPageTitle title={m.actic_title()} />
@@ -151,9 +153,9 @@
         {/if}
       </div>
       {#if showAllDrafts}
-        <!-- The full list, one divided box. -->
+        <!-- The full list, one divided box — white like the collapsed cards. -->
         <div
-          class="border-border bg-background divide-border divide-y overflow-hidden rounded-lg border"
+          class="border-border divide-border divide-y overflow-hidden rounded-lg border shadow-xs"
         >
           {#each drafts as draft (draft.id)}
             <div
@@ -180,7 +182,9 @@
         </div>
       {:else}
         <!-- One row of the most recent drafts. -->
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          class="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
           {#each recentDrafts as draft (draft.id)}
             <div
               class="border-border hover:border-foreground/30 relative flex items-center gap-2.5 rounded-lg border p-3 transition-colors hover:shadow-sm"
@@ -206,7 +210,7 @@
           {#if drafts.length > RECENT_DRAFTS}
             <button
               type="button"
-              class="text-muted-foreground hover:border-foreground/30 hover:text-foreground flex items-center justify-center rounded-lg border p-3 text-sm transition-colors hover:shadow-sm"
+              class="text-muted-foreground hover:border-foreground/30 hover:text-foreground flex items-center justify-center self-stretch rounded-lg border p-3 text-sm transition-colors hover:shadow-sm"
               onclick={() => (showAllDrafts = true)}
             >
               {m.actic_landing_more_drafts({
@@ -219,7 +223,7 @@
     </section>
   {/if}
 
-  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+  <div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
     <!-- Write portal: every document type, one row each. -->
     <section
       class="border-border bg-background flex flex-col rounded-lg border p-5"
@@ -240,26 +244,32 @@
           <h3 class="text-muted-foreground mt-4 mb-1 text-xs font-medium">
             {group.label}
           </h3>
-          {#each group.types as type (type.id)}
-            <a
-              href={resolve(`/actic/write/${type.family}`)}
-              class={ROW}
-              title={type.blurb()}
-              onclick={() => sessionStorage.setItem("actic.newType", type.id)}
-            >
-              <span class="shrink-0 text-sm">{type.label()}</span>
-              <span
-                class="text-muted-foreground min-w-0 truncate text-right text-xs"
+          <!-- One divided box per group, like the expanded drafts list. -->
+          <div
+            class="border-border bg-muted-background divide-border divide-y overflow-hidden rounded-lg border shadow-xs"
+          >
+            {#each group.types as type (type.id)}
+              <a
+                href={resolve(`/actic/write/${type.family}`)}
+                class={ROW}
+                title={type.blurb()}
+                onclick={() => sessionStorage.setItem("actic.newType", type.id)}
               >
-                {type.blurb()}
-              </span>
-            </a>
-          {/each}
+                <span class="shrink-0 text-sm">{type.label()}</span>
+                <span
+                  class="text-muted-foreground min-w-0 truncate text-right text-xs"
+                >
+                  {type.blurb()}
+                </span>
+              </a>
+            {/each}
+          </div>
         {/if}
       {/each}
-      <p
-        class="text-muted-foreground my-auto pt-5 text-center text-xs leading-relaxed"
-      >
+      <!-- Equal breathing room above and below (~2 text lines each), since the
+           section now sizes to its own content instead of matching the diff
+           portal's height. -->
+      <p class="text-muted-foreground my-8 text-center text-xs leading-relaxed">
         {m.actic_landing_write_hint()}
         <a class="link" href="https://typst.app/universe/package/dsek">
           {m.actic_landing_write_hint_link()}
@@ -307,11 +317,16 @@
             <h3 class="text-muted-foreground mt-4 mb-1 text-xs font-medium">
               {diffGroupLabels[group.id]()}
             </h3>
-            {#each group.docs as document (document.slug)}
-              <a href={resolve(`/actic/diff/${document.slug}`)} class={ROW}>
-                <span class="text-sm">{document.title}</span>
-              </a>
-            {/each}
+            <!-- One divided box per group, like the expanded drafts list. -->
+            <div
+              class="border-border bg-muted-background divide-border divide-y overflow-hidden rounded-lg border shadow-xs"
+            >
+              {#each group.docs as document (document.slug)}
+                <a href={resolve(`/actic/diff/${document.slug}`)} class={ROW}>
+                  <span class="text-sm">{document.title}</span>
+                </a>
+              {/each}
+            </div>
           {/each}
         {/if}
       {/await}

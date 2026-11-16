@@ -64,26 +64,29 @@
         </Tabs.Root>
       </div>
 
+      {#if writer.forked}
+        <!-- Shown in both modes: once the source has been edited by hand, the
+             guided fields no longer drive the preview. -->
+        <div
+          class="border-alert-warning-background bg-alert-warning-background/15 flex items-start gap-2 rounded-md border p-3 text-sm"
+        >
+          <TriangleAlert
+            class="text-alert-warning-background mt-0.5 h-4 w-4 shrink-0"
+          />
+          <div class="flex flex-col items-start gap-2">
+            <p>{m.actic_forked_notice()}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onclick={() => writer.resetFork()}
+              >{m.actic_forked_reset()}</Button
+            >
+          </div>
+        </div>
+      {/if}
+
       {#if writer.advanced}
         <div class="flex flex-col gap-2">
-          {#if writer.forked}
-            <div
-              class="border-alert-warning-background bg-alert-warning-background/15 flex items-start gap-2 rounded-md border p-3 text-sm"
-            >
-              <TriangleAlert
-                class="text-alert-warning-background mt-0.5 h-4 w-4 shrink-0"
-              />
-              <div class="flex flex-col items-start gap-2">
-                <p>{m.actic_forked_notice()}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onclick={() => writer.resetFork()}
-                  >{m.actic_forked_reset()}</Button
-                >
-              </div>
-            </div>
-          {/if}
           <SourceEditor
             bind:value={writer.manualSource}
             diagnostics={writer.diagnostics}

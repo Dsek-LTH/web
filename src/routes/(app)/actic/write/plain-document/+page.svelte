@@ -74,13 +74,13 @@
 
   <label
     class={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm transition-colors ${
-      useCoverPage ? "border-primary bg-primary/5" : ""
+      useCoverPage ? "border-rosa-background bg-rosa-background/5" : ""
     }`}
   >
     <input
       type="checkbox"
       bind:checked={useCoverPage}
-      class="accent-primary mt-0.5"
+      class="accent-rosa-background mt-0.5"
     />
     <span class="flex flex-col gap-1">
       <span>{m.actic_field_coverPage()}</span>

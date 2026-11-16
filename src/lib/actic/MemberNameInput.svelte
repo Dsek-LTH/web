@@ -14,7 +14,6 @@
     id,
     placeholder,
     invalid = false,
-    errorMessage = "",
     unstyled = false,
     onblur,
     oninput,
@@ -25,7 +24,6 @@
     id?: string;
     placeholder?: string;
     invalid?: boolean;
-    errorMessage?: string;
     /** Render without the boxed input look, for rows in a shared list box. */
     unstyled?: boolean;
     onblur?: () => void;
@@ -142,7 +140,6 @@
       ? `${uid}-suggestion-${activeIndex}`
       : undefined}
     aria-invalid={invalid}
-    aria-errormessage={errorMessage}
     {onkeydown}
     oninput={() => {
       search(value);

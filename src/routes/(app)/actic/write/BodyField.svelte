@@ -64,8 +64,8 @@
             <button
               type="button"
               class="px-3 py-1.5 text-sm whitespace-nowrap"
-              class:bg-primary={writer.lang === "sv"}
-              class:text-primary-foreground={writer.lang === "sv"}
+              class:bg-rosa-background={writer.lang === "sv"}
+              class:text-rosa-foreground={writer.lang === "sv"}
               onclick={() => (writer.lang = "sv")}
             >
               Svenska
@@ -73,8 +73,8 @@
             <button
               type="button"
               class="px-3 py-1.5 text-sm whitespace-nowrap"
-              class:bg-primary={writer.lang === "en"}
-              class:text-primary-foreground={writer.lang === "en"}
+              class:bg-rosa-background={writer.lang === "en"}
+              class:text-rosa-foreground={writer.lang === "en"}
               onclick={() => (writer.lang = "en")}
             >
               English

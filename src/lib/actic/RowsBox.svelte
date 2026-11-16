@@ -162,7 +162,7 @@
      adding more — no add button needed. -->
 <div
   bind:this={box}
-  class={`${FIELD_BG} flex flex-col rounded-md border ${className}`}
+  class={`${FIELD_BG} flex flex-col rounded-md border shadow-xs ${className}`}
 >
   <DragDropProvider
     onDragStart={() => (lastSlot = null)}

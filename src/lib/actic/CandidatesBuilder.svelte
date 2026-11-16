@@ -60,9 +60,13 @@
   function statValue(index: number): string {
     return `${index * STAT_STEP} -- ${index * STAT_STEP + STAT_STEP - 1}`;
   }
-  /** Leaving the editor empty commits the displayed default, never a ghost. */
+  /** Leaving the editor commits the canonical `--` form — never a ghost, and
+   *  never the loose form the user happened to type. */
   function commitStatEdit(candidate: CandidateRow) {
-    if (!candidate.stat.trim()) candidate.stat = statValue(0);
+    const trimmed = candidate.stat.trim();
+    candidate.stat = trimmed
+      ? trimmed.replace(/(\d)\s*-{1,2}\s*(\d)/g, "$1 -- $2")
+      : statValue(0);
     editingStatId = null;
   }
 
@@ -146,6 +150,26 @@
 </script>
 
 <div class="flex flex-col gap-3">
+  <!-- The toggle sits above the list so enabling it doesn't shift the
+       positions the member is already looking at. -->
+  <label
+    class={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm transition-colors ${
+      statsEnabled ? "border-rosa-background bg-rosa-background/5" : ""
+    }`}
+  >
+    <input
+      type="checkbox"
+      bind:checked={statsEnabled}
+      class="accent-rosa-background mt-0.5"
+    />
+    <span class="flex flex-col gap-1">
+      <span>{m.actic_stats_toggle()}</span>
+      <span class="text-muted-foreground text-xs"
+        >{m.actic_stats_description()}</span
+      >
+    </span>
+  </label>
+
   <DragDropProvider
     onDragStart={() => (snapshot = candidates)}
     {onDragOver}
@@ -359,22 +383,4 @@
     <Plus class="h-4 w-4" />
     {m.actic_candidate_add_position()}
   </button>
-
-  <label
-    class={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm transition-colors ${
-      statsEnabled ? "border-primary bg-primary/5" : ""
-    }`}
-  >
-    <input
-      type="checkbox"
-      bind:checked={statsEnabled}
-      class="accent-primary mt-0.5"
-    />
-    <span class="flex flex-col gap-1">
-      <span>{m.actic_stats_toggle()}</span>
-      <span class="text-muted-foreground text-xs"
-        >{m.actic_stats_description()}</span
-      >
-    </span>
-  </label>
 </div>

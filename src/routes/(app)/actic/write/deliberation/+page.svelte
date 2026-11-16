@@ -98,8 +98,8 @@
           <button
             type="button"
             class="flex-1 px-3 py-1.5 text-sm whitespace-nowrap"
-            class:bg-primary={deliberationType === type.id}
-            class:text-primary-foreground={deliberationType === type.id}
+            class:bg-rosa-background={deliberationType === type.id}
+            class:text-rosa-foreground={deliberationType === type.id}
             onclick={() => (deliberationType = type.id as DeliberationTypeId)}
           >
             {type.label()}

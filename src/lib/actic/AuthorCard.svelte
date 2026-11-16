@@ -41,9 +41,8 @@
   let dropActive = $state(false);
   let signatureError = $state("");
   let nameTouched = $state(false);
-  let nameError = $derived(
-    nameTouched && !author.name.trim() ? m.actic_author_name_required() : "",
-  );
+  // Same treatment as the other required fields: red border, no extra text.
+  let nameInvalid = $derived(nameTouched && !author.name.trim());
 
   async function handleFile(file: File | undefined) {
     signatureError = "";
@@ -133,7 +132,7 @@
     {:else}
       <button
         type="button"
-        class="text-muted-foreground flex min-h-16 flex-col items-center justify-center gap-1 rounded border border-dashed px-2 py-3 text-xs"
+        class="text-muted-foreground flex min-h-16 flex-col items-center justify-center gap-1 rounded-md border border-dashed px-2 py-3 text-xs"
         class:border-primary={dropActive}
         onclick={() => fileInput?.click()}
         ondragover={(e) => {
@@ -172,8 +171,7 @@
       id={`author-name-${index}`}
       bind:value={author.name}
       placeholder={m.actic_author_name_placeholder()}
-      invalid={!!nameError}
-      errorMessage={nameError}
+      invalid={nameInvalid}
       onblur={() => (nameTouched = true)}
     />
   </div>

@@ -12,7 +12,7 @@
     keymap,
     lineNumbers,
   } from "@codemirror/view";
-  import { Compartment, EditorState } from "@codemirror/state";
+  import { Annotation, Compartment, EditorState } from "@codemirror/state";
   import {
     defaultKeymap,
     history,
@@ -56,6 +56,7 @@
   import * as m from "$paraglide/messages";
   import type { TypstDiagnostic } from "./diagnostics";
   import { typstKeywordCompletion } from "./typstCompletions";
+  import { hangingIndent } from "./hangingIndent";
 
   let {
     value = $bindable(""),
@@ -86,6 +87,9 @@
   // Theme and line wrapping are swapped through these compartments.
   const chromeCompartment = new Compartment();
   const wrapCompartment = new Compartment();
+
+  /** Marks transactions the component itself made (draft loads, reset). */
+  const externalSync = Annotation.define<boolean>();
 
   // Muted, low-contrast palette: light mode follows the official Typst web
   // app's roles toned toward the foreground; dark mode lifts them onto
@@ -260,6 +264,7 @@
         highlightSelectionMatches(),
         search({ top: true }),
         typst_lezer(),
+        hangingIndent(),
         chrome,
         wrapCompartment.of([]),
         chromeCompartment.of([lightChrome, syntaxHighlighting(lightHighlight)]),
@@ -290,7 +295,12 @@
           indentWithTab,
         ]),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
+          // Programmatic pushes (draft loads, reset) change the doc but must
+          // not count as the user editing it.
+          if (
+            update.docChanged &&
+            !update.transactions.some((tr) => tr.annotation(externalSync))
+          ) {
             value = update.state.doc.toString();
             oninput?.();
           }
@@ -333,6 +343,7 @@
     if (view && next !== view.state.doc.toString()) {
       view.dispatch({
         changes: { from: 0, to: view.state.doc.length, insert: next },
+        annotations: externalSync.of(true),
       });
     }
   });
