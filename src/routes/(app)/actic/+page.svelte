@@ -282,6 +282,11 @@
         <h2 class="text-base font-semibold">
           {m.documents_governing_editDocument()}
         </h2>
+        <span
+          class="bg-rosa-100 text-rosa-600 dark:bg-rosa-400/15 dark:text-rosa-300 rounded-full px-2 py-0.5 text-xs font-bold tracking-widest uppercase"
+        >
+          Beta
+        </span>
       </div>
       <p class="text-muted-foreground mt-1.5 text-sm">
         {m.actic_diff_description()}
