@@ -28,7 +28,7 @@ func (e *environment) getICS(t *testing.T, path, acceptLanguage string) string {
 func TestCalendarFeedHeader(t *testing.T) {
 	e := requireDB(t)
 	const header = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\n" +
-		"PRODID:-//D-sektionen//Events//SV\r\nMETHOD:PUBLISH\r\nX-PUBLISHED-TTL:PT1H\r\n"
+		"PRODID:-//D-sektionen//Events//SV\r\nMETHOD:PUBLISH\r\nX-PUBLISHED-TTL:PT24H\r\n"
 	for _, path := range []string{"/events.ics", "/nollning/events.ics"} {
 		body := e.getICS(t, path, "")
 		head := strings.TrimSuffix(body, "END:VCALENDAR\r\n")
