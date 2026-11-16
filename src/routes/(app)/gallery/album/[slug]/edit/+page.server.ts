@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
 import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
@@ -135,7 +135,7 @@ export const actions: Actions = {
 
     // Remove files from MinIO before deleting the album record
     // to avoid orphaned objects if the deletion fails
-    await removeFilesWithoutAccessCheck(user, PUBLIC_BUCKETS_ALBUMS, [
+    await removeFilesWithoutAccessCheck(user, publicEnv.PUBLIC_BUCKETS_ALBUMS, [
       `public/${album.id}/album/`,
       `public/${album.id}/cover/`,
     ]);

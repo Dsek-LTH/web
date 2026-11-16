@@ -1,7 +1,4 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_BUCKETS_FILES,
-} from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { rename } = vi.hoisted(() => ({ rename: vi.fn() }));
@@ -44,14 +41,14 @@ describe("documents editFile", () => {
 
     await editFile({
       id: "public/2026/HTM1/Folder/Motion.pdf",
-      bucket: PUBLIC_BUCKETS_DOCUMENTS,
+      bucket: publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       name: "Motion2.pdf",
       group: "New",
     });
 
     expect(rename).toHaveBeenCalledWith(
       undefined,
-      PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       "public/2026/HTM1/Folder/Motion.pdf",
       "Motion2.pdf",
     );
@@ -66,7 +63,7 @@ describe("documents editFile", () => {
 
     await editFile({
       id: "public/2026/HTM1/Motion.pdf",
-      bucket: PUBLIC_BUCKETS_DOCUMENTS,
+      bucket: publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       name: "Motion.pdf",
       group: "",
     });
@@ -82,7 +79,7 @@ describe("documents editFile", () => {
 
     await editFile({
       id: "public/2026/HTM1/Motion.pdf",
-      bucket: PUBLIC_BUCKETS_DOCUMENTS,
+      bucket: publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       name: "Motion$&.pdf",
       group: "Old",
     });
@@ -99,7 +96,7 @@ describe("documents editFile", () => {
 
     await editFile({
       id: "public/2026/HTM1/Motion.pdf",
-      bucket: PUBLIC_BUCKETS_DOCUMENTS,
+      bucket: publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       name: "Motion2.pdf",
       group: "",
     });
@@ -112,7 +109,7 @@ describe("documents editFile", () => {
 
     const result = await editFile({
       id: "public/2026/HTM1/Motion.pdf",
-      bucket: PUBLIC_BUCKETS_DOCUMENTS,
+      bucket: publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       name: "Motion2.pdf",
       group: "New",
     });
@@ -127,7 +124,7 @@ describe("documents editFile", () => {
   it("does not write a sidecar for old-format SRD files", async () => {
     await editFile({
       id: "public/srd/2026/protokoll.pdf",
-      bucket: PUBLIC_BUCKETS_FILES,
+      bucket: publicEnv.PUBLIC_BUCKETS_FILES,
       name: "protokoll.pdf",
       group: "",
     });
@@ -138,7 +135,7 @@ describe("documents editFile", () => {
   it("rejects renaming a file to the sidecar name", async () => {
     await editFile({
       id: "public/2026/HTM1/Motion.pdf",
-      bucket: PUBLIC_BUCKETS_DOCUMENTS,
+      bucket: publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       name: "_groups.json",
       group: "",
     });

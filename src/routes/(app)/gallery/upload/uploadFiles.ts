@@ -1,7 +1,7 @@
 import { uploadFile } from "$lib/files/uploadFiles";
 import type { AuthUser } from "@zenstackhq/runtime";
 import type { UploadSchema } from "./types";
-import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 
 export const uploadAlbumFiles = async (
   user: AuthUser,
@@ -9,7 +9,7 @@ export const uploadAlbumFiles = async (
   albumId: string,
 ) => {
   const prefix = "public/" + albumId + "/album";
-  const bucket = PUBLIC_BUCKETS_ALBUMS;
+  const bucket = publicEnv.PUBLIC_BUCKETS_ALBUMS;
 
   const tasks: Array<Promise<string>> = [];
   Array.from(data.albumFiles).forEach((file) => {
@@ -24,7 +24,7 @@ export const uploadCoverFile = async (
   albumId: string,
 ) => {
   const prefix = "public/" + albumId + "/cover";
-  const bucket = PUBLIC_BUCKETS_ALBUMS;
+  const bucket = publicEnv.PUBLIC_BUCKETS_ALBUMS;
   const file = data.coverFile ? data.coverFile : data.albumFiles[0];
   if (!file) {
     throw new Error("Empty album cannot be uploaded");

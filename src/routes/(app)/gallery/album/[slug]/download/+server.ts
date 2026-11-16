@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import minio from "$lib/files/minio";
 import { ZipArchive } from "archiver";
 import { error } from "@sveltejs/kit";
@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     error(404, "Album not found");
   }
 
-  const bucket = PUBLIC_BUCKETS_ALBUMS;
+  const bucket = publicEnv.PUBLIC_BUCKETS_ALBUMS;
   const albumPrefix = `public/${album.id}/album/`;
   const coverPrefix = `public/${album.id}/cover/`;
 

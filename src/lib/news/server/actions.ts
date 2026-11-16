@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { uploadFile } from "$lib/files/uploadFiles";
 import { resolveImages } from "$lib/news/cover";
 import { createSchema, updateSchema } from "$lib/news/schema";
@@ -18,7 +18,7 @@ import {
   type ScheduleSuccess,
 } from "$lib/server/scheduleExecution";
 import { announceArticle } from "./notifications";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { getDecryptedJWT } from "$lib/server/getDecryptedJWT";
 
 const uploadImage = async (user: AuthUser, image: File, slug: string) => {
@@ -27,7 +27,7 @@ const uploadImage = async (user: AuthUser, image: File, slug: string) => {
     user,
     image,
     `public/news/${slug}`,
-    PUBLIC_BUCKETS_FILES,
+    publicEnv.PUBLIC_BUCKETS_FILES,
     randomName,
     {
       resize: {

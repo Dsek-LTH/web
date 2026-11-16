@@ -1,6 +1,7 @@
 import "temporal-polyfill/global";
-import { env } from "$env/dynamic/private";
-import { env as envPublic } from "$env/dynamic/public";
+import { building } from "$app/environment";
+import { env, validateEnv } from "$lib/server/env";
+import { publicEnv } from "$lib/env/public";
 import { createMember } from "$lib/utils/member";
 import { themes, type Theme } from "$lib/utils/themes";
 import {
@@ -23,6 +24,7 @@ import {
   redirect,
   type Handle,
   type HandleServerError,
+  type ServerInit,
 } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
@@ -44,6 +46,10 @@ import {
   inflightRequests,
 } from "$lib/server/metrics";
 
+export const init: ServerInit = () => {
+  if (!building) validateEnv();
+};
+
 const { handle: authHandle } = SvelteKitAuth({
   secret: env.AUTH_SECRET,
   trustHost: true,
@@ -51,7 +57,7 @@ const { handle: authHandle } = SvelteKitAuth({
     Authentik({
       clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
       clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-      issuer: envPublic.PUBLIC_AUTH_AUTHENTIK_ISSUER,
+      issuer: publicEnv.PUBLIC_AUTH_AUTHENTIK_ISSUER,
       profile: (profile: AuthentikProfile) => {
         return {
           id: profile.sub,
@@ -92,7 +98,7 @@ const { handle: authHandle } = SvelteKitAuth({
         const newToken = await fetchNewToken(token, {
           clientId: env.AUTH_AUTHENTIK_CLIENT_ID,
           clientSecret: env.AUTH_AUTHENTIK_CLIENT_SECRET,
-          tokenEndpoint: envPublic.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
+          tokenEndpoint: publicEnv.PUBLIC_AUTH_AUTHENTIK_TOKEN_ENDPOINT,
         });
 
         const accessToken = newToken.access_token as string;

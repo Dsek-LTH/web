@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/public";
+import { publicEnv } from "$lib/env/public";
 import {
   signIn as authSignIn,
   signOut as authSignOut,
@@ -11,7 +11,7 @@ export function signIn() {
 
 export function signOut() {
   return authSignOut({
-    redirectTo: `${env.PUBLIC_AUTH_AUTHENTIK_ISSUER}end-session/`,
+    redirectTo: `${publicEnv.PUBLIC_AUTH_AUTHENTIK_ISSUER}end-session/`,
   });
 }
 

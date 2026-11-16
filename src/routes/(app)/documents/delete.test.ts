@@ -1,7 +1,4 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_BUCKETS_FILES,
-} from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import apiNames from "$lib/utils/apiNames";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -43,17 +40,17 @@ describe("documents deleteFile", () => {
   it("deletes SRD meeting documents from the files bucket", async () => {
     const id = "public/srd/2026/SRD1/protokoll.pdf";
 
-    await deleteFile(id, PUBLIC_BUCKETS_FILES);
+    await deleteFile(id, publicEnv.PUBLIC_BUCKETS_FILES);
 
-    expect(remove).toHaveBeenCalledWith(undefined, PUBLIC_BUCKETS_FILES, [id]);
+    expect(remove).toHaveBeenCalledWith(undefined, publicEnv.PUBLIC_BUCKETS_FILES, [id]);
   });
 
   it("deletes meeting documents from the documents bucket", async () => {
     const id = "public/2026/HTM1/protokoll.pdf";
 
-    await deleteFile(id, PUBLIC_BUCKETS_DOCUMENTS);
+    await deleteFile(id, publicEnv.PUBLIC_BUCKETS_DOCUMENTS);
 
-    expect(remove).toHaveBeenCalledWith(undefined, PUBLIC_BUCKETS_DOCUMENTS, [
+    expect(remove).toHaveBeenCalledWith(undefined, publicEnv.PUBLIC_BUCKETS_DOCUMENTS, [
       id,
     ]);
   });
@@ -65,14 +62,14 @@ describe("documents deleteFile", () => {
     );
     const id = "public/2026/HTM1/protokoll.pdf";
 
-    await deleteFile(id, PUBLIC_BUCKETS_DOCUMENTS);
+    await deleteFile(id, publicEnv.PUBLIC_BUCKETS_DOCUMENTS);
 
     expect(updateGroupMap).toHaveBeenCalledWith(
       undefined,
-      PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       "public/2026/HTM1",
       expect.any(Function),
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).DELETE,
     );
     expect(map).toEqual({});
     expect(remove.mock.invocationCallOrder[0]).toBeLessThan(
@@ -91,7 +88,7 @@ describe("documents deleteFile", () => {
 
     await deleteFile(
       "public/2026/HTM1/Folder/protokoll.pdf",
-      PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
     );
 
     expect(map).toEqual({ "protokoll.pdf": "Other" });

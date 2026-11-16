@@ -6,7 +6,7 @@
   import type { AlbumSchema } from "./schema";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
-  import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+  import { publicEnv } from "$lib/env/public";
   import * as Collapsible from "$lib/components/ui/collapsible";
   import { Button } from "$lib/components/ui/button";
   import { Separator } from "$lib/components/ui/separator";
@@ -17,7 +17,7 @@
   let albums: AlbumSchema[] = $derived(data.albums as AlbumSchema[]);
   let canCreate = $derived(
     isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_ALBUMS).CREATE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_ALBUMS).CREATE,
       data.user,
     ),
   );

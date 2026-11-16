@@ -1,5 +1,5 @@
 import { Meilisearch } from "meilisearch";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 
 let meilisearch: Meilisearch | undefined;
 

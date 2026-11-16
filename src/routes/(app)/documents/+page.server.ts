@@ -1,7 +1,4 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_BUCKETS_FILES,
-} from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
@@ -62,7 +59,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const documentsFiles: FileData[] = await fileHandler
     .getInBucket(
       user,
-      PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       "public/" + year + "/" + (prefixByType[type] ?? ""),
       true,
     )
@@ -74,7 +71,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   const documentsGroupMaps = await readGroupMaps(
     user,
-    PUBLIC_BUCKETS_DOCUMENTS,
+    publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
     documentsFiles,
     `public/${year}/`,
   );
@@ -93,7 +90,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
     case dt.SRDMeeting: {
       const srdFiles: FileData[] = await fileHandler
-        .getInBucket(user, PUBLIC_BUCKETS_FILES, "public/srd/" + year, true)
+        .getInBucket(
+          user,
+          publicEnv.PUBLIC_BUCKETS_FILES,
+          "public/srd/" + year,
+          true,
+        )
         .catch((err) => {
           console.error("Error fetching files", err);
           loadError = true;
@@ -101,7 +103,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         });
       const srdGroupMaps = await readGroupMaps(
         user,
-        PUBLIC_BUCKETS_FILES,
+        publicEnv.PUBLIC_BUCKETS_FILES,
         srdFiles,
         `public/srd/${year}/`,
       );
@@ -164,8 +166,8 @@ async function readGroupMaps(
 }
 
 const documentBuckets = [
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_BUCKETS_FILES,
+  publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
+  publicEnv.PUBLIC_BUCKETS_FILES,
 ] as const;
 
 const deleteSchema = deleteFileSchema.extend({
@@ -210,8 +212,8 @@ export const actions: Actions = {
     const meetingFolder = getMeetingFolder(
       id,
       bucket,
-      PUBLIC_BUCKETS_DOCUMENTS,
-      PUBLIC_BUCKETS_FILES,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_FILES,
     );
     // Delete the object first so a failed delete never strips a surviving
     // file's group. If the sidecar update then fails, the stale key only
@@ -250,7 +252,7 @@ export const actions: Actions = {
     }
 
     const isOldSrdFile =
-      bucket === PUBLIC_BUCKETS_FILES &&
+      bucket === publicEnv.PUBLIC_BUCKETS_FILES &&
       id.startsWith("public/srd/") &&
       id.split("/").length === 4;
     const meetingFolder = isOldSrdFile
@@ -258,8 +260,8 @@ export const actions: Actions = {
       : getMeetingFolder(
           id,
           bucket,
-          PUBLIC_BUCKETS_DOCUMENTS,
-          PUBLIC_BUCKETS_FILES,
+          publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
+          publicEnv.PUBLIC_BUCKETS_FILES,
         );
     if (!meetingFolder && !isOldSrdFile) {
       return message(

@@ -1,4 +1,4 @@
-import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
 import type { AlbumSchema } from "../../schema";
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     pictures = await fileHandler
       .getInBucket(
         user,
-        PUBLIC_BUCKETS_ALBUMS,
+        publicEnv.PUBLIC_BUCKETS_ALBUMS,
         "public/" + album.id + "/album",
         true,
       )
@@ -44,7 +44,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     cover = await fileHandler
       .getInBucket(
         user,
-        PUBLIC_BUCKETS_ALBUMS,
+        publicEnv.PUBLIC_BUCKETS_ALBUMS,
         "public/" + album.id + "/cover",
         true,
       )

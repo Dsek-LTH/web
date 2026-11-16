@@ -85,9 +85,6 @@ const apiNames = {
   DOOR: {
     ...crud("core:access:door"),
   },
-  YRKA: {
-    SEND: "yrka:send",
-  },
   SONG: {
     ...crud("song"),
   },

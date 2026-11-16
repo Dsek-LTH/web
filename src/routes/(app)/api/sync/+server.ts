@@ -1,3 +1,4 @@
+import { env } from "$lib/server/env";
 import type { RequestHandler } from "./$types";
 import meilisearchSync from "$lib/search/sync";
 import { error } from "@sveltejs/kit";
@@ -6,7 +7,7 @@ export const POST: RequestHandler = async ({ request }) => {
   // extract body
   const body = await request.text();
 
-  if (body === process.env["SYNC_PASSWORD"]) {
+  if (env.SYNC_PASSWORD && body === env.SYNC_PASSWORD) {
     try {
       meilisearchSync();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- exception should be any

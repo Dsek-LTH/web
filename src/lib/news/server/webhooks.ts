@@ -1,3 +1,4 @@
+import { env } from "$lib/server/env";
 import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
@@ -110,8 +111,7 @@ export const sendNewArticleWebhook = async (
           name: `${member?.firstName} ${member?.lastName} ${title ? "| " + title : ""}`,
           icon_url: member?.picturePath,
         },
-        // Default to development URL
-        url: `${process.env["ORIGIN"] ?? "http://localhost:5173"}/news/${article.slug}`,
+        url: `${env.ORIGIN}/news/${article.slug}`,
         description: description,
         color: color,
         footer: {

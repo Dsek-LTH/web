@@ -5,10 +5,7 @@
   import { MediaQuery, SvelteURLSearchParams } from "svelte/reactivity";
   import { fly, slide } from "svelte/transition";
   import type { PageData } from "./$types";
-  import {
-    PUBLIC_BUCKETS_DOCUMENTS,
-    PUBLIC_BUCKETS_FILES,
-  } from "$env/static/public";
+  import { publicEnv } from "$lib/env/public";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import * as m from "$paraglide/messages";
@@ -106,27 +103,27 @@
 
   let canCreate = $derived(
     isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).CREATE,
       data.user,
     ),
   );
   let canDelete = $derived(
     isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).DELETE,
       data.user,
     ) ||
       isAuthorized(
-        apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).DELETE,
+        apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_FILES).DELETE,
         data.user,
       ),
   );
   let canUpdate = $derived(
     isAuthorized(
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).UPDATE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).UPDATE,
       data.user,
     ) ||
       isAuthorized(
-        apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).UPDATE,
+        apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_FILES).UPDATE,
         data.user,
       ),
   );

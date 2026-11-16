@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 
 const PRISMA_LOG_LEVELS = ["silent", "writes", "all"] as const;
 type PRISMA_LOG_LEVEL = (typeof PRISMA_LOG_LEVELS)[number];

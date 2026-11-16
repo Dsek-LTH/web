@@ -1,10 +1,10 @@
 import { timingSafeEqual } from "node:crypto";
 import type { RequestHandler } from "@sveltejs/kit";
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { registerMetrics } from "$lib/server/metrics";
 
 const isAuthorized = (header: string | null) => {
-  const token = env["METRICS_TOKEN"];
+  const token = env.METRICS_TOKEN;
   if (!token || !header) return false;
   const expected = Buffer.from(`Bearer ${token}`);
   const actual = Buffer.from(header);

@@ -1,7 +1,4 @@
-import {
-  PUBLIC_BUCKETS_DOCUMENTS,
-  PUBLIC_BUCKETS_FILES,
-} from "$env/static/public";
+import { publicEnv } from "$lib/env/public";
 import apiNames from "$lib/utils/apiNames";
 import type { AuthUser } from "@zenstackhq/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -76,15 +73,15 @@ describe("uploadDocumentsFile", () => {
       user,
       form.file,
       "public/2026/HTM1",
-      PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       "Motion",
     );
     expect(updateGroupMap).toHaveBeenCalledWith(
       user,
-      PUBLIC_BUCKETS_DOCUMENTS,
+      publicEnv.PUBLIC_BUCKETS_DOCUMENTS,
       "public/2026/HTM1",
       expect.any(Function),
-      apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).CREATE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).CREATE,
     );
     expect(map).toEqual({ "Motion.pdf": "Fika" });
   });
@@ -119,7 +116,7 @@ describe("uploadDocumentsFile", () => {
       user,
       expect.any(File),
       "public/kravprofiler/2026/EDAF05",
-      PUBLIC_BUCKETS_FILES,
+      publicEnv.PUBLIC_BUCKETS_FILES,
       "Motion",
     );
   });

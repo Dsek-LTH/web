@@ -1,5 +1,5 @@
-import { env } from "$env/dynamic/private";
-import { PUBLIC_BUCKETS_DOCUMENTS } from "$env/static/public";
+import { env } from "$lib/server/env";
+import { publicEnv } from "$lib/env/public";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import servePdf from "$lib/utils/servePdf";
 import { error, type NumericRange } from "@sveltejs/kit";
@@ -100,11 +100,11 @@ export const syncMeetingDocuments = async () => {
   // and we don't have a user here
   const fileUser: AuthUser = {
     roles: [""],
-    policies: [apiNames.FILES.BUCKET(PUBLIC_BUCKETS_DOCUMENTS).READ],
+    policies: [apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).READ],
   };
 
   const files = await fileHandler
-    .getInBucket(fileUser, PUBLIC_BUCKETS_DOCUMENTS, "", true)
+    .getInBucket(fileUser, publicEnv.PUBLIC_BUCKETS_DOCUMENTS, "", true)
     .catch((err) => {
       console.error("Error fetching files", err);
       return [];

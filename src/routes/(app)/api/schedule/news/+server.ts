@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import { env } from "$lib/server/env";
 import { announceArticle } from "$lib/news/server/notifications";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import type { RequestHandler } from "@sveltejs/kit";
