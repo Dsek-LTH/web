@@ -191,14 +191,18 @@ export class DiffSession {
   saveDraftNow() {
     if (!this.dirty || !this.source.trim()) return;
     const id = this.draftId ?? crypto.randomUUID();
-    saveDraft({
+    const draft: DiffDraft = {
       kind: "diff",
       id,
       updatedAt: Date.now(),
       slug: this.slug,
       title: this.title,
       source: this.source,
-    });
+    };
+    if (!saveDraft(draft)) {
+      toast(m.actic_draft_save_error(), "error");
+      return;
+    }
     this.draftId = id;
     this.savedSource = this.source;
     toast(m.actic_draft_saved(), "success");

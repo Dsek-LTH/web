@@ -35,8 +35,8 @@
   });
 
   const writer = new Writer({
-    getInput: (): DocumentInput => ({
-      ...writer.commonInput(),
+    getInput: (w): DocumentInput => ({
+      ...w.commonInput(),
       family: "requirements-profile",
       position: position ?? null,
       requirements: requirements.map((r) => r.value),

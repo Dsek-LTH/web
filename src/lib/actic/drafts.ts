@@ -140,16 +140,26 @@ export function getDraft(id: string): Draft | undefined {
   return listDrafts().find((draft) => draft.id === id);
 }
 
-export function saveDraft(draft: Draft): void {
-  if (!hasStorage()) return;
+/** Persists the draft; false when storage is unavailable or full. */
+export function saveDraft(draft: Draft): boolean {
+  if (!hasStorage()) return false;
   const rest = listDrafts().filter((d) => d.id !== draft.id);
-  localStorage.setItem(KEY, JSON.stringify([draft, ...rest].slice(0, MAX)));
+  try {
+    localStorage.setItem(KEY, JSON.stringify([draft, ...rest].slice(0, MAX)));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function deleteDraft(id: string): void {
   if (!hasStorage()) return;
-  localStorage.setItem(
-    KEY,
-    JSON.stringify(listDrafts().filter((draft) => draft.id !== id)),
-  );
+  try {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(listDrafts().filter((draft) => draft.id !== id)),
+    );
+  } catch {
+    // Nothing to do — the draft stays in the list.
+  }
 }

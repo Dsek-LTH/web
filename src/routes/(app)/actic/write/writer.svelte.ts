@@ -1,5 +1,5 @@
 import { tick } from "svelte";
-import { SvelteDate } from "svelte/reactivity";
+import { SvelteDate, SvelteURLSearchParams } from "svelte/reactivity";
 import { page } from "$app/state";
 import {
   buildDocumentSource,
@@ -91,10 +91,14 @@ export class Writer {
 
   // --- drafts & download -----------------------------------------------------
   downloading = $state(false);
-  dirty = $state(false);
+  /** The form's signature when it was last saved or restored; `dirty` is the diff. */
+  private savedForm = $state("");
+  dirty = $derived(this.formSignature() !== this.savedForm);
   readonly draftId: string | null = page.url.searchParams.get("draft");
+  /** The draft being edited: the `?draft=` one, or the first save's new id. */
+  private currentDraftId: string | null = this.draftId;
 
-  private readonly getInput: () => DocumentInput;
+  private readonly getInput: (writer: Writer) => DocumentInput;
   private readonly applyFamilyDraft: (draft: WriteDraft) => void;
   private readonly buildFamilyDraft: () => Partial<WriteDraft>;
   private draftLoaded = false;
@@ -103,24 +107,31 @@ export class Writer {
   private lastRenderMs = 0;
   private previewPromise: Promise<Preview> | null = null;
   private previewRoot: ShadowRoot | null = null;
-  private skipFirstDirtyCheck = true;
 
   constructor({
     getInput,
     applyFamilyDraft = () => undefined,
     buildFamilyDraft = () => ({}),
   }: {
-    getInput: () => DocumentInput;
+    /**
+     * Receives the writer itself, because the constructor (via the dirty
+     * baseline) reads the input while the page's `writer` binding is still
+     * initializing — a closure over the binding would be a TDZ error.
+     */
+    getInput: (writer: Writer) => DocumentInput;
     applyFamilyDraft?: (draft: WriteDraft) => void;
     buildFamilyDraft?: () => Partial<WriteDraft>;
   }) {
     this.getInput = getInput;
     this.applyFamilyDraft = applyFamilyDraft;
     this.buildFamilyDraft = buildFamilyDraft;
+    // Dirty tracking diffs the form against this baseline, so programmatic
+    // writes (like a draft restore) never mark it dirty.
+    this.savedForm = this.formSignature();
   }
 
   // --- derivations -----------------------------------------------------------
-  input = $derived.by(() => this.getInput());
+  input = $derived.by(() => this.getInput(this));
   activeType = $derived.by(() =>
     this.input.family === "deliberation"
       ? getDocumentType(this.input.type)
@@ -253,19 +264,12 @@ export class Writer {
             restoreSignature(s.path, s.dataUrl),
           ),
         );
+        // Don't clobber anything the user managed to type meanwhile.
+        if (this.dirty) return;
         this.applyDraft(draft);
+        // The restore isn't a user edit — rebase dirty tracking on it.
+        this.savedForm = this.formSignature();
       })();
-    });
-
-    // Touch every field so any change marks the form dirty. Reading the input
-    // covers the family fields too (through the page's getter).
-    $effect(() => {
-      void [this.input, this.leadIn, this.yrkanden, this.authors];
-      if (this.skipFirstDirtyCheck) {
-        this.skipFirstDirtyCheck = false;
-        return;
-      }
-      this.dirty = true;
     });
 
     $effect(() => {
@@ -289,6 +293,16 @@ export class Writer {
   }
 
   // --- drafts ----------------------------------------------------------------
+  /** A serialized snapshot of every tracked field, for dirty tracking. */
+  private formSignature(): string {
+    return JSON.stringify([
+      this.input,
+      this.leadIn,
+      this.yrkanden,
+      this.authors,
+    ]);
+  }
+
   applyDraft(draft: WriteDraft) {
     this.authors = draft.authors.length
       ? draft.authors.map((author) => ({ ...author, id: nextId("author") }))
@@ -306,7 +320,7 @@ export class Writer {
   private buildDraft(): WriteDraft {
     return {
       kind: "write",
-      id: this.draftId ?? crypto.randomUUID(),
+      id: this.currentDraftId ?? crypto.randomUUID(),
       updatedAt: Date.now(),
       family: this.input.family,
       type: this.activeType.id,
@@ -330,14 +344,25 @@ export class Writer {
     };
   }
 
-  // Load an existing draft (from `?draft=`) once, on the client after mount so
-  // that SSR and hydration agree — see `runEffects`.
-
   saveDraftNow() {
     if (!this.hasContent) return;
     const draft = this.buildDraft();
-    saveDraft(draft);
-    this.dirty = false;
+    if (!saveDraft(draft)) {
+      toast(m.actic_draft_save_error(), "error");
+      return;
+    }
+    this.currentDraftId = draft.id;
+    if (!this.draftId) {
+      // Link the page to the saved draft so a reload keeps editing it.
+      const params = new SvelteURLSearchParams(window.location.search);
+      params.set("draft", draft.id);
+      history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}?${params}${window.location.hash}`,
+      );
+    }
+    this.savedForm = this.formSignature();
     toast(m.actic_draft_saved(), "success");
   }
 

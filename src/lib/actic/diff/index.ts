@@ -12,9 +12,15 @@ export async function initTypdiff(module?: WebAssembly.Module): Promise<void> {
     ready = true;
     return;
   }
-  initialising ??= init({ module_or_path: wasmUrl }).then(() => {
-    ready = true;
-  });
+  initialising ??= init({ module_or_path: wasmUrl })
+    .then(() => {
+      ready = true;
+    })
+    .catch((error) => {
+      // Forget the failed attempt so the next call retries.
+      initialising = null;
+      throw error;
+    });
   await initialising;
 }
 

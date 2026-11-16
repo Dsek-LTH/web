@@ -14,8 +14,8 @@
   let planYear = $state<number | null>(defaultPlanYear());
 
   const writer = new Writer({
-    getInput: (): DocumentInput => ({
-      ...writer.commonInput(),
+    getInput: (w): DocumentInput => ({
+      ...w.commonInput(),
       family: "equal-treatment-plan",
       committee: committee ?? null,
       year: planYear ?? defaultPlanYear(),

@@ -21,14 +21,14 @@
   const familyTypes = DOCUMENT_TYPES.filter((t) => t.family === "deliberation");
 
   const writer = new Writer({
-    getInput: (): DocumentInput => ({
-      ...writer.commonInput(),
+    getInput: (w): DocumentInput => ({
+      ...w.commonInput(),
       family: "deliberation",
       type: deliberationType,
       title,
       meeting,
-      authors: writer.authors,
-      yrkanden: { leadIn: writer.leadIn, items: writer.yrkanden },
+      authors: w.authors,
+      yrkanden: { leadIn: w.leadIn, items: w.yrkanden },
     }),
     applyFamilyDraft: (draft) => {
       if (draft.family === "deliberation") {

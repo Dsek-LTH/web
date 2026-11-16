@@ -1928,6 +1928,7 @@
   "actic_download_source": "Ladda ner källkod",
   "actic_draft_save": "Spara utkast",
   "actic_draft_saved": "Utkast sparat",
+  "actic_draft_save_error": "Kunde inte spara utkastet - lagringen kan vara full",
   "actic_body_placeholder": "Redan de gamla grekerna…",
   "gallery_uploadAlbum": "Ladda upp album",
   "gallery_upload_date": "Datum",

@@ -147,7 +147,7 @@
 
 <div class="flex flex-col gap-3">
   <DragDropProvider
-    onDragStart={() => (snapshot = $state.snapshot(candidates))}
+    onDragStart={() => (snapshot = candidates)}
     {onDragOver}
     onDragEnd={(event) => {
       if (event.canceled) candidates = snapshot;

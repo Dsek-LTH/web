@@ -12,8 +12,8 @@
   let planYear = $state<number | null>(defaultPlanYear());
 
   const writer = new Writer({
-    getInput: (): DocumentInput => ({
-      ...writer.commonInput(),
+    getInput: (w): DocumentInput => ({
+      ...w.commonInput(),
       family: "plan-of-operations",
       year: planYear ?? defaultPlanYear(),
     }),

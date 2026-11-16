@@ -30,15 +30,15 @@
   let statsEnabled = $state(false);
 
   const writer = new Writer({
-    getInput: (): DocumentInput => ({
-      ...writer.commonInput(),
+    getInput: (w): DocumentInput => ({
+      ...w.commonInput(),
       family: "nomination",
       title,
       meeting,
-      authors: writer.authors,
-      candidates: toCandidateGroups(candidates),
+      authors: w.authors,
+      candidates: toCandidateGroups(candidates, w.lang),
       statsEnabled,
-      yrkanden: { leadIn: writer.leadIn, items: writer.yrkanden },
+      yrkanden: { leadIn: w.leadIn, items: w.yrkanden },
     }),
     applyFamilyDraft: (draft) => {
       title = draft.title;
@@ -64,9 +64,9 @@
     }),
   });
 
-  function toCandidateGroups(rows: CandidateRow[]) {
+  function toCandidateGroups(rows: CandidateRow[], lang: "sv" | "en") {
     return rows.map((row) => ({
-      position: keyedLabel(row.position, writer.lang === "en"),
+      position: keyedLabel(row.position, lang === "en"),
       nominees: row.nominees.map((n) => n.name),
       stat: row.stat,
     }));

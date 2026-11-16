@@ -46,6 +46,40 @@ function headers(): HeadersInit {
 const cache = new Map<string, { value: unknown; expiresAt: number }>();
 const inFlight = new Map<string, Promise<unknown>>();
 
+/** How many GitHub requests to keep in flight at once. */
+const FETCH_CONCURRENCY = 10;
+
+/**
+ * Like `Promise.allSettled` over a `map`, but with at most `limit` promises
+ * in flight — so a few hundred documents don't fire hundreds of simultaneous
+ * GitHub requests.
+ */
+async function mapSettled<T, R>(
+  items: T[],
+  limit: number,
+  load: (item: T) => Promise<R>,
+): Promise<Array<PromiseSettledResult<R>>> {
+  const results = new Array<PromiseSettledResult<R>>(items.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const index = next++;
+      try {
+        results[index] = {
+          status: "fulfilled",
+          value: await load(items[index]!),
+        };
+      } catch (reason) {
+        results[index] = { status: "rejected", reason };
+      }
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, () => worker()),
+  );
+  return results;
+}
+
 function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
   const now = Date.now();
   const hit = cache.get(key);
@@ -75,7 +109,8 @@ export function resetGoverningCacheForTests(): void {
 }
 
 export function getGoverningCatalog(): Promise<GoverningGroup[]> {
-  return cached("catalog", async () => {
+  // Key on the ref so switching STYRDOKUMENT_REF isn't served stale entries.
+  return cached(`catalog:${repoRef()}`, async () => {
     const response = await fetch(
       `https://api.github.com/repos/${REPO}/git/trees/${repoRef()}?recursive=1`,
       { headers: headers() },
@@ -98,9 +133,7 @@ export function getGoverningCatalog(): Promise<GoverningGroup[]> {
     // Titles and groups are read from each document's head (the `#show:`
     // wrapper and its `subject`), so new documents need no list updates
     // here. Failed head fetches fall back to path-derived descriptions.
-    const results = await Promise.allSettled(
-      paths.map((path) => fetchHead(path)),
-    );
+    const results = await mapSettled(paths, FETCH_CONCURRENCY, fetchHead);
     return buildCatalog(
       paths.map((path, index) => {
         const result = results[index];
@@ -155,7 +188,7 @@ async function fetchAsset(assetPath: string): Promise<string> {
 export function loadGoverningSource(
   document: GoverningDocument,
 ): Promise<GoverningSource> {
-  return cached(`source:${document.path}`, async () => {
+  return cached(`source:${repoRef()}:${document.path}`, async () => {
     const sourceResponse = await fetch(
       `https://raw.githubusercontent.com/${REPO}/${repoRef()}/${document.path}`,
       { headers: headers() },
@@ -185,9 +218,7 @@ export function loadGoverningSource(
       .map((match) => match[1]!)
       .filter((path) => path.startsWith("/grafik/") && !path.includes(".."));
 
-    const results = await Promise.allSettled(
-      assetPaths.map((assetPath) => fetchAsset(assetPath)),
-    );
+    const results = await mapSettled(assetPaths, FETCH_CONCURRENCY, fetchAsset);
 
     const assets: GoverningAsset[] = [];
     let assetWarning = false;

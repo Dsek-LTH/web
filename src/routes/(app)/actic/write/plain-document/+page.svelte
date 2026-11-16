@@ -14,8 +14,8 @@
   let useCoverPage = $state(false);
 
   const writer = new Writer({
-    getInput: (): DocumentInput => ({
-      ...writer.commonInput(),
+    getInput: (w): DocumentInput => ({
+      ...w.commonInput(),
       family: "plain-document",
       title,
       meeting,

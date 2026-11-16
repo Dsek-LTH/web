@@ -51,7 +51,10 @@
   let activeIndex = $state(-1);
   const uid = $props.id();
 
+  /** Bumped on every new search (and on picks) so stale responses drop out. */
+  let searchToken = 0;
   const search = debounce(async (query: string) => {
+    const token = ++searchToken;
     if (!query) {
       results = [];
       open = false;
@@ -61,8 +64,11 @@
     url.searchParams.set("search", query);
     try {
       const response = await fetch(url);
-      results = response.ok ? (await response.json()).slice(0, 6) : [];
+      const members = response.ok ? ((await response.json()) as Member[]) : [];
+      if (token !== searchToken) return;
+      results = members.slice(0, 6);
     } catch {
+      if (token !== searchToken) return;
       results = [];
     }
     activeIndex = -1;
@@ -85,6 +91,10 @@
   }
 
   function pick(member: Member) {
+    // Invalidate any in-flight or pending search so it can't reopen the
+    // dropdown with stale results after the pick.
+    searchToken++;
+    search.cancel();
     value = displayName(member);
     results = [];
     activeIndex = -1;
@@ -127,8 +137,9 @@
     autocomplete="off"
     role="combobox"
     aria-expanded={open}
+    aria-controls={open ? `${uid}-suggestions` : undefined}
     aria-activedescendant={open && activeIndex >= 0
-      ? `${uid}-suggestion`
+      ? `${uid}-suggestion-${activeIndex}`
       : undefined}
     aria-invalid={invalid}
     aria-errormessage={errorMessage}
@@ -155,7 +166,7 @@
         <li role="presentation">
           <button
             type="button"
-            id={`${uid}-suggestion`}
+            id={`${uid}-suggestion-${i}`}
             role="option"
             aria-selected={activeIndex === i}
             class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
