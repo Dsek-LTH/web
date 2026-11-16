@@ -53,9 +53,6 @@
 <div class="flex flex-col gap-10">
   <!-- Hero Section -->
   <header class="flex flex-col gap-4">
-    <p class="text-primary font-mono text-sm tracking-widest uppercase">
-      {m.volunteer_header_for_new()}
-    </p>
     <h1
       class="font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl"
     >
