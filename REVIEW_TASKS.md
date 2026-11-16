@@ -439,7 +439,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - New: `notifications.Service.PutSettings` deletes then inserts row by row.
 - Fix: run it in a transaction.
 
-### [ ] T33 Nollning layout streams and has a stale hardcoded date
+### [x] T33 Nollning layout streams and has a stale hardcoded date
 
 - New: `routes/(nollning)/nollning/+layout.server.ts` returns unawaited
   promises (streams every page with status 200, see AGENTS.md gotchas) and
