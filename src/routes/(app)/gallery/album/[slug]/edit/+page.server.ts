@@ -1,0 +1,156 @@
+import { PUBLIC_BUCKETS_ALBUMS } from "$env/static/public";
+import { removeFilesWithoutAccessCheck } from "$lib/files/fileHandler";
+import apiNames from "$lib/utils/apiNames";
+import { authorize } from "$lib/utils/authorization";
+import { findAvailableSlug, slugifyWithYear } from "$lib/utils/slugify";
+import { error, fail, redirect } from "@sveltejs/kit";
+import * as m from "$paraglide/messages";
+import { redirect as flashRedirect } from "sveltekit-flash-message/server";
+import { zod4 } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import { editSchema } from "../types";
+import type { Actions, PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = async ({ locals, params }) => {
+  const { prisma, user } = locals;
+
+  authorize(apiNames.GALLERY.UPDATE, user);
+
+  const album = await prisma.album.findFirst({
+    where: { slug: params.slug },
+    include: {
+      photographers: true,
+      editors: true,
+    },
+  });
+
+  if (!album) {
+    error(404, "Album not found");
+  }
+
+  return {
+    id: album.id,
+    slug: params.slug,
+    form: await superValidate(
+      {
+        title: album.title,
+        date: album.date,
+        description: album.description ?? undefined,
+        photographers: album.photographers.map(({ ...member }) => member),
+        editors: album.editors.map(({ ...member }) => member),
+      },
+      zod4(editSchema),
+    ),
+  };
+};
+
+export const actions: Actions = {
+  save: async (event) => {
+    const { request, locals, params } = event;
+    const { prisma } = locals;
+
+    const form = await superValidate(
+      await request.formData(),
+      zod4(editSchema),
+    );
+
+    if (!form.valid) {
+      return fail(400, { form });
+    }
+
+    const { title, date, description, photographers, editors } = form.data;
+    const album = await prisma.album.findFirst({
+      where: { slug: params.slug },
+      select: { id: true },
+    });
+
+    if (!album) {
+      error(404, "Album not found");
+    }
+
+    const baseSlug = slugifyWithYear(title, new Date(date).getFullYear());
+    const newSlug = await findAvailableSlug(baseSlug, async (candidate) =>
+      Boolean(
+        await prisma.album.findFirst({
+          where: { slug: candidate, id: { not: album.id } },
+        }),
+      ),
+    );
+
+    const photographerStudentIds = photographers.flatMap((member) =>
+      member.studentId ? [member.studentId] : [],
+    );
+    const editorStudentIds = editors.flatMap((member) =>
+      member.studentId ? [member.studentId] : [],
+    );
+
+    const [existingPhotographers, existingEditors] = await Promise.all([
+      prisma.member.findMany({
+        where: {
+          studentId: { in: photographerStudentIds },
+        },
+        select: { id: true },
+      }),
+      prisma.member.findMany({
+        where: {
+          studentId: { in: editorStudentIds },
+        },
+        select: { id: true },
+      }),
+    ]);
+
+    await prisma.album.update({
+      where: { id: album.id },
+      data: {
+        title,
+        slug: newSlug,
+        description,
+        date: new Date(date),
+        updatedAt: new Date(date),
+        photographers: {
+          set: existingPhotographers,
+        },
+        editors: {
+          set: existingEditors,
+        },
+      },
+    });
+
+    throw redirect(303, `/gallery/album/${newSlug}`);
+  },
+
+  delete: async (event) => {
+    const { locals, params } = event;
+    const { prisma, user } = locals;
+    authorize(apiNames.GALLERY.DELETE, user);
+
+    const album = await prisma.album.findFirst({
+      where: { slug: params.slug },
+      select: { id: true },
+    });
+
+    if (!album) {
+      error(404, "Album not found");
+    }
+
+    // Remove files from MinIO before deleting the album record
+    // to avoid orphaned objects if the deletion fails
+    await removeFilesWithoutAccessCheck(user, PUBLIC_BUCKETS_ALBUMS, [
+      `public/${album.id}/album/`,
+      `public/${album.id}/cover/`,
+    ]);
+
+    await prisma.album.delete({
+      where: { id: album.id },
+    });
+
+    throw flashRedirect(
+      "/gallery",
+      {
+        message: m.gallery_album_deleted(),
+        type: "success",
+      },
+      event,
+    );
+  },
+};
