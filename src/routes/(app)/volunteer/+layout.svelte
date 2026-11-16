@@ -40,7 +40,7 @@
   <!-- Desktop Sidebar Navigation / Mobile Scrollable Tab Navigation -->
   <aside class="w-full shrink-0 md:sticky md:top-24 md:w-64">
     <nav
-      class="scrollbar-none flex flex-row gap-2 overflow-x-auto pb-4 md:flex-col md:overflow-x-visible md:pb-0"
+      class="flex scrollbar-none flex-row gap-2 overflow-x-auto pb-4 md:flex-col md:overflow-x-visible md:pb-0"
     >
       {#each steps as step (step.path)}
         {@const isActive = currentPath === resolve(step.path)}

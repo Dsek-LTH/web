@@ -10,6 +10,7 @@ import * as m from "$paraglide/messages";
 import { pingUri } from "minecraft-server-ping";
 import { wikiDataCache } from "./wiki/wiki";
 import dayjs from "dayjs";
+import { isBirthdayOn } from "$lib/utils/birthdays";
 
 type Fetch = typeof fetch;
 export const loadHomeData = async ({
@@ -176,6 +177,35 @@ export const loadHomeData = async ({
     take: 3,
   });
 
+  // BIRTHDAYS
+  const birthdaysPromise = locals.user?.memberId
+    ? prisma.member
+        .findMany({
+          where: { birthDate: { not: null }, visible: true },
+          select: {
+            id: true,
+            studentId: true,
+            firstName: true,
+            lastName: true,
+            nickname: true,
+            picturePath: true,
+            birthDate: true,
+          },
+        })
+        .then((members) =>
+          members
+            .filter((member) => isBirthdayOn(member.birthDate, now))
+            .map((member) => ({
+              id: member.id,
+              studentId: member.studentId,
+              firstName: member.firstName,
+              lastName: member.lastName,
+              nickname: member.nickname,
+              picturePath: member.picturePath,
+            })),
+        )
+    : Promise.resolve([]);
+
   const [
     news,
     events,
@@ -186,6 +216,7 @@ export const loadHomeData = async ({
     hasActiveMandate,
     readme,
     elections,
+    birthdays,
   ] = await Promise.allSettled([
     newsPromise,
     eventsPromise,
@@ -196,6 +227,7 @@ export const loadHomeData = async ({
     hasActiveMandatePromise,
     readmePromise,
     electionsPromise,
+    birthdaysPromise,
   ]);
   if (news.status === "rejected") {
     throw error(500, "Failed to fetch news");
@@ -253,5 +285,6 @@ export const loadHomeData = async ({
     wikiData: await wikiDataCache.get(),
     minecraftStatus: minecraftStatus(),
     elections: elections.value,
+    birthdays: birthdays.status === "fulfilled" ? birthdays.value : [],
   };
 };

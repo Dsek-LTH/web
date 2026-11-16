@@ -19,7 +19,6 @@ export const publicEnvSpec = {
   PUBLIC_BUCKETS_MEMBERS: { default: "members" },
 
   PUBLIC_DISABLE_SSR_GLOBALLY: {},
-  PUBLIC_VERCEL_ENV: {},
 } satisfies EnvSpec;
 
 export const publicEnv = defineEnv(publicEnvSpec, (name) => env[name]);

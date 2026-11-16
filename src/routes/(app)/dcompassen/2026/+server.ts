@@ -25,7 +25,7 @@ export const GET: RequestHandler = async ({ locals }) => {
     throw e;
   }
 
-  return new Response(html, {
+  return new Response(new Uint8Array(html), {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       // Only behind login, so keep it out of shared caches

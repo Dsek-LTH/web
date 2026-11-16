@@ -11,6 +11,7 @@
 
   import { m } from "$paraglide/messages";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
+  import BirthdayList from "$lib/components/BirthdayList.svelte";
   import { Spinner } from "$lib/components/ui/spinner";
   import { page } from "$app/state";
   import MemberAvatar from "$lib/components/member/MemberAvatar.svelte";
@@ -113,7 +114,7 @@
           />
         {:else}
           <div
-            class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
+            class="text-muted-foreground flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
           >
             <span class="font-medium">{m.home_newsEmpty()}</span>
           </div>
@@ -142,5 +143,7 @@
         }))}
       />
     </div>
+
+    <BirthdayList birthdays={data.birthdays} />
   </div>
 </div>

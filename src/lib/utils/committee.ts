@@ -1,7 +1,7 @@
 import DOMPurify from "isomorphic-dompurify";
 
 export const breakName = (name: string) => {
-  let output = "";
+  let output: string;
   if (name.includes("utskottet"))
     output = `${name.split("utskottet")[0]}&shy;utskottet`;
   else if (name.includes("kommittén"))

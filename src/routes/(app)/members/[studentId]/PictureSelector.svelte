@@ -155,8 +155,8 @@
           cropShape="round"
           showGrid={false}
           image={avatar}
-          on:cropcomplete={(e) => {
-            crop = e.detail.pixels;
+          oncropcomplete={(e) => {
+            crop = e.pixels;
             form.update((f) => {
               f.cropX = crop.x;
               f.cropY = crop.y;

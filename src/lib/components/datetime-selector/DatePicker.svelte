@@ -78,9 +78,10 @@
   <Popover.Content bind:ref={contentRef} class="bg-background w-auto p-0">
     <Calendar
       type="single"
-      bind:value={() =>
-        value ? parseDate(value) : (null as unknown as undefined), // I would like to apologize for this
-      (date) => (value = date!.toString())}
+      bind:value={
+        () => (value ? parseDate(value) : (null as unknown as undefined)), // I would like to apologize for this
+        (date) => (value = date!.toString())
+      }
       captionLayout="dropdown"
       {weekStartsOn}
       class="rounded-md border shadow-sm"

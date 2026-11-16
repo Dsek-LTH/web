@@ -39,6 +39,7 @@ const envSpec = {
   SCHEDULER_PASSWORD: { feature: "scheduled news" },
   TICKET_SERVICE_ENDPOINT: { feature: "tickets" },
   SYNC_PASSWORD: { feature: "search sync endpoint" },
+  METRICS_TOKEN: { feature: "metrics endpoint" },
   MINECRAFT_URL: { default: "minecraft://minecraft.dsek.se" },
 
   ORIGIN: { default: "http://localhost:5173" },

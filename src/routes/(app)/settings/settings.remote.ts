@@ -3,12 +3,17 @@ import { form, getRequestEvent } from "$app/server";
 import { NotificationSettingType } from "$lib/utils/notifications/types";
 
 // Create a schema for notification settings dynamically
-// Using z.coerce.boolean() with optional to handle unchecked checkboxes
+// Optional because unchecked switches aren't part of the submitted form. Typed
+// as a boolean since form() doesn't accept undefined in an index signature.
+const switchField = z
+  .string()
+  .optional()
+  .transform(Boolean) as unknown as z.ZodBoolean;
 const schemaFields: Record<string, z.ZodBoolean> = {};
 
 Object.values(NotificationSettingType).forEach((settingType) => {
-  schemaFields[`subscription_${settingType}`] = z.coerce.boolean();
-  schemaFields[`push_${settingType}`] = z.coerce.boolean();
+  schemaFields[`subscription_${settingType}`] = switchField;
+  schemaFields[`push_${settingType}`] = switchField;
 });
 
 const settingsSchema = z.object(schemaFields).and(

@@ -25,7 +25,7 @@ spec:
           name: db-pvc
 
     - name: meilisearch
-      image: docker.io/getmeili/meilisearch:latest
+      image: docker.io/getmeili/meilisearch:v1.56
       env:
         - name: MEILI_MASTER_KEY
           value: masterKey

@@ -1,5 +1,5 @@
 import { dev } from "$app/environment";
-import client from "prom-client";
+import client from "@prometheus-io/client";
 
 // The registry outlives this module when the dev server reloads it, and
 // registering a metric name twice throws.

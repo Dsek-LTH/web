@@ -18,7 +18,7 @@
 
   let canDelete = $derived(
     isAuthorized(
-      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_DOCUMENTS).DELETE,
+      apiNames.FILES.BUCKET(publicEnv.PUBLIC_BUCKETS_FILES).DELETE,
       data.user,
     ),
   );

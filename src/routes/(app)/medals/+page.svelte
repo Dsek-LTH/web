@@ -13,24 +13,16 @@
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import { page } from "$app/state";
   import {
-    dateToSemester,
     semesterTerm,
     semesterYear,
-    parseSemesterFromString,
     type Semester,
   } from "$lib/utils/semesters";
 
   let { data } = $props();
 
-  let semester = $derived.by((): Semester => {
-    const param = page.url.searchParams.get("semester");
-    if (!param) return dateToSemester(new Date());
-    try {
-      return parseSemesterFromString(param, () => new Error("invalid"));
-    } catch {
-      return dateToSemester(new Date());
-    }
-  });
+  let semester = $derived(data.semester);
+  let canGoPrevious = $derived(semester > data.minSemester);
+  let canGoNext = $derived(semester < data.maxSemester);
 
   const semesterToString = (s: Semester) =>
     `${semesterTerm(s)} ${semesterYear(s)}`;
@@ -48,25 +40,29 @@
   <div class="mb-6 flex items-center justify-between">
     <h1 class="text-3xl font-bold">{m.medals_pageTitle()}</h1>
     <div class="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="icon"
-        href={semesterHref(semester - 1)}
-        aria-label={m.medals_previousSemester()}
-      >
-        <ChevronLeft class="h-4 w-4" />
-      </Button>
+      {#if canGoPrevious}
+        <Button
+          variant="outline"
+          size="icon"
+          href={semesterHref(semester - 1)}
+          aria-label={m.medals_previousSemester()}
+        >
+          <ChevronLeft class="h-4 w-4" />
+        </Button>
+      {/if}
       <span class="min-w-20 text-center font-medium">
         {semesterToString(semester)}
       </span>
-      <Button
-        variant="outline"
-        size="icon"
-        href={semesterHref(semester + 1)}
-        aria-label={m.medals_nextSemester()}
-      >
-        <ChevronRight class="h-4 w-4" />
-      </Button>
+      {#if canGoNext}
+        <Button
+          variant="outline"
+          size="icon"
+          href={semesterHref(semester + 1)}
+          aria-label={m.medals_nextSemester()}
+        >
+          <ChevronRight class="h-4 w-4" />
+        </Button>
+      {/if}
     </div>
   </div>
 

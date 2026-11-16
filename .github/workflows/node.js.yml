@@ -7,7 +7,6 @@ on:
   push:
     branches: ["main", "new-design"]
   pull_request:
-    branches: ["main", "new-design"]
 
 env:
   HUSKY: 0
@@ -31,17 +30,15 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
         with:
           # fetch-tags: true # This should be enough, see https://github.com/actions/checkout/issues/1471
           fetch-depth: 0
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v6
+      - name: Use Node.js
+        uses: actions/setup-node@v7
         with:
-          version: 9
-      - name: Use Node.js latest LTS
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
+          node-version-file: .nvmrc
           cache: "pnpm"
       - run: pnpm i
       - run: pnpm prisma migrate deploy

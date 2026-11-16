@@ -29,8 +29,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         url: governingDocument.url,
         title: governingDocument.title,
         type: governingDocument.type as
-          | typeof DocumentType.POLICY
-          | typeof DocumentType.GUIDELINE,
+          typeof DocumentType.POLICY | typeof DocumentType.GUIDELINE,
       },
       zod4(governingDocumentSchema),
     ),

@@ -132,10 +132,10 @@
       </a>
     {:else}
       <div
-        class="col-span-full flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/20 bg-muted/5 py-16 px-4 text-center shadow-sm animate-in fade-in duration-500"
+        class="border-muted-foreground/20 bg-muted/5 animate-in fade-in col-span-full flex flex-col items-center justify-center rounded-xl border border-dashed px-4 py-16 text-center shadow-sm duration-500"
       >
         <div
-          class="bg-primary/10 text-primary mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-primary/20 shadow-lg shadow-primary/5"
+          class="bg-primary/10 text-primary border-primary/20 shadow-primary/5 mb-6 flex h-16 w-16 items-center justify-center rounded-full border shadow-lg"
         >
           <MusicIcon class="h-8 w-8" />
         </div>

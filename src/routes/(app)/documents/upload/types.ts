@@ -1,12 +1,20 @@
 import * as m from "$paraglide/messages";
 import type { Infer } from "sveltekit-superforms";
 import { z } from "zod";
+import { groupNameSchema, isSafePathSegment } from "../groupName";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
 export const uploadSchema = z.object({
   type: z.enum(["meeting", "srd", "requirement"]).default("meeting"),
-  folder: z.string().default(""),
+  folder: z
+    .string()
+    .trim()
+    .default("")
+    .refine((value) => value.length > 0 && isSafePathSegment(value), {
+      message: m.documents_errors_invalidFileName(),
+    }),
+  group: groupNameSchema.default(""),
   name: z.string().default(""),
   year: z
     .number()

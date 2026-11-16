@@ -11,6 +11,7 @@
   import { m } from "$paraglide/messages";
   import { toAppTime } from "$lib/utils/datetime";
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
+  import BirthdayList from "$lib/components/BirthdayList.svelte";
   import Documents from "./Documents.svelte";
   const { data } = $props();
 </script>
@@ -118,7 +119,7 @@
         />
       {:else}
         <div
-          class="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center text-muted-foreground"
+          class="text-muted-foreground flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center"
         >
           <span class="font-medium">{m.home_newsEmpty()}</span>
         </div>
@@ -147,6 +148,8 @@
       }))}
     />
   </div>
+
+  <BirthdayList birthdays={data.birthdays} />
 
   <Documents files={data.files} />
 </div>

@@ -57,8 +57,7 @@
       >;
       doors: Array<ExtendedPrismaModel<"Door">>;
       currentMemberSearchAttributes?:
-        | (MemberSearchReturnAttributes & { id: string })
-        | null;
+        (MemberSearchReturnAttributes & { id: string }) | null;
       initialAccessMembers?: Array<
         MemberSearchReturnAttributes & { id: string }
       >;

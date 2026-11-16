@@ -4,8 +4,8 @@ The `setup.ts` script located here will take you through an interactive setup pr
 
 ## Prerequisites
 
-1. [Node.js](https://nodejs.org/)
-2. [pnpm](https://pnpm.io/)
+1. [Node.js](https://nodejs.org/) 24 (`nvm use` picks it up from `.nvmrc`)
+2. [pnpm](https://pnpm.io/) 12
 3. [Docker](https://www.docker.com/) (recommended, but not required)
 
 ## Usage

@@ -29,6 +29,22 @@ export const endDate = (semester: Semester): Date =>
 export const dateToSemester = (date: Date): Semester =>
   date.getFullYear() * 2 + (date.getMonth() >= 6 ? 1 : 0);
 
+/**
+ * The guild was founded in 1982, so no medals exist before this semester.
+ * Keeping the lower bound also stops crawlers from walking the previous/next
+ * links arbitrarily far into the past.
+ */
+export const FIRST_MEDALS_SEMESTER = semesterFromYearAndTerm(1982, "VT");
+
+/**
+ * Medals only exist from the guild's first semester up to the current semester.
+ */
+export const isMedalsSemester = (
+  semester: Semester,
+  now = new Date(),
+): boolean =>
+  semester >= FIRST_MEDALS_SEMESTER && semester <= dateToSemester(now);
+
 export const semesterRange = (start: Semester, end: Semester): Semester[] =>
   Array.from({ length: end - start + 1 }, (x, i) => start + i);
 

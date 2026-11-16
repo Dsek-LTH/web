@@ -16,7 +16,7 @@ export async function waitForTask(
   const enqueued = await fn();
   const taskUid = enqueued.taskUid;
   return await getMeilisearch()
-    .waitForTask(taskUid, { timeOutMs })
+    .tasks.waitForTask(taskUid, { timeout: timeOutMs })
     .then((task) => {
       console.log(
         `Meilisearch: "${taskName}" finished in ${Date.now() - currentTime} ms`,

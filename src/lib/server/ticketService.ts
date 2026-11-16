@@ -65,12 +65,7 @@ export type ReleaseSummary = {
 
 export type TicketQueueEntry = {
   status:
-    | "pending"
-    | "granted"
-    | "waitlisted"
-    | "accepted"
-    | "expired"
-    | "cancelled";
+    "pending" | "granted" | "waitlisted" | "accepted" | "expired" | "cancelled";
   queuePosition?: number;
   offerExpiresAt?: string;
 };
