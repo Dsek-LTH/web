@@ -8,8 +8,7 @@
   function isRouteActive(route: Route): boolean {
     const pathname = page.url.pathname + page.url.hash;
     const matches = (path: string | null | undefined) =>
-      !!path &&
-      (pathname === path || (path !== "/" && pathname.startsWith(path + "/")));
+      !!path && (pathname === path || (path !== "/" && pathname == path + "/"));
     if (matches(route.path) || matches(route.picturePath)) return true;
     return route.children?.some((child) => matches(child.path)) ?? false;
   }
