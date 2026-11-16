@@ -47,35 +47,49 @@ jobs:
             const url = `https://web-pr-${pr}.apps.okd.dsek.se`;
             const marker = '<!-- deploy-pr-preview -->';
 
-            // Delete earlier preview comments so pushes don't pile them up.
+            const buildTime = new Intl.DateTimeFormat('sv-SE', {
+              timeZone: 'Europe/Stockholm',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            }).formatToParts(new Date());
+            const part = (type) => buildTime.find((p) => p.type === type)?.value;
+            const timestamp = `${part('year')}-${part('month')}-${part('day')} ${part('hour')}:${part('minute')}`;
+
+            const body = `${marker}\nPreview image built. ArgoCD should deploy it shortly:\n\n${url}\n\nLast build: ${timestamp}`;
+
+            // Update the comment from the previous build instead of adding a new one.
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr,
               per_page: 100
             });
+            let previous = null;
             for (const comment of comments) {
-              if (comment.user?.login !== 'github-actions[bot]' || !comment.body?.includes(marker)) {
-                continue;
-              }
-              try {
-                await github.rest.issues.deleteComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: comment.id
-                });
-              } catch (error) {
-                // Another run may have deleted it already.
-                if (error.status !== 404) throw error;
+              if (comment.user?.login === 'github-actions[bot]' && comment.body?.includes(marker)) {
+                previous = comment;
               }
             }
 
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr,
-              body: `${marker}\nPreview image built. ArgoCD should deploy it shortly:\n\n${url}`
-            });
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previous.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr,
+                body
+              });
+            }
   poppler:
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
