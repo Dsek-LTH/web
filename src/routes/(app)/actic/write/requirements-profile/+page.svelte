@@ -2,18 +2,18 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import MandateField from "$lib/actic/MandateField.svelte";
-  import PositionInput from "$lib/actic/PositionInput.svelte";
-  import RowsBox from "$lib/actic/RowsBox.svelte";
-  import { attachAction } from "$lib/actic/attachAction";
+  import MandateField from "$lib/actic/fields/MandateField.svelte";
+  import PositionInput from "$lib/actic/fields/PositionInput.svelte";
+  import RowsBox from "$lib/actic/fields/RowsBox.svelte";
+  import { attachAction } from "$lib/actic/fields/attachAction";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { parseIso, Writer } from "../writer.svelte";
-  import { type TextRow } from "$lib/actic/fields";
+  import { type TextRow } from "$lib/actic/documents/fields";
   import type {
     DocumentInput,
     KeyedValue,
     MandateValue,
-  } from "$lib/actic/dsek";
+  } from "$lib/actic/documents/dsek";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";

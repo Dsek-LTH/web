@@ -30,7 +30,7 @@ export default [
       "!**/.env.example",
       ".vscode",
       "src/translations/paraglide",
-      "src/lib/actic/diff/generated",
+      "src/lib/actic/governing/diff/generated",
       "tools/typdiff-wasm/target",
       ".superpowers",
       "**/*.tsbuildinfo",

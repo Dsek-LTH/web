@@ -2,9 +2,9 @@
   import { DragDropProvider } from "@dnd-kit/svelte";
   import { move } from "@dnd-kit/helpers";
   import { Label } from "$lib/components/ui/label/index.js";
-  import AuthorCard from "$lib/actic/AuthorCard.svelte";
-  import SortableItem from "$lib/actic/SortableItem.svelte";
-  import { nextId, type AuthorRow } from "$lib/actic/fields";
+  import AuthorCard from "./AuthorCard.svelte";
+  import SortableItem from "./SortableItem.svelte";
+  import { nextId, type AuthorRow } from "$lib/actic/documents/fields";
   import * as m from "$paraglide/messages";
   import Plus from "@lucide/svelte/icons/plus";
 

@@ -3,7 +3,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
-  import type { MandateValue } from "$lib/actic/dsek";
+  import type { MandateValue } from "$lib/actic/documents/dsek";
   import * as m from "$paraglide/messages";
 
   let { value = $bindable() }: { value?: MandateValue } = $props();

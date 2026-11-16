@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import SourceEditor from "$lib/actic/SourceEditor.svelte";
+  import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
   import type { Snippet } from "svelte";
   import {
     Download,

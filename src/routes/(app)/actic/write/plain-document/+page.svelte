@@ -2,7 +2,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
-  import type { DocumentInput } from "$lib/actic/dsek";
+  import type { DocumentInput } from "$lib/actic/documents/dsek";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";

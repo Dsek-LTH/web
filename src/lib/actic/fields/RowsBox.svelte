@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { DragDropProvider } from "@dnd-kit/svelte";
-  import SortableItem from "$lib/actic/SortableItem.svelte";
+  import SortableItem from "./SortableItem.svelte";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import type { Snippet } from "svelte";
 

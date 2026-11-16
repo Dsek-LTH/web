@@ -2,7 +2,7 @@ import type {
   GoverningDocument,
   GoverningGroup,
   GoverningGroupId,
-} from "$lib/actic/governing";
+} from "$lib/actic/governing/governing";
 
 /** The landing page's governing-document groups, as presented. */
 export type DiffGroupId = "overview" | "policies" | "guidelines";

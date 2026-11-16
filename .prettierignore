@@ -12,7 +12,7 @@ project.inlang/*
 !project.inlang/settings.json
 src/routes/api/openapi.json/openapi.json
 src/database/seed/.snaplet
-src/lib/actic/diff/generated
+src/lib/actic/governing/diff/generated
 tools/typdiff-wasm/target
 *.tsbuildinfo
 # Ignore files for PNPM, NPM and YARN

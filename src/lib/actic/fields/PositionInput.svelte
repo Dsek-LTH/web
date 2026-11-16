@@ -2,9 +2,9 @@
   import { tick } from "svelte";
   import { Input } from "$lib/components/ui/input/index.js";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
-  import { COMMITTEE_GROUPS } from "$lib/actic/positions";
-  import { groupLogoUrls } from "$lib/actic/committeeLogos";
-  import type { KeyedValue } from "$lib/actic/dsek";
+  import { ALL_POSITIONS } from "$lib/actic/documents/positions";
+  import { groupLogoUrls } from "$lib/actic/governing/committeeLogos";
+  import type { AuthorInput } from "$lib/actic/documents/dsek";
   import { getLocale } from "$paraglide/runtime";
 
   function hideImg(event: Event) {
@@ -14,16 +14,15 @@
   }
 
   let {
-    value = $bindable(),
+    position = $bindable(),
     id,
     placeholder,
   }: {
-    value?: KeyedValue;
+    position?: AuthorInput["position"];
     id?: string;
     placeholder?: string;
   } = $props();
 
-  const en = $derived(getLocale() === "en");
   let focused = $state(false);
   let open = $state(false);
   /** Highlighted option while navigating with the keyboard; -1 is none. */
@@ -31,52 +30,56 @@
   let listEl: HTMLUListElement | undefined = $state();
   const uid = $props.id();
 
-  function labelOf(group: (typeof COMMITTEE_GROUPS)[number]): string {
-    return en ? group.labelEn : group.label;
+  const english = $derived(getLocale() === "en");
+  function labelOf(p: (typeof ALL_POSITIONS)[number]): string {
+    return english ? p.labelEn : p.label;
+  }
+  function groupOf(p: (typeof ALL_POSITIONS)[number]): string {
+    return english ? p.groupEn : p.group;
   }
 
-  function textOf(v: KeyedValue | undefined): string {
-    if (!v) return "";
-    if (v.kind === "text") return v.value;
-    const group = COMMITTEE_GROUPS.find((g) => g.key === v.path);
-    return group ? labelOf(group) : v.path;
+  function positionText(pos: AuthorInput["position"]): string {
+    if (!pos) return "";
+    if (pos.kind === "text") return pos.value;
+    const match = ALL_POSITIONS.find((p) => p.path === pos.path);
+    return match ? labelOf(match) : pos.path;
   }
 
-  let input = $state(textOf(value));
+  let input = $state(positionText(position));
 
   // Reflect external changes (e.g. loading a draft) but never fight the caret
   // while the user is typing.
   $effect(() => {
-    const text = textOf(value);
+    const text = positionText(position);
     if (!focused && text !== input) input = text;
   });
 
   let matches = $derived(
     input.trim()
-      ? COMMITTEE_GROUPS.filter((g) =>
-          labelOf(g).toLowerCase().includes(input.trim().toLowerCase()),
+      ? ALL_POSITIONS.filter((p) =>
+          labelOf(p).toLowerCase().includes(input.trim().toLowerCase()),
         ).slice(0, 8)
-      : COMMITTEE_GROUPS,
+      : ALL_POSITIONS,
   );
 
-  function setFromText(text: string) {
-    const trimmed = text.trim();
+  function setFromText(value: string) {
+    const trimmed = value.trim();
     if (!trimmed) {
-      value = undefined;
+      position = undefined;
       return;
     }
-    const match = COMMITTEE_GROUPS.find(
-      (g) => labelOf(g).toLowerCase() === trimmed.toLowerCase(),
+    const match = ALL_POSITIONS.find(
+      (p) => labelOf(p).toLowerCase() === trimmed.toLowerCase(),
     );
-    value = match
-      ? { kind: "key", path: match.key }
+    position = match
+      ? { kind: "key", path: match.path }
       : { kind: "text", value: trimmed };
   }
 
-  function pick(group: (typeof COMMITTEE_GROUPS)[number]) {
-    input = labelOf(group);
+  function pick(label: string) {
+    input = label;
     open = false;
-    value = { kind: "key", path: group.key };
+    setFromText(label);
   }
 
   // Keyboard navigation: focus stays on the input while the highlight moves
@@ -103,8 +106,8 @@
       scrollActive();
     } else if (event.key === "Enter" && open && activeIndex >= 0) {
       event.preventDefault();
-      const group = matches[activeIndex];
-      if (group) pick(group);
+      const match = matches[activeIndex];
+      if (match) pick(labelOf(match));
     } else if (event.key === "Escape" || event.key === "Tab") {
       open = false;
     }
@@ -148,8 +151,10 @@
       role="listbox"
       class="bg-popover border-border absolute inset-x-0 top-full z-50 mt-1 ml-0 max-h-64 list-none overflow-y-auto rounded-md border shadow-md"
     >
-      {#each matches as group, i (group.key)}
-        {@const urls = groupLogoUrls(group.key)}
+      {#each matches as match, i (match.path)}
+        {@const urls = groupLogoUrls(
+          match.path.slice(0, match.path.indexOf(".")),
+        )}
         <li role="presentation">
           <button
             type="button"
@@ -161,7 +166,7 @@
             onmousemove={() => (activeIndex = i)}
             onmousedown={(e) => {
               e.preventDefault();
-              pick(group);
+              pick(labelOf(match));
             }}
           >
             {#if urls}
@@ -178,7 +183,12 @@
                 onerror={hideImg}
               />
             {/if}
-            <span class="break-words">{labelOf(group)}</span>
+            <span class="flex min-w-0 flex-col">
+              <span class="break-words">{labelOf(match)}</span>
+              <span class="text-muted-foreground text-xs break-words"
+                >{groupOf(match)}</span
+              >
+            </span>
           </button>
         </li>
       {/each}

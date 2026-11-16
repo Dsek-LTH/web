@@ -4,7 +4,7 @@ import {
   findDocument,
   type GoverningDocument,
   type GoverningGroup,
-} from "$lib/actic/governing";
+} from "$lib/actic/governing/governing";
 
 const REPO = "Dsek-LTH/styrdokument";
 const GRAFIK_REPO = "Dsek-LTH/grafik";

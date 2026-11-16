@@ -3,16 +3,16 @@
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
-  import MemberNameInput from "$lib/actic/MemberNameInput.svelte";
-  import PositionInput from "$lib/actic/PositionInput.svelte";
-  import { attachAction } from "$lib/actic/attachAction";
-  import type { AuthorInput } from "$lib/actic/dsek";
+  import MemberNameInput from "./MemberNameInput.svelte";
+  import PositionInput from "./PositionInput.svelte";
+  import { attachAction } from "./attachAction";
+  import type { AuthorInput } from "$lib/actic/documents/dsek";
   import {
     addSignature,
     getSignaturePreview,
     isAllowedSignature,
     removeSignature,
-  } from "$lib/actic/signatures";
+  } from "$lib/actic/documents/signatures";
   import * as m from "$paraglide/messages";
   import GripHorizontal from "@lucide/svelte/icons/grip-horizontal";
   import Trash2 from "@lucide/svelte/icons/trash-2";

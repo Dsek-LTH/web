@@ -1,16 +1,16 @@
 import { tick } from "svelte";
-import { buildDiff, initTypdiff } from "$lib/actic/diff";
+import { buildDiff, initTypdiff } from "$lib/actic/governing/diff";
 import {
   createPreview,
   renderTypstToPdf,
   type Preview,
   type TypstFile,
-} from "$lib/actic/typst";
-import { saveDraft, type DiffDraft } from "$lib/actic/drafts";
+} from "$lib/actic/typst/typst";
+import { saveDraft, type DiffDraft } from "$lib/actic/documents/drafts";
 import {
   parseTypstDiagnostics,
   type TypstDiagnostic,
-} from "$lib/actic/diagnostics";
+} from "$lib/actic/editor/diagnostics";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
 

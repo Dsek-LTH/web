@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import AuthorsField from "$lib/actic/AuthorsField.svelte";
-  import CandidatesBuilder from "$lib/actic/CandidatesBuilder.svelte";
-  import ResolutionsField from "$lib/actic/ResolutionsField.svelte";
+  import AuthorsField from "$lib/actic/fields/AuthorsField.svelte";
+  import CandidatesBuilder from "$lib/actic/fields/CandidatesBuilder.svelte";
+  import ResolutionsField from "$lib/actic/fields/ResolutionsField.svelte";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
-  import { keyedLabel, type CandidateRow } from "$lib/actic/fields";
-  import type { DocumentInput } from "$lib/actic/dsek";
+  import { keyedLabel, type CandidateRow } from "$lib/actic/documents/fields";
+  import type { DocumentInput } from "$lib/actic/documents/dsek";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";

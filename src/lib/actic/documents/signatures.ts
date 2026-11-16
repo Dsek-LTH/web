@@ -1,4 +1,4 @@
-import type { TypstFile } from "./typst";
+import type { TypstFile } from "$lib/actic/typst/typst";
 
 /**
  * Uploaded signature images are kept in memory for the session and referenced by

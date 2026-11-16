@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { GoverningGroup } from "$lib/actic/governing";
+import type { GoverningGroup } from "$lib/actic/governing/governing";
 
 vi.mock("$lib/server/styrdokument", () => ({
   getGoverningCatalog: vi.fn(),

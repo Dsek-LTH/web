@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import CommitteePicker from "$lib/actic/CommitteePicker.svelte";
+  import CommitteePicker from "$lib/actic/fields/CommitteePicker.svelte";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
-  import type { DocumentInput, KeyedValue } from "$lib/actic/dsek";
+  import type { DocumentInput, KeyedValue } from "$lib/actic/documents/dsek";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";

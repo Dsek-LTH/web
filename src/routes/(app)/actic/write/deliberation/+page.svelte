@@ -1,13 +1,13 @@
 <script lang="ts">
   import { Label } from "$lib/components/ui/label/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
-  import AuthorsField from "$lib/actic/AuthorsField.svelte";
-  import ResolutionsField from "$lib/actic/ResolutionsField.svelte";
+  import AuthorsField from "$lib/actic/fields/AuthorsField.svelte";
+  import ResolutionsField from "$lib/actic/fields/ResolutionsField.svelte";
   import {
     DOCUMENT_TYPES,
     type DeliberationTypeId,
     type DocumentInput,
-  } from "$lib/actic/dsek";
+  } from "$lib/actic/documents/dsek";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";

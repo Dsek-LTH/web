@@ -3,10 +3,10 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { Textarea } from "$lib/components/ui/textarea/index.js";
-  import RowsBox from "$lib/actic/RowsBox.svelte";
-  import { attachAction } from "$lib/actic/attachAction";
+  import RowsBox from "./RowsBox.svelte";
+  import { attachAction } from "./attachAction";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
-  import { nextId, type YrkandeRow } from "$lib/actic/fields";
+  import { nextId, type YrkandeRow } from "$lib/actic/documents/fields";
   import * as m from "$paraglide/messages";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";

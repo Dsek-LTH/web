@@ -5,12 +5,12 @@ vi.mock("$lib/actic/typst", () => ({
   createPreview: vi.fn(),
   renderTypstToPdf: vi.fn(),
 }));
-vi.mock("$lib/actic/diff", () => ({
+vi.mock("$lib/actic/governing/diff", () => ({
   initTypdiff: vi.fn(),
   buildDiff: vi.fn(),
 }));
 
-import { listDrafts } from "$lib/actic/drafts";
+import { listDrafts } from "$lib/actic/documents/drafts";
 import { DiffSession } from "./editor.svelte";
 
 beforeEach(() => {

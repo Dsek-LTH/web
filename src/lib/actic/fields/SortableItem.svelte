@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createSortable } from "@dnd-kit/svelte/sortable";
-  import { attachAction } from "$lib/actic/attachAction";
+  import { attachAction } from "./attachAction";
   import type { Snippet } from "svelte";
 
   let {

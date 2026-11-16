@@ -9,23 +9,31 @@ import {
   hasDocumentContent,
   validateDocument,
   type DocumentInput,
-} from "$lib/actic/dsek";
-import { getDraft, saveDraft, type WriteDraft } from "$lib/actic/drafts";
+} from "$lib/actic/documents/dsek";
+import {
+  getDraft,
+  saveDraft,
+  type WriteDraft,
+} from "$lib/actic/documents/drafts";
 import {
   restoreSignature,
   signatureDataUrl,
   signatureFiles,
-} from "$lib/actic/signatures";
+} from "$lib/actic/documents/signatures";
 import {
   createPreview,
   renderTypstToPdf,
   type Preview,
-} from "$lib/actic/typst";
-import { nextId, type AuthorRow, type YrkandeRow } from "$lib/actic/fields";
+} from "$lib/actic/typst/typst";
+import {
+  nextId,
+  type AuthorRow,
+  type YrkandeRow,
+} from "$lib/actic/documents/fields";
 import {
   parseTypstDiagnostics,
   type TypstDiagnostic,
-} from "$lib/actic/diagnostics";
+} from "$lib/actic/editor/diagnostics";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
 

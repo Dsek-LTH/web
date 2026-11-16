@@ -3,9 +3,17 @@
   import { resolve } from "$app/paths";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { DOCUMENT_TYPES, FAMILIES, getDocumentType } from "$lib/actic/dsek";
+  import {
+    DOCUMENT_TYPES,
+    FAMILIES,
+    getDocumentType,
+  } from "$lib/actic/documents/dsek";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
-  import { deleteDraft, listDrafts, type Draft } from "$lib/actic/drafts";
+  import {
+    deleteDraft,
+    listDrafts,
+    type Draft,
+  } from "$lib/actic/documents/drafts";
   import { diffGroupViews, type DiffGroupId } from "./landing-groups";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";

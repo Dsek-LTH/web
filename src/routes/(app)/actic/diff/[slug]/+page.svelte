@@ -4,8 +4,8 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import SourceEditor from "$lib/actic/SourceEditor.svelte";
-  import { getDraft } from "$lib/actic/drafts";
+  import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
+  import { getDraft } from "$lib/actic/documents/drafts";
   import { page } from "$app/state";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import { Download, FileCode, RotateCcw, Save } from "@lucide/svelte/icons";

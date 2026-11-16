@@ -2,17 +2,17 @@
   import { DragDropProvider } from "@dnd-kit/svelte";
   import { move } from "@dnd-kit/helpers";
   import { Button } from "$lib/components/ui/button/index.js";
-  import MemberNameInput from "$lib/actic/MemberNameInput.svelte";
-  import PositionInput from "$lib/actic/PositionInput.svelte";
-  import RowsBox from "$lib/actic/RowsBox.svelte";
-  import SortableItem from "$lib/actic/SortableItem.svelte";
-  import { attachAction } from "$lib/actic/attachAction";
+  import MemberNameInput from "./MemberNameInput.svelte";
+  import PositionInput from "./PositionInput.svelte";
+  import RowsBox from "./RowsBox.svelte";
+  import SortableItem from "./SortableItem.svelte";
+  import { attachAction } from "./attachAction";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import {
     nextId,
     type CandidateRow,
     type NomineeRow,
-  } from "$lib/actic/fields";
+  } from "$lib/actic/documents/fields";
   import * as m from "$paraglide/messages";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";

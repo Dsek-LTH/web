@@ -1,6 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import { getGoverningCatalog } from "$lib/server/styrdokument";
-import type { GoverningGroup } from "$lib/actic/governing";
+import type { GoverningGroup } from "$lib/actic/governing/governing";
 
 export type CatalogResult = {
   governingCatalog: GoverningGroup[];

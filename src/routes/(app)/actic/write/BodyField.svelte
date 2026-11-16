@@ -2,7 +2,7 @@
   import * as Popover from "$lib/components/ui/popover";
   import { Label } from "$lib/components/ui/label/index.js";
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
-  import TypstEditor from "$lib/actic/TypstEditor.svelte";
+  import TypstEditor from "$lib/actic/editor/TypstEditor.svelte";
   import Settings from "@lucide/svelte/icons/settings";
   import * as m from "$paraglide/messages";
   import { todayIso, type Writer } from "./writer.svelte";
