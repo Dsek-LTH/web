@@ -59,7 +59,7 @@ jobs:
             const part = (type) => buildTime.find((p) => p.type === type)?.value;
             const timestamp = `${part('year')}-${part('month')}-${part('day')} ${part('hour')}:${part('minute')}`;
 
-            const body = `${marker}\nPreview image built. ArgoCD should deploy it shortly:\n\n${url}\n\nLast build: ${timestamp}`;
+            const body = `${marker}\nPreview image built. ArgoCD should deploy it shortly:\n\n${url}\n\n$\\color{gray}{\\textsf{\\emph{Last build: ${timestamp}}}}$`;
 
             // Update the comment from the previous build instead of adding a new one.
             const comments = await github.paginate(github.rest.issues.listComments, {
