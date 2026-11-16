@@ -55,7 +55,7 @@
     action?: string;
   } = $props();
 
-  const { form, errors, enhance, delayed } = $derived(superform);
+  const { form, errors, enhance, delayed, submitting } = $derived(superform);
 
   const tz = getLocalTimeZone();
 
@@ -308,7 +308,7 @@
     <Button onclick={() => goto(resolve("/news"))} variant="outline"
       >{m.cancel()}</Button
     >
-    <Button type="submit" class="block grow"
+    <Button type="submit" class="block grow" disabled={$submitting}
       >{m.news_publish()}{#if $delayed}<Spinner />{/if}</Button
     >
   </div>
