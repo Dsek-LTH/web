@@ -124,8 +124,10 @@
     role="combobox"
     aria-expanded={open}
     aria-controls={open ? `${uid}-listbox` : undefined}
-    aria-activedescendant={open && activeIndex >= 0 ? `${uid}-${activeIndex}` : undefined}
-    onkeydown={onkeydown}
+    aria-activedescendant={open && activeIndex >= 0
+      ? `${uid}-${activeIndex}`
+      : undefined}
+    {onkeydown}
     oninput={(e) => {
       input = e.currentTarget.value;
       setFromText(input);

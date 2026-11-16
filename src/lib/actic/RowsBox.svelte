@@ -54,7 +54,7 @@
           isDragging: boolean;
           index: number;
           helpers: RowHelpers;
-        }
+        },
       ]
     >;
   } = $props();
@@ -63,7 +63,8 @@
   /** The last applied slot in the current drag, for hysteresis. */
   let lastSlot: string | null = null;
   /** The underlying input of each row, by row id. */
-  let inputs: Record<string, HTMLInputElement | HTMLTextAreaElement | null> = {};
+  let inputs: Record<string, HTMLInputElement | HTMLTextAreaElement | null> =
+    {};
 
   function trackInput(node: HTMLElement, id: string) {
     inputs[id] = node.querySelector("input, textarea");

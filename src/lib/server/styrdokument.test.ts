@@ -28,17 +28,14 @@ function stubFetch(options: {
   failTree?: boolean;
 }) {
   return vi.fn((input: RequestInfo | URL) => {
-    const url = String(input);
-    if (url.includes("/git/trees/")) {
+    const url = new URL(String(input));
+    if (url.host === "api.github.com" && url.pathname.includes("/git/trees/")) {
       return options.failTree
         ? Promise.reject(new Error("offline"))
         : Promise.resolve(json(treeResponse));
     }
-    const path = url.replace(
-      /^.*raw.githubusercontent.com\/[^/]+\/[^/]+\//,
-      "",
-    );
-    if (url.includes("raw.githubusercontent.com")) {
+    if (url.host === "raw.githubusercontent.com") {
+      const path = url.pathname.replace(/^\/[^/]+\/[^/]+\//, "");
       if (options.failHeads?.includes(path)) {
         return Promise.reject(new Error("404"));
       }
@@ -146,9 +143,8 @@ test("loads source and grafik assets as base64", async () => {
     );
   });
   vi.stubGlobal("fetch", fetchMock);
-  const { loadGoverningSource, getGoverningCatalog } = await import(
-    "./styrdokument"
-  );
+  const { loadGoverningSource, getGoverningCatalog } =
+    await import("./styrdokument");
   const catalog = await getGoverningCatalog();
   const document = catalog.flatMap((g) => g.documents)[0]!;
   const loaded = await loadGoverningSource(document);
@@ -177,9 +173,8 @@ test("a missing image warns but does not lose the source", async () => {
     );
   });
   vi.stubGlobal("fetch", fetchMock);
-  const { loadGoverningSource, getGoverningCatalog } = await import(
-    "./styrdokument"
-  );
+  const { loadGoverningSource, getGoverningCatalog } =
+    await import("./styrdokument");
   const catalog = await getGoverningCatalog();
   const document = catalog.flatMap((g) => g.documents)[0]!;
   const loaded = await loadGoverningSource(document);
@@ -203,9 +198,8 @@ test("source and assets are cached across loads", async () => {
     );
   });
   vi.stubGlobal("fetch", fetchMock);
-  const { loadGoverningSource, getGoverningCatalog } = await import(
-    "./styrdokument"
-  );
+  const { loadGoverningSource, getGoverningCatalog } =
+    await import("./styrdokument");
   const catalog = await getGoverningCatalog();
   const document = catalog.flatMap((g) => g.documents)[0]!;
 

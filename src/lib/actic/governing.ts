@@ -1,9 +1,5 @@
 export type GoverningGroupId =
-  | "statutes"
-  | "regulations"
-  | "strategic-goals"
-  | "policies"
-  | "guidelines";
+  "statutes" | "regulations" | "strategic-goals" | "policies" | "guidelines";
 
 export type GoverningDocument = {
   slug: string;

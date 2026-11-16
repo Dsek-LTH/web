@@ -9,7 +9,11 @@
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { parseIso, Writer } from "../writer.svelte";
   import { type TextRow } from "$lib/actic/fields";
-  import type { DocumentInput, KeyedValue, MandateValue } from "$lib/actic/dsek";
+  import type {
+    DocumentInput,
+    KeyedValue,
+    MandateValue,
+  } from "$lib/actic/dsek";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";
@@ -100,8 +104,10 @@
 
   /** Collapse back down to filled rows plus the one trailing free row. */
   function normalizeTextRows(rows: TextRow[]): TextRow[] {
-    const free =
-      rows.find((r) => !r.value.trim()) ?? { id: nextRowId(), value: "" };
+    const free = rows.find((r) => !r.value.trim()) ?? {
+      id: nextRowId(),
+      value: "",
+    };
     return [...rows.filter((r) => r.value.trim()), free];
   }
 
@@ -149,9 +155,11 @@
         {#snippet children({ handle, isDragging, index: i, helpers })}
           {@const row = requirements[i]!}
           <div
-            class={`flex items-stretch gap-1.5 pl-1 ${isDragging
-              ? `${FIELD_BG} border-border rounded-md border shadow-md`
-              : `border-border ${i > 0 ? "border-t" : ""}`}`}
+            class={`flex items-stretch gap-1.5 pl-1 ${
+              isDragging
+                ? `${FIELD_BG} border-border rounded-md border shadow-md`
+                : `border-border ${i > 0 ? "border-t" : ""}`
+            }`}
           >
             {#if row.value.trim()}
               <span
@@ -227,9 +235,11 @@
         {#snippet children({ handle, isDragging, index: i, helpers })}
           {@const row = merits[i]!}
           <div
-            class={`flex items-stretch gap-1.5 pl-1 ${isDragging
-              ? `${FIELD_BG} border-border rounded-md border shadow-md`
-              : `border-border ${i > 0 ? "border-t" : ""}`}`}
+            class={`flex items-stretch gap-1.5 pl-1 ${
+              isDragging
+                ? `${FIELD_BG} border-border rounded-md border shadow-md`
+                : `border-border ${i > 0 ? "border-t" : ""}`
+            }`}
           >
             {#if row.value.trim()}
               <span

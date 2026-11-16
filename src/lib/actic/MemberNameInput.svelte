@@ -127,10 +127,12 @@
     autocomplete="off"
     role="combobox"
     aria-expanded={open}
-    aria-activedescendant={open && activeIndex >= 0 ? `${uid}-suggestion` : undefined}
+    aria-activedescendant={open && activeIndex >= 0
+      ? `${uid}-suggestion`
+      : undefined}
     aria-invalid={invalid}
     aria-errormessage={errorMessage}
-    onkeydown={onkeydown}
+    {onkeydown}
     oninput={() => {
       search(value);
       oninput?.();

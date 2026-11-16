@@ -6,10 +6,7 @@ export const DSEK_PACKAGE = `@preview/dsek:${DSEK_PACKAGE_VERSION}`;
 
 /** The concrete templates that share the deliberation family's field set. */
 export type DeliberationTypeId =
-  | "motion"
-  | "proposition"
-  | "styrelsens-svar"
-  | "handling";
+  "motion" | "proposition" | "styrelsens-svar" | "handling";
 
 /** Top-level document families. Each has its own guided form. */
 export type FamilyId =
@@ -31,8 +28,7 @@ export type DocumentTypeId =
 
 /** A value picked from the package `strings` (a key path) or typed freely. */
 export type KeyedValue =
-  | { kind: "key"; path: string }
-  | { kind: "text"; value: string };
+  { kind: "key"; path: string } | { kind: "text"; value: string };
 
 export type AuthorInput = {
   /** Display name, required. */
