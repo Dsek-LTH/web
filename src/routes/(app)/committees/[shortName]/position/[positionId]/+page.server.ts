@@ -133,6 +133,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 const updateSchema = z.object({
   name: z.string().optional(),
   description: z.string().nullable(),
+  longDescription: z.string().nullable(),
   email: z.string().email().nullable(),
 });
 export type UpdatePositionSchema = Infer<typeof updateSchema>;
@@ -201,6 +202,9 @@ export const actions: Actions = {
     const description = form.data.description
       ? DOMPurify.sanitize(form.data.description)
       : form.data.description;
+    const longDescription = form.data.longDescription
+      ? DOMPurify.sanitize(form.data.longDescription)
+      : form.data.longDescription;
     switch (getLocale()) {
       case "sv":
         await prisma.position.update({
@@ -208,6 +212,7 @@ export const actions: Actions = {
           data: {
             nameSv: form.data.name,
             descriptionSv: description,
+            longDescriptionSv: longDescription,
             email: form.data.email,
           },
         });
@@ -218,6 +223,7 @@ export const actions: Actions = {
           data: {
             nameEn: form.data.name,
             descriptionEn: description,
+            longDescriptionEn: longDescription,
             email: form.data.email,
           },
         });

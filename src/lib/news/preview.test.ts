@@ -32,6 +32,7 @@ const baseForm = {
   tags: [{ id: "tag-1" }, { id: "tag-2" }],
   imageUrls: [] as string[],
   imageUrl: null as string | null,
+  coverNewIndex: null as number | null,
   committeeId: "committee-1" as string | null,
   publishTime: null as Date | null,
   youtubeUrl: null as string | null,
@@ -189,7 +190,7 @@ describe("buildArticlePreview", () => {
     const preview = buildArticlePreview({
       form: {
         ...baseForm,
-        imageUrls: ["/existing-1.jpg"],
+        imageUrls: ["/existing-1.jpg", "/cover.jpg"],
         imageUrl: "/cover.jpg",
       },
       tags,
@@ -203,9 +204,63 @@ describe("buildArticlePreview", () => {
 
     expect(preview.article.imageUrls).toEqual([
       "/existing-1.jpg",
+      "/cover.jpg",
       "blob:new-1",
     ]);
     expect(preview.cardImageUrl).toBe("/cover.jpg");
+  });
+
+  it("uses a newly picked image as cover when it is chosen", () => {
+    const preview = buildArticlePreview({
+      form: {
+        ...baseForm,
+        imageUrls: ["/existing-1.jpg"],
+        imageUrl: null,
+        coverNewIndex: 1,
+      },
+      tags,
+      committees,
+      language: "sv",
+      createdAt,
+      now,
+      uploadedImageUrls: ["blob:new-1", "blob:new-2"],
+      isEditing: true,
+    });
+
+    expect(preview.cardImageUrl).toBe("blob:new-2");
+  });
+
+  it("falls back to the first image when the cover was removed", () => {
+    const preview = buildArticlePreview({
+      form: {
+        ...baseForm,
+        imageUrls: ["/existing-1.jpg"],
+        imageUrl: "/removed.jpg",
+      },
+      tags,
+      committees,
+      language: "sv",
+      createdAt,
+      now,
+      isEditing: true,
+    });
+
+    expect(preview.cardImageUrl).toBe("/existing-1.jpg");
+  });
+
+  it("ignores existing images when creating", () => {
+    const preview = buildArticlePreview({
+      form: { ...baseForm, imageUrls: ["/stale.jpg"], imageUrl: "/stale.jpg" },
+      tags,
+      committees,
+      language: "sv",
+      createdAt,
+      now,
+      uploadedImageUrls: ["blob:new-1"],
+    });
+
+    expect(preview.article.imageUrls).toEqual(["blob:new-1"]);
+    expect(preview.cardImageUrl).toBe("blob:new-1");
   });
 
   it("uses the scheduled publish date for the card when set", () => {

@@ -25,6 +25,7 @@
 
   let urlInput: HTMLInputElement | null = $state(null);
   let urlError: string | undefined = $state();
+  let urlDialogOpen = $state(false);
 
   $effect(() => {
     if (!files) {
@@ -91,7 +92,7 @@
     {#if allowUrl}
       <Separator text={m.file_upload_or()} textClass="font-medium" />
 
-      <AlertDialog.Root>
+      <AlertDialog.Root bind:open={urlDialogOpen}>
         <AlertDialog.Trigger
           type="button"
           class={cn(
@@ -128,14 +129,19 @@
                 if (res != null) {
                   urlError = "";
                   let blob = await res.blob();
+                  const urlName = new URL(urlInput!.value).pathname
+                    .split("/")
+                    .pop();
                   let file = new File(
                     [blob],
-                    res.headers.get("content-disposition") ??
-                      "upload_" + Date.now(),
+                    urlName || "upload_" + Date.now(),
+                    { type: blob.type },
                   );
                   const dt = new DataTransfer();
                   dt.items.add(file);
                   files = dt.files;
+                  urlDialogOpen = false;
+                  urlInput!.value = "";
                 }
               }}>{m.dialog_submit()}</AlertDialog.Action
             >

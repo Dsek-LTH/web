@@ -50,6 +50,19 @@
       />
     </div>
     <div class="flex flex-col gap-1.5">
+      <Label>{m.positions_longDescription()}</Label>
+      <Textarea
+        name="longDescription"
+        id="longDescription"
+        rows={7}
+        class="h-24"
+        value={$form.longDescription ?? ""}
+        aria-invalid={!!$errors.longDescription}
+        aria-errormessage={$errors.longDescription?.at(0)}
+        {...$constraints.longDescription}
+      />
+    </div>
+    <div class="flex flex-col gap-1.5">
       <Label>
         {m.positions_emailAddress()}</Label
       >
