@@ -308,7 +308,7 @@
     <Button onclick={() => goto(resolve("/news"))} variant="outline"
       >{m.cancel()}</Button
     >
-    <Button type="submit" class="block grow" disabled={$submitting}
+    <Button type="submit" class="flex grow flex-row" disabled={$submitting}
       >{m.news_publish()}{#if $delayed}<Spinner />{/if}</Button
     >
   </div>
