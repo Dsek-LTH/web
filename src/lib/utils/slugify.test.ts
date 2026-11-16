@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { slugify } from "./slugify";
+import { findAvailableSlug, slugify, slugifyWithYear } from "./slugify";
 
 test("slugify 'Diss #2 till 10 staben' should equal 'diss-2-till-10-staben'", () => {
   expect(slugify("Diss #2 till 10 staben")).toBe("diss-2-till-10-staben");
@@ -68,4 +68,35 @@ test("slugify string with leading/trailing hyphens should have them trimmed", ()
 
 test("slugify string with uppercase characters should be converted to lowercase", () => {
   expect(slugify("UpperCase")).toBe("uppercase");
+});
+
+test("slugifyWithYear 'Nollefredagen' 2026 should equal 'nollefredagen-2026'", () => {
+  expect(slugifyWithYear("Nollefredagen", 2026)).toBe("nollefredagen-2026");
+});
+
+test("slugifyWithYear should not add the year twice", () => {
+  expect(slugifyWithYear("Nollefredagen 2026", 2026)).toBe(
+    "nollefredagen-2026",
+  );
+});
+
+test("slugifyWithYear should truncate the title but keep the year", () => {
+  expect(slugifyWithYear("a".repeat(100), 2026, 20)).toBe(
+    `${"a".repeat(15)}-2026`,
+  );
+});
+
+test("findAvailableSlug should return the base slug when it is free", async () => {
+  expect(await findAvailableSlug("nollefredagen-2026", async () => false)).toBe(
+    "nollefredagen-2026",
+  );
+});
+
+test("findAvailableSlug should append a counter on collisions", async () => {
+  const taken = new Set(["nollefredagen-2026", "nollefredagen-2026-2"]);
+  expect(
+    await findAvailableSlug("nollefredagen-2026", async (slug) =>
+      taken.has(slug),
+    ),
+  ).toBe("nollefredagen-2026-3");
 });

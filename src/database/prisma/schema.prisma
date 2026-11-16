@@ -584,6 +584,8 @@ model Member {
   signedExpenses               ExpenseItem[]           @relation("expense_item_signed_by")
   closedAlerts                 Alert[]                 @relation("alerts_closed_by")
   cafeShifts                   CafeShift[]
+  photographerIn               Album[]                 @relation("album_photographer")
+  editorInAlbum                Album[]                 @relation("album_editor")
 
   @@map("members")
 }
@@ -1053,6 +1055,21 @@ model Readme {
   publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
 
   @@map("readme")
+}
+
+model Album {
+  id            String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+  title         String
+  description   String?
+  date          DateTime @db.Date()
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @map("updated_at") @db.Timestamptz(6)
+  slug          String
+  imageCount    Int      @default(0) @map("image_count")
+  photographers Member[] @relation("album_photographer")
+  editors       Member[] @relation("album_editor")
+
+  @@map("albums")
 }
 
 model CafeShift {

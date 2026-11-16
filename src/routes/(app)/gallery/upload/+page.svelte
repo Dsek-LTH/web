@@ -1,102 +1,179 @@
 <script lang="ts">
-  import { filesProxy, type SuperForm } from "sveltekit-superforms/client";
-  import { superForm } from "$lib/utils/client/superForms";
   import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-  } from "$lib/components/ui/card/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import { Spinner } from "$lib/components/ui/spinner";
+    type SuperForm,
+    type SuperValidated,
+  } from "sveltekit-superforms/client";
+  import { superForm } from "$lib/utils/client/superForms";
+  import * as m from "$paraglide/messages";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
-  import * as m from "$paraglide/messages.js";
+  import { type SmallMemberSchema, type UploadSchema } from "./types";
+  import Input from "$lib/components/ui/input/input.svelte";
+  import Label from "$lib/components/ui/label/label.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import FileUpload from "$lib/components/FileUpload.svelte";
+  import { Textarea } from "$lib/components/ui/textarea";
+  import MemberSelector from "$lib/components/MemberSelector.svelte";
+  import { Spinner } from "$lib/components/ui/spinner";
+  import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
+  import {
+    CalendarDateTime,
+    fromDate,
+    getLocalTimeZone,
+    parseDate,
+    toCalendarDate,
+  } from "@internationalized/date";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
-  import Upload from "@lucide/svelte/icons/upload";
-  import type { UploadSchema } from "./types";
 
-  let { data } = $props();
+  let { data }: { data: { form: SuperValidated<UploadSchema> } } = $props();
 
-  // svelte-ignore state_referenced_locally
-  const { form, errors, enhance, delayed } = superForm(data.form, {
-    delayMs: 300,
-  }) as SuperForm<UploadSchema>;
-  const files = $derived(filesProxy(form, "files"));
+  let { form, constraints, errors, enhance } = $derived(
+    superForm(data.form, {
+      resetForm: false,
+      dataType: "json",
+      onSubmit: () => {
+        uploading = true;
+      },
+      onResult: () => {
+        uploading = false;
+      },
+    }) as SuperForm<UploadSchema>,
+  );
+
+  let coverFiles: FileList | undefined = $state();
+  let albumFiles: FileList | undefined = $state();
+  let uploading = $state(false);
+
+  function onCoverFileUpload() {
+    $form.coverFile = coverFiles ? coverFiles[0] : undefined;
+  }
+
+  function onAlbumFileUpload() {
+    if (albumFiles) {
+      $form.albumFiles = [...albumFiles];
+    } else {
+      $form.albumFiles = [];
+    }
+  }
+
+  const tz = getLocalTimeZone();
+
+  let date = $derived<string | undefined>(
+    $form.date
+      ? toCalendarDate(fromDate($form.date, tz)).toString()
+      : toCalendarDate(fromDate(new Date(), tz)).toString(),
+  );
+
+  function updateDate() {
+    if (date) {
+      const parsed = parseDate(date);
+      const dt = new CalendarDateTime(parsed.year, parsed.month, parsed.day);
+      $form.date = dt.toDate(tz);
+    }
+  }
 </script>
 
-<SetPageTitle title={m.gallery_uploadAlbum()} />
+<SetPageTitle title={m.gallery_upload_album()} />
+<div class="layout-container">
+  <Button href="/gallery" variant="ghost"
+    ><ArrowLeft /> {m.gallery_back()}</Button
+  >
+  <h1 class="text-2xl">{m.gallery_upload_album()}</h1>
+  <form
+    id="upload-album"
+    class="flex flex-col items-stretch gap-4"
+    method="POST"
+    enctype="multipart/form-data"
+    use:enhance
+  >
+    <div class="flex flex-col gap-1.5">
+      <Label for="date">{m.gallery_date()}</Label>
 
-<div class="mx-auto w-full max-w-4xl px-4 py-8">
-  <Button variant="ghost" href="/gallery" class="mb-6 flex items-center gap-2">
-    <ArrowLeft class="h-4 w-4" />
-    {m.gallery_back()}
-  </Button>
+      <DatePicker
+        name="date"
+        bind:value={
+          () => date,
+          (value) => {
+            date = value;
+            updateDate();
+          }
+        }
+        aria-invalid={$errors.date ? true : false}
+        aria-errormessage={$errors.date?.at(0)}
+        {...$constraints.date}
+      />
+    </div>
 
-  <Card class="border-border shadow-xl">
-    <CardHeader class="bg-primary/5 border-border border-b-[1px] pb-6">
-      <CardTitle class="text-3xl font-bold">{m.gallery_uploadAlbum()}</CardTitle
-      >
-    </CardHeader>
-    <CardContent class="pt-6">
-      <form
-        method="POST"
-        enctype="multipart/form-data"
-        use:enhance
-        class="flex flex-col gap-6"
-      >
-        <div class="flex flex-col gap-2">
-          <Label for="name">{m.gallery_upload_name()}</Label>
-          <Input id="name" name="name" bind:value={$form.name} required />
-          {#if $errors.name}
-            <p class="text-destructive text-sm font-medium">{$errors.name}</p>
-          {/if}
-        </div>
+    <div class="flex flex-col gap-1.5">
+      <Label for="title">{m.gallery_name()}</Label>
+      <Input
+        id="title"
+        name="title"
+        bind:value={$form.title}
+        type="text"
+        placeholder="Nollefredagen"
+        {...$constraints.title}
+      />
+    </div>
 
-        <div class="flex flex-col gap-2">
-          <Label for="date">{m.gallery_upload_date()}</Label>
-          <Input
-            id="date"
-            name="date"
-            type="date"
-            bind:value={$form.date}
-            required
-          />
-          {#if $errors.date}
-            <p class="text-destructive text-sm font-medium">{$errors.date}</p>
-          {/if}
-        </div>
+    <div class="flex flex-col gap-1.5">
+      <Label for="photographers">{m.gallery_photographers()}</Label>
+      <MemberSelector
+        name="photographers"
+        bind:selectedMembers={$form.photographers as SmallMemberSchema[]}
+        multiple
+        showId
+        showClass
+      />
+    </div>
 
-        <div class="flex flex-col gap-2">
-          <Label for="files">{m.gallery_upload_files()}</Label>
-          <Input
-            id="files"
-            name="files"
-            type="file"
-            multiple
-            bind:files={$files}
-          />
-          {#if $errors.files}
-            <p class="text-destructive text-sm font-medium">{$errors.files}</p>
-          {/if}
-        </div>
+    <div class="flex flex-col gap-1.5">
+      <Label for="editors">{m.gallery_editors()}</Label>
+      <MemberSelector
+        name="editors"
+        bind:selectedMembers={$form.editors as SmallMemberSchema[]}
+        multiple
+        showId
+        showClass
+      />
+    </div>
 
-        <div class="mt-4 flex items-center justify-end">
-          <Button
-            type="submit"
-            disabled={$delayed}
-            class="flex min-w-32 items-center gap-2"
-          >
-            {#if $delayed}
-              <Spinner class="h-4 w-4" />
-            {:else}
-              <Upload class="h-4 w-4" />
-              {m.gallery_upload_upload()}
-            {/if}
-          </Button>
-        </div>
-      </form>
-    </CardContent>
-  </Card>
+    <div class="flex flex-col gap-1.5">
+      <Label for="description">{m.gallery_description()}</Label>
+      <Textarea
+        id="description"
+        name="description"
+        bind:value={$form.description}
+        placeholder={m.gallery_album_shortDescription()}
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <Label for="files">
+        {m.gallery_cover()}
+      </Label>
+      <FileUpload
+        multiple={false}
+        name="coverFile"
+        onchange={() => onCoverFileUpload()}
+        bind:files={() => coverFiles, (f) => (coverFiles = f)}
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <Label for="files">
+        {m.gallery_files()}
+      </Label>
+      <FileUpload
+        multiple
+        name="albumFiles"
+        onchange={() => onAlbumFileUpload()}
+        bind:files={() => albumFiles, (f) => (albumFiles = f)}
+      />
+    </div>
+
+    <Button disabled={uploading} type="submit" class="w-fit">
+      {#if uploading}<Spinner />{/if}
+      {uploading ? m.gallery_uploading() : m.gallery_upload()}
+    </Button>
+  </form>
 </div>
