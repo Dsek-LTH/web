@@ -108,7 +108,7 @@
 
   function selectAuthor(id: string) {
     const author = authorOptions.find((option) => option.id === id);
-    if (author) $form.author = author as unknown as ArticleSchema["author"];
+    if (author) $form.author = author as ArticleSchema["author"];
   }
 </script>
 
