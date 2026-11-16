@@ -1953,5 +1953,6 @@
   "actic_type_plainDocument_blurb": "A generic document where you choose the document type yourself.",
   "actic_field_docType_placeholder": "E.g. Annual report",
   "actic_field_coverPage": "Use a cover page",
-  "actic_field_coverPage_description": "The title is shown on a separate cover page instead of as a heading."
+  "actic_field_coverPage_description": "The title is shown on a separate cover page instead of as a heading.",
+  "actic_landing_loading": "Fetching governing documents…"
 }

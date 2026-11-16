@@ -6,33 +6,38 @@ vi.mock("$lib/server/styrdokument", () => ({
 }));
 
 import { getGoverningCatalog } from "$lib/server/styrdokument";
-import { load } from "./+page.server";
+import { load, type CatalogResult } from "./+page.server";
 
 describe("actic landing load", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("returns the catalog and no error on success", async () => {
+  it("streams the catalog without an error flag on success", async () => {
     const catalog: GoverningGroup[] = [{ id: "statutes", documents: [] }];
     vi.mocked(getGoverningCatalog).mockResolvedValue(catalog);
 
-    const result = await load({} as never);
+    // The catalog is a streamed promise — the page shell must not wait for it.
+    const { catalog: streamed } = load({} as never) as {
+      catalog: Promise<CatalogResult>;
+    };
 
-    expect(result).toEqual({
+    await expect(streamed).resolves.toEqual({
       governingCatalog: catalog,
       governingCatalogError: false,
     });
   });
 
-  it("returns an empty catalog and flags the error when upstream fails", async () => {
+  it("streams an empty catalog with the error flag when upstream fails", async () => {
     vi.mocked(getGoverningCatalog).mockRejectedValue(
       new Error("upstream down"),
     );
 
-    const result = await load({} as never);
+    const { catalog: streamed } = load({} as never) as {
+      catalog: Promise<CatalogResult>;
+    };
 
-    expect(result).toEqual({
+    await expect(streamed).resolves.toEqual({
       governingCatalog: [],
       governingCatalogError: true,
     });

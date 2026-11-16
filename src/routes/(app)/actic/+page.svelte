@@ -4,6 +4,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import { DOCUMENT_TYPES, FAMILIES, getDocumentType } from "$lib/actic/dsek";
+  import { Spinner } from "$lib/components/ui/spinner/index.js";
   import { deleteDraft, listDrafts, type Draft } from "$lib/actic/drafts";
   import { diffGroupViews, type DiffGroupId } from "./landing-groups";
   import type { PageData } from "./$types";
@@ -53,8 +54,6 @@
       ),
     },
   ]);
-
-  const diffGroups = $derived(diffGroupViews(data.governingCatalog));
 
   /** The most recent drafts, newest first. */
   const recentDrafts = $derived(
@@ -291,22 +290,31 @@
       <p class="text-muted-foreground mt-1.5 text-sm">
         {m.actic_diff_description()}
       </p>
-      {#if data.governingCatalogError}
-        <p class="text-muted-foreground mt-4 text-sm">
-          {m.actic_diff_upstream_error()}
-        </p>
-      {:else}
-        {#each diffGroups as group (group.id)}
-          <h3 class="text-muted-foreground mt-4 mb-1 text-xs font-medium">
-            {diffGroupLabels[group.id]()}
-          </h3>
-          {#each group.docs as document (document.slug)}
-            <a href={resolve(`/actic/diff/${document.slug}`)} class={ROW}>
-              <span class="text-sm">{document.title}</span>
-            </a>
+      {#await data.catalog}
+        <span
+          class="text-muted-foreground mt-4 flex items-center gap-2 text-sm"
+        >
+          <Spinner class="h-4 w-4" />
+          {m.actic_landing_loading()}
+        </span>
+      {:then result}
+        {#if result.governingCatalogError}
+          <p class="text-muted-foreground mt-4 text-sm">
+            {m.actic_diff_upstream_error()}
+          </p>
+        {:else}
+          {#each diffGroupViews(result.governingCatalog) as group (group.id)}
+            <h3 class="text-muted-foreground mt-4 mb-1 text-xs font-medium">
+              {diffGroupLabels[group.id]()}
+            </h3>
+            {#each group.docs as document (document.slug)}
+              <a href={resolve(`/actic/diff/${document.slug}`)} class={ROW}>
+                <span class="text-sm">{document.title}</span>
+              </a>
+            {/each}
           {/each}
-        {/each}
-      {/if}
+        {/if}
+      {/await}
     </section>
   </div>
 </div>

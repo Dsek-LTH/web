@@ -8,7 +8,6 @@ import {
 
 const REPO = "Dsek-LTH/styrdokument";
 const GRAFIK_REPO = "Dsek-LTH/grafik";
-const CACHE_TTL_MS = 10 * 60 * 1000;
 
 export type GoverningAsset = { path: string; base64: string };
 
@@ -43,7 +42,18 @@ function headers(): HeadersInit {
   };
 }
 
-const cache = new Map<string, { value: unknown; expiresAt: number }>();
+/**
+ * GitHub is unreachable from some hosts (a blocked egress route drops
+ * packets instead of refusing, which would otherwise hang the connect for a
+ * long time), so every request gets a hard deadline.
+ */
+const FETCH_TIMEOUT_MS = 5_000;
+
+function timedFetch(url: string, init?: RequestInit): Promise<Response> {
+  return fetch(url, { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+}
+
+const cache = new Map<string, CacheEntry>();
 const inFlight = new Map<string, Promise<unknown>>();
 
 /** How many GitHub requests to keep in flight at once. */
@@ -80,10 +90,25 @@ async function mapSettled<T, R>(
   return results;
 }
 
+/** A cached value, or a failed load remembered briefly so a dead upstream doesn't stall every page view. */
+type CacheEntry =
+  | { value: unknown; expiresAt: number }
+  | { failure: unknown; expiresAt: number };
+
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const FAILURE_TTL_MS = 60_000;
+
 function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
   const now = Date.now();
-  const hit = cache.get(key);
-  if (hit && hit.expiresAt > now) return Promise.resolve(hit.value as T);
+  const hit = cache.get(key) as CacheEntry | undefined;
+  if (hit) {
+    if ("failure" in hit) {
+      if (hit.expiresAt > now) return Promise.reject(hit.failure);
+      // Long enough has passed — try again.
+    } else if (hit.expiresAt > now) {
+      return Promise.resolve(hit.value as T);
+    }
+  }
 
   const pending = inFlight.get(key);
   if (pending) return pending as Promise<T>;
@@ -96,6 +121,10 @@ function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
     })
     .catch((error) => {
       inFlight.delete(key);
+      cache.set(key, {
+        failure: error,
+        expiresAt: Date.now() + FAILURE_TTL_MS,
+      });
       throw error;
     });
 
@@ -111,7 +140,7 @@ export function resetGoverningCacheForTests(): void {
 export function getGoverningCatalog(): Promise<GoverningGroup[]> {
   // Key on the ref so switching STYRDOKUMENT_REF isn't served stale entries.
   return cached(`catalog:${repoRef()}`, async () => {
-    const response = await fetch(
+    const response = await timedFetch(
       `https://api.github.com/repos/${REPO}/git/trees/${repoRef()}?recursive=1`,
       { headers: headers() },
     );
@@ -148,7 +177,7 @@ export function getGoverningCatalog(): Promise<GoverningGroup[]> {
 
 /** The first few KiB are enough for the `#show:` wrapper and its subject. */
 async function fetchHead(path: string): Promise<string> {
-  const response = await fetch(
+  const response = await timedFetch(
     `https://raw.githubusercontent.com/${REPO}/${repoRef()}/${path}`,
     { headers: { ...headers(), Range: "bytes=0-4095" } },
   );
@@ -174,7 +203,7 @@ export async function resolveGoverningDocument(
 }
 
 async function fetchAsset(assetPath: string): Promise<string> {
-  const response = await fetch(
+  const response = await timedFetch(
     `https://raw.githubusercontent.com/${GRAFIK_REPO}/${grafikRef()}/${assetPath.slice("/grafik/".length)}`,
     { headers: headers() },
   );
@@ -189,7 +218,7 @@ export function loadGoverningSource(
   document: GoverningDocument,
 ): Promise<GoverningSource> {
   return cached(`source:${repoRef()}:${document.path}`, async () => {
-    const sourceResponse = await fetch(
+    const sourceResponse = await timedFetch(
       `https://raw.githubusercontent.com/${REPO}/${repoRef()}/${document.path}`,
       { headers: headers() },
     );
@@ -200,7 +229,7 @@ export function loadGoverningSource(
 
     let commit = repoRef();
     try {
-      const commitResponse = await fetch(
+      const commitResponse = await timedFetch(
         `https://api.github.com/repos/${REPO}/commits/${repoRef()}`,
         { headers: headers() },
       );
