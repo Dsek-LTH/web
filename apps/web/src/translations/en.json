@@ -548,6 +548,7 @@
   "events_filter": "Filter",
   "events_eventDeleted": "Event deleted",
   "events_eventsDeleted": "Events deleted",
+  "events_removedNotice": "This event has been removed. Only those who may edit or delete it can see it.",
   "events_thisIsRecurring": "This is a recurring event",
   "events_delete": "Delete",
   "events_deleteThisEvent": "Delete <span class=\"font-extrabold\">this</span> event",

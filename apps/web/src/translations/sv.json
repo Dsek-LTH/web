@@ -548,6 +548,7 @@
   "events_filter": "Filtrera",
   "events_eventDeleted": "Evenemang raderat",
   "events_eventsDeleted": "Evenemang raderade",
+  "events_removedNotice": "Det här evenemanget har tagits bort. Bara de som får redigera eller radera det kan se det.",
   "events_thisIsRecurring": "Detta är ett återkommande evenemang",
   "events_delete": "Radera",
   "events_deleteThisEvent": "Radera <span class=\"font-extrabold\">det här</span> evenemanget",

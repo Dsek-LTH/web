@@ -232,5 +232,7 @@ func TestEventAccess(t *testing.T) {
 		{e.as(2), http.MethodGet, hiddenPath, nil, hidden},
 		{e.as(1), http.MethodGet, hiddenPath, nil, ok},
 		{e.as(4, apinames.EventUpdate), http.MethodGet, hiddenPath, nil, ok},
+		{e.as(3, apinames.EventDelete), http.MethodGet, hiddenPath, nil, ok},
+		{e.as(3, apinames.EventDelete), http.MethodGet, path, nil, hidden},
 	})
 }
