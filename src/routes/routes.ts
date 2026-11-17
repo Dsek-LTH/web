@@ -9,6 +9,7 @@ import CalendarDays from "@lucide/svelte/icons/calendar-days";
 import Coins from "@lucide/svelte/icons/coins";
 import DoorClosedLocked from "@lucide/svelte/icons/door-closed-locked";
 import Files from "@lucide/svelte/icons/files";
+import FilePen from "@lucide/svelte/icons/file-pen";
 import FileText from "@lucide/svelte/icons/file-text";
 import HousePlus from "@lucide/svelte/icons/house-plus";
 import Info from "@lucide/svelte/icons/info";
@@ -223,6 +224,14 @@ export const getRoutes = (): Route[] =>
           description: m.nav_bookings_desc(),
           path: "/bookings",
           icon: HousePlus,
+        },
+        {
+          title: m.actic_title(),
+          accessRequired: null,
+          appBehaviour: "none",
+          description: m.nav_actic_desc(),
+          path: "/actic",
+          icon: FilePen,
         },
         {
           title: m.nav_expenses(),
