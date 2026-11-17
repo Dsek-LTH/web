@@ -345,7 +345,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   a pure-Go webp encoder isn't wanted; note the extension change). Set a
   max body size on the upload operations.
 
-### [ ] T22 Calendar feeds ignore the client's language
+### [x] T22 Calendar feeds ignore the client's language
 
 - New: `routes/(app)/events/subscribe/+server.ts` and
   `routes/(nollning)/nollning/events/subscribe/+server.ts` fetch Go on
