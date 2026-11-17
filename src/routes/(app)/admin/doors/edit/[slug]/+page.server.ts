@@ -6,7 +6,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { error, fail } from "@sveltejs/kit";
 import { authorize } from "$lib/utils/authorization";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
-import { programmes } from "$lib/utils/programmes";
+import { programs } from "$lib/utils/programs";
 import * as m from "$paraglide/messages";
 import { APP_TIMEZONE } from "$lib/utils/datetime";
 import dayjs from "dayjs";
@@ -82,11 +82,11 @@ const createSchema = z
         });
       } else {
         // check if role exists: either a virtual role not backed by any
-        // Position (everyone/signed-in/nolla/board, or a programme+year
+        // Position (everyone/signed-in/n0lla/board, or a program+year
         // combo), or a real Position id (or dot-prefix of one)
         const virtualRoles = ["*", "_", "nolla", "dsek.styr"];
         if (virtualRoles.includes(data.subject)) return true;
-        if (programmes.some((p) => data.subject.startsWith(p.id))) return true;
+        if (programs.some((p) => data.subject.startsWith(p.id))) return true;
         return await authorizedPrismaClient.position.findFirst({
           where: { id: { startsWith: data.subject } },
         });

@@ -101,7 +101,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   mergedBoardPositions.sort((a, b) =>
     compareBoardPositions(a.position.id, b.position.id),
   );
-  if (!isAuthorized(apiNames.MEMBER.SEE_STABEN, user)) {
+  if (!isAuthorized(apiNames.MEMBER.SEE_THE_STAB, user)) {
     return {
       boardPositions: mergedBoardPositions.filter(
         (bp) => !bp.position.id.startsWith("dsek.noll"),

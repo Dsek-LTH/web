@@ -9,6 +9,11 @@ import {
 } from "$lib/utils/notifications/types";
 import { error } from "@sveltejs/kit";
 
+// Notifications are stored as finished text and sent to other members than the one making the request,
+// so the request's locale is not the recipient's (and Stripe webhooks have no user locale at all).
+// Until notifications are translated per recipient, write them in Swedish since most members use it.
+export const notificationLocale = "sv";
+
 const DUPLICATE_ALLOWED_TYPES = [
   NotificationType.CREATE_MANDATE,
   NotificationType.ARTICLE_REQUEST_UPDATE,
@@ -42,7 +47,7 @@ export type SendNotificationProps = BaseSendNotificationProps &
         fromMemberId: string;
       }
     | {
-        // Send as system (e.g. D-sek)
+        // Send as system (e.g. the guild)
         fromAuthor?: never;
         fromMemberId?: never;
       }

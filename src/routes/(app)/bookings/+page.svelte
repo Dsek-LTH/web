@@ -102,7 +102,7 @@
 
     for (const booking of filteredBookings) {
       if (activeBookingIds.has(booking.id)) {
-        // Push the latest data (e.g. status/colour after accept/reject)
+        // Push the latest data (e.g. status/color after accept/reject)
         // into an already-tracked event, since add() only applies to new ones.
         eventsServicePlugin.update(booking);
       } else {

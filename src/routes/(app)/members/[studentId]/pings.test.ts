@@ -3,7 +3,10 @@ import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import sendNotification from "$lib/utils/notifications";
 import { sendPing } from "./pings";
 
-vi.mock("$lib/utils/notifications", () => ({ default: vi.fn() }));
+vi.mock("$lib/utils/notifications", () => ({
+  default: vi.fn(),
+  notificationLocale: "sv",
+}));
 
 describe("sendPing", () => {
   const prisma = {

@@ -21,7 +21,7 @@
   } = $props();
 
   let other = $derived(committee?.shortName == "other");
-  /** Fallback to the D-sektionen guild logo when the committee has no icon. */
+  /** Fallback to the guild logo when the committee has no icon. */
   const FALLBACK =
     "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/dsek/color.svg";
 

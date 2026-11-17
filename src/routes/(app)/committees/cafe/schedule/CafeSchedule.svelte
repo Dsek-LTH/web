@@ -94,7 +94,7 @@
     }
   }
 
-  function getStilId(
+  function getStiLId(
     day: dayjs.Dayjs,
     timeSlot: TimeSlot,
   ): string | null | undefined {
@@ -248,7 +248,7 @@
 
             <input
               name="worker"
-              value={getStilId(day, timeSlot)}
+              value={getStiLId(day, timeSlot)}
               type="text"
               hidden
             />{#if getName(day, timeSlot)}

@@ -180,12 +180,12 @@ export const removeFilesWithoutAccessCheck = async (
   try {
     await Promise.all(
       fileNames.map(async (fileName) => {
-        const deltedForFilePath = await removeFileGivenPath(
+        const deletedForFilePath = await removeFileGivenPath(
           user,
           bucket,
           fileName,
         );
-        deleted.push(...deltedForFilePath);
+        deleted.push(...deletedForFilePath);
       }),
     );
   } catch (e) {
@@ -233,7 +233,7 @@ const moveObject = async (
       if (isDir(fileName)) {
         const filesInFolder = await getFilesInBucket(user, bucket, fileName);
         if (filesInFolder) {
-          const recursivedMoved = await moveObject(
+          const recursivelyMoved = await moveObject(
             user,
             bucket,
             filesInFolder.map((file) => file.id),
@@ -249,7 +249,7 @@ const moveObject = async (
             oldFile: { id: fileName, name: basename, bucket, isDir: true },
           };
           moved.push(FileChange);
-          moved.push(...recursivedMoved);
+          moved.push(...recursivelyMoved);
         }
       } else {
         const newFileName = path.join(newFolder, basename);

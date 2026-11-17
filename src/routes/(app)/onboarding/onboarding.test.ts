@@ -33,7 +33,7 @@ const submitOnboarding = async (fields: Record<string, string>) => {
 // and therefore never submitted.
 const submittedFields = {
   firstName: "Dennis",
-  lastName: "Dsek",
+  lastName: "D-guild",
   foodPreference: "Vegetarian",
   classProgramme: "D",
   classYear: String(new Date().getFullYear()),

@@ -14,7 +14,7 @@ export const slugWithCount = (slug: string, count: number) =>
   count > 0 ? `${slug}-${count + 1}` : slug;
 
 /**
- * Slugifies a title and appends the year, e.g. "nollefredagen-2026".
+ * Slugifies a title and appends the year, e.g. "n0llefredagen-2026".
  * The year is not appended twice if the title already ends with it.
  */
 export const slugifyWithYear = (str: string, year: number, maxLength = 50) => {

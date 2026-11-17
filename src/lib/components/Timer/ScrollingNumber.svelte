@@ -2,15 +2,15 @@
   @component
   This component shows a number scrolling (up or down) whenever `i` changes
   from one number to another. It will show the previous number scrolling
-  out of view and the new number scrolling into view.  
+  out of view and the new number scrolling into view.
 -->
 <script lang="ts">
   import ScrollingDigit from "$lib/components/Timer/ScrollingDigit.svelte";
   import { slide } from "svelte/transition";
   import { twMerge } from "tailwind-merge";
 
-  let clazz = "";
-  export { clazz as class };
+  let klass = "";
+  export { klass as class };
 
   /** The number to display. */
   export let number = 0;
@@ -22,7 +22,7 @@
 <span
   class={twMerge(
     "inline-flex h-[1em] flex-row-reverse items-center overflow-hidden leading-[1em]",
-    clazz ?? "",
+    klass ?? "",
   )}
 >
   {#if number < 0}

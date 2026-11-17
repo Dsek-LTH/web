@@ -1,25 +1,25 @@
-import { NOLLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
+import { N0LLNING_TAG_PREFIX } from "$lib/components/postReveal/types";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
 import type { Prisma } from "@prisma/client";
 
 // function so "new Date()" is not called at import time
 export const BASIC_EVENT_FILTER = (
-  showNollningEventsInstead: boolean | null = false,
+  showN0llningEventsInstead: boolean | null = false,
 ): Prisma.EventWhereInput => ({
   tags:
-    showNollningEventsInstead !== null
-      ? showNollningEventsInstead
+    showN0llningEventsInstead !== null
+      ? showN0llningEventsInstead
         ? {
             some: {
               nameSv: {
-                startsWith: NOLLNING_TAG_PREFIX,
+                startsWith: N0LLNING_TAG_PREFIX,
               },
             },
           }
         : {
             none: {
               nameSv: {
-                startsWith: NOLLNING_TAG_PREFIX,
+                startsWith: N0LLNING_TAG_PREFIX,
               },
             },
           }

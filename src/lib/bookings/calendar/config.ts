@@ -11,7 +11,7 @@ const baseColors: CalendarStatusColors = {
   DENIED: "destructive",
 };
 
-const bgColors: CalendarStatusColors = {
+const backgroundColors: CalendarStatusColors = {
   ACCEPTED: "bg-primary/15",
   PENDING: "bg-lila-400/15",
   DENIED: "bg-destructive/15",
@@ -29,7 +29,7 @@ const beforeColors: CalendarStatusColors = {
   DENIED: "before:bg-destructive",
 };
 
-export const bgColorsModal: CalendarStatusColors = {
+export const backgroundColorsModal: CalendarStatusColors = {
   ACCEPTED: "bg-primary",
   PENDING: "bg-lila-400",
   DENIED: "bg-destructive",
@@ -52,7 +52,7 @@ const getCalendarCategory = (
   const container =
     mode === "css"
       ? `color-mix(in oklab, ${main} 15%, transparent)`
-      : bgColors[categoryName];
+      : backgroundColors[categoryName];
 
   return {
     colorName: categoryName,

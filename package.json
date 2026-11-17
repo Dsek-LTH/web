@@ -5,7 +5,7 @@
   "scripts": {
     "prepare": "svelte-kit sync && zenstack generate && prisma generate && pnpm paraglide && pnpm snaplet-seed generate",
     "setup-dev": "vite-node dev/setup.ts",
-    "ci-check": "concurrently 'pnpm:lint --max-warnings 0' 'pnpm:format' 'pnpm:test' 'pnpm:check --fail-on-warnings' 'pnpm:check-translations' --prefix-colors 'auto' --group",
+    "ci-check": "concurrently 'pnpm:lint --max-warnings 0' 'pnpm:format' 'pnpm:test' 'pnpm:check --fail-on-warnings' 'pnpm:check-translations' 'pnpm:spell' --prefix-colors 'auto' --group",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "pm2 start prod/ecosystem.config.cjs --no-daemon",
@@ -13,6 +13,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier . --check",
     "format:fix": "prettier . --write",
+    "spell": "vite-node dev/codebook.ts lint \"**/*\"",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "pnpm test:unit",

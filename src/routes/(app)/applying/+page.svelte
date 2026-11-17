@@ -5,10 +5,10 @@
   import * as m from "$paraglide/messages";
   import ArrowRight from "@lucide/svelte/icons/arrow-right";
 
-  const PROGRAMMES = [
+  const PROGRAMS = [
     {
-      title: m.applying_datateknik(),
-      description: m.applying_datateknik_desc(),
+      title: m.applying_computer_science(),
+      description: m.applying_computer_science_desc(),
       variant: "rosa",
       image:
         "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/datateknik/color.svg",
@@ -23,8 +23,8 @@
       link: "https://www.lth.se/utbildning/informations-och-kommunikationsteknik/",
     },
     {
-      title: m.applying_vrar(),
-      description: m.applying_vrar_desc(),
+      title: m.applying_vr_ar(),
+      description: m.applying_vr_ar_desc(),
       variant: "pistachio",
       image:
         "https://raw.githubusercontent.com/Dsek-LTH/grafik/refs/heads/main/guild/vr_ar/color.svg",
@@ -64,7 +64,7 @@
 
 <SetPageTitle title={m.applicant()} />
 
-{#each PROGRAMMES as programme, i (programme.title)}
+{#each PROGRAMS as program, i (program.title)}
   <section
     class="flex flex-col items-center gap-8 border-b-[1px] px-8 py-8 sm:px-12 md:px-16 lg:h-104 lg:flex-row lg:py-0 xl:px-36"
     class:lg:flex-row-reverse={i !== 1}
@@ -72,21 +72,21 @@
   >
     <div class="w-[256px] shrink-0 md:w-[468px]">
       <img
-        alt={programme.title + " logo"}
+        alt={program.title + " logo"}
         class="px-12 md:px-32"
-        src={programme.image}
+        src={program.image}
       />
     </div>
 
     <div class="flex flex-col gap-2">
       <h2>
-        {programme.title}
+        {program.title}
       </h2>
       <p class="">
-        {programme.description}
+        {program.description}
       </p>
-      <a class="mt-0" href={programme.link}
-        ><Button variant={programme.variant} class="w-fit"
+      <a class="mt-0" href={program.link}
+        ><Button variant={program.variant} class="w-fit"
           >{m.applying_cta()}
           <ArrowRight /></Button
         ></a

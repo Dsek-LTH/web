@@ -1,12 +1,12 @@
 <script lang="ts">
-  let clazz = "";
-  export { clazz as class };
+  let klass = "";
+  export { klass as class };
   export let variant: "full" | "letter" = "letter";
 </script>
 
 {#if variant === "letter"}
   <svg
-    class={clazz}
+    class={klass}
     focusable="false"
     aria-hidden="true"
     viewBox="0 0 24 24"
@@ -38,7 +38,7 @@
   </svg>
 {:else if variant === "full"}
   <svg
-    class={clazz}
+    class={klass}
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 1672.1 1672.1"
     xml:space="preserve"

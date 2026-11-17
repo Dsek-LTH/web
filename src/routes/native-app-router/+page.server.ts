@@ -8,7 +8,7 @@ export const load = async ({ locals, cookies }) => {
   if (!locals.isApp) {
     redirect(302, "/");
   }
-  if (cookies.get(APP_PREFERRED_PAGE_COOKIE) === "nollning") {
+  if (cookies.get(APP_PREFERRED_PAGE_COOKIE) === "n0llning") {
     redirect(302, "/nollning");
   } else {
     redirect(302, "/app/home");

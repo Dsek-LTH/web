@@ -3,7 +3,7 @@ import { convertPriceToCents } from "./convertPrice";
 
 describe("helper.ts", () => {
   describe("convertPriceToNumber", () => {
-    it("should convert price in kr to ören", () => {
+    it("should convert price in kr to öre", () => {
       expect(convertPriceToCents(123.45)).toBe(12345);
       expect(convertPriceToCents(0)).toBe(0);
       expect(convertPriceToCents(1.99)).toBe(199);
