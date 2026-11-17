@@ -69,7 +69,7 @@
       {@const previousKey =
         index === 0 ? null : appDateKey(monthEvents[index - 1]!.startDatetime)}
       {#if dayKey !== previousKey}
-        <h3 class="pt-2 capitalize">{start.format("dddd D MMMM")}</h3>
+        <h3 class="pt-2">{start.format("dddd D MMMM")}</h3>
       {/if}
       <a
         href={eventLink(event)}
