@@ -43,6 +43,13 @@
       return accept;
     },
   });
+
+  // Sortable.animate() runs during Svelte's keyed-update flush, after the DOM
+  // is available to measure. dnd-kit's provider render barrier can defer its
+  // inverse animation until late in the frame, allowing an uncompensated paint
+  // at the landing slot. Resolve in the next microtask instead.
+  const manager = sortable.sortable.manager;
+  if (manager) manager.renderer = { rendering: Promise.resolve() };
 </script>
 
 <div use:attachAction={disabled ? null : sortable.attach} data-id={id}>

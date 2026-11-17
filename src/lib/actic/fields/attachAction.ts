@@ -1,3 +1,5 @@
+import { installDragPopoverGuard } from "./dragPopoverGuard";
+
 /**
  * Bridges dnd-kit's attachment functions to a Svelte `use:` action.
  *
@@ -13,6 +15,7 @@ export function attachAction(
   node: HTMLElement,
   attach: ((node: HTMLElement) => () => void) | null,
 ) {
+  installDragPopoverGuard();
   let cleanup = attach?.(node);
   return {
     update(next: ((node: HTMLElement) => () => void) | null) {
