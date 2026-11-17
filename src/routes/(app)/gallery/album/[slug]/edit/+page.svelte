@@ -17,7 +17,6 @@
   import {
     CalendarDateTime,
     fromDate,
-    getLocalTimeZone,
     parseDate,
     toCalendarDate,
   } from "@internationalized/date";
@@ -35,19 +34,17 @@
     }) as SuperForm<EditSchema>,
   );
 
-  const tz = getLocalTimeZone();
-
   let date = $derived<string | undefined>(
     $form.date
-      ? toCalendarDate(fromDate($form.date, tz)).toString()
-      : toCalendarDate(fromDate(new Date(), tz)).toString(),
+      ? toCalendarDate(fromDate($form.date, "UTC")).toString()
+      : toCalendarDate(fromDate(new Date(), "UTC")).toString(),
   );
 
   function updateDate() {
     if (date) {
       const parsed = parseDate(date);
       const dt = new CalendarDateTime(parsed.year, parsed.month, parsed.day);
-      $form.date = dt.toDate(tz);
+      $form.date = dt.toDate("UTC");
     }
   }
 </script>
