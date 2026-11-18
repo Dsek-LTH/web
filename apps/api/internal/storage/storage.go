@@ -281,7 +281,15 @@ func ExtensionOf(filename string) string {
 // `name ?? getNameOfFile(file.name)` fallback never actually triggered in
 // either real caller and isn't replicated here.
 func PreparedFilename(name, originalFilename string) string {
-	return sanitizeNamePart(name) + "." + ExtensionOf(originalFilename)
+	return PreparedFilenameWithExt(name, ExtensionOf(originalFilename))
+}
+
+// PreparedFilenameWithExt is PreparedFilename with the extension given
+// directly - for uploads stored in another format than they came in
+// (internal/gallery re-encodes pictures), like the old TS's third
+// argument.
+func PreparedFilenameWithExt(name, ext string) string {
+	return sanitizeNamePart(name) + "." + ext
 }
 
 // SanitizeFilename sanitizes a whole filename (including its extension) as

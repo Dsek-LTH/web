@@ -47,13 +47,16 @@ func registerGalleryRoutes(api huma.API, svc *gallery.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "upload-album-pictures",
-		Method:        http.MethodPost,
-		Path:          "/albums",
-		Tags:          tags,
-		Summary:       "Upload pictures to an album",
-		Description:   "Creates the album \"{date} {name}\" if it doesn't exist. Needs fileHandler:albums:create.",
+		OperationID: "upload-album-pictures",
+		Method:      http.MethodPost,
+		Path:        "/albums",
+		Tags:        tags,
+		Summary:     "Upload pictures to an album",
+		Description: "Creates the album \"{date} {name}\" if it doesn't exist. Every picture must be a JPEG, " +
+			"PNG, WebP or GIF of at most 25 MB; each is turned upright, scaled down to at most 1920 pixels " +
+			"wide and stored as a JPEG (a PNG if it has transparency). Needs fileHandler:albums:create.",
 		DefaultStatus: http.StatusCreated,
+		MaxBodyBytes:  maxAlbumUpload,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			Name  string          `form:"name"  required:"true" doc:"Album name."`
