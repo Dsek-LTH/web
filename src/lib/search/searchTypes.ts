@@ -201,10 +201,11 @@ export type PositionDataInMeilisearch = Prettify<
     dsekId: string;
     committeeNameSv: ExtendedPrismaModel<"Committee">["nameSv"];
     committeeNameEn: ExtendedPrismaModel<"Committee">["nameEn"];
+    roleLogoUrl: string | null;
   }
 >;
 export type PositionSearchReturnAttributes = SearchablePositionAttributes &
-  Pick<PositionDataInMeilisearch, "committee" | "dsekId">;
+  Pick<PositionDataInMeilisearch, "committee" | "dsekId" | "roleLogoUrl">;
 
 // --------------------------------------------------
 // COMMITTEE
@@ -368,7 +369,7 @@ export const attributesUsedAsLink = {
   events: ["slug"],
   articles: ["slug"],
   songs: ["slug"],
-  positions: ["dsekId"],
+  positions: ["dsekId", "roleLogoUrl"],
   committees: ["shortName", "darkImageUrl", "lightImageUrl", "monoImageUrl"],
   governingDocuments: ["url"],
   meetingDocuments: ["url"],

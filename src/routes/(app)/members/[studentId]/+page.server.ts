@@ -102,6 +102,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
     throw error(505, phadderGroupsResult.reason);
 
   const member = memberResult.value;
+  const roleLogos = await prisma.roleLogo.findMany();
 
   // The field policy limits birthDate reads to signed-in members.
   const birthDate = member.birthDate;
@@ -141,6 +142,7 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
         dateToSemester(new Date()) - 1,
       ),
       phadderGroups: phadderGroupsResult.value,
+      roleLogos,
       ping: user
         ? await prisma.ping.findFirst({
             where: {
