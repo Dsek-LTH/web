@@ -114,6 +114,10 @@ func (s *Service) Get(ctx context.Context, slugStr string) (*Song, error) {
 		return nil, fmt.Errorf("get song: %w", err)
 	}
 	song := toSong(row)
+	if identity, ok := auth.FromContext(ctx); ok && identity.Has(apinames.SongUpdate) {
+		song.RawTitle = &row.Title
+		song.RawLyrics = &row.Lyrics
+	}
 	return &song, nil
 }
 

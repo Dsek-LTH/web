@@ -412,7 +412,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - Fix: require a signed-in member for both (like the member directory).
   Check the nollning pages still load for logged-in users.
 
-### [ ] T29 Editing a song saves display-transformed text
+### [x] T29 Editing a song saves display-transformed text
 
 - New: `routes/(app)/songarchive/[slug]/+layout.ts` seeds the edit form from
   `GET /songs/{slug}`, which already applied `FixSongText`; saving
