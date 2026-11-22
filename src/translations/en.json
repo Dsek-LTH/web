@@ -1873,7 +1873,7 @@
   "actic_candidate_add_position": "Add position",
   "actic_candidate_remove_position": "Remove position",
   "actic_candidate_remove_nominee": "Remove nominee",
-  "actic_stats_toggle": "Include selection statistics",
+  "actic_stats_toggle": "Include nomination statistics in Appendix",
   "actic_stats_label": "Applicants",
   "actic_stats_decrease": "Fewer applicants",
   "actic_stats_increase": "More applicants",
