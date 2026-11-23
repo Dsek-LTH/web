@@ -138,7 +138,18 @@ func (q *Queries) GetAdminSettings(ctx context.Context, keys []string) ([]GetAdm
 
 const getAuthorForNotification = `-- name: GetAuthorForNotification :one
 SELECT a.id, m.first_name, m.nickname, m.last_name, m.picture_path,
-       p.name_sv AS position_name_sv, p.name_en AS position_name_en
+       p.name_sv AS position_name_sv, p.name_en AS position_name_en,
+       a.member_id, (a.custom_id IS NOT NULL)::bool AS is_custom,
+       (
+           COALESCE(ma.position_id LIKE 'dsek.noll.stab.%', false)
+           OR EXISTS (
+               SELECT 1 FROM mandates sm
+               WHERE sm.member_id = a.member_id
+                 AND sm.position_id LIKE 'dsek.noll.stab.%'
+                 AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+                 AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+           )
+       )::bool AS author_is_staben
 FROM authors a
 JOIN members m ON m.id = a.member_id
 LEFT JOIN mandates ma ON ma.id = a.mandate_id
@@ -154,13 +165,18 @@ type GetAuthorForNotificationRow struct {
 	PicturePath    pgtype.Text `json:"picture_path"`
 	PositionNameSv pgtype.Text `json:"position_name_sv"`
 	PositionNameEn pgtype.Text `json:"position_name_en"`
+	MemberID       pgtype.UUID `json:"member_id"`
+	IsCustom       bool        `json:"is_custom"`
+	AuthorIsStaben bool        `json:"author_is_staben"`
 }
 
 // Resolves the display identity of a notification's sender: the plain
 // member fields, plus (if the author acted via a mandate) that mandate's
 // position name - mirrors getAuthorName's "Mandate" branch. Custom-author
 // bylines never send notifications in practice (no call site does), so
-// that branch isn't modeled here.
+// that branch isn't modeled here. author_is_staben is the same check as
+// in queries/articles.sql: posted as a staben mandate, or by a member in
+// staben today (nollning.StabenView hides the sender then).
 func (q *Queries) GetAuthorForNotification(ctx context.Context, id pgtype.UUID) (GetAuthorForNotificationRow, error) {
 	row := q.db.QueryRow(ctx, getAuthorForNotification, id)
 	var i GetAuthorForNotificationRow
@@ -172,6 +188,9 @@ func (q *Queries) GetAuthorForNotification(ctx context.Context, id pgtype.UUID) 
 		&i.PicturePath,
 		&i.PositionNameSv,
 		&i.PositionNameEn,
+		&i.MemberID,
+		&i.IsCustom,
+		&i.AuthorIsStaben,
 	)
 	return i, err
 }

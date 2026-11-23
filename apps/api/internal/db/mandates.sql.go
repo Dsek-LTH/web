@@ -52,7 +52,8 @@ func (q *Queries) DeleteMandate(ctx context.Context, id pgtype.UUID) error {
 }
 
 const listActiveMandatesForMember = `-- name: ListActiveMandatesForMember :many
-SELECT m.id, p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en
+SELECT m.id, p.id AS position_id, p.name_sv AS position_name_sv, p.name_en AS position_name_en,
+       mem.id AS member_id
 FROM mandates m
 JOIN positions p ON p.id = m.position_id
 JOIN members mem ON mem.id = m.member_id
@@ -67,6 +68,7 @@ type ListActiveMandatesForMemberRow struct {
 	PositionID     string      `json:"position_id"`
 	PositionNameSv string      `json:"position_name_sv"`
 	PositionNameEn pgtype.Text `json:"position_name_en"`
+	MemberID       pgtype.UUID `json:"member_id"`
 }
 
 // "Active" mirrors the old TS backend's author-options query: currently
@@ -85,6 +87,7 @@ func (q *Queries) ListActiveMandatesForMember(ctx context.Context, studentID pgt
 			&i.PositionID,
 			&i.PositionNameSv,
 			&i.PositionNameEn,
+			&i.MemberID,
 		); err != nil {
 			return nil, err
 		}

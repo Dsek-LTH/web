@@ -23,6 +23,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/integrations"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
 	"github.com/dsek-lth/web/apps/api/internal/mentions"
+	"github.com/dsek-lth/web/apps/api/internal/nollning"
 	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/slug"
 )
@@ -90,21 +91,25 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		return nil, 0, invalidf("invalid nollning season id: %v", err)
 	}
 
+	staben := nollning.StabenViewFor(ctx)
+	// The caller, for their own staben bylines (always theirs to see) and
+	// their own scheduled articles.
 	var viewerMemberID pgtype.UUID
+	identity, _ := auth.FromContext(ctx)
+	if identity != nil && identity.MemberID != "" {
+		viewerMemberID, err = dbutil.ParseUUID(identity.MemberID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("parse caller member id: %w", err)
+		}
+	}
 	allAuthors := false
 	if params.OnlyUnpublished {
-		identity, _ := auth.FromContext(ctx)
-		if identity == nil || identity.MemberID == "" {
+		if !viewerMemberID.Valid {
 			return []ArticleSummary{}, 0, nil
 		}
 		// The same author-or-policy rule as editing (see detail), since
 		// the list exists to find the articles to edit.
 		allAuthors = identity.Has(apinames.NewsArticleUpdate)
-		id, err := dbutil.ParseUUID(identity.MemberID)
-		if err != nil {
-			return nil, 0, fmt.Errorf("parse member id: %w", err)
-		}
-		viewerMemberID = id
 	}
 
 	rows, err := s.queries.ListArticles(ctx, db.ListArticlesParams{
@@ -115,6 +120,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,
 		AuthorStudentID:  authorStudentID,
+		HideStaben:       staben.Hides(),
 		NollningSeasonID: nollningSeasonID,
 		IncludeNollning:  params.IncludeNollning,
 		Limit:            int32(pageSize),
@@ -132,6 +138,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,
 		AuthorStudentID:  authorStudentID,
+		HideStaben:       staben.Hides(),
 		NollningSeasonID: nollningSeasonID,
 		IncludeNollning:  params.IncludeNollning,
 	})
@@ -143,7 +150,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	ids := make([]pgtype.UUID, len(rows))
 	summaries := make([]ArticleSummary, len(rows))
 	for i, row := range rows {
-		summaries[i] = toArticleSummary(row, loc)
+		summaries[i] = toArticleSummary(row, loc, staben)
 		ids[i] = row.ID
 	}
 
@@ -691,7 +698,8 @@ func toTag(
 
 // ListActiveMandatesForMember lists a member's currently-active mandates
 // (see ListActiveMandatesForMember's SQL doc comment for "active") - used
-// for the "post as" author picker.
+// for the "post as" author picker. Staben mandates are left out for callers
+// who may not see staben (nollning.StabenView), unless they're the member's.
 func (s *Service) ListActiveMandatesForMember(
 	ctx context.Context,
 	studentID string,
@@ -701,10 +709,14 @@ func (s *Service) ListActiveMandatesForMember(
 		return nil, fmt.Errorf("list mandates: %w", err)
 	}
 	loc := locale.FromContext(ctx)
-	mandates := make([]Mandate, len(rows))
-	for i, r := range rows {
+	staben := nollning.StabenViewFor(ctx)
+	mandates := make([]Mandate, 0, len(rows))
+	for _, r := range rows {
+		if staben.HidesMandate(r.PositionID, dbutil.UUIDStr(r.MemberID)) {
+			continue
+		}
 		nameEn := dbutil.TextPtr(r.PositionNameEn)
-		mandates[i] = Mandate{
+		mandates = append(mandates, Mandate{
 			ID: dbutil.UUIDStr(r.ID),
 			Position: &Position{
 				ID:     r.PositionID,
@@ -712,7 +724,7 @@ func (s *Service) ListActiveMandatesForMember(
 				NameSv: r.PositionNameSv,
 				NameEn: nameEn,
 			},
-		}
+		})
 	}
 	return mandates, nil
 }
@@ -963,7 +975,7 @@ func (s *Service) getBySlugUnfiltered(ctx context.Context, slug string) (*Articl
 }
 
 func (s *Service) detail(ctx context.Context, row db.ListArticlesRow) (*ArticleDetail, error) {
-	summary := toArticleSummary(row, locale.FromContext(ctx))
+	summary := toArticleSummary(row, locale.FromContext(ctx), nollning.StabenViewFor(ctx))
 
 	tagsByArticle, err := s.tagsByArticle(ctx, []pgtype.UUID{row.ID})
 	if err != nil {

@@ -33,6 +33,10 @@
     links?: boolean;
     lazy?: boolean;
   } = $props();
+
+  // A byline that would show who is in staben comes back without its
+  // member during nollning, so there's no profile to link to.
+  let memberLinks = $derived(links && author.member.studentId != null);
 </script>
 
 <div class={twMerge("flex flex-row items-center gap-2 p-1", klass)}>
@@ -47,8 +51,8 @@
   {:else}
     <a
       href="/members/{author.member.studentId}"
-      tabindex={links ? 0 : -1}
-      class="transition-opacity hover:opacity-80 focus:opacity-80 {links
+      tabindex={memberLinks ? 0 : -1}
+      class="transition-opacity hover:opacity-80 focus:opacity-80 {memberLinks
         ? ''
         : 'pointer-events-none'}"
     >
@@ -64,9 +68,9 @@
     {:else}
       <a
         href="/members/{author.member.studentId}"
-        tabindex={links ? 0 : -1}
+        tabindex={memberLinks ? 0 : -1}
         class="transition-opacity hover:opacity-80 focus:opacity-80"
-        class:pointer-events-none={!links}
+        class:pointer-events-none={!memberLinks}
       >
         <h6 class="line-clamp-3 break-words">
           {getFullName(author.member)}

@@ -41,6 +41,7 @@ const countArticles = `-- name: CountArticles :one
 SELECT count(*) FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
+LEFT JOIN mandates mn ON mn.id = au.mandate_id
 WHERE (a.removed_at IS NULL OR a.removed_at > now())
   -- Published articles, or with only_unpublished the scheduled ones
   -- instead: everyone's with all_authors, otherwise only those written by
@@ -76,15 +77,33 @@ WHERE (a.removed_at IS NULL OR a.removed_at > now())
   )
   AND ($6::uuid IS NULL OR a.committee_id = $6::uuid)
   AND ($7::text IS NULL OR m.student_id = $7::text)
+  -- A staben byline the caller may not see doesn't count as the member's
+  -- (see author_is_staben above): their profile doesn't list it.
   AND (
-    $8::uuid IS NULL
-    OR a.nollning_season_id = $8::uuid
+    $7::text IS NULL
+    OR NOT $8::bool
+    OR au.custom_id IS NOT NULL
+    OR au.member_id = $3::uuid
+    OR NOT (
+          COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+          OR EXISTS (
+              SELECT 1 FROM mandates sm
+              WHERE sm.member_id = au.member_id
+                AND sm.position_id LIKE 'dsek.noll.stab.%'
+                AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+                AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+          )
+      )
+  )
+  AND (
+    $9::uuid IS NULL
+    OR a.nollning_season_id = $9::uuid
   )
   -- Nollning content stays out of the general feeds (it has its own
   -- pages), unless asked for or filtered to one season.
   AND (
-    $9::bool
-    OR $8::uuid IS NOT NULL
+    $10::bool
+    OR $9::uuid IS NOT NULL
     OR a.nollning_season_id IS NULL
   )
 `
@@ -97,6 +116,7 @@ type CountArticlesParams struct {
 	TagIds           []pgtype.UUID `json:"tag_ids"`
 	CommitteeID      pgtype.UUID   `json:"committee_id"`
 	AuthorStudentID  pgtype.Text   `json:"author_student_id"`
+	HideStaben       bool          `json:"hide_staben"`
 	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
 	IncludeNollning  bool          `json:"include_nollning"`
 }
@@ -110,6 +130,7 @@ func (q *Queries) CountArticles(ctx context.Context, arg CountArticlesParams) (i
 		arg.TagIds,
 		arg.CommitteeID,
 		arg.AuthorStudentID,
+		arg.HideStaben,
 		arg.NollningSeasonID,
 		arg.IncludeNollning,
 	)
@@ -189,7 +210,20 @@ SELECT
     ca.id AS custom_author_id, ca.name_sv AS custom_author_name_sv,
     ca.name_en AS custom_author_name_en, ca.image_url AS custom_author_image_url,
     COALESCE(cm.n, 0)::int AS comment_count,
-    COALESCE(lk.n, 0)::int AS like_count
+    COALESCE(lk.n, 0)::int AS like_count,
+    -- Posted as a staben mandate (nollning.StabenPositionPrefix), or by a
+    -- member in staben today: articles.Service hides the byline from
+    -- callers who may not see staben.
+    (
+        COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+        OR EXISTS (
+            SELECT 1 FROM mandates sm
+            WHERE sm.member_id = au.member_id
+              AND sm.position_id LIKE 'dsek.noll.stab.%'
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+        )
+    )::bool AS author_is_staben
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
@@ -251,6 +285,7 @@ type GetArticleBySlugRow struct {
 	CustomAuthorImageUrl   pgtype.Text        `json:"custom_author_image_url"`
 	CommentCount           int32              `json:"comment_count"`
 	LikeCount              int32              `json:"like_count"`
+	AuthorIsStaben         bool               `json:"author_is_staben"`
 }
 
 // Public lookup: only published, not (currently) removed articles.
@@ -299,6 +334,7 @@ func (q *Queries) GetArticleBySlug(ctx context.Context, slug string) (GetArticle
 		&i.CustomAuthorImageUrl,
 		&i.CommentCount,
 		&i.LikeCount,
+		&i.AuthorIsStaben,
 	)
 	return i, err
 }
@@ -331,7 +367,20 @@ SELECT
     ca.id AS custom_author_id, ca.name_sv AS custom_author_name_sv,
     ca.name_en AS custom_author_name_en, ca.image_url AS custom_author_image_url,
     COALESCE(cm.n, 0)::int AS comment_count,
-    COALESCE(lk.n, 0)::int AS like_count
+    COALESCE(lk.n, 0)::int AS like_count,
+    -- Posted as a staben mandate (nollning.StabenPositionPrefix), or by a
+    -- member in staben today: articles.Service hides the byline from
+    -- callers who may not see staben.
+    (
+        COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+        OR EXISTS (
+            SELECT 1 FROM mandates sm
+            WHERE sm.member_id = au.member_id
+              AND sm.position_id LIKE 'dsek.noll.stab.%'
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+        )
+    )::bool AS author_is_staben
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
@@ -390,6 +439,7 @@ type GetArticleRowBySlugRow struct {
 	CustomAuthorImageUrl   pgtype.Text        `json:"custom_author_image_url"`
 	CommentCount           int32              `json:"comment_count"`
 	LikeCount              int32              `json:"like_count"`
+	AuthorIsStaben         bool               `json:"author_is_staben"`
 }
 
 // Unfiltered lookup: no publish/removed filter. Used internally after
@@ -443,6 +493,7 @@ func (q *Queries) GetArticleRowBySlug(ctx context.Context, slug string) (GetArti
 		&i.CustomAuthorImageUrl,
 		&i.CommentCount,
 		&i.LikeCount,
+		&i.AuthorIsStaben,
 	)
 	return i, err
 }
@@ -481,7 +532,20 @@ SELECT
     ca.id AS custom_author_id, ca.name_sv AS custom_author_name_sv,
     ca.name_en AS custom_author_name_en, ca.image_url AS custom_author_image_url,
     COALESCE(cm.n, 0)::int AS comment_count,
-    COALESCE(lk.n, 0)::int AS like_count
+    COALESCE(lk.n, 0)::int AS like_count,
+    -- Posted as a staben mandate (nollning.StabenPositionPrefix), or by a
+    -- member in staben today: articles.Service hides the byline from
+    -- callers who may not see staben.
+    (
+        COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+        OR EXISTS (
+            SELECT 1 FROM mandates sm
+            WHERE sm.member_id = au.member_id
+              AND sm.position_id LIKE 'dsek.noll.stab.%'
+              AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+              AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+        )
+    )::bool AS author_is_staben
 FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
@@ -530,21 +594,39 @@ WHERE (a.removed_at IS NULL OR a.removed_at > now())
   )
   AND ($6::uuid IS NULL OR a.committee_id = $6::uuid)
   AND ($7::text IS NULL OR m.student_id = $7::text)
+  -- A staben byline the caller may not see doesn't count as the member's
+  -- (see author_is_staben above): their profile doesn't list it.
   AND (
-    $8::uuid IS NULL
-    OR a.nollning_season_id = $8::uuid
+    $7::text IS NULL
+    OR NOT $8::bool
+    OR au.custom_id IS NOT NULL
+    OR au.member_id = $3::uuid
+    OR NOT (
+          COALESCE(mn.position_id LIKE 'dsek.noll.stab.%', false)
+          OR EXISTS (
+              SELECT 1 FROM mandates sm
+              WHERE sm.member_id = au.member_id
+                AND sm.position_id LIKE 'dsek.noll.stab.%'
+                AND sm.start_date <= (now() AT TIME ZONE 'Europe/Stockholm')::date
+                AND sm.end_date >= (now() AT TIME ZONE 'Europe/Stockholm')::date
+          )
+      )
+  )
+  AND (
+    $9::uuid IS NULL
+    OR a.nollning_season_id = $9::uuid
   )
   -- Nollning content stays out of the general feeds (it has its own
   -- pages), unless asked for or filtered to one season.
   AND (
-    $9::bool
-    OR $8::uuid IS NOT NULL
+    $10::bool
+    OR $9::uuid IS NOT NULL
     OR a.nollning_season_id IS NULL
   )
 ORDER BY
     CASE WHEN $1::bool THEN a.published_datetime END ASC,
     a.published_datetime DESC
-LIMIT $11 OFFSET $10
+LIMIT $12 OFFSET $11
 `
 
 type ListArticlesParams struct {
@@ -555,6 +637,7 @@ type ListArticlesParams struct {
 	TagIds           []pgtype.UUID `json:"tag_ids"`
 	CommitteeID      pgtype.UUID   `json:"committee_id"`
 	AuthorStudentID  pgtype.Text   `json:"author_student_id"`
+	HideStaben       bool          `json:"hide_staben"`
 	NollningSeasonID pgtype.UUID   `json:"nollning_season_id"`
 	IncludeNollning  bool          `json:"include_nollning"`
 	Offset           int32         `json:"offset"`
@@ -603,6 +686,7 @@ type ListArticlesRow struct {
 	CustomAuthorImageUrl   pgtype.Text        `json:"custom_author_image_url"`
 	CommentCount           int32              `json:"comment_count"`
 	LikeCount              int32              `json:"like_count"`
+	AuthorIsStaben         bool               `json:"author_is_staben"`
 }
 
 // Shared column list for the "joined article" shape: article + committee +
@@ -619,6 +703,7 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 		arg.TagIds,
 		arg.CommitteeID,
 		arg.AuthorStudentID,
+		arg.HideStaben,
 		arg.NollningSeasonID,
 		arg.IncludeNollning,
 		arg.Offset,
@@ -673,6 +758,7 @@ func (q *Queries) ListArticles(ctx context.Context, arg ListArticlesParams) ([]L
 			&i.CustomAuthorImageUrl,
 			&i.CommentCount,
 			&i.LikeCount,
+			&i.AuthorIsStaben,
 		); err != nil {
 			return nil, err
 		}

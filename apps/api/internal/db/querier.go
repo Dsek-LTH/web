@@ -178,7 +178,9 @@ type Querier interface {
 	// member fields, plus (if the author acted via a mandate) that mandate's
 	// position name - mirrors getAuthorName's "Mandate" branch. Custom-author
 	// bylines never send notifications in practice (no call site does), so
-	// that branch isn't modeled here.
+	// that branch isn't modeled here. author_is_staben is the same check as
+	// in queries/articles.sql: posted as a staben mandate, or by a member in
+	// staben today (nollning.StabenView hides the sender then).
 	GetAuthorForNotification(ctx context.Context, id pgtype.UUID) (GetAuthorForNotificationRow, error)
 	// The member behind an author row, so Send can leave them out of their own
 	// notification when it is sent with FromAuthorID.
