@@ -137,10 +137,11 @@ func (s *Service) listBirthdays(
 // Profile fetches a member's full profile, including mandate history.
 // Email is only resolved if the caller is viewing their own profile or
 // holds MemberSeeEmail, and the food preference for themselves or
-// MemberUpdate - matching the old TS behavior exactly. During a nollning
-// season, a caller without member:see_staben gets neither the member's
-// staben mandates nor, while they are in staben, their email (see
-// nollning.StabenView).
+// MemberUpdate - matching the old TS behavior exactly. The phadder group
+// is for themselves or NollningPhadderGroupsManage, who may change it.
+// During a nollning season, a caller without member:see_staben gets
+// neither the member's staben mandates nor, while they are in staben,
+// their email (see nollning.StabenView).
 func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile, error) {
 	identity, err := requireMember(ctx)
 	if err != nil {
@@ -227,6 +228,19 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 		Mandates:       mandates,
 	}
 
+	nollaGroup, err := s.queries.GetMemberNollaGroup(ctx, row.ID)
+	switch {
+	case err == nil:
+		member.NollaIn = &MemberNollaGroup{
+			ID:       dbutil.UUIDStr(nollaGroup.ID),
+			Name:     nollaGroup.Name,
+			ImageURL: dbutil.TextPtr(nollaGroup.ImageUrl),
+			Year:     nollaGroup.Year,
+		}
+	case !errors.Is(err, pgx.ErrNoRows):
+		return nil, fmt.Errorf("get nolla group: %w", err)
+	}
+
 	if (identity.StudentID == studentID || identity.Has(apinames.MemberSeeEmail)) &&
 		!staben.HidesMember(memberID, isStaben) {
 		member.Email = dbutil.TextPtr(row.Email)
@@ -235,6 +249,11 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 	// themselves and those who may edit members.
 	if identity.StudentID == studentID || identity.Has(apinames.MemberUpdate) {
 		member.FoodPreference = dbutil.TextPtr(row.FoodPreference)
+	}
+	// So the profile forms can prefill the member's phadder group, for those
+	// who may change it (PUT /members/{studentId}/phadder-group).
+	if identity.StudentID == studentID || identity.Has(apinames.NollningPhadderGroupsManage) {
+		member.NollningGroupID = dbutil.UUIDStrPtr(row.NollningGroupID)
 	}
 	if identity.StudentID == studentID || identity.Has(apinames.MemberUser) {
 		member.BirthDate = dbutil.DatePtr(row.BirthDate)

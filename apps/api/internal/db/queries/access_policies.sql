@@ -32,7 +32,7 @@ INSERT INTO api_access_policies (api_name, role, student_id)
 VALUES ($1, $2, $3)
 RETURNING id, api_name, role, student_id, created_at;
 
--- name: DeleteAccessPolicy :exec
+-- name: DeleteAccessPolicy :execrows
 DELETE FROM api_access_policies WHERE id = $1;
 
 -- name: ListPoliciesForRolesOrStudentID :many

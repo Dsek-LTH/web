@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { escapeHtml } from "$lib/utils/html";
   import type { PageProps } from "./$types";
   import { enhance as svEnhance } from "$app/forms";
   import {
@@ -302,7 +303,10 @@
         <AlertDialogTitle>{m.admin_doors_removeAccessRule()}</AlertDialogTitle>
         <AlertDialogDescription>
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html m.admin_doors_areYouSure({ door: door.verboseName, subject })}
+          {@html m.admin_doors_areYouSure({
+            door: escapeHtml(door.verboseName),
+            subject: escapeHtml(subject),
+          })}
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

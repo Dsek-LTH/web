@@ -13,7 +13,7 @@ VALUES ($1, sqlc.narg('mandate_id')::uuid, sqlc.narg('custom_id')::uuid)
 RETURNING id;
 
 -- name: GetMandateMemberID :one
--- Used to verify a caller posting "as" a mandate actually holds it.
--- custom_authors has no owner column in the schema (they're shared
--- personas, e.g. "Styrelsen"), so there's no equivalent check for those.
+-- Used to verify a caller posting "as" a mandate actually holds it. Custom
+-- authors are checked against custom_author_roles instead
+-- (CustomAuthorAllowedForRoles).
 SELECT member_id FROM mandates WHERE id = $1;

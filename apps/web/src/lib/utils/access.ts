@@ -22,7 +22,11 @@ export function requireCanEdit(user: Viewer, canEdit: boolean | undefined) {
   error(403, m.errors_noAccess());
 }
 
-/** For a load that failed in Go: the same status, with Go's reason. */
+/**
+ * For a load that failed in Go: the same status, with Go's reason. A 404
+ * shows `fallback` instead, since Go's detail is English-only and the
+ * caller's fallback names what is missing in the viewer's language.
+ */
 export function goError(
   response: Response,
   body: { detail?: string } | undefined,
@@ -30,5 +34,6 @@ export function goError(
 ): never {
   if (response.status === 401) error(401, m.errors_notLoggedIn());
   if (response.status === 403) error(403, m.errors_noAccess());
+  if (response.status === 404) error(404, fallback);
   error(response.status, body?.detail ?? fallback);
 }

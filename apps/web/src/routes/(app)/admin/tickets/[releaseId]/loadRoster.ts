@@ -16,17 +16,18 @@ export const loadRoster = async (event: RequestEvent, releaseId: string) => {
     memberId: entry.studentId,
     requestedAt: entry.requestedAt,
     updatedAt: entry.updatedAt,
-    member:
-      entry.firstName || entry.lastName
-        ? {
-            studentId: entry.studentId,
-            firstName: entry.firstName,
-            lastName: entry.lastName,
-            nickname: entry.nickname,
-            picturePath: entry.picturePath,
-            foodPreference: entry.foodPreference,
-          }
-        : null,
+    // Only a ticket held by a student id with no member has none; a member
+    // without a name still has their picture and food preference.
+    member: entry.isMember
+      ? {
+          studentId: entry.studentId,
+          firstName: entry.firstName,
+          lastName: entry.lastName,
+          nickname: entry.nickname,
+          picturePath: entry.picturePath,
+          foodPreference: entry.foodPreference,
+        }
+      : null,
   }));
 
   return { release, roster };

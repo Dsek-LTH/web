@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -70,6 +72,18 @@ func TestArticleAccess(t *testing.T) {
 	})
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.NewsArticleDelete))
 
+	// A deleted article takes no likes or comments.
+	e.check(t, []accessCase{
+		{e.as(2, apinames.NewsArticleLike), http.MethodPut, path + "/like", nil, hidden},
+		{
+			e.as(2, apinames.NewsArticleComment),
+			http.MethodPost,
+			path + "/comments",
+			comment,
+			hidden,
+		},
+	})
+
 	// A deleted article is only shown to someone who may edit it.
 	hidden := path + "?includeDeleted=true"
 	e.check(t, []accessCase{
@@ -91,6 +105,40 @@ func TestArticleAccess(t *testing.T) {
 		{e.as(1), http.MethodGet, draft + "?includeUnpublished=true", nil, ok},
 	})
 
+	// The scheduled list shows it to its author and news:article:update,
+	// not to other members or anonymous callers.
+	scheduled := func(c caller) []string {
+		t.Helper()
+		var list struct {
+			Articles []struct {
+				Header string `json:"header"`
+			} `json:"articles"`
+		}
+		e.mustCall(t, c, http.MethodGet, "/articles?onlyUnpublished=true&pageSize=100", nil).
+			decode(t, &list)
+		headers := make([]string, len(list.Articles))
+		for i, a := range list.Articles {
+			headers[i] = a.Header
+		}
+		return headers
+	}
+	for _, c := range []struct {
+		as   caller
+		want bool
+	}{
+		{anonymous, false},
+		{e.as(2), false},
+		{e.as(1), true},
+		{e.as(2, apinames.NewsArticleUpdate), true},
+	} {
+		if got := slices.Contains(scheduled(c.as), "Authz draft"); got != c.want {
+			t.Errorf("scheduled list as %s: has the draft = %v, want %v", c.as.label, got, c.want)
+		}
+	}
+	if slices.Contains(scheduled(e.as(1)), "Authz article") {
+		t.Error("scheduled list includes a published (deleted) article")
+	}
+
 	// Images for articles and events, and tags.
 	image := form{files: map[string][]formFile{"file": {pngFile}}}
 	e.check(t, e.gate(http.MethodPost, "/images", image, ok, apinames.NewsArticleCreate))
@@ -98,6 +146,15 @@ func TestArticleAccess(t *testing.T) {
 		{e.as(1, apinames.EventCreate), http.MethodPost, "/images", image, ok},
 		{e.as(1, apinames.EventUpdate), http.MethodPost, "/images", image, ok},
 	})
+	// Only images are stored, whatever the file is called.
+	page := form{files: map[string][]formFile{"file": {{
+		name: "pixel.png",
+		data: []byte("<!DOCTYPE html><html><script>alert(1)</script></html>"),
+	}}}}
+	res := e.call(t, e.as(1, apinames.NewsArticleCreate), http.MethodPost, "/images", page)
+	if res.status != http.StatusUnprocessableEntity {
+		t.Errorf("POST /images with HTML: got %d, want 422: %s", res.status, truncate(res.body))
+	}
 	e.check(t, e.gate(http.MethodPost, "/tags", map[string]any{"nameSv": "Authz tag"}, ok,
 		apinames.TagsCreate))
 	tagID := e.one(t, `SELECT id::text FROM tags WHERE name_sv = 'Authz tag'`)
@@ -172,6 +229,12 @@ func TestEventAccess(t *testing.T) {
 	e.check(t, []accessCase{{e.as(1), http.MethodDelete, path, nil, denied}})
 	e.check(t, e.gate(http.MethodDelete, path, nil, ok, apinames.EventDelete))
 
+	// A removed event takes no RSVPs or comments.
+	e.check(t, []accessCase{
+		{e.as(2), http.MethodPut, path + "/attendance", map[string]any{"status": "going"}, hidden},
+		{e.as(2, apinames.EventComment), http.MethodPost, path + "/comments", comment, hidden},
+	})
+
 	hiddenPath := path + "?includeDeleted=true"
 	e.check(t, []accessCase{
 		{anonymous, http.MethodGet, path, nil, hidden},
@@ -179,5 +242,106 @@ func TestEventAccess(t *testing.T) {
 		{e.as(2), http.MethodGet, hiddenPath, nil, hidden},
 		{e.as(1), http.MethodGet, hiddenPath, nil, ok},
 		{e.as(4, apinames.EventUpdate), http.MethodGet, hiddenPath, nil, ok},
+		{e.as(3, apinames.EventDelete), http.MethodGet, hiddenPath, nil, ok},
+		{e.as(3, apinames.EventDelete), http.MethodGet, path, nil, hidden},
+	})
+}
+
+// withRoles is c with these derived roles on top of "*" and "_".
+func withRoles(c caller, roles ...string) caller {
+	id := *c.identity
+	id.Roles = append([]string{"*", "_"}, roles...)
+	c.identity = &id
+	c.label += " in " + strings.Join(roles, ", ")
+	return c
+}
+
+// A custom author is only offered to, and usable by, members holding an
+// active mandate for a position under one of its custom_author_roles
+// (prefixes included) or with one of them among their session's roles,
+// unless they may manage or edit articles; an edit keeps the article's
+// current one.
+func TestCustomAuthorAccess(t *testing.T) {
+	e := requireDB(t)
+	newAuthor := func(name, role string) string {
+		id := e.one(t, `INSERT INTO custom_authors (name_sv) VALUES ($1) RETURNING id::text`, name)
+		e.one(t, `INSERT INTO custom_author_roles (custom_author_id, role) VALUES ($1, $2)
+			RETURNING id::text`, id, role)
+		return id
+	}
+	board := newAuthor("Authz board", "dsek.authzca")
+	other := newAuthor("Authz other", "dsek.authzother")
+	group := newAuthor("Authz group", "dsek.authzgroup")
+	ours := []string{board, other, group}
+
+	// Member 1 holds a mandate today for a position under board's role.
+	e.one(t, `INSERT INTO positions (id, name_sv) VALUES ('dsek.authzca.x', 'Authz x')
+		RETURNING id`)
+	mandate := e.one(t, `INSERT INTO mandates (member_id, position_id, start_date, end_date,
+		last_synced) VALUES ($1, 'dsek.authzca.x', CURRENT_DATE - 1, CURRENT_DATE + 1, CURRENT_DATE)
+		RETURNING id::text`, e.members[1].ID)
+
+	byline := func(header, customID string) map[string]any {
+		body := articleBody(header, nil)
+		body["author"] = map[string]any{"customId": customID}
+		return body
+	}
+	writer := e.as(1, apinames.NewsArticleCreate)
+	// Member 3 has group's role only through the session (Authentik groups).
+	grouped := withRoles(e.as(3, apinames.NewsArticleCreate), "dsek", "dsek.authzgroup")
+	manager := e.as(2, apinames.NewsArticleCreate, apinames.NewsArticleManage)
+
+	listed := func(c caller) []string {
+		var authors []struct {
+			ID string `json:"id"`
+		}
+		e.mustCall(t, c, http.MethodGet, "/custom-authors", nil).decode(t, &authors)
+		var ids []string
+		for _, a := range authors {
+			if slices.Contains(ours, a.ID) {
+				ids = append(ids, a.ID)
+			}
+		}
+		slices.Sort(ids)
+		return ids
+	}
+	sorted := func(ids ...string) []string {
+		slices.Sort(ids)
+		return ids
+	}
+	for _, c := range []struct {
+		as   caller
+		want []string
+	}{
+		{writer, []string{board}},
+		{grouped, []string{group}},
+		{e.as(4), nil},
+		{anonymous, nil},
+		{manager, sorted(board, other, group)},
+	} {
+		if got := listed(c.as); !slices.Equal(got, c.want) {
+			t.Errorf("custom authors for %s: got %v, want %v", c.as.label, got, c.want)
+		}
+	}
+
+	e.check(t, []accessCase{
+		{writer, http.MethodPost, "/articles", byline("Authz board article", board), ok},
+		{writer, http.MethodPost, "/articles", byline("Authz other article", other), denied},
+		{grouped, http.MethodPost, "/articles", byline("Authz group article", group), ok},
+		{grouped, http.MethodPost, "/articles", byline("Authz group article 2", board), denied},
+		{manager, http.MethodPost, "/articles", byline("Authz managed article", other), ok},
+	})
+
+	// Once the mandate is gone, member 1 may keep the byline on their
+	// article but not pick it again or switch to one they lack.
+	e.one(t, `DELETE FROM mandates WHERE id = $1 RETURNING id::text`, mandate)
+	path := "/articles/" + e.one(
+		t,
+		`SELECT slug FROM articles WHERE header_sv = 'Authz board article'`,
+	)
+	e.check(t, []accessCase{
+		{writer, http.MethodPut, path, byline("Authz board article", board), ok},
+		{writer, http.MethodPut, path, byline("Authz board article", other), denied},
+		{writer, http.MethodPost, "/articles", byline("Authz board article 2", board), denied},
 	})
 }

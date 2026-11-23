@@ -31,6 +31,7 @@ type listArticlesInput struct {
 	AuthorStudentID  string   `query:"authorStudentId"  doc:"Only articles written by this member."`
 	NollningSeasonID string   `query:"nollningSeasonId" doc:"Only articles in this nollning season."`
 	IncludeNollning  bool     `query:"includeNollning"  doc:"Also list nollning season articles, which are left out unless nollningSeasonId is set."`
+	OnlyUnpublished  bool     `query:"onlyUnpublished"  doc:"List only scheduled articles (publishedAt in the future), soonest first: the caller's own, or everyone's with news:article:update. Empty for an anonymous caller."`
 	Paging
 }
 
@@ -76,7 +77,9 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Tags:        tags,
 		Summary:     "List published articles",
 		Description: "Published, non-deleted articles, newest first, without nollning season articles " +
-			"unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.",
+			"unless includeNollning or nollningSeasonId is set. pageSize defaults to 10. " +
+			"onlyUnpublished lists scheduled articles instead: the caller's own, or everyone's " +
+			"with news:article:update.",
 	}, func(ctx context.Context, input *listArticlesInput) (*struct{ Body articles.ArticleList }, error) {
 		params := articles.ListParams{
 			TagIDs:   input.Tags,
@@ -96,6 +99,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 			params.NollningSeasonID = &input.NollningSeasonID
 		}
 		params.IncludeNollning = input.IncludeNollning
+		params.OnlyUnpublished = input.OnlyUnpublished
 
 		items, pageCount, err := svc.List(ctx, params)
 		if err != nil {
@@ -223,7 +227,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Path:          "/articles/{slug}/comments",
 		Tags:          tags,
 		Summary:       "Comment on an article",
-		Description:   "As the signed-in member. Needs news:article:comment. Mentioned members are notified.",
+		Description:   "As the signed-in member. Needs news:article:comment.",
 		DefaultStatus: http.StatusCreated,
 	}, func(ctx context.Context, input *struct {
 		Slug string `path:"slug"`
@@ -308,7 +312,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Path:        "/custom-authors",
 		Tags:        tags,
 		Summary:     "List custom authors",
-		Description: "Shared bylines that aren't a member, e.g. Styrelsen.",
+		Description: "Shared bylines that aren't a member, e.g. Styrelsen, that the caller may post as: those granted to one of their roles, or all of them with news:article:manage or news:article:update.",
 	}, func(ctx context.Context, _ *struct{}) (*struct{ Body []articles.CustomAuthor }, error) {
 		customAuthors, err := svc.ListCustomAuthors(ctx)
 		if err != nil {
@@ -337,13 +341,16 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID:   "upload-image",
-		Method:        http.MethodPost,
-		Path:          "/images",
-		Tags:          []string{"Files"},
-		Summary:       "Upload an image",
-		Description:   "For articles and event header images. Needs news:article:create, event:create or event:update.",
+		OperationID: "upload-image",
+		Method:      http.MethodPost,
+		Path:        "/images",
+		Tags:        []string{"Files"},
+		Summary:     "Upload an image",
+		Description: "For articles and event header images: a JPEG, PNG, WebP or GIF of at most 25 MB. " +
+			"It's turned upright (EXIF orientation), scaled down to at most 1920 pixels wide and stored as " +
+			"a JPEG, or a PNG if it has transparency. Needs news:article:create, event:create or event:update.",
 		DefaultStatus: http.StatusCreated,
+		MaxBodyBytes:  articles.MaxImageSize + multipartSlack,
 	}, func(ctx context.Context, input *struct {
 		RawBody huma.MultipartFormFiles[struct {
 			File huma.FormFile `form:"file" required:"true" doc:"The image."`

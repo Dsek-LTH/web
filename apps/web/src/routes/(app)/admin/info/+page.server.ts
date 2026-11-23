@@ -7,7 +7,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import * as m from "$paraglide/messages";
 import { slugify } from "$lib/utils/slugify";
 import { serverApi } from "$lib/server/apiClient";
-import { requirePolicy } from "$lib/utils/access";
+import { goError, requirePolicy } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
 // markdown:create is enforced by the Go API itself - no authorize() call
@@ -30,7 +30,8 @@ export const actions: Actions = {
       params: { path: { slug } },
       body: { markdownSv, markdownEn },
     });
-    if (created.error) throw new Error("Failed to create info page");
+    if (created.error)
+      goError(created.response, created.error, "Failed to create info page");
     throw redirect(
       `/info/${slug}`,
       {

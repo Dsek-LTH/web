@@ -1,5 +1,7 @@
-import { error, fail } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
+import type { ErrorStatus } from "sveltekit-superforms";
 import { serverApi } from "$lib/server/apiClient";
+import { goError } from "$lib/utils/access";
 import {
   message,
   superValidate,
@@ -35,9 +37,8 @@ export const load: PageServerLoad = async (event) => {
   const res = await api.GET("/positions/{id}", {
     params: { path: { id: searchId } },
   });
-  if (res.error) {
-    throw error(404, m.positions_errors_positionNotFound());
-  }
+  if (res.error)
+    goError(res.response, res.error, m.positions_errors_positionNotFound());
   const position = res.data;
 
   const mandates = (position.mandates ?? []).map((mandate) => ({
@@ -149,7 +150,16 @@ export const actions: Actions = {
     const currentRes = await api.GET("/positions/{id}", {
       params: { path: { id: searchId } },
     });
-    if (currentRes.error) return fail(404, { form });
+    if (currentRes.error)
+      return message(
+        form,
+        {
+          message:
+            currentRes.error.detail ?? m.positions_errors_positionNotFound(),
+          type: "error",
+        },
+        { status: currentRes.response.status as ErrorStatus },
+      );
     const current = currentRes.data;
 
     const isSv = getLocale() === "sv";
@@ -169,7 +179,15 @@ export const actions: Actions = {
         boardMember: current.boardMember ?? false,
       },
     });
-    if (res.error) return fail(500, { form });
+    if (res.error)
+      return message(
+        form,
+        {
+          message: res.error.detail ?? "Failed to update position",
+          type: "error",
+        },
+        { status: res.response.status as ErrorStatus },
+      );
 
     return message(form, {
       message: m.positions_positionUpdated(),
@@ -192,7 +210,12 @@ export const actions: Actions = {
         endDate: toDateString(form.data.endDate),
       },
     });
-    if (res.error) return fail(500, { form });
+    if (res.error)
+      return message(
+        form,
+        { message: res.error.detail ?? "Failed to add mandate", type: "error" },
+        { status: res.response.status as ErrorStatus },
+      );
 
     return message(form, {
       message: m.positions_newMandateGivenTo({
@@ -220,8 +243,11 @@ export const actions: Actions = {
     if (res.error)
       return message(
         form,
-        { message: m.positions_errors_mandateNotFound(), type: "error" },
-        { status: 400 },
+        {
+          message: res.error.detail ?? m.positions_errors_mandateNotFound(),
+          type: "error",
+        },
+        { status: res.response.status as ErrorStatus },
       );
 
     // Unlike the old Prisma version, this doesn't personalize the flash
@@ -251,8 +277,11 @@ export const actions: Actions = {
     if (res.error)
       return message(
         form,
-        { message: m.positions_errors_mandateNotFound(), type: "error" },
-        { status: 400 },
+        {
+          message: res.error.detail ?? m.positions_errors_mandateNotFound(),
+          type: "error",
+        },
+        { status: res.response.status as ErrorStatus },
       );
 
     return message(form, {

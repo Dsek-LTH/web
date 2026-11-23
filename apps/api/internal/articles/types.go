@@ -77,7 +77,7 @@ type ArticleSummary struct {
 	Header       string         `json:"header"                doc:"headerEn or headerSv, resolved from Accept-Language."`
 	HeaderSv     string         `json:"headerSv"`
 	HeaderEn     *string        `json:"headerEn,omitempty"`
-	Body         string         `json:"body"                  doc:"bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML."`
+	Body         string         `json:"body"                  doc:"bodyEn or bodySv, resolved from Accept-Language. Markdown (any HTML in it sanitized on save)."`
 	BodySv       string         `json:"bodySv"`
 	BodyEn       *string        `json:"bodyEn,omitempty"`
 	ImageURL     *string        `json:"imageUrl,omitempty"    doc:"The first image, for list views."`
@@ -137,12 +137,12 @@ type ArticleList struct {
 // member (taken from the request's auth.Identity, not client input - see
 // Service.resolveAuthor). Set MandateID to post as a mandate the acting
 // member holds (verified against the DB), or CustomID to post as a shared
-// custom byline (e.g. "Styrelsen" - these aren't owned by a specific
-// member, so there's nothing to verify). Leave both unset to post as the
-// member themselves.
+// custom byline (e.g. "Styrelsen") granted to one of the caller's roles
+// (see GET /custom-authors). Leave both unset to post as the member
+// themselves.
 type AuthorInput struct {
 	MandateID *string `json:"mandateId,omitempty" doc:"Post as this mandate, which the caller must hold."`
-	CustomID  *string `json:"customId,omitempty"  doc:"Post as this custom author."`
+	CustomID  *string `json:"customId,omitempty"  doc:"Post as this custom author, one GET /custom-authors lists for the caller (an edit may keep the article's current one)."`
 }
 
 // ArticleInput is the writable shape of an article, shared by create and
@@ -159,7 +159,7 @@ type ArticleInput struct {
 	Author                 AuthorInput `json:"author"           doc:"The byline. The author is always the caller."`
 	TagIDs                 []string    `json:"tagIds"`
 	CommitteeID            *string     `json:"committeeId"`
-	PublishedAt            *time.Time  `json:"publishedAt"      doc:"When it goes live. Unset keeps it a draft; omitting it on update un-publishes it."`
+	PublishedAt            *time.Time  `json:"publishedAt"      doc:"When it goes live. Omitted on create, it goes live now; omitted on update, it's un-published."`
 	ShouldSendNotification bool        `json:"sendNotification" doc:"Notify subscribers when it goes live."`
 	NotificationText       *string     `json:"notificationText"`
 	NollningSeasonID       *string     `json:"nollningSeasonId" doc:"Setting or changing it needs nollning:content:associate."`
@@ -181,6 +181,10 @@ type ListParams struct {
 	// IncludeNollning lists nollning season content too, which is left out
 	// unless NollningSeasonID picks a season.
 	IncludeNollning bool
+	// OnlyUnpublished lists scheduled articles (publishedAt in the future)
+	// instead of published ones: the caller's own, or everyone's with
+	// news:article:update. Nothing for an anonymous caller.
+	OnlyUnpublished bool
 	Page            int
 	PageSize        int
 }

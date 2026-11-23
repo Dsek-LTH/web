@@ -1,5 +1,6 @@
 import { api } from "$lib/api/client";
 import type { components } from "$lib/api/schema";
+import { appDateKey } from "$lib/utils/datetime";
 import type { PageLoad } from "./$types";
 
 type Position = components["schemas"]["PositionDetail"];
@@ -15,14 +16,17 @@ export const load: PageLoad = async ({ fetch }) => {
       params: { path: { id } },
     });
     if (!res.data) return null;
-    const now = Date.now();
+    // Mandate dates are whole days (YYYY-MM-DD), so compare them with
+    // today's date in Swedish time; parsed as instants they'd end at 00:00
+    // UTC on the last day.
+    const today = appDateKey(new Date());
     const mandate = res.data.mandates?.find(
       (mandate) =>
         mandate.member &&
         mandate.startDate &&
         mandate.endDate &&
-        new Date(mandate.startDate).valueOf() <= now &&
-        new Date(mandate.endDate).valueOf() >= now,
+        mandate.startDate <= today &&
+        mandate.endDate >= today,
     );
     return mandate?.member
       ? { position: res.data, member: mandate.member }

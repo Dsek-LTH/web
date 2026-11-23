@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
-
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
 	"github.com/dsek-lth/web/apps/api/internal/db"
@@ -119,8 +117,12 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return invalidf("invalid id: %v", err)
 	}
-	if err := s.queries.SoftDeleteAlert(ctx, alertID); err != nil {
+	deleted, err := s.queries.SoftDeleteAlert(ctx, alertID)
+	if err != nil {
 		return fmt.Errorf("delete alert: %w", err)
+	}
+	if deleted == 0 {
+		return ErrNotFound
 	}
 	return nil
 }
@@ -144,14 +146,23 @@ func (s *Service) Close(ctx context.Context, id string) error {
 	if err != nil {
 		return fmt.Errorf("parse member id: %w", err)
 	}
-	if err := s.queries.CloseAlertForMember(ctx, db.CloseAlertForMemberParams{
-		A: alertID,
-		B: memberID,
-	}); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+	closed, err := s.queries.CloseAlertForMember(ctx, db.CloseAlertForMemberParams{
+		AlertID:  alertID,
+		MemberID: memberID,
+	})
+	if err != nil {
+		return fmt.Errorf("close alert: %w", err)
+	}
+	if closed == 0 {
+		// Either already closed (fine, closing is idempotent) or no such
+		// alert.
+		exists, err := s.queries.AlertExists(ctx, alertID)
+		if err != nil {
+			return fmt.Errorf("find alert: %w", err)
+		}
+		if !exists {
 			return ErrNotFound
 		}
-		return fmt.Errorf("close alert: %w", err)
 	}
 	return nil
 }

@@ -111,6 +111,36 @@ func (q *Queries) GetMemberByStudentID(ctx context.Context, studentID pgtype.Tex
 	return i, err
 }
 
+const getMemberNollaGroup = `-- name: GetMemberNollaGroup :one
+SELECT g.id, g.name, g.image_url, s.year
+FROM members m
+JOIN phadder_groups g ON g.id = m.nollning_group_id
+JOIN nollning_seasons s ON s.id = g.season_id
+WHERE m.id = $1
+`
+
+type GetMemberNollaGroupRow struct {
+	ID       pgtype.UUID `json:"id"`
+	Name     string      `json:"name"`
+	ImageUrl pgtype.Text `json:"image_url"`
+	Year     int32       `json:"year"`
+}
+
+// The phadder group the member was a nolla in, whatever season - the
+// profile's permanent "nolla in" record (members.nollning_group_id is
+// never cleared after a season).
+func (q *Queries) GetMemberNollaGroup(ctx context.Context, memberID pgtype.UUID) (GetMemberNollaGroupRow, error) {
+	row := q.db.QueryRow(ctx, getMemberNollaGroup, memberID)
+	var i GetMemberNollaGroupRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.ImageUrl,
+		&i.Year,
+	)
+	return i, err
+}
+
 const getMemberPicturePath = `-- name: GetMemberPicturePath :one
 SELECT picture_path FROM members WHERE student_id = $1
 `
@@ -124,27 +154,29 @@ func (q *Queries) GetMemberPicturePath(ctx context.Context, studentID pgtype.Tex
 
 const getMemberProfile = `-- name: GetMemberProfile :one
 SELECT id, student_id, first_name, nickname, last_name, picture_path, class_programme,
-       class_year, visible, food_preference, bio, email, graduation_year, language, birth_date
+       class_year, visible, food_preference, bio, email, graduation_year, language, birth_date,
+       nollning_group_id
 FROM members
 WHERE student_id = $1
 `
 
 type GetMemberProfileRow struct {
-	ID             pgtype.UUID `json:"id"`
-	StudentID      pgtype.Text `json:"student_id"`
-	FirstName      pgtype.Text `json:"first_name"`
-	Nickname       pgtype.Text `json:"nickname"`
-	LastName       pgtype.Text `json:"last_name"`
-	PicturePath    pgtype.Text `json:"picture_path"`
-	ClassProgramme pgtype.Text `json:"class_programme"`
-	ClassYear      pgtype.Int4 `json:"class_year"`
-	Visible        bool        `json:"visible"`
-	FoodPreference pgtype.Text `json:"food_preference"`
-	Bio            pgtype.Text `json:"bio"`
-	Email          pgtype.Text `json:"email"`
-	GraduationYear pgtype.Int4 `json:"graduation_year"`
-	Language       pgtype.Text `json:"language"`
-	BirthDate      pgtype.Date `json:"birth_date"`
+	ID              pgtype.UUID `json:"id"`
+	StudentID       pgtype.Text `json:"student_id"`
+	FirstName       pgtype.Text `json:"first_name"`
+	Nickname        pgtype.Text `json:"nickname"`
+	LastName        pgtype.Text `json:"last_name"`
+	PicturePath     pgtype.Text `json:"picture_path"`
+	ClassProgramme  pgtype.Text `json:"class_programme"`
+	ClassYear       pgtype.Int4 `json:"class_year"`
+	Visible         bool        `json:"visible"`
+	FoodPreference  pgtype.Text `json:"food_preference"`
+	Bio             pgtype.Text `json:"bio"`
+	Email           pgtype.Text `json:"email"`
+	GraduationYear  pgtype.Int4 `json:"graduation_year"`
+	Language        pgtype.Text `json:"language"`
+	BirthDate       pgtype.Date `json:"birth_date"`
+	NollningGroupID pgtype.UUID `json:"nollning_group_id"`
 }
 
 // Full column set for a member's own profile page, unlike
@@ -169,6 +201,7 @@ func (q *Queries) GetMemberProfile(ctx context.Context, studentID pgtype.Text) (
 		&i.GraduationYear,
 		&i.Language,
 		&i.BirthDate,
+		&i.NollningGroupID,
 	)
 	return i, err
 }

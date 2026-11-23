@@ -1,7 +1,7 @@
 import { api } from "$lib/api/client";
 import { commentSchema, removeCommentSchema } from "$lib/zod/comments";
 import * as m from "$paraglide/messages";
-import { error } from "@sveltejs/kit";
+import { goError } from "$lib/utils/access";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { superValidate } from "sveltekit-superforms";
 import type { PageLoad } from "./$types";
@@ -9,11 +9,14 @@ import type { PageLoad } from "./$types";
 export const load: PageLoad = async ({ fetch, params }) => {
   const res = await api.GET("/events/{slug}", {
     fetch,
-    params: { path: { slug: params.slug } },
+    // Go returns a removed event only to those who may edit or delete it
+    // (with removedAt set) and answers 404 to everyone else, so asking
+    // for it always is safe and lets admins open links from
+    // /events/all-events.
+    params: { path: { slug: params.slug }, query: { includeDeleted: true } },
   });
-  if (res.error) {
-    error(404, { message: m.events_errors_eventNotFound() });
-  }
+  if (res.error)
+    goError(res.response, res.error, m.events_errors_eventNotFound());
   const event = res.data;
 
   return {

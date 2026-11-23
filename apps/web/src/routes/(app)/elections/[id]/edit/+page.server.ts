@@ -1,4 +1,4 @@
-import { error, fail } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { serverApi } from "$lib/server/apiClient";
-import { requirePolicy } from "$lib/utils/access";
+import { goError, requirePolicy } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
 dayjs.extend(utc);
@@ -28,9 +28,8 @@ export const load: PageServerLoad = async (event) => {
     serverApi(event).GET("/committees", {}),
   ]);
 
-  if (electionRes.error) {
-    throw error(404, m.elections_notFound());
-  }
+  if (electionRes.error)
+    goError(electionRes.response, electionRes.error, m.elections_notFound());
   const election = electionRes.data;
   const committees = committeesRes.data ?? [];
 
@@ -69,7 +68,8 @@ export const actions: Actions = {
         committeeId,
       },
     });
-    if (updated.error) throw new Error("Failed to update election");
+    if (updated.error)
+      goError(updated.response, updated.error, "Failed to update election");
     throw redirect(
       "/elections",
       {

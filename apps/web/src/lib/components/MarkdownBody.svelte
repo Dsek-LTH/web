@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DOMPurify from "isomorphic-dompurify";
   import { marked } from "marked";
   import { twMerge } from "tailwind-merge";
 
@@ -40,6 +41,9 @@
     klass,
   )}
 >
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized client-side -->
-  {@html marked(body)}
+  <!-- Go sanitizes the stored HTML, but markdown links like
+       [x](javascript:...) only become HTML here, so the output is sanitized
+       too. -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized right here -->
+  {@html DOMPurify.sanitize(marked(body, { async: false }))}
 </section>

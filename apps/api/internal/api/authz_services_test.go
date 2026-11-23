@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -24,6 +25,41 @@ func TestSongAccess(t *testing.T) {
 	path := "/songs/" + slug
 	e.check(t, e.gate(http.MethodGet, path, nil, ok, apinames.SongRead))
 	e.check(t, e.gate(http.MethodPut, path, song, ok, apinames.SongUpdate))
+
+	// The stored text, before the typographic replacements, is only for
+	// those who may edit the song (it seeds the edit form).
+	raw := map[string]any{"title": "Authz -- raw", "lyrics": "|: La -- la :|"}
+	if res := e.call(t, e.admin(), http.MethodPut, path, raw); res.status != http.StatusOK {
+		t.Fatalf("PUT %s: %d %s", path, res.status, res.body)
+	}
+	for _, c := range []struct {
+		who     caller
+		wantRaw bool
+	}{
+		{e.as(1, apinames.SongRead), false},
+		{e.as(1, apinames.SongRead, apinames.SongUpdate), true},
+	} {
+		res := e.call(t, c.who, http.MethodGet, path, nil)
+		var got struct {
+			Title, Lyrics       string
+			RawTitle, RawLyrics *string
+		}
+		res.decode(t, &got)
+		if got.Title == raw["title"] {
+			t.Errorf("%s: title %q has no replacements applied", c.who.label, got.Title)
+		}
+		if !c.wantRaw {
+			if got.RawTitle != nil || got.RawLyrics != nil {
+				t.Errorf("%s: got raw text, want none", c.who.label)
+			}
+			continue
+		}
+		if got.RawTitle == nil || *got.RawTitle != raw["title"] ||
+			got.RawLyrics == nil || *got.RawLyrics != raw["lyrics"] {
+			t.Errorf("%s: raw text = %v/%v, want the stored %q/%q",
+				c.who.label, got.RawTitle, got.RawLyrics, raw["title"], raw["lyrics"])
+		}
+	}
 
 	songID := e.one(t, `SELECT id::text FROM songs WHERE slug = $1`, slug)
 	entry := map[string]any{"songId": songID, "page": 900, "numberOnPage": 1}
@@ -76,9 +112,19 @@ func TestAlertAccess(t *testing.T) {
 	e.check(t, []accessCase{
 		{anonymous, http.MethodPost, "/alerts/" + id + "/dismiss", nil, denied},
 		{e.as(2), http.MethodPost, "/alerts/" + id + "/dismiss", nil, ok},
+		// Dismissing twice is fine; an alert that doesn't exist is a 404.
+		{e.as(2), http.MethodPost, "/alerts/" + id + "/dismiss", nil, ok},
+		{e.as(2), http.MethodPost, "/alerts/" + missingID + "/dismiss", nil, hidden},
 	})
 	e.check(t, e.gate(http.MethodDelete, "/alerts/"+id, nil, ok, apinames.AlertManage))
+	e.check(t, []accessCase{
+		{e.as(1, apinames.AlertManage), http.MethodDelete, "/alerts/" + id, nil, hidden},
+		{e.as(1, apinames.AlertManage), http.MethodDelete, "/alerts/" + missingID, nil, hidden},
+	})
 }
+
+// missingID is a well-formed id nothing has.
+const missingID = "00000000-0000-0000-0000-000000000000"
 
 func TestElectionAccess(t *testing.T) {
 	e := requireDB(t)
@@ -219,10 +265,52 @@ func TestBookingAccess(t *testing.T) {
 		{e.as(2), http.MethodDelete, path, nil, denied},
 		{e.as(1), http.MethodDelete, path, nil, ok},
 	})
+	withAccess := request("Authz booking 2")
+	withAccess["accessMemberIds"] = []string{e.members[3].ID}
 	e.mustCall(t, e.as(1, apinames.BookingRequestCreate), http.MethodPost, "/booking-requests",
-		request("Authz booking 2"))
-	second := "/booking-requests/" + e.one(t,
-		`SELECT id::text FROM booking_requests WHERE event = 'Authz booking 2'`)
+		withAccess)
+	secondID := e.one(t, `SELECT id::text FROM booking_requests WHERE event = 'Authz booking 2'`)
+	second := "/booking-requests/" + secondID
+
+	// The access lists are only for the booker and booking_request:update
+	// holders, on both the single request and the list.
+	for _, c := range []struct {
+		as   caller
+		want bool
+	}{
+		{e.as(2, apinames.BookingRequestRead), false},
+		{e.as(1, apinames.BookingRequestRead), true},
+		{e.as(2, apinames.BookingRequestRead, apinames.BookingRequestUpdate), true},
+	} {
+		var one struct {
+			AccessMembers []any `json:"accessMembers"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, second, nil).decode(t, &one)
+		if got := len(one.AccessMembers) > 0; got != c.want {
+			t.Errorf("GET %s as %s: access members shown %v, want %v",
+				second, c.as.label, got, c.want)
+		}
+		var list []struct {
+			ID            string `json:"id"`
+			AccessMembers []any  `json:"accessMembers"`
+		}
+		e.mustCall(t, c.as, http.MethodGet, "/booking-requests", nil).decode(t, &list)
+		found := false
+		for _, r := range list {
+			if r.ID != secondID {
+				continue
+			}
+			found = true
+			if got := len(r.AccessMembers) > 0; got != c.want {
+				t.Errorf("GET /booking-requests as %s: access members shown %v, want %v",
+					c.as.label, got, c.want)
+			}
+		}
+		if !found {
+			t.Errorf("GET /booking-requests as %s: %s missing", c.as.label, secondID)
+		}
+	}
+
 	e.check(t, []accessCase{
 		{e.as(2, apinames.BookingRequestDelete), http.MethodDelete, second, nil, ok},
 	})
@@ -253,6 +341,42 @@ func TestNotificationAccess(t *testing.T) {
 		})
 	}
 	e.check(t, []accessCase{{anonymous, http.MethodGet, "/me", nil, ok}})
+}
+
+// A settings save that fails part-way (here a tag that doesn't exist, which
+// only the database rejects) leaves the previous settings as they were.
+func TestNotificationSettingsAtomic(t *testing.T) {
+	e := requireDB(t)
+	member := e.as(4)
+	before := map[string]any{
+		"subscriptions": []string{"LIKE"}, "pushSubscriptions": []string{"LIKE"},
+		"subscribedTagIds": []string{},
+	}
+	e.mustCall(t, member, http.MethodPut, "/notification-settings", before)
+
+	broken := map[string]any{
+		"subscriptions": []string{"COMMENT"}, "pushSubscriptions": []string{},
+		"subscribedTagIds": []string{"00000000-0000-0000-0000-000000000000"},
+	}
+	if res := e.call(
+		t,
+		member,
+		http.MethodPut,
+		"/notification-settings",
+		broken,
+	); res.status < 400 {
+		t.Fatalf("save with a missing tag: %d %s", res.status, res.body)
+	}
+
+	var got struct {
+		Subscriptions     []string `json:"subscriptions"`
+		PushSubscriptions []string `json:"pushSubscriptions"`
+	}
+	e.mustCall(t, member, http.MethodGet, "/notification-settings", nil).decode(t, &got)
+	if !slices.Equal(got.Subscriptions, []string{"LIKE"}) ||
+		!slices.Equal(got.PushSubscriptions, []string{"LIKE"}) {
+		t.Fatalf("settings after a failed save = %+v, want the earlier LIKE/LIKE", got)
+	}
 }
 
 func TestAdminAccess(t *testing.T) {
@@ -471,4 +595,34 @@ func TestPublicReads(t *testing.T) {
 	} {
 		e.check(t, []accessCase{{anonymous, http.MethodGet, p, nil, ok}})
 	}
+}
+
+// GET /positions carries each position's committee, which /positions groups
+// by.
+func TestPositionsListCarriesCommittee(t *testing.T) {
+	e := requireDB(t)
+	id := e.one(t, `SELECT id FROM positions WHERE committee_id IS NOT NULL LIMIT 1`)
+	shortName := e.one(
+		t,
+		`SELECT c.short_name FROM positions p JOIN committees c ON c.id = p.committee_id WHERE p.id = $1`,
+		id,
+	)
+	var positions []struct {
+		ID        string `json:"id"`
+		Committee *struct {
+			Name      string `json:"name"`
+			ShortName string `json:"shortName"`
+		} `json:"committee"`
+	}
+	e.mustCall(t, anonymous, http.MethodGet, "/positions", nil).decode(t, &positions)
+	for _, p := range positions {
+		if p.ID != id {
+			continue
+		}
+		if p.Committee == nil || p.Committee.ShortName != shortName || p.Committee.Name == "" {
+			t.Fatalf("position %s: committee %+v, want %s", id, p.Committee, shortName)
+		}
+		return
+	}
+	t.Fatalf("position %s not listed", id)
 }
