@@ -6,6 +6,7 @@
   import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
   import { getDraft } from "$lib/actic/documents/drafts";
   import { page } from "$app/state";
+  import { beforeNavigate } from "$app/navigation";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import {
     Check,
@@ -29,6 +30,20 @@
   let session = $state<DiffSession>();
   const title = $derived(data.document?.title ?? data.slug);
 
+  // In-app navigation never fires beforeunload, so the dirty check needs
+  // this twin guard (runs during component initialisation, as required).
+  // Reload-style navigations (back button via data-sveltekit-reload, the
+  // native dialog covers those) are left to the browser.
+  beforeNavigate((navigation) => {
+    if (
+      session?.dirty &&
+      !navigation.willUnload &&
+      !window.confirm(m.actic_unsaved_confirm())
+    ) {
+      navigation.cancel();
+    }
+  });
+
   onMount(() => {
     const id = page.url.searchParams.get("draft");
     const draft = id ? getDraft(id) : undefined;
@@ -51,7 +66,12 @@
 <SetPageTitle {title} />
 
 <div class="layout-container flex flex-col gap-4">
-  <Button variant="ghost" href="/actic" class="self-start">
+  <Button
+    variant="ghost"
+    href="/actic"
+    class="self-start"
+    data-sveltekit-reload
+  >
     <ChevronLeft class="mr-1 h-4 w-4" />
     {m.back()}
   </Button>

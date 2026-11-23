@@ -1932,6 +1932,7 @@
   "actic_draft_save": "Save draft",
   "actic_draft_saved": "Draft saved",
   "actic_draft_save_error": "Could not save the draft - storage may be full",
+  "actic_unsaved_confirm": "Leave this page with unsaved changes?",
   "actic_body_placeholder": "Once upon a time…",
   "gallery_uploadAlbum": "Upload album",
   "gallery_upload_date": "Date",

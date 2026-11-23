@@ -4,13 +4,9 @@
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
+  import { beforeNavigate } from "$app/navigation";
   import type { Snippet } from "svelte";
-  import {
-    Download,
-    FileCode,
-    Save,
-    TriangleAlert,
-  } from "@lucide/svelte/icons";
+  import { Download, Save, TriangleAlert } from "@lucide/svelte/icons";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import * as m from "$paraglide/messages";
   import type { Writer } from "./writer.svelte";
@@ -29,12 +25,31 @@
     // shortcuts — created here so they live exactly as long as this shell.
     writer.runEffects();
   });
+
+  // In-app navigation never fires beforeunload, so the dirty check needs
+  // this twin guard (runs during component initialisation, as required).
+  // Reload-style navigations (back button via data-sveltekit-reload, the
+  // native dialog covers those) are left to the browser.
+  beforeNavigate((navigation) => {
+    if (
+      writer.dirty &&
+      !navigation.willUnload &&
+      !window.confirm(m.actic_unsaved_confirm())
+    ) {
+      navigation.cancel();
+    }
+  });
 </script>
 
 <SetPageTitle title={m.actic_title()} />
 
 <div class="layout-container flex flex-col gap-4">
-  <Button variant="ghost" href="/actic" class="self-start">
+  <Button
+    variant="ghost"
+    href="/actic"
+    class="self-start"
+    data-sveltekit-reload
+  >
     <ChevronLeft class="mr-1 h-4 w-4" />
     {m.back()}
   </Button>

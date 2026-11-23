@@ -293,7 +293,12 @@ export class Writer {
 
     $effect(() => {
       const onBeforeUnload = (e: BeforeUnloadEvent) => {
-        if (this.dirty && this.hasContent) e.preventDefault();
+        if (this.dirty && this.hasContent) {
+          // returnValue covers browsers where preventDefault alone isn't
+          // honoured (per MDN's recommended pattern).
+          e.preventDefault();
+          e.returnValue = true;
+        }
       };
       window.addEventListener("beforeunload", onBeforeUnload);
       return () => window.removeEventListener("beforeunload", onBeforeUnload);

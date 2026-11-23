@@ -158,7 +158,12 @@ export class DiffSession {
 
     $effect(() => {
       const onBeforeUnload = (e: BeforeUnloadEvent) => {
-        if (this.dirty) e.preventDefault();
+        if (this.dirty) {
+          // returnValue covers browsers where preventDefault alone isn't
+          // honoured (per MDN's recommended pattern).
+          e.preventDefault();
+          e.returnValue = true;
+        }
       };
       window.addEventListener("beforeunload", onBeforeUnload);
       return () => window.removeEventListener("beforeunload", onBeforeUnload);
