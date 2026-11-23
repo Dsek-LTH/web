@@ -1953,5 +1953,7 @@
   "actic_field_docType_placeholder": "Ex. Verksamhetsberättelse",
   "actic_field_coverPage": "Använd försättsblad",
   "actic_field_coverPage_description": "Titeln visas på ett separat försättsblad i stället för som rubrik.",
-  "actic_landing_loading": "Hämtar styrdokument…"
+  "actic_landing_loading": "Hämtar styrdokument…",
+  "news_edit_heading": "Redigera nyhet",
+  "news_create_heading": "Skapa nyhet"
 }

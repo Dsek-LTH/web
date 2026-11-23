@@ -4,6 +4,7 @@
   import type { PageData } from "./$types";
   import { type ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
+  import * as m from "$paraglide/messages";
 
   let { data }: { data: PageData } = $props();
 
@@ -15,6 +16,7 @@
   });
 </script>
 
+<h1> {m.news_create_heading()} </h1>
 <ArticleEditor
   allTags={data.allTags}
   authorOptions={data.authorOptions}
