@@ -26,7 +26,9 @@ export const searchForMembers = async (
           firstName:
             firstName || (!studentId && !nickname)
               ? {
-                  search: firstName ?? search,
+                  // `contains` instead of full-text `search`: typing should
+                  // match from the first letter, not only complete words.
+                  contains: firstName ?? search,
                   mode: "insensitive",
                 }
               : undefined,
@@ -35,7 +37,7 @@ export const searchForMembers = async (
           lastName:
             lastName || (!studentId && !nickname)
               ? {
-                  search: lastName ?? search,
+                  contains: lastName ?? search,
                   mode: "insensitive",
                 }
               : undefined,
@@ -43,7 +45,7 @@ export const searchForMembers = async (
         {
           nickname: nickname
             ? {
-                search: nickname,
+                contains: nickname,
                 mode: "insensitive",
               }
             : undefined,

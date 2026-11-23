@@ -15,7 +15,7 @@
   data-slot="avatar-image"
   loading={lazy ? "lazy" : "eager"}
   class={cn(
-    "border-secondary-background aspect-square size-full rounded-full border-[1px]",
+    "border-secondary-background aspect-square size-full rounded-full border-[1px] object-cover",
     className,
   )}
   {...restProps}

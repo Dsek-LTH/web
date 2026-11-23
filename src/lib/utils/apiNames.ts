@@ -45,6 +45,7 @@ const apiNames = {
     SEE_INACTIVE: "core:position:inactive:read",
   },
   ADMIN: {
+    CORE: "core:admin",
     READ: "core:access:admin:read",
     SETTINGS: crud("admin:settings"),
     SHLINK: crud("admin:shlink"),

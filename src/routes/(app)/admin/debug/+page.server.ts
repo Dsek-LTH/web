@@ -2,6 +2,7 @@ import { env } from "$env/dynamic/private";
 import meilisearchSync from "$lib/search/sync";
 import { isN0llningPeriod } from "$lib/utils/adminSettings/nollning";
 import { fileHandler } from "$lib/files";
+import apiNames from "$lib/utils/apiNames";
 import { authorize } from "$lib/utils/authorization";
 
 export const load = async () => {
@@ -14,7 +15,7 @@ export const load = async () => {
 
 export const actions = {
   meilisearchSync: async ({ locals }) => {
-    authorize("core:admin", locals.user);
+    authorize(apiNames.ADMIN.CORE, locals.user);
     return meilisearchSync();
   },
 };
