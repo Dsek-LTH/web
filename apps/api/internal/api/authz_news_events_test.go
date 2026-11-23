@@ -145,6 +145,15 @@ func TestArticleAccess(t *testing.T) {
 		{e.as(1, apinames.EventCreate), http.MethodPost, "/images", image, ok},
 		{e.as(1, apinames.EventUpdate), http.MethodPost, "/images", image, ok},
 	})
+	// Only images are stored, whatever the file is called.
+	page := form{files: map[string][]formFile{"file": {{
+		name: "pixel.png",
+		data: []byte("<!DOCTYPE html><html><script>alert(1)</script></html>"),
+	}}}}
+	res := e.call(t, e.as(1, apinames.NewsArticleCreate), http.MethodPost, "/images", page)
+	if res.status != http.StatusUnprocessableEntity {
+		t.Errorf("POST /images with HTML: got %d, want 422: %s", res.status, truncate(res.body))
+	}
 	e.check(t, e.gate(http.MethodPost, "/tags", map[string]any{"nameSv": "Authz tag"}, ok,
 		apinames.TagsCreate))
 	tagID := e.one(t, `SELECT id::text FROM tags WHERE name_sv = 'Authz tag'`)

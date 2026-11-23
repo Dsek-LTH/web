@@ -134,6 +134,7 @@ func registerMemberRoutes(api huma.API, svc *members.Service) {
 		Summary:     "Set a member's profile picture",
 		Description: "The image should already be cropped (the web app crops to 400x400 WebP). " +
 			"Replaces and deletes the previous picture. The member themselves, or core:member:update.",
+		MaxBodyBytes: members.MaxPictureSize + multipartSlack,
 	}, func(ctx context.Context, input *struct {
 		StudentIDPath
 		RawBody huma.MultipartFormFiles[struct {
