@@ -181,8 +181,12 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return invalidf("invalid id: %v", err)
 	}
-	if err := s.queries.DeleteAccessPolicy(ctx, policyID); err != nil {
+	deleted, err := s.queries.DeleteAccessPolicy(ctx, policyID)
+	if err != nil {
 		return fmt.Errorf("delete access policy: %w", err)
+	}
+	if deleted == 0 {
+		return ErrNotFound
 	}
 	return nil
 }

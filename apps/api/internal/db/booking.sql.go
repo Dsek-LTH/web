@@ -93,6 +93,17 @@ func (q *Queries) ClearBookingRequestBookables(ctx context.Context, bookingReque
 	return err
 }
 
+const countBookablesByID = `-- name: CountBookablesByID :one
+SELECT count(*) FROM bookables WHERE id = ANY($1::uuid[])
+`
+
+func (q *Queries) CountBookablesByID(ctx context.Context, ids []pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countBookablesByID, ids)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countDoorsByName = `-- name: CountDoorsByName :one
 SELECT count(*) FROM doors WHERE name = ANY($1::text[])
 `
@@ -696,26 +707,61 @@ func (q *Queries) ListDoorsForBooking(ctx context.Context) ([]ListDoorsForBookin
 	return items, nil
 }
 
-const listPendingBookingRequestIDs = `-- name: ListPendingBookingRequestIDs :many
-SELECT id FROM booking_requests
-WHERE status = 'PENDING' AND start IS NOT NULL AND "end" >= now()
-ORDER BY start, "end"
+const listPendingBookingRequests = `-- name: ListPendingBookingRequests :many
+SELECT br.id, br.booker_id, br.start, br."end", br.created, br.event, br.status,
+       m.id AS booker_member_id, m.student_id AS booker_student_id,
+       m.first_name AS booker_first_name, m.last_name AS booker_last_name,
+       m.nickname AS booker_nickname, m.picture_path AS booker_picture_path
+FROM booking_requests br
+LEFT JOIN members m ON m.id = br.booker_id
+WHERE br.status = 'PENDING' AND br.start IS NOT NULL AND br."end" >= now()
+ORDER BY br.start, br."end"
 `
 
+type ListPendingBookingRequestsRow struct {
+	ID                pgtype.UUID          `json:"id"`
+	BookerID          pgtype.UUID          `json:"booker_id"`
+	Start             pgtype.Timestamptz   `json:"start"`
+	End               pgtype.Timestamptz   `json:"end"`
+	Created           pgtype.Timestamptz   `json:"created"`
+	Event             pgtype.Text          `json:"event"`
+	Status            BookingRequestStatus `json:"status"`
+	BookerMemberID    pgtype.UUID          `json:"booker_member_id"`
+	BookerStudentID   pgtype.Text          `json:"booker_student_id"`
+	BookerFirstName   pgtype.Text          `json:"booker_first_name"`
+	BookerLastName    pgtype.Text          `json:"booker_last_name"`
+	BookerNickname    pgtype.Text          `json:"booker_nickname"`
+	BookerPicturePath pgtype.Text          `json:"booker_picture_path"`
+}
+
 // The review queue: pending requests that haven't ended yet.
-func (q *Queries) ListPendingBookingRequestIDs(ctx context.Context) ([]pgtype.UUID, error) {
-	rows, err := q.db.Query(ctx, listPendingBookingRequestIDs)
+func (q *Queries) ListPendingBookingRequests(ctx context.Context) ([]ListPendingBookingRequestsRow, error) {
+	rows, err := q.db.Query(ctx, listPendingBookingRequests)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []pgtype.UUID{}
+	items := []ListPendingBookingRequestsRow{}
 	for rows.Next() {
-		var id pgtype.UUID
-		if err := rows.Scan(&id); err != nil {
+		var i ListPendingBookingRequestsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.BookerID,
+			&i.Start,
+			&i.End,
+			&i.Created,
+			&i.Event,
+			&i.Status,
+			&i.BookerMemberID,
+			&i.BookerStudentID,
+			&i.BookerFirstName,
+			&i.BookerLastName,
+			&i.BookerNickname,
+			&i.BookerPicturePath,
+		); err != nil {
 			return nil, err
 		}
-		items = append(items, id)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -786,6 +832,25 @@ func (q *Queries) ListUpcomingBookingRequests(ctx context.Context, since pgtype.
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockBookingRequest = `-- name: LockBookingRequest :one
+SELECT id, booker_id, status FROM booking_requests WHERE id = $1 FOR UPDATE
+`
+
+type LockBookingRequestRow struct {
+	ID       pgtype.UUID          `json:"id"`
+	BookerID pgtype.UUID          `json:"booker_id"`
+	Status   BookingRequestStatus `json:"status"`
+}
+
+// Locks the request row for the rest of the transaction, so concurrent
+// edits and accept/reject of one request run one after another.
+func (q *Queries) LockBookingRequest(ctx context.Context, id pgtype.UUID) (LockBookingRequestRow, error) {
+	row := q.db.QueryRow(ctx, lockBookingRequest, id)
+	var i LockBookingRequestRow
+	err := row.Scan(&i.ID, &i.BookerID, &i.Status)
+	return i, err
 }
 
 const updateBookable = `-- name: UpdateBookable :one

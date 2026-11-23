@@ -52,6 +52,11 @@ LEFT JOIN mandates ma ON ma.id = a.mandate_id
 LEFT JOIN positions p ON p.id = ma.position_id
 WHERE a.id = $1;
 
+-- name: GetAuthorMemberID :one
+-- The member behind an author row, so Send can leave them out of their own
+-- notification when it is sent with FromAuthorID.
+SELECT member_id FROM authors WHERE id = sqlc.arg(id);
+
 -- name: ListMembersSubscribedToAnyTag :many
 SELECT DISTINCT "A" AS member_id FROM _member_tag_subscriptions WHERE "B" = ANY(sqlc.arg(tag_ids)::uuid[]);
 

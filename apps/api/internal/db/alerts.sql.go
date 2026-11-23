@@ -11,19 +11,37 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const closeAlertForMember = `-- name: CloseAlertForMember :exec
-INSERT INTO _alerts_closed_by ("A", "B") VALUES ($1, $2)
+const alertExists = `-- name: AlertExists :one
+SELECT EXISTS (SELECT 1 FROM alerts WHERE id = $1)
+`
+
+func (q *Queries) AlertExists(ctx context.Context, id pgtype.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, alertExists, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const closeAlertForMember = `-- name: CloseAlertForMember :execrows
+INSERT INTO _alerts_closed_by ("A", "B")
+SELECT a.id, $1 FROM alerts a
+WHERE a.id = $2
 ON CONFLICT DO NOTHING
 `
 
 type CloseAlertForMemberParams struct {
-	A pgtype.UUID `json:"A"`
-	B pgtype.UUID `json:"B"`
+	MemberID pgtype.UUID `json:"member_id"`
+	AlertID  pgtype.UUID `json:"alert_id"`
 }
 
-func (q *Queries) CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) error {
-	_, err := q.db.Exec(ctx, closeAlertForMember, arg.A, arg.B)
-	return err
+// Affects no rows for an alert that doesn't exist (or was removed), and
+// for one the member already closed - the service tells those apart.
+func (q *Queries) CloseAlertForMember(ctx context.Context, arg CloseAlertForMemberParams) (int64, error) {
+	result, err := q.db.Exec(ctx, closeAlertForMember, arg.MemberID, arg.AlertID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const createAlert = `-- name: CreateAlert :one
@@ -110,11 +128,14 @@ func (q *Queries) ListClosedAlertIDsForMember(ctx context.Context, b pgtype.UUID
 	return items, nil
 }
 
-const softDeleteAlert = `-- name: SoftDeleteAlert :exec
-UPDATE alerts SET removed_at = now() WHERE id = $1
+const softDeleteAlert = `-- name: SoftDeleteAlert :execrows
+UPDATE alerts SET removed_at = now() WHERE id = $1 AND removed_at IS NULL
 `
 
-func (q *Queries) SoftDeleteAlert(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, softDeleteAlert, id)
-	return err
+func (q *Queries) SoftDeleteAlert(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, softDeleteAlert, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

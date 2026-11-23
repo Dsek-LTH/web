@@ -40,7 +40,9 @@ func invalidf(format string, args ...any) error {
 // resolution itself errors), so a DB hiccup or a misconfigured door never
 // locks out the people who need physical access to fix it. Needs updating
 // at the turn of every year by the Head of Faculties (Källarmästare) - not
-// something to "clean up" here.
+// something to "clean up" here. The SvelteKit proxy has a copy
+// (apps/web/src/routes/(app)/salto/[door]/constants.ts) for when Go itself
+// is down; keep the two identical.
 var backupStudentIDs = []string{
 	"em8241he-s", // Källarmästare, Emil Helander
 	"da1677ag-s", // Processmästare, David Agardh
@@ -181,7 +183,7 @@ func (s *Service) CreateAccessPolicy(
 			return nil, fmt.Errorf("look up member: %w", err)
 		}
 	} else if !isVirtualRole(in.Subject) {
-		exists, err := s.queries.ExistsPositionWithPrefix(ctx, in.Subject+"%")
+		exists, err := s.queries.ExistsPositionWithPrefix(ctx, dbutil.EscapeLike(in.Subject)+"%")
 		if err != nil {
 			return nil, fmt.Errorf("look up position: %w", err)
 		}
@@ -309,7 +311,15 @@ func (s *Service) resolveAllowedStudentIDs(ctx context.Context, doorName string)
 			}
 			continue
 		}
-		rolePatterns = append(rolePatterns, role+"%")
+		if role == "_" {
+			// "_" (every logged-in member) names no position; as an
+			// unescaped LIKE pattern it has always matched every
+			// position id, i.e. every current mandate holder. Keep that
+			// explicitly so escaping doesn't change the door's list.
+			rolePatterns = append(rolePatterns, "%")
+			continue
+		}
+		rolePatterns = append(rolePatterns, dbutil.EscapeLike(role)+"%")
 	}
 
 	var studentsFromPositions []string

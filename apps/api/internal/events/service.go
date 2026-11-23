@@ -77,7 +77,7 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]EventSummary, 
 	if err != nil {
 		return nil, 0, invalidf("invalid tag id: %v", err)
 	}
-	search := dbutil.TextOrInvalid(params.Search)
+	search := dbutil.TextOrInvalid(dbutil.EscapeLikePtr(params.Search))
 	nollningSeasonID, err := dbutil.ParseUUIDPtr(params.NollningSeasonID)
 	if err != nil {
 		return nil, 0, invalidf("invalid nollning season id: %v", err)
@@ -158,7 +158,9 @@ func (s *Service) Get(ctx context.Context, slug string) (*EventDetail, error) {
 
 // GetDeleted returns an event by slug like Get, but also when it is
 // soft-deleted - for an editor loading an event they might need to manage.
-// A deleted event is only returned to someone who may edit it.
+// A deleted event is only returned to someone who may edit or delete it
+// (the old app let event:delete holders read removed events), with
+// RemovedAt set.
 func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetail, error) {
 	row, err := s.queries.GetEventRowBySlug(ctx, dbutil.ToText(&eventSlug))
 	if err != nil {
@@ -177,8 +179,11 @@ func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetai
 	if err != nil {
 		return nil, fmt.Errorf("get database time: %w", err)
 	}
-	if row.RemovedAt.Valid && !row.RemovedAt.Time.After(now.Time) && !detail.CanEdit {
-		return nil, ErrNotFound
+	if row.RemovedAt.Valid && !row.RemovedAt.Time.After(now.Time) {
+		if !detail.CanEdit && !detail.CanDelete {
+			return nil, ErrNotFound
+		}
+		detail.RemovedAt = &row.RemovedAt.Time
 	}
 	return detail, nil
 }
@@ -224,7 +229,7 @@ func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, erro
 	base := slug.Slugify(in.TitleSv)
 	slugCount, err := s.queries.CountEventSlugsWithPrefix(
 		ctx,
-		pgtype.Text{String: base, Valid: true},
+		pgtype.Text{String: dbutil.EscapeLike(base), Valid: true},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("count slugs: %w", err)
@@ -649,7 +654,7 @@ func (s *Service) AddComment(ctx context.Context, eventSlug, content string) (*C
 	}
 	identity, _ := auth.FromContext(ctx)
 
-	eventID, err := s.queries.GetEventIDBySlug(ctx, dbutil.ToText(&eventSlug))
+	eventID, err := s.queries.GetLiveEventIDBySlug(ctx, dbutil.ToText(&eventSlug))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound

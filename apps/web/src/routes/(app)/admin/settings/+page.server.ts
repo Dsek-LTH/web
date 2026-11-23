@@ -79,7 +79,12 @@ export const actions = {
       params: { path: { key: form.data.key } },
       body: { value: form.data.value },
     });
-    if (res.error) return fail(400, { form });
+    if (res.error)
+      return message(
+        form,
+        { message: res.error.detail ?? res.response.statusText, type: "error" },
+        { status: res.response.status as ErrorStatus },
+      );
     return message(form, {
       message: `Inställning ${form.data.key} uppdaterad`,
       type: "success",
@@ -91,7 +96,12 @@ export const actions = {
     const res = await serverApi(event).DELETE("/admin-settings/{key}", {
       params: { path: { key: form.data.key } },
     });
-    if (res.error) return fail(400, { form });
+    if (res.error)
+      return message(
+        form,
+        { message: res.error.detail ?? res.response.statusText, type: "error" },
+        { status: res.response.status as ErrorStatus },
+      );
     return message(form, {
       message: `Inställning ${form.data.key} raderad`,
       type: "success",

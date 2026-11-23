@@ -114,7 +114,7 @@ func (s *Service) MemberMedals(
 	boardSems := filterAtMost(coveredSemesters(boardMandates), after)
 
 	loc := locale.FromContext(ctx)
-	var out []MemberMedal
+	out := []MemberMedal{}
 
 	if sem, ok := volunteerMedalSemester(volunteerSems); ok {
 		out = append(
@@ -175,7 +175,7 @@ func (s *Service) MedalRecipients(
 		return nil, fmt.Errorf("list candidate members: %w", err)
 	}
 	if len(candidateIDs) == 0 {
-		return nil, nil
+		return []MedalRecipients{}, nil
 	}
 
 	allMandateRows, err := s.queries.ListMandatesForMembersBefore(
@@ -205,7 +205,7 @@ func (s *Service) MedalRecipients(
 	}
 
 	loc := locale.FromContext(ctx)
-	var out []MedalRecipients
+	out := []MedalRecipients{}
 
 	var volunteerRecipients []string
 	var gammalRecipients []string

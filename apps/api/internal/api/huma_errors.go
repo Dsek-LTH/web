@@ -20,6 +20,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/elections"
 	"github.com/dsek-lth/web/apps/api/internal/events"
 	"github.com/dsek-lth/web/apps/api/internal/governingdocs"
+	"github.com/dsek-lth/web/apps/api/internal/images"
 	"github.com/dsek-lth/web/apps/api/internal/links"
 	"github.com/dsek-lth/web/apps/api/internal/markdown"
 	"github.com/dsek-lth/web/apps/api/internal/medals"
@@ -89,6 +90,7 @@ var invalidInput = []error{
 	tickets.ErrInvalidInput,
 	search.ErrInvalidInput,
 	comments.ErrInvalidContent,
+	images.ErrInvalidImage,
 }
 
 // conflict is every error meaning "not possible in the current state".
@@ -100,6 +102,7 @@ var conflict = []error{
 	tickets.ErrClosed,
 	search.ErrSyncRunning,
 	documents.ErrFileExists,
+	nollning.ErrYearTaken,
 }
 
 // humaServiceError maps a domain-package error to a huma.StatusError (an

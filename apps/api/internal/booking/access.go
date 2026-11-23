@@ -41,51 +41,63 @@ func (s *Service) ListDoors(ctx context.Context) ([]BookingDoor, error) {
 	return doors, nil
 }
 
-// setAccess replaces a request's requested doors and members, after
-// checking every door and member exists.
-func (s *Service) setAccess(ctx context.Context, id pgtype.UUID, in BookingAccessInput) error {
+// bookingAccess is a request's door and member access lists, checked by
+// checkAccess and ready to write with setAccess.
+type bookingAccess struct {
+	doorNames []string
+	memberIDs []pgtype.UUID
+}
+
+// checkAccess parses an access input and checks every door and member
+// exists, so a request is never written with access that then fails.
+func checkAccess(ctx context.Context, q *db.Queries, in BookingAccessInput) (bookingAccess, error) {
 	doorNames := uniqueStrings(in.AccessDoors)
 	memberIDs, err := dbutil.ParseUUIDs(uniqueStrings(in.AccessMemberIDs))
 	if err != nil {
-		return invalidf("invalid member id: %v", err)
+		return bookingAccess{}, invalidf("invalid member id: %v", err)
 	}
 	if len(doorNames) > 0 {
-		n, err := s.queries.CountDoorsByName(ctx, doorNames)
+		n, err := q.CountDoorsByName(ctx, doorNames)
 		if err != nil {
-			return fmt.Errorf("look up doors: %w", err)
+			return bookingAccess{}, fmt.Errorf("look up doors: %w", err)
 		}
 		if int(n) != len(doorNames) {
-			return invalidf("unknown door")
+			return bookingAccess{}, invalidf("unknown door")
 		}
 	}
 	if len(memberIDs) > 0 {
-		n, err := s.queries.CountMembersByID(ctx, memberIDs)
+		n, err := q.CountMembersByID(ctx, memberIDs)
 		if err != nil {
-			return fmt.Errorf("look up members: %w", err)
+			return bookingAccess{}, fmt.Errorf("look up members: %w", err)
 		}
 		if int(n) != len(memberIDs) {
-			return invalidf("unknown member")
+			return bookingAccess{}, invalidf("unknown member")
 		}
 	}
+	return bookingAccess{doorNames: doorNames, memberIDs: memberIDs}, nil
+}
 
-	if err := s.queries.ClearBookingRequestAccessDoors(ctx, id); err != nil {
+// setAccess replaces a request's requested doors and members with access,
+// which checkAccess has checked.
+func setAccess(ctx context.Context, q *db.Queries, id pgtype.UUID, access bookingAccess) error {
+	if err := q.ClearBookingRequestAccessDoors(ctx, id); err != nil {
 		return fmt.Errorf("clear access doors: %w", err)
 	}
-	if err := s.queries.ClearBookingRequestAccessMembers(ctx, id); err != nil {
+	if err := q.ClearBookingRequestAccessMembers(ctx, id); err != nil {
 		return fmt.Errorf("clear access members: %w", err)
 	}
-	if len(doorNames) > 0 {
-		if err := s.queries.AddBookingRequestAccessDoors(ctx, db.AddBookingRequestAccessDoorsParams{
-			ID: id, DoorNames: doorNames,
+	if len(access.doorNames) > 0 {
+		if err := q.AddBookingRequestAccessDoors(ctx, db.AddBookingRequestAccessDoorsParams{
+			ID: id, DoorNames: access.doorNames,
 		}); err != nil {
 			return fmt.Errorf("add access doors: %w", err)
 		}
 	}
-	if len(memberIDs) > 0 {
-		if err := s.queries.AddBookingRequestAccessMembers(
+	if len(access.memberIDs) > 0 {
+		if err := q.AddBookingRequestAccessMembers(
 			ctx,
 			db.AddBookingRequestAccessMembersParams{
-				ID: id, MemberIds: memberIDs,
+				ID: id, MemberIds: access.memberIDs,
 			},
 		); err != nil {
 			return fmt.Errorf("add access members: %w", err)
@@ -96,11 +108,11 @@ func (s *Service) setAccess(ctx context.Context, id pgtype.UUID, in BookingAcces
 
 // grantDoorAccess replaces the door policies granted for this request
 // with one per requested door and member.
-func (s *Service) grantDoorAccess(ctx context.Context, id pgtype.UUID) error {
-	if err := s.queries.ClearBookingDoorAccess(ctx, id); err != nil {
+func grantDoorAccess(ctx context.Context, q *db.Queries, id pgtype.UUID) error {
+	if err := q.ClearBookingDoorAccess(ctx, id); err != nil {
 		return fmt.Errorf("clear booking door access: %w", err)
 	}
-	if err := s.queries.GrantBookingDoorAccess(ctx, db.GrantBookingDoorAccessParams{
+	if err := q.GrantBookingDoorAccess(ctx, db.GrantBookingDoorAccessParams{
 		ID:     id,
 		Buffer: pgtype.Interval{Microseconds: doorAccessBuffer.Microseconds(), Valid: true},
 	}); err != nil {
@@ -109,22 +121,32 @@ func (s *Service) grantDoorAccess(ctx context.Context, id pgtype.UUID) error {
 	return nil
 }
 
-// attachAccess fills in each request's AccessDoors/AccessMembers.
+// attachAccess fills in each request's AccessDoors/AccessMembers, but only
+// for its booker and booking_request:update holders (who review and edit
+// them); everyone else gets empty lists, like the old app, whose plain
+// booking list didn't include them.
 func (s *Service) attachAccess(ctx context.Context, requests []*BookingRequest) error {
-	if len(requests) == 0 {
-		return nil
-	}
+	identity, _ := auth.FromContext(ctx)
+	isAdmin := identity != nil && identity.Has(apinames.BookingRequestUpdate)
 	ids := make([]pgtype.UUID, 0, len(requests))
 	byID := make(map[string]*BookingRequest, len(requests))
 	for _, r := range requests {
 		r.AccessDoors = []BookingDoor{}
 		r.AccessMembers = []apitypes.Member{}
+		isBooker := identity != nil && identity.MemberID != "" &&
+			r.Booker != nil && r.Booker.ID == identity.MemberID
+		if !isAdmin && !isBooker {
+			continue
+		}
 		id, err := dbutil.ParseUUID(r.ID)
 		if err != nil {
 			return fmt.Errorf("parse booking request id: %w", err)
 		}
 		ids = append(ids, id)
 		byID[r.ID] = r
+	}
+	if len(ids) == 0 {
+		return nil
 	}
 
 	doors, err := s.queries.ListAccessDoorsForBookingRequests(ctx, ids)

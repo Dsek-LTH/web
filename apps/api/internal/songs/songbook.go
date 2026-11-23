@@ -75,7 +75,7 @@ func (s *Service) ListSongBook(
 	if n, err := strconv.ParseInt(search, 10, 32); err == nil && n > 0 {
 		pageSearch = pgtype.Int4{Int32: int32(n), Valid: true}
 	} else if search != "" {
-		titleSearch = pgtype.Text{String: search, Valid: true}
+		titleSearch = pgtype.Text{String: dbutil.EscapeLike(search), Valid: true}
 	}
 	showDeleted := canSeeDeleted(ctx)
 

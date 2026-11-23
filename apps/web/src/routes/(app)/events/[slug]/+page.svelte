@@ -1,5 +1,6 @@
 <script lang="ts">
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import * as Alert from "$lib/components/ui/alert";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import { Button, buttonVariants } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
@@ -7,6 +8,7 @@
   import type { ActionType } from "$lib/events/schema";
   import * as m from "$paraglide/messages";
 
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
   import Pen from "@lucide/svelte/icons/pen";
   import Trash from "@lucide/svelte/icons/trash";
 
@@ -21,6 +23,7 @@
   const going = $derived(event.going ?? []);
   const interested = $derived(event.interested ?? []);
   const isRecurring = $derived(!!event.recurringParentId);
+  const isRemoved = $derived(event.removedAt != null);
 
   let removeType: ActionType = $state("THIS");
 
@@ -33,6 +36,13 @@
 
 <SetPageTitle title={event.title} />
 
+{#if isRemoved}
+  <Alert.Root variant="warning" class="mb-4">
+    <CircleAlert />
+    <Alert.Title>{m.events_removedNotice()}</Alert.Title>
+  </Alert.Root>
+{/if}
+
 <Event {event}>
   {#snippet actions()}
     {#if data.canEdit}
@@ -43,13 +53,15 @@
         title={m.events_edit()}><Pen /></Button
       >
     {/if}
-    {#if data.canDelete}
+    {#if data.canDelete && !isRemoved}
       {@render removeEvent()}
     {/if}
   {/snippet}
 
   {#snippet buttons()}
-    <InterestedGoingButtons eventId={event.id} {interested} {going} />
+    {#if !isRemoved}
+      <InterestedGoingButtons eventId={event.id} {interested} {going} />
+    {/if}
   {/snippet}
 
   {#snippet after()}

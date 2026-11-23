@@ -34,9 +34,25 @@ LEFT JOIN LATERAL (
 LEFT JOIN LATERAL (
     SELECT count(*) AS n FROM _article_likes WHERE "A" = a.id
 ) lk ON true
-WHERE a.published_datetime IS NOT NULL
-  AND a.published_datetime <= now()
-  AND (a.removed_at IS NULL OR a.removed_at > now())
+WHERE (a.removed_at IS NULL OR a.removed_at > now())
+  -- Published articles, or with only_unpublished the scheduled ones
+  -- instead: everyone's with all_authors, otherwise only those written by
+  -- viewer_member_id (none if it's unset).
+  AND (
+    (
+      NOT sqlc.arg('only_unpublished')::bool
+      AND a.published_datetime IS NOT NULL
+      AND a.published_datetime <= now()
+    )
+    OR (
+      sqlc.arg('only_unpublished')::bool
+      AND a.published_datetime > now()
+      AND (
+        sqlc.arg('all_authors')::bool
+        OR m.id = sqlc.narg('viewer_member_id')::uuid
+      )
+    )
+  )
   AND (
     sqlc.narg('search')::text IS NULL
     OR a.header_sv ILIKE '%' || sqlc.narg('search')::text || '%'
@@ -64,16 +80,35 @@ WHERE a.published_datetime IS NOT NULL
     OR sqlc.narg('nollning_season_id')::uuid IS NOT NULL
     OR a.nollning_season_id IS NULL
   )
-ORDER BY a.published_datetime DESC
+-- Scheduled articles soonest first, published ones newest first.
+ORDER BY
+    CASE WHEN sqlc.arg('only_unpublished')::bool THEN a.published_datetime END ASC,
+    a.published_datetime DESC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: CountArticles :one
 SELECT count(*) FROM articles a
 JOIN authors au ON au.id = a.author_id
 JOIN members m ON m.id = au.member_id
-WHERE a.published_datetime IS NOT NULL
-  AND a.published_datetime <= now()
-  AND (a.removed_at IS NULL OR a.removed_at > now())
+WHERE (a.removed_at IS NULL OR a.removed_at > now())
+  -- Published articles, or with only_unpublished the scheduled ones
+  -- instead: everyone's with all_authors, otherwise only those written by
+  -- viewer_member_id (none if it's unset).
+  AND (
+    (
+      NOT sqlc.arg('only_unpublished')::bool
+      AND a.published_datetime IS NOT NULL
+      AND a.published_datetime <= now()
+    )
+    OR (
+      sqlc.arg('only_unpublished')::bool
+      AND a.published_datetime > now()
+      AND (
+        sqlc.arg('all_authors')::bool
+        OR m.id = sqlc.narg('viewer_member_id')::uuid
+      )
+    )
+  )
   AND (
     sqlc.narg('search')::text IS NULL
     OR a.header_sv ILIKE '%' || sqlc.narg('search')::text || '%'
@@ -238,3 +273,11 @@ WHERE a.announced_at IS NULL
   AND a.published_datetime <= now()
 ORDER BY a.published_datetime
 LIMIT 100;
+
+-- name: GetLiveArticleIDBySlug :one
+-- For new likes and comments: only on articles readers can see, as the old
+-- app couldn't even read the others.
+SELECT id FROM articles
+WHERE slug = $1
+  AND published_datetime <= now()
+  AND (removed_at IS NULL OR removed_at > now());

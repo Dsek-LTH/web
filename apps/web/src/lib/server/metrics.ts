@@ -21,28 +21,6 @@ export const inflightRequests = new client.Gauge({
   help: "Number of in-progress requests",
 });
 
-// Push notification metrics
-export const pushNotificationsMessagesTotal = new client.Counter({
-  name: "push_notifications_messages_total",
-  help: "Total number of push notification messages attempted to send",
-});
-
-export const pushNotificationsFailedMessagesTotal = new client.Counter({
-  name: "push_notifications_failed_messages_total",
-  help: "Total number of push notification messages that failed",
-});
-
-export const pushNotificationsChunksFailedTotal = new client.Counter({
-  name: "push_notifications_chunks_failed_total",
-  help: "Total number of push notification chunks that failed to send",
-});
-
-export const pushNotificationSendDurationMs = new client.Histogram({
-  name: "push_notification_send_duration_ms",
-  help: "Duration of sending push notifications in ms",
-  buckets: [50, 100, 200, 500, 1000, 2000],
-});
-
 export function registerMetrics() {
   return client.register;
 }

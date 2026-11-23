@@ -211,13 +211,20 @@ export const actions: Actions = {
       case "never":
         cookies.set("phadder_group_modal_never", "1", { path: "/" });
         break;
-      default:
-        await setNollningGroup(
+      default: {
+        const groupError = await setNollningGroup(
           serverApi(event),
           studentId,
-          form.data.nollningGroupId ?? null,
+          form.data.nollningGroupId,
         );
+        if (groupError)
+          return message(
+            form,
+            { message: groupError.message, type: "error" },
+            { status: groupError.status },
+          );
         break;
+      }
     }
 
     if (form.data.nollningGroupId !== null)
@@ -235,6 +242,19 @@ export const actions: Actions = {
     const { studentId } = params;
     const { nollningGroupId, foodPreference, ...profileFields } = form.data;
 
+    // Go's member update replaces every profile field, and MemberForm has
+    // no graduation year input, so it's carried over from the current
+    // profile rather than cleared (as onboarding does).
+    const currentRes = await api.GET("/members/{studentId}", {
+      params: { path: { studentId } },
+    });
+    if (currentRes.error)
+      return message(
+        form,
+        { message: m.members_errors_couldntFetchMember(), type: "error" },
+        { status: currentRes.response.status as NumericRange<400, 599> },
+      );
+
     const res = await api.PUT("/members/{studentId}", {
       params: { path: { studentId } },
       body: {
@@ -243,7 +263,8 @@ export const actions: Actions = {
         nickname: profileFields.nickname ?? undefined,
         classProgramme: profileFields.classProgramme ?? undefined,
         classYear: profileFields.classYear ?? undefined,
-        graduationYear: profileFields.graduationYear ?? undefined,
+        graduationYear:
+          profileFields.graduationYear ?? currentRes.data.graduationYear,
         language: profileFields.language ?? undefined,
         bio: profileFields.bio ?? undefined,
         birthDate: toBirthDateString(profileFields.birthDate),
@@ -262,7 +283,18 @@ export const actions: Actions = {
         { status: res.response.status as NumericRange<400, 599> },
       );
 
-    await setNollningGroup(api, studentId, nollningGroupId ?? null);
+    const groupError = await setNollningGroup(
+      api,
+      studentId,
+      nollningGroupId,
+      res.data,
+    );
+    if (groupError)
+      return message(
+        form,
+        { message: groupError.message, type: "error" },
+        { status: groupError.status },
+      );
 
     return message(form, {
       message: m.members_memberUpdated(),

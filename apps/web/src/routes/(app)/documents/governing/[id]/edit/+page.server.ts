@@ -1,4 +1,4 @@
-import { error, fail } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { superValidate } from "sveltekit-superforms/server";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -6,7 +6,7 @@ import { redirect } from "sveltekit-flash-message/server";
 import { governingDocumentSchema } from "../../schemas";
 import * as m from "$paraglide/messages";
 import { serverApi } from "$lib/server/apiClient";
-import { requirePolicy } from "$lib/utils/access";
+import { goError, requirePolicy } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
 // governing_document:write is enforced by the Go API itself - same
@@ -17,9 +17,8 @@ export const load: PageServerLoad = async (event) => {
   const res = await serverApi(event).GET("/governing-documents/{id}", {
     params: { path: { id: params.id } },
   });
-  if (res.error) {
-    throw error(404, m.documents_governing_errors_notFound());
-  }
+  if (res.error)
+    goError(res.response, res.error, m.documents_governing_errors_notFound());
   const governingDocument = res.data;
 
   return {
@@ -45,7 +44,12 @@ export const actions: Actions = {
       params: { path: { id: params.id } },
       body: { url, title, type },
     });
-    if (updated.error) throw new Error("Failed to update governing document");
+    if (updated.error)
+      goError(
+        updated.response,
+        updated.error,
+        "Failed to update governing document",
+      );
     throw redirect(
       "/documents/governing",
       {
