@@ -38,7 +38,9 @@ export type DiffSessionOptions = {
  */
 export class DiffSession {
   source = $state("");
-  tab = $state<"updated" | "diff">("updated");
+  tab = $state<"updated" | "diff">("diff");
+  /** Whether the diff against the upstream document is generated for you. */
+  autodiff = $state(true);
   previewHost = $state<HTMLElement | undefined>();
   scrollBox = $state<HTMLElement | undefined>();
   compiling = $state(false);
@@ -85,6 +87,16 @@ export class DiffSession {
   dirty = $derived(this.source !== this.savedSource);
   canReset = $derived(this.upstreamSource !== null);
   diffAvailable = $derived(this.upstreamSource !== null && this.diffReady);
+  /**
+   * Manual diff markers (`#diff-added[`/`#diff-deleted[` or their `#add[`/
+   * `#remove[` aliases) make the automatic diff meaningless — and, being
+   * part of the source, they keep autodiff off across reloads and drafts
+   * without extra persisted state.
+   */
+  hasManualDiffMarkers = $derived(
+    /#(?:diff-added|diff-deleted|add|remove)\[/.test(this.source),
+  );
+  canAutodiff = $derived(!this.hasManualDiffMarkers);
   diffResult = $derived.by(() => {
     if (!this.diffAvailable) return { source: "", error: "" };
     try {
@@ -97,7 +109,7 @@ export class DiffSession {
     }
   });
   activeSource = $derived(
-    this.tab === "diff" && this.diffAvailable
+    this.autodiff && this.tab === "diff" && this.diffAvailable
       ? this.diffResult.source
       : this.source,
   );
@@ -216,16 +228,23 @@ export class DiffSession {
     this.savedSource = this.source;
   }
 
+  /** Download the raw source as it stands. */
   downloadSource() {
-    if (!this.activeSource) return;
-    if (this.tab === "diff" && !this.diffAvailable) return;
-    const blob = new Blob([this.activeSource], {
-      type: "text/plain;charset=utf-8",
-    });
+    this.downloadAs(this.source, `${this.slug}.typ`);
+  }
+
+  /** Download typdiff's generated diff source (autodiff only). */
+  downloadDiffSource() {
+    if (!this.diffAvailable || !this.diffResult.source) return;
+    this.downloadAs(this.diffResult.source, `${this.slug}-diff.typ`);
+  }
+
+  private downloadAs(source: string, filename: string) {
+    const blob = new Blob([source], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${this.slug}${this.tab === "diff" ? "-diff" : ""}.typ`;
+    link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
   }

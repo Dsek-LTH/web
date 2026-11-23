@@ -72,16 +72,17 @@
     oninput?: () => void;
     /** Document title, shown in the toolbar. */
     title?: string;
-    /** Extra toolbar buttons owned by the page (e.g. diff's reset). */
-    trailing?: Snippet;
+    /** Extra toolbar buttons owned by the page (e.g. diff's reset). Gets
+     * the editor view so page-level commands can edit the document. */
+    trailing?: Snippet<[EditorView | undefined]>;
   } = $props();
 
   let host: HTMLDivElement | undefined = $state();
   let root: HTMLDivElement | undefined = $state();
   let view: EditorView | undefined = $state();
   let dark = $state(false);
-  /** Soft-wrap long lines (off by default; toggle in the toolbar). */
-  let wrap = $state(false);
+  /** Soft-wrap long lines (on by default; toggle in the toolbar). */
+  let wrap = $state(true);
   let searchOpen = $state(false);
 
   // Theme and line wrapping are swapped through these compartments.
@@ -383,7 +384,7 @@
         </span>
       {/if}
     </div>
-    {@render trailing?.()}
+    {@render trailing?.(view)}
     <button
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"

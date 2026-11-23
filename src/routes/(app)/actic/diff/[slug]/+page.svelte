@@ -8,7 +8,16 @@
   import { getDraft } from "$lib/actic/documents/drafts";
   import { page } from "$app/state";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
-  import { Download, FileCode, RotateCcw, Save } from "@lucide/svelte/icons";
+  import {
+    Download,
+    FileCode,
+    FileDiff,
+    Minus,
+    Plus,
+    RotateCcw,
+    Save,
+  } from "@lucide/svelte/icons";
+  import { toggleWrapAround } from "$lib/actic/editor/codemirror-commands";  import type { EditorView } from "@codemirror/view";
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
   import { DiffSession } from "./editor.svelte";
@@ -63,7 +72,28 @@
       </p>
     {/if}
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {#snippet trailing()}
+      {#snippet trailing(cmView: EditorView | undefined)}
+        {#if !session!.autodiff}
+          <button
+            type="button"
+            class="text-muted-foreground hover:bg-accent hover:text-foreground rounded p-2"
+            aria-label={m.actic_diff_marker_added()}
+            title={m.actic_diff_marker_added()}
+            onclick={() => cmView && toggleWrapAround(cmView, "#add[", "]")}
+          >
+            <Plus class="size-4" />
+          </button>
+          <button
+            type="button"
+            class="text-muted-foreground hover:bg-accent hover:text-foreground rounded p-2"
+            aria-label={m.actic_diff_marker_deleted()}
+            title={m.actic_diff_marker_deleted()}
+            onclick={() =>
+              cmView && toggleWrapAround(cmView, "#remove[", "]")}
+          >
+            <Minus class="size-4" />
+          </button>
+        {/if}
         <button
           type="button"
           class="text-muted-foreground hover:bg-accent hover:text-foreground rounded p-2 disabled:pointer-events-none disabled:opacity-50"
@@ -82,7 +112,17 @@
           {title}
           {trailing}
         />
-        <div class="flex justify-end">
+        <div class="flex justify-end gap-2">
+          {#if session.autodiff}
+            <Button
+              variant="outline"
+              onclick={() => session!.downloadDiffSource()}
+              disabled={!session.diffAvailable}
+            >
+              <FileDiff class="mr-2 h-4 w-4" />
+              {m.actic_download_diff_source()}
+            </Button>
+          {/if}
           <Button variant="outline" onclick={() => session!.downloadSource()}>
             <FileCode class="mr-2 h-4 w-4" />
             {m.actic_download_source()}
@@ -94,25 +134,47 @@
         class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <Tabs.Root value={session.tab}>
-            <Tabs.List class="w-auto">
-              <Tabs.Trigger
-                value="updated"
-                onclick={() => (session!.tab = "updated")}
-                class="px-3 py-1.5"
-              >
-                {m.actic_diff_preview_updated()}
-              </Tabs.Trigger>
-              <Tabs.Trigger
-                value="diff"
-                onclick={() => (session!.tab = "diff")}
-                disabled={!session.diffAvailable}
-                class="px-3 py-1.5"
-              >
-                {m.actic_diff_preview_diff()}
-              </Tabs.Trigger>
-            </Tabs.List>
-          </Tabs.Root>
+          <div class="flex items-center gap-4">
+            <label
+              class={`flex h-[42px] cursor-pointer items-center gap-2 rounded-md border px-3 text-sm transition-colors ${
+                session.autodiff
+                  ? "border-rosa-background bg-rosa-background/5"
+                  : ""
+              } ${session.canAutodiff ? "" : "cursor-not-allowed opacity-60"}`}
+              title={session.canAutodiff
+                ? undefined
+                : m.actic_diff_autodiff_disabled()}
+            >
+              <input
+                type="checkbox"
+                bind:checked={session.autodiff}
+                disabled={!session.canAutodiff}
+                class="accent-rosa-background"
+              />
+              <span>{m.actic_diff_autodiff()}</span>
+            </label>
+            {#if session.autodiff}
+              <Tabs.Root value={session.tab}>
+                <Tabs.List class="w-auto">
+                  <Tabs.Trigger
+                    value="diff"
+                    onclick={() => (session!.tab = "diff")}
+                    disabled={!session.diffAvailable}
+                    class="px-3 py-1.5"
+                  >
+                    {m.actic_diff_preview_diff()}
+                  </Tabs.Trigger>
+                  <Tabs.Trigger
+                    value="updated"
+                    onclick={() => (session!.tab = "updated")}
+                    class="px-3 py-1.5"
+                  >
+                    {m.actic_diff_preview_updated()}
+                  </Tabs.Trigger>
+                </Tabs.List>
+              </Tabs.Root>
+            {/if}
+          </div>
           <div class="flex items-center gap-2">
             {#if session.compiling}
               <Spinner class="text-muted-foreground h-4 w-4" />
