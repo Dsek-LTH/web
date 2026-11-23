@@ -115,7 +115,7 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 		Path:        "/nollning/phadder-groups/{id}",
 		Tags:        tags,
 		Summary:     "Get a phadder group",
-		Description: "With its nollor and phaddrar.",
+		Description: "With its nollor and phaddrar. Needs a signed-in member.",
 	}, func(ctx context.Context, input *IDPath) (*struct{ Body nollning.PhadderGroup }, error) {
 		group, err := svc.GetGroup(ctx, input.ID)
 		if err != nil {
@@ -235,12 +235,31 @@ func registerNollningRoutes(api huma.API, svc *nollning.Service) {
 	})
 
 	huma.Register(api, huma.Operation{
+		OperationID:   "set-member-phadder-group",
+		Method:        http.MethodPut,
+		Path:          "/members/{studentId}/phadder-group",
+		Tags:          tags,
+		Summary:       "Set a member's phadder group",
+		Description:   "Puts the member in a phadder group of the current season as a nolla, or takes them out of their group when groupId is omitted; 422 for a group outside the current season. The member themselves, or nollning:phaddrar:groups:manage.",
+		DefaultStatus: http.StatusNoContent,
+	}, func(ctx context.Context, input *struct {
+		StudentIDPath
+		Body nollning.MemberPhadderGroupInput
+	},
+	) (*struct{}, error) {
+		if err := svc.SetMemberGroup(ctx, input.StudentID, input.Body.GroupID); err != nil {
+			return nil, humaServiceError(err)
+		}
+		return nil, nil
+	})
+
+	huma.Register(api, huma.Operation{
 		OperationID: "get-member-phadder-role",
 		Method:      http.MethodGet,
 		Path:        "/members/{studentId}/phadder-role",
 		Tags:        tags,
 		Summary:     "Get a member's phadder role",
-		Description: "Whether the member is a nolla or phadder this season, and in which group.",
+		Description: "Whether the member is a nolla or phadder this season, and in which group. Needs a signed-in member.",
 	}, func(ctx context.Context, input *StudentIDPath) (*struct{ Body nollning.MemberPhadderRole }, error) {
 		role, groupID, err := svc.PhadderRoleFor(ctx, input.StudentID)
 		if err != nil {

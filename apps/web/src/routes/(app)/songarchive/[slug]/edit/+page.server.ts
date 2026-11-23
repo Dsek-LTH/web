@@ -6,6 +6,7 @@ import { setError, superValidate } from "sveltekit-superforms/server";
 import { updateSongSchema } from "../../schema";
 import type { Actions } from "./$types";
 import { serverApi } from "$lib/server/apiClient";
+import { goError } from "$lib/utils/access";
 
 // Only the update action stays a SvelteKit action (a real authoring form)
 // - delete/restore are pure-proxy mutations
@@ -43,7 +44,8 @@ export const actions: Actions = {
         video: data.video?.trim() || undefined,
       },
     });
-    if (updated.error) throw new Error("Failed to update song");
+    if (updated.error)
+      goError(updated.response, updated.error, "Failed to update song");
 
     throw redirect(
       encodeURI(`/songarchive/${updated.data.slug}`),

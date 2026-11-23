@@ -15,23 +15,24 @@ type Mandate = apitypes.Mandate
 // needs the extra fields, and widening the shared byline type for every
 // article/event response would be unnecessary bloat there.
 type MemberProfile struct {
-	ID             string             `json:"id"`
-	StudentID      *string            `json:"studentId,omitempty"`
-	FirstName      *string            `json:"firstName,omitempty"`
-	Nickname       *string            `json:"nickname,omitempty"`
-	LastName       *string            `json:"lastName,omitempty"`
-	PicturePath    *string            `json:"picturePath,omitempty"    doc:"Public URL of the profile picture."`
-	ClassProgramme *string            `json:"classProgramme,omitempty" doc:"Programme code, e.g. D or C."`
-	ClassYear      *int32             `json:"classYear,omitempty"      doc:"Year the member started."`
-	Visible        bool               `json:"visible"`
-	FoodPreference *string            `json:"foodPreference,omitempty" doc:"Free text, e.g. allergies. Only for the member themselves or core:member:update."`
-	Bio            *string            `json:"bio,omitempty"            doc:"HTML, sanitized on save."`
-	GraduationYear *int32             `json:"graduationYear,omitempty"`
-	Language       *apitypes.Language `json:"language,omitempty"       doc:"Preferred UI language."`
-	Email          *string            `json:"email,omitempty"          doc:"Only for the member themselves, or with member:see_email."`
-	BirthDate      *string            `json:"birthDate,omitempty"      doc:"YYYY-MM-DD. Only for the member themselves, or with member:user."`
-	BirthdayToday  bool               `json:"birthdayToday"            doc:"Whether it's the member's birthday today (Swedish time). False when birthDate is hidden."`
-	Mandates       []Mandate          `json:"mandates,omitempty"       doc:"Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}."`
+	ID              string             `json:"id"`
+	StudentID       *string            `json:"studentId,omitempty"`
+	FirstName       *string            `json:"firstName,omitempty"`
+	Nickname        *string            `json:"nickname,omitempty"`
+	LastName        *string            `json:"lastName,omitempty"`
+	PicturePath     *string            `json:"picturePath,omitempty"     doc:"Public URL of the profile picture."`
+	ClassProgramme  *string            `json:"classProgramme,omitempty"  doc:"Programme code, e.g. D or C."`
+	ClassYear       *int32             `json:"classYear,omitempty"       doc:"Year the member started."`
+	Visible         bool               `json:"visible"`
+	FoodPreference  *string            `json:"foodPreference,omitempty"  doc:"Free text, e.g. allergies. Only for the member themselves or core:member:update."`
+	Bio             *string            `json:"bio,omitempty"             doc:"HTML, sanitized on save."`
+	GraduationYear  *int32             `json:"graduationYear,omitempty"`
+	Language        *apitypes.Language `json:"language,omitempty"        doc:"Preferred UI language."`
+	Email           *string            `json:"email,omitempty"           doc:"Only for the member themselves, or with member:see_email."`
+	BirthDate       *string            `json:"birthDate,omitempty"       doc:"YYYY-MM-DD. Only for the member themselves, or with member:user."`
+	BirthdayToday   bool               `json:"birthdayToday"             doc:"Whether it's the member's birthday today (Swedish time). False when birthDate is hidden."`
+	NollningGroupID *string            `json:"nollningGroupId,omitempty" doc:"The phadder group the member is a nolla in. Only for the member themselves or nollning:phaddrar:groups:manage."`
+	Mandates        []Mandate          `json:"mandates,omitempty"        doc:"Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}."`
 }
 
 // ProfileInput is the full-replace body for PUT /members/{studentId}.

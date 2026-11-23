@@ -1,11 +1,15 @@
 -- name: ListPositions :many
-SELECT id, name_sv, name_en, committee_id, email, active, board_member,
-       description_sv, description_en, start_month, end_month
-FROM positions
-ORDER BY name_sv;
+-- Joins the committee (name/shortName) like GetPosition, so GET /positions
+-- can group positions by committee.
+SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
+       p.description_sv, p.description_en, p.start_month, p.end_month,
+       c.name_sv AS committee_name_sv, c.name_en AS committee_name_en, c.short_name AS committee_short_name
+FROM positions p
+LEFT JOIN committees c ON c.id = p.committee_id
+ORDER BY p.name_sv;
 
 -- name: GetPosition :one
--- Joins the committee (name/shortName), unlike ListPositions/UpdatePosition -
+-- Joins the committee (name/shortName), unlike UpdatePosition -
 -- the position detail page links/displays the committee without a second
 -- request.
 SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,

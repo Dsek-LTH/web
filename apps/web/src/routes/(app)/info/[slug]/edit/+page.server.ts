@@ -5,7 +5,7 @@ import { superValidate } from "sveltekit-superforms/server";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { serverApi } from "$lib/server/apiClient";
-import { requireCanEdit, requirePolicy } from "$lib/utils/access";
+import { goError, requireCanEdit, requirePolicy } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
 const markdownSchema = z.object({
@@ -22,6 +22,9 @@ export const load: PageServerLoad = async (event) => {
   const res = await serverApi(event).GET("/info-pages/{slug}", {
     params: { path: { slug: params.slug } },
   });
+  // Only a missing page is a new one; any other failure is Go's to report.
+  if (res.error && res.response.status !== 404)
+    goError(res.response, res.error, "Failed to load page");
   const page = res.data;
   // An existing page goes by Go's canEdit; a new one needs markdown:create.
   if (page) requireCanEdit(event.locals.user, page.canEdit);
@@ -52,7 +55,8 @@ export const actions: Actions = {
         markdownEn: form.data.markdownEn ?? undefined,
       },
     });
-    if (created.error) throw new Error("Failed to create page");
+    if (created.error)
+      goError(created.response, created.error, "Failed to create page");
     throw redirect(
       `/info/${name}`,
       {
@@ -74,7 +78,8 @@ export const actions: Actions = {
         markdownEn: form.data.markdownEn ?? undefined,
       },
     });
-    if (updated.error) throw new Error("Failed to update page");
+    if (updated.error)
+      goError(updated.response, updated.error, "Failed to update page");
     throw redirect(
       `/info/${name}`,
       {

@@ -5,9 +5,14 @@ import "time"
 // Song is the songbook detail/list shape - single-language (title/lyrics
 // have no Sv/En pair in the old app either), unlike articles/events.
 type Song struct {
-	ID        string     `json:"id"`
-	Title     string     `json:"title"`
-	Lyrics    string     `json:"lyrics"              doc:"Typographic replacements (--, ||: etc.) already applied."`
+	ID     string `json:"id"`
+	Title  string `json:"title"`
+	Lyrics string `json:"lyrics" doc:"Typographic replacements (--, ||: etc.) already applied."`
+	// RawTitle/RawLyrics are the stored text before FixSongText, for the
+	// edit form: seeding it with the display text would save the
+	// replacements (an em dash for --) on the next edit.
+	RawTitle  *string    `json:"rawTitle,omitempty"  doc:"The title as stored, before the typographic replacements. Only for callers who may edit songs (song:update)."`
+	RawLyrics *string    `json:"rawLyrics,omitempty" doc:"The lyrics as stored, before the typographic replacements. Only for callers who may edit songs (song:update)."`
 	Melody    *string    `json:"melody,omitempty"    doc:"The tune it's sung to."`
 	Category  *string    `json:"category,omitempty"  doc:"One or more categories, comma separated."`
 	Slug      string     `json:"slug"`

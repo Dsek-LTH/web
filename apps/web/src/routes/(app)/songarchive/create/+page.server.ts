@@ -6,7 +6,7 @@ import type { PageServerLoad, Actions } from "./$types";
 import * as m from "$paraglide/messages";
 import { redirect } from "sveltekit-flash-message/server";
 import { serverApi } from "$lib/server/apiClient";
-import { requirePolicy } from "$lib/utils/access";
+import { goError, requirePolicy } from "$lib/utils/access";
 import apiNames from "$lib/utils/apiNames";
 
 // Slug generation, sanitization, and the song:create check itself all
@@ -47,7 +47,8 @@ export const actions: Actions = {
         video: video?.trim() || undefined,
       },
     });
-    if (created.error) throw new Error("Failed to create song");
+    if (created.error)
+      goError(created.response, created.error, "Failed to create song");
 
     throw redirect(
       `/songarchive/${created.data.slug}`,

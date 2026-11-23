@@ -13,7 +13,8 @@ import {
 import { zod4 } from "sveltekit-superforms/adapters";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
-import { goError } from "$lib/utils/access";
+import { goError, requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
 
 const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 
@@ -22,6 +23,9 @@ const MISCELLANEOUS_FILES_PREFIX = `public/miscellaneous`;
 // UploadMisc/DeleteMisc) - no authorize() call here.
 
 export const load = async (event) => {
+  // The page is for uploading; listing the files only needs files:read,
+  // which far more people have.
+  requirePolicy(event.locals.user, apiNames.FILES.BUCKET("files").CREATE);
   const res = await serverApi(event).GET("/files", {});
   if (res.response.status === 401 || res.response.status === 403)
     goError(res.response, res.error, "Failed to load files");

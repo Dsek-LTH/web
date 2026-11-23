@@ -1,19 +1,20 @@
 import { api } from "$lib/api/client";
-import dayjs from "dayjs";
+import { toAppTime } from "$lib/utils/datetime";
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
 
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-// The current season's weeks, Monday to Monday, from the week nollning
-// starts to the week it ends (these used to be hardcoded dates).
+// The current season's weeks, Monday to Monday in Swedish time, from the
+// week nollning starts to the week it ends (these used to be hardcoded
+// dates). Computed in Swedish time so SSR (UTC) and the browser agree.
 const seasonWeekStarts = (nollaStartAt: string, endAt: string) => {
-  const first = dayjs(nollaStartAt).startOf("day");
-  const monday = first.subtract((first.day() + 6) % 7, "day").toDate();
+  const first = toAppTime(nollaStartAt).startOf("day");
+  let monday = first.subtract((first.day() + 6) % 7, "day");
   const end = new Date(endAt);
   const starts: Date[] = [];
-  for (let t = monday.valueOf(); t < end.valueOf(); t += WEEK_MS)
-    starts.push(new Date(t));
+  while (monday.valueOf() < end.valueOf()) {
+    starts.push(monday.toDate());
+    monday = monday.add(1, "week");
+  }
   return starts;
 };
 
@@ -21,15 +22,18 @@ export const load: PageLoad = async ({ fetch, url }) => {
   const current = await api.GET("/nollning/current", { fetch });
   if (current.error)
     error(current.response.status, current.error.detail ?? "Failed to load");
-  const season = current.data.season;
+  // Between seasons, the latest revealed season's weeks.
+  const season = current.data.season ?? current.data.latestRevealed;
   if (!season) return { week: 0, events: [], weeks: 0 };
 
   const weekStarts = seasonWeekStarts(season.nollaStartAt, season.endAt);
+  const weekEnd = (i: number) =>
+    weekStarts[i + 1] ?? toAppTime(weekStarts[i]).add(1, "week").toDate();
   const now = Date.now();
   const currentWeek = Math.max(
     0,
     weekStarts.findIndex(
-      (start) => now >= start.valueOf() && now < start.valueOf() + WEEK_MS,
+      (start, i) => now >= start.valueOf() && now < weekEnd(i).valueOf(),
     ),
   );
   const week = Number.parseInt(
@@ -38,15 +42,18 @@ export const load: PageLoad = async ({ fetch, url }) => {
   if (Number.isNaN(week) || week < 0 || week >= weekStarts.length)
     error(400, "Invalid week parameter");
 
-  const from = weekStarts[week]!;
+  // Before the reveal the season's events (and with them its theme) stay
+  // hidden, and the week shows the guild's general events instead, like the
+  // old page did.
+  const revealed = current.data.phase !== "pre_reveal";
   const res = await api.GET("/events", {
     fetch,
     params: {
       query: {
         span: "range",
-        from: from.toISOString(),
-        to: new Date(from.valueOf() + WEEK_MS).toISOString(),
-        nollningSeasonId: season.id,
+        from: weekStarts[week]!.toISOString(),
+        to: weekEnd(week).toISOString(),
+        ...(revealed ? { nollningSeasonId: season.id } : {}),
         pageSize: 500,
       },
     },

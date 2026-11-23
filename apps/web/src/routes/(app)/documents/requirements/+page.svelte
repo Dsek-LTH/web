@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { escapeHtml } from "$lib/utils/html";
   import {
     Card,
     CardHeader,
@@ -91,7 +92,7 @@
         <AlertDialog.Title
           ><!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html m.documents_deleteAreYouSure({
-            fileName: file.name,
+            fileName: escapeHtml(file.name),
           })}</AlertDialog.Title
         >
         <AlertDialog.Description>

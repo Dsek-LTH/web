@@ -1,5 +1,5 @@
-import { error } from "@sveltejs/kit";
 import { api } from "$lib/api/client";
+import { goError } from "$lib/utils/access";
 import type { PageLoad } from "./$types";
 
 export const load: PageLoad = async ({ fetch, params }) => {
@@ -7,8 +7,6 @@ export const load: PageLoad = async ({ fetch, params }) => {
     fetch,
     params: { path: { slug: params.slug } },
   });
-  if (res.error) {
-    throw error(404, { message: "Not found" });
-  }
+  if (res.error) goError(res.response, res.error, "Not found");
   return { page: res.data, slug: params.slug };
 };

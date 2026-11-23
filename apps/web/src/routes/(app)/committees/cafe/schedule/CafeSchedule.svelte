@@ -11,8 +11,6 @@
   import { getFullName } from "$lib/utils/client/member";
 
   import dayjs from "dayjs";
-  import weekYear from "dayjs/plugin/weekYear";
-  import weekOfYear from "dayjs/plugin/weekOfYear";
   import isoWeek from "dayjs/plugin/isoWeek";
   import isoWeeksInYear from "dayjs/plugin/isoWeeksInYear";
   import isLeapYear from "dayjs/plugin/isLeapYear";
@@ -36,21 +34,20 @@
 
   import * as m from "$paraglide/messages";
 
-  dayjs.extend(weekOfYear);
   dayjs.extend(isoWeek);
   dayjs.extend(isoWeeksInYear);
   dayjs.extend(isLeapYear);
-  dayjs.extend(weekYear);
   dayjs.extend(localeData);
 
   const weekdays = dayjs.weekdays();
 
   let {
-    week = $bindable(),
+    week,
     shifts,
     user,
     ciabattaOfTheWeek,
   }: {
+    /** Any day in the ISO week shown (the page passes its Monday). */
     week: dayjs.Dayjs;
     shifts: ShiftWithWorker[];
     user: AuthUser;
@@ -115,9 +112,13 @@
     return `${day.format("YYYY-MM-DD")}-${timeSlot}`;
   }
 
+  // Weeks are ISO weeks, like Go's GET /cafe/schedule: Monday-start, and a
+  // week belongs to the ISO year of its Thursday (early January can be week
+  // 52/53 of the previous year).
   const now = dayjs();
-  const year = now.year();
-  const weeksInYear = dayjs().isoWeeksInYear();
+  const weekNumber = $derived(week.isoWeek());
+  const weekYear = $derived(week.isoWeekYear());
+  const weekKey = (d: dayjs.Dayjs) => `${d.isoWeekYear()}-${d.isoWeek()}`;
   const isDayManager = $derived(
     !!user?.policies.includes(apiNames.CAFE.DAY_MANAGER),
   );
@@ -163,16 +164,31 @@
 
   let ciabattaString = $derived(ciabattaOfTheWeek?.name ?? "");
 
-  let weeks = $derived(
-    canSeeAllWeeks
-      ? Array.from(Array(weeksInYear).keys()).map((n) => n + 1)
-      : [now.week(), now.week() + 1, now.week() + 2],
-  );
+  // The weeks the selector offers: every week of the shown ISO year, or
+  // (without cafe:see_all_weeks) the current week and the two after it,
+  // which Go also enforces.
+  let weeks = $derived.by(() => {
+    if (canSeeAllWeeks) {
+      const monday = week.startOf("isoWeek");
+      const weeksInYear = monday.add(3, "day").isoWeeksInYear();
+      const firstMonday = monday.subtract(weekNumber - 1, "week");
+      return Array.from({ length: weeksInYear }, (_, i) =>
+        firstMonday.add(i, "week"),
+      );
+    }
+    const monday = now.startOf("isoWeek");
+    return [0, 1, 2].map((i) => monday.add(i, "week"));
+  });
+  const prevWeek = $derived(week.subtract(1, "week"));
+  const nextWeek = $derived(week.add(1, "week"));
+  const canGoTo = (d: dayjs.Dayjs) =>
+    canSeeAllWeeks || weeks.some((w) => weekKey(w) === weekKey(d));
 
-  function handleWeekChange(value: string) {
-    if (weeks.includes(Number(value))) {
+  function goToWeek(d: dayjs.Dayjs) {
+    if (canGoTo(d)) {
       const searchParams = new SvelteURLSearchParams(page.url.searchParams);
-      searchParams.set("week", value);
+      searchParams.set("year", d.isoWeekYear().toString());
+      searchParams.set("week", d.isoWeek().toString());
       // eslint-disable-next-line svelte/no-navigation-without-resolve -- Navigation uses relative search params
       goto(`?${searchParams.toString()}`, {
         keepFocus: true,
@@ -180,6 +196,11 @@
         replaceState: true,
       });
     }
+  }
+
+  function handleWeekChange(value: string) {
+    const target = weeks.find((w) => weekKey(w) === value);
+    if (target) goToWeek(target);
   }
   const formRefs: Record<string, HTMLFormElement> = $state({});
 </script>
@@ -222,8 +243,8 @@
                   bind:value={ciabattaString}
                   type="text"
                 />
-                <input hidden type="number" name="year" value={year} />
-                <input hidden type="number" name="week" value={week.week()} />
+                <input hidden type="number" name="year" value={weekYear} />
+                <input hidden type="number" name="week" value={weekNumber} />
                 <Button
                   type="submit"
                   size="sm"
@@ -360,7 +381,7 @@
         class="grid h-full min-h-0 grid-cols-1 overflow-y-auto px-4 md:grid-cols-5"
       >
         {#each { length: 5 }, dayIndex}
-          {@const day = week.startOf("week").add(dayIndex, "day")}
+          {@const day = week.startOf("isoWeek").add(dayIndex, "day")}
           {#snippet DayForm(timeSlot: TimeSlot)}
             <form
               method="POST"
@@ -462,9 +483,9 @@
   <div class="inline-flex items-center gap-1">
     <Button
       variant="outline"
-      disabled={!weeks.includes(week.week() - 1)}
+      disabled={!canGoTo(prevWeek)}
       size="icon"
-      onclick={() => handleWeekChange((week.week() - 1).toString())}
+      onclick={() => goToWeek(prevWeek)}
       class="size-9 shrink-0"
     >
       <!-- size-9 is same height as Select.Trigger with size="default" -->
@@ -473,19 +494,19 @@
 
     <Select.Root
       type="single"
-      value={week.week().toString()}
+      value={weekKey(week)}
       onValueChange={handleWeekChange}
     >
       <Select.Trigger class="w-[120px]" size="default">
         {m.booking_week()}
-        {week.week()}
+        {weekNumber}
       </Select.Trigger>
       <Select.Content class="max-h-[300px]">
         <Select.ScrollUpButton />
         <Select.Group>
-          {#each weeks as n (n)}
-            <Select.Item value={n.toString()}
-              >{m.booking_week()} {n}</Select.Item
+          {#each weeks as w (weekKey(w))}
+            <Select.Item value={weekKey(w)}
+              >{m.booking_week()} {w.isoWeek()}</Select.Item
             >
           {/each}
         </Select.Group>
@@ -496,9 +517,9 @@
     <Button
       variant="outline"
       size="icon"
-      disabled={!weeks.includes(week.week() + 1)}
+      disabled={!canGoTo(nextWeek)}
       class="size-9 shrink-0"
-      onclick={() => handleWeekChange((week.week() + 1).toString())}
+      onclick={() => goToWeek(nextWeek)}
     >
       <ChevronRight class="size-4" />
     </Button>

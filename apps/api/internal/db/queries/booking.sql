@@ -83,6 +83,11 @@ UPDATE booking_requests SET status = $2
 WHERE id = $1
 RETURNING id, booker_id, start, "end", created, event, status;
 
+-- name: LockBookingRequest :one
+-- Locks the request row for the rest of the transaction, so concurrent
+-- edits and accept/reject of one request run one after another.
+SELECT id, booker_id, status FROM booking_requests WHERE id = $1 FOR UPDATE;
+
 -- name: DeleteBookingRequest :exec
 DELETE FROM booking_requests WHERE id = $1;
 
@@ -164,6 +169,9 @@ SELECT sqlc.arg(id), unnest(sqlc.arg(member_ids)::uuid[]);
 -- name: CountDoorsByName :one
 SELECT count(*) FROM doors WHERE name = ANY(sqlc.arg(names)::text[]);
 
+-- name: CountBookablesByID :one
+SELECT count(*) FROM bookables WHERE id = ANY(sqlc.arg(ids)::uuid[]);
+
 -- name: CountMembersByID :one
 SELECT count(*) FROM members WHERE id = ANY(sqlc.arg(ids)::uuid[]);
 
@@ -188,11 +196,16 @@ WHERE b.id = sqlc.arg(id)
   AND b.start IS NOT NULL AND b."end" IS NOT NULL
   AND m.student_id IS NOT NULL;
 
--- name: ListPendingBookingRequestIDs :many
+-- name: ListPendingBookingRequests :many
 -- The review queue: pending requests that haven't ended yet.
-SELECT id FROM booking_requests
-WHERE status = 'PENDING' AND start IS NOT NULL AND "end" >= now()
-ORDER BY start, "end";
+SELECT br.id, br.booker_id, br.start, br."end", br.created, br.event, br.status,
+       m.id AS booker_member_id, m.student_id AS booker_student_id,
+       m.first_name AS booker_first_name, m.last_name AS booker_last_name,
+       m.nickname AS booker_nickname, m.picture_path AS booker_picture_path
+FROM booking_requests br
+LEFT JOIN members m ON m.id = br.booker_id
+WHERE br.status = 'PENDING' AND br.start IS NOT NULL AND br."end" >= now()
+ORDER BY br.start, br."end";
 
 -- name: ListDoorsForBooking :many
 SELECT name, verbose_name FROM doors ORDER BY verbose_name;

@@ -14,6 +14,7 @@
 
   import * as m from "$paraglide/messages";
   import LinksDialog from "./LinksDialog.svelte";
+  import DOMPurify from "isomorphic-dompurify";
   import { Marked } from "marked";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
@@ -133,8 +134,10 @@
         <a href="/committees/{committee.shortName}/news"
           >{m.committees_news()}</a
         >
-        <!-- eslint-disable-next-line svelte/no-at-html-tags Already sanitized -->
-        {@html breakMarked.parseInline(data.links?.markdown ?? "")}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized right here -->
+        {@html DOMPurify.sanitize(
+          breakMarked.parseInline(data.links?.markdown ?? "", { async: false }),
+        )}
       </div>
       {#if canEdit}
         <LinksDialog {data} />

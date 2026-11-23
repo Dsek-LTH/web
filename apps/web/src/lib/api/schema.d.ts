@@ -167,7 +167,7 @@ export interface paths {
     put?: never;
     /**
      * Upload pictures to an album
-     * @description Creates the album "{date} {name}" if it doesn't exist. Needs fileHandler:albums:create.
+     * @description Creates the album "{date} {name}" if it doesn't exist. Every picture must be a JPEG, PNG, WebP or GIF of at most 25 MB; each is turned upright, scaled down to at most 1920 pixels wide and stored as a JPEG (a PNG if it has transparency). Needs fileHandler:albums:create.
      */
     post: operations["upload-album-pictures"];
     delete?: never;
@@ -269,7 +269,7 @@ export interface paths {
     };
     /**
      * List published articles
-     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.
+     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10. onlyUnpublished lists scheduled articles instead: the caller's own, or everyone's with news:article:update.
      */
     get: operations["list-articles"];
     put?: never;
@@ -323,7 +323,7 @@ export interface paths {
     put?: never;
     /**
      * Comment on an article
-     * @description As the signed-in member. Needs news:article:comment. Mentioned members are notified.
+     * @description As the signed-in member. Needs news:article:comment.
      */
     post: operations["create-article-comment"];
     delete?: never;
@@ -993,7 +993,7 @@ export interface paths {
     };
     /**
      * Get an event
-     * @description A non-deleted event, with its comments, attendees and recurring series.
+     * @description A non-deleted event, with its comments, attendees and recurring series. With includeDeleted, also a removed one to its author or holders of event:update or event:delete.
      */
     get: operations["get-event"];
     /**
@@ -1043,7 +1043,7 @@ export interface paths {
     put?: never;
     /**
      * Comment on an event
-     * @description As the signed-in member. Needs event:comment. Mentioned members are notified.
+     * @description As the signed-in member. Needs event:comment.
      */
     post: operations["create-event-comment"];
     delete?: never;
@@ -1183,7 +1183,7 @@ export interface paths {
     put?: never;
     /**
      * Upload an image
-     * @description For articles and event header images. Needs news:article:create, event:create or event:update.
+     * @description For articles and event header images: a JPEG, PNG, WebP or GIF of at most 25 MB. It's turned upright (EXIF orientation), scaled down to at most 1920 pixels wide and stored as a JPEG, or a PNG if it has transparency. Needs news:article:create, event:create or event:update.
      */
     post: operations["upload-image"];
     delete?: never;
@@ -1588,6 +1588,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/members/{studentId}/phadder-group": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Set a member's phadder group
+     * @description Puts the member in a phadder group of the current season as a nolla, or takes them out of their group when groupId is omitted; 422 for a group outside the current season. The member themselves, or nollning:phaddrar:groups:manage.
+     */
+    put: operations["set-member-phadder-group"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/members/{studentId}/phadder-role": {
     parameters: {
       query?: never;
@@ -1597,7 +1617,7 @@ export interface paths {
     };
     /**
      * Get a member's phadder role
-     * @description Whether the member is a nolla or phadder this season, and in which group.
+     * @description Whether the member is a nolla or phadder this season, and in which group. Needs a signed-in member.
      */
     get: operations["get-member-phadder-role"];
     put?: never;
@@ -1681,7 +1701,7 @@ export interface paths {
     };
     /**
      * Nollning events as an ICS calendar feed
-     * @description The current season's events once it has been revealed, otherwise the general feed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most three months ahead.
+     * @description The latest revealed season's events, also after it has ended; the general feed while the next season's theme is still secret (before its reveal) or before any season has been revealed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most three months ahead.
      */
     get: operations["get-nollning-events-calendar"];
     put?: never;
@@ -1725,7 +1745,7 @@ export interface paths {
     };
     /**
      * Get a phadder group
-     * @description With its nollor and phaddrar.
+     * @description With its nollor and phaddrar. Needs a signed-in member.
      */
     get: operations["get-phadder-group"];
     /**
@@ -2273,7 +2293,7 @@ export interface paths {
     };
     /**
      * Get a song
-     * @description Needs song:read. A deleted song is returned too to someone with song:delete.
+     * @description Needs song:read. A deleted song is returned too to someone with song:delete; the stored text before the typographic replacements (rawTitle, rawLyrics) to someone with song:update.
      */
     get: operations["get-song"];
     /**
@@ -2444,7 +2464,7 @@ export interface paths {
     post: operations["request-ticket"];
     /**
      * Cancel your ticket request
-     * @description Withdraws the signed-in member's request, offer, ticket or waitlist spot.
+     * @description Withdraws the signed-in member's request, offer or waitlist spot. An accepted ticket can't be cancelled (404).
      */
     delete: operations["cancel-ticket-request"];
     options?: never;
@@ -2592,7 +2612,7 @@ export interface components {
       /** @description Only on create/update: the article was saved, but its notification or Discord post failed. */
       announcementFailed?: boolean;
       author: components["schemas"]["ArticleAuthor"];
-      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Markdown (any HTML in it sanitized on save). */
       body: string;
       bodyEn?: string;
       bodySv: string;
@@ -2663,7 +2683,7 @@ export interface components {
       notificationText: string | null;
       /**
        * Format: date-time
-       * @description When it goes live. Unset keeps it a draft; omitting it on update un-publishes it.
+       * @description When it goes live. Omitted on create, it goes live now; omitted on update, it's un-published.
        */
       publishedAt: string | null;
       /** @description Notify subscribers when it goes live. */
@@ -2720,7 +2740,7 @@ export interface components {
     ArticleStatus: "draft" | "approved" | "rejected";
     ArticleSummary: {
       author: components["schemas"]["ArticleAuthor"];
-      /** @description bodyEn or bodySv, resolved from Accept-Language. Sanitized HTML. */
+      /** @description bodyEn or bodySv, resolved from Accept-Language. Markdown (any HTML in it sanitized on save). */
       body: string;
       bodyEn?: string;
       bodySv: string;
@@ -2822,9 +2842,9 @@ export interface components {
       verboseName: string;
     };
     BookingRequest: {
-      /** @description Doors to open for the booking. */
+      /** @description Doors to open for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessDoors: components["schemas"]["BookingDoor"][];
-      /** @description Members who get door access for the booking. */
+      /** @description Members who get door access for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessMembers: components["schemas"]["Member"][];
       bookables: components["schemas"]["Bookable"][];
       /** @description Who asked for the booking. */
@@ -2861,9 +2881,9 @@ export interface components {
     /** @enum {string} */
     BookingRequestStatus: "PENDING" | "ACCEPTED" | "DENIED";
     BookingReviewItem: {
-      /** @description Doors to open for the booking. */
+      /** @description Doors to open for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessDoors: components["schemas"]["BookingDoor"][];
-      /** @description Members who get door access for the booking. */
+      /** @description Members who get door access for the booking. Empty unless the caller is the booker or holds booking_request:update. */
       accessMembers: components["schemas"]["Member"][];
       bookables: components["schemas"]["Bookable"][];
       /** @description Who asked for the booking. */
@@ -3307,6 +3327,11 @@ export interface components {
       recurring?: components["schemas"]["Recurrence"];
       /** @description The recurring series this event is an occurrence of. */
       recurringParentId?: string;
+      /**
+       * Format: date-time
+       * @description When the event was removed. Omitted for an event that isn't removed.
+       */
+      removedAt?: string;
       /** @description shortDescriptionEn or shortDescriptionSv, resolved from Accept-Language. */
       shortDescription?: string;
       shortDescriptionEn?: string;
@@ -3692,6 +3717,10 @@ export interface components {
       /** @description Medal name, e.g. Gammal och Äcklig. */
       medal: string;
     };
+    MemberPhadderGroupInput: {
+      /** @description A phadder group of the current season. Omit (or leave empty) to take the member out of their group. */
+      groupId?: string;
+    };
     MemberPhadderRole: {
       /** @description The phadder group, if any. */
       groupId?: string;
@@ -3730,6 +3759,8 @@ export interface components {
       /** @description Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}. */
       mandates?: components["schemas"]["Mandate"][];
       nickname?: string;
+      /** @description The phadder group the member is a nolla in. Only for the member themselves or nollning:phaddrar:groups:manage. */
+      nollningGroupId?: string;
       /** @description Public URL of the profile picture. */
       picturePath?: string;
       studentId?: string;
@@ -3770,7 +3801,7 @@ export interface components {
       offerExpiresAt?: string;
       /**
        * Format: int64
-       * @description Place on the waitlist, from 1.
+       * @description Place on the waitlist, from 0 (the next in line).
        */
       queuePosition?: number;
       releaseId: string;
@@ -3815,6 +3846,8 @@ export interface components {
       year: number;
     };
     NollningStatus: {
+      /** @description The newest season whose theme has been revealed, current or past. Omitted if none has been. */
+      latestRevealed?: components["schemas"]["NollningSeason"];
       /** @description off outside a season; pre_reveal before the theme is revealed; post_reveal after. */
       phase: components["schemas"]["NollningPhase"];
       /** @description The active season. Omitted when phase is off. */
@@ -4170,6 +4203,10 @@ export interface components {
       lyrics: string;
       /** @description The tune it's sung to. */
       melody?: string;
+      /** @description The lyrics as stored, before the typographic replacements. Only for callers who may edit songs (song:update). */
+      rawLyrics?: string;
+      /** @description The title as stored, before the typographic replacements. Only for callers who may edit songs (song:update). */
+      rawTitle?: string;
       slug: string;
       title: string;
       /** Format: date-time */
@@ -4290,7 +4327,7 @@ export interface components {
       offerExpiresAt?: string;
       /**
        * Format: int64
-       * @description Place on the waitlist, from 1.
+       * @description Place on the waitlist, from 0 (the next in line).
        */
       queuePosition?: number;
       /** @description granted: offered a ticket, to accept before offerExpiresAt. accepted: has a ticket. */
@@ -4400,6 +4437,8 @@ export interface components {
       firstName?: string;
       /** @description Free text, e.g. allergies. */
       foodPreference?: string;
+      /** @description Whether studentId belongs to a member; the name fields are empty when it doesn't. */
+      isMember: boolean;
       lastName?: string;
       nickname?: string;
       /** @description Profile picture URL. */
@@ -4965,6 +5004,8 @@ export interface operations {
         nollningSeasonId?: string;
         /** @description Also list nollning season articles, which are left out unless nollningSeasonId is set. */
         includeNollning?: boolean;
+        /** @description List only scheduled articles (publishedAt in the future), soonest first: the caller's own, or everyone's with news:article:update. Empty for an anonymous caller. */
+        onlyUnpublished?: boolean;
         /** @description 1-based page number. Defaults to 1. */
         page?: number;
         /** @description Items per page. Each endpoint has its own default and maximum. */
@@ -6556,7 +6597,7 @@ export interface operations {
   "get-event": {
     parameters: {
       query?: {
-        /** @description Also return a soft-deleted event, to someone who may edit it. */
+        /** @description Also return a soft-deleted event, to someone who may edit or delete it (its author, event:update or event:delete). */
         includeDeleted?: boolean;
       };
       header?: never;
@@ -7981,6 +8022,40 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["MemberMedal"][];
         };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "set-member-phadder-group": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description LU student id, e.g. ab1234cd-s. */
+        studentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MemberPhadderGroupInput"];
+      };
+    };
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Error */
       default: {

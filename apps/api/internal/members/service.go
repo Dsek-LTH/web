@@ -136,7 +136,8 @@ func (s *Service) listBirthdays(
 // Profile fetches a member's full profile, including mandate history.
 // Email is only resolved if the caller is viewing their own profile or
 // holds MemberSeeEmail, and the food preference for themselves or
-// MemberUpdate - matching the old TS behavior exactly.
+// MemberUpdate - matching the old TS behavior exactly. The phadder group
+// is for themselves or NollningPhadderGroupsManage, who may change it.
 func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile, error) {
 	identity, err := requireMember(ctx)
 	if err != nil {
@@ -221,6 +222,11 @@ func (s *Service) Profile(ctx context.Context, studentID string) (*MemberProfile
 	// themselves and those who may edit members.
 	if identity.StudentID == studentID || identity.Has(apinames.MemberUpdate) {
 		member.FoodPreference = dbutil.TextPtr(row.FoodPreference)
+	}
+	// So the profile forms can prefill the member's phadder group, for those
+	// who may change it (PUT /members/{studentId}/phadder-group).
+	if identity.StudentID == studentID || identity.Has(apinames.NollningPhadderGroupsManage) {
+		member.NollningGroupID = dbutil.UUIDStrPtr(row.NollningGroupID)
 	}
 	if identity.StudentID == studentID || identity.Has(apinames.MemberUser) {
 		member.BirthDate = dbutil.DatePtr(row.BirthDate)

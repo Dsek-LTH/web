@@ -1,10 +1,12 @@
 package articles
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
+	"path"
 	"slices"
 	"strings"
 	"time"
@@ -17,6 +19,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/comments"
 	"github.com/dsek-lth/web/apps/api/internal/db"
 	"github.com/dsek-lth/web/apps/api/internal/dbutil"
+	"github.com/dsek-lth/web/apps/api/internal/images"
 	"github.com/dsek-lth/web/apps/api/internal/integrations"
 	"github.com/dsek-lth/web/apps/api/internal/locale"
 	"github.com/dsek-lth/web/apps/api/internal/mentions"
@@ -80,14 +83,34 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	if err != nil {
 		return nil, 0, invalidf("invalid committee id: %v", err)
 	}
-	search := dbutil.TextOrInvalid(params.Search)
+	search := dbutil.TextOrInvalid(dbutil.EscapeLikePtr(params.Search))
 	authorStudentID := dbutil.TextOrInvalid(params.AuthorStudentID)
 	nollningSeasonID, err := dbutil.ParseUUIDPtr(params.NollningSeasonID)
 	if err != nil {
 		return nil, 0, invalidf("invalid nollning season id: %v", err)
 	}
 
+	var viewerMemberID pgtype.UUID
+	allAuthors := false
+	if params.OnlyUnpublished {
+		identity, _ := auth.FromContext(ctx)
+		if identity == nil || identity.MemberID == "" {
+			return []ArticleSummary{}, 0, nil
+		}
+		// The same author-or-policy rule as editing (see detail), since
+		// the list exists to find the articles to edit.
+		allAuthors = identity.Has(apinames.NewsArticleUpdate)
+		id, err := dbutil.ParseUUID(identity.MemberID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("parse member id: %w", err)
+		}
+		viewerMemberID = id
+	}
+
 	rows, err := s.queries.ListArticles(ctx, db.ListArticlesParams{
+		OnlyUnpublished:  params.OnlyUnpublished,
+		AllAuthors:       allAuthors,
+		ViewerMemberID:   viewerMemberID,
 		Search:           search,
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,
@@ -102,6 +125,9 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	}
 
 	total, err := s.queries.CountArticles(ctx, db.CountArticlesParams{
+		OnlyUnpublished:  params.OnlyUnpublished,
+		AllAuthors:       allAuthors,
+		ViewerMemberID:   viewerMemberID,
 		Search:           search,
 		TagIds:           tagIDs,
 		CommitteeID:      committeeID,
@@ -423,11 +449,16 @@ func (s *Service) Like(ctx context.Context, slug string) error {
 	}
 	identity, _ := auth.FromContext(ctx)
 
-	row, err := s.queries.GetArticleRowBySlug(ctx, slug)
-	if err != nil {
+	// Only articles readers can see take likes, as the old app couldn't even
+	// read the others.
+	if _, err := s.queries.GetLiveArticleIDBySlug(ctx, slug); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return ErrNotFound
 		}
+		return fmt.Errorf("find article: %w", err)
+	}
+	row, err := s.queries.GetArticleRowBySlug(ctx, slug)
+	if err != nil {
 		return fmt.Errorf("find article: %w", err)
 	}
 	memberUUID, err := dbutil.ParseUUID(identity.MemberID)
@@ -487,7 +518,7 @@ func (s *Service) AddComment(ctx context.Context, slug, content string) (*Commen
 	}
 	identity, _ := auth.FromContext(ctx)
 
-	articleID, err := s.queries.GetArticleIDBySlug(ctx, slug)
+	articleID, err := s.queries.GetLiveArticleIDBySlug(ctx, slug)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
@@ -728,8 +759,14 @@ func (s *Service) ListCustomAuthors(ctx context.Context) ([]CustomAuthor, error)
 	return customAuthors, nil
 }
 
+// MaxImageSize is the largest file UploadImage accepts.
+const MaxImageSize = 25_000_000
+
 // UploadImage stores an image for an article or an event and returns its
-// URL. Anyone who may write either can upload: the event form uses it for
+// URL. Only JPEG, PNG, WebP and GIF are accepted; the picture is turned
+// upright, scaled down to images.MaxWidth and re-encoded (see
+// internal/images), so the stored file is a .jpg or .png whatever the
+// upload's name. Anyone who may write either can upload: the event form uses it for
 // header images, and someone who may create events but not articles must
 // still be able to save an event with an image.
 func (s *Service) UploadImage(
@@ -745,7 +782,12 @@ func (s *Service) UploadImage(
 		!identity.Has(apinames.EventUpdate) {
 		return "", auth.ErrForbidden
 	}
-	url, err := s.uploader.Upload(ctx, filename, data)
+	img, err := images.Read(ctx, data, MaxImageSize, images.MaxWidth)
+	if err != nil {
+		return "", err
+	}
+	name := strings.TrimSuffix(filename, path.Ext(filename)) + "." + img.Ext
+	url, err := s.uploader.Upload(ctx, name, bytes.NewReader(img.Data))
 	if err != nil {
 		return "", fmt.Errorf("upload image: %w", err)
 	}
@@ -899,7 +941,10 @@ func (s *Service) setTags(ctx context.Context, articleID pgtype.UUID, tagIDs []p
 // use.
 func (s *Service) uniqueSlug(ctx context.Context, headerSv string) (string, error) {
 	base := slug.Slugify(headerSv)
-	count, err := s.queries.CountArticleSlugsWithPrefix(ctx, pgtype.Text{String: base, Valid: true})
+	count, err := s.queries.CountArticleSlugsWithPrefix(
+		ctx,
+		pgtype.Text{String: dbutil.EscapeLike(base), Valid: true},
+	)
 	if err != nil {
 		return "", fmt.Errorf("count slugs: %w", err)
 	}

@@ -109,7 +109,8 @@ func registerSongRoutes(api huma.API, svc *songs.Service) {
 		Path:        "/songs/{slug}",
 		Tags:        tags,
 		Summary:     "Get a song",
-		Description: "Needs song:read. A deleted song is returned too to someone with song:delete.",
+		Description: "Needs song:read. A deleted song is returned too to someone with song:delete; " +
+			"the stored text before the typographic replacements (rawTitle, rawLyrics) to someone with song:update.",
 	}, func(ctx context.Context, input *songSlugInput) (*songOutput, error) {
 		song, err := svc.Get(ctx, input.Slug)
 		if err != nil {

@@ -298,6 +298,15 @@ func (s *Service) ListPositions(ctx context.Context) ([]Position, error) {
 			StartMonth:    p.StartMonth,
 			EndMonth:      p.EndMonth,
 		}, loc)
+		if p.CommitteeID.Valid {
+			c := toCommittee(committeeRow{
+				ID:        p.CommitteeID,
+				NameSv:    p.CommitteeNameSv.String,
+				NameEn:    p.CommitteeNameEn,
+				ShortName: p.CommitteeShortName,
+			}, loc)
+			positions[i].Committee = &c
+		}
 	}
 	return positions, nil
 }

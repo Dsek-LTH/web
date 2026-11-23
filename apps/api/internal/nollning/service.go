@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
@@ -39,8 +41,50 @@ func (s *Service) sanitizeDescription(d *string) *string {
 }
 
 // Current returns the season whose window covers right now, or nil (not an
-// error) if none does.
+// error) if none does. Within a request (see WithRequestCache) it's looked
+// up once: authentication alone asks twice, and the board, gallery and
+// feeds ask again.
 func (s *Service) Current(ctx context.Context) (*NollningSeason, error) {
+	cache, ok := ctx.Value(seasonCacheKey{}).(*seasonCache)
+	if !ok {
+		return s.lookupCurrent(ctx)
+	}
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+	if !cache.done {
+		season, err := s.lookupCurrent(ctx)
+		if err != nil {
+			return nil, err
+		}
+		cache.season, cache.done = season, true
+	}
+	return cache.season, nil
+}
+
+type (
+	seasonCacheKey struct{}
+	seasonCache    struct {
+		mu     sync.Mutex
+		done   bool
+		season *NollningSeason
+	}
+)
+
+// WithRequestCache returns ctx with room to remember the current season
+// for the rest of the request. Writing a season forgets it.
+func WithRequestCache(ctx context.Context) context.Context {
+	return context.WithValue(ctx, seasonCacheKey{}, &seasonCache{})
+}
+
+func forgetCurrent(ctx context.Context) {
+	if cache, ok := ctx.Value(seasonCacheKey{}).(*seasonCache); ok {
+		cache.mu.Lock()
+		cache.done, cache.season = false, nil
+		cache.mu.Unlock()
+	}
+}
+
+func (s *Service) lookupCurrent(ctx context.Context) (*NollningSeason, error) {
 	row, err := s.queries.GetCurrentSeason(ctx)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -71,14 +115,32 @@ func phaseFor(season *NollningSeason) Phase {
 	return PhasePostReveal
 }
 
-// GetCurrent backs GET /nollning/current - phase and active season (if
-// any) in one call.
+// LatestRevealed is the newest season whose theme has been revealed,
+// current or past, or nil if none has been.
+func (s *Service) LatestRevealed(ctx context.Context) (*NollningSeason, error) {
+	row, err := s.queries.GetLatestRevealedSeason(ctx)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get latest revealed season: %w", err)
+	}
+	season := toSeason(row)
+	return &season, nil
+}
+
+// GetCurrent backs GET /nollning/current - phase, active season (if any)
+// and the latest revealed season in one call.
 func (s *Service) GetCurrent(ctx context.Context) (*NollningStatus, error) {
 	season, err := s.Current(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &NollningStatus{Phase: phaseFor(season), Season: season}, nil
+	latest, err := s.LatestRevealed(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &NollningStatus{Phase: phaseFor(season), Season: season, LatestRevealed: latest}, nil
 }
 
 // NollaYear is the year auth.DerivedRoles' "nolla" pseudo-role should
@@ -151,16 +213,30 @@ func (s *Service) IsStaben(ctx context.Context, memberID string) (bool, error) {
 	return active, nil
 }
 
+// requireSignedIn returns auth.ErrUnauthenticated unless the caller is a
+// signed-in member - the member directory's bar, for reads that name
+// members.
+func requireSignedIn(ctx context.Context) error {
+	identity, ok := auth.FromContext(ctx)
+	if !ok || identity.MemberID == "" {
+		return auth.ErrUnauthenticated
+	}
+	return nil
+}
+
 // PhadderRoleFor reports studentID's PhadderRole and, if any, the group
 // they hold it in - collapsing the old dual-path lookup (members.
 // nollning_group_id for "nolla", a mandate-based scan for "phadder") into
 // one answer. A member can in principle be both; nolla takes precedence
 // since that's the more common case this endpoint exists for (the nolla's
-// own layout looking up their own group).
+// own layout looking up their own group). Signed-in members only.
 func (s *Service) PhadderRoleFor(
 	ctx context.Context,
 	studentID string,
 ) (PhadderRole, *string, error) {
+	if err := requireSignedIn(ctx); err != nil {
+		return PhadderRoleNone, nil, err
+	}
 	member, err := s.queries.GetMemberByStudentID(ctx, pgtype.Text{String: studentID, Valid: true})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -216,6 +292,9 @@ func (s *Service) CreateSeason(
 		return nil, err
 	}
 
+	if err := s.validateSeason(ctx, pgtype.UUID{}, in); err != nil {
+		return nil, err
+	}
 	committeeID, err := s.resolveOrganizingCommittee(ctx, in.OrganizingCommitteeID)
 	if err != nil {
 		return nil, err
@@ -229,8 +308,12 @@ func (s *Service) CreateSeason(
 		OrganizingCommitteeID: committeeID,
 	})
 	if err != nil {
+		if isUniqueViolation(err) {
+			return nil, fmt.Errorf("%w: %d", ErrYearTaken, in.Year)
+		}
 		return nil, fmt.Errorf("create season: %w", err)
 	}
+	forgetCurrent(ctx)
 	season := toSeason(created)
 	return &season, nil
 }
@@ -247,6 +330,15 @@ func (s *Service) UpdateSeason(
 	seasonID, err := dbutil.ParseUUID(id)
 	if err != nil {
 		return nil, invalidf("invalid season id: %v", err)
+	}
+	if _, err := s.queries.GetSeason(ctx, seasonID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get season: %w", err)
+	}
+	if err := s.validateSeason(ctx, seasonID, in); err != nil {
+		return nil, err
 	}
 
 	committeeID, err := s.resolveOrganizingCommittee(ctx, in.OrganizingCommitteeID)
@@ -266,10 +358,75 @@ func (s *Service) UpdateSeason(
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
 		}
+		if isUniqueViolation(err) {
+			return nil, fmt.Errorf("%w: %d", ErrYearTaken, in.Year)
+		}
 		return nil, fmt.Errorf("update season: %w", err)
 	}
+	forgetCurrent(ctx)
 	season := toSeason(updated)
 	return &season, nil
+}
+
+// validateSeason checks a season's dates are in order, that its year is
+// free and that it overlaps no other season (excluding the one being
+// updated): GetCurrentSeason assumes at most one season is active at a
+// time.
+func (s *Service) validateSeason(
+	ctx context.Context,
+	excludeID pgtype.UUID,
+	in NollningSeasonInput,
+) error {
+	if in.RevealAt.Before(in.NollaStartAt) {
+		return invalidf("revealAt is before nollaStartAt")
+	}
+	if in.EndAt.Before(in.RevealAt) {
+		return invalidf("endAt is before revealAt")
+	}
+	if !in.EndAt.After(in.NollaStartAt) {
+		return invalidf("endAt must be after nollaStartAt")
+	}
+	taken, err := s.queries.SeasonYearTaken(ctx, db.SeasonYearTakenParams{
+		Year:      int32(in.Year),
+		ExcludeID: excludeID,
+	})
+	if err != nil {
+		return fmt.Errorf("check season year: %w", err)
+	}
+	if taken {
+		return fmt.Errorf("%w: %d", ErrYearTaken, in.Year)
+	}
+	year, err := s.queries.FindOverlappingSeason(ctx, db.FindOverlappingSeasonParams{
+		ExcludeID: excludeID,
+		StartAt:   dbutil.ToTimestamptz(&in.NollaStartAt),
+		EndAt:     dbutil.ToTimestamptz(&in.EndAt),
+	})
+	switch {
+	case err == nil:
+		return invalidf("overlaps the %d season", year)
+	case !errors.Is(err, pgx.ErrNoRows):
+		return fmt.Errorf("find overlapping season: %w", err)
+	}
+	return nil
+}
+
+// isUniqueViolation reports whether err is Postgres refusing a duplicate
+// (the year check above can race with a concurrent write).
+func isUniqueViolation(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505" // unique_violation
+}
+
+// requireSeason answers 422 for a season id that doesn't exist, which the
+// phadder_groups foreign key would otherwise turn into a 500.
+func (s *Service) requireSeason(ctx context.Context, id pgtype.UUID) error {
+	if _, err := s.queries.GetSeason(ctx, id); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return invalidf("season not found")
+		}
+		return fmt.Errorf("get season: %w", err)
+	}
+	return nil
 }
 
 func (s *Service) resolveOrganizingCommittee(
@@ -280,6 +437,13 @@ func (s *Service) resolveOrganizingCommittee(
 		id, err := dbutil.ParseUUID(*explicit)
 		if err != nil {
 			return pgtype.UUID{}, invalidf("invalid organizing committee id: %v", err)
+		}
+		exists, err := s.queries.CommitteeExists(ctx, id)
+		if err != nil {
+			return pgtype.UUID{}, fmt.Errorf("check organizing committee: %w", err)
+		}
+		if !exists {
+			return pgtype.UUID{}, invalidf("organizing committee not found")
 		}
 		return id, nil
 	}
@@ -328,7 +492,13 @@ func (s *Service) ListGroups(ctx context.Context, seasonID *string) ([]PhadderGr
 	return groups, nil
 }
 
+// GetGroup returns a group with its nollor and phaddrar. Those are member
+// names, so like the member directory it is for signed-in members only;
+// ListGroups (counts only) stays public.
 func (s *Service) GetGroup(ctx context.Context, id string) (*PhadderGroup, error) {
+	if err := requireSignedIn(ctx); err != nil {
+		return nil, err
+	}
 	groupID, err := dbutil.ParseUUID(id)
 	if err != nil {
 		return nil, invalidf("invalid group id: %v", err)
@@ -371,6 +541,9 @@ func (s *Service) CreateGroup(ctx context.Context, in PhadderGroupInput) (*Phadd
 	if err != nil {
 		return nil, invalidf("invalid season id: %v", err)
 	}
+	if err := s.requireSeason(ctx, seasonID); err != nil {
+		return nil, err
+	}
 	created, err := s.queries.CreatePhadderGroup(ctx, db.CreatePhadderGroupParams{
 		Name:        in.Name,
 		Description: dbutil.ToText(s.sanitizeDescription(in.Description)),
@@ -399,6 +572,9 @@ func (s *Service) UpdateGroup(
 	seasonID, err := dbutil.ParseUUID(in.SeasonID)
 	if err != nil {
 		return nil, invalidf("invalid season id: %v", err)
+	}
+	if err := s.requireSeason(ctx, seasonID); err != nil {
+		return nil, err
 	}
 	updated, err := s.queries.UpdatePhadderGroup(ctx, db.UpdatePhadderGroupParams{
 		ID:          groupID,
@@ -451,6 +627,12 @@ func (s *Service) AddNollor(ctx context.Context, groupID string, studentIDs []st
 	if err != nil {
 		return invalidf("invalid group id: %v", err)
 	}
+	if _, err := s.queries.GetPhadderGroup(ctx, gID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("get phadder group: %w", err)
+	}
 	members, err := s.membersByStudentID(ctx, studentIDs)
 	if err != nil {
 		return err
@@ -481,6 +663,59 @@ func (s *Service) RemoveNolla(ctx context.Context, groupID, studentID string) er
 		ID: members[0].ID, NollningGroupID: gID,
 	}); err != nil {
 		return fmt.Errorf("remove nolla: %w", err)
+	}
+	return nil
+}
+
+// SetMemberGroup puts studentID in phadder group groupID, or takes them
+// out of whichever group they're in when groupID is nil or empty. The
+// member themselves may do this (the old Member model let a member update
+// their own nollningGroupId), as may NollningPhadderGroupsManage. Only
+// groups of the current season can be picked: last year's groups are
+// history, and outside a season there's nothing to join.
+func (s *Service) SetMemberGroup(ctx context.Context, studentID string, groupID *string) error {
+	identity, ok := auth.FromContext(ctx)
+	if !ok || identity.MemberID == "" {
+		return auth.ErrUnauthenticated
+	}
+	if identity.StudentID != studentID {
+		if err := auth.Require(ctx, apinames.NollningPhadderGroupsManage); err != nil {
+			return err
+		}
+	}
+	member, err := s.queries.GetMemberByStudentID(ctx, pgtype.Text{String: studentID, Valid: true})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("get member: %w", err)
+	}
+
+	var gID pgtype.UUID
+	if groupID != nil && *groupID != "" {
+		gID, err = dbutil.ParseUUID(*groupID)
+		if err != nil {
+			return invalidf("invalid group id: %v", err)
+		}
+		group, err := s.queries.GetPhadderGroup(ctx, gID)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return invalidf("phadder group not found")
+			}
+			return fmt.Errorf("get phadder group: %w", err)
+		}
+		season, err := s.Current(ctx)
+		if err != nil {
+			return err
+		}
+		if season == nil || dbutil.UUIDStr(group.SeasonID) != season.ID {
+			return invalidf("the phadder group isn't in the current nollning season")
+		}
+	}
+	if err := s.queries.SetMemberPhadderGroup(ctx, db.SetMemberPhadderGroupParams{
+		ID: member.ID, NollningGroupID: gID,
+	}); err != nil {
+		return fmt.Errorf("set phadder group: %w", err)
 	}
 	return nil
 }

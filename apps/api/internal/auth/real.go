@@ -2,11 +2,13 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/apps/api/internal/db"
@@ -28,7 +30,8 @@ type StabenInjector interface {
 
 // RealAuthenticator resolves an Identity from the session cookie set by
 // OIDCClient.CallbackHandler. A missing or
-// invalid session resolves to an anonymous Identity rather than an error;
+// invalid session, or one for a member that no longer exists, resolves to
+// an anonymous Identity (and clears the cookie) rather than an error;
 // an expired one is silently refreshed (see OIDCClient.Refresh) and the
 // cookie is re-issued on w before this returns.
 type RealAuthenticator struct {
@@ -97,7 +100,18 @@ func (a *RealAuthenticator) Authenticate(
 		}
 	}
 
-	return a.resolveIdentity(r.Context(), session)
+	identity, err := a.resolveIdentity(r.Context(), session)
+	if errors.Is(err, pgx.ErrNoRows) {
+		// The session names a member who no longer exists (removed or
+		// renamed since login). Members are only created in /auth/callback,
+		// so treat it as an invalid session: logging in again re-creates
+		// the member.
+		slog.Warn("auth: session for unknown member, treating as anonymous",
+			"studentId", session.StudentID)
+		ClearSessionCookie(w)
+		return a.anonymousIdentity(r.Context())
+	}
+	return identity, err
 }
 
 func (a *RealAuthenticator) anonymousIdentity(ctx context.Context) (*Identity, error) {

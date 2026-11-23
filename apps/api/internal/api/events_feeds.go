@@ -58,9 +58,10 @@ func registerEventFeedRoutes(api huma.API, svc *events.Service, nollningSvc *nol
 		Path:        "/nollning/events.ics",
 		Tags:        []string{"Events"},
 		Summary:     "Nollning events as an ICS calendar feed",
-		Description: "The current season's events once it has been revealed, otherwise the " +
-			"general feed - mirroring the old REVEAL_LAUNCH_DATE switch. Either way at most " +
-			"three months ahead.",
+		Description: "The latest revealed season's events, also after it has ended; the " +
+			"general feed while the next season's theme is still secret (before its reveal) " +
+			"or before any season has been revealed - mirroring the old REVEAL_LAUNCH_DATE " +
+			"switch. Either way at most three months ahead.",
 		Responses: rawResponses("text/calendar", "An iCalendar file."),
 	}, func(ctx context.Context, _ *struct{}) (*rawOutput, error) {
 		endsBefore := time.Now().AddDate(0, 3, 0)
@@ -69,8 +70,8 @@ func registerEventFeedRoutes(api huma.API, svc *events.Service, nollningSvc *nol
 		if err != nil {
 			return nil, humaServiceError(err)
 		}
-		if phase == nollning.PhasePostReveal {
-			season, err := nollningSvc.Current(ctx)
+		if phase != nollning.PhasePreReveal {
+			season, err := nollningSvc.LatestRevealed(ctx)
 			if err != nil {
 				return nil, humaServiceError(err)
 			}
