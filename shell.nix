@@ -8,13 +8,14 @@ let
     rev = "21808d22b1cda1898b71cf1a1beb524a97add2c4";
     hash = "sha256-j4HeaLw1LZxkCvuOxdO1xTnPYLSOQuzOjGEuCK80X2w=";
   }) { };
-  inherit (pkgs) nodejs pnpm;
+  inherit (pkgs) nodejs_24 pnpm_12 openssl;
   inherit (oldPkgs) prisma prisma-engines;
 in
 pkgs.mkShell {
   packages = [
-    nodejs
-    pnpm
+    nodejs_24
+    pnpm_12
+    openssl
     prisma
     prisma-engines
   ];
@@ -34,6 +35,10 @@ pkgs.mkShell {
     fi
 
     trap onExit EXIT
+
+    # Stop pnpm from replacing itself with the exact version in "packageManager",
+    # since the binary it downloads can't run on NixOS.
+    export pnpm_config_pm_on_fail="ignore"
 
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
     export PRISMA_SCHEMA_ENGINE_BINARY="${prisma-engines}/bin/schema-engine"
