@@ -51,11 +51,17 @@
     typstCompletionSource,
   } from "codemirror-lang-typst/lezer";
   import Braces from "@lucide/svelte/icons/braces";
+  import Download from "@lucide/svelte/icons/download";
   import Search from "@lucide/svelte/icons/search";
   import TextWrap from "@lucide/svelte/icons/text-wrap";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import type { Component } from "svelte";
   import * as m from "$paraglide/messages";
   import type { TypstDiagnostic } from "./diagnostics";
-  import { typstKeywordCompletion } from "./typstCompletions";
+  import {
+    typstKeywordCompletion,
+    typstMarkerCompletion,
+  } from "./typstCompletions";
   import { hangingIndent } from "./hangingIndent";
 
   let {
@@ -64,6 +70,8 @@
     oninput,
     title = "",
     trailing,
+    diffMarkers = false,
+    downloadItems = [],
   }: {
     value?: string;
     /** Compiler diagnostics, as parsed offsets into `value`. */
@@ -75,6 +83,20 @@
     /** Extra toolbar buttons owned by the page (e.g. diff's reset). Gets
      * the editor view so page-level commands can edit the document. */
     trailing?: Snippet<[EditorView | undefined]>;
+    /** Offer the diff package's `#add`/`#remove` marker completions. Only
+     * pages whose documents import the diff package should set this. */
+    diffMarkers?: boolean;
+    /**
+     * Download actions for the toolbar. One item renders a direct download
+     * button; several render a dropdown to choose between them; none hides
+     * the button entirely.
+     */
+    downloadItems?: Array<{
+      label: string;
+      icon?: Component<{ class?: string }>;
+      disabled?: boolean;
+      run: () => void;
+    }>;
   } = $props();
 
   let host: HTMLDivElement | undefined = $state();
@@ -84,6 +106,11 @@
   /** Soft-wrap long lines (on by default; toggle in the toolbar). */
   let wrap = $state(true);
   let searchOpen = $state(false);
+
+  /** The single download action when there's exactly one (direct button). */
+  const singleDownload = $derived(
+    downloadItems.length === 1 ? downloadItems[0] : undefined,
+  );
 
   // Theme and line wrapping are swapped through these compartments.
   const chromeCompartment = new Compartment();
@@ -259,8 +286,14 @@
         bracketMatching(),
         closeBrackets(),
         autocompletion({
-          // The language's own source plus our keyword completions.
-          override: [typstKeywordCompletion, typstCompletionSource],
+          // The language's own source plus our keyword completions — and,
+          // when the page opts in, the diff markers take precedence over
+          // keywords for `#a…`/`#r…` (the first override source wins).
+          override: [
+            ...(diffMarkers ? [typstMarkerCompletion] : []),
+            typstKeywordCompletion,
+            typstCompletionSource,
+          ],
         }),
         highlightSelectionMatches(),
         search({ top: true }),
@@ -374,12 +407,12 @@
   class="border-border bg-background flex min-h-[32rem] w-full flex-col overflow-clip rounded-lg border dark:bg-[#242325]"
 >
   <div
-    class="bg-muted-background text-muted-foreground sticky z-10 flex h-11 shrink-0 items-center gap-0.5 border-b px-1.5"
+    class="bg-muted-background text-muted-foreground sticky z-10 flex h-11 shrink-0 items-center gap-0.5 border-b px-[7px]"
     style:top="var(--actic-sticky-top, 4rem)"
   >
     <div class="min-w-0 flex-1">
       {#if title}
-        <span class="text-foreground truncate pl-2 text-sm font-medium">
+        <span class="text-foreground truncate pl-[7px] text-sm font-medium">
           {title}
         </span>
       {/if}
@@ -387,7 +420,7 @@
     {@render trailing?.(view)}
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       aria-label={m.editor_format()}
       title={m.editor_format()}
       onclick={formatDocument}
@@ -396,7 +429,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={searchOpen}
       aria-label={m.editor_search()}
       title={m.editor_search()}
@@ -407,7 +440,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={wrap}
       aria-label={m.editor_toggle_wrap()}
       title={m.editor_toggle_wrap()}
@@ -416,6 +449,38 @@
     >
       <TextWrap class="size-4" />
     </button>
+    {#if singleDownload}
+      <button
+        type="button"
+        class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
+        aria-label={singleDownload.label}
+        title={singleDownload.label}
+        disabled={singleDownload.disabled}
+        onclick={singleDownload.run}
+      >
+        <Download class="size-4" />
+      </button>
+    {:else if downloadItems.length > 1}
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger
+          class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
+          title={m.editor_download()}
+          aria-label={m.editor_download()}
+        >
+          <Download class="size-4" />
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end">
+          {#each downloadItems as item (item.label)}
+            <DropdownMenu.Item disabled={item.disabled} onclick={item.run}>
+              {#if item.icon}
+                <item.icon class="size-4" />
+              {/if}
+              {item.label}
+            </DropdownMenu.Item>
+          {/each}
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    {/if}
   </div>
   <div bind:this={host} class="min-h-0 flex-1"></div>
 </div>

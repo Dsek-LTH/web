@@ -21,7 +21,7 @@
   {#snippet documentSettings()}
     <Popover.Root>
       <Popover.Trigger
-        class="hover:bg-accent hover:text-foreground flex h-8 items-center gap-1 rounded px-2 text-sm"
+        class="hover:bg-accent hover:text-foreground flex h-[30px] items-center gap-1 rounded-[13px] px-[7px] text-sm"
         aria-label={m.actic_settings()}
       >
         <Settings class="h-4 w-4" />

@@ -111,11 +111,11 @@
 
 <div class="border-border flex w-full flex-col rounded-lg border">
   <div
-    class="bg-muted-background text-muted-foreground flex h-11 items-center gap-0.5 rounded-t-lg border-b px-1.5"
+    class="bg-muted-background text-muted-foreground flex h-11 items-center gap-0.5 rounded-t-lg border-b px-[7px]"
   >
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={active.heading}
       aria-label={m.editor_heading()}
       title={m.editor_heading()}
@@ -125,7 +125,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={active.bullet}
       aria-label={m.editor_ulist()}
       title={m.editor_ulist()}
@@ -135,7 +135,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={active.numbered}
       aria-label={m.editor_olist()}
       title={m.editor_olist()}
@@ -148,7 +148,7 @@
 
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={active.bold}
       aria-label={m.editor_bold()}
       title={`${m.editor_bold()} (Ctrl+B)`}
@@ -158,7 +158,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={active.italic}
       aria-label={m.editor_italic()}
       title={`${m.editor_italic()} (Ctrl+I)`}
@@ -168,7 +168,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={active.strike}
       aria-label={m.editor_strikethrough()}
       title={`${m.editor_strikethrough()} (Ctrl+Shift+X)`}
@@ -178,7 +178,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       class:text-foreground={active.code}
       aria-label={m.editor_inlinecode()}
       title={`${m.editor_inlinecode()} (Ctrl+E)`}
@@ -188,7 +188,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       aria-label={m.editor_codeblock()}
       title={m.editor_codeblock()}
       onclick={() => run(toggleCodeBlock)}
@@ -200,7 +200,7 @@
 
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       aria-label={m.editor_link()}
       title={`${m.editor_link()} (Ctrl+K)`}
       onclick={() => run(insertLink)}
@@ -209,7 +209,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       aria-label={m.editor_table()}
       title={m.editor_table()}
       onclick={() => run(insertTable)}
@@ -218,7 +218,7 @@
     </button>
     <button
       type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
+      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
       aria-label={m.actic_tool_line()}
       title={m.actic_tool_line()}
       onclick={() => run(insertLine)}

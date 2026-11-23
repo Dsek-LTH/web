@@ -38,8 +38,9 @@ export type DiffSessionOptions = {
  */
 export class DiffSession {
   source = $state("");
-  tab = $state<"updated" | "diff">("diff");
-  /** Whether the diff against the upstream document is generated for you. */
+  /** Whether the preview shows the automatic diff against the upstream
+   * document. Forced off while manual diff markers are in the source, where
+   * the source itself renders as the diff. */
   autodiff = $state(true);
   previewHost = $state<HTMLElement | undefined>();
   scrollBox = $state<HTMLElement | undefined>();
@@ -109,7 +110,7 @@ export class DiffSession {
     }
   });
   activeSource = $derived(
-    this.autodiff && this.tab === "diff" && this.diffAvailable
+    this.autodiff && this.diffAvailable && !this.hasManualDiffMarkers
       ? this.diffResult.source
       : this.source,
   );
@@ -119,6 +120,13 @@ export class DiffSession {
       void initTypdiff()
         .then(() => (this.diffReady = true))
         .catch((e) => (this.diffError = formatError(e)));
+    });
+
+    // Manual diff markers switch the preview into manual diffing mode: the
+    // markers make the automatic diff meaningless, so autodiff turns itself
+    // off (covers typed, pasted and draft-loaded markers alike).
+    $effect(() => {
+      if (this.hasManualDiffMarkers) this.autodiff = false;
     });
 
     // The compiler runs in a worker; coalesce bursts so we don't queue a
@@ -251,7 +259,6 @@ export class DiffSession {
 
   async downloadPdf() {
     if (!this.activeSource) return;
-    if (this.tab === "diff" && !this.diffAvailable) return;
     this.downloading = true;
     this.error = "";
     try {
@@ -260,8 +267,12 @@ export class DiffSession {
         new Blob([new Uint8Array(pdf)], { type: "application/pdf" }),
       );
       const link = document.createElement("a");
+      // Both the computed diff and the manual-marker rendering are diff
+      // presentations of the document, so they get the `-diff` suffix.
+      const isDiffRender =
+        this.hasManualDiffMarkers || (this.autodiff && this.diffAvailable);
       link.href = url;
-      link.download = `${this.slug}${this.tab === "diff" ? "-diff" : ""}.pdf`;
+      link.download = `${this.slug}${isDiffRender ? "-diff" : ""}.pdf`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (e) {

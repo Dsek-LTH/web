@@ -86,19 +86,17 @@
       {/if}
 
       {#if writer.advanced}
-        <div class="flex flex-col gap-2">
-          <SourceEditor
-            bind:value={writer.manualSource}
-            diagnostics={writer.diagnostics}
-            oninput={() => (writer.forked = true)}
-          />
-          <div class="flex justify-end">
-            <Button variant="outline" onclick={() => writer.downloadSource()}>
-              <FileCode class="mr-2 h-4 w-4" />
-              {m.actic_download_source()}
-            </Button>
-          </div>
-        </div>
+        <SourceEditor
+          bind:value={writer.manualSource}
+          diagnostics={writer.diagnostics}
+          oninput={() => (writer.forked = true)}
+          downloadItems={[
+            {
+              label: m.actic_download_source(),
+              run: () => writer.downloadSource(),
+            },
+          ]}
+        />
       {:else}
         {@render children?.()}
       {/if}
@@ -108,67 +106,82 @@
     <div
       class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]"
     >
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          {#if writer.compiling}
-            <Spinner class="text-muted-foreground h-4 w-4" />
-          {/if}
-        </div>
-        <div class="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onclick={() => writer.saveDraftNow()}
-            disabled={!writer.dirty || !writer.hasContent}
-          >
-            <Save class="mr-1 h-4 w-4" />
-            {m.actic_draft_save()}
-          </Button>
-          <Button
-            onclick={() => writer.download()}
-            disabled={writer.downloading}
-          >
-            {#if writer.downloading}
-              <Spinner class="mr-2" />
-            {:else}
-              <Download class="mr-2 h-4 w-4" />
-            {/if}
-            {m.actic_download()}
-          </Button>
-        </div>
-      </div>
       <div
-        bind:this={writer.scrollBox}
-        class="bg-muted border-border min-h-[28rem] overflow-auto rounded-md border p-4 lg:min-h-0 lg:flex-1"
+        class="border-border bg-background flex min-h-[28rem] flex-col overflow-hidden rounded-lg border lg:min-h-0 lg:flex-1"
       >
-        {#if writer.error}
-          <div class="bg-muted sticky top-0 z-10 pb-4">
-            <p class="text-destructive text-sm break-words whitespace-pre-wrap">
-              {writer.error}
-            </p>
+        <div
+          class="bg-muted-background text-muted-foreground flex h-11 shrink-0 items-center gap-2 border-b px-[7px]"
+        >
+          <div class="min-w-0 flex-1">
+            <span class="text-foreground truncate pl-[7px] text-sm font-medium">
+              {m.actic_preview_title()}
+            </span>
           </div>
-        {/if}
-        {#if !writer.ready && !writer.forked}
-          <div class="py-6 text-sm">
-            <p class="mb-2">{m.actic_checklist_heading()}</p>
-            <ul class="text-muted-foreground list-disc pl-5">
-              {#each writer.missing as item (item)}
-                <li>{item}</li>
-              {/each}
-            </ul>
+          <div class="ml-auto flex items-center gap-0.5">
+            {#if writer.compiling}
+              <Spinner class="text-muted-foreground h-4 w-4" />
+            {/if}
+            <button
+              type="button"
+              class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
+              title={m.actic_draft_save()}
+              aria-label={m.actic_draft_save()}
+              onclick={() => writer.saveDraftNow()}
+              disabled={!writer.dirty || !writer.hasContent}
+            >
+              <Save class="size-4" />
+            </button>
+            <button
+              type="button"
+              class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
+              title={m.actic_download()}
+              aria-label={m.actic_download()}
+              onclick={() => writer.download()}
+              disabled={writer.downloading}
+            >
+              {#if writer.downloading}
+                <Spinner class="size-4" />
+              {:else}
+                <Download class="size-4" />
+              {/if}
+            </button>
           </div>
-        {:else}
-          <div
-            bind:this={writer.previewHost}
-            class="actic-preview"
-            class:opacity-50={!!writer.error}
-          ></div>
-          {#if !writer.rendered && !writer.error}
-            <p class="text-muted-foreground text-sm">
-              {m.actic_preview_empty()}
-            </p>
+        </div>
+        <div
+          bind:this={writer.scrollBox}
+          class="bg-muted min-h-0 flex-1 overflow-auto p-4"
+        >
+          {#if writer.error}
+            <div class="bg-muted sticky top-0 z-10 pb-4">
+              <p
+                class="text-destructive text-sm break-words whitespace-pre-wrap"
+              >
+                {writer.error}
+              </p>
+            </div>
           {/if}
-        {/if}
+          {#if !writer.ready && !writer.forked}
+            <div class="py-6 text-sm">
+              <p class="mb-2">{m.actic_checklist_heading()}</p>
+              <ul class="text-muted-foreground list-disc pl-5">
+                {#each writer.missing as item (item)}
+                  <li>{item}</li>
+                {/each}
+              </ul>
+            </div>
+          {:else}
+            <div
+              bind:this={writer.previewHost}
+              class="actic-preview"
+              class:opacity-50={!!writer.error}
+            ></div>
+            {#if !writer.rendered && !writer.error}
+              <p class="text-muted-foreground text-sm">
+                {m.actic_preview_empty()}
+              </p>
+            {/if}
+          {/if}
+        </div>
       </div>
     </div>
   </div>
