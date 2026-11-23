@@ -416,7 +416,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
   for logged-out visitors, so they still list the groups without names, as
   the old ZenStack-filtered page did.
 
-### [ ] T29 Editing a song saves display-transformed text
+### [x] T29 Editing a song saves display-transformed text
 
 - New: `routes/(app)/songarchive/[slug]/+layout.ts` seeds the edit form from
   `GET /songs/{slug}`, which already applied `FixSongText`; saving
