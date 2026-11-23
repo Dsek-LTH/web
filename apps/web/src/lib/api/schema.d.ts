@@ -3717,6 +3717,16 @@ export interface components {
       /** @description Medal name, e.g. Gammal och Äcklig. */
       medal: string;
     };
+    MemberNollaGroup: {
+      id: string;
+      imageUrl?: string;
+      name: string;
+      /**
+       * Format: int32
+       * @description The year of the group's nollning season.
+       */
+      year: number;
+    };
     MemberPhadderGroupInput: {
       /** @description A phadder group of the current season. Omit (or leave empty) to take the member out of their group. */
       groupId?: string;
@@ -3759,6 +3769,8 @@ export interface components {
       /** @description Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}. */
       mandates?: components["schemas"]["Mandate"][];
       nickname?: string;
+      /** @description The phadder group the member was a nolla in, in any season. Only on GET /members/{studentId}. */
+      nollaIn?: components["schemas"]["MemberNollaGroup"];
       /** @description The phadder group the member is a nolla in. Only for the member themselves or nollning:phaddrar:groups:manage. */
       nollningGroupId?: string;
       /** @description Public URL of the profile picture. */

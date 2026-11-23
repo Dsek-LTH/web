@@ -33,6 +33,15 @@ type MemberProfile struct {
 	BirthdayToday   bool               `json:"birthdayToday"             doc:"Whether it's the member's birthday today (Swedish time). False when birthDate is hidden."`
 	NollningGroupID *string            `json:"nollningGroupId,omitempty" doc:"The phadder group the member is a nolla in. Only for the member themselves or nollning:phaddrar:groups:manage."`
 	Mandates        []Mandate          `json:"mandates,omitempty"        doc:"Every mandate the member has held, each with its position and committee. Only on GET /members/{studentId}."`
+	NollaIn         *MemberNollaGroup  `json:"nollaIn,omitempty"         doc:"The phadder group the member was a nolla in, in any season. Only on GET /members/{studentId}."`
+}
+
+// MemberNollaGroup is the phadder group a member was a nolla in.
+type MemberNollaGroup struct {
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	ImageURL *string `json:"imageUrl,omitempty"`
+	Year     int32   `json:"year"               doc:"The year of the group's nollning season."`
 }
 
 // ProfileInput is the full-replace body for PUT /members/{studentId}.

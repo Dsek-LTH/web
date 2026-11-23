@@ -227,9 +227,12 @@ func requireSignedIn(ctx context.Context) error {
 // PhadderRoleFor reports studentID's PhadderRole and, if any, the group
 // they hold it in - collapsing the old dual-path lookup (members.
 // nollning_group_id for "nolla", a mandate-based scan for "phadder") into
-// one answer. A member can in principle be both; nolla takes precedence
-// since that's the more common case this endpoint exists for (the nolla's
-// own layout looking up their own group). Signed-in members only.
+// one answer. Only the season of NollaYear counts (the active season, else
+// this calendar year's), like the old class-year check: a nolla or phadder
+// from an earlier season is neither now. A member can in principle be
+// both; nolla takes precedence since that's the more common case this
+// endpoint exists for (the nolla's own layout looking up their own group).
+// Signed-in members only.
 func (s *Service) PhadderRoleFor(
 	ctx context.Context,
 	studentID string,
@@ -244,17 +247,27 @@ func (s *Service) PhadderRoleFor(
 		}
 		return PhadderRoleNone, nil, fmt.Errorf("get member: %w", err)
 	}
-
-	nollaGroupID, err := s.queries.GetMemberNollaGroupID(ctx, member.ID)
+	year, err := s.NollaYear(ctx)
 	if err != nil {
-		return PhadderRoleNone, nil, fmt.Errorf("get nolla group: %w", err)
+		return PhadderRoleNone, nil, err
 	}
-	if nollaGroupID.Valid {
+
+	nollaGroupID, err := s.queries.GetMemberNollaGroupID(ctx, db.GetMemberNollaGroupIDParams{
+		MemberID:   member.ID,
+		SeasonYear: int32(year),
+	})
+	switch {
+	case err == nil:
 		id := dbutil.UUIDStr(nollaGroupID)
 		return PhadderRoleNolla, &id, nil
+	case !errors.Is(err, pgx.ErrNoRows):
+		return PhadderRoleNone, nil, fmt.Errorf("get nolla group: %w", err)
 	}
 
-	phadderGroupID, err := s.queries.GetMemberPhadderGroupID(ctx, member.ID)
+	phadderGroupID, err := s.queries.GetMemberPhadderGroupID(ctx, db.GetMemberPhadderGroupIDParams{
+		MemberID:   member.ID,
+		SeasonYear: int32(year),
+	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return PhadderRoleNone, nil, nil
