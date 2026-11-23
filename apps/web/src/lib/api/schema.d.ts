@@ -1617,7 +1617,7 @@ export interface paths {
     };
     /**
      * Get a member's phadder role
-     * @description Whether the member is a nolla or phadder this season, and in which group.
+     * @description Whether the member is a nolla or phadder this season, and in which group. Needs a signed-in member.
      */
     get: operations["get-member-phadder-role"];
     put?: never;
@@ -1745,7 +1745,7 @@ export interface paths {
     };
     /**
      * Get a phadder group
-     * @description With its nollor and phaddrar.
+     * @description With its nollor and phaddrar. Needs a signed-in member.
      */
     get: operations["get-phadder-group"];
     /**
