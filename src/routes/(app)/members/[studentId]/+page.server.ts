@@ -18,6 +18,7 @@ import { dateToSemester } from "$lib/utils/semesters";
 import { memberMedals } from "$lib/server/medals/medals";
 import { PUBLIC_BUCKETS_MEMBERS } from "$env/static/public";
 import { fileHandler } from "$lib/files";
+import { MINIO_BASE_URL } from "$lib/files/client";
 import sharp from "sharp";
 import { withFiles } from "sveltekit-superforms/server";
 import { v4 as uuid } from "uuid";
@@ -245,6 +246,12 @@ export const actions: Actions = {
           },
           { status: 500 },
         );
+      await locals.prisma.member.update({
+        where: { studentId: params.studentId },
+        data: {
+          picturePath: `${MINIO_BASE_URL}${PUBLIC_BUCKETS_MEMBERS}/${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}.webp`,
+        },
+      });
     } catch (e) {
       console.log(e);
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -278,6 +285,10 @@ export const actions: Actions = {
         `${PROFILE_PICTURE_PREFIX(params.studentId)}/${fileName}`,
       ]);
     }
+    await locals.prisma.member.update({
+      where: { studentId: params.studentId },
+      data: { picturePath: null },
+    });
     return message(form, {
       message: m.members_pictureRemoved(),
       type: "success",

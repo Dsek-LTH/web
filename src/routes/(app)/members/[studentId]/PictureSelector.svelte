@@ -111,6 +111,11 @@
               }}
               use:svEnhance
             >
+              <input
+                type="hidden"
+                name="fileName"
+                value={member.picturePath?.split("/").pop() ?? ""}
+              />
               <AlertDialog.Header>
                 <AlertDialog.Title
                   >{m.member_removePicture_title()}</AlertDialog.Title
