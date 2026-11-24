@@ -1,9 +1,11 @@
 /**
- * Runs the Typst *compiler* off the main thread.
+ * Runs the Typst *compiler and renderer* off the main thread.
  *
- * Compiling blocks its thread (WASM), so a large document would freeze typing.
- * The worker owns the compiler; the main thread only renders the resulting
- * vector artifact (which is cheap) and touches the DOM.
+ * Both block their thread (WASM), so a large document would freeze typing:
+ * compiling renders a vector artifact, and rendering that artifact to SVG
+ * costs real time on multi-page documents — neither may run while typing.
+ * The worker owns both; the main thread only parses the returned SVG into
+ * the shadow DOM.
  */
 // NOTE: `@myriaddreamin/typst.ts` is pinned to 0.8.0-rc3 (Typst 0.15) because
 // `@preview/dsek:0.1.0`'s `nomination-proposal` calls `Dict::map`, which was
@@ -12,6 +14,7 @@
 import { $typst, loadFonts } from "@myriaddreamin/typst.ts";
 import { CompileFormatEnum } from "@myriaddreamin/typst.ts/compiler";
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+import rendererWasmUrl from "@myriaddreamin/typst-ts-renderer/wasm?url";
 
 const FONT_URLS = [
   "/fonts/Domitian.otc",
@@ -25,17 +28,20 @@ const ctx = globalThis as unknown as {
 };
 
 $typst.setCompilerInitOptions({ getModule: () => compilerWasmUrl });
+$typst.setRendererInitOptions({ getModule: () => rendererWasmUrl });
 $typst.use({
   key: "actic-fonts",
   forRoles: ["compiler"],
   provides: [loadFonts(FONT_URLS)],
 });
 const compilerPromise = $typst.getCompiler();
+const rendererPromise = $typst.getRenderer();
 
 type Request = {
   id: number;
   source: string;
   files: Array<{ path: string; bytes: Uint8Array }>;
+  /** `"vector"` compiles + renders to an SVG string; `"pdf"` returns bytes. */
   format: "vector" | "pdf";
 };
 
@@ -66,7 +72,18 @@ async function handle({ id, source, files, format }: Request) {
       });
       return;
     }
-    ctx.postMessage({ id, result }, [result.buffer]);
+    if (format === "pdf") {
+      ctx.postMessage({ id, result }, [result.buffer]);
+      return;
+    }
+    const renderer = await rendererPromise;
+    const svg = await renderer.renderSvg({
+      format: "vector",
+      artifactContent: result,
+      // Drop the ~30KB interactive-script payload; it only bloats the DOM.
+      data_selection: { body: true, defs: true, css: true, js: false },
+    });
+    ctx.postMessage({ id, result: svg });
   } catch (e) {
     ctx.postMessage({
       id,

@@ -7,6 +7,7 @@ import {
   type TypstFile,
 } from "$lib/actic/typst/typst";
 import { saveDraft, type DiffDraft } from "$lib/actic/documents/drafts";
+import { instantRenderEffect } from "$lib/actic/editor/instant-render.svelte";
 import {
   parseTypstDiagnostics,
   type TypstDiagnostic,
@@ -52,6 +53,12 @@ export class DiffSession {
   /** The last compile's diagnostics, for the source editor's squiggles. */
   diagnostics = $state<TypstDiagnostic[]>([]);
   diffError = $state("");
+  /** The latest diff of `upstreamSource` against `source`, filled by the
+   * per-keystroke worker round-trip (see `runEffects`). */
+  diffResult = $state<{ source: string; error: string }>({
+    source: "",
+    error: "",
+  });
 
   private savedSource = $state("");
   private readonly upstreamSource = $state<string | null>(null);
@@ -59,11 +66,14 @@ export class DiffSession {
   private readonly slug: string;
   private readonly title: string;
   private readonly files: TypstFile[];
-  private inFlight = false;
-  private queued: string | null = null;
-  private lastRenderMs = 0;
   private previewPromise: Promise<Preview> | null = null;
   private previewRoot: ShadowRoot | null = null;
+  /** Monotonic counter for diff requests; any reply from an older one is stale. */
+  private diffSeq = 0;
+  /** Serializes diff requests; turns superseded before they start become no-ops. */
+  private diffChain: Promise<void> = Promise.resolve();
+  /** The source `diffResult` was computed from, so downloads can flush. */
+  private diffedSource = "";
 
   constructor({
     slug,
@@ -98,19 +108,12 @@ export class DiffSession {
     /#(?:diff-added|diff-deleted|add|remove)\[/.test(this.source),
   );
   canAutodiff = $derived(!this.hasManualDiffMarkers);
-  diffResult = $derived.by(() => {
-    if (!this.diffAvailable) return { source: "", error: "" };
-    try {
-      return {
-        source: buildDiff(this.upstreamSource!, this.source),
-        error: "",
-      };
-    } catch (e) {
-      return { source: "", error: formatError(e) };
-    }
-  });
+  /** What the preview compiles and the PDF downloads. Autodiff mode shows
+   * the diff as soon as it exists — and *nothing* before that: falling back
+   * to the raw source while the diff engine initialises would flash
+   * undiffed content. Manual markers and autodiff-off show the source. */
   activeSource = $derived(
-    this.autodiff && this.diffAvailable && !this.hasManualDiffMarkers
+    this.autodiff && this.upstreamSource !== null && !this.hasManualDiffMarkers
       ? this.diffResult.source
       : this.source,
   );
@@ -129,20 +132,21 @@ export class DiffSession {
       if (this.hasManualDiffMarkers) this.autodiff = false;
     });
 
-    // The compiler runs in a worker; coalesce bursts so we don't queue a
-    // backlog of compiles (same pattern as `Writer.runEffects`).
+    // Diff on every keystroke: the worker runs off the main thread, so a
+    // full-document WASM diff per character costs nothing but worker time —
+    // requests coalesce on the chain (see `refreshDiff`) and the preview
+    // follows the newest reply. In manual mode there is nothing to diff.
     $effect(() => {
-      const current = this.activeSource;
-      if (!current) return;
-      const delay = this.lastRenderMs > 200 ? 120 : 0;
-      const timer = setTimeout(() => {
-        if (this.inFlight) {
-          this.queued = current;
-          return;
-        }
-        void this.renderPreview(current);
-      }, delay);
-      return () => clearTimeout(timer);
+      if (!this.diffAvailable || !this.autodiff) return;
+      void this.source; // track
+      void this.refreshDiff();
+    });
+
+    // The compiler runs in a worker; the preview follows `activeSource` with
+    // exactly the `/write` instant-render behaviour.
+    instantRenderEffect({
+      source: () => this.activeSource,
+      render: (source) => this.renderPreview(source),
     });
 
     $effect(() => {
@@ -170,6 +174,48 @@ export class DiffSession {
     });
   }
 
+  /** Diff `upstreamSource` against the current source now — called per
+   * keystroke by the effect below, and by the download flush. Requests
+   * serialize on a chain; a turn superseded by a newer one before it starts
+   * becomes a no-op, and the newest request's reply is the only one that
+   * lands (`diffSeq`), so out-of-order replies can't overwrite the newest
+   * result and a typing burst can't back the worker up. */
+  refreshDiff(): Promise<void> {
+    if (!this.diffAvailable) return Promise.resolve();
+    const seq = ++this.diffSeq;
+    const source = this.source;
+    const run = this.diffChain.then(() => {
+      if (seq !== this.diffSeq) return;
+      return this.runDiff(source, seq);
+    });
+    this.diffChain = run;
+    return run;
+  }
+
+  private async runDiff(source: string, seq: number): Promise<void> {
+    try {
+      const result = await buildDiff(this.upstreamSource!, source);
+      if (seq !== this.diffSeq) return;
+      this.diffResult = { source: result, error: "" };
+      this.diffedSource = source;
+    } catch (e) {
+      if (seq !== this.diffSeq) return;
+      this.diffResult = { source: "", error: formatError(e) };
+      this.diffedSource = source;
+    }
+  }
+
+  /** Resolves once a diff of the newest source has completed, so downloads
+   * never ship a keystroke-stale diff. No-op in manual mode — the preview
+   * compiles the source itself and no diff is wanted. Converges once
+   * typing pauses. */
+  private async flushDiff(): Promise<void> {
+    if (!this.diffAvailable || !this.autodiff) return;
+    while (this.diffedSource !== this.source) {
+      await this.refreshDiff();
+    }
+  }
+
   private getPreview(): Promise<Preview> {
     if (!this.previewHost) return Promise.reject(new Error("no preview host"));
     const root =
@@ -183,9 +229,7 @@ export class DiffSession {
   }
 
   private async renderPreview(current: string) {
-    this.inFlight = true;
     this.compiling = true;
-    const started = performance.now();
     const scrollTop = this.scrollBox?.scrollTop ?? 0;
     try {
       const preview = await this.getPreview();
@@ -202,14 +246,7 @@ export class DiffSession {
         current,
       );
     } finally {
-      this.lastRenderMs = performance.now() - started;
-      this.inFlight = false;
       this.compiling = false;
-      if (this.queued !== null) {
-        const next = this.queued;
-        this.queued = null;
-        void this.renderPreview(next);
-      }
     }
   }
 
@@ -247,8 +284,10 @@ export class DiffSession {
   }
 
   /** Download typdiff's generated diff source (autodiff only). */
-  downloadDiffSource() {
-    if (!this.diffAvailable || !this.diffResult.source) return;
+  async downloadDiffSource() {
+    if (!this.diffAvailable) return;
+    await this.flushDiff();
+    if (!this.diffResult.source) return;
     this.downloadAs(this.diffResult.source, `${this.slug}-diff.typ`);
   }
 
@@ -263,10 +302,12 @@ export class DiffSession {
   }
 
   async downloadPdf() {
-    if (!this.activeSource) return;
     this.downloading = true;
     this.error = "";
     try {
+      // Wait out the debounce so the PDF reflects the newest source.
+      await this.flushDiff();
+      if (!this.activeSource) return;
       const pdf = await renderTypstToPdf(this.activeSource, this.files);
       const url = URL.createObjectURL(
         new Blob([new Uint8Array(pdf)], { type: "application/pdf" }),

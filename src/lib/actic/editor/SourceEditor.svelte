@@ -382,10 +382,11 @@
     }
   });
 
-  // Swap the chrome/highlight palette on theme flips, re-lint when fresh
-  // compiler diagnostics arrive, and apply the wrap toggle.
+  // Swap the chrome/highlight palette on theme flips and apply the wrap
+  // toggle. Deliberately separate from the diagnostics effect below:
+  // reconfiguring compartments re-highlights the document, which on a large
+  // source must not happen on every compile's fresh diagnostics.
   $effect(() => {
-    void diagnostics;
     void dark;
     void wrap;
     if (!view) return;
@@ -398,6 +399,12 @@
         wrapCompartment.reconfigure(wrap ? EditorView.lineWrapping : []),
       ],
     });
+  });
+
+  // Re-lint when fresh compiler diagnostics arrive.
+  $effect(() => {
+    void diagnostics;
+    if (!view) return;
     forceLinting(view);
   });
 </script>

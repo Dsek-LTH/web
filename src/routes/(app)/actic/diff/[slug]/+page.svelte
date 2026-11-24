@@ -1,22 +1,20 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Spinner } from "$lib/components/ui/spinner/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
+  import PreviewPanel from "$lib/actic/editor/PreviewPanel.svelte";
   import { getDraft } from "$lib/actic/documents/drafts";
   import { page } from "$app/state";
   import { beforeNavigate } from "$app/navigation";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import {
     Check,
-    Download,
     FileCode,
     FileDiff,
     Minus,
     Plus,
     RotateCcw,
-    Save,
     X,
   } from "@lucide/svelte/icons";
   import { toggleWrapAround } from "$lib/actic/editor/codemirror-commands";
@@ -153,110 +151,46 @@
         />
       </div>
 
-      <div
-        class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]"
+      <PreviewPanel
+        bind:scrollBox={session.scrollBox}
+        bind:previewHost={session.previewHost}
+        compiling={session.compiling}
+        downloading={session.downloading}
+        dirty={session.dirty}
+        canSave={!!session.source.trim()}
+        error={[session.error, session.diffError, session.diffResult.error]
+          .filter(Boolean)
+          .join("\n\n")}
+        rendered={session.rendered}
+        onsave={() => session!.saveDraftNow()}
+        ondownload={() => session!.downloadPdf()}
       >
-        <div
-          class="border-border bg-background flex min-h-[28rem] flex-col overflow-hidden rounded-lg border lg:min-h-0 lg:flex-1"
-        >
-          <div
-            class="bg-muted-background text-muted-foreground flex h-11 shrink-0 items-center gap-2 border-b px-[7px]"
+        {#snippet leading()}
+          <!-- The title lives on a wrapper: a disabled button ignores
+               pointer events, so its own title tooltip can never show. -->
+          <span
+            title={session!.canAutodiff
+              ? undefined
+              : m.actic_diff_autodiff_disabled()}
           >
-            <!-- The title lives on a wrapper: a disabled button ignores
-                 pointer events, so its own title tooltip can never show. -->
-            <span
-              title={session.canAutodiff
-                ? undefined
-                : m.actic_diff_autodiff_disabled()}
+            <button
+              type="button"
+              class="text-muted-foreground hover:bg-accent hover:text-foreground flex h-[30px] items-center gap-1.5 rounded-[13px] px-[7px] text-sm disabled:pointer-events-none disabled:opacity-50"
+              class:text-foreground={session!.autodiff}
+              aria-pressed={session!.autodiff}
+              disabled={!session!.canAutodiff}
+              onclick={() => (session!.autodiff = !session!.autodiff)}
             >
-              <button
-                type="button"
-                class="text-muted-foreground hover:bg-accent hover:text-foreground flex h-[30px] items-center gap-1.5 rounded-[13px] px-[7px] text-sm disabled:pointer-events-none disabled:opacity-50"
-                class:text-foreground={session.autodiff}
-                aria-pressed={session.autodiff}
-                disabled={!session.canAutodiff}
-                onclick={() => (session!.autodiff = !session!.autodiff)}
-              >
-                {#if session.autodiff}
-                  <Check class="size-4" />
-                {:else}
-                  <X class="size-4" />
-                {/if}
-                {m.actic_diff_autodiff()}
-              </button>
-            </span>
-            <div class="ml-auto flex items-center gap-0.5">
-              {#if session.compiling}
-                <Spinner class="text-muted-foreground h-4 w-4" />
+              {#if session!.autodiff}
+                <Check class="size-4" />
+              {:else}
+                <X class="size-4" />
               {/if}
-              <button
-                type="button"
-                class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-                title={m.actic_draft_save()}
-                aria-label={m.actic_draft_save()}
-                onclick={() => session!.saveDraftNow()}
-                disabled={!session.dirty || !session.source.trim()}
-              >
-                <Save class="size-4" />
-              </button>
-              <button
-                type="button"
-                class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-                title={m.actic_download()}
-                aria-label={m.actic_download()}
-                onclick={() => session!.downloadPdf()}
-                disabled={session.downloading}
-              >
-                {#if session.downloading}
-                  <Spinner class="size-4" />
-                {:else}
-                  <Download class="size-4" />
-                {/if}
-              </button>
-            </div>
-          </div>
-          <div
-            bind:this={session.scrollBox}
-            class="bg-muted min-h-0 flex-1 overflow-auto p-4"
-          >
-            {#if session.error || session.diffError || session.diffResult.error}
-              <div class="bg-muted sticky top-0 z-10 flex flex-col gap-2 pb-4">
-                {#if session.error}
-                  <p
-                    class="text-destructive text-sm break-words whitespace-pre-wrap"
-                  >
-                    {session.error}
-                  </p>
-                {/if}
-                {#if session.diffError}
-                  <p
-                    class="text-destructive text-sm break-words whitespace-pre-wrap"
-                  >
-                    {session.diffError}
-                  </p>
-                {/if}
-                {#if session.diffResult.error}
-                  <p
-                    class="text-destructive text-sm break-words whitespace-pre-wrap"
-                  >
-                    {session.diffResult.error}
-                  </p>
-                {/if}
-              </div>
-            {/if}
-            <div
-              bind:this={session.previewHost}
-              class="actic-preview"
-              class:opacity-50={!!session.error}
-            ></div>
-            {#if !session.rendered && !session.error}
-              <p class="text-muted-foreground text-sm">
-                {m.actic_preview_empty()}
-              </p>
-            {/if}
-          </div>
-        </div>
-      </div>
+              {m.actic_diff_autodiff()}
+            </button>
+          </span>
+        {/snippet}
+      </PreviewPanel>
     </div>
   {/if}
 </div>

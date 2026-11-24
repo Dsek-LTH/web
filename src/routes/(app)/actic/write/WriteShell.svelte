@@ -1,12 +1,12 @@
 <script lang="ts">
   import * as Tabs from "$lib/components/ui/tabs";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Spinner } from "$lib/components/ui/spinner/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
+  import PreviewPanel from "$lib/actic/editor/PreviewPanel.svelte";
   import { beforeNavigate } from "$app/navigation";
   import type { Snippet } from "svelte";
-  import { Download, Save, TriangleAlert } from "@lucide/svelte/icons";
+  import { TriangleAlert } from "@lucide/svelte/icons";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import * as m from "$paraglide/messages";
   import type { Writer } from "./writer.svelte";
@@ -118,86 +118,36 @@
     </div>
 
     <!-- Right: preview -->
-    <div
-      class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]"
+    <PreviewPanel
+      bind:scrollBox={writer.scrollBox}
+      bind:previewHost={writer.previewHost}
+      compiling={writer.compiling}
+      downloading={writer.downloading}
+      dirty={writer.dirty}
+      canSave={writer.hasContent}
+      error={writer.error}
+      rendered={writer.rendered}
+      showHost={writer.ready || writer.forked}
+      onsave={() => writer.saveDraftNow()}
+      ondownload={() => writer.download()}
     >
-      <div
-        class="border-border bg-background flex min-h-[28rem] flex-col overflow-hidden rounded-lg border lg:min-h-0 lg:flex-1"
-      >
-        <div
-          class="bg-muted-background text-muted-foreground flex h-11 shrink-0 items-center gap-2 border-b px-[7px]"
-        >
-          <div class="min-w-0 flex-1">
-            <span class="text-foreground truncate pl-[7px] text-sm font-medium">
-              {m.actic_preview_title()}
-            </span>
-          </div>
-          <div class="ml-auto flex items-center gap-0.5">
-            {#if writer.compiling}
-              <Spinner class="text-muted-foreground h-4 w-4" />
-            {/if}
-            <button
-              type="button"
-              class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-              title={m.actic_draft_save()}
-              aria-label={m.actic_draft_save()}
-              onclick={() => writer.saveDraftNow()}
-              disabled={!writer.dirty || !writer.hasContent}
-            >
-              <Save class="size-4" />
-            </button>
-            <button
-              type="button"
-              class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-              title={m.actic_download()}
-              aria-label={m.actic_download()}
-              onclick={() => writer.download()}
-              disabled={writer.downloading}
-            >
-              {#if writer.downloading}
-                <Spinner class="size-4" />
-              {:else}
-                <Download class="size-4" />
-              {/if}
-            </button>
-          </div>
+      {#snippet leading()}
+        <div class="min-w-0 flex-1">
+          <span class="text-foreground truncate pl-[7px] text-sm font-medium">
+            {m.actic_preview_title()}
+          </span>
         </div>
-        <div
-          bind:this={writer.scrollBox}
-          class="bg-muted min-h-0 flex-1 overflow-auto p-4"
-        >
-          {#if writer.error}
-            <div class="bg-muted sticky top-0 z-10 pb-4">
-              <p
-                class="text-destructive text-sm break-words whitespace-pre-wrap"
-              >
-                {writer.error}
-              </p>
-            </div>
-          {/if}
-          {#if !writer.ready && !writer.forked}
-            <div class="py-6 text-sm">
-              <p class="mb-2">{m.actic_checklist_heading()}</p>
-              <ul class="text-muted-foreground list-disc pl-5">
-                {#each writer.missing as item (item)}
-                  <li>{item}</li>
-                {/each}
-              </ul>
-            </div>
-          {:else}
-            <div
-              bind:this={writer.previewHost}
-              class="actic-preview"
-              class:opacity-50={!!writer.error}
-            ></div>
-            {#if !writer.rendered && !writer.error}
-              <p class="text-muted-foreground text-sm">
-                {m.actic_preview_empty()}
-              </p>
-            {/if}
-          {/if}
+      {/snippet}
+      {#snippet placeholder()}
+        <div class="py-6 text-sm">
+          <p class="mb-2">{m.actic_checklist_heading()}</p>
+          <ul class="text-muted-foreground list-disc pl-5">
+            {#each writer.missing as item (item)}
+              <li>{item}</li>
+            {/each}
+          </ul>
         </div>
-      </div>
-    </div>
+      {/snippet}
+    </PreviewPanel>
   </div>
 </div>

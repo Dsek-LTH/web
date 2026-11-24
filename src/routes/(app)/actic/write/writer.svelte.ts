@@ -34,6 +34,7 @@ import {
   parseTypstDiagnostics,
   type TypstDiagnostic,
 } from "$lib/actic/editor/diagnostics";
+import { instantRenderEffect } from "$lib/actic/editor/instant-render.svelte";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
 
@@ -110,9 +111,6 @@ export class Writer {
   private readonly applyFamilyDraft: (draft: WriteDraft) => void;
   private readonly buildFamilyDraft: () => Partial<WriteDraft>;
   private draftLoaded = false;
-  private inFlight = false;
-  private queued: string | null = null;
-  private lastRenderMs = 0;
   private previewPromise: Promise<Preview> | null = null;
   private previewRoot: ShadowRoot | null = null;
 
@@ -208,9 +206,7 @@ export class Writer {
     current: string,
     currentFiles: typeof this.files,
   ) {
-    this.inFlight = true;
     this.compiling = true;
-    const started = performance.now();
     const scrollTop = this.scrollBox?.scrollTop ?? 0;
     try {
       const preview = await this.getPreview();
@@ -227,34 +223,18 @@ export class Writer {
         current,
       );
     } finally {
-      this.lastRenderMs = performance.now() - started;
-      this.inFlight = false;
       this.compiling = false;
-      if (this.queued !== null) {
-        const next = this.queued;
-        this.queued = null;
-        void this.renderPreview(next, this.files);
-      }
     }
   }
 
-  // The compiler runs in a worker, so it no longer blocks typing; still
-  // coalesce bursts so we don't queue a backlog of compiles.
+  // The compiler runs in a worker, so it no longer blocks typing. The
+  // preview follows the source with the shared instant-render behaviour.
   // (Run as an effect by the shell — see `runEffects`.)
   runEffects() {
-    $effect(() => {
-      const current = this.ready ? this.source : "";
-      void this.files; // track signatures too
-      if (!current) return;
-      const delay = this.lastRenderMs > 200 ? 120 : 0;
-      const timer = setTimeout(() => {
-        if (this.inFlight) {
-          this.queued = current;
-          return;
-        }
-        void this.renderPreview(current, this.files);
-      }, delay);
-      return () => clearTimeout(timer);
+    instantRenderEffect({
+      source: () => (this.ready ? this.source : ""),
+      files: () => this.files,
+      render: (source, files) => this.renderPreview(source, files),
     });
 
     // Load an existing draft (from `?draft=`) once, on the client after mount
