@@ -197,7 +197,10 @@ export type PhadderGroupSchema = Infer<typeof phadderGroupSchema>;
 
 export const actions: Actions = {
   uploadPicture: async ({ params, locals, request }) => {
-    if (locals.user?.studentId !== params.studentId) {
+    if (
+      locals.user?.studentId !== params.studentId &&
+      !isAuthorized(apiNames.MEMBER.UPDATE, locals.user)
+    ) {
       throw error(403, m.members_errors_couldntUploadFile());
     }
     const formData = await request.formData();
