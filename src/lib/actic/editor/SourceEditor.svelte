@@ -63,6 +63,8 @@
     typstMarkerCompletion,
   } from "./typstCompletions";
   import { hangingIndent } from "./hangingIndent";
+  import ToolbarButton from "./ToolbarButton.svelte";
+  import Hint from "./Hint.svelte";
 
   let {
     value = $bindable(""),
@@ -425,68 +427,60 @@
       {/if}
     </div>
     {@render trailing?.(view)}
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      aria-label={m.editor_format()}
-      title={m.editor_format()}
+    <ToolbarButton
+      label={m.editor_format()}
+      shortcut="Mod-Shift-F"
       onclick={formatDocument}
     >
       <Braces class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={searchOpen}
-      aria-label={m.editor_search()}
-      title={m.editor_search()}
-      aria-pressed={searchOpen}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_search()}
+      shortcut="Mod-F"
+      active={searchOpen}
+      pressed={searchOpen}
       onclick={toggleSearch}
     >
       <Search class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={wrap}
-      aria-label={m.editor_toggle_wrap()}
-      title={m.editor_toggle_wrap()}
-      aria-pressed={wrap}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_toggle_wrap()}
+      active={wrap}
+      pressed={wrap}
+      underline
       onclick={() => (wrap = !wrap)}
     >
       <TextWrap class="size-4" />
-    </button>
+    </ToolbarButton>
     {#if singleDownload}
-      <button
-        type="button"
-        class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-        aria-label={singleDownload.label}
-        title={singleDownload.label}
+      <ToolbarButton
+        label={singleDownload.label}
         disabled={singleDownload.disabled}
         onclick={singleDownload.run}
       >
         <Download class="size-4" />
-      </button>
+      </ToolbarButton>
     {:else if downloadItems.length > 1}
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger
-          class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-          title={m.editor_download()}
-          aria-label={m.editor_download()}
-        >
-          <Download class="size-4" />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end">
-          {#each downloadItems as item (item.label)}
-            <DropdownMenu.Item disabled={item.disabled} onclick={item.run}>
-              {#if item.icon}
-                <item.icon class="size-4" />
-              {/if}
-              {item.label}
-            </DropdownMenu.Item>
-          {/each}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+      <Hint label={m.editor_download()}>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger
+            class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
+            aria-label={m.editor_download()}
+          >
+            <Download class="size-4" />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            {#each downloadItems as item (item.label)}
+              <DropdownMenu.Item disabled={item.disabled} onclick={item.run}>
+                {#if item.icon}
+                  <item.icon class="size-4" />
+                {/if}
+                {item.label}
+              </DropdownMenu.Item>
+            {/each}
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </Hint>
     {/if}
   </div>
   <div bind:this={host} class="min-h-0 flex-1"></div>

@@ -35,6 +35,7 @@
     toggleNumbered,
     toggleStrike,
   } from "./typst-commands";
+  import ToolbarButton from "./ToolbarButton.svelte";
 
   let {
     value = $bindable(""),
@@ -113,118 +114,84 @@
   <div
     class="bg-muted-background text-muted-foreground flex h-11 items-center gap-0.5 rounded-t-lg border-b px-[7px]"
   >
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={active.heading}
-      aria-label={m.editor_heading()}
-      title={m.editor_heading()}
+    <ToolbarButton
+      label={m.editor_heading()}
+      active={active.heading}
       onclick={() => run(cycleHeading)}
     >
       <Heading class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={active.bullet}
-      aria-label={m.editor_ulist()}
-      title={m.editor_ulist()}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_ulist()}
+      active={active.bullet}
       onclick={() => run(toggleBullet)}
     >
       <List class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={active.numbered}
-      aria-label={m.editor_olist()}
-      title={m.editor_olist()}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_olist()}
+      active={active.numbered}
       onclick={() => run(toggleNumbered)}
     >
       <ListOrdered class="size-4" />
-    </button>
+    </ToolbarButton>
 
     <span class="bg-border mx-1 h-5 w-px"></span>
 
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={active.bold}
-      aria-label={m.editor_bold()}
-      title={`${m.editor_bold()} (Ctrl+B)`}
+    <ToolbarButton
+      label={m.editor_bold()}
+      shortcut="Mod-B"
+      active={active.bold}
       onclick={() => run(toggleBold)}
     >
       <Bold class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={active.italic}
-      aria-label={m.editor_italic()}
-      title={`${m.editor_italic()} (Ctrl+I)`}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_italic()}
+      shortcut="Mod-I"
+      active={active.italic}
       onclick={() => run(toggleItalic)}
     >
       <Italic class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={active.strike}
-      aria-label={m.editor_strikethrough()}
-      title={`${m.editor_strikethrough()} (Ctrl+Shift+X)`}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_strikethrough()}
+      shortcut="Mod-Shift-X"
+      active={active.strike}
       onclick={() => run(toggleStrike)}
     >
       <Strikethrough class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      class:text-foreground={active.code}
-      aria-label={m.editor_inlinecode()}
-      title={`${m.editor_inlinecode()} (Ctrl+E)`}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_inlinecode()}
+      shortcut="Mod-E"
+      active={active.code}
       onclick={() => run(toggleInlineCode)}
     >
       <Code class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      aria-label={m.editor_codeblock()}
-      title={m.editor_codeblock()}
+    </ToolbarButton>
+    <ToolbarButton
+      label={m.editor_codeblock()}
       onclick={() => run(toggleCodeBlock)}
     >
       <SquareCode class="size-4" />
-    </button>
+    </ToolbarButton>
 
     <span class="bg-border mx-1 h-5 w-px"></span>
 
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      aria-label={m.editor_link()}
-      title={`${m.editor_link()} (Ctrl+K)`}
+    <ToolbarButton
+      label={m.editor_link()}
+      shortcut="Mod-K"
       onclick={() => run(insertLink)}
     >
       <Link class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      aria-label={m.editor_table()}
-      title={m.editor_table()}
-      onclick={() => run(insertTable)}
-    >
+    </ToolbarButton>
+    <ToolbarButton label={m.editor_table()} onclick={() => run(insertTable)}>
       <Table class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-      aria-label={m.actic_tool_line()}
-      title={m.actic_tool_line()}
-      onclick={() => run(insertLine)}
-    >
+    </ToolbarButton>
+    <ToolbarButton label={m.actic_tool_line()} onclick={() => run(insertLine)}>
       <Minus class="size-4" />
-    </button>
+    </ToolbarButton>
 
     {#if trailing}
       <div class="ml-auto">{@render trailing()}</div>

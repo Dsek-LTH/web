@@ -4,6 +4,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
   import PreviewPanel from "$lib/actic/editor/PreviewPanel.svelte";
+  import ToolbarButton from "$lib/actic/editor/ToolbarButton.svelte";
   import { getDraft } from "$lib/actic/documents/drafts";
   import { page } from "$app/state";
   import { beforeNavigate } from "$app/navigation";
@@ -94,35 +95,26 @@
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {#snippet trailing(cmView: EditorView | undefined)}
         {#if !session!.autodiff}
-          <button
-            type="button"
-            class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-            aria-label={m.actic_diff_marker_added()}
-            title={m.actic_diff_marker_added()}
+          <ToolbarButton
+            label={m.actic_diff_marker_added()}
             onclick={() => cmView && toggleWrapAround(cmView, "#add[", "]")}
           >
             <Plus class="size-4" />
-          </button>
-          <button
-            type="button"
-            class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px]"
-            aria-label={m.actic_diff_marker_deleted()}
-            title={m.actic_diff_marker_deleted()}
+          </ToolbarButton>
+          <ToolbarButton
+            label={m.actic_diff_marker_deleted()}
             onclick={() => cmView && toggleWrapAround(cmView, "#remove[", "]")}
           >
             <Minus class="size-4" />
-          </button>
+          </ToolbarButton>
         {/if}
-        <button
-          type="button"
-          class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-          aria-label={m.actic_diff_reset()}
-          title={m.actic_diff_reset()}
+        <ToolbarButton
+          label={m.actic_diff_reset()}
           disabled={!session!.canReset}
           onclick={() => session!.reset()}
         >
           <RotateCcw class="size-4" />
-        </button>
+        </ToolbarButton>
       {/snippet}
       <div class="flex flex-col gap-2">
         <SourceEditor
@@ -166,29 +158,24 @@
         ondownload={() => session!.downloadPdf()}
       >
         {#snippet leading()}
-          <!-- The title lives on a wrapper: a disabled button ignores
-               pointer events, so its own title tooltip can never show. -->
-          <span
-            title={session!.canAutodiff
-              ? undefined
+          <ToolbarButton
+            label={m.actic_diff_autodiff()}
+            description={session!.canAutodiff
+              ? m.actic_diff_autodiff_description()
               : m.actic_diff_autodiff_disabled()}
+            disabled={!session!.canAutodiff}
+            active={session!.autodiff}
+            pressed={session!.autodiff}
+            class="flex h-[30px] items-center gap-1.5 rounded-[13px] px-[7px] text-sm"
+            onclick={() => (session!.autodiff = !session!.autodiff)}
           >
-            <button
-              type="button"
-              class="text-muted-foreground hover:bg-accent hover:text-foreground flex h-[30px] items-center gap-1.5 rounded-[13px] px-[7px] text-sm disabled:pointer-events-none disabled:opacity-50"
-              class:text-foreground={session!.autodiff}
-              aria-pressed={session!.autodiff}
-              disabled={!session!.canAutodiff}
-              onclick={() => (session!.autodiff = !session!.autodiff)}
-            >
-              {#if session!.autodiff}
-                <Check class="size-4" />
-              {:else}
-                <X class="size-4" />
-              {/if}
-              {m.actic_diff_autodiff()}
-            </button>
-          </span>
+            {#if session!.autodiff}
+              <Check class="size-4" />
+            {:else}
+              <X class="size-4" />
+            {/if}
+            {m.actic_diff_autodiff()}
+          </ToolbarButton>
         {/snippet}
       </PreviewPanel>
     </div>

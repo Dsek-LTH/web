@@ -3,6 +3,7 @@
   import { Download, Save } from "@lucide/svelte/icons";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import * as m from "$paraglide/messages";
+  import ToolbarButton from "./ToolbarButton.svelte";
 
   let {
     compiling = false,
@@ -52,30 +53,26 @@
         {#if compiling}
           <Spinner class="text-muted-foreground h-4 w-4" />
         {/if}
-        <button
-          type="button"
-          class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-          title={m.actic_draft_save()}
-          aria-label={m.actic_draft_save()}
-          onclick={onsave}
+        <ToolbarButton
+          label={m.actic_draft_save()}
+          shortcut="Mod-S"
           disabled={!dirty || !canSave}
+          onclick={onsave}
         >
           <Save class="size-4" />
-        </button>
-        <button
-          type="button"
-          class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-          title={m.actic_download()}
-          aria-label={m.actic_download()}
-          onclick={ondownload}
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.actic_download()}
+          shortcut="Mod-Shift-S"
           disabled={downloading}
+          onclick={ondownload}
         >
           {#if downloading}
             <Spinner class="size-4" />
           {:else}
             <Download class="size-4" />
           {/if}
-        </button>
+        </ToolbarButton>
       </div>
     </div>
     <div

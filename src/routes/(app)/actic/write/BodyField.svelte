@@ -3,6 +3,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import DatePicker from "$lib/components/datetime-selector/DatePicker.svelte";
   import TypstEditor from "$lib/actic/editor/TypstEditor.svelte";
+  import Hint from "$lib/actic/editor/Hint.svelte";
   import Settings from "@lucide/svelte/icons/settings";
   import * as m from "$paraglide/messages";
   import { todayIso, type Writer } from "./writer.svelte";
@@ -20,12 +21,14 @@
   <Label for="body">{label}</Label>
   {#snippet documentSettings()}
     <Popover.Root>
-      <Popover.Trigger
-        class="hover:bg-accent hover:text-foreground flex h-[30px] items-center gap-1 rounded-[13px] px-[7px] text-sm"
-        aria-label={m.actic_settings()}
-      >
-        <Settings class="h-4 w-4" />
-      </Popover.Trigger>
+      <Hint label={m.actic_settings()} class="h-full">
+        <Popover.Trigger
+          class="hover:bg-accent hover:text-foreground flex h-[30px] items-center gap-1 rounded-[13px] px-[7px] text-sm"
+          aria-label={m.actic_settings()}
+        >
+          <Settings class="h-4 w-4" />
+        </Popover.Trigger>
+      </Hint>
       <Popover.Content align="end" class="flex w-80 flex-col gap-4">
         <div class="flex flex-col gap-1.5">
           <Label>{m.actic_field_date()}</Label>

@@ -35,6 +35,7 @@ import {
   type TypstDiagnostic,
 } from "$lib/actic/editor/diagnostics";
 import { instantRenderEffect } from "$lib/actic/editor/instant-render.svelte";
+import { documentShortcutsEffect } from "$lib/actic/editor/shortcuts.svelte";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
 
@@ -260,15 +261,10 @@ export class Writer {
       })();
     });
 
-    $effect(() => {
-      const onKey = (e: KeyboardEvent) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-          e.preventDefault();
-          this.saveDraftNow();
-        }
-      };
-      window.addEventListener("keydown", onKey);
-      return () => window.removeEventListener("keydown", onKey);
+    // Ctrl/Cmd+S saves the draft, Ctrl/Cmd+Shift+S downloads the PDF.
+    documentShortcutsEffect({
+      save: () => this.saveDraftNow(),
+      downloadPdf: () => void this.download(),
     });
 
     $effect(() => {
