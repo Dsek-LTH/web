@@ -1,9 +1,11 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import { onMount } from "svelte";
   import { Download, RefreshCw, Save, Zap } from "@lucide/svelte/icons";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import * as m from "$paraglide/messages";
   import ToolbarButton from "./ToolbarButton.svelte";
+  import { watchStickyTop } from "./sticky-top";
 
   let {
     compiling = false,
@@ -50,14 +52,18 @@
     scrollBox?: HTMLElement | undefined;
     previewHost?: HTMLElement | undefined;
   } = $props();
+
+  // The toolbar pins under the site header while the page scrolls (on
+  // desktop the panel itself is sticky, so this is a no-op there).
+  onMount(() => watchStickyTop());
 </script>
 
 <div class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]">
   <div
-    class="border-border bg-background flex min-h-[28rem] flex-col overflow-hidden rounded-lg border lg:min-h-0 lg:flex-1"
+    class="border-border bg-background flex min-h-[28rem] flex-col overflow-clip rounded-lg border lg:min-h-0 lg:flex-1"
   >
     <div
-      class="bg-muted-background text-muted-foreground flex h-11 shrink-0 items-center gap-2 border-b px-[7px]"
+      class="bg-muted-background text-muted-foreground z-10 flex h-11 shrink-0 items-center gap-2 border-b px-[7px] max-lg:sticky max-lg:top-(--actic-sticky-top,4rem)"
     >
       {@render leading?.()}
       <div class="ml-auto flex items-center gap-0.5">
@@ -77,6 +83,9 @@
         <ToolbarButton
           label={m.actic_preview_compile()}
           shortcut="Mod-Enter"
+          description={autocompile
+            ? m.actic_preview_compile_disabled()
+            : undefined}
           disabled={autocompile}
           onclick={oncompile}
         >

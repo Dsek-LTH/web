@@ -65,6 +65,7 @@
   import { hangingIndent } from "./hangingIndent";
   import ToolbarButton from "./ToolbarButton.svelte";
   import Hint from "./Hint.svelte";
+  import { watchStickyTop } from "./sticky-top";
 
   let {
     value = $bindable(""),
@@ -352,22 +353,12 @@
     const observer = new MutationObserver(syncTheme);
     observer.observe(root, { attributes: true, attributeFilter: ["class"] });
 
-    // Pin the toolbar and search panel flush under the site header, whose
-    // height is content-driven — measure it instead of guessing.
-    const header = document.querySelector("header");
-    const syncSticky = () => {
-      if (!root) return;
-      const top = header?.getBoundingClientRect().bottom ?? 64;
-      // On the wrapper: both the toolbar and the CodeMirror panels below
-      // resolve the variables from it.
-      root.style.setProperty("--actic-sticky-top", `${top}px`);
-      root.style.setProperty("--actic-panel-top", `${top + 44}px`);
-    };
-    syncSticky();
-    window.addEventListener("resize", syncSticky);
+    // Pin the toolbar and search panel flush under the site header; the
+    // shared watcher measures it (and knows phones' bottom nav isn't one).
+    const unwatchSticky = watchStickyTop();
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", syncSticky);
+      unwatchSticky();
       view?.destroy();
       view = undefined;
     };
@@ -421,7 +412,12 @@
   >
     <div class="min-w-0 flex-1">
       {#if title}
-        <span class="text-foreground truncate pl-[7px] text-sm font-medium">
+        <!-- block: truncate on an inline span is a no-op, so long titles
+             would run under the toolbar icons. pr-4 keeps ~half an icon of
+             air between the ellipsis and the first button. -->
+        <span
+          class="text-foreground block truncate pr-4 pl-[7px] text-sm font-medium"
+        >
           {title}
         </span>
       {/if}

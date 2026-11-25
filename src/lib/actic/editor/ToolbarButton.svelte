@@ -53,7 +53,9 @@
     "relative items-center",
     underline &&
       active &&
-      "after:bg-rosa-400 after:absolute after:inset-x-1 after:-bottom-[7px] after:h-[2px] after:content-['']",
+      // 2px tall with the navbar underline's rounding, lifted 0.5px off the
+      // bar's edge so it doesn't touch it.
+      "after:bg-rosa-400 after:absolute after:inset-x-1 after:-bottom-[6px] after:h-[2px] after:rounded-[2px] after:content-['']",
   )}
 >
   <button

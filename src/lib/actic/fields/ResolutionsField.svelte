@@ -117,7 +117,7 @@
             </span>
           {/if}
           <span
-            class="text-muted-foreground flex h-9 items-center self-start text-sm font-bold"
+            class="text-muted-foreground flex h-9 items-start self-start pt-2 text-sm leading-6 font-bold"
             >{m.actic_yrkanden_att({}, { locale: lang })}</span
           >
           <div

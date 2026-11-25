@@ -39,7 +39,7 @@
   <Tooltip.Root>
     <Tooltip.Trigger>
       {#snippet child({ props })}
-        <span {...props} class={cn("flex items-center", cls)}>
+        <span {...props} class={cn("flex shrink-0 items-center", cls)}>
           {@render children?.()}
         </span>
       {/snippet}

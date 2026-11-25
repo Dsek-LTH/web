@@ -135,7 +135,7 @@
 
 <div class="border-border flex w-full flex-col rounded-lg border">
   <div
-    class="bg-muted-background text-muted-foreground flex h-11 items-center gap-0.5 rounded-t-lg border-b px-[7px]"
+    class="bg-muted-background text-muted-foreground flex h-11 items-center gap-0.5 overflow-x-auto rounded-t-lg border-b px-[7px]"
   >
     <ToolbarButton
       label={m.editor_heading()}
@@ -159,7 +159,7 @@
       <ListOrdered class="size-4" />
     </ToolbarButton>
 
-    <span class="bg-border mx-1 h-5 w-px"></span>
+    <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
 
     <ToolbarButton
       label={m.editor_bold()}
@@ -200,7 +200,7 @@
       <SquareCode class="size-4" />
     </ToolbarButton>
 
-    <span class="bg-border mx-1 h-5 w-px"></span>
+    <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
 
     <ToolbarButton
       label={m.editor_link()}

@@ -170,7 +170,9 @@
           <!-- Text-only, styled like /write's preview title; the mode is also
                shown by the diff/eye toggle at the right of the bar. -->
           <div class="min-w-0 flex-1">
-            <span class="text-foreground truncate pl-[7px] text-sm font-medium">
+            <span
+              class="text-foreground block truncate pr-4 pl-[7px] text-sm font-medium"
+            >
               {session!.autodiff
                 ? m.actic_diff_mode()
                 : m.actic_preview_title()}
