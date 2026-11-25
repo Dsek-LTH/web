@@ -9,6 +9,7 @@
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import FileLink from "$lib/components/files/FileLink.svelte";
   import DeleteFileForm from "../DeleteFileForm.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
@@ -16,6 +17,9 @@
 
   let { data } = $props();
 
+  let canCreate = $derived(
+    isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).CREATE, data.user),
+  );
   let canDelete = $derived(
     isAuthorized(apiNames.FILES.BUCKET(PUBLIC_BUCKETS_FILES).DELETE, data.user),
   );
@@ -31,7 +35,18 @@
         {m.documents_requirementProfilesBlurb()}
       </p>
     </div>
-    <YearSelector />
+    <div class="flex flex-wrap items-center gap-2">
+      <YearSelector />
+      {#if canCreate}
+        <Button
+          href="/documents/upload?type=requirement"
+          variant="rosa"
+          size="sm"
+        >
+          {m.documents_uploadFile()}
+        </Button>
+      {/if}
+    </div>
   </div>
 
   <div class="flex flex-col gap-6">

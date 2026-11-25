@@ -6,8 +6,14 @@ import type { Actions, PageServerLoad } from "./$types";
 import { uploadSchema } from "./types";
 import { uploadDocumentsFile } from "./uploadFiles";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
   const form = await superValidate(zod4(uploadSchema));
+  const requestedType = uploadSchema.shape.type.safeParse(
+    url.searchParams.get("type"),
+  );
+  if (requestedType.success) {
+    form.data.type = requestedType.data;
+  }
   return { form };
 };
 
