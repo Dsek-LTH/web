@@ -1212,14 +1212,19 @@ model Consumable {
 
     memberId              String?                @db.Uuid
     member                Member?                @relation(fields: [memberId], references: [id])
-    externalCustomerEmail String? // if purchased by a non-member
-    externalCustomerCode  String? // if purchased by a non-member, unique code used in link as security
+    // The row stays readable so purchase/availability checks can count
+    // consumables across all buyers, but these three fields carry personal
+    // or security-sensitive data, so they are readable only by the customer
+    // who owns the consumable, the shoppable's author, or webshop managers.
+    // externalCustomerCode is a capability token used in purchase links.
+    externalCustomerEmail String?                @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member
+    externalCustomerCode  String?                @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member, unique code used in link as security
 
     createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
     expiresAt             DateTime?              @map("expires_at") @db.Timestamptz(6)
     purchasedAt           DateTime?              @map("purchased_at") @db.Timestamptz(6)
     priceAtPurchase       Int? // Used to save the actual amount paid by the customer, in case the price of the shoppable changes. Used in refunds.
-    stripeIntentId        String?                @map("stripe_intent_id")
+    stripeIntentId        String?                @map("stripe_intent_id") @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"]))
 
     // customer or webshop:consume can always consume from unconsumed state. manager can "unconsume" from consumed state
     consumedAt            DateTime?              @map("consumed_at") @db.Timestamptz(6) @allow("update", (has(auth().policies, "webshop:consume") && consumedAt == null)
@@ -1249,8 +1254,10 @@ model ConsumableReservation {
 
     memberId              String?   @db.Uuid
     member                Member?   @relation(fields: [memberId], references: [id])
-    externalCustomerEmail String? // if purchased by a non-member
-    externalCustomerCode  String? // if purchased by a non-member, unique code used in link as security
+    // Readable only by the customer who owns the reservation, the shoppable's
+    // author, or webshop managers. See the matching fields on Consumable.
+    externalCustomerEmail String?   @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member
+    externalCustomerCode  String?   @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member, unique code used in link as security
 
     createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
     order                 Int?
@@ -1454,4 +1461,3 @@ model CiabattaOfTheWeek {
     @@allow("delete", has(auth().policies, "cafe:edit_ciabattas"))
     @@unique([year, week], map: "week_year_unique")
 }
-
