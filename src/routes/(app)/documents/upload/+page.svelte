@@ -32,12 +32,6 @@
   let pathInfo = $derived(typeToPath[$form.type]);
   let fileErrors = $derived($errors.file as string | string[] | undefined);
 
-  $effect(() => {
-    if ($form.type === "requirement") {
-      $form.group = "";
-    }
-  });
-
   let meetingPlaceholder = $derived.by(() => {
     switch ($form.type) {
       case "requirement":
