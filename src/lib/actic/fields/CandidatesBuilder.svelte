@@ -85,7 +85,7 @@
   }
   function emptyCandidate(): CandidateRow {
     return {
-      id: nextId("cand"),
+      id: nextId("candidate"),
       nominees: [emptyNominee()],
       // The stepper always carries real data — the first interval by default.
       stat: statValue(0),

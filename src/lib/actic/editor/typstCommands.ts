@@ -1,7 +1,7 @@
 /**
- * Typst-flavoured textarea commands. The generic mechanics (toggle wrapping,
+ * Typst-flavored textarea commands. The generic mechanics (toggle wrapping,
  * per-line prefixes, insert-with-history) are shared with the Markdown editor
- * in `$lib/components/textareacommands`.
+ * in `$lib/components/textareaCommands`.
  */
 import {
   insertText,
@@ -9,7 +9,8 @@ import {
   toggleForEachLine,
   getLineStart,
   getLineEnd,
-} from "$lib/components/textareacommands";
+} from "$lib/components/textareaCommands";
+import * as m from "$paraglide/messages";
 
 export function toggleBold(textarea: HTMLTextAreaElement | null) {
   toggleWrap(textarea, "*", "*");
@@ -52,7 +53,8 @@ export function insertLink(textarea: HTMLTextAreaElement | null) {
   if (textarea === null) return;
   const start = textarea.selectionStart;
   const text =
-    textarea.value.substring(start, textarea.selectionEnd) || "länktext";
+    textarea.value.substring(start, textarea.selectionEnd) ||
+    m.editor_link_text();
   const snippet = `#link("url")[${text}]`;
   insertText(textarea, snippet);
   const urlStart = start + '#link("'.length;

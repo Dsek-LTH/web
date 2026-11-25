@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DsekLogo from "$lib/components/DsekLogo.svelte";
+  import GuildLogo from "$lib/components/GuildLogo.svelte";
   import DesktopNav from "./DesktopNav.svelte";
   import { Button } from "$lib/components/ui/button";
   import CommandDialog from "$lib/components/search/CommandDialog.svelte";
@@ -101,7 +101,7 @@
   >
     <div class="flex flex-row items-center">
       <a href="/" class="mr-4">
-        <DsekLogo
+        <GuildLogo
           variant="letter"
           class="hover:fill-rosa-400 fill-rosa-400 size-6"
         />

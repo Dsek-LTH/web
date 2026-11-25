@@ -34,7 +34,7 @@
     toggleItalic,
     toggleNumbered,
     toggleStrike,
-  } from "./typst-commands";
+  } from "./typstCommands";
 
   let {
     value = $bindable(""),
@@ -127,8 +127,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.bullet}
-      aria-label={m.editor_ulist()}
-      title={m.editor_ulist()}
+      aria-label={m.editor_unordered_list()}
+      title={m.editor_unordered_list()}
       onclick={() => run(toggleBullet)}
     >
       <List class="size-4" />
@@ -137,8 +137,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.numbered}
-      aria-label={m.editor_olist()}
-      title={m.editor_olist()}
+      aria-label={m.editor_ordered_list()}
+      title={m.editor_ordered_list()}
       onclick={() => run(toggleNumbered)}
     >
       <ListOrdered class="size-4" />
@@ -180,8 +180,8 @@
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
       class:text-foreground={active.code}
-      aria-label={m.editor_inlinecode()}
-      title={`${m.editor_inlinecode()} (Ctrl+E)`}
+      aria-label={m.editor_inline_code()}
+      title={`${m.editor_inline_code()} (Ctrl+E)`}
       onclick={() => run(toggleInlineCode)}
     >
       <Code class="size-4" />
@@ -189,8 +189,8 @@
     <button
       type="button"
       class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.editor_codeblock()}
-      title={m.editor_codeblock()}
+      aria-label={m.editor_code_block()}
+      title={m.editor_code_block()}
       onclick={() => run(toggleCodeBlock)}
     >
       <SquareCode class="size-4" />

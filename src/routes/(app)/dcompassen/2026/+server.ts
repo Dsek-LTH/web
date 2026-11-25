@@ -5,7 +5,7 @@ import { S3Error } from "minio";
 import { buffer } from "node:stream/consumers";
 import type { RequestHandler } from "./$types";
 
-const DCOMPASSEN_PATH = "public/miscellaneous/Dcompassen2026.html";
+const D_COMPASS_PATH = "public/miscellaneous/Dcompassen2026.html";
 
 export const GET: RequestHandler = async ({ locals }) => {
   // Endpoint errors don't render +error.svelte, so let /dcompassen show the 401
@@ -16,7 +16,7 @@ export const GET: RequestHandler = async ({ locals }) => {
   let html: Buffer;
   try {
     html = await buffer(
-      await minio.getObject(PUBLIC_BUCKETS_FILES, DCOMPASSEN_PATH),
+      await minio.getObject(PUBLIC_BUCKETS_FILES, D_COMPASS_PATH),
     );
   } catch (e) {
     if (e instanceof S3Error && e.code === "NoSuchKey") {

@@ -10,6 +10,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import { z } from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { authorize } from "$lib/utils/authorization";
+import * as messages from "$paraglide/messages";
 
 const createSchema = z.object({
   type: z.enum(["member", "role"]),
@@ -54,7 +55,7 @@ export const actions: Actions = {
         where: { studentId: { in: subjects } },
       });
       if (existing !== subjects.length) {
-        return setError(form, "", "En eller flera medlemmar hittades inte");
+        return setError(form, "", messages.admin_access_member_not_found());
       }
     }
 
@@ -66,7 +67,7 @@ export const actions: Actions = {
       })),
     });
     return message(form, {
-      message: "Access policy skapad",
+      message: messages.admin_access_policyCreated(),
       type: "success",
     });
   },
@@ -80,7 +81,7 @@ export const actions: Actions = {
       },
     });
     return message(form, {
-      message: "Policy borttagen",
+      message: messages.admin_access_policy_deleted(),
       type: "success",
     });
   },

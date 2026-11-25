@@ -51,16 +51,7 @@ export const commentAction =
         await prisma.event.update(args);
         break;
       default:
-        return message(
-          form,
-          {
-            message: m.comments_errors_invalidEntity(),
-            type: "error",
-          },
-          {
-            status: 400,
-          },
-        );
+        entityType satisfies never;
     }
     return message(form, {
       message: m.comments_posted(),
@@ -92,16 +83,7 @@ export const removeCommentAction =
         await prisma.event.update(args);
         break;
       default:
-        return message(
-          form,
-          {
-            message: m.comments_errors_invalidEntity(),
-            type: "error",
-          },
-          {
-            status: 400,
-          },
-        );
+        entityType satisfies never;
     }
     return message(form, {
       message: m.comments_removed(),

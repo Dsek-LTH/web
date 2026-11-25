@@ -15,11 +15,11 @@ import (
 // live per-release timer plus a cheap periodic sweep needs no durable
 // cross-service scheduling.
 type Scheduler struct {
-	svc *Service
+	service *Service
 }
 
-func NewScheduler(svc *Service) *Scheduler {
-	return &Scheduler{svc: svc}
+func NewScheduler(service *Service) *Scheduler {
+	return &Scheduler{service: service}
 }
 
 // lotteryRetryDelay is how long to wait before retrying a lottery run that
@@ -36,7 +36,7 @@ func (s *Scheduler) ArmLottery(release Release) {
 
 func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {
 	run := func() {
-		err := s.svc.RunLottery(context.Background(), releaseID)
+		err := s.service.RunLottery(context.Background(), releaseID)
 		if err != nil && !errors.Is(err, ErrNotFound) {
 			log.Printf("lottery run failed for release %s, retrying in %s: %v", releaseID, lotteryRetryDelay, err)
 			s.armLotteryAfter(releaseID, lotteryRetryDelay)
@@ -59,7 +59,7 @@ func (s *Scheduler) armLotteryAfter(releaseID string, delay time.Duration) {
 // hasn't run yet - necessary because in-process timers don't survive a
 // restart.
 func (s *Scheduler) RestoreOnStartup(ctx context.Context) error {
-	pending, err := s.svc.ListScheduledReleases(ctx)
+	pending, err := s.service.ListScheduledReleases(ctx)
 	if err != nil {
 		return err
 	}
@@ -85,13 +85,13 @@ func (s *Scheduler) RunSweepLoop(ctx context.Context, interval time.Duration) {
 }
 
 func (s *Scheduler) sweepOnce(ctx context.Context) {
-	ids, err := s.svc.ListReleaseIDsWithActiveOffers(ctx)
+	ids, err := s.service.ListReleaseIDsWithActiveOffers(ctx)
 	if err != nil {
 		log.Printf("failed to list releases with active offers: %v", err)
 		return
 	}
 	for _, id := range ids {
-		if err := s.svc.SweepExpiredOffers(ctx, id); err != nil {
+		if err := s.service.SweepExpiredOffers(ctx, id); err != nil {
 			log.Printf("offer sweep failed for release %s: %v", id, err)
 		}
 	}

@@ -1,9 +1,9 @@
 /**
- * Committee logos for the position picker, hosted in the Dsek grafik repo (the
+ * Committee logos for the position picker, hosted in the guild's graphics repo (the
  * same source the Committee model's image URLs use). Position groups use the
  * package's own keys, which mostly match the committee short names.
  */
-const GRAFIK = "https://raw.githubusercontent.com/Dsek-LTH/grafik/main";
+const GRAPHICS_URL = "https://raw.githubusercontent.com/Dsek-LTH/grafik/main";
 
 const GROUP_SHORTNAME: Record<string, string> = {
   aktu: "aktu",
@@ -23,7 +23,7 @@ const GROUP_SHORTNAME: Record<string, string> = {
   triv: "trivsel",
 };
 
-const GUILD_SYMBOL = `${GRAFIK}/guild/dsek/symbol/symbol_rosa.svg`;
+const GUILD_SYMBOL = `${GRAPHICS_URL}/guild/dsek/symbol/symbol_rosa.svg`;
 
 /** Light/dark symbol URLs for a position group, or undefined if it has none. */
 export function groupLogoUrls(
@@ -36,7 +36,7 @@ export function groupLogoUrls(
   const shortName = GROUP_SHORTNAME[groupKey];
   if (!shortName) return undefined;
   return {
-    light: `${GRAFIK}/committee_logos/${shortName}/SVG/symbol/light.svg`,
-    dark: `${GRAFIK}/committee_logos/${shortName}/SVG/symbol/dark.svg`,
+    light: `${GRAPHICS_URL}/committee_logos/${shortName}/SVG/symbol/light.svg`,
+    dark: `${GRAPHICS_URL}/committee_logos/${shortName}/SVG/symbol/dark.svg`,
   };
 }

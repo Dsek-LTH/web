@@ -68,7 +68,7 @@ export const COMMITTEES = [
   { nameSv: "Övriga förtroendevalda", shortName: "other" },
 ].map((c) => ({ ...c, ...getImageUrls(c.shortName) }));
 
-export const POLICYS = [
+export const POLICIES = [
   "Policy för hantering av personuppgifter",
   "Policy för jämlikhet",
   "Policy för mötestider",

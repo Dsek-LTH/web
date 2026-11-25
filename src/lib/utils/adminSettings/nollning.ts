@@ -1,8 +1,8 @@
 import type { ExtendedPrisma } from "$lib/server/extendedPrisma";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 
-export const NOLLNING_START_KEY = "nollning_start";
-export const NOLLNING_END_KEY = "nollning_end";
+export const N0LLNING_START_KEY = "nollning_start";
+export const N0LLNING_END_KEY = "nollning_end";
 let cache: {
   value: boolean;
   lastFetched: Date;
@@ -15,7 +15,7 @@ let startCache: {
 
 const CACHE_TIME = 3600 * 1000; // 1 hour
 
-export const isNollningPeriod = async () => {
+export const isN0llningPeriod = async () => {
   const now = new Date();
   if (
     cache !== null &&
@@ -26,28 +26,28 @@ export const isNollningPeriod = async () => {
     where: {
       OR: [
         {
-          key: NOLLNING_START_KEY,
+          key: N0LLNING_START_KEY,
         },
         {
-          key: NOLLNING_END_KEY,
+          key: N0LLNING_END_KEY,
         },
       ],
     },
   });
-  const startStr = rows.find((row) => row.key === NOLLNING_START_KEY)?.value;
-  const endStr = rows.find((row) => row.key === NOLLNING_END_KEY)?.value;
+  const startStr = rows.find((row) => row.key === N0LLNING_START_KEY)?.value;
+  const endStr = rows.find((row) => row.key === N0LLNING_END_KEY)?.value;
   if (!startStr || !endStr) return false;
   const start = new Date(startStr);
   const end = new Date(endStr);
-  const isNollningPeriod = start < now && now < end;
+  const isN0llningPeriod = start < now && now < end;
   cache = {
-    value: isNollningPeriod,
+    value: isN0llningPeriod,
     lastFetched: now,
   };
-  return isNollningPeriod;
+  return isN0llningPeriod;
 };
 
-export const getNollningStart = async () => {
+export const getN0llningStart = async () => {
   const now = new Date();
   if (
     startCache !== null &&
@@ -56,7 +56,7 @@ export const getNollningStart = async () => {
     return startCache.value;
   const row = await authorizedPrismaClient.adminSetting.findUnique({
     where: {
-      key: NOLLNING_START_KEY,
+      key: N0LLNING_START_KEY,
     },
   });
   const startStr = row?.value;
@@ -71,39 +71,39 @@ export const getNollningStart = async () => {
   return start;
 };
 
-export const updateNollningPeriod = async (
+export const updateN0llningPeriod = async (
   prisma: ExtendedPrisma,
   start: Date,
   end: Date,
 ) => {
   await prisma.adminSetting.upsert({
     where: {
-      key: NOLLNING_START_KEY,
+      key: N0LLNING_START_KEY,
     },
     update: {
       value: start.toISOString(),
     },
     create: {
-      key: NOLLNING_START_KEY,
+      key: N0LLNING_START_KEY,
       value: start.toISOString(),
     },
   });
   await prisma.adminSetting.upsert({
     where: {
-      key: NOLLNING_END_KEY,
+      key: N0LLNING_END_KEY,
     },
     update: {
       value: end.toISOString(),
     },
     create: {
-      key: NOLLNING_END_KEY,
+      key: N0LLNING_END_KEY,
       value: end.toISOString(),
     },
   });
   const now = new Date();
-  const isNollningPeriod = start < now && now < end;
+  const isN0llningPeriod = start < now && now < end;
   cache = {
-    value: isNollningPeriod,
+    value: isN0llningPeriod,
     lastFetched: now,
   };
 };

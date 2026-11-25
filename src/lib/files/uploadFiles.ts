@@ -83,7 +83,7 @@ export const uploadFileWithKey = async (
     });
     if (!res.ok)
       throw new Error(
-        `${m.members_errors_couldntUploadFile()}: ${await res.text()}`,
+        `${m.members_errors_couldNotUploadFile()}: ${await res.text()}`,
       );
     return {
       url: `${MINIO_BASE_URL}${bucket}/${filePath}`,
@@ -92,7 +92,7 @@ export const uploadFileWithKey = async (
   } catch (e) {
     console.error(e);
     const errMsg = e instanceof Error ? e.message : String(e);
-    throw new Error(`${m.members_errors_couldntUploadFile()}: ${errMsg}`, {
+    throw new Error(`${m.members_errors_couldNotUploadFile()}: ${errMsg}`, {
       cause: e,
     });
   }

@@ -47,7 +47,7 @@ func authMiddleware(next http.Handler) http.Handler {
 		token, err := jwt.Parse([]byte(getTokenFromHeader(r)), parseOptions...)
 		if err != nil {
 			log.Printf("Failed to parse JWT: %s", err)
-			http.Error(w, "Unauthorised", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 
 			return
 		}
@@ -55,7 +55,7 @@ func authMiddleware(next http.Handler) http.Handler {
 		subject, _ := token.Subject()
 		if subject == "" {
 			log.Printf("Invalid subject in JWT: subject is empty")
-			http.Error(w, "Unauthorised", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 
 			return
 		}

@@ -9,7 +9,7 @@
   import Pen from "@lucide/svelte/icons/pen";
   import X from "@lucide/svelte/icons/x";
   import * as Tooltip from "$lib/components/ui/tooltip";
-  import ProgrammeBadge from "$lib/components/member/ProgrammeBadge.svelte";
+  import ProgramBadge from "$lib/components/member/ProgramBadge.svelte";
 
   let { data, mandate }: { data: PageData; mandate: PageData["mandates"][0] } =
     $props();
@@ -34,7 +34,7 @@
           {getFullName(mandate.member)}
         </span>
       </a>
-      <ProgrammeBadge member={mandate.member} />
+      <ProgramBadge member={mandate.member} />
 
       <!-- Edit button -->
       {#if isAuthorized(apiNames.MANDATE.UPDATE, data.user) || isAuthorized(apiNames.MANDATE.DELETE, data.user)}

@@ -83,7 +83,7 @@ test("wrapper-only documents use the fixed title", () => {
   ).toEqual({ title: "Strategiska mål", group: "strategic-goals" });
 });
 
-test("an unparseable head falls back to path-derived title and group", () => {
+test("an unparsable head falls back to path-derived title and group", () => {
   expect(
     describeGoverningDocument(
       "policyer/policy-for-ny-policy.typ",

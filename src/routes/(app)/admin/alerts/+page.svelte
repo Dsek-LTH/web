@@ -29,7 +29,7 @@
 
 <SetPageTitle title={m.alerts()} />
 <div class="layout-container">
-  <h2 class="mb-4">{m.admin_alerts_globalMessages()}</h2>
+  <h2 class="mb-4">{m.admin_alerts_messages()}</h2>
 
   <Card.Root class="flex w-full flex-col items-start md:pr-16">
     <Card.Content class="w-full">

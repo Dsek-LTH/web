@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
-    getYoutubeThumbnailUrl,
-    nextYoutubeThumbnailQuality,
-    type YoutubeThumbnailQuality,
+    getYouTubeThumbnailUrl,
+    nextYouTubeThumbnailQuality,
+    type YouTubeThumbnailQuality,
   } from "$lib/utils/youtube";
 
   let {
@@ -19,13 +19,13 @@
     onunavailable?: () => void;
   } = $props();
 
-  let quality = $state<YoutubeThumbnailQuality>("sddefault");
+  let quality = $state<YouTubeThumbnailQuality>("sddefault");
   let failed = $state(false);
 
   let activeVideoId: string | null = null;
 
   function fallback() {
-    const next = nextYoutubeThumbnailQuality(quality);
+    const next = nextYouTubeThumbnailQuality(quality);
     if (next) {
       quality = next;
     } else {
@@ -44,7 +44,7 @@
 
 {#if !failed}
   <img
-    src={getYoutubeThumbnailUrl(videoId, quality)}
+    src={getYouTubeThumbnailUrl(videoId, quality)}
     alt=""
     loading="lazy"
     class={["opacity-0", klass]}

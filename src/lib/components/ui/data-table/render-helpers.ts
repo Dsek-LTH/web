@@ -53,7 +53,7 @@ export class RenderSnippetConfig<TProps> {
 }
 
 /**
- * A helper function to help create cells from Svelte components through ColumnDef's `cell` and `header` properties.
+ * A helper function to help create cells from Svelte components through the `cell` and `header` properties of ColumnDef.
  *
  * This is only to be used with Svelte Components - use `renderSnippet` for Svelte Snippets.
  *
@@ -83,7 +83,7 @@ export function renderComponent<
 }
 
 /**
- * A helper function to help create cells from Svelte Snippets through ColumnDef's `cell` and `header` properties.
+ * A helper function to help create cells from Svelte Snippets through the `cell` and `header` properties of ColumnDef.
  *
  * The snippet must only take one parameter.
  *

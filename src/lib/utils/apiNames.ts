@@ -66,7 +66,7 @@ const apiNames = {
   },
   MEMBER: {
     ...crud("core:member"),
-    SEE_STABEN: "member:see_staben",
+    SEE_THE_STAB: "member:see_staben",
     SEE_EMAIL: "member:see_email",
     PING: "core:member:ping",
     USER: "member:user",
@@ -99,7 +99,7 @@ const apiNames = {
     CONSUME: "webshop:consume",
     MANAGE: "webshop:manage",
   },
-  NOLLNING: {
+  N0LLNING: {
     MANAGE_PHADDER_GROUPS: "nollning:phaddrar:groups:manage",
   },
   EXPENSES: {

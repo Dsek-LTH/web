@@ -117,7 +117,7 @@
   );
 
   // The results are rendered in a portal (outside of Command.Root), so
-  // bits-ui's built-in keyboard navigation cannot find the items.
+  // the built-in keyboard navigation of bits-ui cannot find the items.
   // Highlight and navigate them ourselves instead.
   $effect(() => {
     const hasResults = filteredResults.length > 0;

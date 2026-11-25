@@ -1,6 +1,6 @@
 <script lang="ts">
-  import YoutubeFrame from "./YoutubeFrame.svelte";
-  import { getYoutubeEmbedUrlFromUrl } from "$lib/utils/youtube";
+  import YouTubeFrame from "./YouTubeFrame.svelte";
+  import { getYouTubeEmbedUrlFromUrl } from "$lib/utils/youtube";
 
   let {
     url,
@@ -12,11 +12,11 @@
     title: string;
   } = $props();
 
-  const embedUrl = $derived(getYoutubeEmbedUrlFromUrl(url));
+  const embedUrl = $derived(getYouTubeEmbedUrlFromUrl(url));
 </script>
 
 {#if embedUrl}
   <div class="aspect-video w-full overflow-hidden rounded-xl border">
-    <YoutubeFrame src={embedUrl} {title} lazy />
+    <YouTubeFrame src={embedUrl} {title} lazy />
   </div>
 {/if}
