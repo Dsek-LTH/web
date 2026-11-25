@@ -970,6 +970,7 @@ paths = [ 'shell.nix' ]
 extra_words = [
     'nixos',
     'nixpkgs',
+    'openssl',
     'pkgs',
 ]
 
