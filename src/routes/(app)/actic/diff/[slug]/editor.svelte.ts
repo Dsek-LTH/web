@@ -46,7 +46,7 @@ export class DiffSession {
   downloading = $state(false);
   diffReady = $state(false);
   error = $state("");
-  /** The last compile's diagnostics, for the source editor's squiggles. */
+  /** The diagnostics of the last compilation, for the source editor's squiggles. */
   diagnostics = $state<TypstDiagnostic[]>([]);
   diffError = $state("");
 

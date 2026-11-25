@@ -1,3 +1,5 @@
+import * as m from "$paraglide/messages";
+
 export function insertText(textarea: HTMLTextAreaElement, text: string) {
   textarea.focus();
   // the only way to preserve edit history is to use these deprecated methods
@@ -131,7 +133,7 @@ export function insertLink(
   const start = textarea.selectionStart;
   const selection =
     textarea.value.substring(start, textarea.selectionEnd) ||
-    (isImage ? "Alt text describing the image" : "link text");
+    (isImage ? m.editor_image_alt_text() : m.editor_link_text());
   const linkTxt = (isImage ? "![" : "[") + selection + "](url)";
   insertText(textarea, linkTxt);
   textarea.setSelectionRange(

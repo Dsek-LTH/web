@@ -2,9 +2,9 @@ import init, { initSync, typdiff_source } from "./generated/typdiff_wasm.js";
 import wasmUrl from "./generated/typdiff_wasm_bg.wasm?url";
 
 let ready = false;
-let initialising: Promise<void> | null = null;
+let initializing: Promise<void> | null = null;
 
-/** Initialise the diff engine. Tests pass a compiled module instead of a URL. */
+/** Initialize the diff engine. Tests pass a compiled module instead of a URL. */
 export async function initTypdiff(module?: WebAssembly.Module): Promise<void> {
   if (ready) return;
   if (module) {
@@ -12,16 +12,16 @@ export async function initTypdiff(module?: WebAssembly.Module): Promise<void> {
     ready = true;
     return;
   }
-  initialising ??= init({ module_or_path: wasmUrl })
+  initializing ??= init({ module_or_path: wasmUrl })
     .then(() => {
       ready = true;
     })
     .catch((error) => {
       // Forget the failed attempt so the next call retries.
-      initialising = null;
+      initializing = null;
       throw error;
     });
-  await initialising;
+  await initializing;
 }
 
 /** Synchronous after `initTypdiff` resolves. Returns typdiff's generated source. */

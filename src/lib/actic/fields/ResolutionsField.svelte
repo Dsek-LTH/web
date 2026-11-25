@@ -28,7 +28,7 @@
   let expanded = $state<Record<string, boolean>>({});
 
   function emptyYrkande(): YrkandeRow {
-    return { id: nextId("yrk"), clause: "", description: "" };
+    return { id: nextId("yrkande"), clause: "", description: "" };
   }
   function addRow(afterId?: string): string {
     const fresh = emptyYrkande();

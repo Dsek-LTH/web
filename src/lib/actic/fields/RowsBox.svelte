@@ -126,7 +126,7 @@
   }
 
   /**
-   * The drag slot is computed from the live DOM rects rather than dnd-kit's
+   * The drag slot is computed from the live DOM rectangles rather than dnd-kit's
    * collision target — the rows (and DOM) shift under the pointer while
    * dragging, so the rendered rows are the only stable source of truth.
    */

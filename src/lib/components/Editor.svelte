@@ -35,7 +35,7 @@
     toggleUList,
     toggleOList,
     toggleTaskList,
-  } from "./textareacommands";
+  } from "./textareaCommands";
 
   let textarea: HTMLTextAreaElement | null = $state(null);
   let chars = $state(0);

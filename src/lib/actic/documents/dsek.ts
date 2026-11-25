@@ -379,7 +379,7 @@ function yrkandenSource(
   const items = yrkanden.items.filter((i) => i.clause.trim());
   if (items.length === 0) return "";
   const lead = yrkanden.leadIn.trim();
-  // The package's resolution formatter recognises "att" (sv) / "to" (en); the
+  // The package's resolution formatter recognizes "att" (sv) / "to" (en); the
   // list is only styled as resolutions when every item starts with that term.
   const term = lang === "en" ? "to" : "att";
   const list = items

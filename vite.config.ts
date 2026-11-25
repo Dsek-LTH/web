@@ -7,7 +7,7 @@ import wasm from "vite-plugin-wasm";
 export default defineConfig({
   plugins: [
     sveltekit(),
-    // The Typstyle formatter ships wasm-bindgen's ESM wasm integration,
+    // The Typstyle formatter ships the ES module integration of wasm-bindgen,
     // which Vite only supports through this plugin.
     wasm(),
     paraglideVitePlugin({

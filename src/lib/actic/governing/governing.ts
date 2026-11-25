@@ -100,7 +100,7 @@ export function describeGoverningDocument(
 export function buildCatalog(
   entries: Array<{ path: string; head: string }>,
 ): GoverningGroup[] {
-  // Dedupe by path; the last entry for a path wins.
+  // Deduplicate by path; the last entry for a path wins.
   const heads = new Map<string, string>();
   for (const entry of entries) {
     if (entry.path.endsWith(".typ")) heads.set(entry.path, entry.head);

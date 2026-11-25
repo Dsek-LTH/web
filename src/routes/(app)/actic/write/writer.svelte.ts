@@ -71,7 +71,7 @@ export class Writer {
   leadIn = $state("");
   authors = $state<AuthorRow[]>([{ id: nextId("author"), name: "" }]);
   yrkanden = $state<YrkandeRow[]>([
-    { id: nextId("yrk"), clause: "", description: "" },
+    { id: nextId("yrkande"), clause: "", description: "" },
   ]);
 
   // --- guided/advanced source modes ------------------------------------------
@@ -93,7 +93,7 @@ export class Writer {
   scrollBox = $state<HTMLElement | undefined>();
   compiling = $state(false);
   error = $state("");
-  /** The last compile's diagnostics, for the source editor's squiggles. */
+  /** The diagnostics of the last compilation, for the source editor's squiggles. */
   diagnostics = $state<TypstDiagnostic[]>([]);
   rendered = $state(false);
 
@@ -124,7 +124,7 @@ export class Writer {
     /**
      * Receives the writer itself, because the constructor (via the dirty
      * baseline) reads the input while the page's `writer` binding is still
-     * initializing — a closure over the binding would be a TDZ error.
+     * initializing — a closure over the binding would be a temporal dead zone error.
      */
     getInput: (writer: Writer) => DocumentInput;
     applyFamilyDraft?: (draft: WriteDraft) => void;
@@ -317,8 +317,8 @@ export class Writer {
       : [{ id: nextId("author"), name: "" }];
     this.leadIn = draft.leadIn;
     this.yrkanden = draft.yrkanden.length
-      ? draft.yrkanden.map((y) => ({ ...y, id: nextId("yrk") }))
-      : [{ id: nextId("yrk"), clause: "", description: "" }];
+      ? draft.yrkanden.map((y) => ({ ...y, id: nextId("yrkande") }))
+      : [{ id: nextId("yrkande"), clause: "", description: "" }];
     this.lang = draft.lang;
     this.dateIso = draft.dateIso;
     this.body = draft.body;
