@@ -1,4 +1,4 @@
-import { getRequirementProfileFolders } from "$lib/files/requirementProfiles";
+import { getRequirementProfileFolders } from "../requirementProfiles.server";
 import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";

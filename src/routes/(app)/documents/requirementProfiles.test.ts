@@ -8,7 +8,7 @@ vi.mock("$lib/files", () => ({ fileHandler: { getInBucket } }));
 import {
   getRequirementProfileFolder,
   getRequirementProfileFolders,
-} from "./requirementProfiles";
+} from "./requirementProfiles.server";
 
 describe("getRequirementProfileFolder", () => {
   it("returns the guild meeting or committee folder", () => {

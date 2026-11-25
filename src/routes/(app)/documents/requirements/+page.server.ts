@@ -4,7 +4,7 @@ import type { FileData } from "$lib/files/fileHandler";
 import {
   getRequirementProfileFiles,
   getRequirementProfileFolder,
-} from "$lib/files/requirementProfiles";
+} from "../requirementProfiles.server";
 import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
