@@ -18,16 +18,9 @@ import {
   fetchNewToken,
   decodeAccessToken,
 } from "$lib/utils/auth";
-import {
-  error,
-  redirect,
-  type Handle,
-  type HandleServerError,
-} from "@sveltejs/kit";
+import { redirect, type Handle, type HandleServerError } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { enhance } from "@zenstackhq/runtime";
-import RPCApiHandler from "@zenstackhq/server/api/rpc";
-import zenstack from "@zenstackhq/server/sveltekit";
 import { randomBytes } from "crypto";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
@@ -231,15 +224,6 @@ const databaseHandle: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
-const apiHandle = zenstack.SvelteKitHandler({
-  prefix: "/api/model",
-  getPrisma: (event) => event.locals.prisma,
-  handler: (req) => {
-    if (req.method !== "GET") error(403); // until we have proper field-level policies, only allow reads
-    return RPCApiHandler()(req);
-  },
-});
-
 const APP_INSETS_REGEX = /APP-INSETS\s*\(([^)]*)\)/;
 const appHandle: Handle = async ({ event, resolve }) => {
   const userAgent = event.request.headers.get("user-agent");
@@ -368,7 +352,6 @@ export const handle = sequence(
   authHandle,
   paraglideHandle,
   databaseHandle,
-  apiHandle,
   appHandle,
   themeHandle,
 );
