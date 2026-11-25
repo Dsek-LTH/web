@@ -125,6 +125,7 @@
       downloading={writer.downloading}
       dirty={writer.dirty}
       canSave={writer.hasContent}
+      canDownload={writer.ready}
       error={writer.error}
       rendered={writer.rendered}
       showHost={writer.ready || writer.forked}

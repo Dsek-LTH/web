@@ -42,3 +42,28 @@ test("manual compile only runs when autocompile is off", () => {
   void writer.compileNow();
   expect(writer.compiling).toBe(true); // render started synchronously
 });
+
+test("compile now does nothing while required fields are missing", () => {
+  // Deliberation requires title, meeting and authors — all empty here, so
+  // the checklist shows and the preview host doesn't exist.
+  const writer = new Writer({
+    getInput: () => ({
+      family: "deliberation",
+      type: "motion",
+      lang: "sv",
+      title: "",
+      meeting: "",
+      body: "",
+      authors: [],
+      yrkanden: { leadIn: "", items: [{ id: "y1", clause: "" }] },
+    }),
+  });
+  expect(writer.ready).toBe(false);
+
+  writer.autocompile = false;
+  void writer.compileNow();
+  // The checklist replaces the preview host in this state — compiling would
+  // only surface the internal "no preview host" error.
+  expect(writer.compiling).toBe(false);
+  expect(writer.error).toBe("");
+});

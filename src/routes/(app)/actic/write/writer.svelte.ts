@@ -290,9 +290,10 @@ export class Writer {
 
   // --- drafts ----------------------------------------------------------------
   /** Manual compile — the preview bar's re-render button, only enabled
-   * while autocompile is off. */
+   * while autocompile is off and the required fields are filled (the
+   * checklist replaces the preview host before that). */
   async compileNow(): Promise<void> {
-    if (this.autocompile || !this.source) return;
+    if (this.autocompile || !this.ready || !this.source) return;
     await this.renderPreview(this.source, this.files);
   }
 

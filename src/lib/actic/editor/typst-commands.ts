@@ -94,12 +94,6 @@ export function insertTable(textarea: HTMLTextAreaElement | null) {
   insertText(textarea, "#table(\n  columns: 2,\n  [a], [b],\n  [c], [d],\n)");
 }
 
-/** Insert a horizontal line (`#line()`). */
-export function insertLine(textarea: HTMLTextAreaElement | null) {
-  if (textarea === null) return;
-  insertText(textarea, "\n#line(width: 100%)\n");
-}
-
 /** One indentation level (Typst nests lists with 2 spaces). */
 const INDENT = "  ";
 

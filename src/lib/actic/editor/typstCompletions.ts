@@ -43,9 +43,9 @@ const MARKERS = ["add", "remove"];
 
 /**
  * Completes the manual diff markers (`#add[` / `#remove[`), inserting the
- * brackets with the cursor between them. Only takes over from the keyword
- * source when the word could still become a marker — no keyword starts with
- * `a` or `r`, so nothing is shadowed.
+ * brackets with the cursor between them. Only offers anything while the word
+ * could still become a marker (`#a…`/`#r…`); keyword completions like
+ * `#return` still show alongside it for shared prefixes.
  */
 export function typstMarkerCompletion(
   context: CompletionContext,

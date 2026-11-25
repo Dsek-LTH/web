@@ -12,6 +12,7 @@
     downloading = false,
     dirty = false,
     canSave = false,
+    canDownload = true,
     error = "",
     rendered = false,
     showHost = true,
@@ -30,6 +31,8 @@
     dirty?: boolean;
     /** Extra save gate beside `dirty` (e.g. non-empty source). */
     canSave?: boolean;
+    /** Extra download gate (e.g. /write's required-fields check). */
+    canDownload?: boolean;
     /** Shown in a sticky box; also dims the preview and hides the empty note. */
     error?: string;
     rendered?: boolean;
@@ -102,7 +105,10 @@
         <ToolbarButton
           label={m.actic_download()}
           shortcut="Mod-Shift-S"
-          disabled={downloading}
+          // A failed compile means the PDF would be stale or broken — no
+          // download until it compiles (and /write also gates on required
+          // fields via `canDownload`).
+          disabled={downloading || !!error || !canDownload}
           onclick={ondownload}
         >
           {#if downloading}

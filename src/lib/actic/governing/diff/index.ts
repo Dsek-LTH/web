@@ -53,6 +53,18 @@ function getWorker(): Worker {
     if (error) entry.reject(new Error(error));
     else entry.resolve(result ?? "");
   });
+  // A worker whose script or WASM fails to load never answers anything —
+  // without these listeners every pending promise (init included) would hang
+  // forever and the diff page would spin silently. Fail everything and drop
+  // the worker so the next call builds a fresh one and can retry.
+  const fail = (event: Event) => {
+    worker = undefined;
+    const error = new Error(`typdiff worker failed: ${event.type}`);
+    for (const entry of pending.values()) entry.reject(error);
+    pending.clear();
+  };
+  worker.addEventListener("error", fail);
+  worker.addEventListener("messageerror", fail);
   return worker;
 }
 
