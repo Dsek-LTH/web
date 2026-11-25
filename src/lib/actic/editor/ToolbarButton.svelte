@@ -28,7 +28,8 @@
     /** CodeMirror-style "Mod-Shift-F"; rendered as kbd chips (⌘/⇧ on macOS). */
     shortcut?: string;
     disabled?: boolean;
-    /** Toolbar-toggle highlight (text-foreground), e.g. the wrap toggle. */
+    /** On-state; with `underline` it shows the bar, otherwise it's inert
+     * (the icons stay muted — state affordances live elsewhere). */
     active?: boolean;
     /** Set for toggles so assistive tech sees the state. */
     pressed?: boolean;
@@ -45,10 +46,14 @@
   {description}
   {shortcut}
   class={cn(
-    "relative h-full items-center",
+    // Keep the span at the button's own height so the tooltip anchors right
+    // next to the icon — and so the wrap toggle's tooltip doesn't float
+    // higher than its neighbours. The underline variant hangs below the
+    // button instead: (bar 44px − button 30px) / 2 = 7px to the bar edge.
+    "relative items-center",
     underline &&
       active &&
-      "after:bg-rosa-400 after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:content-['']",
+      "after:bg-rosa-400 after:absolute after:inset-x-1 after:-bottom-[7px] after:h-[2px] after:content-['']",
   )}
 >
   <button
@@ -59,7 +64,6 @@
     {onclick}
     class={cn(
       "text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50",
-      active && "text-foreground",
       cls,
     )}
   >

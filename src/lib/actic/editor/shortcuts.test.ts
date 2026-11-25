@@ -16,6 +16,17 @@ describe("documentShortcut", () => {
     ).toBe("download-pdf");
   });
 
+  it("maps Ctrl/Cmd+Enter to a manual compile", () => {
+    expect(documentShortcut(k({ ctrlKey: true, key: "Enter" }))).toBe(
+      "compile",
+    );
+    expect(documentShortcut(k({ metaKey: true, key: "Enter" }))).toBe(
+      "compile",
+    );
+    // Plain Enter must never compile (it's typing in the editor).
+    expect(documentShortcut(k({ key: "Enter" }))).toBeNull();
+  });
+
   it("ignores everything else", () => {
     // Shift alone must not save (it would clobber the download shortcut).
     expect(documentShortcut(k({ shiftKey: true, key: "s" }))).toBeNull();
@@ -36,6 +47,11 @@ describe("shortcutKeys", () => {
     ]);
     expect(symbols(shortcutKeys("Mod-S", true))).toEqual(["⌘", "S"]);
     expect(symbols(shortcutKeys("F", false))).toEqual(["F"]);
+    // Named keys keep their proper casing in the chip.
+    expect(symbols(shortcutKeys("Mod-Enter", false))).toEqual([
+      "Ctrl",
+      "Enter",
+    ]);
   });
 
   it("carries the DOM keys so the chips highlight as they're pressed", () => {

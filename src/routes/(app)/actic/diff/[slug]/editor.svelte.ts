@@ -44,6 +44,9 @@ export class DiffSession {
    * document. Forced off while manual diff markers are in the source, where
    * the source itself renders as the diff. */
   autodiff = $state(true);
+  /** Whether the preview compiles itself as the source changes. Off means
+   * the preview only updates via the manual compile button. */
+  autocompile = $state(true);
   previewHost = $state<HTMLElement | undefined>();
   scrollBox = $state<HTMLElement | undefined>();
   compiling = $state(false);
@@ -144,16 +147,19 @@ export class DiffSession {
     });
 
     // The compiler runs in a worker; the preview follows `activeSource` with
-    // exactly the `/write` instant-render behaviour.
+    // exactly the `/write` instant-render behaviour — unless the user turned
+    // autocompile off (empty source = the shared effect's no-op case).
     instantRenderEffect({
-      source: () => this.activeSource,
+      source: () => (this.autocompile ? this.activeSource : ""),
       render: (source) => this.renderPreview(source),
     });
 
-    // Ctrl/Cmd+S saves the draft, Ctrl/Cmd+Shift+S downloads the PDF.
+    // Ctrl/Cmd+S saves the draft, Ctrl/Cmd+Shift+S downloads the PDF,
+    // Ctrl/Cmd+Enter compiles manually (a no-op while autocompile is on).
     documentShortcutsEffect({
       save: () => this.saveDraftNow(),
       downloadPdf: () => void this.downloadPdf(),
+      compile: () => void this.compileNow(),
     });
 
     $effect(() => {
@@ -244,6 +250,13 @@ export class DiffSession {
     } finally {
       this.compiling = false;
     }
+  }
+
+  /** Manual compile — the preview bar's re-render button, only enabled
+   * while autocompile is off. */
+  async compileNow(): Promise<void> {
+    if (this.autocompile || !this.activeSource) return;
+    await this.renderPreview(this.activeSource);
   }
 
   saveDraftNow() {

@@ -37,11 +37,19 @@
       {#snippet child({ props })}
         <div
           class={cn(
+            // Measured in the real UI (Playwright, both short and long
+            // tooltips): Chrome's transform chain (individual translate →
+            // rotate 45° → the popper's inline translateY(±100%)) shifts the
+            // visual diamond a constant 7px off the popper-centered spot.
+            // `translate-x-[calc(50%+2px)]` (= +7px) re-centers it on the
+            // anchor — plain `translate-x-1/2` (+5px) leaves it 2px off.
             "bg-foreground fill-foreground z-50 size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-[2px]",
-            "data-[side=top]:translate-x-1/2 data-[side=top]:translate-y-[calc(-50%+2px)]",
-            "data-[side=bottom]:-translate-x-1/2 data-[side=bottom]:-translate-y-[calc(-50%+1px)]",
-            "data-[side=right]:translate-x-[calc(50%+2px)] data-[side=right]:translate-y-1/2",
-            "data-[side=left]:-translate-y-[calc(50%-3px)]",
+            "data-[side=top]:translate-x-[calc(50%+2px)] data-[side=top]:translate-y-[calc(-50%+2px)]",
+            // Bottom/left/right are unused in the app (side defaults to
+            // top); their compensation mirrors the top measurement.
+            "data-[side=bottom]:translate-x-[calc(50%+2px)] data-[side=bottom]:-translate-y-[calc(50%+1px)]",
+            "data-[side=right]:translate-y-[calc(50%+2px)]",
+            "data-[side=left]:-translate-y-[calc(50%+2px)]",
             arrowClasses,
           )}
           {...props}

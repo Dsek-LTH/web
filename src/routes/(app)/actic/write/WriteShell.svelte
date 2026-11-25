@@ -128,6 +128,8 @@
       error={writer.error}
       rendered={writer.rendered}
       showHost={writer.ready || writer.forked}
+      bind:autocompile={writer.autocompile}
+      oncompile={() => writer.compileNow()}
       onsave={() => writer.saveDraftNow()}
       ondownload={() => writer.download()}
     >

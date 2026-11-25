@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import { Download, Save } from "@lucide/svelte/icons";
+  import { Download, RefreshCw, Save, Zap } from "@lucide/svelte/icons";
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import * as m from "$paraglide/messages";
   import ToolbarButton from "./ToolbarButton.svelte";
@@ -13,9 +13,12 @@
     error = "",
     rendered = false,
     showHost = true,
+    autocompile = $bindable(true),
     onsave,
+    oncompile,
     ondownload,
     leading,
+    beforeToolbar,
     placeholder,
     scrollBox = $bindable<HTMLElement | undefined>(),
     previewHost = $bindable<HTMLElement | undefined>(),
@@ -30,10 +33,18 @@
     rendered?: boolean;
     /** Render the `.actic-preview` host; `false` swaps in `placeholder`. */
     showHost?: boolean;
+    /** Whether the preview compiles itself; the zap toggle and the manual
+     * compile button (greyed out while this is on) drive it. */
+    autocompile?: boolean;
     onsave: () => void;
+    /** Manual compile — only reachable while `autocompile` is off. */
+    oncompile: () => void;
     ondownload: () => void;
-    /** Toolbar-left content (e.g. an autodiff toggle or the panel title). */
+    /** Toolbar-left content (e.g. the panel title). */
     leading?: Snippet;
+    /** Page-specific buttons first in the right cluster (e.g. diff's
+     * autodiff toggle). */
+    beforeToolbar?: Snippet;
     /** Shown instead of the host while it doesn't exist (e.g. a checklist). */
     placeholder?: Snippet;
     scrollBox?: HTMLElement | undefined;
@@ -53,6 +64,24 @@
         {#if compiling}
           <Spinner class="text-muted-foreground h-4 w-4" />
         {/if}
+        {@render beforeToolbar?.()}
+        <ToolbarButton
+          label={m.actic_preview_autocompile()}
+          active={autocompile}
+          pressed={autocompile}
+          underline
+          onclick={() => (autocompile = !autocompile)}
+        >
+          <Zap class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.actic_preview_compile()}
+          shortcut="Mod-Enter"
+          disabled={autocompile}
+          onclick={oncompile}
+        >
+          <RefreshCw class="size-4" />
+        </ToolbarButton>
         <ToolbarButton
           label={m.actic_draft_save()}
           shortcut="Mod-S"

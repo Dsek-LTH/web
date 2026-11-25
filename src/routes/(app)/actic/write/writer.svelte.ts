@@ -94,6 +94,9 @@ export class Writer {
   previewHost = $state<HTMLElement | undefined>();
   scrollBox = $state<HTMLElement | undefined>();
   compiling = $state(false);
+  /** Whether the preview compiles itself as the form changes. Off means
+   * the preview only updates via the manual compile button. */
+  autocompile = $state(true);
   error = $state("");
   /** The last compile's diagnostics, for the source editor's squiggles. */
   diagnostics = $state<TypstDiagnostic[]>([]);
@@ -233,7 +236,9 @@ export class Writer {
   // (Run as an effect by the shell — see `runEffects`.)
   runEffects() {
     instantRenderEffect({
-      source: () => (this.ready ? this.source : ""),
+      // Empty source = the shared effect's no-op case; autocompile-off
+      // feeds it so the preview only moves on manual compiles.
+      source: () => (this.autocompile && this.ready ? this.source : ""),
       files: () => this.files,
       render: (source, files) => this.renderPreview(source, files),
     });
@@ -261,10 +266,12 @@ export class Writer {
       })();
     });
 
-    // Ctrl/Cmd+S saves the draft, Ctrl/Cmd+Shift+S downloads the PDF.
+    // Ctrl/Cmd+S saves the draft, Ctrl/Cmd+Shift+S downloads the PDF,
+    // Ctrl/Cmd+Enter compiles manually (a no-op while autocompile is on).
     documentShortcutsEffect({
       save: () => this.saveDraftNow(),
       downloadPdf: () => void this.download(),
+      compile: () => void this.compileNow(),
     });
 
     $effect(() => {
@@ -282,6 +289,13 @@ export class Writer {
   }
 
   // --- drafts ----------------------------------------------------------------
+  /** Manual compile — the preview bar's re-render button, only enabled
+   * while autocompile is off. */
+  async compileNow(): Promise<void> {
+    if (this.autocompile || !this.source) return;
+    await this.renderPreview(this.source, this.files);
+  }
+
   /** A serialized snapshot of every tracked field, for dirty tracking. */
   private formSignature(): string {
     return JSON.stringify([

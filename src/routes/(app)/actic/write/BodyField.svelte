@@ -21,7 +21,7 @@
   <Label for="body">{label}</Label>
   {#snippet documentSettings()}
     <Popover.Root>
-      <Hint label={m.actic_settings()} class="h-full">
+      <Hint label={m.actic_settings()}>
         <Popover.Trigger
           class="hover:bg-accent hover:text-foreground flex h-[30px] items-center gap-1 rounded-[13px] px-[7px] text-sm"
           aria-label={m.actic_settings()}

@@ -128,6 +128,28 @@ test("downloads skip the diff entirely when autodiff is off", async () => {
   expect(click).toHaveBeenCalled();
 });
 
+test("manual compile only runs when autocompile is off", () => {
+  const session = new DiffSession({
+    slug: "s",
+    title: "t",
+    upstreamSource: "= Old\n",
+    assets: [],
+    draft: null,
+  });
+  session.diffReady = true;
+  session.autodiff = false;
+  session.source = "= Edited\n";
+
+  // Autocompile is on by default: the preview compiles itself, and the
+  // manual compile button is a no-op (it renders greyed out in the bar).
+  void session.compileNow();
+  expect(session.compiling).toBe(false);
+
+  session.autocompile = false;
+  void session.compileNow();
+  expect(session.compiling).toBe(true); // render started synchronously
+});
+
 test("downloads wait for a diff of the newest source", async () => {
   let resolveDiff!: (s: string) => void;
   vi.mocked(buildDiff).mockImplementation(

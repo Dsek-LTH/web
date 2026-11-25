@@ -439,6 +439,7 @@
       shortcut="Mod-F"
       active={searchOpen}
       pressed={searchOpen}
+      underline
       onclick={toggleSearch}
     >
       <Search class="size-4" />

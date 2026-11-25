@@ -7,8 +7,10 @@
  */
 export function documentShortcut(
   e: Pick<KeyboardEvent, "ctrlKey" | "metaKey" | "shiftKey" | "key">,
-): "save" | "download-pdf" | null {
-  if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "s") return null;
+): "save" | "download-pdf" | "compile" | null {
+  if (!(e.ctrlKey || e.metaKey)) return null;
+  if (e.key === "Enter") return "compile";
+  if (e.key.toLowerCase() !== "s") return null;
   return e.shiftKey ? "download-pdf" : "save";
 }
 
@@ -16,6 +18,7 @@ export function documentShortcut(
 export function documentShortcutsEffect(options: {
   save: () => void;
   downloadPdf: () => void;
+  compile: () => void;
 }): void {
   $effect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -23,6 +26,7 @@ export function documentShortcutsEffect(options: {
       if (!shortcut) return;
       e.preventDefault();
       if (shortcut === "download-pdf") options.downloadPdf();
+      else if (shortcut === "compile") options.compile();
       else options.save();
     };
     window.addEventListener("keydown", onKey);
@@ -48,6 +52,7 @@ export function shortcutKeys(shortcut: string, isMac: boolean): ShortcutKey[] {
   return shortcut.split("-").map((part) => {
     if (part === "Mod") return mod;
     if (part === "Shift") return shift;
+    if (part === "Enter") return { symbol: "Enter", trigger: "Enter" };
     return { symbol: part.toUpperCase(), trigger: part.toUpperCase() };
   });
 }

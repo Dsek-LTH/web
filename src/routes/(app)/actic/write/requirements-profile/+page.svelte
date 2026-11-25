@@ -137,7 +137,7 @@
   </div>
   <MandateField bind:value={mandate} />
 
-  <BodyField {writer} label={m.actic_body_preamble()} />
+  <BodyField {writer} label={m.actic_field_position_desc()} />
 
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div class="flex flex-col gap-1.5">

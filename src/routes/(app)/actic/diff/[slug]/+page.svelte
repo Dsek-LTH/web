@@ -10,13 +10,12 @@
   import { beforeNavigate } from "$app/navigation";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import {
-    Check,
     FileCode,
     FileDiff,
+    Eye,
     Minus,
     Plus,
     RotateCcw,
-    X,
   } from "@lucide/svelte/icons";
   import { toggleWrapAround } from "$lib/actic/editor/codemirror-commands";
   import type { EditorView } from "@codemirror/view";
@@ -94,20 +93,28 @@
     {/if}
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {#snippet trailing(cmView: EditorView | undefined)}
-        {#if !session!.autodiff}
-          <ToolbarButton
-            label={m.actic_diff_marker_added()}
-            onclick={() => cmView && toggleWrapAround(cmView, "#add[", "]")}
-          >
-            <Plus class="size-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            label={m.actic_diff_marker_deleted()}
-            onclick={() => cmView && toggleWrapAround(cmView, "#remove[", "]")}
-          >
-            <Minus class="size-4" />
-          </ToolbarButton>
-        {/if}
+        <!-- Marker buttons stay visible in autodiff mode but greyed out:
+             markers belong to manual diffing (they'd disable autodiff). -->
+        <ToolbarButton
+          label={m.actic_diff_marker_added()}
+          description={session!.autodiff
+            ? m.actic_diff_marker_disabled()
+            : undefined}
+          disabled={session!.autodiff}
+          onclick={() => cmView && toggleWrapAround(cmView, "#add[", "]")}
+        >
+          <Plus class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.actic_diff_marker_deleted()}
+          description={session!.autodiff
+            ? m.actic_diff_marker_disabled()
+            : undefined}
+          disabled={session!.autodiff}
+          onclick={() => cmView && toggleWrapAround(cmView, "#remove[", "]")}
+        >
+          <Minus class="size-4" />
+        </ToolbarButton>
         <ToolbarButton
           label={m.actic_diff_reset()}
           disabled={!session!.canReset}
@@ -154,27 +161,37 @@
           .filter(Boolean)
           .join("\n\n")}
         rendered={session.rendered}
+        bind:autocompile={session.autocompile}
+        oncompile={() => session!.compileNow()}
         onsave={() => session!.saveDraftNow()}
         ondownload={() => session!.downloadPdf()}
       >
         {#snippet leading()}
+          <!-- Text-only, styled like /write's preview title; the mode is also
+               shown by the diff/eye toggle at the right of the bar. -->
+          <div class="min-w-0 flex-1">
+            <span class="text-foreground truncate pl-[7px] text-sm font-medium">
+              {session!.autodiff
+                ? m.actic_diff_mode()
+                : m.actic_preview_title()}
+            </span>
+          </div>
+        {/snippet}
+        {#snippet beforeToolbar()}
           <ToolbarButton
             label={m.actic_diff_autodiff()}
             description={session!.canAutodiff
-              ? m.actic_diff_autodiff_description()
+              ? undefined
               : m.actic_diff_autodiff_disabled()}
             disabled={!session!.canAutodiff}
-            active={session!.autodiff}
             pressed={session!.autodiff}
-            class="flex h-[30px] items-center gap-1.5 rounded-[13px] px-[7px] text-sm"
             onclick={() => (session!.autodiff = !session!.autodiff)}
           >
             {#if session!.autodiff}
-              <Check class="size-4" />
+              <FileDiff class="size-4" />
             {:else}
-              <X class="size-4" />
+              <Eye class="size-4" />
             {/if}
-            {m.actic_diff_autodiff()}
           </ToolbarButton>
         {/snippet}
       </PreviewPanel>

@@ -11,7 +11,6 @@
   import Code from "@lucide/svelte/icons/code";
   import SquareCode from "@lucide/svelte/icons/square-code";
   import Table from "@lucide/svelte/icons/table";
-  import Minus from "@lucide/svelte/icons/minus";
   import FileText from "@lucide/svelte/icons/file-text";
   import * as m from "$paraglide/messages";
   import type { WithoutChildren, WithElementRef } from "bits-ui";
@@ -21,12 +20,12 @@
     cycleHeading,
     dedent,
     indent,
-    insertLine,
     insertLink,
     insertTable,
     isWrapped,
     lineHasHeading,
     lineHasPrefix,
+    listContinuation,
     toggleBold,
     toggleBullet,
     toggleCodeBlock,
@@ -35,6 +34,7 @@
     toggleNumbered,
     toggleStrike,
   } from "./typst-commands";
+  import { insertText } from "$lib/components/textareacommands";
   import ToolbarButton from "./ToolbarButton.svelte";
 
   let {
@@ -84,6 +84,29 @@
     if (event.key === "Tab") {
       event.preventDefault();
       run(event.shiftKey ? dedent : indent);
+      return;
+    }
+    // Continue `-`/`+` list items on Enter (plain, unmodified Enter only —
+    // term lists never continue; see `listContinuation`).
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !(event.ctrlKey || event.metaKey) &&
+      !event.altKey &&
+      textarea
+    ) {
+      const lineStart =
+        textarea.value.lastIndexOf("\n", textarea.selectionStart - 1) + 1;
+      const marker = listContinuation(
+        textarea.value.slice(lineStart, textarea.selectionStart),
+      );
+      if (marker) {
+        event.preventDefault();
+        insertText(textarea, marker);
+        refresh();
+        return;
+      }
+      // Plain newline; fall through to the textarea's default behaviour.
       return;
     }
     if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
@@ -189,9 +212,6 @@
     <ToolbarButton label={m.editor_table()} onclick={() => run(insertTable)}>
       <Table class="size-4" />
     </ToolbarButton>
-    <ToolbarButton label={m.actic_tool_line()} onclick={() => run(insertLine)}>
-      <Minus class="size-4" />
-    </ToolbarButton>
 
     {#if trailing}
       <div class="ml-auto">{@render trailing()}</div>
@@ -199,7 +219,7 @@
   </div>
 
   <Textarea
-    class="{FIELD_BG} focus-visible:border-border min-h-[16rem] resize-y rounded-none border-0 text-sm focus-visible:ring-0"
+    class="{FIELD_BG} focus-visible:border-border min-h-[24rem] resize-y rounded-none border-0 text-sm focus-visible:ring-0"
     {placeholder}
     bind:value
     bind:ref={textarea}
