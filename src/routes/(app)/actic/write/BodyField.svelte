@@ -6,15 +6,30 @@
   import Hint from "$lib/actic/editor/Hint.svelte";
   import Settings from "@lucide/svelte/icons/settings";
   import * as m from "$paraglide/messages";
+  import { bodyGhosts, randomGhost } from "$lib/actic/write/ghost-texts.svelte";
   import { todayIso, type Writer } from "./writer.svelte";
 
   let {
     writer,
     label = m.actic_field_body(),
+    compact = false,
   }: {
     writer: Writer;
     label?: string;
+    /** Half the default body height, so following boxes fit on screen. */
+    compact?: boolean;
   } = $props();
+
+  // The body's ghost text varies per visit; the language setting picks the
+  // pool (and re-rolls it). The family is read as a STRING derived — the
+  // input object itself is rebuilt on every keystroke, and depending on it
+  // would re-roll the ghost while the user types.
+  const family = $derived(writer.input.family);
+  // eslint-disable-next-line svelte/prefer-writable-derived -- random ghost is client-only; $derived would also run during SSR
+  let bodyGhost = $state<string>();
+  $effect(() => {
+    bodyGhost = randomGhost(bodyGhosts(family, writer.lang));
+  });
 </script>
 
 <div class="flex flex-col gap-1.5">
@@ -91,6 +106,7 @@
     id="body"
     bind:value={writer.body}
     trailing={documentSettings}
-    placeholder={m.actic_body_placeholder()}
+    placeholder={bodyGhost ?? m.actic_body_placeholder()}
+    {compact}
   />
 </div>

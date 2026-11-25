@@ -9,6 +9,11 @@
     type DocumentInput,
   } from "$lib/actic/documents/dsek";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
+  import {
+    clauseGhosts,
+    randomGhost,
+    titleGhosts,
+  } from "$lib/actic/write/ghost-texts.svelte";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";
@@ -40,6 +45,15 @@
     buildFamilyDraft: () => ({ title, meeting }),
   });
 
+  // Ghost texts: the title varies per visit; the att-sats rows are dealt a
+  // shuffled pool, each example used once before any repeats.
+  let titleGhost = $state<string>();
+  $effect(() => {
+    void deliberationType;
+    titleGhost = randomGhost(titleGhosts("deliberation", writer.lang));
+  });
+  const clausePool = $derived(clauseGhosts("deliberation", writer.lang));
+
   // The landing page's "create" cards stash the chosen deliberation type in
   // sessionStorage (the family is in the route); read it once on the client.
   $effect(() => {
@@ -65,10 +79,8 @@
         id="title"
         class={FIELD_BG}
         bind:value={title}
-        placeholder={m.actic_field_title_placeholder(
-          {},
-          { locale: writer.lang },
-        )}
+        placeholder={titleGhost ??
+          m.actic_field_title_placeholder({}, { locale: writer.lang })}
         aria-invalid={writer.touched.title && !title.trim()}
         onblur={() => (writer.touched.title = true)}
       />
@@ -115,6 +127,7 @@
     bind:leadIn={writer.leadIn}
     bind:items={writer.yrkanden}
     lang={writer.lang}
+    {clausePool}
   />
 
   <AuthorsField

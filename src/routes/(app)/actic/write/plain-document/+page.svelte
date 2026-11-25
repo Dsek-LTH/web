@@ -3,6 +3,11 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import type { DocumentInput } from "$lib/actic/documents/dsek";
+  import {
+    docTypeGhosts,
+    randomGhost,
+    titleGhosts,
+  } from "$lib/actic/write/ghost-texts.svelte";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";
@@ -30,6 +35,14 @@
     },
     buildFamilyDraft: () => ({ title, meeting, docType, useCoverPage }),
   });
+
+  // Ghost texts, re-rolled per visit (and when the language flips).
+  let titleGhost = $state<string>();
+  let docTypeGhost = $state<string>();
+  $effect(() => {
+    titleGhost = randomGhost(titleGhosts("plain-document", writer.lang));
+    docTypeGhost = randomGhost(docTypeGhosts("plain-document", writer.lang));
+  });
 </script>
 
 <WriteShell {writer}>
@@ -43,10 +56,8 @@
         id="title"
         class={FIELD_BG}
         bind:value={title}
-        placeholder={m.actic_field_title_placeholder(
-          {},
-          { locale: writer.lang },
-        )}
+        placeholder={titleGhost ??
+          m.actic_field_title_placeholder({}, { locale: writer.lang })}
         aria-invalid={writer.touched.title && !title.trim()}
         onblur={() => (writer.touched.title = true)}
       />
@@ -68,7 +79,7 @@
       id="doc-type"
       class={FIELD_BG}
       bind:value={docType}
-      placeholder={m.actic_field_docType_placeholder()}
+      placeholder={docTypeGhost ?? m.actic_field_docType_placeholder_1()}
     />
   </div>
 

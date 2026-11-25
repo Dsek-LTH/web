@@ -22,7 +22,14 @@
     /** Detached items are neither draggable nor drop targets. */
     disabled?: boolean;
     children?: Snippet<
-      [{ handle: (node: HTMLElement) => () => void; isDragging: boolean }]
+      [
+        {
+          handle: (node: HTMLElement) => () => void;
+          isDragging: boolean;
+          /** True through the drop animation — the row hasn't landed yet. */
+          isDropping: boolean;
+        },
+      ]
     >;
   } = $props();
 
@@ -56,5 +63,6 @@
   {@render children?.({
     handle: sortable.attachHandle,
     isDragging: sortable.isDragging,
+    isDropping: sortable.isDropping,
   })}
 </div>

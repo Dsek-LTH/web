@@ -6,6 +6,7 @@
   import ResolutionsField from "$lib/actic/fields/ResolutionsField.svelte";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { keyedLabel, type CandidateRow } from "$lib/actic/documents/fields";
+  import { clauseGhosts } from "$lib/actic/write/ghost-texts.svelte";
   import type { DocumentInput } from "$lib/actic/documents/dsek";
   import * as m from "$paraglide/messages";
   import WriteShell from "../WriteShell.svelte";
@@ -113,15 +114,21 @@
       >{m.actic_field_candidates()}
       <span class="text-destructive">*</span></Label
     >
-    <CandidatesBuilder bind:candidates bind:statsEnabled />
+    <CandidatesBuilder
+      bind:candidates
+      bind:statsEnabled
+      positionTouched={writer.touched.position}
+      onPositionBlur={() => (writer.touched.position = true)}
+    />
   </div>
 
-  <BodyField {writer} />
+  <BodyField {writer} label={m.actic_nom_motivation()} compact />
 
   <ResolutionsField
     bind:leadIn={writer.leadIn}
     bind:items={writer.yrkanden}
     lang={writer.lang}
+    clausePool={clauseGhosts("nomination", writer.lang)}
   />
 
   <AuthorsField

@@ -7,6 +7,7 @@
   import { attachAction } from "./attachAction";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { nextId, type YrkandeRow } from "$lib/actic/documents/fields";
+  import { ghostDealer } from "$lib/actic/write/ghost-texts.svelte";
   import * as m from "$paraglide/messages";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
@@ -17,12 +18,38 @@
     leadIn = $bindable(""),
     items = $bindable([] as YrkandeRow[]),
     lang = "sv",
+    clausePool,
   }: {
     leadIn?: string;
     items?: YrkandeRow[];
     /** The document language, which the resolution wording follows. */
     lang?: "sv" | "en";
+    /**
+     * Ghost texts the att-sats rows rotate among — dealt per row in a
+     * shuffled order, each pool string used once before any repeats, and a
+     * row keeps its ghost while it lives. Defaults to the shared single
+     * example.
+     */
+    clausePool?: string[];
   } = $props();
+
+  const fallbackClausePool = $derived([
+    m.actic_yrkanden_clause_placeholder({}, { locale: lang }),
+  ]);
+  const activeClausePool = $derived(clausePool ?? fallbackClausePool);
+  // A fresh dealer per pool CONTENT (not identity — the parent re-renders
+  // hand us new arrays with the same strings, and re-dealing would reshuffle
+  // every visible placeholder on every keystroke).
+  let dealerForPoolKey: string | null = null;
+  let dealer: ((rowId: string) => string) | undefined;
+  const dealClauseGhost = $derived.by(() => {
+    const key = activeClausePool.join("\u0000");
+    if (key !== dealerForPoolKey) {
+      dealerForPoolKey = key;
+      dealer = ghostDealer(activeClausePool);
+    }
+    return dealer!;
+  });
 
   /** Which rows show their description box. Closed by default. */
   let expanded = $state<Record<string, boolean>>({});
@@ -83,22 +110,28 @@
     canDrag={(id) => !!items.find((r) => r.id === id)?.clause.trim()}
     onreorder={reorder}
   >
-    {#snippet children({ handle, isDragging, index: i, helpers })}
+    {#snippet children({ handle, isDragging, isDropping, index: i, helpers })}
       {@const row = items[i]!}
       {@const open =
         !!row.clause.trim() && (expanded[row.id] ?? !!row.description.trim())}
       <div
         class={`flex flex-col ${
-          isDragging
+          // Keep the raised look through the drop animation — the row
+          // shouldn't morph into its plain form until it lands.
+          isDragging || isDropping
             ? `${FIELD_BG} border-border rounded-md border shadow-md`
             : `border-border ${i > 0 ? "border-t" : ""}`
         }`}
       >
         <div class="flex items-stretch gap-1 pl-1">
+          <!-- The textarea's first line centers 20px from the top below md
+               (text-base, 24px line-height) and 18px at md+ (text-sm, 20px
+               line-height) — the handle and "att" chip must follow the same
+               two-step alignment or they drift 2px off on one side. -->
           {#if row.clause.trim()}
             <span
               use:attachAction={handle}
-              class="text-muted-foreground flex h-9 cursor-grab items-center gap-1 self-start"
+              class="text-muted-foreground flex h-9 cursor-grab items-start gap-1 self-start pt-3 md:items-center md:pt-0"
               role="button"
               tabindex="0"
               aria-label={m.actic_author_drag()}
@@ -109,7 +142,7 @@
           {:else}
             <!-- The free row: the grab indicator is disabled with it. -->
             <span
-              class="text-muted-foreground flex h-9 items-center gap-1 self-start opacity-30"
+              class="text-muted-foreground flex h-9 items-start gap-1 self-start pt-3 opacity-30 md:items-center md:pt-0"
               aria-hidden="true"
             >
               <GripVertical class="h-4 w-4" />
@@ -117,7 +150,7 @@
             </span>
           {/if}
           <span
-            class="text-muted-foreground flex h-9 items-start self-start pt-2 text-sm leading-6 font-bold"
+            class="text-muted-foreground flex h-9 items-start self-start pt-2 text-base leading-6 font-bold md:items-center md:pt-0 md:text-sm md:leading-5"
             >{m.actic_yrkanden_att({}, { locale: lang })}</span
           >
           <div
@@ -126,10 +159,7 @@
           >
             <Textarea
               bind:value={row.clause}
-              placeholder={m.actic_yrkanden_clause_placeholder(
-                {},
-                { locale: lang },
-              )}
+              placeholder={dealClauseGhost(row.id)}
               class="min-h-9 resize-none border-0 bg-transparent py-2 pr-3 pl-0.5 shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
               oninput={helpers.oninput}
               onblur={helpers.onblur}

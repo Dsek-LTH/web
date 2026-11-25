@@ -52,6 +52,8 @@
         {
           handle: (node: HTMLElement) => () => void;
           isDragging: boolean;
+          /** True through the drop animation — the row hasn't landed yet. */
+          isDropping: boolean;
           index: number;
           helpers: RowHelpers;
         },
@@ -178,10 +180,11 @@
         accept={type}
         disabled={canDrag ? !canDrag(id) : false}
       >
-        {#snippet children({ handle, isDragging })}
+        {#snippet children({ handle, isDragging, isDropping })}
           {@render renderRow({
             handle,
             isDragging,
+            isDropping,
             index: i,
             helpers: {
               trackInput,

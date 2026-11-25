@@ -41,11 +41,15 @@
     value = $bindable(""),
     placeholder = "",
     trailing,
+    compact = false,
     ...restProps
   }: {
     value?: string;
     placeholder?: string;
     trailing?: Snippet;
+    /** Half the default min-height — for pages where other boxes should be
+     * visible without scrolling (requirements profile). */
+    compact?: boolean;
   } & WithoutChildren<WithElementRef<HTMLTextareaAttributes>> = $props();
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -219,7 +223,9 @@
   </div>
 
   <Textarea
-    class="{FIELD_BG} focus-visible:border-border min-h-[24rem] resize-y rounded-none border-0 text-sm focus-visible:ring-0"
+    class="{FIELD_BG} focus-visible:border-border {compact
+      ? 'min-h-[12rem]'
+      : 'min-h-[24rem]'} resize-y rounded-none border-0 text-sm focus-visible:ring-0"
     {placeholder}
     bind:value
     bind:ref={textarea}

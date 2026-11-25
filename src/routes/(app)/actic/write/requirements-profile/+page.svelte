@@ -15,6 +15,10 @@
     MandateValue,
   } from "$lib/actic/documents/dsek";
   import * as m from "$paraglide/messages";
+  import {
+    contentKeyedDealer,
+    reqsMeritsGhosts,
+  } from "$lib/actic/write/ghost-texts.svelte";
   import WriteShell from "../WriteShell.svelte";
   import BodyField from "../BodyField.svelte";
   import GripVertical from "@lucide/svelte/icons/grip-vertical";
@@ -28,11 +32,23 @@
 
   let position = $state<KeyedValue | undefined>(undefined);
   let requirements = $state<TextRow[]>([{ id: nextRowId(), value: "" }]);
+  /** The red required highlight waits for the user to touch the field. */
+  let requirementsTouched = $state(false);
   let merits = $state<TextRow[]>([{ id: nextRowId(), value: "" }]);
   let mandate = $state<MandateValue>({
     mode: "year",
     year: new Date().getFullYear(),
   });
+
+  // Krav and Meriterande each deal their row placeholders from their own
+  // deck of the same pool — each row gets the next shuffled ticket, repeats
+  // only when that box's deck is spent.
+  const dealRequirementGhost = contentKeyedDealer(() =>
+    reqsMeritsGhosts(writer.lang),
+  );
+  const dealMeritGhost = contentKeyedDealer(() =>
+    reqsMeritsGhosts(writer.lang),
+  );
 
   const writer = new Writer({
     getInput: (w): DocumentInput => ({
@@ -132,16 +148,22 @@
         id="position"
         bind:position
         placeholder={m.actic_author_position_placeholder()}
+        invalid={writer.touched.position && !position}
+        onblur={() => (writer.touched.position = true)}
       />
     </div>
   </div>
   <MandateField bind:value={mandate} />
 
-  <BodyField {writer} label={m.actic_field_position_desc()} />
+  <BodyField {writer} label={m.actic_field_position_desc()} compact />
 
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div class="flex flex-col gap-1.5">
-      <Label>{m.actic_field_requirements()}</Label>
+      <!-- Required: star always, and the box goes red while it's empty. -->
+      <Label
+        >{m.actic_field_requirements()}
+        <span class="text-destructive">*</span></Label
+      >
       <RowsBox
         ids={requirements.map((r) => r.id)}
         group="requirements"
@@ -151,6 +173,9 @@
         removeRow={requirementOps.removeRow}
         canDrag={(id) => !!requirements.find((r) => r.id === id)?.value.trim()}
         onreorder={requirementOps.reorder}
+        class={requirements.some((r) => r.value.trim()) || !requirementsTouched
+          ? ""
+          : "border-destructive ring-destructive/20 bg-destructive/10!"}
       >
         {#snippet children({ handle, isDragging, index: i, helpers })}
           {@const row = requirements[i]!}
@@ -186,10 +211,13 @@
             >
               <Input
                 bind:value={row.value}
-                placeholder={m.actic_requirements_placeholder()}
+                placeholder={dealRequirementGhost(row.id)}
                 class="rounded-none border-0 bg-transparent px-3 py-1 shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
                 oninput={helpers.oninput}
-                onblur={helpers.onblur}
+                onblur={() => {
+                  requirementsTouched = true;
+                  helpers.onblur();
+                }}
                 onkeydown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -266,7 +294,7 @@
             >
               <Input
                 bind:value={row.value}
-                placeholder={m.actic_merits_placeholder()}
+                placeholder={dealMeritGhost(row.id)}
                 class="rounded-none border-0 bg-transparent px-3 py-1 shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
                 oninput={helpers.oninput}
                 onblur={helpers.onblur}
