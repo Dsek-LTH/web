@@ -39,7 +39,7 @@
       <YearSelector />
       {#if canCreate}
         <Button
-          href="/documents/upload?type=requirement"
+          href="/documents/upload?type=requirement&year={data.year}"
           variant="rosa"
           size="sm"
         >
