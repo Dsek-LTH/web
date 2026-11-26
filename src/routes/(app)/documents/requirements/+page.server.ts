@@ -1,6 +1,10 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { fileHandler } from "$lib/files";
 import type { FileData } from "$lib/files/fileHandler";
+import {
+  getRequirementProfileFiles,
+  getRequirementProfileFolder,
+} from "../requirementProfiles.server";
 import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -20,23 +24,11 @@ export type FolderType = {
 export const load: PageServerLoad = async ({ locals, url }) => {
   const { user } = locals;
   const year = getYearOrThrowSvelteError(url);
-  const files = await fileHandler
-    .getInBucket(
-      user,
-      PUBLIC_BUCKETS_FILES,
-      "public/kravprofiler/" + year,
-      true,
-    )
-    .catch((err) => {
-      console.error("Error fetching files", err);
-      return [];
-    });
+  const files = await getRequirementProfileFiles(user, year);
   const filesGroupedByFolder = files.reduce<Record<string, FileData[]>>(
     (acc, file) => {
-      const fileParts = file.id.split("/");
-      const folder = //get the folder structure starting 2 "steps" in, we don't want the requirements/[year] part of the filepath
-        fileParts.slice(2, fileParts.length - 1).join("/") ??
-        m.documents_unknown();
+      const folder =
+        getRequirementProfileFolder(file.id) ?? m.documents_unknown();
       if (!acc[folder]) acc[folder] = [];
       acc[folder]?.push(file);
       return acc;
@@ -46,6 +38,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   return {
     files,
     folders: filesGroupedByFolder,
+    year,
     deleteForm: await superValidate(zod4(deleteFileSchema)),
   };
 };
