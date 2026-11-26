@@ -18,7 +18,7 @@ import { getLocale } from "$paraglide/runtime";
  * GET /api/search?query=oddput clementin&indexes=["members", "articles"]
  * This will search for "oddput clementin" in the "members" and "articles" indexes.
  */
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, locals }) => {
   const query = url.searchParams.get("query");
   if (!query) {
     return new Response("Missing query", { status: 400 });
@@ -44,6 +44,25 @@ export const GET: RequestHandler = async ({ url }) => {
       );
     }
   }
+
+  // The "members" index holds member data (names, nickname, student ID, class,
+  // photo) that the database access policies only expose to logged-in members.
+  // Meilisearch is queried directly here, bypassing those policies, so without
+  // this check an anonymous caller could read the whole member directory.
+  const isLoggedInMember = locals.user.memberId != null;
+  const permittedIndexes = isLoggedInMember
+    ? indexes
+    : indexes.filter((index) => index !== "members");
+
+  // Anonymous caller asked only for member data, so there is nothing to return.
+  if (permittedIndexes.length === 0) {
+    return new Response(JSON.stringify([] satisfies SearchDataWithType[]), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
   let limit = Number.parseInt(url.searchParams.get("limit") ?? "20");
   if (limit === -1) {
     limit = 20;
@@ -54,7 +73,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
   const response: SearchDataWithType[] = await getMeilisearch()
     .multiSearch({
-      queries: indexes.map((index) => ({
+      queries: permittedIndexes.map((index) => ({
         indexUid: index,
         q: query,
         attributesToSearchOn: getSearchableAttributes(index, language),
@@ -90,6 +109,15 @@ export const GET: RequestHandler = async ({ url }) => {
             typeof hit[key] === "string"
           ) {
             hit[key] = hit[key].slice(0, 60);
+          }
+        }
+
+        // The "articles" index embeds the author, whose nickname is member-only
+        // data (same as the members index above). Strip it for anonymous callers.
+        if (!isLoggedInMember) {
+          const author = hit["author"];
+          if (author && typeof author === "object") {
+            delete (author as Record<string, unknown>)["nickname"];
           }
         }
 
