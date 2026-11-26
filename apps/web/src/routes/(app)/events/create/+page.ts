@@ -1,0 +1,36 @@
+import { api } from "$lib/api/client";
+import { getEventCommitteeOptions } from "$lib/events/committees";
+import { actionType, eventSchema } from "$lib/events/schema";
+import { error } from "@sveltejs/kit";
+import { zod4 } from "sveltekit-superforms/adapters";
+import { superValidate } from "sveltekit-superforms/server";
+import { z } from "zod";
+import type { PageLoad } from "./$types";
+import { requirePolicy } from "$lib/utils/access";
+import apiNames from "$lib/utils/apiNames";
+
+export const load: PageLoad = async ({ fetch, parent }) => {
+  const { user } = await parent();
+  requirePolicy(user, apiNames.EVENT.CREATE);
+
+  const [tagsRes, committees] = await Promise.all([
+    api.GET("/tags", { fetch }),
+    getEventCommitteeOptions(fetch),
+  ]);
+  if (tagsRes.error)
+    error(
+      tagsRes.response.status,
+      tagsRes.error.detail ?? "Failed to load tags",
+    );
+
+  return {
+    allTags: tagsRes.data ?? [],
+    committees,
+    // Same schema as the edit page: EventForm always reads/writes
+    // editType, even though creating never asks for it.
+    form: await superValidate(
+      { editType: "THIS" as const },
+      zod4(eventSchema.and(z.object({ editType: actionType }))),
+    ),
+  };
+};

@@ -1,0 +1,1 @@
+DROP INDEX notifications_member_id_created_at_index;

@@ -1,0 +1,177 @@
+<script lang="ts">
+  import { cn } from "$lib/utils";
+  import TagChip from "./TagChip.svelte";
+  import { Input } from "./ui/input";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+  import Tags from "@lucide/svelte/icons/tags";
+  import type { Props as InputProps } from "$lib/components/ui/input/input.svelte";
+  import CircleAlert from "@lucide/svelte/icons/circle-alert";
+
+  // Matches the Go API's Tag shape (id/name/color, resolved name rather
+  // than nameSv/nameEn).
+  type TagLike = { id: string; name: string; color?: string };
+
+  let {
+    onChange = () => (searchValue = ""),
+    name = undefined,
+    allTags = [],
+    selectedTags = $bindable([]),
+    ...restProps
+  }: {
+    onChange?: () => void;
+    name?: string | undefined;
+    allTags?: TagLike[];
+    selectedTags?: Array<Pick<TagLike, "id"> & Partial<Omit<TagLike, "id">>>;
+  } & InputProps = $props();
+
+  const internalOnChange: () => void = () => {
+    onChange();
+    searchValue = "";
+    focusInput();
+  };
+
+  const focusInput: () => void = () => {
+    if (inputRef) {
+      setTimeout(() => {
+        inputRef?.focus();
+      }, 100);
+    }
+  };
+
+  let searchValue = $state("");
+  let filteredTags = $derived(
+    allTags.filter(
+      (tag) =>
+        tag.name.toLowerCase().includes(searchValue.toLowerCase()) &&
+        !selectedTags.map((tag) => tag.id).includes(tag.id),
+    ),
+  );
+
+  let inputRef: HTMLInputElement | null = $state(null);
+  let dropdownOpen = $state(false);
+</script>
+
+<div class="flex flex-col gap-1">
+  <DropdownMenu.Root onOpenChangeComplete={focusInput} bind:open={dropdownOpen}>
+    <div class="relative flex w-full flex-row">
+      <DropdownMenu.Trigger class="w-full">
+        <div
+          class={cn(
+            "flex overflow-x-auto overflow-y-hidden",
+            "selection:bg-primary dark:bg-input/30 selection:text-primary-foreground placeholder:text-muted-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent text-sm font-medium shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+            "aria-invalid:border-destructive dark:aria-invalid:bg-destructive/10 aria-invalid:bg-destructive/10 aria-invalid:text-destructive aria-invalid:border-[1px]",
+          )}
+          tabindex={0}
+          role="combobox"
+          aria-controls="tags-panel"
+          aria-expanded="false"
+          aria-invalid={!!restProps["aria-invalid"]}
+        >
+          <div class="flex w-full flex-row items-center gap-1">
+            <Tags class="text-muted-foreground ml-3 size-4 shrink-0" />
+            {#if selectedTags.length > 0}
+              {#each selectedTags as tag (tag.id)}
+                {@const originalTag = allTags.find((t) => t.id === tag.id)}
+                <button
+                  type="button"
+                  onclick={() => {
+                    selectedTags = selectedTags.filter((o) => o !== tag);
+                    internalOnChange();
+                  }}
+                >
+                  <TagChip
+                    tag={originalTag}
+                    class="after:ml-2 after:content-['x'] first:ml-2"
+                  />
+                </button>
+              {/each}
+            {/if}
+
+            <Input
+              {name}
+              id={name ?? "autocomplete"}
+              autocomplete="off"
+              autocapitalize="off"
+              class="w-full border-0 bg-transparent py-0 focus-visible:ring-0"
+              bind:value={searchValue}
+              bind:ref={inputRef}
+              onkeydown={(e) => {
+                if (
+                  dropdownOpen &&
+                  e.key == "Enter" &&
+                  filteredTags.length > 0
+                ) {
+                  selectedTags = [...selectedTags, filteredTags[0]!];
+                  internalOnChange();
+                } else if (searchValue == "" && e.key == "Backspace") {
+                  selectedTags = selectedTags.slice(0, -1);
+                  internalOnChange();
+                }
+              }}
+              onclick={() => {
+                if (inputRef) inputRef.focus();
+              }}
+            />
+          </div>
+        </div>
+      </DropdownMenu.Trigger>
+      {#if selectedTags.length > 0}
+        <button
+          type="button"
+          class="btn btn-xs hover:text-muted-foreground absolute top-[20%] right-2 z-45 transition-all"
+          onclick={() => {
+            selectedTags = [];
+            internalOnChange();
+          }}>Clear</button
+        >
+      {/if}
+    </div>
+    <DropdownMenu.Content
+      side="bottom"
+      align="start"
+      onOpenAutoFocus={(e) => {
+        e.preventDefault();
+        focusInput();
+      }}
+      avoidCollisions={false}
+    >
+      <ul
+        class="z-10 ml-0 flex w-full flex-col flex-nowrap rounded-md pr-6 lg:max-w-[24rem]"
+        id="tags-panel"
+      >
+        {#each filteredTags as tag (tag.id)}
+          <li>
+            <button
+              type="button"
+              class="m-2 {selectedTags.includes(tag)
+                ? 'bg-primary hover:bg-primary-content hover:text-primary'
+                : ''}"
+              onclick={() => {
+                if (selectedTags.includes(tag)) {
+                  selectedTags = selectedTags.filter((o) => o.id !== tag.id);
+                } else {
+                  selectedTags = [...selectedTags, tag];
+                }
+                internalOnChange();
+              }}
+            >
+              <TagChip {tag} />
+            </button>
+          </li>
+        {/each}
+        {#if filteredTags.length === 0}
+          <li class="border-b-base-content/10 w-full border-b">
+            <button type="button" disabled class="disabled">No tags</button>
+          </li>
+        {/if}
+      </ul>
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
+  {#if restProps["aria-errormessage"]}
+    <p class="text-rosa-500 mt-1 text-xs font-semibold">
+      <CircleAlert class="mb-[2px] inline h-[1rem] w-[1rem]" />
+      {restProps["aria-errormessage"]}
+    </p>
+  {/if}
+</div>

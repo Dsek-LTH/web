@@ -1,0 +1,12 @@
+engineStrict: true
+resolutionMode: highest
+
+patchedDependencies:
+  devalue@5.8.1: patches/devalue@5.8.1.patch
+
+# Dependency install scripts are denied by default. The Docker build already
+# runs with --ignore-scripts.
+allowBuilds:
+  "@tailwindcss/oxide": false
+  esbuild: false
+  protobufjs: false

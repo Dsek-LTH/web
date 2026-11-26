@@ -1,0 +1,26 @@
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+.env.sentry-build-plugin
+
+# Dependencies and generated output
+node_modules
+.svelte-kit
+build
+package
+
+# Local tooling
+.idea
+
+# Test artifacts and test sources are not needed for production builds
+coverage
+test-results
+playwright-report
+blob-report
+playwright/.cache
+**/*.test.ts
+**/*.spec.ts
+
+# Local-development scripts
+dev

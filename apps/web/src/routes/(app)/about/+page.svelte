@@ -1,0 +1,140 @@
+<script lang="ts">
+  import CommitteeIcon from "$lib/components/images/CommitteeIcon.svelte";
+  import CommitteePlaceholder from "$lib/components/images/CommitteePlaceholder.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import * as m from "$paraglide/messages";
+  import { Button } from "$lib/components/ui/button";
+  import { ArrowRight } from "@lucide/svelte";
+  import { breakName } from "$lib/utils/committee";
+  import type { components } from "$lib/api/schema";
+
+  type Committee = components["schemas"]["Committee"];
+  import { getFileUrl } from "$lib/files/client";
+  import { mode } from "mode-watcher";
+  import { SvelteSet } from "svelte/reactivity";
+
+  let { data } = $props();
+
+  const failedPreviews = new SvelteSet<string>();
+  function failPreview(url: string | null) {
+    if (url) failedPreviews.add(url);
+  }
+  function hasPreview(url: string | null | undefined) {
+    return !!url && !failedPreviews.has(url);
+  }
+</script>
+
+<SetPageTitle title={m.about_guild()} />
+
+<div class="layout-container">
+  <div class="flex flex-row items-center justify-between">
+    <div class="md:w-7/12">
+      <h1>{m.about_guild()}</h1>
+
+      <p>{m.about_guild_prose_guild()}</p>
+      <p>{m.about_guild_prose_committees()}</p>
+      <p>{m.about_guild_prose_union()}</p>
+    </div>
+    <div class="hidden w-4/12 rounded-lg md:block">
+      <div class="bg-muted-background rounded-lg border-[1px] shadow-xl">
+        <img
+          class="rounded-lg"
+          src={getFileUrl("minio/files/public/photos/stock3.webp")}
+          alt="guild"
+        />
+      </div>
+    </div>
+  </div>
+  <span id="committees" class="mb-12 h-0"></span>
+  <h2 class="mt-12 mb-4">{m.committees()}</h2>
+
+  <div
+    class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+  >
+    {#each data.committees
+      .filter((e: Committee) => e.shortName != "dchip")
+      .sort( (e1: Committee, e2: Committee) => e1.nameSv.localeCompare(e2.nameSv, "sv") ) as committee, index (committee.id)}
+      {@const previewUrl = committee.previewUrl ?? ""}
+      <a class="group block" href="/committees/{committee.shortName}">
+        <div
+          class="border-border animate-in fade-in fill-mode-backwards slide-in-from-bottom-[1rem] group-hover:bg-muted-background flex h-full w-full flex-grow flex-col rounded-md border-[1px] duration-300"
+          style:animation-delay={(index ?? 0) * 50 + "ms"}
+        >
+          <div
+            class="bg-muted-background relative aspect-[5/2] overflow-hidden rounded-t-md sm:aspect-square"
+          >
+            <div class="absolute inset-0" aria-hidden="true">
+              <CommitteePlaceholder {committee} class="absolute inset-0" />
+            </div>
+            {#if hasPreview(previewUrl)}
+              {#key previewUrl}
+                <img
+                  src={previewUrl}
+                  alt=""
+                  loading="lazy"
+                  class="absolute inset-0 size-full object-cover opacity-0"
+                  onload={(event) =>
+                    (event.currentTarget as HTMLImageElement).classList.replace(
+                      "opacity-0",
+                      "opacity-100",
+                    )}
+                  onerror={(event) =>
+                    failPreview(
+                      (event.currentTarget as HTMLImageElement).getAttribute(
+                        "src",
+                      ),
+                    )}
+                />
+              {/key}
+            {/if}
+            {@render committeeIcon({
+              ...committee,
+              isBannerTextLight: hasPreview(previewUrl)
+                ? committee.isBannerTextLight
+                : mode.current === "dark",
+            })}
+          </div>
+          <div class="flex flex-col gap-1 p-3 transition-all">
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -- Sanitized before output -->
+            <h3>{@html breakName(committee.name)}</h3>
+            <span>{committee.description}</span>
+          </div>
+        </div>
+      </a>
+    {/each}
+  </div>
+
+  <a class="mt-12 block" href="https://dchip.se">
+    <div
+      class="border-border hover:bg-muted-background flex flex-col rounded-md border-[1px] transition-all sm:flex-row lg:h-32"
+    >
+      <div class="relative flex flex-col gap-1 p-4 sm:w-1/2">
+        <h3>{m.dchip()}</h3>
+        <span>
+          {m.about_guild_prose_dchip()}
+        </span>
+      </div>
+      <Button class="mb-4 ml-4 flex w-fit sm:hidden" variant="rosa"
+        >www.dchip.se <ArrowRight /></Button
+      >
+      <div
+        class="before:to-[rgba(0, 0, 0, 1)] before:from-accent bg-rosa-300 relative hidden w-1/2 rounded-r-md bg-cover bg-center before:absolute before:left-0 before:mr-0 before:h-full before:w-60 before:bg-linear-to-r sm:block"
+        style="background-image: url('https://files.dsek.se/files/public/photos/dchip.webp')"
+      >
+        <img
+          src="https://www.dchip.se/images/rosa_panter.png"
+          alt="dchip"
+          class="absolute top-4 right-4 h-24"
+        />
+      </div>
+    </div>
+  </a>
+</div>
+
+{#snippet committeeIcon(committee: Committee)}
+  <CommitteeIcon
+    override={committee.isBannerTextLight ? "light" : "dark"}
+    {committee}
+    class="absolute top-2 left-2 size-16"
+  />
+{/snippet}

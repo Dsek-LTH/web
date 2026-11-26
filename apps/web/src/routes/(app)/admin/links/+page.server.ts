@@ -1,0 +1,180 @@
+import type { PageServerLoad } from "./$types";
+import { serverApi } from "$lib/server/apiClient";
+import { error, fail, type Actions, type NumericRange } from "@sveltejs/kit";
+import { z } from "zod";
+import { message, superValidate } from "sveltekit-superforms/server";
+import { zod4 } from "sveltekit-superforms/adapters";
+import * as m from "$paraglide/messages";
+
+// admin:shlink:read/create/update/delete (Go's apinames.AdminShlink*) are
+// enforced by Go itself now (internal/links, a thin wrapper around Shlink's
+// own REST API) - no authorize() call here.
+
+const VALID_ORDER = [
+  "title",
+  "dateCreated",
+  "shortCode",
+  "longUrl",
+  "visits",
+  "nonBotVisits",
+] as const;
+
+const VALID_DIR = ["ASC", "DESC"] as const;
+
+const createLinksSchema = z.object({
+  url: z.string().min(1).url(),
+  slug: z.string().min(1),
+  tags: z.string().array().min(1, "You need to select at least one tag"),
+});
+
+const paramsSchema = z.object({
+  page: z.coerce.number().default(1),
+  orderBy: z.enum(VALID_ORDER).default("dateCreated"),
+  dir: z.enum(VALID_DIR).default("DESC"),
+  tags: z.string().array().default([]),
+  search: z.string().optional(),
+});
+
+const getParams = (url: URL) => {
+  const { data: params, error: paramError } = paramsSchema.safeParse({
+    ...Object.fromEntries(url.searchParams.entries()),
+    tags: url.searchParams.getAll("tags"), // Allow multiple tags
+  });
+  if (paramError) {
+    throw error(422, z.treeifyError(paramError).errors.join(". "));
+  }
+  return params;
+};
+
+const updateLinksSchema = createLinksSchema;
+
+const deleteLinksSchema = z.object({
+  deleting: z.string().array().min(1),
+});
+
+export const load: PageServerLoad = async (event) => {
+  const { url } = event;
+  const api = serverApi(event);
+  const params = getParams(url);
+
+  const linksRes = await api.GET("/links", {
+    params: {
+      query: {
+        page: params.page,
+        orderBy: params.orderBy,
+        dir: params.dir,
+        tags: params.tags,
+        search: params.search,
+      },
+    },
+  });
+  if (linksRes.error) {
+    error(
+      (linksRes.error.status ?? 500) as NumericRange<400, 599>,
+      "Shlink error: " + (linksRes.error.detail ?? linksRes.error.title ?? ""),
+    );
+  }
+  const tagsRes = await api.GET("/links/tags", {});
+  const tags = tagsRes.data ?? [];
+
+  // Pre-fills the create dialog's domain with Shlink's own default.
+  const domainsRes = await api.GET("/links/domains", {});
+  const shlinkDomains = domainsRes.data ?? [];
+  const defaultDomain =
+    shlinkDomains.find((d) => d.isDefault)?.domain ??
+    shlinkDomains[0]?.domain ??
+    null;
+
+  return {
+    links: linksRes.data.links,
+    pageCount: linksRes.data.pageCount,
+    tags,
+    defaultDomain,
+    createLinksForm: await superValidate(zod4(createLinksSchema), {
+      id: "create",
+    }),
+    updateLinksForm: await superValidate(zod4(updateLinksSchema), {
+      id: "update",
+    }),
+  };
+};
+export const actions: Actions = {
+  create: async (event) => {
+    const createForm = await superValidate(
+      event.request,
+      zod4(createLinksSchema),
+    );
+    if (!createForm.valid) {
+      return fail(400, { createForm });
+    }
+    const res = await serverApi(event).POST("/links", {
+      body: {
+        url: createForm.data.url,
+        slug: createForm.data.slug,
+        tags: createForm.data.tags,
+      },
+    });
+    if (res.error) {
+      return message(
+        createForm,
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
+        { status: (res.error.status ?? 400) as NumericRange<400, 599> },
+      );
+    }
+
+    return message(createForm, {
+      message: m.admin_links_created_success(),
+      type: "success",
+    });
+  },
+  update: async (event) => {
+    const updateForm = await superValidate(
+      event.request,
+      zod4(updateLinksSchema),
+    );
+    if (!updateForm.valid) {
+      return fail(400, { updateForm });
+    }
+    const res = await serverApi(event).PUT("/links/{shortCode}", {
+      params: { path: { shortCode: updateForm.data.slug } },
+      body: { url: updateForm.data.url, tags: updateForm.data.tags },
+    });
+    if (res.error) {
+      return message(
+        updateForm,
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
+        { status: (res.error.status ?? 400) as NumericRange<400, 599> },
+      );
+    }
+
+    return message(updateForm, {
+      message: m.admin_links_updated_success(),
+      type: "success",
+    });
+  },
+  delete: async (event) => {
+    const deleteForm = await superValidate(
+      event.request,
+      zod4(deleteLinksSchema),
+    );
+    if (!deleteForm.valid) {
+      return fail(400, { deleteForm });
+    }
+
+    const res = await serverApi(event).DELETE("/links", {
+      body: { shortCodes: deleteForm.data.deleting },
+    });
+    if (res.error) {
+      return message(
+        deleteForm,
+        { message: res.error.detail ?? res.error.title ?? "", type: "error" },
+        { status: (res.error.status ?? 400) as NumericRange<400, 599> },
+      );
+    }
+
+    return message(deleteForm, {
+      message: m.admin_links_removed_success(),
+      type: "success",
+    });
+  },
+};

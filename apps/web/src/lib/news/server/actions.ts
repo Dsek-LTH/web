@@ -1,0 +1,211 @@
+import { createSchema, updateSchema } from "$lib/news/schema";
+import { toAuthorInput } from "$lib/news/authorOptions";
+import { redirect } from "sveltekit-flash-message/server";
+import * as m from "$paraglide/messages";
+import { error, type Action } from "@sveltejs/kit";
+import { zod4 } from "sveltekit-superforms/adapters";
+import { message, superValidate, fail } from "sveltekit-superforms";
+import { serverApi } from "$lib/server/apiClient";
+import { resolveImages } from "$lib/news/cover";
+import { multipart } from "$lib/api/client";
+import type { components } from "$lib/api/schema";
+
+type ArticleInput = components["schemas"]["ArticleInput"];
+
+async function uploadImage(
+  api: ReturnType<typeof serverApi>,
+  file: File,
+): Promise<string> {
+  const res = await api.POST("/images", { body: { file }, ...multipart });
+  if (res.error)
+    error(res.response.status, res.error.detail ?? "Failed to upload image");
+  return res.data.url;
+}
+
+// Slug generation, author resolution, body sanitization, image storage,
+// and the schedule-vs-notify-now decision all now happen server-side in
+// the Go API (apps/api/internal/articles, apps/api/internal/integrations) -
+// this file just validates the form, uploads images, and forwards the
+// result.
+
+export const createArticle: Action = async (event) => {
+  const { request } = event;
+  const api = serverApi(event);
+  const form = await superValidate(request, zod4(createSchema), {
+    allowFiles: true,
+  });
+  if (!form.valid) return fail(400, { form });
+  const {
+    author,
+    tags,
+    headerSv,
+    headerEn,
+    sendNotification,
+    notificationText,
+    images,
+    coverNewIndex,
+    bodySv,
+    bodyEn,
+    committeeId,
+    publishTime,
+    youtubeUrl,
+  } = form.data;
+
+  // A new article has no existing images, so only the uploads count.
+  const { imageUrls, imageUrl } = resolveImages({
+    existing: [],
+    newUrls: await Promise.all(
+      Array.from(images).map((image) => uploadImage(api, image)),
+    ),
+    coverNewIndex,
+  });
+
+  const input: ArticleInput = {
+    headerSv,
+    headerEn: headerEn ?? null,
+    bodySv,
+    bodyEn: bodyEn ?? null,
+    imageUrl,
+    imageUrls,
+    youtubeUrl: youtubeUrl ?? null,
+    author: toAuthorInput(author),
+    tagIds: tags.filter((tag) => !!tag).map((tag) => tag.id),
+    committeeId: committeeId ?? null,
+    publishedAt: (publishTime ?? new Date()).toISOString(),
+    sendNotification,
+    notificationText: notificationText ?? null,
+    // Nollning content is written on the nollning site, not here.
+    nollningSeasonId: null,
+  };
+
+  const created = await api.POST("/articles", { body: input });
+  if (created.error)
+    error(
+      created.response.status,
+      created.error.detail ?? "Failed to create article",
+    );
+  const publishTimeIsInFuture = publishTime && publishTime > new Date();
+
+  throw redirect(
+    publishTimeIsInFuture ? "/news" : `/news/${created.data.slug}`,
+    // The article is saved either way; Go only reports whether announcing
+    // it (notification/Discord) went through.
+    created.data.announcementFailed
+      ? { message: m.news_errors_notificationFailed(), type: "error" }
+      : {
+          message: publishTimeIsInFuture
+            ? m.news_articleScheduled()
+            : m.news_articleCreated(),
+          type: "success",
+        },
+    event,
+  );
+};
+
+export const updateArticle: Action<{ slug: string }> = async (event) => {
+  const { request } = event;
+  const api = serverApi(event);
+  const form = await superValidate(request, zod4(updateSchema), {
+    allowFiles: true,
+  });
+  if (!form.valid) return fail(400, { form });
+  const {
+    slug,
+    author,
+    tags,
+    images,
+    coverNewIndex,
+    headerSv,
+    headerEn,
+    bodySv,
+    bodyEn,
+    committeeId,
+    publishTime,
+    sendNotification,
+    notificationText,
+    imageUrl,
+    imageUrls,
+    youtubeUrl,
+  } = form.data;
+
+  const resolved = resolveImages({
+    existing: imageUrls ?? [],
+    newUrls: await Promise.all(
+      Array.from(images).map((image) => uploadImage(api, image)),
+    ),
+    coverUrl: imageUrl,
+    coverNewIndex,
+  });
+
+  // What the form doesn't edit comes from the article as it is.
+  const current = await api.GET("/articles/{slug}", {
+    params: {
+      path: { slug },
+      query: { includeDeleted: true, includeUnpublished: true },
+    },
+  });
+  if (current.error)
+    error(
+      current.response.status,
+      current.error.detail ?? "Failed to load article",
+    );
+
+  // Without a scheduled time, an article that's already live keeps its
+  // date and a scheduled one (or a draft) goes live now. Go would make an
+  // article without publishedAt a draft again, hiding it.
+  let publishedAt = publishTime;
+  if (!publishedAt) {
+    const livePublishedAt = current.data.publishedAt
+      ? new Date(current.data.publishedAt)
+      : null;
+    publishedAt =
+      livePublishedAt && livePublishedAt <= new Date()
+        ? livePublishedAt
+        : new Date();
+  }
+
+  const input: ArticleInput = {
+    headerSv,
+    headerEn: headerEn ?? null,
+    bodySv,
+    bodyEn: bodyEn ?? null,
+    imageUrl: resolved.imageUrl,
+    imageUrls: resolved.imageUrls,
+    youtubeUrl: youtubeUrl ?? null,
+    author: toAuthorInput(author),
+    tagIds: tags.filter((tag) => !!tag).map((tag) => tag.id),
+    committeeId: committeeId ?? null,
+    publishedAt: publishedAt.toISOString(),
+    sendNotification,
+    notificationText: notificationText ?? null,
+    // Nollning content is written on the nollning site; this form keeps
+    // whatever season the article has.
+    nollningSeasonId: current.data.nollningSeasonId ?? null,
+  };
+
+  const updated = await api.PUT("/articles/{slug}", {
+    params: { path: { slug } },
+    body: input,
+  });
+  if (updated.error) {
+    if (updated.response.status === 404) {
+      return message(
+        form,
+        { message: m.news_errors_articleNotFound(), type: "error" },
+        { status: 400 },
+      );
+    }
+    error(
+      updated.response.status,
+      updated.error.detail ?? "Failed to update article",
+    );
+  }
+
+  throw redirect(
+    `/news/${publishedAt <= new Date() ? event.params.slug : ""}`,
+    updated.data.announcementFailed
+      ? { message: m.news_errors_notificationFailed(), type: "error" }
+      : { message: m.news_articleUpdated(), type: "success" },
+    event,
+  );
+};

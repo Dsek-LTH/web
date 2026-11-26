@@ -1,0 +1,4 @@
+DROP INDEX events_start_datetime_index;
+DROP INDEX articles_published_datetime_index;
+DROP INDEX notifications_member_id_unread_index;
+DROP INDEX notifications_link_index;
