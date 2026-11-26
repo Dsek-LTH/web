@@ -124,14 +124,13 @@
         }`}
       >
         <div class="flex items-stretch gap-1 pl-1">
-          <!-- The textarea's first line centers 20px from the top below md
-               (text-base, 24px line-height) and 18px at md+ (text-sm, 20px
-               line-height) — the handle and "att" chip must follow the same
-               two-step alignment or they drift 2px off on one side. -->
+          <!-- The clause text is text-sm at every width (like the plain
+               inputs), so the handle and "att" chip center against the same
+               36px row on all screens. -->
           {#if row.clause.trim()}
             <span
               use:attachAction={handle}
-              class="text-muted-foreground flex h-9 cursor-grab items-start gap-1 self-start pt-3 md:items-center md:pt-0"
+              class="text-muted-foreground flex h-9 cursor-grab items-center gap-1 self-start"
               role="button"
               tabindex="0"
               aria-label={m.actic_author_drag()}
@@ -142,7 +141,7 @@
           {:else}
             <!-- The free row: the grab indicator is disabled with it. -->
             <span
-              class="text-muted-foreground flex h-9 items-start gap-1 self-start pt-3 opacity-30 md:items-center md:pt-0"
+              class="text-muted-foreground flex h-9 items-center gap-1 self-start opacity-30"
               aria-hidden="true"
             >
               <GripVertical class="h-4 w-4" />
@@ -150,17 +149,17 @@
             </span>
           {/if}
           <span
-            class="text-muted-foreground flex h-9 items-start self-start pt-2 text-base leading-6 font-bold md:items-center md:pt-0 md:text-sm md:leading-5"
+            class="text-muted-foreground flex h-9 items-center self-start text-sm font-bold"
             >{m.actic_yrkanden_att({}, { locale: lang })}</span
           >
           <div
-            class="flex min-w-0 flex-1 flex-col"
+            class="relative flex min-w-0 flex-1 flex-col"
             use:helpers.trackInput={row.id}
           >
             <Textarea
               bind:value={row.clause}
-              placeholder={dealClauseGhost(row.id)}
-              class="min-h-9 resize-none border-0 bg-transparent py-2 pr-3 pl-0.5 shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
+              placeholder=""
+              class="min-h-9 resize-none border-0 bg-transparent py-2 pr-3 pl-0.5 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
               oninput={helpers.oninput}
               onblur={helpers.onblur}
               onkeydown={(e) => {
@@ -173,6 +172,20 @@
                 }
               }}
             />
+            {#if !row.clause.trim()}
+              <!-- The ghost text rides on an overlay rather than the
+                   textarea's placeholder: a long ghost must cut off with an
+                   ellipsis, and Chrome's textarea placeholder only ever
+                   clips (its nowrap variant also forced a scrollbar at high
+                   zoom). Same padding/typography as the textarea's first
+                   line, so it sits exactly where the text will. -->
+              <span
+                aria-hidden="true"
+                class="text-muted-foreground pointer-events-none absolute top-2 right-3 left-0.5 truncate text-sm"
+              >
+                {dealClauseGhost(row.id)}
+              </span>
+            {/if}
             {#if open}
               <!-- The description sub-box, contained within the row. -->
               <div class="py-2 pr-3 pl-0.5">
@@ -182,7 +195,7 @@
                     {},
                     { locale: lang },
                   )}
-                  class="{FIELD_BG} min-h-9 resize-none"
+                  class="{FIELD_BG} min-h-9 resize-none text-sm"
                 />
               </div>
             {/if}

@@ -36,6 +36,8 @@
   } from "./typst-commands";
   import { insertText } from "$lib/components/textareacommands";
   import ToolbarButton from "./ToolbarButton.svelte";
+  import { onMount } from "svelte";
+  import { watchStickyTop } from "./sticky-top";
 
   let {
     value = $bindable(""),
@@ -135,111 +137,122 @@
       run(command);
     }
   }
+
+  // Keeps `--actic-sticky-top` current for the toolbar's sticky top.
+  onMount(() => watchStickyTop());
 </script>
 
-<div class="border-border flex w-full flex-col rounded-lg border">
-  <div
-    class="bg-muted-background text-muted-foreground flex h-11 items-center gap-0.5 overflow-x-auto rounded-t-lg border-b px-[7px]"
-  >
-    <ToolbarButton
-      label={m.editor_heading()}
-      active={active.heading}
-      onclick={() => run(cycleHeading)}
+<div class="border-border flex w-full flex-col overflow-clip rounded-lg border">
+  <!-- Toolbar and textarea share a wrapper: the toolbar's sticky range ends
+       at the textarea's end, so it stops above the bottom bar instead of
+       sliding over it. The card clips, so the bars need no corner rounding
+       of their own (square while stuck, rounded at rest). -->
+  <div class="flex w-full flex-col">
+    <div
+      class="bg-muted-background text-muted-foreground no-scrollbar flex h-11 items-center gap-0.5 overflow-x-auto border-b px-[7px] {compact
+        ? ''
+        : 'sticky top-(--actic-sticky-top,4rem) z-10'}"
     >
-      <Heading class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_ulist()}
-      active={active.bullet}
-      onclick={() => run(toggleBullet)}
-    >
-      <List class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_olist()}
-      active={active.numbered}
-      onclick={() => run(toggleNumbered)}
-    >
-      <ListOrdered class="size-4" />
-    </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_heading()}
+        active={active.heading}
+        onclick={() => run(cycleHeading)}
+      >
+        <Heading class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_ulist()}
+        active={active.bullet}
+        onclick={() => run(toggleBullet)}
+      >
+        <List class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_olist()}
+        active={active.numbered}
+        onclick={() => run(toggleNumbered)}
+      >
+        <ListOrdered class="size-4" />
+      </ToolbarButton>
 
-    <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
+      <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
 
-    <ToolbarButton
-      label={m.editor_bold()}
-      shortcut="Mod-B"
-      active={active.bold}
-      onclick={() => run(toggleBold)}
-    >
-      <Bold class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_italic()}
-      shortcut="Mod-I"
-      active={active.italic}
-      onclick={() => run(toggleItalic)}
-    >
-      <Italic class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_strikethrough()}
-      shortcut="Mod-Shift-X"
-      active={active.strike}
-      onclick={() => run(toggleStrike)}
-    >
-      <Strikethrough class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_inlinecode()}
-      shortcut="Mod-E"
-      active={active.code}
-      onclick={() => run(toggleInlineCode)}
-    >
-      <Code class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_codeblock()}
-      onclick={() => run(toggleCodeBlock)}
-    >
-      <SquareCode class="size-4" />
-    </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_bold()}
+        shortcut="Mod-B"
+        active={active.bold}
+        onclick={() => run(toggleBold)}
+      >
+        <Bold class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_italic()}
+        shortcut="Mod-I"
+        active={active.italic}
+        onclick={() => run(toggleItalic)}
+      >
+        <Italic class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_strikethrough()}
+        shortcut="Mod-Shift-X"
+        active={active.strike}
+        onclick={() => run(toggleStrike)}
+      >
+        <Strikethrough class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_inlinecode()}
+        shortcut="Mod-E"
+        active={active.code}
+        onclick={() => run(toggleInlineCode)}
+      >
+        <Code class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_codeblock()}
+        onclick={() => run(toggleCodeBlock)}
+      >
+        <SquareCode class="size-4" />
+      </ToolbarButton>
 
-    <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
+      <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
 
-    <ToolbarButton
-      label={m.editor_link()}
-      shortcut="Mod-K"
-      onclick={() => run(insertLink)}
-    >
-      <Link class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton label={m.editor_table()} onclick={() => run(insertTable)}>
-      <Table class="size-4" />
-    </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_link()}
+        shortcut="Mod-K"
+        onclick={() => run(insertLink)}
+      >
+        <Link class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton label={m.editor_table()} onclick={() => run(insertTable)}>
+        <Table class="size-4" />
+      </ToolbarButton>
 
-    {#if trailing}
-      <div class="ml-auto">{@render trailing()}</div>
-    {/if}
+      {#if trailing}
+        <div class="ml-auto">{@render trailing()}</div>
+      {/if}
+    </div>
+
+    <Textarea
+      class="{FIELD_BG} focus-visible:border-border {compact
+        ? 'min-h-[12rem]'
+        : 'min-h-[24rem]'} resize-y rounded-none border-0 text-sm focus-visible:ring-0"
+      {placeholder}
+      bind:value
+      bind:ref={textarea}
+      onkeydown={onKeydown}
+      onkeyup={refresh}
+      onselect={refresh}
+      onclick={refresh}
+      oninput={refresh}
+      spellcheck={false}
+      {...restProps}
+    />
   </div>
 
-  <Textarea
-    class="{FIELD_BG} focus-visible:border-border {compact
-      ? 'min-h-[12rem]'
-      : 'min-h-[24rem]'} resize-y rounded-none border-0 text-sm focus-visible:ring-0"
-    {placeholder}
-    bind:value
-    bind:ref={textarea}
-    onkeydown={onKeydown}
-    onkeyup={refresh}
-    onselect={refresh}
-    onclick={refresh}
-    oninput={refresh}
-    spellcheck={false}
-    {...restProps}
-  />
-
   <div
-    class="bg-muted-background text-muted-foreground flex h-11 items-center justify-between rounded-b-lg border-t px-4 text-xs"
+    class="bg-muted-background text-muted-foreground flex h-11 items-center justify-between border-t px-4 text-xs"
   >
     <span>{words} {m.editor_words()}, {chars} {m.editor_chars()}</span>
     <a

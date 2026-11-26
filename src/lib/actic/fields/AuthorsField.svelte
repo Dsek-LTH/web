@@ -43,7 +43,8 @@
     }}
   >
     <div
-      class="grid auto-rows-fr grid-cols-1 gap-3 {authors.length <= 1
+      class="grid auto-rows-fr grid-cols-1 gap-3 max-sm:auto-rows-auto {authors.length <=
+      1
         ? 'sm:grid-cols-2'
         : 'sm:grid-cols-2 xl:grid-cols-3'}"
       onfocusout={ontouch}
@@ -62,14 +63,16 @@
         </SortableItem>
       {/each}
       <!-- The add button as a dotted outline, occupying the next author's
-           place in the grid (same height, since rows stretch). -->
+           place in the grid (same height, since rows stretch). On phones it
+           reads as a plain "+ Lägg till författare" row instead. -->
       <button
         type="button"
-        class="border-border text-muted-foreground hover:border-foreground hover:text-foreground flex min-h-64 items-center justify-center rounded-md border border-dashed"
+        class="border-border text-muted-foreground hover:border-foreground hover:text-foreground flex items-center justify-center gap-2 rounded-md border border-dashed py-3 text-sm max-sm:w-full max-sm:self-start sm:min-h-64"
         aria-label={m.actic_author_add()}
         onclick={add}
       >
-        <Plus class="h-5 w-5" />
+        <Plus class="h-4 w-4 sm:h-5 sm:w-5" />
+        <span class="sm:hidden">{m.actic_author_add()}</span>
       </button>
     </div>
   </DragDropProvider>
