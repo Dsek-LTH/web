@@ -10,7 +10,7 @@
   const PAGES = [
     { title: "Home", icon: DsekLogo, link: "/app/home" },
     { title: "News", icon: Newspaper, link: "/news" },
-    { title: "Events", icon: Calendar, link: "/events" },
+    { title: "Events", icon: Calendar, link: "/events?display=upcoming" },
     { title: "Documents", icon: FileText, link: "/documents" },
     { title: "Menu", icon: Menu, link: "/app/navigation" },
   ];
