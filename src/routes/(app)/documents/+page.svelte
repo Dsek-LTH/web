@@ -23,6 +23,7 @@
   let { data }: { data: PageData } = $props();
 
   const isDesktop = new MediaQuery("(min-width: 768px)", false);
+  let scrollY = $state(0);
 
   let isEditing = $state(false);
   let query = $state("");
@@ -102,6 +103,7 @@
 
   function selectMeeting(name: string) {
     selectedMeeting = selectedMeeting === name ? null : name;
+    scrollY = 0;
   }
 
   let canCreate = $derived(
@@ -132,6 +134,8 @@
   );
   let canEdit = $derived(canDelete || canUpdate);
 </script>
+
+<svelte:window bind:scrollY />
 
 <div class="layout-container">
   <p class="text-muted-foreground max-w-3xl text-sm">{typeProse}</p>
