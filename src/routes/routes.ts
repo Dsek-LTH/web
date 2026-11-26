@@ -121,8 +121,8 @@ export const getRoutes = (): Route[] =>
       accessRequired: null,
       appBehaviour: "none",
       pictureUrl: getFileUrl("minio/files/public/photos/guild.jpg") ?? "",
-      pictureTitle: m.nav_about_guild(),
-      pictureDescription: m.nav_about_guild_desc(),
+      pictureTitle: m.nav_committees(),
+      pictureDescription: m.nav_committees_desc(),
       picturePath: "/about#committees",
       path: null,
       children: [
