@@ -409,7 +409,7 @@
   }
 
   .nav-panel {
-    /* fixed, not absolute: positioned in viewport coordinates computed in JS (see positionFor),
+    /* fixed: positioned in viewport coordinates computed in JS (see positionFor),
        pinned to the header's own bottom edge rather than this row's shorter box. Position is set
        via plain `left`/`top`, never `transform`, so it never collides with the tilt/scale
        transform below -- an inline `transform` would win over these rules outright. */
@@ -529,7 +529,7 @@
     gap: 0.1rem;
   }
 
-  /* width: 100%, not a hardcoded px value -- .nav-panel is border-box (global reset) and these
+  /* width: 100% -- .nav-panel is border-box (global reset) and these
      sit inside its padding, so a width matching the panel's own outer size would overflow past
      the padded content edge. Let them fill whatever content width the panel actually has. */
   .list-col {
@@ -591,7 +591,7 @@
     gap: 0.4rem;
   }
   .child-row :global(.icon) {
-    /* explicit size here, not left to each icon's own `size` prop: the two custom (non-lucide)
+    /* explicit size here: the two custom (non-lucide)
        icons used in routes.ts -- Cap and DsekLogo -- don't accept a `size` prop at all and
        render at width/height: 100% of whatever contains them, so without this they blow up to
        fill the row. */
