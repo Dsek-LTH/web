@@ -182,7 +182,7 @@
 
               {#if member.nollaIn?.year.toString() === year}
                 <div class="inline-flex flex-row items-center gap-2 rounded-md">
-                  <a href="/committees/nollu?year={member.nollaIn.year}">
+                  <a href="/committees/nollu/groups?year={member.nollaIn.year}">
                     {#if member.nollaIn.imageUrl}
                       <figure class="size-7 overflow-hidden rounded-sm">
                         <img src={member.nollaIn.imageUrl} alt="Group logo" />
@@ -391,7 +391,9 @@
                   <div
                     class="inline-flex w-84 flex-row items-center gap-4 rounded-md border-[1px] p-3"
                   >
-                    <a href="/committees/nollu?year={member.nollaIn.year}">
+                    <a
+                      href="/committees/nollu/groups?year={member.nollaIn.year}"
+                    >
                       {#if member.nollaIn.imageUrl}
                         <figure class="size-7 overflow-hidden rounded-sm">
                           <img src={member.nollaIn.imageUrl} alt="Group logo" />
