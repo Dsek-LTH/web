@@ -195,15 +195,6 @@ func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetai
 	return detail, nil
 }
 
-// Create makes a single event, or - when in.Recurring is set - a whole
-// series: one RecurringEvent row plus one Event row per computed
-// occurrence (see expandOccurrences), every occurrence sharing the same
-// content but its own start/end datetime and its own sequentially-suffixed
-// slug ("my-event", "my-event-2", ...). The series path runs inside a
-// transaction (the only place this Service needs one) since a partial
-// series would be a real user-visible bug, unlike the non-recurring path's
-// two independent statements (create, then set tags) which - same as
-// internal/articles.Service.Create - aren't transactional together.
 // validateInput makes the checks the old event form's zod schema made,
 // and keeps the VARCHAR(255) columns from overflowing into a 500.
 func validateInput(in EventInput) error {
@@ -228,6 +219,15 @@ func validateInput(in EventInput) error {
 	return nil
 }
 
+// Create makes a single event, or - when in.Recurring is set - a whole
+// series: one RecurringEvent row plus one Event row per computed
+// occurrence (see expandOccurrences), every occurrence sharing the same
+// content but its own start/end datetime and its own sequentially-suffixed
+// slug ("my-event", "my-event-2", ...). The series path runs inside a
+// transaction (the only place this Service needs one) since a partial
+// series would be a real user-visible bug, unlike the non-recurring path's
+// two independent statements (create, then set tags) which - same as
+// internal/articles.Service.Create - aren't transactional together.
 func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, error) {
 	if err := auth.Require(ctx, apinames.EventCreate); err != nil {
 		return nil, err
