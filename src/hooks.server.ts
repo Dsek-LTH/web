@@ -24,10 +24,7 @@ import { enhance } from "@zenstackhq/runtime";
 import { randomBytes } from "crypto";
 import { getAccessPolicies } from "./hooks.server.helpers";
 import { getDerivedRoles } from "$lib/utils/authorization";
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientValidationError,
-} from "@prisma/client/runtime/library";
+import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { getExtendedPrismaClient } from "$lib/server/extendedPrisma";
 import { paraglideMiddleware } from "$paraglide/server";
 import { getRequestEvent } from "$app/server";
@@ -263,22 +260,25 @@ const themeHandle: Handle = async ({ event, resolve }) => {
   });
 };
 
-export const handleError: HandleServerError = ({ error }) => {
-  if (error instanceof PrismaClientKnownRequestError) {
-    const { message, name, code } = error;
-    console.log("prisma known request error", { message, name, code });
-    return {
-      message: message,
-    };
+export const handleError: HandleServerError = ({
+  error,
+  event,
+  status,
+  message,
+}) => {
+  // Only the path is logged, since the query string can hold tokens or personal data.
+  const request = `${event.request.method} ${event.url.pathname} (route ${event.route.id ?? "unmatched"})`;
+
+  if (status < 500) {
+    // Client error.
+    console.warn(`${message}: ${request}`);
   } else if (error instanceof PrismaClientValidationError) {
-    console.error("prisma validation error", error.message, error.name);
-    return {
-      message: "Database validation error, see logs for more info",
-    };
+    console.error(`Prisma validation error: ${request}`);
+  } else {
+    console.error(`Unexpected error: ${request}`, error);
   }
-  return {
-    message: error instanceof Error ? error.message : `${error}`,
-  };
+
+  return { message };
 };
 
 const paraglideHandle: Handle = ({ event, resolve }) =>
