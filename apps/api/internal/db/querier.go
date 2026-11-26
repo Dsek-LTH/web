@@ -206,6 +206,9 @@ type Querier interface {
 	// Currently-active mandate/unique-member counts, same as
 	// ListCommitteesWithCounts - the committee detail page shows these too.
 	GetCommitteeByShortName(ctx context.Context, shortName pgtype.Text) (GetCommitteeByShortNameRow, error)
+	// A committee with the mandates and unique members it had during a year
+	// (mandates overlapping it), like the old committee page counted them.
+	GetCommitteeForYear(ctx context.Context, arg GetCommitteeForYearParams) (GetCommitteeForYearRow, error)
 	// Events store the chosen organizing committee's Swedish name in the
 	// free-text organizer column too (see Service.resolveCommittee).
 	GetCommitteeNameSv(ctx context.Context, id pgtype.UUID) (string, error)

@@ -100,8 +100,8 @@ type Committee struct {
 	PreviewURL        *string `json:"previewUrl,omitempty"        doc:"Image shown in link previews."`
 	// MandateCount/MemberCount are only populated by the committee-overview
 	// list (currently-active mandates/unique members) - nil elsewhere.
-	MandateCount *int64 `json:"mandateCount,omitempty" doc:"Currently active mandates. Only set by GET /committees."`
-	MemberCount  *int64 `json:"memberCount,omitempty"  doc:"Distinct members holding an active mandate. Only set by GET /committees."`
+	MandateCount *int64 `json:"mandateCount,omitempty" doc:"Mandates active now (GET /committees) or during the requested year (GET /committees/{shortName})."`
+	MemberCount  *int64 `json:"memberCount,omitempty"  doc:"Distinct members holding those mandates."`
 }
 
 type Position struct {
