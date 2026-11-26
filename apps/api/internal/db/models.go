@@ -196,6 +196,26 @@ type AdminSetting struct {
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
+type Album struct {
+	ID          pgtype.UUID        `json:"id"`
+	Title       string             `json:"title"`
+	Description pgtype.Text        `json:"description"`
+	Date        pgtype.Date        `json:"date"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	Slug        string             `json:"slug"`
+}
+
+type AlbumEditor struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
+}
+
+type AlbumPhotographer struct {
+	A pgtype.UUID `json:"A"`
+	B pgtype.UUID `json:"B"`
+}
+
 type Alert struct {
 	ID        pgtype.UUID        `json:"id"`
 	Severity  string             `json:"severity"`
@@ -552,17 +572,19 @@ type Ping struct {
 }
 
 type Position struct {
-	ID            string      `json:"id"`
-	NameSv        string      `json:"name_sv"`
-	NameEn        pgtype.Text `json:"name_en"`
-	CommitteeID   pgtype.UUID `json:"committee_id"`
-	Email         pgtype.Text `json:"email"`
-	Active        bool        `json:"active"`
-	BoardMember   bool        `json:"board_member"`
-	DescriptionSv pgtype.Text `json:"description_sv"`
-	DescriptionEn pgtype.Text `json:"description_en"`
-	EndMonth      int32       `json:"end_month"`
-	StartMonth    int32       `json:"start_month"`
+	ID                string      `json:"id"`
+	NameSv            string      `json:"name_sv"`
+	NameEn            pgtype.Text `json:"name_en"`
+	CommitteeID       pgtype.UUID `json:"committee_id"`
+	Email             pgtype.Text `json:"email"`
+	Active            bool        `json:"active"`
+	BoardMember       bool        `json:"board_member"`
+	DescriptionSv     pgtype.Text `json:"description_sv"`
+	DescriptionEn     pgtype.Text `json:"description_en"`
+	EndMonth          int32       `json:"end_month"`
+	StartMonth        int32       `json:"start_month"`
+	LongDescriptionEn pgtype.Text `json:"long_description_en"`
+	LongDescriptionSv pgtype.Text `json:"long_description_sv"`
 }
 
 type Readme struct {

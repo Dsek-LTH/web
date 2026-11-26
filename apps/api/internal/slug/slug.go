@@ -25,14 +25,29 @@ var (
 // diacritics and quotes, collapse everything else into hyphens, truncate,
 // then trim stray edge hyphens left by truncation.
 func Slugify(s string) string {
+	return slugifyMax(s, defaultSlugMaxLength)
+}
+
+// WithYear mirrors slugifyWithYear: the slug of s with "-<year>" appended
+// (not twice if it already ends with it), 50 characters in all.
+func WithYear(s string, year int) string {
+	suffix := fmt.Sprintf("-%d", year)
+	base := slugifyMax(s, defaultSlugMaxLength-len(suffix))
+	if strings.HasSuffix(base, suffix) {
+		return base
+	}
+	return base + suffix
+}
+
+func slugifyMax(s string, maxLength int) string {
 	s = strings.TrimSpace(s)
 	s = norm.NFKD.String(s)
 	s = stripMarks(s)
 	s = quotesPattern.ReplaceAllString(s, "")
 	s = nonAlnumPattern.ReplaceAllString(s, "-")
 	s = hyphensPattern.ReplaceAllString(s, "-")
-	if len(s) > defaultSlugMaxLength {
-		s = s[:defaultSlugMaxLength]
+	if len(s) > maxLength {
+		s = s[:maxLength]
 	}
 	s = edgeHyphenPattern.ReplaceAllString(s, "")
 	return strings.ToLower(s)

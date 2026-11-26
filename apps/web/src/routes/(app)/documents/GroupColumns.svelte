@@ -18,17 +18,13 @@
     groups.flatMap((group) => (group.name ? [group.name] : [])),
   );
 
-  let labelledGroups = $derived.by(() => {
-    let lastLetter = "";
-    return groups.map((group) => {
-      const displayName = group.name ?? m.documents_uncategorized();
-      const sortKey = displayName.charAt(0).toUpperCase();
-      const showSortKey = sortKey !== lastLetter;
-      lastLetter = sortKey;
-
-      return { group, displayName, sortKey, showSortKey };
-    });
-  });
+  // Go sends the groups sorted, the unnamed one last.
+  let labelledGroups = $derived(
+    groups.map((group) => ({
+      group,
+      displayName: group.name ?? m.documents_uncategorized(),
+    })),
+  );
 
   let columns = $derived.by(() => {
     if (labelledGroups.length <= 1) return [labelledGroups];
@@ -44,11 +40,7 @@
   {#each columns as column, index (index)}
     <div class="flex min-w-0 flex-col gap-y-2.5 md:flex-1">
       {#each column as item (item.group.name ?? "__other__")}
-        <div class="grid grid-cols-[10px_minmax(0,1fr)] items-start gap-1.5">
-          <span
-            class="text-muted-foreground pt-2 text-[8px] leading-none font-semibold tracking-wider uppercase"
-            aria-hidden="true">{item.showSortKey ? item.sortKey : ""}</span
-          >
+        <div class="grid grid-cols-[minmax(0,1fr)] items-start gap-1.5">
           <GroupCard
             group={item.group}
             displayName={item.displayName}

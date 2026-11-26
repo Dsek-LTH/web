@@ -1,6 +1,7 @@
 <script lang="ts">
   import { version } from "$app/environment";
   import { Button } from "$lib/components/ui/button";
+  import apiNames from "$lib/utils/apiNames";
   import type { PageData } from "./$types";
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
   import * as Tooltip from "$lib/components/ui/tooltip/";
@@ -11,7 +12,7 @@
 </script>
 
 <div class="layout-container flex flex-col gap-4">
-  {#if user?.policies.includes("core:admin")}
+  {#if user?.policies.includes(apiNames.ADMIN.CORE)}
     <section>
       <h3>Actions</h3>
       <form action="?/meilisearchSync" method="post">

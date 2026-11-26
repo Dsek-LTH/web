@@ -6,6 +6,7 @@ import { error, type Action } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { message, superValidate, fail } from "sveltekit-superforms";
 import { serverApi } from "$lib/server/apiClient";
+import { resolveImages } from "$lib/news/cover";
 import { multipart } from "$lib/api/client";
 import type { components } from "$lib/api/schema";
 
@@ -42,6 +43,7 @@ export const createArticle: Action = async (event) => {
     sendNotification,
     notificationText,
     images,
+    coverNewIndex,
     bodySv,
     bodyEn,
     committeeId,
@@ -49,16 +51,21 @@ export const createArticle: Action = async (event) => {
     youtubeUrl,
   } = form.data;
 
-  const imageUrls = await Promise.all(
-    Array.from(images).map((image) => uploadImage(api, image)),
-  );
+  // A new article has no existing images, so only the uploads count.
+  const { imageUrls, imageUrl } = resolveImages({
+    existing: [],
+    newUrls: await Promise.all(
+      Array.from(images).map((image) => uploadImage(api, image)),
+    ),
+    coverNewIndex,
+  });
 
   const input: ArticleInput = {
     headerSv,
     headerEn: headerEn ?? null,
     bodySv,
     bodyEn: bodyEn ?? null,
-    imageUrl: imageUrls[0] ?? null,
+    imageUrl,
     imageUrls,
     youtubeUrl: youtubeUrl ?? null,
     author: toAuthorInput(author),
@@ -107,6 +114,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     author,
     tags,
     images,
+    coverNewIndex,
     headerSv,
     headerEn,
     bodySv,
@@ -120,11 +128,14 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     youtubeUrl,
   } = form.data;
 
-  const newImages = await Promise.all(
-    Array.from(images).map((image) => uploadImage(api, image)),
-  );
-  const finalImageUrls =
-    imageUrls === undefined ? newImages : [...imageUrls, ...newImages];
+  const resolved = resolveImages({
+    existing: imageUrls ?? [],
+    newUrls: await Promise.all(
+      Array.from(images).map((image) => uploadImage(api, image)),
+    ),
+    coverUrl: imageUrl,
+    coverNewIndex,
+  });
 
   // What the form doesn't edit comes from the article as it is.
   const current = await api.GET("/articles/{slug}", {
@@ -158,8 +169,8 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     headerEn: headerEn ?? null,
     bodySv,
     bodyEn: bodyEn ?? null,
-    imageUrl: imageUrl ?? null,
-    imageUrls: finalImageUrls,
+    imageUrl: resolved.imageUrl,
+    imageUrls: resolved.imageUrls,
     youtubeUrl: youtubeUrl ?? null,
     author: toAuthorInput(author),
     tagIds: tags.filter((tag) => !!tag).map((tag) => tag.id),

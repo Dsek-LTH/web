@@ -475,12 +475,27 @@ func TestFileAccess(t *testing.T) {
 	e.check(t, e.gate(http.MethodGet, "/albums", nil, ok, apinames.FileAlbumsRead))
 	e.check(
 		t,
-		e.gate(http.MethodGet, "/albums/2030-01-01%20Authz", nil, allowed, apinames.FileAlbumsRead),
+		e.gate(http.MethodGet, "/albums/no-such-album", nil, allowed, apinames.FileAlbumsRead),
 	)
-	e.check(t, e.gate(http.MethodPost, "/albums", form{
-		fields: map[string]string{"name": "Authz", "date": "2030-01-01"},
+	// Creating an album needs gallery:create and the bucket's create policy.
+	album := form{
+		fields: map[string]string{"title": "Authz", "date": "2030-01-01"},
 		files:  map[string][]formFile{"files": {pngFile}},
-	}, ok, apinames.FileAlbumsCreate))
+	}
+	e.check(t, []accessCase{
+		{anonymous, http.MethodPost, "/albums", album, denied},
+		{e.as(1, apinames.GalleryCreate), http.MethodPost, "/albums", album, denied},
+		{e.as(1, apinames.FileAlbumsCreate), http.MethodPost, "/albums", album, denied},
+		{
+			e.as(1, apinames.GalleryCreate, apinames.FileAlbumsCreate),
+			http.MethodPost, "/albums", album, ok,
+		},
+	})
+	details := map[string]any{
+		"title": "Authz", "date": "2030-01-01", "photographers": []string{}, "editors": []string{},
+	}
+	e.check(t, e.gate(http.MethodPut, "/albums/authz-2030", details, ok, apinames.GalleryUpdate))
+	e.check(t, e.gate(http.MethodDelete, "/albums/authz-2030", nil, ok, apinames.GalleryDelete))
 }
 
 func TestTicketAccess(t *testing.T) {

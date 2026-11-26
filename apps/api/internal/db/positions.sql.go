@@ -14,6 +14,7 @@ import (
 const getPosition = `-- name: GetPosition :one
 SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
        p.description_sv, p.description_en, p.start_month, p.end_month,
+       p.long_description_sv, p.long_description_en,
        c.name_sv AS committee_name_sv, c.name_en AS committee_name_en, c.short_name AS committee_short_name
 FROM positions p
 LEFT JOIN committees c ON c.id = p.committee_id
@@ -32,6 +33,8 @@ type GetPositionRow struct {
 	DescriptionEn      pgtype.Text `json:"description_en"`
 	StartMonth         int32       `json:"start_month"`
 	EndMonth           int32       `json:"end_month"`
+	LongDescriptionSv  pgtype.Text `json:"long_description_sv"`
+	LongDescriptionEn  pgtype.Text `json:"long_description_en"`
 	CommitteeNameSv    pgtype.Text `json:"committee_name_sv"`
 	CommitteeNameEn    pgtype.Text `json:"committee_name_en"`
 	CommitteeShortName pgtype.Text `json:"committee_short_name"`
@@ -55,6 +58,8 @@ func (q *Queries) GetPosition(ctx context.Context, id string) (GetPositionRow, e
 		&i.DescriptionEn,
 		&i.StartMonth,
 		&i.EndMonth,
+		&i.LongDescriptionSv,
+		&i.LongDescriptionEn,
 		&i.CommitteeNameSv,
 		&i.CommitteeNameEn,
 		&i.CommitteeShortName,
@@ -152,6 +157,7 @@ func (q *Queries) ListBoard(ctx context.Context) ([]ListBoardRow, error) {
 const listPositions = `-- name: ListPositions :many
 SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
        p.description_sv, p.description_en, p.start_month, p.end_month,
+       p.long_description_sv, p.long_description_en,
        c.name_sv AS committee_name_sv, c.name_en AS committee_name_en, c.short_name AS committee_short_name
 FROM positions p
 LEFT JOIN committees c ON c.id = p.committee_id
@@ -170,6 +176,8 @@ type ListPositionsRow struct {
 	DescriptionEn      pgtype.Text `json:"description_en"`
 	StartMonth         int32       `json:"start_month"`
 	EndMonth           int32       `json:"end_month"`
+	LongDescriptionSv  pgtype.Text `json:"long_description_sv"`
+	LongDescriptionEn  pgtype.Text `json:"long_description_en"`
 	CommitteeNameSv    pgtype.Text `json:"committee_name_sv"`
 	CommitteeNameEn    pgtype.Text `json:"committee_name_en"`
 	CommitteeShortName pgtype.Text `json:"committee_short_name"`
@@ -198,6 +206,8 @@ func (q *Queries) ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 			&i.DescriptionEn,
 			&i.StartMonth,
 			&i.EndMonth,
+			&i.LongDescriptionSv,
+			&i.LongDescriptionEn,
 			&i.CommitteeNameSv,
 			&i.CommitteeNameEn,
 			&i.CommitteeShortName,
@@ -214,48 +224,58 @@ func (q *Queries) ListPositions(ctx context.Context) ([]ListPositionsRow, error)
 
 const updatePosition = `-- name: UpdatePosition :one
 UPDATE positions
-SET name_sv = $2, name_en = $3, email = $4, description_sv = $5, description_en = $6,
-    active = $7, board_member = $8
-WHERE id = $1
+SET name_sv = $1, name_en = $2, email = $3,
+    description_sv = $4, description_en = $5,
+    long_description_sv = $6,
+    long_description_en = $7,
+    active = $8, board_member = $9
+WHERE id = $10
 RETURNING id, name_sv, name_en, committee_id, email, active, board_member,
-          description_sv, description_en, start_month, end_month
+          description_sv, description_en, start_month, end_month,
+          long_description_sv, long_description_en
 `
 
 type UpdatePositionParams struct {
-	ID            string      `json:"id"`
-	NameSv        string      `json:"name_sv"`
-	NameEn        pgtype.Text `json:"name_en"`
-	Email         pgtype.Text `json:"email"`
-	DescriptionSv pgtype.Text `json:"description_sv"`
-	DescriptionEn pgtype.Text `json:"description_en"`
-	Active        bool        `json:"active"`
-	BoardMember   bool        `json:"board_member"`
+	NameSv            string      `json:"name_sv"`
+	NameEn            pgtype.Text `json:"name_en"`
+	Email             pgtype.Text `json:"email"`
+	DescriptionSv     pgtype.Text `json:"description_sv"`
+	DescriptionEn     pgtype.Text `json:"description_en"`
+	LongDescriptionSv pgtype.Text `json:"long_description_sv"`
+	LongDescriptionEn pgtype.Text `json:"long_description_en"`
+	Active            bool        `json:"active"`
+	BoardMember       bool        `json:"board_member"`
+	ID                string      `json:"id"`
 }
 
 type UpdatePositionRow struct {
-	ID            string      `json:"id"`
-	NameSv        string      `json:"name_sv"`
-	NameEn        pgtype.Text `json:"name_en"`
-	CommitteeID   pgtype.UUID `json:"committee_id"`
-	Email         pgtype.Text `json:"email"`
-	Active        bool        `json:"active"`
-	BoardMember   bool        `json:"board_member"`
-	DescriptionSv pgtype.Text `json:"description_sv"`
-	DescriptionEn pgtype.Text `json:"description_en"`
-	StartMonth    int32       `json:"start_month"`
-	EndMonth      int32       `json:"end_month"`
+	ID                string      `json:"id"`
+	NameSv            string      `json:"name_sv"`
+	NameEn            pgtype.Text `json:"name_en"`
+	CommitteeID       pgtype.UUID `json:"committee_id"`
+	Email             pgtype.Text `json:"email"`
+	Active            bool        `json:"active"`
+	BoardMember       bool        `json:"board_member"`
+	DescriptionSv     pgtype.Text `json:"description_sv"`
+	DescriptionEn     pgtype.Text `json:"description_en"`
+	StartMonth        int32       `json:"start_month"`
+	EndMonth          int32       `json:"end_month"`
+	LongDescriptionSv pgtype.Text `json:"long_description_sv"`
+	LongDescriptionEn pgtype.Text `json:"long_description_en"`
 }
 
 func (q *Queries) UpdatePosition(ctx context.Context, arg UpdatePositionParams) (UpdatePositionRow, error) {
 	row := q.db.QueryRow(ctx, updatePosition,
-		arg.ID,
 		arg.NameSv,
 		arg.NameEn,
 		arg.Email,
 		arg.DescriptionSv,
 		arg.DescriptionEn,
+		arg.LongDescriptionSv,
+		arg.LongDescriptionEn,
 		arg.Active,
 		arg.BoardMember,
+		arg.ID,
 	)
 	var i UpdatePositionRow
 	err := row.Scan(
@@ -270,6 +290,8 @@ func (q *Queries) UpdatePosition(ctx context.Context, arg UpdatePositionParams) 
 		&i.DescriptionEn,
 		&i.StartMonth,
 		&i.EndMonth,
+		&i.LongDescriptionSv,
+		&i.LongDescriptionEn,
 	)
 	return i, err
 }

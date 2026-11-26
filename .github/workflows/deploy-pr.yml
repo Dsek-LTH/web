@@ -41,18 +41,51 @@ jobs:
             "VERSION=${{ github.ref_name }}"
           push: true
           tags: registry.dsek.se/web-pr-${{ github.event.number }}/web:latest
-      - name: Comment preview URL
+      - name: Update preview comment
         uses: actions/github-script@v9
         with:
           script: |
             const pr = context.payload.pull_request.number;
             const url = `https://web-pr-${pr}.apps.okd.dsek.se`;
-            await github.rest.issues.createComment({
+            const marker = '<!-- deploy-pr-preview -->';
+
+            const timestamp = new Intl.DateTimeFormat('sv-SE', {
+              timeZone: 'Europe/Stockholm',
+              dateStyle: 'short',
+              timeStyle: 'short'
+            }).format(new Date());
+
+            const body = `${marker}\nPreview image built. ArgoCD should deploy it shortly:\n\n${url}\n\n$\\color{gray}{\\textsf{\\emph{Last build: ${timestamp}}}}$`;
+
+            // Update the comment from the previous build instead of adding a new one.
+            const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr,
-              body: `Preview image built. ArgoCD should deploy it shortly:\n\n${url}`
+              per_page: 100
             });
+            let previous = null;
+            for (const comment of comments) {
+              if (comment.user?.login === 'github-actions[bot]' && comment.body?.includes(marker)) {
+                previous = comment;
+              }
+            }
+
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previous.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr,
+                body
+              });
+            }
   poppler:
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&

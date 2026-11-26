@@ -26,7 +26,14 @@ var (
 		"dagordning",
 		"agenda",
 	}
-	minutesWords = []string{"protokoll", "minutes", "minute", "protocol"}
+	minutesWords = []string{
+		"motesprotokoll",
+		"mötesprotokoll",
+		"protokoll",
+		"minutes",
+		"minute",
+		"protocol",
+	}
 )
 
 // bucketFile is a listed object and the bucket it's in.

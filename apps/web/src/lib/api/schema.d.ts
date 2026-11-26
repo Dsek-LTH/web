@@ -161,15 +161,15 @@ export interface paths {
     };
     /**
      * List albums
-     * @description Every album with its pictures. During a nollning season, albums from before it started are hidden unless the caller has member:see_staben. Needs fileHandler:albums:read.
+     * @description Every album, newest first, with its picture count and cover. During a nollning season, albums from before it started are hidden unless the caller has member:see_staben. Needs fileHandler:albums:read.
      */
     get: operations["list-albums"];
     put?: never;
     /**
-     * Upload pictures to an album
-     * @description Creates the album "{date} {name}" if it doesn't exist. Every picture must be a JPEG, PNG, WebP or GIF of at most 25 MB; each is turned upright, scaled down to at most 1920 pixels wide and stored as a JPEG (a PNG if it has transparency). Needs fileHandler:albums:create.
+     * Create an album
+     * @description Creates an album with its pictures. Every picture must be a JPEG, PNG, WebP or GIF of at most 25 MB; each is turned upright, scaled down to at most 1920 pixels wide and stored as a JPEG (a PNG if it has transparency). Without a cover, the first picture is the cover. Needs gallery:create and fileHandler:albums:create.
      */
-    post: operations["upload-album-pictures"];
+    post: operations["create-album"];
     delete?: never;
     options?: never;
     head?: never;
@@ -185,9 +185,37 @@ export interface paths {
     };
     /**
      * Get an album
-     * @description Its pictures and album.json metadata. Needs fileHandler:albums:read.
+     * @description The album with its pictures and cover. Hidden like in the list. Needs fileHandler:albums:read.
      */
     get: operations["get-album"];
+    /**
+     * Update an album
+     * @description Replaces the album's details; its slug follows the new title and year. Needs gallery:update.
+     */
+    put: operations["update-album"];
+    post?: never;
+    /**
+     * Delete an album
+     * @description Deletes the album and its pictures. Needs gallery:delete.
+     */
+    delete: operations["delete-album"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/albums/{slug}/download": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Download an album
+     * @description The album's pictures (album/) and cover (cover/) as a zip, streamed. Needs fileHandler:albums:read.
+     */
+    get: operations["download-album"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2546,18 +2574,72 @@ export interface components {
       active: boolean;
     };
     Album: {
-      /** @description Folder name, "{date} {name}" - also the album's slug. */
-      key: string;
-      pictures: components["schemas"]["AlbumPicture"][];
+      /** @description Whether the caller may delete the album (gallery:delete). */
+      canDelete: boolean;
+      /** @description Whether the caller may change the album's details (gallery:update). */
+      canEdit: boolean;
+      /** @description Public URL of the cover picture. */
+      coverUrl?: string;
+      /** @description The day the pictures are from, YYYY-MM-DD. */
+      date: string;
+      /** @description Plain text. */
+      description?: string;
+      /** @description The editors, by name. */
+      editors: components["schemas"]["Member"][];
+      /** @description Album id (UUID). */
+      id: string;
+      /**
+       * Format: int64
+       * @description Number of pictures, the cover not counted.
+       */
+      imageCount: number;
+      /** @description The photographers, by name. */
+      photographers: components["schemas"]["Member"][];
+      /** @description URL key, the slugified title and the album's year. */
+      slug: string;
+      title: string;
     };
     AlbumDetail: {
-      /** @description From the album's album.json, if any. */
-      editor?: string;
-      /** @description Folder name, "{date} {name}" - also the album's slug. */
-      key: string;
-      /** @description From the album's album.json, if any. */
-      photographer?: string;
+      /** @description Whether the caller may delete the album (gallery:delete). */
+      canDelete: boolean;
+      /** @description Whether the caller may change the album's details (gallery:update). */
+      canEdit: boolean;
+      /** @description The cover picture. */
+      cover?: components["schemas"]["AlbumPicture"];
+      /** @description Public URL of the cover picture. */
+      coverUrl?: string;
+      /** @description The day the pictures are from, YYYY-MM-DD. */
+      date: string;
+      /** @description Plain text. */
+      description?: string;
+      /** @description The editors, by name. */
+      editors: components["schemas"]["Member"][];
+      /** @description Album id (UUID). */
+      id: string;
+      /**
+       * Format: int64
+       * @description Number of pictures, the cover not counted.
+       */
+      imageCount: number;
+      /** @description The photographers, by name. */
+      photographers: components["schemas"]["Member"][];
+      /** @description The pictures, by file name. */
       pictures: components["schemas"]["AlbumPicture"][];
+      /** @description URL key, the slugified title and the album's year. */
+      slug: string;
+      title: string;
+    };
+    AlbumInput: {
+      /** @description YYYY-MM-DD. */
+      date: string;
+      /** @description Plain text. Unset or empty clears it. */
+      description?: string;
+      /** @description Student ids of the editors. */
+      editors: string[];
+      /** @description Student ids of the photographers. */
+      photographers: string[];
+      /** @description Not empty. */
+      title: string;
     };
     AlbumPicture: {
       /** @description The object's key in the albums bucket. */
@@ -3995,6 +4077,12 @@ export interface components {
       endMonth?: number;
       /** @description Dotted position id, e.g. dsek.cafe.mastare. */
       id: string;
+      /** @description longDescriptionEn or longDescriptionSv, resolved from Accept-Language. Markdown. */
+      longDescription?: string;
+      /** @description English longDescriptionSv. */
+      longDescriptionEn?: string;
+      /** @description Longer markdown text about the position, shown expandable below the description. */
+      longDescriptionSv?: string;
       /** @description nameEn or nameSv, resolved from Accept-Language. */
       name: string;
       nameEn?: string;
@@ -4028,6 +4116,12 @@ export interface components {
       endMonth?: number;
       /** @description Dotted position id, e.g. dsek.cafe.mastare. */
       id: string;
+      /** @description longDescriptionEn or longDescriptionSv, resolved from Accept-Language. Markdown. */
+      longDescription?: string;
+      /** @description English longDescriptionSv. */
+      longDescriptionEn?: string;
+      /** @description Longer markdown text about the position, shown expandable below the description. */
+      longDescriptionSv?: string;
       /** @description Mandates, each with its member. In a committee, that year's; from GET /positions/{id}, every one. */
       mandates: components["schemas"]["Mandate"][];
       /** @description nameEn or nameSv, resolved from Accept-Language. */
@@ -4053,6 +4147,10 @@ export interface components {
       descriptionEn?: string;
       descriptionSv?: string;
       email?: string;
+      /** @description English longDescriptionSv. */
+      longDescriptionEn?: string;
+      /** @description Markdown shown in an expandable section below the description. Unset clears it. */
+      longDescriptionSv?: string;
       nameEn?: string;
       nameSv: string;
     };
@@ -4486,10 +4584,6 @@ export interface components {
       quantity: number;
       title: string;
     };
-    UploadedAlbum: {
-      /** @description The album's slug. */
-      key: string;
-    };
     UploadedImage: {
       /** @description Public URL of the stored image. */
       url: string;
@@ -4810,7 +4904,7 @@ export interface operations {
       };
     };
   };
-  "upload-album-pictures": {
+  "create-album": {
     parameters: {
       query?: never;
       header?: never;
@@ -4820,11 +4914,22 @@ export interface operations {
     requestBody?: {
       content: {
         "multipart/form-data": {
-          /** @description Album date, YYYY-MM-DD. */
+          /**
+           * Format: binary
+           * @description The cover picture.
+           */
+          cover?: Blob;
+          /** @description YYYY-MM-DD. */
           date: string;
+          /** @description Plain text. */
+          description?: string;
+          /** @description Student ids of the editors. */
+          editors?: string[];
           files: Blob[];
-          /** @description Album name. */
-          name: string;
+          /** @description Student ids of the photographers. */
+          photographers?: string[];
+          /** @description Not empty. */
+          title: string;
         };
       };
     };
@@ -4835,7 +4940,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UploadedAlbum"];
+          "application/json": components["schemas"]["AlbumDetail"];
         };
       };
       /** @description Error */
@@ -4854,7 +4959,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        /** @description The album's key. */
+        /** @description The album's slug. */
         slug: string;
       };
       cookie?: never;
@@ -4868,6 +4973,104 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["AlbumDetail"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "update-album": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The album's slug. */
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AlbumInput"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AlbumDetail"];
+        };
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "delete-album": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The album's slug. */
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["ErrorModel"];
+        };
+      };
+    };
+  };
+  "download-album": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The album's slug. */
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description The album as a zip. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/zip": string;
         };
       };
       /** @description Error */

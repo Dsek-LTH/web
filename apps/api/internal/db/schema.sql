@@ -51,7 +51,9 @@ CREATE TABLE positions (
     description_sv TEXT,
     description_en TEXT,
     end_month      INTEGER NOT NULL DEFAULT 11,
-    start_month    INTEGER NOT NULL DEFAULT 0
+    start_month    INTEGER NOT NULL DEFAULT 0,
+    long_description_en TEXT,
+    long_description_sv TEXT
 );
 
 CREATE TABLE email_aliases (
@@ -638,4 +640,29 @@ CREATE TABLE readme (
     year         INTEGER NOT NULL,
     number       INTEGER NOT NULL,
     published_at TIMESTAMPTZ(6)
+);
+
+-- The photo gallery's albums (migration 20261126120000). The pictures are
+-- in MinIO under public/<id>/album/ and the cover under public/<id>/cover/.
+CREATE TABLE albums (
+    id          UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title       TEXT NOT NULL,
+    description TEXT,
+    date        DATE NOT NULL,
+    created_at  TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMPTZ(6) NOT NULL,
+    slug        TEXT NOT NULL
+);
+
+-- Prisma's implicit many-to-many tables: "A" is the album, "B" the member.
+CREATE TABLE "_album_photographer" (
+    "A" UUID NOT NULL REFERENCES albums (id) ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    PRIMARY KEY ("A", "B")
+);
+
+CREATE TABLE "_album_editor" (
+    "A" UUID NOT NULL REFERENCES albums (id) ON DELETE CASCADE,
+    "B" UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE,
+    PRIMARY KEY ("A", "B")
 );

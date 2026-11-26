@@ -1,45 +1,71 @@
 package gallery
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"log/slog"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
+	"github.com/dsek-lth/web/apps/api/internal/apitypes"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
+	"github.com/dsek-lth/web/apps/api/internal/db"
+	"github.com/dsek-lth/web/apps/api/internal/dbutil"
 	"github.com/dsek-lth/web/apps/api/internal/images"
 	"github.com/dsek-lth/web/apps/api/internal/nollning"
+	"github.com/dsek-lth/web/apps/api/internal/slug"
 	"github.com/dsek-lth/web/apps/api/internal/storage"
 )
 
-// albumMetadataFile is the optional per-album metadata object - see
-// GetAlbum.
-const albumMetadataFile = "album.json"
+var (
+	ErrNotFound     = errors.New("gallery: album not found")
+	ErrInvalidInput = errors.New("gallery: invalid input")
+)
 
-// parseDate parses an album folder's leading "YYYY-MM-DD" date token,
-// matching the old TS code's Date.parse(a[0].split(" ")[0]).
-func parseDate(s string) (time.Time, error) {
-	return time.Parse("2006-01-02", s)
+func invalidf(format string, args ...any) error {
+	return fmt.Errorf("%w: "+format, append([]any{ErrInvalidInput}, args...)...)
 }
 
+// MaxPictureSize is the largest picture Create accepts.
+const MaxPictureSize = 25_000_000
+
 type Service struct {
+	pool     *pgxpool.Pool
+	queries  *db.Queries
 	store    storage.Backend
 	nollning *nollning.Service
 	bucket   string
 }
 
-// nollning is used by ListAlbums to redact pre-reveal albums from viewers
-// without apinames.MemberSeeStaben - same pattern as
-// internal/committees.Service.ListBoard, replacing the old
-// isNollningPeriod/getNollningStart AdminSetting-based date hack.
-func NewService(store storage.Backend, nollningSvc *nollning.Service, bucket string) *Service {
-	return &Service{store: store, nollning: nollningSvc, bucket: bucket}
+func NewService(
+	pool *pgxpool.Pool,
+	store storage.Backend,
+	nollningSvc *nollning.Service,
+	bucket string,
+) *Service {
+	return &Service{
+		pool:     pool,
+		queries:  db.New(pool),
+		store:    store,
+		nollning: nollningSvc,
+		bucket:   bucket,
+	}
 }
+
+func albumPrefix(id string) string    { return "public/" + id + "/" }
+func picturesPrefix(id string) string { return albumPrefix(id) + "album/" }
+func coverPrefix(id string) string    { return albumPrefix(id) + "cover/" }
 
 func toPicture(o storage.Object) AlbumPicture {
 	return AlbumPicture{
@@ -51,127 +77,342 @@ func toPicture(o storage.Object) AlbumPicture {
 	}
 }
 
-// ListAlbums lists every album folder under the bucket, grouped exactly
-// like the old gallery/+page.server.ts's filesGroupedByAlbum (album =
-// second-to-last path segment of each object's key).
-//
-// Redaction: mirrors the old page's isNollningPeriod/getNollningStart
-// check, but for real - during an active nollning season, an album whose
-// folder date predates the season's NollaStartAt is hidden from viewers
-// without apinames.MemberSeeStaben (outside any season,
-// nollning.Service.InjectStabenPolicy has already granted everyone that
-// policy by default, so this is a no-op then).
+type albumRow struct {
+	ID          pgtype.UUID
+	Title       string
+	Description pgtype.Text
+	Date        pgtype.Date
+	Slug        string
+}
+
+func (s *Service) toAlbum(ctx context.Context, r albumRow) Album {
+	identity, _ := auth.FromContext(ctx)
+	return Album{
+		ID:            dbutil.UUIDStr(r.ID),
+		Slug:          r.Slug,
+		Title:         r.Title,
+		Description:   dbutil.TextPtr(r.Description),
+		Date:          r.Date.Time.Format(time.DateOnly),
+		Photographers: []apitypes.Member{},
+		Editors:       []apitypes.Member{},
+		CanEdit:       identity != nil && identity.Has(apinames.GalleryUpdate),
+		CanDelete:     identity != nil && identity.Has(apinames.GalleryDelete),
+	}
+}
+
+// hiddenBefore is the date before which albums are hidden from the caller:
+// during a nollning season, the albums from before it started, unless the
+// caller has member:see_staben (outside a season everyone has it). Zero
+// when nothing is hidden.
+func (s *Service) hiddenBefore(ctx context.Context) (time.Time, error) {
+	if identity, ok := auth.FromContext(ctx); ok && identity.Has(apinames.MemberSeeStaben) {
+		return time.Time{}, nil
+	}
+	season, err := s.nollning.Current(ctx)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("gallery: get current nollning season: %w", err)
+	}
+	if season == nil {
+		return time.Time{}, nil
+	}
+	return season.NollaStartAt, nil
+}
+
+func hidden(date pgtype.Date, before time.Time) bool {
+	return !before.IsZero() && date.Time.Before(before)
+}
+
+// withMembers fills in the albums' photographers and editors.
+func (s *Service) withMembers(ctx context.Context, albums []*Album) error {
+	if len(albums) == 0 {
+		return nil
+	}
+	byID := make(map[string]*Album, len(albums))
+	ids := make([]pgtype.UUID, 0, len(albums))
+	for _, a := range albums {
+		id, err := dbutil.ParseUUID(a.ID)
+		if err != nil {
+			return err
+		}
+		ids = append(ids, id)
+		byID[a.ID] = a
+	}
+	rows, err := s.queries.ListAlbumMembers(ctx, ids)
+	if err != nil {
+		return fmt.Errorf("gallery: list album members: %w", err)
+	}
+	for _, r := range rows {
+		a := byID[dbutil.UUIDStr(r.AlbumID)]
+		if a == nil {
+			continue
+		}
+		m := apitypes.Member{
+			ID:             dbutil.UUIDStr(r.ID),
+			StudentID:      dbutil.TextPtr(r.StudentID),
+			FirstName:      dbutil.TextPtr(r.FirstName),
+			LastName:       dbutil.TextPtr(r.LastName),
+			Nickname:       dbutil.TextPtr(r.Nickname),
+			PicturePath:    dbutil.TextPtr(r.PicturePath),
+			ClassYear:      dbutil.Int4Ptr(r.ClassYear),
+			ClassProgramme: dbutil.TextPtr(r.ClassProgramme),
+		}
+		if r.Role == "photographer" {
+			a.Photographers = append(a.Photographers, m)
+		} else {
+			a.Editors = append(a.Editors, m)
+		}
+	}
+	return nil
+}
+
+// ListAlbums lists the albums, newest first, each with its picture count
+// and cover. The bucket is listed once for all of them.
 func (s *Service) ListAlbums(ctx context.Context) ([]Album, error) {
 	if err := auth.Require(ctx, apinames.FileAlbumsRead); err != nil {
 		return nil, err
 	}
-
-	objects, err := s.store.List(ctx, s.bucket, "public/", true)
+	rows, err := s.queries.ListAlbums(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("gallery: list albums: %w", err)
 	}
-
-	order := make([]string, 0)
-	byAlbum := make(map[string][]AlbumPicture)
+	before, err := s.hiddenBefore(ctx)
+	if err != nil {
+		return nil, err
+	}
+	objects, err := s.store.List(ctx, s.bucket, "public/", true)
+	if err != nil {
+		return nil, fmt.Errorf("gallery: list pictures: %w", err)
+	}
+	counts := map[string]int{}
+	covers := map[string]string{}
 	for _, o := range objects {
+		// public/<album id>/<album|cover>/<file>
 		parts := strings.Split(o.Key, "/")
-		if len(parts) < 2 {
+		if len(parts) != 4 {
 			continue
 		}
-		album := parts[len(parts)-2]
-		if _, ok := byAlbum[album]; !ok {
-			order = append(order, album)
-		}
-		byAlbum[album] = append(byAlbum[album], toPicture(o))
-	}
-
-	season, err := s.nollning.Current(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("gallery: get current nollning season: %w", err)
-	}
-	canSeeStaben := false
-	if identity, ok := auth.FromContext(ctx); ok {
-		canSeeStaben = identity.Has(apinames.MemberSeeStaben)
-	}
-
-	albums := make([]Album, 0, len(order))
-	for _, key := range order {
-		if season != nil && !canSeeStaben {
-			date, _, _ := strings.Cut(key, " ")
-			if t, err := parseDate(date); err == nil && t.Before(season.NollaStartAt) {
-				continue
+		switch parts[2] {
+		case "album":
+			counts[parts[1]]++
+		case "cover":
+			if _, ok := covers[parts[1]]; !ok {
+				covers[parts[1]] = o.URL
 			}
 		}
-		albums = append(albums, Album{Key: key, Pictures: byAlbum[key]})
+	}
+
+	albums := make([]Album, 0, len(rows))
+	for _, r := range rows {
+		if hidden(r.Date, before) {
+			continue
+		}
+		a := s.toAlbum(ctx, albumRow(r))
+		a.ImageCount = counts[a.ID]
+		if url, ok := covers[a.ID]; ok {
+			a.CoverURL = &url
+		}
+		albums = append(albums, a)
+	}
+	ptrs := make([]*Album, len(albums))
+	for i := range albums {
+		ptrs[i] = &albums[i]
+	}
+	if err := s.withMembers(ctx, ptrs); err != nil {
+		return nil, err
 	}
 	return albums, nil
 }
 
-// GetAlbum returns one album's pictures plus its optional album.json
-// metadata (photographer/editor), matching
-// gallery/album/[slug]/+page.server.ts exactly - fetched directly via
-// storage.Store.Get rather than an HTTP round-trip through the object's own
-// public URL like the old TS code did.
-func (s *Service) GetAlbum(ctx context.Context, slug string) (*AlbumDetail, error) {
+// getRow finds an album the caller may see.
+func (s *Service) getRow(ctx context.Context, albumSlug string) (albumRow, error) {
+	r, err := s.queries.GetAlbumBySlug(ctx, albumSlug)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return albumRow{}, ErrNotFound
+	}
+	if err != nil {
+		return albumRow{}, fmt.Errorf("gallery: get album %q: %w", albumSlug, err)
+	}
+	before, err := s.hiddenBefore(ctx)
+	if err != nil {
+		return albumRow{}, err
+	}
+	if hidden(r.Date, before) {
+		return albumRow{}, ErrNotFound
+	}
+	return albumRow(r), nil
+}
+
+// GetAlbum returns an album with its pictures.
+func (s *Service) GetAlbum(ctx context.Context, albumSlug string) (*AlbumDetail, error) {
 	if err := auth.Require(ctx, apinames.FileAlbumsRead); err != nil {
 		return nil, err
 	}
-
-	year := storage.YearFromDate(slug)
-	prefix := "public/" + year + "/" + slug
-	objects, err := s.store.List(ctx, s.bucket, prefix, true)
+	r, err := s.getRow(ctx, albumSlug)
 	if err != nil {
-		return nil, fmt.Errorf("gallery: list album %q: %w", slug, err)
+		return nil, err
 	}
+	return s.detail(ctx, r)
+}
 
-	detail := &AlbumDetail{Key: slug}
+// detail is GetAlbum without the read check, for returning what a write
+// made.
+func (s *Service) detail(ctx context.Context, r albumRow) (*AlbumDetail, error) {
+	album := s.toAlbum(ctx, r)
+	if err := s.withMembers(ctx, []*Album{&album}); err != nil {
+		return nil, err
+	}
+	objects, err := s.store.List(ctx, s.bucket, albumPrefix(album.ID), true)
+	if err != nil {
+		return nil, fmt.Errorf("gallery: list album %s: %w", album.ID, err)
+	}
+	detail := &AlbumDetail{Album: album, Pictures: []AlbumPicture{}}
 	for _, o := range objects {
-		if o.Name == albumMetadataFile {
-			data, err := s.store.Get(ctx, s.bucket, o.Key)
-			if err != nil {
-				return nil, fmt.Errorf("gallery: read %s: %w", albumMetadataFile, err)
-			}
-			var meta struct {
-				Photographer string `json:"photographer"`
-				Editor       string `json:"editor"`
-			}
-			if err := json.Unmarshal(data, &meta); err != nil {
-				return nil, fmt.Errorf("gallery: parse %s: %w", albumMetadataFile, err)
-			}
-			detail.Photographer = &meta.Photographer
-			detail.Editor = &meta.Editor
-			continue
+		switch {
+		case strings.HasPrefix(o.Key, picturesPrefix(album.ID)):
+			detail.Pictures = append(detail.Pictures, toPicture(o))
+		case strings.HasPrefix(o.Key, coverPrefix(album.ID)) && detail.Cover == nil:
+			cover := toPicture(o)
+			detail.Cover = &cover
 		}
-		detail.Pictures = append(detail.Pictures, toPicture(o))
+	}
+	detail.ImageCount = len(detail.Pictures)
+	if detail.Cover != nil {
+		detail.CoverURL = &detail.Cover.URL
 	}
 	return detail, nil
 }
 
-// MaxPictureSize is the largest file UploadAlbum accepts per picture.
-const MaxPictureSize = 25_000_000
+// details is a validated AlbumInput.
+type details struct {
+	title         string
+	description   pgtype.Text
+	date          pgtype.Date
+	photographers []pgtype.UUID
+	editors       []pgtype.UUID
+}
 
-// UploadAlbum uploads every file into the "public/{year}/{date} {name}"
-// folder and waits for all of them to finish before returning - fixes
-// gallery/upload/uploadFiles.ts's fire-and-forget bug, which pushed upload
-// promises into a list it never awaited. Returns the album's key.
-//
-// Every file must be a JPEG, PNG, WebP or GIF; each is turned upright,
-// scaled down to images.MaxWidth and re-encoded (see internal/images), so
-// it's stored as .jpg or .png. All of them are checked before any is
-// stored, so one bad file uploads nothing; internal/images bounds how
-// many are decoded at once, and a cancelled request stops the rest.
-func (s *Service) UploadAlbum(
+func (s *Service) validate(ctx context.Context, in AlbumInput) (details, error) {
+	var d details
+	d.title = strings.TrimSpace(in.Title)
+	if d.title == "" {
+		return d, invalidf("the title is empty")
+	}
+	date, err := dbutil.ParseDate(in.Date)
+	if err != nil {
+		return d, invalidf("invalid date %q, want YYYY-MM-DD", in.Date)
+	}
+	d.date = date
+	if in.Description != nil && strings.TrimSpace(*in.Description) != "" {
+		d.description = pgtype.Text{String: strings.TrimSpace(*in.Description), Valid: true}
+	}
+	if d.photographers, err = s.memberIDs(ctx, in.Photographers); err != nil {
+		return d, err
+	}
+	if d.editors, err = s.memberIDs(ctx, in.Editors); err != nil {
+		return d, err
+	}
+	return d, nil
+}
+
+// memberIDs looks up members by student id; an unknown one is invalid.
+func (s *Service) memberIDs(ctx context.Context, studentIDs []string) ([]pgtype.UUID, error) {
+	if len(studentIDs) == 0 {
+		return []pgtype.UUID{}, nil
+	}
+	rows, err := s.queries.ListMembersByStudentIDs(ctx, studentIDs)
+	if err != nil {
+		return nil, fmt.Errorf("gallery: look up members: %w", err)
+	}
+	found := make(map[string]pgtype.UUID, len(rows))
+	for _, r := range rows {
+		found[r.StudentID.String] = r.ID
+	}
+	ids := make([]pgtype.UUID, 0, len(studentIDs))
+	for _, sid := range studentIDs {
+		id, ok := found[sid]
+		if !ok {
+			return nil, invalidf("no member with student id %q", sid)
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+// freeSlug is the album's slug: the title and year, with a count appended
+// if another album has it.
+func freeSlug(ctx context.Context, q *db.Queries, d details, exclude pgtype.UUID) (string, error) {
+	base := slug.WithYear(d.title, d.date.Time.Year())
+	for count := 0; ; count++ {
+		candidate := slug.SlugWithCount(base, count)
+		taken, err := q.AlbumSlugTaken(ctx, db.AlbumSlugTakenParams{
+			Slug:      candidate,
+			ExcludeID: exclude,
+		})
+		if err != nil {
+			return "", fmt.Errorf("gallery: check slug: %w", err)
+		}
+		if !taken {
+			return candidate, nil
+		}
+	}
+}
+
+func setMembers(ctx context.Context, q *db.Queries, albumID pgtype.UUID, d details) error {
+	if err := q.ClearAlbumPhotographers(ctx, albumID); err != nil {
+		return err
+	}
+	if err := q.ClearAlbumEditors(ctx, albumID); err != nil {
+		return err
+	}
+	if err := q.AddAlbumPhotographers(ctx, db.AddAlbumPhotographersParams{
+		AlbumID:   albumID,
+		MemberIds: d.photographers,
+	}); err != nil {
+		return err
+	}
+	return q.AddAlbumEditors(ctx, db.AddAlbumEditorsParams{
+		AlbumID:   albumID,
+		MemberIds: d.editors,
+	})
+}
+
+func (s *Service) inTx(ctx context.Context, fn func(q *db.Queries) error) error {
+	return pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
+		return fn(s.queries.WithTx(tx))
+	})
+}
+
+// Create creates an album and uploads its pictures and cover (the first
+// picture when cover is nil). Every file must be a JPEG, PNG, WebP or GIF;
+// each is turned upright, scaled down and re-encoded (see internal/images).
+// All of them are checked before any is stored.
+func (s *Service) Create(
 	ctx context.Context,
-	name, date string,
+	in AlbumInput,
 	files []UploadFile,
-) (string, error) {
+	cover *UploadFile,
+) (*AlbumDetail, error) {
+	if err := auth.Require(ctx, apinames.GalleryCreate); err != nil {
+		return nil, err
+	}
 	if err := auth.Require(ctx, apinames.FileAlbumsCreate); err != nil {
-		return "", err
+		return nil, err
+	}
+	d, err := s.validate(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	if len(files) == 0 {
+		return nil, invalidf("an album needs at least one picture")
 	}
 
-	processed := make([]*images.Image, len(files))
+	all := files
+	if cover != nil {
+		all = append(append([]UploadFile{}, files...), *cover)
+	}
+	processed := make([]*images.Image, len(all))
 	pg, pctx := errgroup.WithContext(ctx)
-	for i, f := range files {
+	for i, f := range all {
 		pg.Go(func() error {
 			img, err := images.Read(pctx, f.Data, MaxPictureSize, images.MaxWidth)
 			if err != nil {
@@ -182,29 +423,224 @@ func (s *Service) UploadAlbum(
 		})
 	}
 	if err := pg.Wait(); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	folder := storage.AlbumFolderName(date, name)
-	prefix := "public/" + storage.YearFromDate(date) + "/" + folder
+	id := pgtype.UUID{Bytes: uuid.New(), Valid: true}
+	albumID := dbutil.UUIDStr(id)
+
+	type upload struct {
+		key string
+		img *images.Image
+	}
+	uploads := make([]upload, 0, len(all)+1)
+	for i, f := range files {
+		uploads = append(uploads, upload{
+			key: picturesPrefix(
+				albumID,
+			) + storage.PreparedFilenameWithExt(
+				f.Filename,
+				processed[i].Ext,
+			),
+			img: processed[i],
+		})
+	}
+	coverFile, coverImg := files[0], processed[0]
+	if cover != nil {
+		coverFile, coverImg = *cover, processed[len(processed)-1]
+	}
+	uploads = append(uploads, upload{
+		key: coverPrefix(
+			albumID,
+		) + storage.PreparedFilenameWithExt(
+			coverFile.Filename,
+			coverImg.Ext,
+		),
+		img: coverImg,
+	})
 
 	g, gctx := errgroup.WithContext(ctx)
-	for i, f := range files {
-		img := processed[i]
+	for _, u := range uploads {
 		g.Go(func() error {
-			key := prefix + "/" + storage.PreparedFilenameWithExt(f.Filename, img.Ext)
 			_, err := s.store.Put(
 				gctx,
 				s.bucket,
-				key,
-				bytes.NewReader(img.Data),
-				int64(len(img.Data)),
+				u.key,
+				bytes.NewReader(u.img.Data),
+				int64(len(u.img.Data)),
 			)
 			return err
 		})
 	}
 	if err := g.Wait(); err != nil {
-		return "", fmt.Errorf("gallery: upload album %q: %w", prefix, err)
+		s.removePrefix(albumID)
+		return nil, fmt.Errorf("gallery: upload album %s: %w", albumID, err)
 	}
-	return folder, nil
+
+	var albumSlug string
+	err = s.inTx(ctx, func(q *db.Queries) error {
+		var err error
+		if albumSlug, err = freeSlug(ctx, q, d, pgtype.UUID{}); err != nil {
+			return err
+		}
+		if err := q.CreateAlbum(ctx, db.CreateAlbumParams{
+			ID:          id,
+			Title:       d.title,
+			Description: d.description,
+			Date:        d.date,
+			Slug:        albumSlug,
+		}); err != nil {
+			return fmt.Errorf("gallery: create album: %w", err)
+		}
+		return setMembers(ctx, q, id, d)
+	})
+	if err != nil {
+		s.removePrefix(albumID)
+		return nil, err
+	}
+	return s.detail(ctx, albumRow{
+		ID:          id,
+		Title:       d.title,
+		Description: d.description,
+		Date:        d.date,
+		Slug:        albumSlug,
+	})
+}
+
+// Update replaces an album's details; its slug follows the new title and
+// year.
+func (s *Service) Update(
+	ctx context.Context,
+	albumSlug string,
+	in AlbumInput,
+) (*AlbumDetail, error) {
+	if err := auth.Require(ctx, apinames.GalleryUpdate); err != nil {
+		return nil, err
+	}
+	r, err := s.getRow(ctx, albumSlug)
+	if err != nil {
+		return nil, err
+	}
+	d, err := s.validate(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	var newSlug string
+	err = s.inTx(ctx, func(q *db.Queries) error {
+		var err error
+		if newSlug, err = freeSlug(ctx, q, d, r.ID); err != nil {
+			return err
+		}
+		n, err := q.UpdateAlbum(ctx, db.UpdateAlbumParams{
+			ID:          r.ID,
+			Title:       d.title,
+			Description: d.description,
+			Date:        d.date,
+			Slug:        newSlug,
+		})
+		if err != nil {
+			return fmt.Errorf("gallery: update album: %w", err)
+		}
+		if n == 0 {
+			return ErrNotFound
+		}
+		return setMembers(ctx, q, r.ID, d)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return s.detail(ctx, albumRow{
+		ID:          r.ID,
+		Title:       d.title,
+		Description: d.description,
+		Date:        d.date,
+		Slug:        newSlug,
+	})
+}
+
+// Delete deletes an album and its pictures. The pictures go first, so a
+// failure leaves the album to delete again rather than orphaned files.
+func (s *Service) Delete(ctx context.Context, albumSlug string) error {
+	if err := auth.Require(ctx, apinames.GalleryDelete); err != nil {
+		return err
+	}
+	r, err := s.getRow(ctx, albumSlug)
+	if err != nil {
+		return err
+	}
+	albumID := dbutil.UUIDStr(r.ID)
+	objects, err := s.store.List(ctx, s.bucket, albumPrefix(albumID), true)
+	if err != nil {
+		return fmt.Errorf("gallery: list album %q: %w", albumSlug, err)
+	}
+	keys := make([]string, len(objects))
+	for i, o := range objects {
+		keys[i] = o.Key
+	}
+	if len(keys) > 0 {
+		if err := s.store.Remove(ctx, s.bucket, keys); err != nil {
+			return fmt.Errorf("gallery: remove album %q's pictures: %w", albumSlug, err)
+		}
+	}
+	if err := s.queries.DeleteAlbum(ctx, r.ID); err != nil {
+		return fmt.Errorf("gallery: delete album: %w", err)
+	}
+	return nil
+}
+
+// removePrefix cleans up after a failed create.
+func (s *Service) removePrefix(albumID string) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	objects, err := s.store.List(ctx, s.bucket, albumPrefix(albumID), true)
+	if err == nil && len(objects) > 0 {
+		keys := make([]string, len(objects))
+		for i, o := range objects {
+			keys[i] = o.Key
+		}
+		err = s.store.Remove(ctx, s.bucket, keys)
+	}
+	if err != nil {
+		slog.Error("gallery: clean up after a failed upload", "album", albumID, "err", err)
+	}
+}
+
+// Download returns an album's pictures and cover as a zip, written one
+// picture at a time ("album/<name>" and "cover/<name>").
+func (s *Service) Download(ctx context.Context, albumSlug string) (*AlbumDownload, error) {
+	album, err := s.GetAlbum(ctx, albumSlug)
+	if err != nil {
+		return nil, err
+	}
+	entries := make([]struct{ name, key string }, 0, len(album.Pictures)+1)
+	for _, p := range album.Pictures {
+		entries = append(entries, struct{ name, key string }{"album/" + p.Name, p.ID})
+	}
+	if album.Cover != nil {
+		entries = append(
+			entries,
+			struct{ name, key string }{"cover/" + album.Cover.Name, album.Cover.ID},
+		)
+	}
+	return &AlbumDownload{
+		Slug: album.Slug,
+		Write: func(w io.Writer) error {
+			zw := zip.NewWriter(w)
+			for _, e := range entries {
+				data, err := s.store.Get(ctx, s.bucket, e.key)
+				if err != nil {
+					return err
+				}
+				// Pictures are already compressed.
+				f, err := zw.CreateHeader(&zip.FileHeader{Name: e.name, Method: zip.Store})
+				if err != nil {
+					return err
+				}
+				if _, err := f.Write(data); err != nil {
+					return err
+				}
+			}
+			return zw.Close()
+		},
+	}, nil
 }

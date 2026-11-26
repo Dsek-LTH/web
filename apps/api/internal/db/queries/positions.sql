@@ -3,6 +3,7 @@
 -- can group positions by committee.
 SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
        p.description_sv, p.description_en, p.start_month, p.end_month,
+       p.long_description_sv, p.long_description_en,
        c.name_sv AS committee_name_sv, c.name_en AS committee_name_en, c.short_name AS committee_short_name
 FROM positions p
 LEFT JOIN committees c ON c.id = p.committee_id
@@ -14,6 +15,7 @@ ORDER BY p.name_sv;
 -- request.
 SELECT p.id, p.name_sv, p.name_en, p.committee_id, p.email, p.active, p.board_member,
        p.description_sv, p.description_en, p.start_month, p.end_month,
+       p.long_description_sv, p.long_description_en,
        c.name_sv AS committee_name_sv, c.name_en AS committee_name_en, c.short_name AS committee_short_name
 FROM positions p
 LEFT JOIN committees c ON c.id = p.committee_id
@@ -45,8 +47,12 @@ ORDER BY p.id;
 
 -- name: UpdatePosition :one
 UPDATE positions
-SET name_sv = $2, name_en = $3, email = $4, description_sv = $5, description_en = $6,
-    active = $7, board_member = $8
-WHERE id = $1
+SET name_sv = sqlc.arg('name_sv'), name_en = sqlc.arg('name_en'), email = sqlc.arg('email'),
+    description_sv = sqlc.arg('description_sv'), description_en = sqlc.arg('description_en'),
+    long_description_sv = sqlc.arg('long_description_sv'),
+    long_description_en = sqlc.arg('long_description_en'),
+    active = sqlc.arg('active'), board_member = sqlc.arg('board_member')
+WHERE id = sqlc.arg('id')
 RETURNING id, name_sv, name_en, committee_id, email, active, board_member,
-          description_sv, description_en, start_month, end_month;
+          description_sv, description_en, start_month, end_month,
+          long_description_sv, long_description_en;

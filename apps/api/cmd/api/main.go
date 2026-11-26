@@ -172,7 +172,7 @@ func main() {
 	markdownSvc := markdown.NewService(pool)
 	governingDocSvc := governingdocs.NewService(pool)
 	medalSvc := medals.NewService(pool)
-	gallerySvc := gallery.NewService(store, nollningSvc, mustEnv("PUBLIC_BUCKETS_ALBUMS"))
+	gallerySvc := gallery.NewService(pool, store, nollningSvc, mustEnv("PUBLIC_BUCKETS_ALBUMS"))
 	documentSvc := documents.NewService(
 		store,
 		mustEnv("PUBLIC_BUCKETS_DOCUMENTS"),

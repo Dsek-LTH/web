@@ -1,3 +1,4 @@
+import { resolveImages } from "./cover";
 import type { components } from "$lib/api/schema";
 import type {
   ArticleCommitteeSummary,
@@ -25,6 +26,7 @@ export type PreviewForm = {
   tags: Array<{ id: string }>;
   imageUrls?: string[] | null;
   imageUrl?: string | null;
+  coverNewIndex?: number | null;
   committeeId?: string | null;
   publishTime?: Date | null;
   youtubeUrl?: string | null;
@@ -123,13 +125,13 @@ export const buildArticlePreview = ({
       }
     : undefined;
 
-  const existingImageUrls = form.imageUrls ?? [];
-  const imageUrls = isEditing
-    ? [...existingImageUrls, ...uploadedImageUrls]
-    : [...uploadedImageUrls];
-  const cardImageUrl = isEditing
-    ? (form.imageUrl ?? undefined)
-    : (uploadedImageUrls[0] ?? form.imageUrl ?? undefined);
+  // Creating ignores any existing URLs, just like the server does.
+  const { imageUrls, imageUrl: cardImageUrl } = resolveImages({
+    existing: isEditing ? (form.imageUrls ?? []) : [],
+    newUrls: uploadedImageUrls,
+    coverUrl: form.imageUrl,
+    coverNewIndex: form.coverNewIndex,
+  });
 
   return {
     article: {
@@ -141,7 +143,7 @@ export const buildArticlePreview = ({
       youtubeUrl: form.youtubeUrl ?? undefined,
     },
     committee,
-    cardImageUrl,
+    cardImageUrl: cardImageUrl ?? undefined,
     cardPublishedAt: form.publishTime ?? now,
   };
 };

@@ -69,6 +69,7 @@ export const load: PageServerLoad = async (event) => {
       {
         name: position.name,
         description: position.description ?? null,
+        longDescription: position.longDescription ?? null,
         email: position.email ?? null,
       },
       zod4(updateSchema),
@@ -96,6 +97,7 @@ export const load: PageServerLoad = async (event) => {
 const updateSchema = z.object({
   name: z.string().optional(),
   description: z.string().nullable(),
+  longDescription: z.string().nullable(),
   email: z.string().email().nullable(),
 });
 export type UpdatePositionSchema = Infer<typeof updateSchema>;
@@ -174,6 +176,14 @@ export const actions: Actions = {
         descriptionEn: isSv
           ? current.descriptionEn
           : (form.data.description ?? undefined),
+        // PUT replaces the position, so the other language's text is
+        // carried over.
+        longDescriptionSv: isSv
+          ? form.data.longDescription || undefined
+          : current.longDescriptionSv,
+        longDescriptionEn: isSv
+          ? current.longDescriptionEn
+          : form.data.longDescription || undefined,
         email: form.data.email ?? undefined,
         active: current.active ?? true,
         boardMember: current.boardMember ?? false,

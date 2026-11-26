@@ -1,6 +1,7 @@
 package main
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -25,6 +26,21 @@ func TestCheckPrismaHistory(t *testing.T) {
 	retried := append(complete(), prismaRow{name: prismaMigrations[3], rolledBackAt: &now})
 	if err := checkPrismaHistory(retried); err != nil {
 		t.Errorf("rolled-back attempt: %v", err)
+	}
+
+	// Prisma migrations main gained after the squash, which Go migrations
+	// after the baseline redo: all, some or none of them may be there.
+	withPorted := complete()
+	for name := range portedPrismaMigrations {
+		withPorted = append(withPorted, done(name))
+	}
+	if err := checkPrismaHistory(withPorted); err != nil {
+		t.Errorf("with the ported migrations: %v", err)
+	}
+	if err := checkPrismaHistory(
+		append(complete(), done("20261109170634_add_long_position_descriptions")),
+	); err != nil {
+		t.Errorf("with one ported migration: %v", err)
 	}
 
 	for _, tc := range []struct {
@@ -56,5 +72,15 @@ func TestPrismaMigrationsEndAtBaseline(t *testing.T) {
 	last := prismaMigrations[len(prismaMigrations)-1]
 	if !strings.HasPrefix(last, "20261103200000_") {
 		t.Errorf("last Prisma migration %s isn't the baseline's version %d", last, baselineVersion)
+	}
+}
+
+// Every ported Prisma migration names a Go migration that exists.
+func TestPortedPrismaMigrationsExist(t *testing.T) {
+	for prisma, goName := range portedPrismaMigrations {
+		matches, err := filepath.Glob(filepath.Join("..", "..", migrationsDir, goName+".up.sql"))
+		if err != nil || len(matches) != 1 {
+			t.Errorf("%s: Go migration %s not found (%v)", prisma, goName, err)
+		}
 	}
 }

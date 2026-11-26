@@ -28,12 +28,19 @@
   let query = $state("");
   // What was picked (null: closed), and in which list. A pick still in the
   // list stays; otherwise the first meeting is shown once the list changes.
-  let choice = $state<{ name: string | null; listKey: string } | null>(null);
+  // A different year or tab shows its newest meeting again (upstream #1488).
+  let choice = $state<{
+    name: string | null;
+    listKey: string;
+    listScope: string;
+  } | null>(null);
 
   let type = $derived.by(() => {
     const requested = page.url.searchParams.get("type");
     return isMeetingType(requested) ? requested : dt.boardMeeting;
   });
+  let year = $derived(page.url.searchParams.get("year"));
+  let listScope = $derived(`${year ?? ""}|${type}`);
 
   // Display order only: newest board meetings first, current-format SRD
   // meetings by number before the older ones.
@@ -66,6 +73,8 @@
   );
 
   let selectedMeeting = $derived.by(() => {
+    if (choice && choice.listScope !== listScope)
+      return sortedMeetings[0]?.name ?? null;
     if (
       choice?.name &&
       sortedMeetings.some((meeting) => meeting.name === choice?.name)
@@ -97,7 +106,11 @@
   }
 
   function selectMeeting(name: string | null) {
-    choice = { name: selectedMeeting === name ? null : name, listKey };
+    choice = {
+      name: selectedMeeting === name ? null : name,
+      listKey,
+      listScope,
+    };
   }
 
   // Flat UI toggles. Each file says itself whether the caller may edit or

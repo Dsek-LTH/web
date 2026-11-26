@@ -83,3 +83,14 @@ var prismaMigrations = []string{
 	"20261102190000_add_article_discord_announced_at",
 	"20261103200000_add_member_birth_date",
 }
+
+// portedPrismaMigrations are Prisma migrations main gained after the
+// squash, each ported to a Go migration after the baseline that skips what
+// already exists. A database may have run any of them under Prisma before
+// switching, so adoption accepts them on top of prismaMigrations; `up` then
+// runs the Go versions, which change nothing where Prisma already did.
+var portedPrismaMigrations = map[string]string{
+	"20261020130000_add_photo_albums":               "20261126120000_add_photo_albums",
+	"20261113233058_remove_album_image_count":       "20261126120000_add_photo_albums",
+	"20261109170634_add_long_position_descriptions": "20261126120001_add_long_position_descriptions",
+}

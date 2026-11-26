@@ -1,6 +1,9 @@
 package slug
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // Cases taken from ../../../web/src/lib/utils/slugify.test.ts to keep parity
 // with the TS implementation this replaces.
@@ -48,5 +51,21 @@ func TestSlugWithCount(t *testing.T) {
 	}
 	if got := SlugWithCount("foo", 1); got != "foo-2" {
 		t.Errorf("SlugWithCount(foo, 1) = %q, want foo-2", got)
+	}
+}
+
+func TestWithYear(t *testing.T) {
+	for _, tc := range []struct {
+		in   string
+		year int
+		want string
+	}{
+		{"Nollefredagen", 2026, "nollefredagen-2026"},
+		{"Sittning 2026", 2026, "sittning-2026"},
+		{strings.Repeat("a", 60), 2026, strings.Repeat("a", 45) + "-2026"},
+	} {
+		if got := WithYear(tc.in, tc.year); got != tc.want {
+			t.Errorf("WithYear(%q, %d) = %q, want %q", tc.in, tc.year, got, tc.want)
+		}
 	}
 }

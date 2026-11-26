@@ -79,8 +79,12 @@ type positionRow struct {
 	BoardMember   bool
 	DescriptionSv pgtype.Text
 	DescriptionEn pgtype.Text
-	StartMonth    int32
-	EndMonth      int32
+	// LongDescriptionSv/En are only read by the queries for a single
+	// position or the position list; zero (NULL) elsewhere.
+	LongDescriptionSv pgtype.Text
+	LongDescriptionEn pgtype.Text
+	StartMonth        int32
+	EndMonth          int32
 }
 
 func toPosition(r positionRow, loc string) Position {
@@ -97,7 +101,12 @@ func toPosition(r positionRow, loc string) Position {
 		Description:   dbutil.ResolveNullableName(r.DescriptionSv, r.DescriptionEn, loc),
 		DescriptionSv: dbutil.TextPtr(r.DescriptionSv),
 		DescriptionEn: dbutil.TextPtr(r.DescriptionEn),
-		StartMonth:    &r.StartMonth,
-		EndMonth:      &r.EndMonth,
+		LongDescription: dbutil.ResolveNullableName(
+			r.LongDescriptionSv, r.LongDescriptionEn, loc,
+		),
+		LongDescriptionSv: dbutil.TextPtr(r.LongDescriptionSv),
+		LongDescriptionEn: dbutil.TextPtr(r.LongDescriptionEn),
+		StartMonth:        &r.StartMonth,
+		EndMonth:          &r.EndMonth,
 	}
 }

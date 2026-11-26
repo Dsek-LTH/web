@@ -60,6 +60,8 @@ export const actions: Actions = {
         email: current.email,
         descriptionSv: current.descriptionSv,
         descriptionEn: current.descriptionEn,
+        longDescriptionSv: current.longDescriptionSv,
+        longDescriptionEn: current.longDescriptionEn,
         active: form.data.active ?? current.active ?? true,
         boardMember: form.data.boardMember,
       },

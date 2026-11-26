@@ -5,7 +5,7 @@
   import * as ButtonGroup from "$lib/components/ui/button-group";
   import * as Select from "$lib/components/ui/select";
 
-  import FileUpload from "$lib/components/FileUpload.svelte";
+  import ImagePicker from "./ImagePicker.svelte";
   import Editor from "$lib/components/Editor.svelte";
   import TagSelector from "$lib/components/TagSelector.svelte";
 
@@ -55,7 +55,7 @@
     action?: string;
   } = $props();
 
-  const { form, errors, enhance, delayed } = $derived(superform);
+  const { form, errors, enhance, delayed, submitting } = $derived(superform);
 
   const tz = getLocalTimeZone();
 
@@ -90,16 +90,19 @@
     }
   }
 
-  let filelist: FileList | undefined = $state();
+  // Select values must be strings, so use the option's index and map back
+  // to the full author object when the selection changes.
+  const selectedAuthorId = $derived(
+    String(
+      authorOptions.findIndex((option) =>
+        sameAuthorOption(option, $form.author),
+      ),
+    ),
+  );
 
-  $form.images.forEach((f) => {
-    const dt = new DataTransfer();
-    dt.items.add(f);
-    filelist = dt.files;
-  });
-  function onFileUpload() {
-    // @ts-expect-error -- expected
-    $form.images = [...filelist];
+  function selectAuthor(index: string) {
+    const author = authorOptions[Number(index)];
+    if (author) $form.author = author;
   }
 </script>
 
@@ -173,7 +176,11 @@
 
   <div class="flex w-full flex-col gap-1.5">
     <Label for="author">{m.news_author()}</Label>
-    <Select.Root type="single" bind:value={$form.author as unknown as string}>
+    <Select.Root
+      type="single"
+      value={selectedAuthorId}
+      onValueChange={selectAuthor}
+    >
       <Select.Trigger class="w-full"
         ><User
         />{#if $form.author.type === "Custom" && $form.author.customAuthor != null}{$form
@@ -184,10 +191,7 @@
       >
       <Select.Content>
         {#each authorOptions as authorOption, i (i)}
-          <Select.Item
-            value={sameAuthorOption(authorOption, $form.author)
-              ? ($form.author as unknown as string)
-              : (authorOption as unknown as string)}
+          <Select.Item value={String(i)}
             >{#if authorOption.type === "Custom" && authorOption.customAuthor != null}
               {authorOption.customAuthor.name}
             {:else}
@@ -232,10 +236,11 @@
     </Select.Root>
   </div>
 
-  <FileUpload
-    multiple
-    onchange={() => onFileUpload()}
-    bind:files={() => filelist, (f) => (filelist = f)}
+  <ImagePicker
+    bind:existing={$form.imageUrls}
+    bind:images={$form.images}
+    bind:coverUrl={$form.imageUrl}
+    bind:coverNewIndex={$form.coverNewIndex}
   />
 
   <div class="flex w-full flex-col gap-1.5">
@@ -308,7 +313,7 @@
     <Button onclick={() => goto(resolve("/news"))} variant="outline"
       >{m.cancel()}</Button
     >
-    <Button type="submit" class="block grow"
+    <Button type="submit" class="flex grow flex-row" disabled={$submitting}
       >{m.news_publish()}{#if $delayed}<Spinner />{/if}</Button
     >
   </div>

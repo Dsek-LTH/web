@@ -208,7 +208,7 @@ func newEnvironment(ctx context.Context, pool *pgxpool.Pool) (*environment, erro
 		Markdown:        markdown.NewService(pool),
 		GoverningDocs:   governingdocs.NewService(pool),
 		Medals:          medals.NewService(pool),
-		Gallery:         gallery.NewService(store, nollningSvc, "albums"),
+		Gallery:         gallery.NewService(pool, store, nollningSvc, "albums"),
 		Documents:       documents.NewService(store, "documents", "files"),
 		Doors:           doors.NewService(pool),
 		Booking:         booking.NewService(pool, notifier),

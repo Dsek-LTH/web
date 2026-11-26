@@ -73,13 +73,15 @@ type CommitteeMarkdownInput struct {
 // active/boardMember toggles) into one endpoint, since positions have few
 // fields.
 type PositionInput struct {
-	NameSv        string  `json:"nameSv"`
-	NameEn        *string `json:"nameEn,omitempty"`
-	Email         *string `json:"email,omitempty"`
-	DescriptionSv *string `json:"descriptionSv,omitempty"`
-	DescriptionEn *string `json:"descriptionEn,omitempty"`
-	Active        bool    `json:"active"                  doc:"Inactive positions are kept for history but no longer filled."`
-	BoardMember   bool    `json:"boardMember"             doc:"Whether the position is on the board."`
+	NameSv            string  `json:"nameSv"`
+	NameEn            *string `json:"nameEn,omitempty"`
+	Email             *string `json:"email,omitempty"`
+	DescriptionSv     *string `json:"descriptionSv,omitempty"`
+	DescriptionEn     *string `json:"descriptionEn,omitempty"`
+	LongDescriptionSv *string `json:"longDescriptionSv,omitempty" doc:"Markdown shown in an expandable section below the description. Unset clears it."`
+	LongDescriptionEn *string `json:"longDescriptionEn,omitempty" doc:"English longDescriptionSv."`
+	Active            bool    `json:"active"                      doc:"Inactive positions are kept for history but no longer filled."`
+	BoardMember       bool    `json:"boardMember"                 doc:"Whether the position is on the board."`
 }
 
 // MandatesInput supports multiple memberIds at once (one mandate row

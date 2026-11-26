@@ -12,6 +12,8 @@ import (
 
 type Querier interface {
 	AcceptEntry(ctx context.Context, arg AcceptEntryParams) (int64, error)
+	AddAlbumEditors(ctx context.Context, arg AddAlbumEditorsParams) error
+	AddAlbumPhotographers(ctx context.Context, arg AddAlbumPhotographersParams) error
 	AddArticleLike(ctx context.Context, arg AddArticleLikeParams) error
 	AddArticleTags(ctx context.Context, arg AddArticleTagsParams) error
 	AddBookingRequestAccessDoors(ctx context.Context, arg AddBookingRequestAccessDoorsParams) error
@@ -26,6 +28,8 @@ type Querier interface {
 	AddEventGoing(ctx context.Context, arg AddEventGoingParams) error
 	AddEventInterested(ctx context.Context, arg AddEventInterestedParams) error
 	AddEventTags(ctx context.Context, arg AddEventTagsParams) error
+	// Whether another album (not exclude_id, which may be NULL) has the slug.
+	AlbumSlugTaken(ctx context.Context, arg AlbumSlugTakenParams) (bool, error)
 	AlertExists(ctx context.Context, id pgtype.UUID) (bool, error)
 	AnyAlarmActiveEventNow(ctx context.Context) (bool, error)
 	CancelEntry(ctx context.Context, arg CancelEntryParams) (int64, error)
@@ -35,6 +39,8 @@ type Querier interface {
 	// Claims an article's one Discord announcement: affects a row only if it
 	// hasn't been posted (or claimed) yet.
 	ClaimArticleDiscordAnnouncement(ctx context.Context, id pgtype.UUID) (int64, error)
+	ClearAlbumEditors(ctx context.Context, albumID pgtype.UUID) error
+	ClearAlbumPhotographers(ctx context.Context, albumID pgtype.UUID) error
 	ClearArticleTags(ctx context.Context, articleID pgtype.UUID) error
 	ClearBookingDoorAccess(ctx context.Context, bookingRequestID pgtype.UUID) error
 	ClearBookingRequestAccessDoors(ctx context.Context, a pgtype.UUID) error
@@ -75,6 +81,7 @@ type Querier interface {
 	// One statement, so a batch is all-or-nothing.
 	CreateAccessPoliciesBulk(ctx context.Context, arg CreateAccessPoliciesBulkParams) ([]ApiAccessPolicy, error)
 	CreateAccessPolicy(ctx context.Context, arg CreateAccessPolicyParams) (ApiAccessPolicy, error)
+	CreateAlbum(ctx context.Context, arg CreateAlbumParams) error
 	CreateAlert(ctx context.Context, arg CreateAlertParams) (Alert, error)
 	CreateArticle(ctx context.Context, arg CreateArticleParams) (CreateArticleRow, error)
 	CreateArticleComment(ctx context.Context, arg CreateArticleCommentParams) (CreateArticleCommentRow, error)
@@ -118,6 +125,7 @@ type Querier interface {
 	DecrementWaitlistPositions(ctx context.Context, arg DecrementWaitlistPositionsParams) error
 	DeleteAccessPolicy(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteAdminSetting(ctx context.Context, key string) (int64, error)
+	DeleteAlbum(ctx context.Context, id pgtype.UUID) error
 	DeleteArticleComment(ctx context.Context, arg DeleteArticleCommentParams) error
 	DeleteBookingRequest(ctx context.Context, id pgtype.UUID) error
 	DeleteCafeShift(ctx context.Context, id pgtype.UUID) (int64, error)
@@ -154,6 +162,7 @@ type Querier interface {
 	// The pair's row, whichever direction the first ping went.
 	FindPingBetween(ctx context.Context, arg FindPingBetweenParams) (FindPingBetweenRow, error)
 	GetAdminSettings(ctx context.Context, keys []string) ([]GetAdminSettingsRow, error)
+	GetAlbumBySlug(ctx context.Context, slug string) (GetAlbumBySlugRow, error)
 	// Unconstrained by type, unlike GetGoverningDocumentByID above - the list
 	// page's delete action operates on any document by id regardless of type
 	// (MEETING/OTHER/etc. included), matching the old app's
@@ -343,6 +352,9 @@ type Querier interface {
 	// instead of raw role strings in the result.
 	ListActivePositionsForMemberByStudentID(ctx context.Context, studentID pgtype.Text) ([]ListActivePositionsForMemberByStudentIDRow, error)
 	ListAdminSettings(ctx context.Context) ([]AdminSetting, error)
+	// The photographers and editors of the given albums, by name.
+	ListAlbumMembers(ctx context.Context, albumIds []pgtype.UUID) ([]ListAlbumMembersRow, error)
+	ListAlbums(ctx context.Context) ([]ListAlbumsRow, error)
 	// Unscoped (full history, not year-scoped) - the position detail page
 	// groups a position's entire mandate history client-side by year for
 	// historical study-year statistics, unlike the committee detail page's
@@ -645,6 +657,7 @@ type Querier interface {
 	SongExists(ctx context.Context, id pgtype.UUID) (bool, error)
 	// Whether song_id already has an entry other than the one being edited.
 	SongInSongBook(ctx context.Context, arg SongInSongBookParams) (bool, error)
+	UpdateAlbum(ctx context.Context, arg UpdateAlbumParams) (int64, error)
 	UpdateArticle(ctx context.Context, arg UpdateArticleParams) (UpdateArticleRow, error)
 	UpdateBookable(ctx context.Context, arg UpdateBookableParams) (UpdateBookableRow, error)
 	UpdateBookableCategory(ctx context.Context, arg UpdateBookableCategoryParams) (BookableCategory, error)

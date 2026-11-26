@@ -118,8 +118,13 @@ type Position struct {
 	Description   *string `json:"description,omitempty"   doc:"descriptionEn or descriptionSv, resolved from Accept-Language."`
 	DescriptionSv *string `json:"descriptionSv,omitempty"`
 	DescriptionEn *string `json:"descriptionEn,omitempty"`
-	StartMonth    *int32  `json:"startMonth,omitempty"    doc:"Month (1-12) a mandate usually starts."`
-	EndMonth      *int32  `json:"endMonth,omitempty"      doc:"Month (1-12) a mandate usually ends."`
+	// LongDescription resolves like Description; only set by GET /positions,
+	// GET /positions/{id}, PUT /positions/{id} and a committee's positions.
+	LongDescription   *string `json:"longDescription,omitempty"   doc:"longDescriptionEn or longDescriptionSv, resolved from Accept-Language. Markdown."`
+	LongDescriptionSv *string `json:"longDescriptionSv,omitempty" doc:"Longer markdown text about the position, shown expandable below the description."`
+	LongDescriptionEn *string `json:"longDescriptionEn,omitempty" doc:"English longDescriptionSv."`
+	StartMonth        *int32  `json:"startMonth,omitempty"        doc:"Month (1-12) a mandate usually starts."`
+	EndMonth          *int32  `json:"endMonth,omitempty"          doc:"Month (1-12) a mandate usually ends."`
 	// EmailAliases is only populated on a position detail fetch.
 	EmailAliases []string `json:"emailAliases,omitempty" doc:"Email aliases that forward to the holders. Only set on detail responses."`
 	// Committee is only populated where a consumer needs to render/link a

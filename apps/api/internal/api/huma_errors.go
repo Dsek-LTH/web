@@ -19,6 +19,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/doors"
 	"github.com/dsek-lth/web/apps/api/internal/elections"
 	"github.com/dsek-lth/web/apps/api/internal/events"
+	"github.com/dsek-lth/web/apps/api/internal/gallery"
 	"github.com/dsek-lth/web/apps/api/internal/governingdocs"
 	"github.com/dsek-lth/web/apps/api/internal/images"
 	"github.com/dsek-lth/web/apps/api/internal/links"
@@ -58,6 +59,7 @@ var notFound = []struct {
 	{pings.ErrNotFound, "member"},
 	{medals.ErrNotFound, "member"},
 	{documents.ErrNotFound, "file"},
+	{gallery.ErrNotFound, "album"},
 	{readme.ErrNotFound, "readme issue"},
 	{accesspolicies.ErrNotFound, "access policy"},
 	{tickets.ErrNotFound, "ticket release"},
@@ -86,6 +88,7 @@ var invalidInput = []error{
 	links.ErrInvalidInput,
 	pings.ErrInvalidInput,
 	documents.ErrInvalidInput,
+	gallery.ErrInvalidInput,
 	medals.ErrInvalidInput,
 	tickets.ErrInvalidInput,
 	search.ErrInvalidInput,

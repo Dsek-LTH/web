@@ -500,9 +500,11 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       `MANAGE_SEASONS`) like the old page.
 - [x] T47 Storage failures in `internal/documents` come back as 422
       (`invalidf`): return plain errors (500).
-- [ ] T48 Album detail lists sibling albums with the same prefix: append
+- [x] T48 Album detail lists sibling albums with the same prefix: append
       `/` to the prefix in `gallery.Service.GetAlbum`; apply ListAlbums'
       season check there too.
+      Done by porting upstream's database-backed gallery (#1469): albums
+      live under `public/<id>/` and `GetAlbum` hides them like the list.
 - [x] T49 `{@html}` delete messages interpolate file names and governing
       document titles (`documents/DeleteFileForm.svelte`,
       `documents/requirements/+page.svelte`,

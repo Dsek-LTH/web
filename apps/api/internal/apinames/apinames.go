@@ -94,6 +94,12 @@ const (
 	GoverningDocumentRead  = "governing_document:read"
 	GoverningDocumentWrite = "governing_document:write"
 
+	// Photo albums' details (upstream #1469's gallery). Creating an album
+	// also needs FileAlbumsCreate, as uploading its pictures did upstream.
+	GalleryCreate = "gallery:create"
+	GalleryUpdate = "gallery:update"
+	GalleryDelete = "gallery:delete"
+
 	// File storage (gallery, documents, files). Naming mirrors the old
 	// apiNames.FILES.BUCKET(name) exactly ("fileHandler:{bucket}:{action}"),
 	// not a fresh scheme, so existing dev-DB AccessPolicy grants for these
@@ -237,6 +243,9 @@ func All() []string {
 		MarkdownUpdate,
 		GoverningDocumentRead,
 		GoverningDocumentWrite,
+		GalleryCreate,
+		GalleryUpdate,
+		GalleryDelete,
 		FileAlbumsRead,
 		FileAlbumsCreate,
 		FileDocumentsRead,

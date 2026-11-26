@@ -88,7 +88,7 @@ type prismaRow struct {
 }
 
 // checkPrismaHistory reports whether the applied Prisma migrations are
-// exactly prismaMigrations. A rolled-back attempt doesn't count; an
+// exactly prismaMigrations, plus any of portedPrismaMigrations. A rolled-back attempt doesn't count; an
 // unfinished one (failed, or still running) blocks adoption.
 func checkPrismaHistory(history []prismaRow) error {
 	applied := map[string]bool{}
@@ -109,6 +109,9 @@ func checkPrismaHistory(history []prismaRow) error {
 		delete(applied, name)
 	}
 	for name := range applied {
+		if _, ported := portedPrismaMigrations[name]; ported {
+			continue
+		}
 		extra = append(extra, name)
 	}
 	slices.Sort(extra)

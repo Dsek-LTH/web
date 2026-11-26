@@ -6,6 +6,8 @@
   import { getPositionLink } from "$lib/utils/positions";
   import dayjs from "dayjs";
   import type { components } from "$lib/api/schema";
+  import * as Accordion from "$lib/components/ui/accordion/";
+  import * as m from "$paraglide/messages";
 
   // Sole consumer is the (Go-backed) committee members page - typed
   // against the generated Go API shapes directly.
@@ -46,7 +48,19 @@
     href="mailto:{position.email}">{position.email}</a
   >
   {#if position.description}
-    <MarkdownBody class="mt-1" body={position.description} />
+    <p class="mt-1">{position.description}</p>
+  {/if}
+  {#if position.longDescription}
+    <Accordion.Root type="single">
+      <Accordion.Item>
+        <Accordion.Trigger class="pt-1"
+          >{m.positions_showExtended()}</Accordion.Trigger
+        >
+        <Accordion.Content>
+          <MarkdownBody class="pt-0" body={position.longDescription} />
+        </Accordion.Content>
+      </Accordion.Item>
+    </Accordion.Root>
   {/if}
   <div class="mt-2 flex flex-col gap-1">
     {#each mandates as mandate (mandate.id)}

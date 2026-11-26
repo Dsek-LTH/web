@@ -117,17 +117,19 @@ func (s *Service) GetByShortName(
 			return nil, err
 		}
 		position := toPosition(positionRow{
-			ID:            p.ID,
-			NameSv:        p.NameSv,
-			NameEn:        p.NameEn,
-			CommitteeID:   p.CommitteeID,
-			Email:         p.Email,
-			Active:        p.Active,
-			BoardMember:   p.BoardMember,
-			DescriptionSv: p.DescriptionSv,
-			DescriptionEn: p.DescriptionEn,
-			StartMonth:    p.StartMonth,
-			EndMonth:      p.EndMonth,
+			ID:                p.ID,
+			NameSv:            p.NameSv,
+			NameEn:            p.NameEn,
+			CommitteeID:       p.CommitteeID,
+			Email:             p.Email,
+			Active:            p.Active,
+			BoardMember:       p.BoardMember,
+			DescriptionSv:     p.DescriptionSv,
+			DescriptionEn:     p.DescriptionEn,
+			LongDescriptionSv: p.LongDescriptionSv,
+			LongDescriptionEn: p.LongDescriptionEn,
+			StartMonth:        p.StartMonth,
+			EndMonth:          p.EndMonth,
 		}, loc)
 		position.EmailAliases = aliases
 		positions = append(positions, PositionDetail{
@@ -286,17 +288,19 @@ func (s *Service) ListPositions(ctx context.Context) ([]Position, error) {
 	positions := make([]Position, len(rows))
 	for i, p := range rows {
 		positions[i] = toPosition(positionRow{
-			ID:            p.ID,
-			NameSv:        p.NameSv,
-			NameEn:        p.NameEn,
-			CommitteeID:   p.CommitteeID,
-			Email:         p.Email,
-			Active:        p.Active,
-			BoardMember:   p.BoardMember,
-			DescriptionSv: p.DescriptionSv,
-			DescriptionEn: p.DescriptionEn,
-			StartMonth:    p.StartMonth,
-			EndMonth:      p.EndMonth,
+			ID:                p.ID,
+			NameSv:            p.NameSv,
+			NameEn:            p.NameEn,
+			CommitteeID:       p.CommitteeID,
+			Email:             p.Email,
+			Active:            p.Active,
+			BoardMember:       p.BoardMember,
+			DescriptionSv:     p.DescriptionSv,
+			DescriptionEn:     p.DescriptionEn,
+			LongDescriptionSv: p.LongDescriptionSv,
+			LongDescriptionEn: p.LongDescriptionEn,
+			StartMonth:        p.StartMonth,
+			EndMonth:          p.EndMonth,
 		}, loc)
 		if p.CommitteeID.Valid {
 			c := toCommittee(committeeRow{
@@ -448,17 +452,19 @@ func (s *Service) GetPosition(ctx context.Context, id string) (*PositionDetail, 
 	}
 
 	position := toPosition(positionRow{
-		ID:            row.ID,
-		NameSv:        row.NameSv,
-		NameEn:        row.NameEn,
-		CommitteeID:   row.CommitteeID,
-		Email:         row.Email,
-		Active:        row.Active,
-		BoardMember:   row.BoardMember,
-		DescriptionSv: row.DescriptionSv,
-		DescriptionEn: row.DescriptionEn,
-		StartMonth:    row.StartMonth,
-		EndMonth:      row.EndMonth,
+		ID:                row.ID,
+		NameSv:            row.NameSv,
+		NameEn:            row.NameEn,
+		CommitteeID:       row.CommitteeID,
+		Email:             row.Email,
+		Active:            row.Active,
+		BoardMember:       row.BoardMember,
+		DescriptionSv:     row.DescriptionSv,
+		DescriptionEn:     row.DescriptionEn,
+		LongDescriptionSv: row.LongDescriptionSv,
+		LongDescriptionEn: row.LongDescriptionEn,
+		StartMonth:        row.StartMonth,
+		EndMonth:          row.EndMonth,
 	}, loc)
 	position.Committee = committee
 	position.EmailAliases = aliases
@@ -487,8 +493,11 @@ func (s *Service) UpdatePosition(
 		// way upstream's action DOMPurified them.
 		DescriptionSv: dbutil.ToText(s.sanitizePtr(in.DescriptionSv)),
 		DescriptionEn: dbutil.ToText(s.sanitizePtr(in.DescriptionEn)),
-		Active:        in.Active,
-		BoardMember:   in.BoardMember,
+		// Shown as markdown in an expandable section (upstream #1461).
+		LongDescriptionSv: dbutil.ToText(s.sanitizePtr(in.LongDescriptionSv)),
+		LongDescriptionEn: dbutil.ToText(s.sanitizePtr(in.LongDescriptionEn)),
+		Active:            in.Active,
+		BoardMember:       in.BoardMember,
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -497,17 +506,19 @@ func (s *Service) UpdatePosition(
 		return nil, fmt.Errorf("update position: %w", err)
 	}
 	position := toPosition(positionRow{
-		ID:            row.ID,
-		NameSv:        row.NameSv,
-		NameEn:        row.NameEn,
-		CommitteeID:   row.CommitteeID,
-		Email:         row.Email,
-		Active:        row.Active,
-		BoardMember:   row.BoardMember,
-		DescriptionSv: row.DescriptionSv,
-		DescriptionEn: row.DescriptionEn,
-		StartMonth:    row.StartMonth,
-		EndMonth:      row.EndMonth,
+		ID:                row.ID,
+		NameSv:            row.NameSv,
+		NameEn:            row.NameEn,
+		CommitteeID:       row.CommitteeID,
+		Email:             row.Email,
+		Active:            row.Active,
+		BoardMember:       row.BoardMember,
+		DescriptionSv:     row.DescriptionSv,
+		DescriptionEn:     row.DescriptionEn,
+		LongDescriptionSv: row.LongDescriptionSv,
+		LongDescriptionEn: row.LongDescriptionEn,
+		StartMonth:        row.StartMonth,
+		EndMonth:          row.EndMonth,
 	}, locale.FromContext(ctx))
 	return &position, nil
 }

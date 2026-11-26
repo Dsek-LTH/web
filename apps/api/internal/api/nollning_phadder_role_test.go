@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dsek-lth/web/apps/api/internal/auth"
 	"github.com/dsek-lth/web/apps/api/internal/nollning"
 )
 
@@ -23,6 +24,8 @@ func TestPhadderRoleOnlyCountsTheCurrentSeason(t *testing.T) {
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	svc := nollning.NewService(tx)
+	// Phadder roles are only shown to signed-in members (T28).
+	ctx = auth.ContextWithIdentity(ctx, e.as(1).identity)
 
 	year, err := svc.NollaYear(ctx)
 	if err != nil {
