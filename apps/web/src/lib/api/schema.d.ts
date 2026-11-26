@@ -3082,12 +3082,12 @@ export interface components {
       lightImageUrl?: string;
       /**
        * Format: int64
-       * @description Currently active mandates. Only set by GET /committees.
+       * @description Mandates active now (GET /committees) or during the requested year (GET /committees/{shortName}).
        */
       mandateCount?: number;
       /**
        * Format: int64
-       * @description Distinct members holding an active mandate. Only set by GET /committees.
+       * @description Distinct members holding those mandates.
        */
       memberCount?: number;
       /** @description Single-color logo. */
@@ -3121,12 +3121,12 @@ export interface components {
       linksMarkdown: components["schemas"]["CommitteeMarkdown"];
       /**
        * Format: int64
-       * @description Currently active mandates. Only set by GET /committees.
+       * @description Mandates active now (GET /committees) or during the requested year (GET /committees/{shortName}).
        */
       mandateCount?: number;
       /**
        * Format: int64
-       * @description Distinct members holding an active mandate. Only set by GET /committees.
+       * @description Distinct members holding those mandates.
        */
       memberCount?: number;
       /** @description Single-color logo. */

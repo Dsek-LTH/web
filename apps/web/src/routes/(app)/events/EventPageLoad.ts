@@ -11,6 +11,8 @@ import { error, type LoadEvent } from "@sveltejs/kit";
 import dayjs from "dayjs";
 import { z } from "zod";
 
+const NOLLNING_TAG_PREFIX = "[NOLLNING]";
+
 const displaySchema = z.enum(["week", "month", "upcoming", "past"]);
 export type Display = z.infer<typeof displaySchema>;
 
@@ -125,7 +127,11 @@ const eventPageLoad =
     return {
       events,
       pageCount,
-      allTags,
+      // Nollning tags ("[NOLLNING] ...") belong to the nollning site's
+      // events, which only the admin list includes, so only it offers them.
+      allTags: adminMode
+        ? allTags
+        : allTags.filter((tag) => !tag.nameSv.startsWith(NOLLNING_TAG_PREFIX)),
       display,
       month: monthKey,
     };

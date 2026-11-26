@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/dsek-lth/web/apps/api/internal/metrics"
 )
 
 // expoPushEndpoint is Expo's push API - no access token is required (the
@@ -71,7 +73,9 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	failed := 0
+	start := time.Now()
+	failed, failedChunks := 0, 0
+	defer func() { metrics.PushSent(len(payload), failed, failedChunks, time.Since(start)) }()
 	var unregistered []string
 	for i := 0; i < len(payload); i += expoChunkSize {
 		end := min(i+expoChunkSize, len(payload))
@@ -80,6 +84,7 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 		if err != nil {
 			slog.Error("notifications: marshal push chunk", "err", err)
 			failed += len(chunk)
+			failedChunks++
 			continue
 		}
 		req, err := http.NewRequestWithContext(
@@ -91,6 +96,7 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 		if err != nil {
 			slog.Error("notifications: build push request", "err", err)
 			failed += len(chunk)
+			failedChunks++
 			continue
 		}
 		req.Header.Set("Content-Type", "application/json")
@@ -99,12 +105,14 @@ func (s *Service) sendPush(ctx context.Context, messages []pushMessage) {
 		if err != nil {
 			slog.Error("notifications: send push chunk", "err", err)
 			failed += len(chunk)
+			failedChunks++
 			continue
 		}
 		if resp.StatusCode >= 300 {
 			resp.Body.Close()
 			slog.Error("notifications: push chunk failed", "status", resp.StatusCode)
 			failed += len(chunk)
+			failedChunks++
 			continue
 		}
 		// An accepted chunk can still hold individual messages that failed.

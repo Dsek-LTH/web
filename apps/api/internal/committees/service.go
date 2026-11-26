@@ -90,7 +90,10 @@ func (s *Service) GetByShortName(
 	shortName string,
 	year int32,
 ) (*CommitteeDetail, error) {
-	row, err := s.queries.GetCommitteeByShortName(ctx, dbutil.ToText(&shortName))
+	row, err := s.queries.GetCommitteeForYear(ctx, db.GetCommitteeForYearParams{
+		ShortName: dbutil.ToText(&shortName),
+		Year:      year,
+	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound

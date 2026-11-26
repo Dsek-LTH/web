@@ -28,6 +28,22 @@ LEFT JOIN mandates m ON m.position_id = p.id
 WHERE c.short_name = $1
 GROUP BY c.id;
 
+-- name: GetCommitteeForYear :one
+-- A committee with the mandates and unique members it had during a year
+-- (mandates overlapping it), like the old committee page counted them.
+SELECT c.id, c.name_sv, c.name_en, c.short_name, c.description_sv, c.description_en,
+       c.dark_image_url, c.light_image_url, c.mono_image_url, c.symbol_url,
+       c.banner_url, c.is_banner_text_light, c.preview_url,
+       count(m.id) AS mandate_count,
+       count(DISTINCT m.member_id) AS member_count
+FROM committees c
+LEFT JOIN positions p ON p.committee_id = c.id
+LEFT JOIN mandates m ON m.position_id = p.id
+    AND m.start_date <= make_date(sqlc.arg('year')::int, 12, 31)
+    AND m.end_date >= make_date(sqlc.arg('year')::int, 1, 1)
+WHERE c.short_name = sqlc.arg('short_name')
+GROUP BY c.id;
+
 -- name: UpdateCommittee :one
 UPDATE committees
 SET name_sv = $2, name_en = $3, description_sv = $4, description_en = $5,

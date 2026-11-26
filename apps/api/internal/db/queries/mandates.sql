@@ -26,7 +26,7 @@ JOIN members mem ON mem.id = m.member_id
 WHERE m.position_id = $1
   AND m.start_date <= make_date(sqlc.arg('year')::int, 12, 31)
   AND m.end_date >= make_date(sqlc.arg('year')::int, 1, 1)
-ORDER BY m.start_date DESC;
+ORDER BY m.start_date DESC, mem.first_name, mem.last_name;
 
 -- name: ListAllMandatesForPosition :many
 -- Unscoped (full history, not year-scoped) - the position detail page
@@ -40,7 +40,7 @@ SELECT m.id, m.start_date, m.end_date, mem.id AS member_id, mem.student_id,
 FROM mandates m
 JOIN members mem ON mem.id = m.member_id
 WHERE m.position_id = $1
-ORDER BY m.start_date DESC;
+ORDER BY m.start_date DESC, mem.first_name, mem.last_name;
 
 -- name: CreateMandate :one
 INSERT INTO mandates (member_id, position_id, start_date, end_date, last_synced)

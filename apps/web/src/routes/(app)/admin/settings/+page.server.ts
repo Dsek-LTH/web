@@ -21,11 +21,16 @@ import apiNames from "$lib/utils/apiNames";
 // either, so Go's check is a real fix, not a replicated gap.
 
 export const load: PageServerLoad = async (event) => {
+  // Readers see the page with its forms disabled (T46); Go decides the
+  // writes.
+  const { user } = event.locals;
   requirePolicy(
-    event.locals.user,
+    user,
+    apiNames.ADMIN.SETTINGS.READ,
     apiNames.ADMIN.SETTINGS.UPDATE,
     apiNames.NOLLNING.MANAGE_SEASONS,
   );
+  const can = (policy: string) => !!user?.policies.includes(policy);
   const api = serverApi(event);
   const [settingsRes, seasonsRes] = await Promise.all([
     api.GET("/admin-settings", {}),
@@ -33,7 +38,7 @@ export const load: PageServerLoad = async (event) => {
   ]);
 
   return {
-    // Empty for someone who only manages nollning seasons.
+    // Empty without admin:settings:read.
     settings: settingsRes.data ?? [],
     // Newest first, with times as the inputs show them: Swedish local time.
     seasons: (seasonsRes.data ?? []).map((season) => ({
@@ -46,6 +51,9 @@ export const load: PageServerLoad = async (event) => {
       ended: dayjs(season.endAt).isBefore(dayjs()),
     })),
     updateForm: await superValidate(zod4(updateSchema)),
+    canUpdate: can(apiNames.ADMIN.SETTINGS.UPDATE),
+    canDelete: can(apiNames.ADMIN.SETTINGS.DELETE),
+    canManageSeasons: can(apiNames.NOLLNING.MANAGE_SEASONS),
   };
 };
 

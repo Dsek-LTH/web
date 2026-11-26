@@ -477,15 +477,15 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       Done with `internal/validate`; `pageSize` is at most 500. The gallery
       part went with the gallery port: album titles are no longer paths,
       and the date is checked.
-- [ ] T37 Mandate order: add `first_name, last_name` after `start_date DESC`
+- [x] T37 Mandate order: add `first_name, last_name` after `start_date DESC`
       in `ListMandatesForPosition` / `ListAllMandatesForPosition`.
-- [ ] T38 Committee member/mandate counts ignore `?year=`
+- [x] T38 Committee member/mandate counts ignore `?year=`
       (`GetCommitteeByShortName`).
 - [x] T39 Medal endpoints return `null` for empty lists
       (`medals.Service.MemberMedals`, `MedalRecipients`): initialize slices.
-- [ ] T40 `/news?tags=<name>` gives 422: map tag names to ids in the load
+- [x] T40 `/news?tags=<name>` gives 422: map tag names to ids in the load
       or ignore non-UUIDs.
-- [ ] T41 Nollning tags show in the public `/events` tag filter: filter by
+- [x] T41 Nollning tags show in the public `/events` tag filter: filter by
       the nollning prefix in `EventPageLoad.ts`.
 - [x] T42 Removed events accept RSVPs and comments, removed/unpublished
       articles accept likes and comments: add the removed/published filter
@@ -499,7 +499,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       operations don't notify mentions; `ArticleInput.PublishedAt` unset
       means now; `ArticleSummary.Body` is markdown.
 - [x] T45 `/admin/minio` needs `requirePolicy(FILES.BUCKET("files").CREATE)`.
-- [ ] T46 `/admin/settings` load should accept `admin:settings:read` (or
+- [x] T46 `/admin/settings` load should accept `admin:settings:read` (or
       `MANAGE_SEASONS`) like the old page.
 - [x] T47 Storage failures in `internal/documents` come back as 422
       (`invalidf`): return plain errors (500).
