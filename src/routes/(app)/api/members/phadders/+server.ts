@@ -6,7 +6,12 @@ import { getYearOrThrowSvelteError } from "$lib/utils/url.server";
 
 // Like member search but filters on members who were phadders during the given year
 export const GET: RequestHandler = async ({ locals, url }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
+
+  if (!user?.memberId) {
+    throw error(401, "You must be logged in to search for members");
+  }
+
   const search = url.searchParams.get("search")?.toLowerCase();
   const year = getYearOrThrowSvelteError(url);
   if (search == undefined || search.length === 0) {

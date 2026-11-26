@@ -2,9 +2,13 @@ import { type Semester, toString } from "$lib/utils/semesters";
 import { medalRecipients } from "$lib/server/medals/medals";
 import { getSemesterOrThrowSvelteError } from "$lib/utils/url.server";
 import type { ExtendedPrismaModel } from "$lib/server/extendedPrisma";
+import { authorize } from "$lib/utils/authorization";
+import apiNames from "$lib/utils/apiNames";
 
 export const GET = async ({ locals, url }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
+
+  authorize(apiNames.MEDALS.MANAGE, user);
 
   const semester: Semester = getSemesterOrThrowSvelteError(url);
 
