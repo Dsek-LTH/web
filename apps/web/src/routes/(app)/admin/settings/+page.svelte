@@ -24,34 +24,36 @@
 <div class="mx-auto w-full max-w-5xl px-4 py-8">
   <h1 class="mb-6 text-3xl font-bold">{m.admin_settings_pageTitle()}</h1>
 
-  <NollningSeasons seasons={data.seasons} />
+  <NollningSeasons seasons={data.seasons} canManage={data.canManageSeasons} />
 
-  <Card class="mb-6">
-    <CardHeader>
-      <CardTitle>{m.admin_settings_addNew()}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form
-        method="POST"
-        action="?/update"
-        use:enhance
-        class="flex flex-wrap items-end gap-4"
-      >
-        <div class="flex flex-1 flex-col gap-1.5">
-          <Label for="new-key">{m.admin_settings_key()}</Label>
-          <Input id="new-key" name="key" required />
-        </div>
-        <div class="flex flex-1 flex-col gap-1.5">
-          <Label for="new-value">{m.admin_settings_value()}</Label>
-          <Input id="new-value" name="value" required />
-        </div>
-        <Button type="submit" class="flex items-center gap-2">
-          <Plus class="h-4 w-4" />
-          {m.admin_settings_save()}
-        </Button>
-      </form>
-    </CardContent>
-  </Card>
+  {#if data.canUpdate}
+    <Card class="mb-6">
+      <CardHeader>
+        <CardTitle>{m.admin_settings_addNew()}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form
+          method="POST"
+          action="?/update"
+          use:enhance
+          class="flex flex-wrap items-end gap-4"
+        >
+          <div class="flex flex-1 flex-col gap-1.5">
+            <Label for="new-key">{m.admin_settings_key()}</Label>
+            <Input id="new-key" name="key" required />
+          </div>
+          <div class="flex flex-1 flex-col gap-1.5">
+            <Label for="new-value">{m.admin_settings_value()}</Label>
+            <Input id="new-value" name="value" required />
+          </div>
+          <Button type="submit" class="flex items-center gap-2">
+            <Plus class="h-4 w-4" />
+            {m.admin_settings_save()}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  {/if}
 
   <Card>
     <CardContent class="flex flex-col divide-y">
@@ -75,44 +77,49 @@
                 id="value-{setting.key}"
                 name="value"
                 value={setting.value}
+                disabled={!data.canUpdate}
               />
             </div>
-            <Button type="submit" variant="outline" size="sm">
-              {m.admin_settings_save()}
-            </Button>
+            {#if data.canUpdate}
+              <Button type="submit" variant="outline" size="sm">
+                {m.admin_settings_save()}
+              </Button>
+            {/if}
           </form>
-          <AlertDialog.Root>
-            <AlertDialog.Trigger
-              class={buttonVariants({ variant: "ghost", size: "icon-sm" })}
-              aria-label={m.delete_delete()}
-            >
-              <Trash class="h-4 w-4" />
-            </AlertDialog.Trigger>
-            <AlertDialog.Content>
-              <AlertDialog.Header>
-                <AlertDialog.Title>
-                  {m.admin_confirmDelete_title({ item: setting.key })}
-                </AlertDialog.Title>
-                <AlertDialog.Description>
-                  {m.admin_confirmDelete_description()}
-                </AlertDialog.Description>
-              </AlertDialog.Header>
-              <AlertDialog.Footer>
-                <AlertDialog.Cancel type="button"
-                  >{m.cancel()}</AlertDialog.Cancel
-                >
-                <form method="POST" action="?/remove" use:enhance>
-                  <input type="hidden" name="key" value={setting.key} />
-                  <AlertDialog.Action
-                    type="submit"
-                    class={buttonVariants({ variant: "destructive" })}
+          {#if data.canDelete}
+            <AlertDialog.Root>
+              <AlertDialog.Trigger
+                class={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                aria-label={m.delete_delete()}
+              >
+                <Trash class="h-4 w-4" />
+              </AlertDialog.Trigger>
+              <AlertDialog.Content>
+                <AlertDialog.Header>
+                  <AlertDialog.Title>
+                    {m.admin_confirmDelete_title({ item: setting.key })}
+                  </AlertDialog.Title>
+                  <AlertDialog.Description>
+                    {m.admin_confirmDelete_description()}
+                  </AlertDialog.Description>
+                </AlertDialog.Header>
+                <AlertDialog.Footer>
+                  <AlertDialog.Cancel type="button"
+                    >{m.cancel()}</AlertDialog.Cancel
                   >
-                    {m.delete_delete()}
-                  </AlertDialog.Action>
-                </form>
-              </AlertDialog.Footer>
-            </AlertDialog.Content>
-          </AlertDialog.Root>
+                  <form method="POST" action="?/remove" use:enhance>
+                    <input type="hidden" name="key" value={setting.key} />
+                    <AlertDialog.Action
+                      type="submit"
+                      class={buttonVariants({ variant: "destructive" })}
+                    >
+                      {m.delete_delete()}
+                    </AlertDialog.Action>
+                  </form>
+                </AlertDialog.Footer>
+              </AlertDialog.Content>
+            </AlertDialog.Root>
+          {/if}
         </div>
       {/each}
     </CardContent>

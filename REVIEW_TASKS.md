@@ -496,7 +496,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       operations don't notify mentions; `ArticleInput.PublishedAt` unset
       means now; `ArticleSummary.Body` is markdown.
 - [x] T45 `/admin/minio` needs `requirePolicy(FILES.BUCKET("files").CREATE)`.
-- [ ] T46 `/admin/settings` load should accept `admin:settings:read` (or
+- [x] T46 `/admin/settings` load should accept `admin:settings:read` (or
       `MANAGE_SEASONS`) like the old page.
 - [x] T47 Storage failures in `internal/documents` come back as 422
       (`invalidf`): return plain errors (500).
