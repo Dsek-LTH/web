@@ -476,7 +476,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       format; max `pageSize` on `/articles` and `/events`.
 - [ ] T37 Mandate order: add `first_name, last_name` after `start_date DESC`
       in `ListMandatesForPosition` / `ListAllMandatesForPosition`.
-- [ ] T38 Committee member/mandate counts ignore `?year=`
+- [x] T38 Committee member/mandate counts ignore `?year=`
       (`GetCommitteeByShortName`).
 - [x] T39 Medal endpoints return `null` for empty lists
       (`medals.Service.MemberMedals`, `MedalRecipients`): initialize slices.

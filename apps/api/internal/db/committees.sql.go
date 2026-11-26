@@ -68,6 +68,69 @@ func (q *Queries) GetCommitteeByShortName(ctx context.Context, shortName pgtype.
 	return i, err
 }
 
+const getCommitteeForYear = `-- name: GetCommitteeForYear :one
+SELECT c.id, c.name_sv, c.name_en, c.short_name, c.description_sv, c.description_en,
+       c.dark_image_url, c.light_image_url, c.mono_image_url, c.symbol_url,
+       c.banner_url, c.is_banner_text_light, c.preview_url,
+       count(m.id) AS mandate_count,
+       count(DISTINCT m.member_id) AS member_count
+FROM committees c
+LEFT JOIN positions p ON p.committee_id = c.id
+LEFT JOIN mandates m ON m.position_id = p.id
+    AND m.start_date <= make_date($1::int, 12, 31)
+    AND m.end_date >= make_date($1::int, 1, 1)
+WHERE c.short_name = $2
+GROUP BY c.id
+`
+
+type GetCommitteeForYearParams struct {
+	Year      int32       `json:"year"`
+	ShortName pgtype.Text `json:"short_name"`
+}
+
+type GetCommitteeForYearRow struct {
+	ID                pgtype.UUID `json:"id"`
+	NameSv            string      `json:"name_sv"`
+	NameEn            pgtype.Text `json:"name_en"`
+	ShortName         pgtype.Text `json:"short_name"`
+	DescriptionSv     pgtype.Text `json:"description_sv"`
+	DescriptionEn     pgtype.Text `json:"description_en"`
+	DarkImageUrl      pgtype.Text `json:"dark_image_url"`
+	LightImageUrl     pgtype.Text `json:"light_image_url"`
+	MonoImageUrl      pgtype.Text `json:"mono_image_url"`
+	SymbolUrl         pgtype.Text `json:"symbol_url"`
+	BannerUrl         pgtype.Text `json:"banner_url"`
+	IsBannerTextLight bool        `json:"is_banner_text_light"`
+	PreviewUrl        pgtype.Text `json:"preview_url"`
+	MandateCount      int64       `json:"mandate_count"`
+	MemberCount       int64       `json:"member_count"`
+}
+
+// A committee with the mandates and unique members it had during a year
+// (mandates overlapping it), like the old committee page counted them.
+func (q *Queries) GetCommitteeForYear(ctx context.Context, arg GetCommitteeForYearParams) (GetCommitteeForYearRow, error) {
+	row := q.db.QueryRow(ctx, getCommitteeForYear, arg.Year, arg.ShortName)
+	var i GetCommitteeForYearRow
+	err := row.Scan(
+		&i.ID,
+		&i.NameSv,
+		&i.NameEn,
+		&i.ShortName,
+		&i.DescriptionSv,
+		&i.DescriptionEn,
+		&i.DarkImageUrl,
+		&i.LightImageUrl,
+		&i.MonoImageUrl,
+		&i.SymbolUrl,
+		&i.BannerUrl,
+		&i.IsBannerTextLight,
+		&i.PreviewUrl,
+		&i.MandateCount,
+		&i.MemberCount,
+	)
+	return i, err
+}
+
 const listCommitteesWithCounts = `-- name: ListCommitteesWithCounts :many
 SELECT c.id, c.name_sv, c.name_en, c.short_name, c.description_sv, c.description_en,
        c.dark_image_url, c.light_image_url, c.mono_image_url, c.symbol_url,
