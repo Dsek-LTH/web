@@ -1054,6 +1054,8 @@
   "admin_info_infoPageCreated": "Information page created",
   "info": "Info",
   "privacy_policy": "Privacy Policy",
+  "privacy_policy_openPdf": "Open as PDF",
+  "privacy_policy_pdfNotSupported": "Your browser cannot display the policy here.",
   "upload_reciept": "Upload receipt",
   "receipt_date": "Receipt date",
   "is_guildCard": "Guildcard used?",

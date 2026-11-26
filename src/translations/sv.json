@@ -1054,6 +1054,8 @@
   "admin_info_infoPageCreated": "Informationssida skapad",
   "info": "Info",
   "privacy_policy": "Integritetspolicy",
+  "privacy_policy_openPdf": "Öppna som PDF",
+  "privacy_policy_pdfNotSupported": "Din webbläsare kan inte visa policyn här.",
   "upload_reciept": "Ladda upp kvitto",
   "receipt_date": "Datum på kvitto",
   "is_guildCard": "Är sektionskort?",

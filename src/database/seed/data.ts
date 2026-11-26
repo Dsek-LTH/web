@@ -183,7 +183,6 @@ export const models: SeedClientOptions["models"] = {
           faker.helpers.arrayElement(["Vegetarian", "Vegan"]),
         ) ?? null,
       visible: true,
-      stripeCustomerId: null,
       nollningGroupId: null,
     },
   },
