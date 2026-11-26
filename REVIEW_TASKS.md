@@ -474,7 +474,7 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
       transactional insert, 404 on delete of unknown id; document upload
       year bounds; gallery album name (`isSafePathSegment`) and date
       format; max `pageSize` on `/articles` and `/events`.
-- [ ] T37 Mandate order: add `first_name, last_name` after `start_date DESC`
+- [x] T37 Mandate order: add `first_name, last_name` after `start_date DESC`
       in `ListMandatesForPosition` / `ListAllMandatesForPosition`.
 - [ ] T38 Committee member/mandate counts ignore `?year=`
       (`GetCommitteeByShortName`).

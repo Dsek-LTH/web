@@ -106,7 +106,7 @@ SELECT m.id, m.start_date, m.end_date, mem.id AS member_id, mem.student_id,
 FROM mandates m
 JOIN members mem ON mem.id = m.member_id
 WHERE m.position_id = $1
-ORDER BY m.start_date DESC
+ORDER BY m.start_date DESC, mem.first_name, mem.last_name
 `
 
 type ListAllMandatesForPositionRow struct {
@@ -239,7 +239,7 @@ JOIN members mem ON mem.id = m.member_id
 WHERE m.position_id = $1
   AND m.start_date <= make_date($2::int, 12, 31)
   AND m.end_date >= make_date($2::int, 1, 1)
-ORDER BY m.start_date DESC
+ORDER BY m.start_date DESC, mem.first_name, mem.last_name
 `
 
 type ListMandatesForPositionParams struct {
