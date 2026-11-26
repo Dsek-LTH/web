@@ -53,7 +53,7 @@ func registerEventRoutes(api huma.API, svc *events.Service) {
 		Path:        "/events",
 		Tags:        tags,
 		Summary:     "List events",
-		Description: "Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. Nollning season events are left out unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.",
+		Description: "Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. Nollning season events are left out unless includeNollning or nollningSeasonId is set. pageSize defaults to 10, at most 500.",
 	}, func(ctx context.Context, input *listEventsInput) (*struct{ Body events.EventList }, error) {
 		params := events.ListParams{
 			TagIDs:         input.Tags,

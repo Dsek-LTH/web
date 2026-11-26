@@ -77,7 +77,7 @@ func registerArticleRoutes(api huma.API, svc *articles.Service) {
 		Tags:        tags,
 		Summary:     "List published articles",
 		Description: "Published, non-deleted articles, newest first, without nollning season articles " +
-			"unless includeNollning or nollningSeasonId is set. pageSize defaults to 10. " +
+			"unless includeNollning or nollningSeasonId is set. pageSize defaults to 10, at most 500. " +
 			"onlyUnpublished lists scheduled articles instead: the caller's own, or everyone's " +
 			"with news:article:update.",
 	}, func(ctx context.Context, input *listArticlesInput) (*struct{ Body articles.ArticleList }, error) {

@@ -21,6 +21,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/mentions"
 	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/slug"
+	"github.com/dsek-lth/web/apps/api/internal/validate"
 )
 
 // ErrNotFound is returned when an event, comment, or recurring-series
@@ -37,6 +38,9 @@ func invalidf(format string, args ...any) error {
 }
 
 const defaultPageSize = 10
+
+// MaxPageSize is the most events one page of List holds.
+const MaxPageSize = 500
 
 // Service is the events domain/service layer, mirroring
 // internal/articles.Service's shape and conventions (typed inputs, acting
@@ -71,6 +75,9 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]EventSummary, 
 	pageSize := params.PageSize
 	if pageSize < 1 {
 		pageSize = defaultPageSize
+	}
+	if pageSize > MaxPageSize {
+		return nil, 0, invalidf("pageSize is %d, at most %d is allowed", pageSize, MaxPageSize)
 	}
 
 	tagIDs, err := dbutil.ParseUUIDs(params.TagIDs)
@@ -197,11 +204,38 @@ func (s *Service) GetDeleted(ctx context.Context, eventSlug string) (*EventDetai
 // series would be a real user-visible bug, unlike the non-recurring path's
 // two independent statements (create, then set tags) which - same as
 // internal/articles.Service.Create - aren't transactional together.
+// validateInput makes the checks the old event form's zod schema made,
+// and keeps the VARCHAR(255) columns from overflowing into a 500.
+func validateInput(in EventInput) error {
+	err := validate.First(
+		validate.Required("titleSv", in.TitleSv),
+		validate.Length("titleSv", in.TitleSv, validate.MaxLen),
+		validate.LengthPtr("titleEn", in.TitleEn, validate.MaxLen),
+		validate.LengthPtr("shortDescriptionSv", in.ShortDescriptionSv, validate.MaxLen),
+		validate.LengthPtr("shortDescriptionEn", in.ShortDescriptionEn, validate.MaxLen),
+		validate.LengthPtr("link", in.Link, validate.MaxLen),
+		validate.LengthPtr("location", in.Location, validate.MaxLen),
+		validate.Length("organizer", in.Organizer, validate.MaxLen),
+	)
+	switch {
+	case err != nil:
+		return invalidf("%v", err)
+	case !in.EndAt.After(in.StartAt):
+		return invalidf("endAt must be after startAt")
+	case in.Recurring != nil && !in.Recurring.EndAt.After(in.StartAt):
+		return invalidf("recurring.endAt must be after startAt")
+	}
+	return nil
+}
+
 func (s *Service) Create(ctx context.Context, in EventInput) (*EventDetail, error) {
 	if err := auth.Require(ctx, apinames.EventCreate); err != nil {
 		return nil, err
 	}
 	identity, _ := auth.FromContext(ctx) // Require above guarantees this is present
+	if err := validateInput(in); err != nil {
+		return nil, err
+	}
 
 	authorID, err := dbutil.ParseUUID(identity.MemberID)
 	if err != nil {
@@ -408,6 +442,9 @@ func (s *Service) Update(
 		if err := auth.Require(ctx, apinames.EventUpdate); err != nil {
 			return nil, err
 		}
+	}
+	if err := validateInput(in); err != nil {
+		return nil, err
 	}
 
 	tagIDs, err := dbutil.ParseUUIDs(in.TagIDs)

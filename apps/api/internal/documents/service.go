@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 	"unicode/utf8"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
@@ -149,6 +150,9 @@ func (s *Service) ListRequirements(
 	return folders, nil
 }
 
+// firstDocumentYear is the guild's founding year.
+const firstDocumentYear = 1962
+
 // uploadTarget resolves an upload type to its bucket/prefix/create-policy,
 // matching documents/upload/helpers.ts's typeToPath table exactly.
 func (s *Service) uploadTarget(
@@ -156,6 +160,10 @@ func (s *Service) uploadTarget(
 	year int,
 	folder string,
 ) (bucket, prefix, createPolicy string, err error) {
+	// The old upload form's bounds: from the guild's founding to next year.
+	if last := time.Now().Year() + 1; year < firstDocumentYear || year > last {
+		return "", "", "", invalidf("year %d is outside %d-%d", year, firstDocumentYear, last)
+	}
 	yearStr := strconv.Itoa(year)
 	switch uploadType {
 	case UploadMeeting:

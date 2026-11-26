@@ -53,7 +53,7 @@ SET start_date = $2, end_date = $3
 WHERE id = $1
 RETURNING id, start_date, end_date;
 
--- name: DeleteMandate :exec
+-- name: DeleteMandate :execrows
 DELETE FROM mandates WHERE id = $1;
 
 -- name: ListActiveMandatesForMember :many

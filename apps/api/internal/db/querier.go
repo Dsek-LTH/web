@@ -135,7 +135,7 @@ type Querier interface {
 	DeleteElection(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteEventComment(ctx context.Context, arg DeleteEventCommentParams) error
 	DeleteExpoTokens(ctx context.Context, tokens []string) error
-	DeleteMandate(ctx context.Context, id pgtype.UUID) error
+	DeleteMandate(ctx context.Context, id pgtype.UUID) (int64, error)
 	DeleteNotifications(ctx context.Context, arg DeleteNotificationsParams) error
 	DeletePhadderGroup(ctx context.Context, id pgtype.UUID) error
 	DeleteSongBookEntry(ctx context.Context, arg DeleteSongBookEntryParams) (int64, error)
