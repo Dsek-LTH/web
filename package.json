@@ -61,7 +61,6 @@
     "@types/nodemailer": "^8.0.2",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
-    "@zenstackhq/openapi": "^2.10.0",
     "bits-ui": "^2.20.3",
     "clsx": "^2.1.1",
     "concurrently": "^10.0.6",
@@ -132,7 +131,6 @@
     "@shlinkio/shlink-js-sdk": "^3.2.1",
     "@typstyle/typstyle-wasm-bundler": "^0.15.1",
     "@zenstackhq/runtime": "^2.10.0",
-    "@zenstackhq/server": "^2.10.0",
     "archiver": "^8.0.0",
     "browser-image-compression": "^2.0.2",
     "codemirror-lang-typst": "^0.6.0",
@@ -156,8 +154,7 @@
     "simple-icons": "^16.36.0",
     "svelte-easy-crop": "^5.0.1",
     "temporal-polyfill": "0.3.0",
-    "uuid": "^14.0.3",
-    "vite-plugin-cjs-interop": "^2.1.6"
+    "uuid": "^14.0.3"
   },
   "engines": {
     "node": "^24"
