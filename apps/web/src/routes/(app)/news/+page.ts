@@ -39,24 +39,34 @@ export const load: PageLoad = async ({ fetch, url, parent }) => {
 
   const { member } = await parent();
 
-  const [articlesRes, tagsRes, scheduledRes] = await Promise.all([
+  // Old links filter by tag name (/news?tags=Sexmästeriet), so names are
+  // matched (either language, any case) as well as ids; Go takes ids.
+  // Unknown ones are dropped, like on /events.
+  const tagsRes = await api.GET("/tags", { fetch });
+  const allTags = tagsRes.data ?? [];
+  const requestedTags = url.searchParams
+    .getAll("tags")
+    .map((tag) => tag.toLowerCase());
+  const tagIds = allTags
+    .filter((tag) =>
+      [tag.id, tag.nameSv, tag.nameEn].some(
+        (key) => key && requestedTags.includes(key.toLowerCase()),
+      ),
+    )
+    .map((tag) => tag.id);
+
+  const [articlesRes, scheduledRes] = await Promise.all([
     api.GET("/articles", {
       fetch,
       params: {
         query: {
           search: url.searchParams.get("search") ?? undefined,
-          tags: url.searchParams.getAll("tags"),
+          tags: tagIds,
           page,
           pageSize,
         },
       },
     }),
-    // Includes nollning-prefixed tags in the filter list, unlike the old
-    // Prisma-backed tag query - the Go API doesn't know about the
-    // nollning feature (it isn't ported) and this isn't worth a Prisma
-    // call from a page that's otherwise fully off Prisma. Acceptable: the
-    // consequence is a few extra tags in the list.
-    api.GET("/tags", { fetch }),
     // The caller's own scheduled articles (everyone's for news editors);
     // Go decides which.
     member
@@ -80,7 +90,7 @@ export const load: PageLoad = async ({ fetch, url, parent }) => {
   return {
     articles: articles ?? [],
     pageCount,
-    allTags: tagsRes.data ?? [],
+    allTags,
     scheduledArticles: scheduledRes?.data?.articles ?? [],
   };
 };
