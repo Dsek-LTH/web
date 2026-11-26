@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -35,6 +36,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/markdown"
 	"github.com/dsek-lth/web/apps/api/internal/medals"
 	"github.com/dsek-lth/web/apps/api/internal/members"
+	"github.com/dsek-lth/web/apps/api/internal/metrics"
 	"github.com/dsek-lth/web/apps/api/internal/nollning"
 	"github.com/dsek-lth/web/apps/api/internal/notifications"
 	"github.com/dsek-lth/web/apps/api/internal/pings"
@@ -75,6 +77,9 @@ type Services struct {
 	Queries         *db.Queries
 	// SyncPassword guards POST /search/sync/password (SYNC_PASSWORD).
 	SyncPassword string
+	// MetricsToken is the bearer token GET /metrics wants (METRICS_TOKEN);
+	// without one, /metrics answers 404.
+	MetricsToken string
 }
 
 // OpenAPI returns the API's OpenAPI document without any services, for
@@ -98,16 +103,22 @@ func NewRouter(
 	mux := http.NewServeMux()
 	registerRoutes(mux, s)
 	if oidcClient != nil {
-		mux.HandleFunc("GET /auth/login", oidcClient.LoginHandler)
-		mux.HandleFunc("GET /auth/callback", oidcClient.CallbackHandler)
-		mux.HandleFunc("GET /auth/logout", oidcClient.LogoutHandler)
+		handlePlain(mux, "GET /auth/login", oidcClient.LoginHandler)
+		handlePlain(mux, "GET /auth/callback", oidcClient.CallbackHandler)
+		handlePlain(mux, "GET /auth/logout", oidcClient.LogoutHandler)
 	}
 
-	return tracing.Handler(withLogging(
+	api := tracing.Handler(withLogging(
 		withCORS(frontendOrigin)(withCrossOriginProtection(frontendOrigin)(
 			withSeasonCache(auth.Middleware(authenticator)(withMemberLog(locale.Middleware(mux)))),
 		)),
 	))
+	// The scraper's requests skip the API's middleware: no identity, log
+	// line or metrics of their own.
+	top := http.NewServeMux()
+	top.Handle("GET /metrics", metrics.Handler(s.MetricsToken))
+	top.Handle("/", api)
+	return top
 }
 
 // registerRoutes registers every endpoint except /auth/* on mux, and
@@ -147,12 +158,25 @@ func registerRoutes(mux *http.ServeMux, s Services) huma.API {
 	// This exact path is polled by the university's own Salto door-lock
 	// system, unauthenticated - see SaltoHandler's doc comment and
 	// apps/web/src/routes/(app)/salto/README.md ("this URL must not be changed").
-	mux.HandleFunc("GET /salto/{door}", SaltoHandler(s.Doors))
-	mux.HandleFunc(
+	handlePlain(mux, "GET /salto/{door}", SaltoHandler(s.Doors))
+	handlePlain(
+		mux,
 		"POST /search/sync/password",
 		SearchSyncPasswordHandler(s.Search, s.SyncPassword),
 	)
 	return api
+}
+
+// handlePlain registers a handler that isn't a huma operation, reporting
+// its route pattern to the request log and metrics like huma's are.
+func handlePlain(mux *http.ServeMux, pattern string, h http.HandlerFunc) {
+	_, route, _ := strings.Cut(pattern, " ")
+	mux.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		if entry := requestLogFrom(r.Context()); entry != nil {
+			entry.route = route
+		}
+		h(w, r)
+	})
 }
 
 // withLogging writes one log line per request: method, route, status,
@@ -162,11 +186,19 @@ func registerRoutes(mux *http.ServeMux, s Services) huma.API {
 func withLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+		done := metrics.RequestStarted()
 		entry := &requestLog{}
 		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(rec, r.WithContext(context.WithValue(r.Context(), requestLogKey{}, entry)))
 
 		route := entry.route
+		// A path matching no route (a 404 or a CORS preflight) is one
+		// series, not one per URL.
+		metricsRoute := route
+		if metricsRoute == "" {
+			metricsRoute = "unmatched"
+		}
+		done(r.Method, metricsRoute, rec.status, time.Since(start))
 		if route == "" {
 			route = r.URL.Path
 		}

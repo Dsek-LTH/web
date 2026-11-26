@@ -239,6 +239,7 @@ func main() {
 			Search:          searchSvc,
 			Queries:         queries,
 			SyncPassword:    os.Getenv("SYNC_PASSWORD"),
+			MetricsToken:    os.Getenv("METRICS_TOKEN"),
 		},
 		authenticator,
 		oidcClient,

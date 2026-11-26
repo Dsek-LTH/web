@@ -86,6 +86,14 @@ both. Locally: `docker compose --profile tracing up -d` starts Jaeger (UI
 on http://localhost:16686); uncomment the endpoint in `apps/api/.env`. The
 frontend's `.env` already points there.
 
+Prometheus metrics (`internal/metrics`) are on `GET /metrics` of both
+halves, for a scraper sending `Authorization: Bearer $METRICS_TOKEN`;
+without the variable set, `/metrics` answers 404. Go's counts requests by
+route pattern (`http_requests_total`, `http_request_duration_ms`,
+`inflight_requests`) and push sends (`push_notifications_*`), with the
+names the SvelteKit app used for them, so dashboards tell the two apart
+by job.
+
 ## Commands
 
 Root (`make`, which lists them all):
