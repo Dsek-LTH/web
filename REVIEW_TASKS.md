@@ -468,12 +468,15 @@ title="a&#34;b">` keeps its entity, `<script>` is removed); `go test
 - [x] T35 Escape `\`, `%`, `_` in ILIKE/LIKE search terms (events, songs,
       songbook, `CountSongSlugsWithPrefix`, Salto role prefixes in
       `internal/doors`).
-- [ ] T36 Go validation the old zod had: article header min/max lengths,
+- [x] T36 Go validation the old zod had: article header min/max lengths,
       notificationText length, YouTube URL; event end > start, non-empty
       titleSv, 255-char limits; mandate end > start, position exists,
       transactional insert, 404 on delete of unknown id; document upload
       year bounds; gallery album name (`isSafePathSegment`) and date
       format; max `pageSize` on `/articles` and `/events`.
+      Done with `internal/validate`; `pageSize` is at most 500. The gallery
+      part went with the gallery port: album titles are no longer paths,
+      and the date is checked.
 - [x] T37 Mandate order: add `first_name, last_name` after `start_date DESC`
       in `ListMandatesForPosition` / `ListAllMandatesForPosition`.
 - [x] T38 Committee member/mandate counts ignore `?year=`

@@ -26,6 +26,7 @@ import (
 	"github.com/dsek-lth/web/apps/api/internal/nollning"
 	"github.com/dsek-lth/web/apps/api/internal/sanitize"
 	"github.com/dsek-lth/web/apps/api/internal/slug"
+	"github.com/dsek-lth/web/apps/api/internal/validate"
 )
 
 // ErrNotFound is returned when an article, comment, or tag lookup by
@@ -42,6 +43,9 @@ func invalidf(format string, args ...any) error {
 }
 
 const defaultPageSize = 10
+
+// MaxPageSize is the most articles one page of List holds.
+const MaxPageSize = 500
 
 type Service struct {
 	queries   *db.Queries
@@ -74,6 +78,9 @@ func (s *Service) List(ctx context.Context, params ListParams) ([]ArticleSummary
 	pageSize := params.PageSize
 	if pageSize < 1 {
 		pageSize = defaultPageSize
+	}
+	if pageSize > MaxPageSize {
+		return nil, 0, invalidf("pageSize is %d, at most %d is allowed", pageSize, MaxPageSize)
 	}
 
 	tagIDs, err := dbutil.ParseUUIDs(params.TagIDs)
@@ -216,11 +223,29 @@ func (s *Service) GetHidden(
 	return detail, nil
 }
 
+// validateInput makes the checks the old article form's zod schema made,
+// and keeps the VARCHAR(255) columns from overflowing into a 500.
+func validateInput(in ArticleInput) error {
+	if err := validate.First(
+		validate.Required("headerSv", in.HeaderSv),
+		validate.Length("headerSv", in.HeaderSv, validate.MaxLen),
+		validate.LengthPtr("headerEn", in.HeaderEn, validate.MaxLen),
+		validate.LengthPtr("notificationText", in.NotificationText, validate.MaxLen),
+		validate.YouTubeURL("youtubeUrl", in.YoutubeURL),
+	); err != nil {
+		return invalidf("%v", err)
+	}
+	return nil
+}
+
 func (s *Service) Create(ctx context.Context, in ArticleInput) (*ArticleDetail, error) {
 	if err := auth.Require(ctx, apinames.NewsArticleCreate); err != nil {
 		return nil, err
 	}
 	identity, _ := auth.FromContext(ctx) // Require above guarantees this is present
+	if err := validateInput(in); err != nil {
+		return nil, err
+	}
 
 	authorID, err := s.resolveAuthor(ctx, identity, in.Author, pgtype.UUID{})
 	if err != nil {
@@ -336,6 +361,9 @@ func (s *Service) Update(
 		if err := auth.Require(ctx, apinames.NewsArticleUpdate); err != nil {
 			return nil, err
 		}
+	}
+	if err := validateInput(in); err != nil {
+		return nil, err
 	}
 
 	// Only the author can change the byline. Anyone else editing keeps the

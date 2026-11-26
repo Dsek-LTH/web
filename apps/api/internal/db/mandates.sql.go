@@ -42,13 +42,16 @@ func (q *Queries) CreateMandate(ctx context.Context, arg CreateMandateParams) (C
 	return i, err
 }
 
-const deleteMandate = `-- name: DeleteMandate :exec
+const deleteMandate = `-- name: DeleteMandate :execrows
 DELETE FROM mandates WHERE id = $1
 `
 
-func (q *Queries) DeleteMandate(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteMandate, id)
-	return err
+func (q *Queries) DeleteMandate(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteMandate, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const listActiveMandatesForMember = `-- name: ListActiveMandatesForMember :many

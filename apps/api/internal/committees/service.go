@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/dsek-lth/web/apps/api/internal/apinames"
 	"github.com/dsek-lth/web/apps/api/internal/auth"
@@ -30,6 +32,7 @@ func invalidf(format string, args ...any) error {
 }
 
 type Service struct {
+	dbtx      db.DBTX
 	queries   *db.Queries
 	nollning  *nollning.Service
 	sanitizer *sanitize.Policy
@@ -41,6 +44,7 @@ type Service struct {
 // imports this package.
 func NewService(dbtx db.DBTX, nollningSvc *nollning.Service) *Service {
 	return &Service{
+		dbtx:      dbtx,
 		queries:   db.New(dbtx),
 		nollning:  nollningSvc,
 		sanitizer: sanitize.UGC(),
@@ -584,37 +588,84 @@ func (s *Service) CreateMandates(
 	if err := auth.Require(ctx, apinames.MandateCreate); err != nil {
 		return nil, err
 	}
-	startDate, err := dbutil.ParseDate(in.StartDate)
+	startDate, endDate, err := mandateDates(in.StartDate, in.EndDate)
 	if err != nil {
-		return nil, invalidf("invalid startDate: %v", err)
+		return nil, err
 	}
-	endDate, err := dbutil.ParseDate(in.EndDate)
+	if len(in.MemberIDs) == 0 {
+		return nil, invalidf("memberIds is empty")
+	}
+	memberIDs, err := dbutil.ParseUUIDs(in.MemberIDs)
 	if err != nil {
-		return nil, invalidf("invalid endDate: %v", err)
+		return nil, invalidf("invalid member id: %v", err)
+	}
+	if _, err := s.queries.GetPosition(ctx, positionID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, fmt.Errorf("get position: %w", err)
 	}
 
-	mandates := make([]Mandate, 0, len(in.MemberIDs))
-	for _, memberIDStr := range in.MemberIDs {
-		memberID, err := dbutil.ParseUUID(memberIDStr)
-		if err != nil {
-			return nil, invalidf("invalid member id: %v", err)
+	// All of them or none, like the old action's createMany.
+	mandates := make([]Mandate, 0, len(memberIDs))
+	err = s.inTx(ctx, func(q *db.Queries) error {
+		for _, memberID := range memberIDs {
+			row, err := q.CreateMandate(ctx, db.CreateMandateParams{
+				MemberID:   memberID,
+				PositionID: positionID,
+				StartDate:  startDate,
+				EndDate:    endDate,
+			})
+			if err != nil {
+				var pgErr *pgconn.PgError
+				if errors.As(err, &pgErr) && pgErr.Code == "23503" { // foreign_key_violation
+					return invalidf("no member with id %s", dbutil.UUIDStr(memberID))
+				}
+				return fmt.Errorf("create mandate: %w", err)
+			}
+			mandates = append(mandates, Mandate{
+				ID:        dbutil.UUIDStr(row.ID),
+				StartDate: dbutil.DatePtr(row.StartDate),
+				EndDate:   dbutil.DatePtr(row.EndDate),
+			})
 		}
-		row, err := s.queries.CreateMandate(ctx, db.CreateMandateParams{
-			MemberID:   memberID,
-			PositionID: positionID,
-			StartDate:  startDate,
-			EndDate:    endDate,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("create mandate: %w", err)
-		}
-		mandates = append(mandates, Mandate{
-			ID:        dbutil.UUIDStr(row.ID),
-			StartDate: dbutil.DatePtr(row.StartDate),
-			EndDate:   dbutil.DatePtr(row.EndDate),
-		})
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 	return mandates, nil
+}
+
+// mandateDates parses a mandate's first and last day; the last must come
+// after the first, as the old forms required.
+func mandateDates(start, end string) (pgtype.Date, pgtype.Date, error) {
+	startDate, err := dbutil.ParseDate(start)
+	if err != nil {
+		return startDate, startDate, invalidf("invalid startDate: %v", err)
+	}
+	endDate, err := dbutil.ParseDate(end)
+	if err != nil {
+		return startDate, endDate, invalidf("invalid endDate: %v", err)
+	}
+	if !endDate.Time.After(startDate.Time) {
+		return startDate, endDate, invalidf("endDate must be after startDate")
+	}
+	return startDate, endDate, nil
+}
+
+// inTx runs fn in a transaction when the service has a pool (or is itself
+// in one, which nests as a savepoint).
+func (s *Service) inTx(ctx context.Context, fn func(q *db.Queries) error) error {
+	beginner, ok := s.dbtx.(interface {
+		Begin(ctx context.Context) (pgx.Tx, error)
+	})
+	if !ok {
+		return fn(s.queries)
+	}
+	return pgx.BeginFunc(ctx, beginner, func(tx pgx.Tx) error {
+		return fn(s.queries.WithTx(tx))
+	})
 }
 
 func (s *Service) UpdateMandate(
@@ -629,13 +680,9 @@ func (s *Service) UpdateMandate(
 	if err != nil {
 		return nil, invalidf("invalid mandate id: %v", err)
 	}
-	startDate, err := dbutil.ParseDate(in.StartDate)
+	startDate, endDate, err := mandateDates(in.StartDate, in.EndDate)
 	if err != nil {
-		return nil, invalidf("invalid startDate: %v", err)
-	}
-	endDate, err := dbutil.ParseDate(in.EndDate)
-	if err != nil {
-		return nil, invalidf("invalid endDate: %v", err)
+		return nil, err
 	}
 	row, err := s.queries.UpdateMandate(ctx, db.UpdateMandateParams{
 		ID:        mandateID,
@@ -663,8 +710,12 @@ func (s *Service) DeleteMandate(ctx context.Context, id string) error {
 	if err != nil {
 		return invalidf("invalid mandate id: %v", err)
 	}
-	if err := s.queries.DeleteMandate(ctx, mandateID); err != nil {
+	n, err := s.queries.DeleteMandate(ctx, mandateID)
+	if err != nil {
 		return fmt.Errorf("delete mandate: %w", err)
+	}
+	if n == 0 {
+		return ErrNotFound
 	}
 	return nil
 }

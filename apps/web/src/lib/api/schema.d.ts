@@ -297,7 +297,7 @@ export interface paths {
     };
     /**
      * List published articles
-     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10. onlyUnpublished lists scheduled articles instead: the caller's own, or everyone's with news:article:update.
+     * @description Published, non-deleted articles, newest first, without nollning season articles unless includeNollning or nollningSeasonId is set. pageSize defaults to 10, at most 500. onlyUnpublished lists scheduled articles instead: the caller's own, or everyone's with news:article:update.
      */
     get: operations["list-articles"];
     put?: never;
@@ -957,7 +957,7 @@ export interface paths {
     };
     /**
      * List events
-     * @description Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. Nollning season events are left out unless includeNollning or nollningSeasonId is set. pageSize defaults to 10.
+     * @description Non-deleted events in a time window (span). An event is in the window if any part of it overlaps it. Nollning season events are left out unless includeNollning or nollningSeasonId is set. pageSize defaults to 10, at most 500.
      */
     get: operations["list-events"];
     put?: never;
