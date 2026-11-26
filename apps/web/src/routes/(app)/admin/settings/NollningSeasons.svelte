@@ -28,7 +28,9 @@
   };
   type Dates = Pick<Season, "nollaStartAt" | "revealAt" | "endAt">;
 
-  let { seasons }: { seasons: Season[] } = $props();
+  // Without nollning:season:manage the seasons are shown, not edited.
+  let { seasons, canManage }: { seasons: Season[]; canManage: boolean } =
+    $props();
 
   // Newest first: the current and coming seasons are what gets edited.
   const active = $derived(seasons.filter((s) => !s.ended));
@@ -133,14 +135,18 @@
       name="organizingCommitteeId"
       value={season.organizingCommitteeId}
     />
-    <div class="flex w-24 flex-col gap-1.5">
-      <Label>{m.admin_settings_nollningYear()}</Label>
-      <Input type="number" name="year" value={season.year} required />
-    </div>
-    {@render dateFields(season)}
-    <Button type="submit" variant="outline">
-      {m.admin_settings_save()}
-    </Button>
+    <fieldset disabled={!canManage} class="contents">
+      <div class="flex w-24 flex-col gap-1.5">
+        <Label>{m.admin_settings_nollningYear()}</Label>
+        <Input type="number" name="year" value={season.year} required />
+      </div>
+      {@render dateFields(season)}
+    </fieldset>
+    {#if canManage}
+      <Button type="submit" variant="outline">
+        {m.admin_settings_save()}
+      </Button>
+    {/if}
   </form>
 {/snippet}
 
@@ -148,7 +154,7 @@
   <CardHeader>
     <CardTitle>{m.admin_settings_nollningSeasons()}</CardTitle>
     <CardDescription>{m.admin_settings_nollningTimezone()}</CardDescription>
-    {#if !creating}
+    {#if canManage && !creating}
       <CardAction>
         <Button onclick={startCreating}>
           <Plus />
