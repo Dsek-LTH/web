@@ -19,11 +19,14 @@
     formatTicketDate,
     isSoldOut,
   } from "$lib/utils/ticketRelease";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data } = $props();
 </script>
 
-<div class="mx-auto w-full max-w-2xl px-4 py-8">
+<SetPageTitle title={m.ticketRelease_list_title()} />
+
+<div class="layout-container px-4 py-8">
   <div class="mb-6 flex items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <div class="bg-lila-background/15 rounded-full p-2">

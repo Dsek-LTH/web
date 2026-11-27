@@ -6,13 +6,16 @@
   import * as m from "$paraglide/messages";
   import BookingsForm from "$lib/bookings/components/BookingsForm.svelte";
   import type { PageData } from "./$types.js";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data }: { data: PageData } = $props();
 </script>
 
+<SetPageTitle title={m.booking_reviewBooking()} />
+
 <div class="layout-container mt-6 space-y-6 lg:w-3/5">
   <div class="flex items-center justify-between gap-4">
-    <h1 class="text-2xl font-semibold uppercase">
+    <h1>
       {m.booking_reviewBooking()}
     </h1>
     <Button variant="outline" href="/bookings/admin">

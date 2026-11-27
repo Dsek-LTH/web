@@ -9,6 +9,7 @@
   import { updateSettings } from "./settings.remote";
   import * as Table from "$lib/components/ui/table/index.js";
   import { enhanceWithToast } from "$lib/stores/toast";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   const { data } = $props();
 
@@ -112,8 +113,10 @@
   });
 </script>
 
+<SetPageTitle title={m.setting_title()} />
+
 <div class="flex flex-col [&_h2]:mt-10 [&_h2]:mb-6 [&_h4]:mb-3">
-  <h2 class="!mt-0">{m.setting_appearance()}</h2>
+  <h2 class="mt-0!">{m.setting_appearance()}</h2>
   <div class="flex flex-row">
     <!--
     TODO: Fix this

@@ -19,6 +19,7 @@
     ListChecksIcon,
   } from "@lucide/svelte";
   import type { PageData } from "./$types";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data }: { data: PageData } = $props();
 
@@ -84,6 +85,8 @@
     </AlertDialog.Content>
   </AlertDialog.Root>
 {/snippet}
+
+<SetPageTitle title={m.booking_manageBookings()} />
 
 <div class="layout-container">
   <div

@@ -18,6 +18,7 @@
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
   import { page } from "$app/state";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data, children }: { data: CommitteeLoadData; children: Snippet } =
     $props();
@@ -42,6 +43,8 @@
 
   breakMarked.use({ renderer });
 </script>
+
+<SetPageTitle title={committee.name} />
 
 <div class="sm:layout-container sm:py-0">
   <div class="border-x-[1px] border-t-[1px] border-b-[1px] p-2 sm:border-t-0">
