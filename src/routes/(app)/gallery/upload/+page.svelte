@@ -71,7 +71,6 @@
 
 <SetPageTitle title={m.gallery_upload_album()} />
 <div class="layout-container">
-  {$form.date}
   <Button href="/gallery" variant="ghost"
     ><ArrowLeft /> {m.gallery_back()}</Button
   >
