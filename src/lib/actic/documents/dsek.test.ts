@@ -35,7 +35,7 @@ test("plan of operations: pins the year and wraps the body", () => {
     planInput({ body: "Ett mål\n\n- att sjunga mer" }),
   );
   expect(source).toContain('#import "@preview/dsek:0.1.0": *');
-  expect(source).toContain("#show: plan-of-operations.with(");
+  expect(source).toContain("#show: verksamhetsplan.with(");
   // The package default is next year, so the year is emitted explicitly —
   // a saved draft must mean the same thing next year.
   expect(source).toContain("year: 2027");
@@ -59,7 +59,7 @@ test("plain document: doc type and cover page reach the source", () => {
       body: "Här är texten",
     }),
   );
-  expect(source).toContain("#show: plain-document.with(");
+  expect(source).toContain("#show: dokument.with(");
   expect(source).toContain("title: [Utredning]");
   expect(source).toContain("meeting: [HTM1]");
   expect(source).toContain('doc-type: "Verksamhetsberättelse"');
