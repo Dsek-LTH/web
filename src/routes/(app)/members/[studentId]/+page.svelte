@@ -25,6 +25,7 @@
   import { BIRTHDAY_COLORS } from "$lib/utils/birthdays";
   import { toString, type Semester } from "$lib/utils/semesters";
   import { getFullName } from "$lib/utils/client/member";
+  import { resolveRoleLogo, roleLogoMap } from "$lib/utils/roleLogos";
   import SEO from "$lib/seo/SEO.svelte";
   import { isAuthorized } from "$lib/utils/authorization";
   import apiNames from "$lib/utils/apiNames";
@@ -35,6 +36,7 @@
   let { data } = $props();
 
   const member = $derived(data.viewedMember);
+  const roleLogos = $derived(roleLogoMap(data.roleLogos));
 
   const mandatesByYear = $derived.by(() => {
     const res = Object.groupBy(member.mandates, ({ startDate, endDate }) => {
@@ -175,7 +177,14 @@
               {#if mandates}
                 <div class="flex flex-col gap-2">
                   {#each mandates as mandate (mandate.id)}
-                    <PositionCard compact {mandate} />
+                    <PositionCard
+                      compact
+                      {mandate}
+                      logoUrl={resolveRoleLogo(
+                        mandate.position?.id ?? "",
+                        roleLogos,
+                      )}
+                    />
                   {/each}
                 </div>
               {/if}
@@ -384,7 +393,13 @@
               <div class="inline-grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {#if mandates}
                   {#each mandates as mandate (mandate.id)}
-                    <PositionCard {mandate} />
+                    <PositionCard
+                      {mandate}
+                      logoUrl={resolveRoleLogo(
+                        mandate.position?.id ?? "",
+                        roleLogos,
+                      )}
+                    />
                   {/each}
                 {/if}
                 {#if member.nollaIn?.year.toString() === year}

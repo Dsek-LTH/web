@@ -14,7 +14,11 @@
 >
   <div class="flex flex-row items-center gap-2">
     <Avatar.Root>
-      <CommitteeIcon committee={data.committee}></CommitteeIcon>
+      {#if data.roleLogoUrl}
+        <img src={data.roleLogoUrl} alt="" class="size-full object-contain" />
+      {:else}
+        <CommitteeIcon committee={data.committee}></CommitteeIcon>
+      {/if}
     </Avatar.Root>
     <div class="flex flex-col">
       <span class="font-medium"
