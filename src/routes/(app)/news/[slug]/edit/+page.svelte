@@ -18,6 +18,7 @@
   });
 </script>
 
+<h1> {m.news_edit_heading()} </h1>
 <ArticleEditor
   allTags={data.allTags}
   authorOptions={data.authorOptions}
