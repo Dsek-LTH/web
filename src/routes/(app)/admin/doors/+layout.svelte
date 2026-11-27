@@ -3,11 +3,14 @@
   import { CardTitle } from "$lib/components/ui/card";
   import DoorOpen from "@lucide/svelte/icons/door-open";
   import * as m from "$paraglide/messages";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data, children }: LayoutProps = $props();
   let doors = $derived(data.doors);
   let selectedDoor = $derived(data.slug);
 </script>
+
+<SetPageTitle title={m.doors()} />
 
 <main class="layout-container">
   <h3 class="mb-3">{m.doors()}</h3>

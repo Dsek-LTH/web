@@ -13,8 +13,11 @@
   import ArticleSmallCard from "$lib/components/ArticleSmallCard.svelte";
   import BirthdayList from "$lib/components/BirthdayList.svelte";
   import Documents from "./Documents.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   const { data } = $props();
 </script>
+
+<SetPageTitle title={m.home()} />
 
 <div class="flex flex-col gap-12">
   <div class="flex flex-col justify-between gap-6 lg:flex-row">

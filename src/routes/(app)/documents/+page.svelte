@@ -19,6 +19,7 @@
   import Search from "@lucide/svelte/icons/search";
   import MeetingRow from "./MeetingRow.svelte";
   import MeetingDetail from "./MeetingDetail.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data }: { data: PageData } = $props();
 
@@ -136,6 +137,8 @@
 </script>
 
 <svelte:window bind:scrollY />
+
+<SetPageTitle title={m.documents()} />
 
 <div class="layout-container">
   <p class="text-muted-foreground max-w-3xl text-sm">{typeProse}</p>

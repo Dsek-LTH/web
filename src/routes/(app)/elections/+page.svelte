@@ -5,9 +5,12 @@
   import apiNames from "$lib/utils/apiNames";
   import { Button } from "$lib/components/ui/button";
   import ElectionCard from "$lib/components/ElectionCard.svelte";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data }: { data: PageData } = $props();
 </script>
+
+<SetPageTitle title={m.openElections()} />
 
 <div class="layout-container">
   <div class="flex flex-row">

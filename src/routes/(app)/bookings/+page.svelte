@@ -26,6 +26,7 @@
   import * as m from "$paraglide/messages";
   import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data }: { data: PageData } = $props();
 
@@ -112,6 +113,8 @@
     }
   });
 </script>
+
+<SetPageTitle title={m.bookings()} />
 
 <!-- TODO: Dynamically load older bookings when changing dates -->
 <div

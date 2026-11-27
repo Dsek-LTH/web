@@ -20,6 +20,7 @@
   import apiNames from "$lib/utils/apiNames";
   import { debounce } from "$lib/utils/debounce";
   import { getFileUrl } from "$lib/files/client.js";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
 
   let { data } = $props();
 
@@ -52,6 +53,8 @@
   // Having two rows of pagination buttons looks weird with few results.
   const showBottomPagination = $derived(data.songs.length > 2);
 </script>
+
+<SetPageTitle title={m.songbook_header()} />
 
 <div class="flex flex-col gap-0">
   <div class="mb-8 flex flex-row items-center justify-between">

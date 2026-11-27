@@ -4,6 +4,8 @@
   import type { PageData } from "./$types";
   import { type ArticleSchema } from "$lib/news/schema";
   import { superForm } from "$lib/utils/client/superForms";
+  import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
+  import * as m from "$paraglide/messages";
 
   let { data }: { data: PageData } = $props();
 
@@ -14,6 +16,8 @@
     delayMs: 500,
   });
 </script>
+
+<SetPageTitle title={m.news_createArticle()} />
 
 <ArticleEditor
   allTags={data.allTags}
