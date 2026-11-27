@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import { version } from "$app/environment";
   import { Button } from "$lib/components/ui/button";
+  import apiNames from "$lib/utils/apiNames";
   import { isAuthorized } from "$lib/utils/authorization";
   import type { PageData } from "./$types";
   import CircleAlert from "@lucide/svelte/icons/circle-alert";
@@ -13,7 +14,7 @@
 </script>
 
 <div class="layout-container flex flex-col gap-4">
-  {#if isAuthorized("core:admin", page.data.user)}
+  {#if isAuthorized(apiNames.ADMIN.CORE, page.data.user)}
     <section>
       <h3>Actions</h3>
       <form action="?/meilisearchSync" method="post">

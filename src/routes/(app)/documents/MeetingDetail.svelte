@@ -58,12 +58,6 @@
     </header>
 
     <div class="p-3">
-      <p
-        class="text-muted-foreground mb-2 text-[10px] font-semibold tracking-wider uppercase"
-      >
-        {m.documents_allDocuments()}
-      </p>
-
       {#if meeting.groups.length === 0}
         <p class="text-muted-foreground py-4 text-center text-sm">
           {m.documents_noDocuments()}

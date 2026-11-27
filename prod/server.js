@@ -1,6 +1,12 @@
-// eslint-disable-next-line no-restricted-imports -- In this case instance we have no choice but to import the handler from the build directory.
-import { handler } from "../build/handler.js";
-import express from "express";
+// We can't go through build/index.js, which adds the instrumentation but also
+// starts adapter-node's own server. So do what it does: load the instrumentation
+// first and everything else dynamically, since static imports would be resolved
+// before the instrumentation's hooks are registered and wouldn't get traced.
+// eslint-disable-next-line no-restricted-imports -- In this case instance we have no choice but to import from the build directory.
+import "../build/server/instrumentation.server.js";
+
+const { handler } = await import("../build/handler.js");
+const { default: express } = await import("express");
 
 const app = express();
 

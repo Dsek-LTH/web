@@ -1,3 +1,4 @@
+import { resolveImages } from "./cover";
 import type { ArticleCommitteeSummary, ArticleContentData } from "./types";
 
 export type PreviewLanguage = "sv" | "en";
@@ -25,6 +26,7 @@ export type PreviewForm = {
   tags: Array<{ id: string }>;
   imageUrls?: string[] | null;
   imageUrl?: string | null;
+  coverNewIndex?: number | null;
   committeeId?: string | null;
   publishTime?: Date | null;
   youtubeUrl?: string | null;
@@ -120,13 +122,13 @@ export const buildArticlePreview = ({
       }
     : null;
 
-  const existingImageUrls = form.imageUrls ?? [];
-  const imageUrls = isEditing
-    ? [...existingImageUrls, ...uploadedImageUrls]
-    : [...uploadedImageUrls];
-  const cardImageUrl = isEditing
-    ? (form.imageUrl ?? null)
-    : (uploadedImageUrls[0] ?? form.imageUrl ?? null);
+  // Creating ignores any existing URLs, just like the server does.
+  const { imageUrls, imageUrl: cardImageUrl } = resolveImages({
+    existing: isEditing ? (form.imageUrls ?? []) : [],
+    newUrls: uploadedImageUrls,
+    coverUrl: form.imageUrl,
+    coverNewIndex: form.coverNewIndex,
+  });
 
   return {
     article: {

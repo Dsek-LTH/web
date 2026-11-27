@@ -63,7 +63,7 @@
       {event.title}
     </h3>
 
-    <div class="flex flex-row items-center gap-2 py-2 pl-2">
+    <div class="flex flex-row flex-wrap items-center gap-2 py-2 pl-2">
       {#each event.tags as tag (tag.id)}
         <TagChip {tag} />
       {/each}

@@ -6,6 +6,8 @@
   import { getFullName } from "$lib/utils/client/member";
   import { getPositionLink } from "$lib/utils/positions";
   import dayjs from "dayjs";
+  import * as Accordion from "$lib/components/ui/accordion/";
+  import * as m from "$paraglide/messages";
 
   let {
     position,
@@ -44,8 +46,18 @@
     class="text-muted-foreground transition-all hover:opacity-80"
     href="mailto:{position.email}">{position.email}</a
   >
-  {#if position.description}
-    <MarkdownBody class="mt-1" body={position.description} />
+  <p class="mt-1">{position.description}</p>
+  {#if position.longDescription}
+    <Accordion.Root type="single">
+      <Accordion.Item>
+        <Accordion.Trigger class="pt-1"
+          >{m.positions_showExtended()}</Accordion.Trigger
+        >
+        <Accordion.Content>
+          <MarkdownBody class="pt-0" body={position.longDescription} />
+        </Accordion.Content>
+      </Accordion.Item>
+    </Accordion.Root>
   {/if}
   <div class="mt-2 flex flex-col gap-1">
     {#each mandates as mandate (mandate.id)}

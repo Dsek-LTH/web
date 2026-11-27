@@ -39,18 +39,13 @@
       rel="noreferrer"
       variant="outline"
       size="sm"
-      class="h-7 gap-1 px-2 text-[10px]"
+      class="h-7 gap-1"
     >
       <FileText class="text-rosa-background size-3" />
       {label}
     </Button>
   {:else}
-    <Button
-      variant="outline"
-      size="sm"
-      disabled
-      class="h-7 gap-1 px-2 text-[10px]"
-    >
+    <Button variant="outline" size="sm" disabled class="h-7 gap-1">
       <FileText class="text-rosa-background size-3" />
       {label}
     </Button>
@@ -59,8 +54,8 @@
 
 <div
   class={cn(
-    "bg-background hover:border-primary relative flex w-full max-w-full items-center gap-2 rounded-md border p-2 transition-colors",
-    selected && "border-primary bg-rosa-50/60 dark:bg-rosa-950/30",
+    "bg-background hover:border-primary relative flex w-full max-w-full items-center gap-2 rounded-md border p-3 transition-colors",
+    selected && "border-primary bg-rosa-50 dark:bg-rosa-950",
     klass,
   )}
 >

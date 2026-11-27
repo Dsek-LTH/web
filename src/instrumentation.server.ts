@@ -3,7 +3,6 @@ import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { createAddHookMessageChannel } from "import-in-the-middle";
 import { register } from "module";
-import { env } from "$env/dynamic/public";
 
 const { registerOptions } = createAddHookMessageChannel();
 register(
@@ -13,10 +12,12 @@ register(
   registerOptions as any,
 );
 
+// This file runs before SvelteKit's `Server.init()`, which is what populates
+// `$env/dynamic/*`, so those modules are still empty here.
 const sdk = new NodeSDK({
-  serviceName: env.PUBLIC_OTLP_SERVICE_NAME,
+  serviceName: process.env["PUBLIC_OTLP_SERVICE_NAME"],
   traceExporter: new OTLPTraceExporter({
-    url: env.PUBLIC_OTLP_TRACE_EXPORT_URL,
+    url: process.env["PUBLIC_OTLP_TRACE_EXPORT_URL"],
   }),
   instrumentations: [getNodeAutoInstrumentations()],
 });

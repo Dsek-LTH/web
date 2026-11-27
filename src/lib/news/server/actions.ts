@@ -1,5 +1,6 @@
 import { PUBLIC_BUCKETS_FILES } from "$env/static/public";
 import { uploadFile } from "$lib/files/uploadFiles";
+import { resolveImages } from "$lib/news/cover";
 import { createSchema, updateSchema } from "$lib/news/schema";
 import authorizedPrismaClient from "$lib/server/authorizedPrisma";
 import { redirect } from "sveltekit-flash-message/server";
@@ -52,6 +53,7 @@ export const createArticle: Action = async (event) => {
     sendNotification: shouldSendNotification,
     notificationText,
     images,
+    coverNewIndex,
     bodySv,
     bodyEn,
     committeeId,
@@ -78,8 +80,14 @@ export const createArticle: Action = async (event) => {
     tasks.push(uploadImage(user, image, slug));
   });
   await Promise.resolve();
-  rest.imageUrls = await Promise.all(tasks);
-  rest.imageUrl = rest.imageUrls[0];
+  // A new article has no existing images, so only the uploads count.
+  const resolved = resolveImages({
+    existing: [],
+    newUrls: await Promise.all(tasks),
+    coverNewIndex,
+  });
+  rest.imageUrls = resolved.imageUrls;
+  rest.imageUrl = resolved.imageUrl;
 
   const result = await prisma.article.create({
     data: {
@@ -202,6 +210,7 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
     author,
     tags,
     images,
+    coverNewIndex,
     bodySv,
     bodyEn,
     committeeId,
@@ -226,11 +235,14 @@ export const updateArticle: Action<{ slug: string }> = async (event) => {
   });
 
   await Promise.resolve();
-  const newImages = await Promise.all(tasks);
-  rest.imageUrls =
-    rest.imageUrls === undefined
-      ? newImages
-      : [...rest.imageUrls, ...newImages];
+  const resolved = resolveImages({
+    existing: rest.imageUrls ?? [],
+    newUrls: await Promise.all(tasks),
+    coverUrl: rest.imageUrl,
+    coverNewIndex,
+  });
+  rest.imageUrls = resolved.imageUrls;
+  rest.imageUrl = resolved.imageUrl;
 
   let announced = true;
   try {

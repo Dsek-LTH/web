@@ -20,6 +20,9 @@ export const articleSchema = z.object({
     .default([]),
   imageUrls: z.string().array().optional(),
   imageUrl: z.string().optional().nullable(),
+  // Index into `images` when the cover is one of the newly picked files, which
+  // have no URL yet. Otherwise `imageUrl` names the cover.
+  coverNewIndex: z.number().int().min(0).optional().nullable(),
   youtubeUrl: z
     .string()
     .optional()

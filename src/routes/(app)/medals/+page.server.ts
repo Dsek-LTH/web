@@ -11,7 +11,11 @@ import { error } from "@sveltejs/kit";
 import * as m from "$paraglide/messages";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const { prisma } = locals;
+  const { prisma, user } = locals;
+
+  if (!user?.memberId) {
+    throw error(401, "You must be logged in to view medal recipients");
+  }
 
   const semester: Semester = getSemesterOrThrowSvelteError(url);
   const now = new Date();

@@ -32,12 +32,6 @@
   let pathInfo = $derived(typeToPath[$form.type]);
   let fileErrors = $derived($errors.file as string | string[] | undefined);
 
-  $effect(() => {
-    if ($form.type === "requirement") {
-      $form.group = "";
-    }
-  });
-
   let meetingPlaceholder = $derived.by(() => {
     switch ($form.type) {
       case "requirement":
@@ -96,7 +90,9 @@
 
       <div class="flex w-full flex-col gap-1.5">
         <Label for="folder">
-          {m.documents_writeMeetingName()}
+          {$form.type === "requirement"
+            ? m.documents_guildMeetingOrCommittee()
+            : m.documents_writeMeetingName()}
         </Label>
 
         <Input
@@ -104,16 +100,28 @@
           name="folder"
           bind:value={$form.folder}
           type="text"
-          placeholder={$form.type !== "requirement"
-            ? meetingPlaceholder
-            : "HTM1, VTM-extra..."}
+          list={$form.type === "requirement"
+            ? "requirement-folders"
+            : undefined}
+          placeholder={$form.type === "requirement"
+            ? m.documents_requirementFolderPlaceholder()
+            : meetingPlaceholder}
           aria-invalid={!!$errors.folder}
           aria-errormessage={$errors.folder?.at(0)}
           {...$constraints.folder}
         />
 
-        {#if $form.type !== "requirement"}
-          <p class="text-base-content/70 mt-0 text-sm italic">
+        {#if $form.type === "requirement"}
+          <datalist id="requirement-folders">
+            {#each data.requirementFolders as folder (folder)}
+              <option value={folder}></option>
+            {/each}
+          </datalist>
+          <p class="text-muted-foreground mt-0 text-sm italic">
+            {m.documents_requirementFolderInfo()}
+          </p>
+        {:else}
+          <p class="text-muted-foreground mt-0 text-sm italic">
             {m.documents_uploadInfo()}
           </p>
         {/if}
@@ -164,6 +172,11 @@
         }}
         {...$constraints.file}
       />
+      {#if $form.type === "requirement"}
+        <p class="text-muted-foreground mt-0 text-sm italic">
+          {m.documents_requirementBilingualInfo()}
+        </p>
+      {/if}
     </div>
 
     <div class="flex flex-col gap-1.5">

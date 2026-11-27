@@ -9,6 +9,7 @@ import CalendarDays from "@lucide/svelte/icons/calendar-days";
 import Coins from "@lucide/svelte/icons/coins";
 import DoorClosedLocked from "@lucide/svelte/icons/door-closed-locked";
 import Files from "@lucide/svelte/icons/files";
+import FilePen from "@lucide/svelte/icons/file-pen";
 import FileText from "@lucide/svelte/icons/file-text";
 import HousePlus from "@lucide/svelte/icons/house-plus";
 import Info from "@lucide/svelte/icons/info";
@@ -24,6 +25,7 @@ import Ticket from "@lucide/svelte/icons/ticket";
 import UserPlus from "@lucide/svelte/icons/user-plus";
 import Users from "@lucide/svelte/icons/users";
 import Vote from "@lucide/svelte/icons/vote";
+import BookImage from "@lucide/svelte/icons/book-image";
 import type { Component } from "svelte";
 
 // bottom-nav: Show in the bottom navigation bar
@@ -119,8 +121,8 @@ export const getRoutes = (): Route[] =>
       accessRequired: null,
       appBehaviour: "none",
       pictureUrl: getFileUrl("minio/files/public/photos/guild.jpg") ?? "",
-      pictureTitle: m.nav_about_guild(),
-      pictureDescription: m.nav_about_guild_desc(),
+      pictureTitle: m.nav_committees(),
+      pictureDescription: m.nav_committees_desc(),
       picturePath: "/about#committees",
       path: null,
       children: [
@@ -224,12 +226,28 @@ export const getRoutes = (): Route[] =>
           icon: HousePlus,
         },
         {
+          title: m.actic_title(),
+          accessRequired: null,
+          appBehaviour: "none",
+          description: m.nav_actic_desc(),
+          path: "/actic",
+          icon: FilePen,
+        },
+        {
           title: m.nav_expenses(),
           accessRequired: null,
           appBehaviour: "none",
           description: m.nav_expenses_desc(),
           path: "https://ekonomi.dsek.se/",
           icon: Coins,
+        },
+        {
+          title: m.gallery(),
+          description: m.gallery_desc(),
+          accessRequired: null,
+          appBehaviour: "none",
+          path: "/gallery",
+          icon: BookImage,
         },
       ],
     },

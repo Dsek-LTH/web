@@ -9,14 +9,6 @@ datasource db {
     directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-plugin openapi {
-    provider = '@zenstackhq/openapi'
-    output = '../routes/api/openapi.json/openapi.json'
-    title = 'D-sektionen API'
-    version = '1.0.0'
-    prefix = '/api/model'
-}
-
 model User {
     studentId    String   @id
     memberId     String
@@ -243,7 +235,7 @@ model BookingRequest {
     @@allow("read", has(auth().policies, "booking_request:read"))
     @@allow("update", has(auth().policies, "booking_request:update"))
     @@allow("delete", has(auth().policies, "booking_request:delete"))
-    @@allow("delete", auth().memberId == bookerId)
+    @@allow("delete", auth().memberId != null && auth().memberId == bookerId)
     @@map("booking_requests")
 }
 
@@ -493,8 +485,8 @@ model ExpoToken {
     member    Member? @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "expo_tokens_member_id_foreign")
     expoToken String  @unique(map: "expo_tokens_expo_token_unique") @map("expo_token") @db.VarChar(255)
 
-    @@allow('create', auth().memberId == memberId)
-    @@allow('update', auth().memberId == memberId && auth().memberId == future().memberId)
+    @@allow('create', auth().memberId != null && auth().memberId == memberId)
+    @@allow('update', auth().memberId != null && auth().memberId == memberId && auth().memberId == future().memberId)
     @@map("expo_tokens")
 }
 
@@ -640,61 +632,63 @@ model Meeting {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Members{
 model Member {
-    id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    studentId               String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
-    email                   String?                 @unique @db.VarChar(255) @deny("read", (!has(auth().policies, "member:see_email")) || (mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != id))
-    firstName               String?                 @map("first_name") @db.VarChar(255)
-    nickname                String?                 @db.VarChar(255) @deny("read", auth() == null)
-    lastName                String?                 @map("last_name") @db.VarChar(255)
-    bio                     String?                 @db.Text
-    picturePath             String?                 @map("picture_path") @db.Text
-    classProgramme          String?                 @map("class_programme") @db.VarChar(255)
-    classYear               Int?                    @map("class_year")
-    graduationYear          Int?                    @map("graduation_year")
-    birthDate               DateTime?               @map("birth_date") @db.Date @allow("read", has(auth().policies, "member:user"))
-    visible                 Boolean                 @default(true)
-    foodPreference          String?                 @map("food_preference") @db.VarChar(255) @allow("read", (auth().memberId == id) || (has(auth().policies, "webshop:manage")) || has(auth().policies, "core:member:update"))
-    language                String?                 @map("language") @db.VarChar(255)
-    stripeCustomerId        String?                 @map("stripe_customer_id")
+    id                           String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    studentId                    String?                 @unique(map: "members_student_id_unique") @map("student_id") @db.VarChar(255)
+    email                        String?                 @unique @db.VarChar(255) @deny("read", (!has(auth().policies, "member:see_email")) || (mandates?[startDate < now() && now() < endDate && (startsWith(positionId, "dsek.noll.stab."))] && !has(auth().policies, "member:see_staben") && auth().memberId != id))
+    firstName                    String?                 @map("first_name") @db.VarChar(255)
+    nickname                     String?                 @db.VarChar(255) @deny("read", auth().memberId == null)
+    lastName                     String?                 @map("last_name") @db.VarChar(255)
+    bio                          String?                 @db.Text
+    picturePath                  String?                 @map("picture_path") @db.Text
+    classProgramme               String?                 @map("class_programme") @db.VarChar(255)
+    classYear                    Int?                    @map("class_year")
+    graduationYear               Int?                    @map("graduation_year")
+    birthDate                    DateTime?               @map("birth_date") @db.Date @allow("read", has(auth().policies, "member:user"))
+    visible                      Boolean                 @default(true)
+    foodPreference               String?                 @map("food_preference") @db.VarChar(255) @allow("read", (auth().memberId == id) || (has(auth().policies, "webshop:manage")) || has(auth().policies, "core:member:update"))
+    language                     String?                 @map("language") @db.VarChar(255)
+    stripeCustomerId             String?                 @map("stripe_customer_id")
 
-    nollningGroupId         String?                 @map("nollning_group_id") @db.Uuid
-    nollaIn                 PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
+    nollningGroupId              String?                 @map("nollning_group_id") @db.Uuid
+    nollaIn                      PhadderGroup?           @relation(fields: [nollningGroupId], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "members_nollning_group_id_foreign")
 
-    pingsFromMe             Ping[]                  @relation("pings_from_memberTomembers")
-    pingsToMe               Ping[]                  @relation("pings_to_memberTomembers")
-    likedArticles           Article[]               @relation("article_likes")
-    articleComments         ArticleComment[]
-    articleRequests         ArticleRequest[]
-    authors                 Author[]
-    eventComments           EventComment[]
-    eventsGoingTos          Event[]                 @relation("event_going")
-    eventsInterestedIns     Event[]                 @relation("event_interested")
-    subscribedTags          Tag[]                   @relation("member_tag_subscriptions")
-    authoredEvents          Event[]
-    mandates                Mandate[]
-    notifications           Notification[]
-    subscriptionSettings    SubscriptionSetting[]
-    memberSpecificPolicies  AccessPolicy[]
-    doorAccessPolicies      DoorAccessPolicy[]
-    shoppableAccessPolicies ShoppableAccessPolicy[]
-    authoredShoppables      Shoppable[]
-    inventory               Consumable[]
-    shopReservations        ConsumableReservation[]
-    bookingRequests         BookingRequest[]
-    accessGrantedBookingRequests BookingRequest[]   @relation("booking_requests_access_members")
-    recurringEvent          RecurringEvent[]
-    tokens                  ExpoToken[]
-    expenses                Expense[]
-    expensesToSign          ExpenseItem[]           @relation("expense_item_signer")
-    signedExpenses          ExpenseItem[]           @relation("expense_item_signed_by")
-    closedAlerts            Alert[]                 @relation("alerts_closed_by")
-    cafeShifts              CafeShift[]
+    pingsFromMe                  Ping[]                  @relation("pings_from_memberTomembers")
+    pingsToMe                    Ping[]                  @relation("pings_to_memberTomembers")
+    likedArticles                Article[]               @relation("article_likes")
+    articleComments              ArticleComment[]
+    articleRequests              ArticleRequest[]
+    authors                      Author[]
+    eventComments                EventComment[]
+    eventsGoingTos               Event[]                 @relation("event_going")
+    eventsInterestedIns          Event[]                 @relation("event_interested")
+    subscribedTags               Tag[]                   @relation("member_tag_subscriptions")
+    authoredEvents               Event[]
+    mandates                     Mandate[]
+    notifications                Notification[]
+    subscriptionSettings         SubscriptionSetting[]
+    memberSpecificPolicies       AccessPolicy[]
+    doorAccessPolicies           DoorAccessPolicy[]
+    shoppableAccessPolicies      ShoppableAccessPolicy[]
+    authoredShoppables           Shoppable[]
+    inventory                    Consumable[]
+    shopReservations             ConsumableReservation[]
+    bookingRequests              BookingRequest[]
+    accessGrantedBookingRequests BookingRequest[]        @relation("booking_requests_access_members")
+    recurringEvent               RecurringEvent[]
+    tokens                       ExpoToken[]
+    expenses                     Expense[]
+    expensesToSign               ExpenseItem[]           @relation("expense_item_signer")
+    signedExpenses               ExpenseItem[]           @relation("expense_item_signed_by")
+    closedAlerts                 Alert[]                 @relation("alerts_closed_by")
+    cafeShifts                   CafeShift[]
+    photographerIn               Album[]                 @relation("album_photographer")
+    editorInAlbum                Album[]                 @relation("album_editor")
 
     @@allow('create', has(auth().policies, "core:member:create"))
-    @@allow('create', auth().studentId == studentId)
+    @@allow('create', auth().studentId != null && auth().studentId == studentId)
     @@allow('read', has(auth().policies, "core:member:read"))
-    @@allow('read', auth().studentId == studentId)
-    @@allow('update', auth().studentId == studentId)
+    @@allow('read', auth().studentId != null && auth().studentId == studentId)
+    @@allow('update', auth().studentId != null && auth().studentId == studentId)
     @@allow('update', has(auth().policies, "core:member:update"))
     @@allow('delete', has(auth().policies, "core:member:delete"))
     @@map("members")
@@ -777,8 +771,8 @@ model Ping {
     fromMember   Member?   @relation("pings_from_memberTomembers", fields: [fromMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_from_member_foreign")
     toMember     Member?   @relation("pings_to_memberTomembers", fields: [toMemberId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "pings_to_member_foreign")
 
-    @@allow('read', auth().memberId == fromMemberId || auth().memberId == toMemberId)
-    @@allow('update', auth().memberId == fromMemberId || auth().memberId == toMemberId)
+    @@allow('read', auth().memberId != null && (auth().memberId == fromMemberId || auth().memberId == toMemberId))
+    @@allow('update', auth().memberId != null && (auth().memberId == fromMemberId || auth().memberId == toMemberId))
     @@allow('create', has(auth().policies, "core:member:ping"))
     @@unique([fromMemberId, toMemberId], map: "pings_from_member_to_member_unique")
     @@map("pings")
@@ -804,20 +798,22 @@ model PhadderGroup {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-commentsmodel Positions{
 model Position {
-    id            String       @id @db.VarChar(255)
-    nameSv        String       @map("name_sv") @db.VarChar(255)
-    nameEn        String?      @map("name_en") @db.VarChar(255)
-    committeeId   String?      @map("committee_id") @db.Uuid
-    email         String?      @db.VarChar(255)
-    active        Boolean      @default(true)
-    boardMember   Boolean      @default(false) @map("board_member")
-    descriptionSv String?      @map("description_sv")
-    descriptionEn String?      @map("description_en")
-    startMonth    Int          @default(0) @map("start_month")
-    endMonth      Int          @default(11) @map("end_month")
-    committee     Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
-    emailAliases  EmailAlias[]
-    mandates      Mandate[]
+    id                String       @id @db.VarChar(255)
+    nameSv            String       @map("name_sv") @db.VarChar(255)
+    nameEn            String?      @map("name_en") @db.VarChar(255)
+    committeeId       String?      @map("committee_id") @db.Uuid
+    email             String?      @db.VarChar(255)
+    active            Boolean      @default(true)
+    boardMember       Boolean      @default(false) @map("board_member")
+    descriptionSv     String?      @map("description_sv")
+    descriptionEn     String?      @map("description_en")
+    longDescriptionSv String?      @map("long_description_sv")
+    longDescriptionEn String?      @map("long_description_en")
+    startMonth        Int          @default(0) @map("start_month")
+    endMonth          Int          @default(11) @map("end_month")
+    committee         Committee?   @relation(fields: [committeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "positions_committee_id_foreign")
+    emailAliases      EmailAlias[]
+    mandates          Mandate[]
 
     @@allow("create", has(auth().policies, "core:position:create"))
     @@allow("read", has(auth().policies, "core:position:read"))
@@ -899,16 +895,16 @@ model ProductInventory {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Song {
-    id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    title     String    @db.VarChar(255)
-    lyrics    String
-    slug      String    @unique(map: "songs_slug_unique") @db.VarChar(255)
-    melody    String?   @db.VarChar(255)
-    category  String?   @db.VarChar(255)
-    createdAt DateTime? @map("created_at") @db.Timestamptz(6)
-    updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
-    deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-    video     String?
+    id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    title         String         @db.VarChar(255)
+    lyrics        String
+    slug          String         @unique(map: "songs_slug_unique") @db.VarChar(255)
+    melody        String?        @db.VarChar(255)
+    category      String?        @db.VarChar(255)
+    createdAt     DateTime?      @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime?      @map("updated_at") @db.Timestamptz(6)
+    deletedAt     DateTime?      @map("deleted_at") @db.Timestamptz(6)
+    video         String?
 
     songBookEntry SongBookEntry?
 
@@ -920,12 +916,12 @@ model Song {
 }
 
 model SongBookEntry {
-    songId          String   @unique @map("song_id") @db.Uuid
-    song            Song     @relation(fields: [songId], references: [id])
-    page            Int
-    numberOnPage    Int      @map("number_on_page")
-    createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-    updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+    songId       String   @unique @map("song_id") @db.Uuid
+    song         Song     @relation(fields: [songId], references: [id])
+    page         Int
+    numberOnPage Int      @map("number_on_page")
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
     @@id([page, numberOnPage])
 
@@ -1192,15 +1188,15 @@ model ItemQuestionResponse {
     extraPrice   Int?
 
     // create: customer
-    @@allow("create", consumable.memberId == auth().memberId
+    @@allow("create", (auth().memberId != null && consumable.memberId == auth().memberId)
   || auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode)
     // read: customer, author of shoppable, anyone with manage or read_purchases
-    @@allow("read", consumable.memberId == auth().memberId
+    @@allow("read", (auth().memberId != null && consumable.memberId == auth().memberId)
   || auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode
   || question.shoppable.authorId == auth().memberId
   || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"]))
     // update: customer as long as not purchased
-    @@allow("update", consumable.purchasedAt == null && (auth().memberId == consumable.memberId || auth().externalCode != null))
+    @@allow("update", consumable.purchasedAt == null && ((auth().memberId != null && auth().memberId == consumable.memberId) || (auth().externalCode != null && consumable.externalCustomerCode == auth().externalCode)))
     // no one can delete
     @@deny("delete", false)
 
@@ -1216,14 +1212,19 @@ model Consumable {
 
     memberId              String?                @db.Uuid
     member                Member?                @relation(fields: [memberId], references: [id])
-    externalCustomerEmail String? // if purchased by a non-member
-    externalCustomerCode  String? // if purchased by a non-member, unique code used in link as security
+    // The row stays readable so purchase/availability checks can count
+    // consumables across all buyers, but these three fields carry personal
+    // or security-sensitive data, so they are readable only by the customer
+    // who owns the consumable, the shoppable's author, or webshop managers.
+    // externalCustomerCode is a capability token used in purchase links.
+    externalCustomerEmail String?                @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member
+    externalCustomerCode  String?                @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member, unique code used in link as security
 
     createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
     expiresAt             DateTime?              @map("expires_at") @db.Timestamptz(6)
     purchasedAt           DateTime?              @map("purchased_at") @db.Timestamptz(6)
     priceAtPurchase       Int? // Used to save the actual amount paid by the customer, in case the price of the shoppable changes. Used in refunds.
-    stripeIntentId        String?                @map("stripe_intent_id")
+    stripeIntentId        String?                @map("stripe_intent_id") @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"]))
 
     // customer or webshop:consume can always consume from unconsumed state. manager can "unconsume" from consumed state
     consumedAt            DateTime?              @map("consumed_at") @db.Timestamptz(6) @allow("update", (has(auth().policies, "webshop:consume") && consumedAt == null)
@@ -1232,13 +1233,13 @@ model Consumable {
     questionResponses     ItemQuestionResponse[]
 
     // create: anyone, but only for themselves
-    @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
+    @@allow("create", (auth().memberId != null && memberId == auth().memberId) || auth().externalCode != null && externalCustomerCode == auth().externalCode)
     // read: anyone can read. Necessary for purchase checks
     @@allow("read", true)
     // no one can update (except overriden fields)
     @@deny("update", true)
     // customer can delete non-purchased
-    @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
+    @@allow("delete", ((auth().memberId != null && memberId == auth().memberId) || auth().externalCode != null && externalCustomerCode == auth().externalCode))
     @@allow("delete", expiresAt != null && expiresAt < now()) // anyone can delete an expired consumable (not purchased of course)
     // no one can delete purchased
     @@deny("delete", purchasedAt != null)
@@ -1253,20 +1254,22 @@ model ConsumableReservation {
 
     memberId              String?   @db.Uuid
     member                Member?   @relation(fields: [memberId], references: [id])
-    externalCustomerEmail String? // if purchased by a non-member
-    externalCustomerCode  String? // if purchased by a non-member, unique code used in link as security
+    // Readable only by the customer who owns the reservation, the shoppable's
+    // author, or webshop managers. See the matching fields on Consumable.
+    externalCustomerEmail String?   @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member
+    externalCustomerCode  String?   @allow("read", (auth().memberId != null && (memberId == auth().memberId || shoppable.authorId == auth().memberId)) || (auth().externalCode != null && externalCustomerCode == auth().externalCode) || hasSome(auth().policies, ["webshop:manage", "webshop:read_purchases"])) // if purchased by a non-member, unique code used in link as security
 
     createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
     order                 Int?
 
     // create: anyone, but only for themselves
-    @@allow("create", memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode)
+    @@allow("create", (auth().memberId != null && memberId == auth().memberId) || auth().externalCode != null && externalCustomerCode == auth().externalCode)
     // read: anyone can read. Necessary for purchase checks
     @@allow("read", true)
     // no one can update (except overriden fields)
     @@deny("update", true)
     // customer can delete
-    @@allow("delete", (memberId == auth().memberId || auth().externalCode != null && externalCustomerCode == auth().externalCode))
+    @@allow("delete", ((auth().memberId != null && memberId == auth().memberId) || auth().externalCode != null && externalCustomerCode == auth().externalCode))
     @@map("consumable_reservation")
 }
 
@@ -1374,6 +1377,25 @@ model Readme {
     @@map("readme")
     @@allow("read", true)
 }
+
+model Album {
+    id            String   @id() @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+    title         String
+    description   String?
+    date          DateTime @db.Date
+    createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt     DateTime @map("updated_at") @db.Timestamptz(6)
+    slug          String
+    photographers Member[] @relation("album_photographer")
+    editors       Member[] @relation("album_editor")
+
+    @@allow("create", has(auth().policies, "gallery:create"))
+    @@allow("read", true)
+    @@allow("update", has(auth().policies, "gallery:update"))
+    @@allow("delete", has(auth().policies, "gallery:delete"))
+    @@map("albums")
+}
+
 
 
 model CafeShift {

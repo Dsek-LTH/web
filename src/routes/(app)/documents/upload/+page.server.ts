@@ -1,3 +1,4 @@
+import { getRequirementProfileFolders } from "../requirementProfiles.server";
 import * as m from "$paraglide/messages";
 import { fail } from "@sveltejs/kit";
 import { zod4 } from "sveltekit-superforms/adapters";
@@ -6,9 +7,27 @@ import type { Actions, PageServerLoad } from "./$types";
 import { uploadSchema } from "./types";
 import { uploadDocumentsFile } from "./uploadFiles";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals, url }) => {
   const form = await superValidate(zod4(uploadSchema));
-  return { form };
+  const requestedType = uploadSchema.shape.type.safeParse(
+    url.searchParams.get("type"),
+  );
+  if (requestedType.success) {
+    form.data.type = requestedType.data;
+  }
+  const requestedYear = uploadSchema.shape.year.safeParse(
+    Number(url.searchParams.get("year")),
+  );
+  if (requestedYear.success) {
+    form.data.year = requestedYear.data;
+  }
+  return {
+    form,
+    requirementFolders:
+      form.data.type === "requirement" && locals.user
+        ? await getRequirementProfileFolders(locals.user)
+        : [],
+  };
 };
 
 export const actions: Actions = {
