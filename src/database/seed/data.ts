@@ -130,6 +130,12 @@ export const MARKDOWNS = [
 
 export const ACCESS_POLICIES = [
   ...getObjectValues(apiNames),
+  // FILES.BUCKET is a function, so getObjectValues(apiNames) skips these.
+  ...getObjectValues(
+    ["albums", "documents", "files", "members"].map((bucket) =>
+      apiNames.FILES.BUCKET(bucket),
+    ),
+  ),
   ...getObjectValues(
     MARKDOWNS.map((markdown) => apiNames.MARKDOWNS.PAGE(markdown.name)),
   ),

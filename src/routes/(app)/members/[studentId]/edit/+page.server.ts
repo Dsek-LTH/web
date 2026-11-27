@@ -1,4 +1,6 @@
 import { getCurrentDoorPoliciesForMember } from "$lib/utils/member";
+import apiNames from "$lib/utils/apiNames";
+import { isAuthorized } from "$lib/utils/authorization";
 import { memberSchema } from "$lib/zod/schemas";
 import * as m from "$paraglide/messages";
 import { error, fail, redirect } from "@sveltejs/kit";
@@ -103,7 +105,10 @@ export type UpdateSchema = Infer<typeof updateSchema>;
 
 export const actions: Actions = {
   uploadPicture: async ({ params, locals, request }) => {
-    if (locals.user?.studentId !== params.studentId) {
+    if (
+      locals.user?.studentId !== params.studentId &&
+      !isAuthorized(apiNames.MEMBER.UPDATE, locals.user)
+    ) {
       throw error(403, m.members_errors_couldntUploadFile());
     }
     const formData = await request.formData();
