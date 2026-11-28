@@ -4,8 +4,8 @@
    * (which receives hover even when the wrapped button is disabled — a
    * disabled button itself never does) and shows the label, an optional
    * description and optional kbd shortcut chips. `ToolbarButton` builds on
-   * this; use it directly for controls it doesn't own (popover and menu
-   * triggers, links).
+   * this; use it directly for controls it doesn't own (links and other
+   * non-button triggers).
    */
   import type { Snippet } from "svelte";
   import * as Tooltip from "$lib/components/ui/tooltip";

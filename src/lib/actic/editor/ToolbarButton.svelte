@@ -4,23 +4,20 @@
    * while the button is disabled (via `Hint` — the trigger rides a wrapper
    * span, since a disabled button never receives hover), with an optional
    * description line, kbd shortcut chips and the wrap toggle's underline.
+   *
+   * Extra native button attributes are spread onto the `<button>`, so the
+   * component also works as a popover/menu trigger (bits-ui's `child`
+   * props land on the real button, not the tooltip's wrapper span).
    */
   import type { Snippet } from "svelte";
+  import type { HTMLButtonAttributes } from "svelte/elements";
   import { cn } from "$lib/utils.js";
   import Hint from "./Hint.svelte";
 
-  let {
-    label,
-    description,
-    shortcut,
-    disabled = false,
-    active = false,
-    pressed,
-    underline = false,
-    onclick,
-    class: cls,
-    children,
-  }: {
+  type ToolbarButtonProps = Omit<
+    HTMLButtonAttributes,
+    "children" | "class" | "onclick"
+  > & {
     /** Tooltip heading and aria-label. */
     label: string;
     /** Optional second line in the tooltip (what it does, why disabled). */
@@ -35,10 +32,24 @@
     pressed?: boolean;
     /** A small pink underline flush with the bar's bottom edge while active. */
     underline?: boolean;
-    onclick?: () => void;
+    onclick?: (event: MouseEvent) => void;
     class?: string;
     children?: Snippet;
-  } = $props();
+  };
+
+  let {
+    label,
+    description,
+    shortcut,
+    disabled = false,
+    active = false,
+    pressed,
+    underline = false,
+    onclick,
+    class: cls,
+    children,
+    ...rest
+  }: ToolbarButtonProps = $props();
 </script>
 
 <Hint
@@ -59,6 +70,7 @@
   )}
 >
   <button
+    {...rest}
     type="button"
     {disabled}
     aria-label={label}
