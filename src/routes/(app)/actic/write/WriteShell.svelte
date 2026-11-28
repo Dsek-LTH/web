@@ -1,16 +1,12 @@
 <script lang="ts">
   import * as Tabs from "$lib/components/ui/tabs";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Spinner } from "$lib/components/ui/spinner/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
+  import PreviewPanel from "$lib/actic/editor/PreviewPanel.svelte";
+  import { beforeNavigate } from "$app/navigation";
   import type { Snippet } from "svelte";
-  import {
-    Download,
-    FileCode,
-    Save,
-    TriangleAlert,
-  } from "@lucide/svelte/icons";
+  import { TriangleAlert } from "@lucide/svelte/icons";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import * as m from "$paraglide/messages";
   import type { Writer } from "./writer.svelte";
@@ -29,12 +25,31 @@
     // shortcuts — created here so they live exactly as long as this shell.
     writer.runEffects();
   });
+
+  // In-app navigation never fires beforeunload, so the dirty check needs
+  // this twin guard (runs during component initialisation, as required).
+  // Reload-style navigations (back button via data-sveltekit-reload, the
+  // native dialog covers those) are left to the browser.
+  beforeNavigate((navigation) => {
+    if (
+      writer.dirty &&
+      !navigation.willUnload &&
+      !window.confirm(m.actic_unsaved_confirm())
+    ) {
+      navigation.cancel();
+    }
+  });
 </script>
 
 <SetPageTitle title={m.actic_title()} />
 
 <div class="layout-container flex flex-col gap-4">
-  <Button variant="ghost" href="/actic" class="self-start">
+  <Button
+    variant="ghost"
+    href="/actic"
+    class="self-start"
+    data-sveltekit-reload
+  >
     <ChevronLeft class="mr-1 h-4 w-4" />
     {m.back()}
   </Button>
@@ -86,90 +101,50 @@
       {/if}
 
       {#if writer.advanced}
-        <div class="flex flex-col gap-2">
-          <SourceEditor
-            bind:value={writer.manualSource}
-            diagnostics={writer.diagnostics}
-            oninput={() => (writer.forked = true)}
-          />
-          <div class="flex justify-end">
-            <Button variant="outline" onclick={() => writer.downloadSource()}>
-              <FileCode class="mr-2 h-4 w-4" />
-              {m.actic_download_source()}
-            </Button>
-          </div>
-        </div>
+        <SourceEditor
+          bind:value={writer.manualSource}
+          diagnostics={writer.diagnostics}
+          oninput={() => (writer.forked = true)}
+          downloadItems={[
+            {
+              label: m.actic_download_source(),
+              run: () => writer.downloadSource(),
+            },
+          ]}
+        />
       {:else}
         {@render children?.()}
       {/if}
     </div>
 
     <!-- Right: preview -->
-    <div
-      class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]"
+    <PreviewPanel
+      bind:scrollBox={writer.scrollBox}
+      bind:previewHost={writer.previewHost}
+      compiling={writer.compiling}
+      downloading={writer.downloading}
+      dirty={writer.dirty}
+      canSave={writer.hasContent}
+      canDownload={writer.ready}
+      error={writer.error}
+      rendered={writer.rendered}
+      showHost={writer.ready || writer.forked}
+      bind:autocompile={writer.autocompile}
+      oncompile={() => writer.compileNow()}
+      onsave={() => writer.saveDraftNow()}
+      ondownload={() => writer.download()}
+      title={m.actic_preview_title()}
     >
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          {#if writer.compiling}
-            <Spinner class="text-muted-foreground h-4 w-4" />
-          {/if}
+      {#snippet placeholder()}
+        <div class="py-6 text-sm">
+          <p class="mb-2">{m.actic_checklist_heading()}</p>
+          <ul class="text-muted-foreground list-disc pl-5">
+            {#each writer.missing as item (item)}
+              <li>{item}</li>
+            {/each}
+          </ul>
         </div>
-        <div class="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onclick={() => writer.saveDraftNow()}
-            disabled={!writer.dirty || !writer.hasContent}
-          >
-            <Save class="mr-1 h-4 w-4" />
-            {m.actic_draft_save()}
-          </Button>
-          <Button
-            onclick={() => writer.download()}
-            disabled={writer.downloading}
-          >
-            {#if writer.downloading}
-              <Spinner class="mr-2" />
-            {:else}
-              <Download class="mr-2 h-4 w-4" />
-            {/if}
-            {m.actic_download()}
-          </Button>
-        </div>
-      </div>
-      <div
-        bind:this={writer.scrollBox}
-        class="bg-muted border-border min-h-[28rem] overflow-auto rounded-md border p-4 lg:min-h-0 lg:flex-1"
-      >
-        {#if writer.error}
-          <div class="bg-muted sticky top-0 z-10 pb-4">
-            <p class="text-destructive text-sm break-words whitespace-pre-wrap">
-              {writer.error}
-            </p>
-          </div>
-        {/if}
-        {#if !writer.ready && !writer.forked}
-          <div class="py-6 text-sm">
-            <p class="mb-2">{m.actic_checklist_heading()}</p>
-            <ul class="text-muted-foreground list-disc pl-5">
-              {#each writer.missing as item (item)}
-                <li>{item}</li>
-              {/each}
-            </ul>
-          </div>
-        {:else}
-          <div
-            bind:this={writer.previewHost}
-            class="actic-preview"
-            class:opacity-50={!!writer.error}
-          ></div>
-          {#if !writer.rendered && !writer.error}
-            <p class="text-muted-foreground text-sm">
-              {m.actic_preview_empty()}
-            </p>
-          {/if}
-        {/if}
-      </div>
-    </div>
+      {/snippet}
+    </PreviewPanel>
   </div>
 </div>

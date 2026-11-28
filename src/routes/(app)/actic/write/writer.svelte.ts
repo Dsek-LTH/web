@@ -34,6 +34,8 @@ import {
   parseTypstDiagnostics,
   type TypstDiagnostic,
 } from "$lib/actic/editor/diagnostics";
+import { instantRenderEffect } from "$lib/actic/editor/instant-render.svelte";
+import { documentShortcutsEffect } from "$lib/actic/editor/shortcuts.svelte";
 import { toast } from "$lib/stores/toast";
 import * as m from "$paraglide/messages";
 
@@ -92,6 +94,9 @@ export class Writer {
   previewHost = $state<HTMLElement | undefined>();
   scrollBox = $state<HTMLElement | undefined>();
   compiling = $state(false);
+  /** Whether the preview compiles itself as the form changes. Off means
+   * the preview only updates via the manual compile button. */
+  autocompile = $state(true);
   error = $state("");
   /** The last compile's diagnostics, for the source editor's squiggles. */
   diagnostics = $state<TypstDiagnostic[]>([]);
@@ -110,9 +115,6 @@ export class Writer {
   private readonly applyFamilyDraft: (draft: WriteDraft) => void;
   private readonly buildFamilyDraft: () => Partial<WriteDraft>;
   private draftLoaded = false;
-  private inFlight = false;
-  private queued: string | null = null;
-  private lastRenderMs = 0;
   private previewPromise: Promise<Preview> | null = null;
   private previewRoot: ShadowRoot | null = null;
 
@@ -208,9 +210,7 @@ export class Writer {
     current: string,
     currentFiles: typeof this.files,
   ) {
-    this.inFlight = true;
     this.compiling = true;
-    const started = performance.now();
     const scrollTop = this.scrollBox?.scrollTop ?? 0;
     try {
       const preview = await this.getPreview();
@@ -227,34 +227,20 @@ export class Writer {
         current,
       );
     } finally {
-      this.lastRenderMs = performance.now() - started;
-      this.inFlight = false;
       this.compiling = false;
-      if (this.queued !== null) {
-        const next = this.queued;
-        this.queued = null;
-        void this.renderPreview(next, this.files);
-      }
     }
   }
 
-  // The compiler runs in a worker, so it no longer blocks typing; still
-  // coalesce bursts so we don't queue a backlog of compiles.
+  // The compiler runs in a worker, so it no longer blocks typing. The
+  // preview follows the source with the shared instant-render behaviour.
   // (Run as an effect by the shell — see `runEffects`.)
   runEffects() {
-    $effect(() => {
-      const current = this.ready ? this.source : "";
-      void this.files; // track signatures too
-      if (!current) return;
-      const delay = this.lastRenderMs > 200 ? 120 : 0;
-      const timer = setTimeout(() => {
-        if (this.inFlight) {
-          this.queued = current;
-          return;
-        }
-        void this.renderPreview(current, this.files);
-      }, delay);
-      return () => clearTimeout(timer);
+    instantRenderEffect({
+      // Empty source = the shared effect's no-op case; autocompile-off
+      // feeds it so the preview only moves on manual compiles.
+      source: () => (this.autocompile && this.ready ? this.source : ""),
+      files: () => this.files,
+      render: (source, files) => this.renderPreview(source, files),
     });
 
     // Load an existing draft (from `?draft=`) once, on the client after mount
@@ -280,20 +266,22 @@ export class Writer {
       })();
     });
 
-    $effect(() => {
-      const onKey = (e: KeyboardEvent) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-          e.preventDefault();
-          this.saveDraftNow();
-        }
-      };
-      window.addEventListener("keydown", onKey);
-      return () => window.removeEventListener("keydown", onKey);
+    // Ctrl/Cmd+S saves the draft, Ctrl/Cmd+Shift+S downloads the PDF,
+    // Ctrl/Cmd+Enter compiles manually (a no-op while autocompile is on).
+    documentShortcutsEffect({
+      save: () => this.saveDraftNow(),
+      downloadPdf: () => void this.download(),
+      compile: () => void this.compileNow(),
     });
 
     $effect(() => {
       const onBeforeUnload = (e: BeforeUnloadEvent) => {
-        if (this.dirty && this.hasContent) e.preventDefault();
+        if (this.dirty && this.hasContent) {
+          // returnValue covers browsers where preventDefault alone isn't
+          // honoured (per MDN's recommended pattern).
+          e.preventDefault();
+          e.returnValue = true;
+        }
       };
       window.addEventListener("beforeunload", onBeforeUnload);
       return () => window.removeEventListener("beforeunload", onBeforeUnload);
@@ -301,6 +289,14 @@ export class Writer {
   }
 
   // --- drafts ----------------------------------------------------------------
+  /** Manual compile — the preview bar's re-render button, only enabled
+   * while autocompile is off and the required fields are filled (the
+   * checklist replaces the preview host before that). */
+  async compileNow(): Promise<void> {
+    if (this.autocompile || !this.ready || !this.source) return;
+    await this.renderPreview(this.source, this.files);
+  }
+
   /** A serialized snapshot of every tracked field, for dirty tracking. */
   private formSignature(): string {
     return JSON.stringify([
@@ -320,7 +316,7 @@ export class Writer {
       ? draft.yrkanden.map((y) => ({ ...y, id: nextId("yrk") }))
       : [{ id: nextId("yrk"), clause: "", description: "" }];
     this.lang = draft.lang;
-    this.dateIso = draft.dateIso;
+    this.dateIso = draft.dateIso ?? todayIso();
     this.body = draft.body;
     this.applyFamilyDraft(draft);
   }
@@ -336,7 +332,9 @@ export class Writer {
       meeting: "",
       authors: this.authors.map((author) => ({ ...author })),
       lang: this.lang,
-      dateIso: this.dateIso,
+      // "Today" is stored as absent so reopening the draft later follows the
+      // current date; a manually chosen date is kept as-is.
+      dateIso: this.isToday ? undefined : this.dateIso,
       body: this.body,
       leadIn: this.leadIn,
       yrkanden: this.yrkanden.map((y) => ({

@@ -51,19 +51,30 @@
     typstCompletionSource,
   } from "codemirror-lang-typst/lezer";
   import Braces from "@lucide/svelte/icons/braces";
+  import Download from "@lucide/svelte/icons/download";
   import Search from "@lucide/svelte/icons/search";
   import TextWrap from "@lucide/svelte/icons/text-wrap";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import type { Component } from "svelte";
   import * as m from "$paraglide/messages";
   import type { TypstDiagnostic } from "./diagnostics";
-  import { typstKeywordCompletion } from "./typstCompletions";
+  import {
+    typstKeywordCompletion,
+    typstMarkerCompletion,
+  } from "./typstCompletions";
   import { hangingIndent } from "./hangingIndent";
+  import ToolbarButton from "./ToolbarButton.svelte";
+  import EditorToolbar from "./EditorToolbar.svelte";
+  import { watchStickyTop } from "./sticky-top";
 
   let {
     value = $bindable(""),
     diagnostics = [],
     oninput,
     title = "",
-    trailing,
+    pageActions,
+    diffMarkers = false,
+    downloadItems = [],
   }: {
     value?: string;
     /** Compiler diagnostics, as parsed offsets into `value`. */
@@ -72,17 +83,37 @@
     oninput?: () => void;
     /** Document title, shown in the toolbar. */
     title?: string;
-    /** Extra toolbar buttons owned by the page (e.g. diff's reset). */
-    trailing?: Snippet;
+    /** Extra toolbar buttons owned by the page (e.g. diff's reset), shown
+     * in the leading group before the editor's own buttons. Gets the editor
+     * view so page-level commands can edit the document. */
+    pageActions?: Snippet<[EditorView | undefined]>;
+    /** Offer the diff package's `#add`/`#remove` marker completions. Only
+     * pages whose documents import the diff package should set this. */
+    diffMarkers?: boolean;
+    /**
+     * Download actions for the toolbar. One item renders a direct download
+     * button; several render a dropdown to choose between them; none hides
+     * the button entirely.
+     */
+    downloadItems?: Array<{
+      label: string;
+      icon?: Component<{ class?: string }>;
+      disabled?: boolean;
+      run: () => void;
+    }>;
   } = $props();
 
   let host: HTMLDivElement | undefined = $state();
-  let root: HTMLDivElement | undefined = $state();
   let view: EditorView | undefined = $state();
   let dark = $state(false);
-  /** Soft-wrap long lines (off by default; toggle in the toolbar). */
-  let wrap = $state(false);
+  /** Soft-wrap long lines (on by default; toggle in the toolbar). */
+  let wrap = $state(true);
   let searchOpen = $state(false);
+
+  /** The single download action when there's exactly one (direct button). */
+  const singleDownload = $derived(
+    downloadItems.length === 1 ? downloadItems[0] : undefined,
+  );
 
   // Theme and line wrapping are swapped through these compartments.
   const chromeCompartment = new Compartment();
@@ -258,8 +289,14 @@
         bracketMatching(),
         closeBrackets(),
         autocompletion({
-          // The language's own source plus our keyword completions.
-          override: [typstKeywordCompletion, typstCompletionSource],
+          // The language's own source plus our keyword completions — and,
+          // when the page opts in, the diff markers take precedence over
+          // keywords for `#a…`/`#r…` (the first override source wins).
+          override: [
+            ...(diffMarkers ? [typstMarkerCompletion] : []),
+            typstKeywordCompletion,
+            typstCompletionSource,
+          ],
         }),
         highlightSelectionMatches(),
         search({ top: true }),
@@ -316,22 +353,12 @@
     const observer = new MutationObserver(syncTheme);
     observer.observe(root, { attributes: true, attributeFilter: ["class"] });
 
-    // Pin the toolbar and search panel flush under the site header, whose
-    // height is content-driven — measure it instead of guessing.
-    const header = document.querySelector("header");
-    const syncSticky = () => {
-      if (!root) return;
-      const top = header?.getBoundingClientRect().bottom ?? 64;
-      // On the wrapper: both the toolbar and the CodeMirror panels below
-      // resolve the variables from it.
-      root.style.setProperty("--actic-sticky-top", `${top}px`);
-      root.style.setProperty("--actic-panel-top", `${top + 44}px`);
-    };
-    syncSticky();
-    window.addEventListener("resize", syncSticky);
+    // Pin the toolbar and search panel flush under the site header; the
+    // shared watcher measures it (and knows phones' bottom nav isn't one).
+    const unwatchSticky = watchStickyTop();
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", syncSticky);
+      unwatchSticky();
       view?.destroy();
       view = undefined;
     };
@@ -348,10 +375,11 @@
     }
   });
 
-  // Swap the chrome/highlight palette on theme flips, re-lint when fresh
-  // compiler diagnostics arrive, and apply the wrap toggle.
+  // Swap the chrome/highlight palette on theme flips and apply the wrap
+  // toggle. Deliberately separate from the diagnostics effect below:
+  // reconfiguring compartments re-highlights the document, which on a large
+  // source must not happen on every compile's fresh diagnostics.
   $effect(() => {
-    void diagnostics;
     void dark;
     void wrap;
     if (!view) return;
@@ -364,57 +392,80 @@
         wrapCompartment.reconfigure(wrap ? EditorView.lineWrapping : []),
       ],
     });
+  });
+
+  // Re-lint when fresh compiler diagnostics arrive.
+  $effect(() => {
+    void diagnostics;
+    if (!view) return;
     forceLinting(view);
   });
 </script>
 
 <div
-  bind:this={root}
   class="border-border bg-background flex min-h-[32rem] w-full flex-col overflow-clip rounded-lg border dark:bg-[#242325]"
 >
-  <div
-    class="bg-muted-background text-muted-foreground sticky z-10 flex h-11 shrink-0 items-center gap-0.5 border-b px-1.5"
-    style:top="var(--actic-sticky-top, 4rem)"
-  >
-    <div class="min-w-0 flex-1">
-      {#if title}
-        <span class="text-foreground truncate pl-2 text-sm font-medium">
-          {title}
-        </span>
+  <EditorToolbar {title} sticky>
+    {#snippet leading()}
+      {@render pageActions?.(view)}
+    {/snippet}
+    {#snippet trailing()}
+      <ToolbarButton
+        label={m.editor_format()}
+        shortcut="Mod-Shift-F"
+        onclick={formatDocument}
+      >
+        <Braces class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_search()}
+        shortcut="Mod-F"
+        active={searchOpen}
+        pressed={searchOpen}
+        underline
+        onclick={toggleSearch}
+      >
+        <Search class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_toggle_wrap()}
+        active={wrap}
+        pressed={wrap}
+        underline
+        onclick={() => (wrap = !wrap)}
+      >
+        <TextWrap class="size-4" />
+      </ToolbarButton>
+      {#if singleDownload}
+        <ToolbarButton
+          label={singleDownload.label}
+          disabled={singleDownload.disabled}
+          onclick={singleDownload.run}
+        >
+          <Download class="size-4" />
+        </ToolbarButton>
+      {:else if downloadItems.length > 1}
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            {#snippet child({ props })}
+              <ToolbarButton {...props} label={m.editor_download()}>
+                <Download class="size-4" />
+              </ToolbarButton>
+            {/snippet}
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            {#each downloadItems as item (item.label)}
+              <DropdownMenu.Item disabled={item.disabled} onclick={item.run}>
+                {#if item.icon}
+                  <item.icon class="size-4" />
+                {/if}
+                {item.label}
+              </DropdownMenu.Item>
+            {/each}
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       {/if}
-    </div>
-    {@render trailing?.()}
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.editor_format()}
-      title={m.editor_format()}
-      onclick={formatDocument}
-    >
-      <Braces class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={searchOpen}
-      aria-label={m.editor_search()}
-      title={m.editor_search()}
-      aria-pressed={searchOpen}
-      onclick={toggleSearch}
-    >
-      <Search class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={wrap}
-      aria-label={m.editor_toggle_wrap()}
-      title={m.editor_toggle_wrap()}
-      aria-pressed={wrap}
-      onclick={() => (wrap = !wrap)}
-    >
-      <TextWrap class="size-4" />
-    </button>
-  </div>
+    {/snippet}
+  </EditorToolbar>
   <div bind:this={host} class="min-h-0 flex-1"></div>
 </div>

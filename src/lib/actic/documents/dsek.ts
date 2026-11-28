@@ -180,7 +180,6 @@ export const FAMILIES: FamilyMeta[] = [
 export type DocumentTypeMeta = {
   id: DocumentTypeId;
   family: FamilyId;
-  /** Typst function to `#show`. */
   typstFunction: string;
   label: () => string;
   blurb: () => string;
@@ -218,35 +217,35 @@ export const DOCUMENT_TYPES: DocumentTypeMeta[] = [
   {
     id: "equal-treatment-plan",
     family: "equal-treatment-plan",
-    typstFunction: "equal-treatment-plan",
+    typstFunction: "likabehandlingsplan",
     label: m.actic_type_equalTreatmentPlan,
     blurb: m.actic_type_equalTreatmentPlan_blurb,
   },
   {
     id: "requirements-profile",
     family: "requirements-profile",
-    typstFunction: "requirements-profile",
+    typstFunction: "kravprofil",
     label: m.actic_type_requirementsProfile,
     blurb: m.actic_type_requirementsProfile_blurb,
   },
   {
     id: "nomination",
     family: "nomination",
-    typstFunction: "nomination-proposal",
+    typstFunction: "valförslag",
     label: m.actic_type_nomination,
     blurb: m.actic_type_nomination_blurb,
   },
   {
     id: "plan-of-operations",
     family: "plan-of-operations",
-    typstFunction: "plan-of-operations",
+    typstFunction: "verksamhetsplan",
     label: m.actic_type_planOfOperations,
     blurb: m.actic_type_planOfOperations_blurb,
   },
   {
     id: "plain-document",
     family: "plain-document",
-    typstFunction: "plain-document",
+    typstFunction: "dokument",
     label: m.actic_type_plainDocument,
     blurb: m.actic_type_plainDocument_blurb,
   },
@@ -357,8 +356,10 @@ function authorSource(author: AuthorInput): string {
         : `position: ${q(author.position.value)}`,
     );
   }
-  if (author.message?.trim()) {
-    parts.push(`message: ${q(author.message)}`);
+  if (author.message !== undefined && author.message !== "") {
+    // Trim ordinary messages, but keep explicit whitespace-only ones as-is.
+    const trimmed = author.message.trim();
+    parts.push(`message: ${q(trimmed === "" ? author.message : trimmed)}`);
   }
   if (author.signature) {
     parts.push(`signature: signature-image(${q(author.signature.path)})`);
@@ -460,7 +461,7 @@ function equalTreatmentPlanSource(
     ...langDateArgs(input),
   ];
   return assemble(
-    "equal-treatment-plan",
+    getDocumentType(input.family).typstFunction,
     showArgs,
     [input.body.trim()].filter(Boolean),
   );
@@ -486,7 +487,7 @@ function requirementsProfileSource(
   }
   showArgs.push(...langDateArgs(input));
   return assemble(
-    "requirements-profile",
+    getDocumentType(input.family).typstFunction,
     showArgs,
     [input.body.trim()].filter(Boolean),
   );
@@ -506,7 +507,7 @@ function nominationSource(
   }
   showArgs.push(...langDateArgs(input));
   return assemble(
-    "nomination-proposal",
+    getDocumentType(input.family).typstFunction,
     showArgs,
     bodyWithYrkanden(input.body, input.yrkanden, input.lang),
   );
@@ -520,7 +521,7 @@ function planOfOperationsSource(
   // requirements profile's mandate year).
   const showArgs = [`  year: ${input.year}`, ...langDateArgs(input)];
   return assemble(
-    "plan-of-operations",
+    getDocumentType(input.family).typstFunction,
     showArgs,
     [input.body.trim()].filter(Boolean),
   );
@@ -540,7 +541,7 @@ function plainDocumentSource(
     ...langDateArgs(input),
   ];
   return assemble(
-    "plain-document",
+    getDocumentType(input.family).typstFunction,
     showArgs,
     [input.body.trim()].filter(Boolean),
   );

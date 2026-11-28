@@ -1,14 +1,24 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import * as Tabs from "$lib/components/ui/tabs";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Spinner } from "$lib/components/ui/spinner/index.js";
   import SetPageTitle from "$lib/components/nav/SetPageTitle.svelte";
   import SourceEditor from "$lib/actic/editor/SourceEditor.svelte";
+  import PreviewPanel from "$lib/actic/editor/PreviewPanel.svelte";
+  import ToolbarButton from "$lib/actic/editor/ToolbarButton.svelte";
   import { getDraft } from "$lib/actic/documents/drafts";
   import { page } from "$app/state";
+  import { beforeNavigate } from "$app/navigation";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
-  import { Download, FileCode, RotateCcw, Save } from "@lucide/svelte/icons";
+  import {
+    FileCode,
+    FileDiff,
+    Eye,
+    Minus,
+    Plus,
+    RotateCcw,
+  } from "@lucide/svelte/icons";
+  import { toggleWrapAround } from "$lib/actic/editor/codemirror-commands";
+  import type { EditorView } from "@codemirror/view";
   import * as m from "$paraglide/messages";
   import type { PageData } from "./$types";
   import { DiffSession } from "./editor.svelte";
@@ -17,6 +27,20 @@
 
   let session = $state<DiffSession>();
   const title = $derived(data.document?.title ?? data.slug);
+
+  // In-app navigation never fires beforeunload, so the dirty check needs
+  // this twin guard (runs during component initialisation, as required).
+  // Reload-style navigations (back button via data-sveltekit-reload, the
+  // native dialog covers those) are left to the browser.
+  beforeNavigate((navigation) => {
+    if (
+      session?.dirty &&
+      !navigation.willUnload &&
+      !window.confirm(m.actic_unsaved_confirm())
+    ) {
+      navigation.cancel();
+    }
+  });
 
   onMount(() => {
     const id = page.url.searchParams.get("draft");
@@ -40,7 +64,12 @@
 <SetPageTitle {title} />
 
 <div class="layout-container flex flex-col gap-4">
-  <Button variant="ghost" href="/actic" class="self-start">
+  <Button
+    variant="ghost"
+    href="/actic"
+    class="self-start"
+    data-sveltekit-reload
+  >
     <ChevronLeft class="mr-1 h-4 w-4" />
     {m.back()}
   </Button>
@@ -63,125 +92,101 @@
       </p>
     {/if}
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {#snippet trailing()}
-        <button
-          type="button"
-          class="text-muted-foreground hover:bg-accent hover:text-foreground rounded p-2 disabled:pointer-events-none disabled:opacity-50"
-          aria-label={m.actic_diff_reset()}
-          title={m.actic_diff_reset()}
+      {#snippet pageActions(cmView: EditorView | undefined)}
+        <!-- Marker buttons stay visible in autodiff mode but greyed out:
+             markers belong to manual diffing (they'd disable autodiff). -->
+        <ToolbarButton
+          label={m.actic_diff_marker_added()}
+          description={session!.autodiff
+            ? m.actic_diff_marker_disabled()
+            : undefined}
+          disabled={session!.autodiff}
+          onclick={() => cmView && toggleWrapAround(cmView, "#add[", "]")}
+        >
+          <Plus class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.actic_diff_marker_deleted()}
+          description={session!.autodiff
+            ? m.actic_diff_marker_disabled()
+            : undefined}
+          disabled={session!.autodiff}
+          onclick={() => cmView && toggleWrapAround(cmView, "#remove[", "]")}
+        >
+          <Minus class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.actic_diff_reset()}
           disabled={!session!.canReset}
           onclick={() => session!.reset()}
         >
           <RotateCcw class="size-4" />
-        </button>
+        </ToolbarButton>
       {/snippet}
       <div class="flex flex-col gap-2">
         <SourceEditor
           bind:value={session.source}
           diagnostics={session.diagnostics}
           {title}
-          {trailing}
+          {pageActions}
+          diffMarkers
+          downloadItems={[
+            ...(session.autodiff
+              ? [
+                  {
+                    label: m.actic_download_diff_source(),
+                    icon: FileDiff,
+                    disabled: !session.diffAvailable,
+                    run: () => session!.downloadDiffSource(),
+                  },
+                ]
+              : []),
+            {
+              label: m.actic_download_source(),
+              icon: FileCode,
+              run: () => session!.downloadSource(),
+            },
+          ]}
         />
-        <div class="flex justify-end">
-          <Button variant="outline" onclick={() => session!.downloadSource()}>
-            <FileCode class="mr-2 h-4 w-4" />
-            {m.actic_download_source()}
-          </Button>
-        </div>
       </div>
 
-      <div
-        class="flex flex-col gap-2 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)]"
+      <PreviewPanel
+        bind:scrollBox={session.scrollBox}
+        bind:previewHost={session.previewHost}
+        compiling={session.compiling}
+        downloading={session.downloading}
+        dirty={session.dirty}
+        canSave={!!session.source.trim()}
+        error={[session.error, session.diffError, session.diffResult.error]
+          .filter(Boolean)
+          .join("\n\n")}
+        rendered={session.rendered}
+        bind:autocompile={session.autocompile}
+        oncompile={() => session!.compileNow()}
+        onsave={() => session!.saveDraftNow()}
+        ondownload={() => session!.downloadPdf()}
+        title={session!.autodiff
+          ? m.actic_diff_mode()
+          : m.actic_preview_title()}
       >
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <Tabs.Root value={session.tab}>
-            <Tabs.List class="w-auto">
-              <Tabs.Trigger
-                value="updated"
-                onclick={() => (session!.tab = "updated")}
-                class="px-3 py-1.5"
-              >
-                {m.actic_diff_preview_updated()}
-              </Tabs.Trigger>
-              <Tabs.Trigger
-                value="diff"
-                onclick={() => (session!.tab = "diff")}
-                disabled={!session.diffAvailable}
-                class="px-3 py-1.5"
-              >
-                {m.actic_diff_preview_diff()}
-              </Tabs.Trigger>
-            </Tabs.List>
-          </Tabs.Root>
-          <div class="flex items-center gap-2">
-            {#if session.compiling}
-              <Spinner class="text-muted-foreground h-4 w-4" />
+        {#snippet pageActions()}
+          <ToolbarButton
+            label={m.actic_diff_autodiff()}
+            description={session!.canAutodiff
+              ? undefined
+              : m.actic_diff_autodiff_disabled()}
+            disabled={!session!.canAutodiff}
+            pressed={session!.autodiff}
+            onclick={() => (session!.autodiff = !session!.autodiff)}
+          >
+            {#if session!.autodiff}
+              <FileDiff class="size-4" />
+            {:else}
+              <Eye class="size-4" />
             {/if}
-            <Button
-              variant="outline"
-              size="sm"
-              onclick={() => session!.saveDraftNow()}
-              disabled={!session.dirty || !session.source.trim()}
-            >
-              <Save class="mr-1 h-4 w-4" />
-              {m.actic_draft_save()}
-            </Button>
-            <Button
-              size="sm"
-              onclick={() => session!.downloadPdf()}
-              disabled={session.downloading}
-            >
-              {#if session.downloading}
-                <Spinner class="mr-2" />
-              {:else}
-                <Download class="mr-1 h-4 w-4" />
-              {/if}
-              {m.actic_download()}
-            </Button>
-          </div>
-        </div>
-
-        <div
-          bind:this={session.scrollBox}
-          class="bg-muted border-border min-h-[28rem] overflow-auto rounded-md border p-4 lg:min-h-0 lg:flex-1"
-        >
-          {#if session.error || session.diffError || session.diffResult.error}
-            <div class="bg-muted sticky top-0 z-10 flex flex-col gap-2 pb-4">
-              {#if session.error}
-                <p
-                  class="text-destructive text-sm break-words whitespace-pre-wrap"
-                >
-                  {session.error}
-                </p>
-              {/if}
-              {#if session.diffError}
-                <p
-                  class="text-destructive text-sm break-words whitespace-pre-wrap"
-                >
-                  {session.diffError}
-                </p>
-              {/if}
-              {#if session.diffResult.error}
-                <p
-                  class="text-destructive text-sm break-words whitespace-pre-wrap"
-                >
-                  {session.diffResult.error}
-                </p>
-              {/if}
-            </div>
-          {/if}
-          <div
-            bind:this={session.previewHost}
-            class="actic-preview"
-            class:opacity-50={!!session.error}
-          ></div>
-          {#if !session.rendered && !session.error}
-            <p class="text-muted-foreground text-sm">
-              {m.actic_preview_empty()}
-            </p>
-          {/if}
-        </div>
-      </div>
+          </ToolbarButton>
+        {/snippet}
+      </PreviewPanel>
     </div>
   {/if}
 </div>

@@ -24,12 +24,21 @@
   let {
     candidates = $bindable([] as CandidateRow[]),
     statsEnabled = $bindable(false),
+    positionTouched = false,
+    onPositionBlur,
   }: {
     candidates?: CandidateRow[];
     statsEnabled?: boolean;
+    /** Whether the position fields have been touched (by the page). */
+    positionTouched?: boolean;
+    /** Forwarded on every position input's blur, to mark them touched. */
+    onPositionBlur?: () => void;
   } = $props();
 
   let snapshot = $state<CandidateRow[]>([]);
+  /** Which candidates' nominee fields the user has touched (the red
+   * required highlight waits for that). */
+  const nameTouched = $state<Record<string, boolean>>({});
 
   // --- statistics stepper ----------------------------------------------------
   // Applicant counts are chosen in steps of five ("0 -- 4", "5 -- 9", …),
@@ -203,6 +212,8 @@
                 <PositionInput
                   bind:position={candidate.position}
                   placeholder={m.actic_field_position()}
+                  invalid={positionTouched && !candidate.position}
+                  onblur={onPositionBlur}
                 />
               </div>
               {#if statsEnabled}
@@ -296,20 +307,30 @@
               removeRow={(id) => removeNomineeRow(candidate.id, id)}
               canDrag={(id) =>
                 !!candidate.nominees.find((n) => n.id === id)?.name.trim()}
-              class="ml-6"
+              class={`ml-6 ${
+                // Required like Krav: red while the candidate has no nominee
+                // name and the user has touched the field.
+                nameTouched[candidate.id] &&
+                !candidate.nominees.some((n) => n.name.trim())
+                  ? "border-destructive ring-destructive/20 bg-destructive/10!"
+                  : ""
+              }`}
               onreorder={(sourceId, slot) =>
                 reorderNominee(candidate.id, sourceId, slot)}
             >
               {#snippet children({
                 handle: nomineeHandle,
                 isDragging,
+                isDropping,
                 index: ni,
                 helpers,
               })}
                 {@const nominee = candidate.nominees[ni]!}
                 <div
                   class={`flex items-stretch gap-1.5 pl-1 ${
-                    isDragging
+                    // Raised through the drop animation — no morph until it
+                    // lands.
+                    isDragging || isDropping
                       ? `${FIELD_BG} border-border rounded-md border shadow-md`
                       : `border-border ${ni > 0 ? "border-t" : ""}`
                   }`}
@@ -345,7 +366,10 @@
                       oninput={helpers.oninput}
                       onenter={helpers.onenter}
                       onescape={helpers.onescape}
-                      onblur={helpers.onblur}
+                      onblur={() => {
+                        nameTouched[candidate.id] = true;
+                        helpers.onblur();
+                      }}
                     />
                   </div>
                   {#if nominee.name.trim()}

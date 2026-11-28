@@ -17,10 +17,16 @@
     position = $bindable(),
     id,
     placeholder,
+    invalid = false,
+    onblur: onblurProp,
   }: {
     position?: AuthorInput["position"];
     id?: string;
     placeholder?: string;
+    /** Red border/ring while set (the required-field touched state). */
+    invalid?: boolean;
+    /** Forwarded so pages can mark the field touched on blur. */
+    onblur?: (event: Event) => void;
   } = $props();
 
   let focused = $state(false);
@@ -65,7 +71,9 @@
   function setFromText(value: string) {
     const trimmed = value.trim();
     if (!trimmed) {
-      position = undefined;
+      // A completely empty field clears the position; whitespace-only input is
+      // kept as an explicit (blank) position rather than trimmed away.
+      position = value ? { kind: "text", value } : undefined;
       return;
     }
     const match = ALL_POSITIONS.find(
@@ -127,6 +135,7 @@
     aria-activedescendant={open && activeIndex >= 0
       ? `${uid}-${activeIndex}`
       : undefined}
+    aria-invalid={invalid || undefined}
     {onkeydown}
     oninput={(e) => {
       input = e.currentTarget.value;
@@ -139,9 +148,10 @@
       activeIndex = -1;
       open = true;
     }}
-    onblur={() => {
+    onblur={(e) => {
       focused = false;
       setTimeout(() => (open = false), 150);
+      onblurProp?.(e);
     }}
   />
   {#if open && matches.length > 0}

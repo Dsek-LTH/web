@@ -11,11 +11,9 @@
     sideOffset = 0,
     side = "top",
     children,
-    arrowClasses,
     portalProps,
     ...restProps
   }: TooltipPrimitive.ContentProps & {
-    arrowClasses?: string;
     portalProps?: WithoutChildrenOrChild<ComponentProps<typeof TooltipPortal>>;
   } = $props();
 </script>
@@ -35,17 +33,23 @@
     {@render children?.()}
     <TooltipPrimitive.Arrow>
       {#snippet child({ props })}
-        <div
-          class={cn(
-            "bg-foreground fill-foreground z-50 size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-[2px]",
-            "data-[side=top]:translate-x-1/2 data-[side=top]:translate-y-[calc(-50%+2px)]",
-            "data-[side=bottom]:-translate-x-1/2 data-[side=bottom]:-translate-y-[calc(-50%+1px)]",
-            "data-[side=right]:translate-x-[calc(50%+2px)] data-[side=right]:translate-y-1/2",
-            "data-[side=left]:-translate-y-[calc(50%-3px)]",
-            arrowClasses,
-          )}
+        <!-- A plain down-pointing triangle. bits-ui's inline styles pin it to
+             the box edge and flip it per side (translateY(100%) for top,
+             rotate(180°) about the edge for bottom, ±90° for left/right) —
+             that contract only works for an unrotated shape, which is why
+             the old rotate-45 diamond wandered off-centre when flipped and
+             poked into the kbd chips. It renders behind the content's
+             children, so even when a shifted tooltip overlaps toolbar icons
+             the arrow can't paint over them. -->
+        <svg
           {...props}
-        ></div>
+          class="fill-foreground z-0"
+          width="14"
+          height="7"
+          viewBox="0 0 14 7"
+        >
+          <path d="M0 0 L7 7 L14 0 Z" />
+        </svg>
       {/snippet}
     </TooltipPrimitive.Arrow>
   </TooltipPrimitive.Content>

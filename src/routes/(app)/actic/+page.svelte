@@ -14,6 +14,7 @@
     listDrafts,
     type Draft,
   } from "$lib/actic/documents/drafts";
+  import { keyedLabel } from "$lib/actic/documents/fields";
   import { diffGroupViews, type DiffGroupId } from "./landing-groups";
   import type { PageData } from "./$types";
   import * as m from "$paraglide/messages";
@@ -21,7 +22,9 @@
   import FileDiff from "@lucide/svelte/icons/file-diff";
   import SquarePen from "@lucide/svelte/icons/square-pen";
 
-  /** How many drafts the top grid shows before the "+ X till" card. */
+  /** How many drafts the collapsed section shows before the "+ X till"
+   *  row/card, which needs two or more hidden drafts to show up (with four
+   *  or fewer, every draft is simply in the list). */
   const RECENT_DRAFTS = 3;
 
   let { data }: { data: PageData } = $props();
@@ -63,12 +66,37 @@
     },
   ]);
 
-  /** The most recent drafts, newest first. */
+  /** The most recent drafts, newest first. Collapsed shows RECENT_DRAFTS of
+   *  them; the "+ X till" row/card only earns its place with two or more
+   *  hidden — a lone extra draft simply joins the list instead. */
+  const moreDrafts = $derived(drafts.length - RECENT_DRAFTS);
+  const showMoreRow = $derived(moreDrafts >= 2);
   const recentDrafts = $derived(
     [...drafts]
       .sort((a, b) => b.updatedAt - a.updatedAt)
-      .slice(0, RECENT_DRAFTS),
+      .slice(0, showMoreRow ? RECENT_DRAFTS : drafts.length),
   );
+
+  /**
+   * The drafts list's title: the saved title/meeting when there is one,
+   * otherwise what identifies the document — the families without a title
+   * field would otherwise all read as unnamed.
+   */
+  function draftName(draft: Draft): string {
+    if (draft.kind === "diff") return draft.title;
+    if (draft.title || draft.meeting) return draft.title || draft.meeting;
+    const en = m.locale().startsWith("en");
+    if (draft.family === "requirements-profile") {
+      return keyedLabel(draft.position, en) || m.actic_landing_untitled();
+    }
+    if (draft.family === "equal-treatment-plan") {
+      return keyedLabel(draft.committee, en) || m.actic_landing_untitled();
+    }
+    if (draft.family === "plan-of-operations") {
+      return `${m.actic_type_planOfOperations()} ${draft.year ?? ""}`.trim();
+    }
+    return m.actic_landing_untitled();
+  }
 
   function relativeTime(timestamp: number): string {
     const minutes = Math.round((Date.now() - timestamp) / 60000);
@@ -119,7 +147,7 @@
       href={resolve(`/actic/write/${draft.family}?draft=${draft.id}`)}
       class="block truncate text-sm font-medium after:absolute after:inset-0 after:rounded-lg"
     >
-      {draft.title || draft.meeting || m.actic_landing_untitled()}
+      {draftName(draft)}
     </a>
   {/if}
 {/snippet}
@@ -127,11 +155,37 @@
 {#snippet draftMeta(draft: Draft)}
   {#if draft.kind === "diff"}
     {m.actic_diff_draft_label()} — {relativeTime(draft.updatedAt)}
+  {:else if draft.family === "plan-of-operations"}
+    <!-- The title already says "Verksamhetsplan <year>"; only the time left. -->
+    {relativeTime(draft.updatedAt)}
   {:else}
     {getDocumentType(draft.type).label()}{draft.meeting
       ? " · " + draft.meeting
       : ""} — {relativeTime(draft.updatedAt)}
   {/if}
+{/snippet}
+
+{#snippet draftRow(draft: Draft)}
+  <div
+    class="hover:bg-secondary-hover relative flex items-center gap-2.5 p-3 transition-colors"
+  >
+    {@render draftCircle(draft)}
+    <div class="min-w-0 flex-1">
+      {@render draftTitle(draft)}
+      <p class="text-muted-foreground mt-0.5 truncate text-xs">
+        {@render draftMeta(draft)}
+      </p>
+    </div>
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      class="relative z-10"
+      aria-label={m.actic_landing_delete()}
+      onclick={() => remove(draft.id)}
+    >
+      <Trash2 class="h-4 w-4" />
+    </Button>
+  </div>
 {/snippet}
 
 <div class="layout-container flex flex-col gap-8">
@@ -146,7 +200,7 @@
         <h2 class="text-sm font-bold tracking-widest uppercase">
           {m.actic_landing_drafts()}
         </h2>
-        {#if drafts.length > RECENT_DRAFTS}
+        {#if showMoreRow}
           <button
             type="button"
             class="text-rosa-600 dark:text-rosa-300 text-sm font-medium hover:underline"
@@ -166,32 +220,32 @@
           class="border-border divide-border divide-y overflow-hidden rounded-lg border shadow-xs"
         >
           {#each drafts as draft (draft.id)}
-            <div
-              class="hover:bg-secondary-hover relative flex items-center gap-2.5 p-3 transition-colors"
-            >
-              {@render draftCircle(draft)}
-              <div class="min-w-0 flex-1">
-                {@render draftTitle(draft)}
-                <p class="text-muted-foreground mt-0.5 truncate text-xs">
-                  {@render draftMeta(draft)}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                class="relative z-10"
-                aria-label={m.actic_landing_delete()}
-                onclick={() => remove(draft.id)}
-              >
-                <Trash2 class="h-4 w-4" />
-              </Button>
-            </div>
+            {@render draftRow(draft)}
           {/each}
         </div>
       {:else}
-        <!-- One row of the most recent drafts. -->
+        <!-- Phones: always the list, with "+ X till" as its final row. -->
         <div
-          class="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          class="border-border divide-border divide-y overflow-hidden rounded-lg border shadow-xs sm:hidden"
+        >
+          {#each recentDrafts as draft (draft.id)}
+            {@render draftRow(draft)}
+          {/each}
+          {#if showMoreRow}
+            <!-- Same height as a draft row (p-3 + the two text lines) so the
+                 box's rhythm holds; the whole row is the target. -->
+            <button
+              type="button"
+              class="text-muted-foreground hover:bg-secondary-hover flex min-h-[62px] w-full items-center justify-center p-3 text-sm transition-colors"
+              onclick={() => (showAllDrafts = true)}
+            >
+              {m.actic_landing_more_drafts({ count: moreDrafts })}
+            </button>
+          {/if}
+        </div>
+        <!-- Larger screens: one row of the most recent drafts as cards. -->
+        <div
+          class="hidden items-start gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-4"
         >
           {#each recentDrafts as draft (draft.id)}
             <div
@@ -215,15 +269,13 @@
               </Button>
             </div>
           {/each}
-          {#if drafts.length > RECENT_DRAFTS}
+          {#if showMoreRow}
             <button
               type="button"
               class="text-muted-foreground hover:border-foreground/30 hover:text-foreground flex items-center justify-center self-stretch rounded-lg border p-3 text-sm transition-colors hover:shadow-sm"
               onclick={() => (showAllDrafts = true)}
             >
-              {m.actic_landing_more_drafts({
-                count: drafts.length - RECENT_DRAFTS,
-              })}
+              {m.actic_landing_more_drafts({ count: moreDrafts })}
             </button>
           {/if}
         </div>

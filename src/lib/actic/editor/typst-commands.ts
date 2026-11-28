@@ -27,6 +27,18 @@ export function toggleNumbered(textarea: HTMLTextAreaElement | null) {
   toggleForEachLine(textarea, /^\+ /, "+ ");
 }
 
+/**
+ * The text to insert when Enter is pressed with `lineBeforeCursor` as the
+ * current line up to the caret: the same `- `/`+ ` list marker (with its
+ * indentation) on a new line — but nothing for term lists (`/ Term: …`,
+ * which must not sprout `/ `) or an item left empty (ending the list).
+ */
+export function listContinuation(lineBeforeCursor: string): string | null {
+  const match = lineBeforeCursor.match(/^(\s*)([-+])\s+\S/);
+  if (!match) return null;
+  return `\n${match[1]}${match[2]} `;
+}
+
 /** Cycle the heading level at the caret: none → `=` → `==` → `===` → none. */
 export function cycleHeading(textarea: HTMLTextAreaElement | null) {
   if (textarea === null) return;
@@ -80,12 +92,6 @@ export function toggleStrike(textarea: HTMLTextAreaElement | null) {
 export function insertTable(textarea: HTMLTextAreaElement | null) {
   if (textarea === null) return;
   insertText(textarea, "#table(\n  columns: 2,\n  [a], [b],\n  [c], [d],\n)");
-}
-
-/** Insert a horizontal line (`#line()`). */
-export function insertLine(textarea: HTMLTextAreaElement | null) {
-  if (textarea === null) return;
-  insertText(textarea, "\n#line(width: 100%)\n");
 }
 
 /** One indentation level (Typst nests lists with 2 spaces). */

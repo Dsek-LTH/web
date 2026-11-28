@@ -114,7 +114,7 @@
   <div class="flex flex-col gap-1">
     <Label class="text-xs">{m.actic_author_signature()}</Label>
     {#if author.signature}
-      <div class="relative w-fit">
+      <div class="relative flex min-h-16 w-fit items-center">
         <img
           src={getSignaturePreview(author.signature.path)}
           alt=""

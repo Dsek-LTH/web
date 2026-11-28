@@ -11,7 +11,6 @@
   import Code from "@lucide/svelte/icons/code";
   import SquareCode from "@lucide/svelte/icons/square-code";
   import Table from "@lucide/svelte/icons/table";
-  import Minus from "@lucide/svelte/icons/minus";
   import FileText from "@lucide/svelte/icons/file-text";
   import * as m from "$paraglide/messages";
   import type { WithoutChildren, WithElementRef } from "bits-ui";
@@ -21,12 +20,12 @@
     cycleHeading,
     dedent,
     indent,
-    insertLine,
     insertLink,
     insertTable,
     isWrapped,
     lineHasHeading,
     lineHasPrefix,
+    listContinuation,
     toggleBold,
     toggleBullet,
     toggleCodeBlock,
@@ -35,16 +34,26 @@
     toggleNumbered,
     toggleStrike,
   } from "./typst-commands";
+  import { insertText } from "$lib/components/textareacommands";
+  import ToolbarButton from "./ToolbarButton.svelte";
+  import EditorToolbar from "./EditorToolbar.svelte";
+  import { onMount } from "svelte";
+  import { watchStickyTop } from "./sticky-top";
 
   let {
     value = $bindable(""),
     placeholder = "",
-    trailing,
+    pageActions,
+    compact = false,
     ...restProps
   }: {
     value?: string;
     placeholder?: string;
-    trailing?: Snippet;
+    /** Extra toolbar buttons owned by the page. */
+    pageActions?: Snippet;
+    /** Half the default min-height — for pages where other boxes should be
+     * visible without scrolling (requirements profile). */
+    compact?: boolean;
   } & WithoutChildren<WithElementRef<HTMLTextareaAttributes>> = $props();
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -85,6 +94,29 @@
       run(event.shiftKey ? dedent : indent);
       return;
     }
+    // Continue `-`/`+` list items on Enter (plain, unmodified Enter only —
+    // term lists never continue; see `listContinuation`).
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !(event.ctrlKey || event.metaKey) &&
+      !event.altKey &&
+      textarea
+    ) {
+      const lineStart =
+        textarea.value.lastIndexOf("\n", textarea.selectionStart - 1) + 1;
+      const marker = listContinuation(
+        textarea.value.slice(lineStart, textarea.selectionStart),
+      );
+      if (marker) {
+        event.preventDefault();
+        insertText(textarea, marker);
+        refresh();
+        return;
+      }
+      // Plain newline; fall through to the textarea's default behaviour.
+      return;
+    }
     if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
     const key = event.key.toLowerCase();
     if (event.shiftKey) {
@@ -107,146 +139,122 @@
       run(command);
     }
   }
+
+  // Keeps `--actic-sticky-top` current for the toolbar's sticky top.
+  onMount(() => watchStickyTop());
 </script>
 
-<div class="border-border flex w-full flex-col rounded-lg border">
-  <div
-    class="bg-muted-background text-muted-foreground flex h-11 items-center gap-0.5 rounded-t-lg border-b px-1.5"
-  >
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={active.heading}
-      aria-label={m.editor_heading()}
-      title={m.editor_heading()}
-      onclick={() => run(cycleHeading)}
-    >
-      <Heading class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={active.bullet}
-      aria-label={m.editor_ulist()}
-      title={m.editor_ulist()}
-      onclick={() => run(toggleBullet)}
-    >
-      <List class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={active.numbered}
-      aria-label={m.editor_olist()}
-      title={m.editor_olist()}
-      onclick={() => run(toggleNumbered)}
-    >
-      <ListOrdered class="size-4" />
-    </button>
+<div class="border-border flex w-full flex-col overflow-clip rounded-lg border">
+  <!-- Toolbar and textarea share a wrapper: the toolbar's sticky range ends
+       at the textarea's end, so it stops above the bottom bar instead of
+       sliding over it. The card clips, so the bars need no corner rounding
+       of their own (square while stuck, rounded at rest). -->
+  <div class="flex w-full flex-col">
+    <EditorToolbar scroll sticky={!compact}>
+      {#snippet leading()}
+        <ToolbarButton
+          label={m.editor_heading()}
+          active={active.heading}
+          onclick={() => run(cycleHeading)}
+        >
+          <Heading class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.editor_ulist()}
+          active={active.bullet}
+          onclick={() => run(toggleBullet)}
+        >
+          <List class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.editor_olist()}
+          active={active.numbered}
+          onclick={() => run(toggleNumbered)}
+        >
+          <ListOrdered class="size-4" />
+        </ToolbarButton>
 
-    <span class="bg-border mx-1 h-5 w-px"></span>
+        <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
 
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={active.bold}
-      aria-label={m.editor_bold()}
-      title={`${m.editor_bold()} (Ctrl+B)`}
-      onclick={() => run(toggleBold)}
-    >
-      <Bold class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={active.italic}
-      aria-label={m.editor_italic()}
-      title={`${m.editor_italic()} (Ctrl+I)`}
-      onclick={() => run(toggleItalic)}
-    >
-      <Italic class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={active.strike}
-      aria-label={m.editor_strikethrough()}
-      title={`${m.editor_strikethrough()} (Ctrl+Shift+X)`}
-      onclick={() => run(toggleStrike)}
-    >
-      <Strikethrough class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      class:text-foreground={active.code}
-      aria-label={m.editor_inlinecode()}
-      title={`${m.editor_inlinecode()} (Ctrl+E)`}
-      onclick={() => run(toggleInlineCode)}
-    >
-      <Code class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.editor_codeblock()}
-      title={m.editor_codeblock()}
-      onclick={() => run(toggleCodeBlock)}
-    >
-      <SquareCode class="size-4" />
-    </button>
+        <ToolbarButton
+          label={m.editor_bold()}
+          shortcut="Mod-B"
+          active={active.bold}
+          onclick={() => run(toggleBold)}
+        >
+          <Bold class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.editor_italic()}
+          shortcut="Mod-I"
+          active={active.italic}
+          onclick={() => run(toggleItalic)}
+        >
+          <Italic class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.editor_strikethrough()}
+          shortcut="Mod-Shift-X"
+          active={active.strike}
+          onclick={() => run(toggleStrike)}
+        >
+          <Strikethrough class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.editor_inlinecode()}
+          shortcut="Mod-E"
+          active={active.code}
+          onclick={() => run(toggleInlineCode)}
+        >
+          <Code class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.editor_codeblock()}
+          onclick={() => run(toggleCodeBlock)}
+        >
+          <SquareCode class="size-4" />
+        </ToolbarButton>
 
-    <span class="bg-border mx-1 h-5 w-px"></span>
+        <span class="bg-border mx-1 h-5 w-px shrink-0"></span>
 
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.editor_link()}
-      title={`${m.editor_link()} (Ctrl+K)`}
-      onclick={() => run(insertLink)}
-    >
-      <Link class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.editor_table()}
-      title={m.editor_table()}
-      onclick={() => run(insertTable)}
-    >
-      <Table class="size-4" />
-    </button>
-    <button
-      type="button"
-      class="hover:bg-accent hover:text-foreground rounded p-2"
-      aria-label={m.actic_tool_line()}
-      title={m.actic_tool_line()}
-      onclick={() => run(insertLine)}
-    >
-      <Minus class="size-4" />
-    </button>
+        <ToolbarButton
+          label={m.editor_link()}
+          shortcut="Mod-K"
+          onclick={() => run(insertLink)}
+        >
+          <Link class="size-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label={m.editor_table()}
+          onclick={() => run(insertTable)}
+        >
+          <Table class="size-4" />
+        </ToolbarButton>
+      {/snippet}
+      {#snippet trailing()}
+        {@render pageActions?.()}
+      {/snippet}
+    </EditorToolbar>
 
-    {#if trailing}
-      <div class="ml-auto">{@render trailing()}</div>
-    {/if}
+    <Textarea
+      class="{FIELD_BG} focus-visible:border-border {compact
+        ? 'min-h-[12rem]'
+        : 'min-h-[24rem]'} resize-y rounded-none border-0 text-sm focus-visible:ring-0"
+      {placeholder}
+      bind:value
+      bind:ref={textarea}
+      onkeydown={onKeydown}
+      onkeyup={refresh}
+      onselect={refresh}
+      onclick={refresh}
+      oninput={refresh}
+      spellcheck={false}
+      {...restProps}
+    />
   </div>
 
-  <Textarea
-    class="{FIELD_BG} focus-visible:border-border min-h-[16rem] resize-y rounded-none border-0 text-sm focus-visible:ring-0"
-    {placeholder}
-    bind:value
-    bind:ref={textarea}
-    onkeydown={onKeydown}
-    onkeyup={refresh}
-    onselect={refresh}
-    onclick={refresh}
-    oninput={refresh}
-    spellcheck={false}
-    {...restProps}
-  />
-
   <div
-    class="bg-muted-background text-muted-foreground flex h-11 items-center justify-between rounded-b-lg border-t px-4 text-xs"
+    class="bg-muted-background text-muted-foreground flex h-11 items-center justify-between border-t px-4 text-xs"
   >
     <span>{words} {m.editor_words()}, {chars} {m.editor_chars()}</span>
     <a

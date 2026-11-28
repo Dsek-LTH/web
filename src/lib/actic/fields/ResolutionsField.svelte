@@ -7,6 +7,7 @@
   import { attachAction } from "./attachAction";
   import { FIELD_BG } from "$lib/actic/fieldStyles";
   import { nextId, type YrkandeRow } from "$lib/actic/documents/fields";
+  import { ghostDealer } from "$lib/actic/write/ghost-texts.svelte";
   import * as m from "$paraglide/messages";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
@@ -17,12 +18,38 @@
     leadIn = $bindable(""),
     items = $bindable([] as YrkandeRow[]),
     lang = "sv",
+    clausePool,
   }: {
     leadIn?: string;
     items?: YrkandeRow[];
     /** The document language, which the resolution wording follows. */
     lang?: "sv" | "en";
+    /**
+     * Ghost texts the att-sats rows rotate among — dealt per row in a
+     * shuffled order, each pool string used once before any repeats, and a
+     * row keeps its ghost while it lives. Defaults to the shared single
+     * example.
+     */
+    clausePool?: string[];
   } = $props();
+
+  const fallbackClausePool = $derived([
+    m.actic_yrkanden_clause_placeholder({}, { locale: lang }),
+  ]);
+  const activeClausePool = $derived(clausePool ?? fallbackClausePool);
+  // A fresh dealer per pool CONTENT (not identity — the parent re-renders
+  // hand us new arrays with the same strings, and re-dealing would reshuffle
+  // every visible placeholder on every keystroke).
+  let dealerForPoolKey: string | null = null;
+  let dealer: ((rowId: string) => string) | undefined;
+  const dealClauseGhost = $derived.by(() => {
+    const key = activeClausePool.join("\u0000");
+    if (key !== dealerForPoolKey) {
+      dealerForPoolKey = key;
+      dealer = ghostDealer(activeClausePool);
+    }
+    return dealer!;
+  });
 
   /** Which rows show their description box. Closed by default. */
   let expanded = $state<Record<string, boolean>>({});
@@ -83,18 +110,23 @@
     canDrag={(id) => !!items.find((r) => r.id === id)?.clause.trim()}
     onreorder={reorder}
   >
-    {#snippet children({ handle, isDragging, index: i, helpers })}
+    {#snippet children({ handle, isDragging, isDropping, index: i, helpers })}
       {@const row = items[i]!}
       {@const open =
         !!row.clause.trim() && (expanded[row.id] ?? !!row.description.trim())}
       <div
         class={`flex flex-col ${
-          isDragging
+          // Keep the raised look through the drop animation — the row
+          // shouldn't morph into its plain form until it lands.
+          isDragging || isDropping
             ? `${FIELD_BG} border-border rounded-md border shadow-md`
             : `border-border ${i > 0 ? "border-t" : ""}`
         }`}
       >
         <div class="flex items-stretch gap-1 pl-1">
+          <!-- The clause text is text-sm at every width (like the plain
+               inputs), so the handle and "att" chip center against the same
+               36px row on all screens. -->
           {#if row.clause.trim()}
             <span
               use:attachAction={handle}
@@ -121,16 +153,13 @@
             >{m.actic_yrkanden_att({}, { locale: lang })}</span
           >
           <div
-            class="flex min-w-0 flex-1 flex-col"
+            class="relative flex min-w-0 flex-1 flex-col"
             use:helpers.trackInput={row.id}
           >
             <Textarea
               bind:value={row.clause}
-              placeholder={m.actic_yrkanden_clause_placeholder(
-                {},
-                { locale: lang },
-              )}
-              class="min-h-9 resize-none border-0 bg-transparent py-2 pr-3 pl-0.5 shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
+              placeholder=""
+              class="min-h-9 resize-none border-0 bg-transparent py-2 pr-3 pl-0.5 text-sm shadow-none focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
               oninput={helpers.oninput}
               onblur={helpers.onblur}
               onkeydown={(e) => {
@@ -143,6 +172,20 @@
                 }
               }}
             />
+            {#if !row.clause.trim()}
+              <!-- The ghost text rides on an overlay rather than the
+                   textarea's placeholder: a long ghost must cut off with an
+                   ellipsis, and Chrome's textarea placeholder only ever
+                   clips (its nowrap variant also forced a scrollbar at high
+                   zoom). Same padding/typography as the textarea's first
+                   line, so it sits exactly where the text will. -->
+              <span
+                aria-hidden="true"
+                class="text-muted-foreground pointer-events-none absolute top-2 right-3 left-0.5 truncate text-sm"
+              >
+                {dealClauseGhost(row.id)}
+              </span>
+            {/if}
             {#if open}
               <!-- The description sub-box, contained within the row. -->
               <div class="py-2 pr-3 pl-0.5">
@@ -152,7 +195,7 @@
                     {},
                     { locale: lang },
                   )}
-                  class="{FIELD_BG} min-h-9 resize-none"
+                  class="{FIELD_BG} min-h-9 resize-none text-sm"
                 />
               </div>
             {/if}
