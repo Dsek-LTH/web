@@ -35,7 +35,8 @@ export type WriteDraft = {
   meeting: string;
   authors: AuthorInput[];
   lang: "sv" | "en";
-  dateIso: string;
+  /** Absent means "today" (the date follows the current day when reopened). */
+  dateIso?: string;
   body: string;
   leadIn: string;
   yrkanden: Array<{ clause: string; description: string }>;
@@ -76,8 +77,10 @@ function hasStorage(): boolean {
   return typeof localStorage !== "undefined";
 }
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
+/** The calendar date a timestamp fell on, in the browser's timezone. */
+function localDate(ts: number): string {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 /**
@@ -106,7 +109,13 @@ function normalizeDraft(raw: StoredDraft): Draft {
     meeting: raw.meeting ?? "",
     authors: raw.authors ?? [],
     lang: raw.lang ?? "sv",
-    dateIso: raw.dateIso ?? todayIso(),
+    // Older drafts stored "today" as a literal date. If it matches the day
+    // the draft was saved, treat it as "today" so it follows the current day
+    // when reopened; anything else was a deliberate choice and is kept.
+    dateIso:
+      raw.dateIso && raw.dateIso !== localDate(raw.updatedAt ?? 0)
+        ? raw.dateIso
+        : undefined,
     body: raw.body ?? "",
     leadIn: raw.leadIn ?? "",
     yrkanden: raw.yrkanden ?? [],

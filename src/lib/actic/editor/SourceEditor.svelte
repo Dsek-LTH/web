@@ -64,7 +64,7 @@
   } from "./typstCompletions";
   import { hangingIndent } from "./hangingIndent";
   import ToolbarButton from "./ToolbarButton.svelte";
-  import Hint from "./Hint.svelte";
+  import EditorToolbar from "./EditorToolbar.svelte";
   import { watchStickyTop } from "./sticky-top";
 
   let {
@@ -72,7 +72,7 @@
     diagnostics = [],
     oninput,
     title = "",
-    trailing,
+    pageActions,
     diffMarkers = false,
     downloadItems = [],
   }: {
@@ -83,9 +83,10 @@
     oninput?: () => void;
     /** Document title, shown in the toolbar. */
     title?: string;
-    /** Extra toolbar buttons owned by the page (e.g. diff's reset). Gets
-     * the editor view so page-level commands can edit the document. */
-    trailing?: Snippet<[EditorView | undefined]>;
+    /** Extra toolbar buttons owned by the page (e.g. diff's reset), shown
+     * in the leading group before the editor's own buttons. Gets the editor
+     * view so page-level commands can edit the document. */
+    pageActions?: Snippet<[EditorView | undefined]>;
     /** Offer the diff package's `#add`/`#remove` marker completions. Only
      * pages whose documents import the diff package should set this. */
     diffMarkers?: boolean;
@@ -103,7 +104,6 @@
   } = $props();
 
   let host: HTMLDivElement | undefined = $state();
-  let root: HTMLDivElement | undefined = $state();
   let view: EditorView | undefined = $state();
   let dark = $state(false);
   /** Soft-wrap long lines (on by default; toggle in the toolbar). */
@@ -403,68 +403,55 @@
 </script>
 
 <div
-  bind:this={root}
   class="border-border bg-background flex min-h-[32rem] w-full flex-col overflow-clip rounded-lg border dark:bg-[#242325]"
 >
-  <div
-    class="bg-muted-background text-muted-foreground sticky z-10 flex h-11 shrink-0 items-center gap-0.5 border-b px-[7px]"
-    style:top="var(--actic-sticky-top, 4rem)"
-  >
-    <div class="min-w-0 flex-1">
-      {#if title}
-        <!-- block: truncate on an inline span is a no-op, so long titles
-             would run under the toolbar icons. pr-4 keeps ~half an icon of
-             air between the ellipsis and the first button. -->
-        <span
-          class="text-foreground block truncate pr-4 pl-[7px] text-sm font-medium"
-        >
-          {title}
-        </span>
-      {/if}
-    </div>
-    {@render trailing?.(view)}
-    <ToolbarButton
-      label={m.editor_format()}
-      shortcut="Mod-Shift-F"
-      onclick={formatDocument}
-    >
-      <Braces class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_search()}
-      shortcut="Mod-F"
-      active={searchOpen}
-      pressed={searchOpen}
-      underline
-      onclick={toggleSearch}
-    >
-      <Search class="size-4" />
-    </ToolbarButton>
-    <ToolbarButton
-      label={m.editor_toggle_wrap()}
-      active={wrap}
-      pressed={wrap}
-      underline
-      onclick={() => (wrap = !wrap)}
-    >
-      <TextWrap class="size-4" />
-    </ToolbarButton>
-    {#if singleDownload}
+  <EditorToolbar {title} sticky>
+    {#snippet leading()}
+      {@render pageActions?.(view)}
+    {/snippet}
+    {#snippet trailing()}
       <ToolbarButton
-        label={singleDownload.label}
-        disabled={singleDownload.disabled}
-        onclick={singleDownload.run}
+        label={m.editor_format()}
+        shortcut="Mod-Shift-F"
+        onclick={formatDocument}
       >
-        <Download class="size-4" />
+        <Braces class="size-4" />
       </ToolbarButton>
-    {:else if downloadItems.length > 1}
-      <Hint label={m.editor_download()}>
+      <ToolbarButton
+        label={m.editor_search()}
+        shortcut="Mod-F"
+        active={searchOpen}
+        pressed={searchOpen}
+        underline
+        onclick={toggleSearch}
+      >
+        <Search class="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label={m.editor_toggle_wrap()}
+        active={wrap}
+        pressed={wrap}
+        underline
+        onclick={() => (wrap = !wrap)}
+      >
+        <TextWrap class="size-4" />
+      </ToolbarButton>
+      {#if singleDownload}
+        <ToolbarButton
+          label={singleDownload.label}
+          disabled={singleDownload.disabled}
+          onclick={singleDownload.run}
+        >
+          <Download class="size-4" />
+        </ToolbarButton>
+      {:else if downloadItems.length > 1}
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger
-            class="text-muted-foreground hover:bg-accent hover:text-foreground rounded-[13px] p-[7px] disabled:pointer-events-none disabled:opacity-50"
-            aria-label={m.editor_download()}
-          >
-            <Download class="size-4" />
+          <DropdownMenu.Trigger>
+            {#snippet child({ props })}
+              <ToolbarButton {...props} label={m.editor_download()}>
+                <Download class="size-4" />
+              </ToolbarButton>
+            {/snippet}
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
             {#each downloadItems as item (item.label)}
@@ -477,8 +464,8 @@
             {/each}
           </DropdownMenu.Content>
         </DropdownMenu.Root>
-      </Hint>
-    {/if}
-  </div>
+      {/if}
+    {/snippet}
+  </EditorToolbar>
   <div bind:this={host} class="min-h-0 flex-1"></div>
 </div>

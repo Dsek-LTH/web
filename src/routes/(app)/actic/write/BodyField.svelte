@@ -134,7 +134,7 @@
   <TypstEditor
     id="body"
     bind:value={writer.body}
-    trailing={documentSettings}
+    pageActions={documentSettings}
     placeholder={bodyGhost ?? m.actic_body_placeholder()}
     {compact}
   />

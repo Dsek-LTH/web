@@ -316,7 +316,7 @@ export class Writer {
       ? draft.yrkanden.map((y) => ({ ...y, id: nextId("yrk") }))
       : [{ id: nextId("yrk"), clause: "", description: "" }];
     this.lang = draft.lang;
-    this.dateIso = draft.dateIso;
+    this.dateIso = draft.dateIso ?? todayIso();
     this.body = draft.body;
     this.applyFamilyDraft(draft);
   }
@@ -332,7 +332,9 @@ export class Writer {
       meeting: "",
       authors: this.authors.map((author) => ({ ...author })),
       lang: this.lang,
-      dateIso: this.dateIso,
+      // "Today" is stored as absent so reopening the draft later follows the
+      // current date; a manually chosen date is kept as-is.
+      dateIso: this.isToday ? undefined : this.dateIso,
       body: this.body,
       leadIn: this.leadIn,
       yrkanden: this.yrkanden.map((y) => ({

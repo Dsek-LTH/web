@@ -356,8 +356,10 @@ function authorSource(author: AuthorInput): string {
         : `position: ${q(author.position.value)}`,
     );
   }
-  if (author.message?.trim()) {
-    parts.push(`message: ${q(author.message)}`);
+  if (author.message !== undefined && author.message !== "") {
+    // Trim ordinary messages, but keep explicit whitespace-only ones as-is.
+    const trimmed = author.message.trim();
+    parts.push(`message: ${q(trimmed === "" ? author.message : trimmed)}`);
   }
   if (author.signature) {
     parts.push(`signature: signature-image(${q(author.signature.path)})`);

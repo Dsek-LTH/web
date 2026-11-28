@@ -133,14 +133,8 @@
       oncompile={() => writer.compileNow()}
       onsave={() => writer.saveDraftNow()}
       ondownload={() => writer.download()}
+      title={m.actic_preview_title()}
     >
-      {#snippet leading()}
-        <div class="min-w-0 flex-1">
-          <span class="text-foreground truncate pl-[7px] text-sm font-medium">
-            {m.actic_preview_title()}
-          </span>
-        </div>
-      {/snippet}
       {#snippet placeholder()}
         <div class="py-6 text-sm">
           <p class="mb-2">{m.actic_checklist_heading()}</p>

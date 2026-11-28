@@ -5,6 +5,7 @@
   import { Spinner } from "$lib/components/ui/spinner/index.js";
   import * as m from "$paraglide/messages";
   import ToolbarButton from "./ToolbarButton.svelte";
+  import EditorToolbar from "./EditorToolbar.svelte";
   import { watchStickyTop } from "./sticky-top";
 
   let {
@@ -20,8 +21,8 @@
     onsave,
     oncompile,
     ondownload,
-    leading,
-    beforeToolbar,
+    title,
+    pageActions,
     placeholder,
     scrollBox = $bindable<HTMLElement | undefined>(),
     previewHost = $bindable<HTMLElement | undefined>(),
@@ -45,11 +46,10 @@
     /** Manual compile — only reachable while `autocompile` is off. */
     oncompile: () => void;
     ondownload: () => void;
-    /** Toolbar-left content (e.g. the panel title). */
-    leading?: Snippet;
-    /** Page-specific buttons first in the right cluster (e.g. diff's
-     * autodiff toggle). */
-    beforeToolbar?: Snippet;
+    /** Document title, shown in the toolbar. */
+    title?: string;
+    /** Extra toolbar buttons owned by the page. */
+    pageActions?: Snippet;
     /** Shown instead of the host while it doesn't exist (e.g. a checklist). */
     placeholder?: Snippet;
     scrollBox?: HTMLElement | undefined;
@@ -65,15 +65,17 @@
   <div
     class="border-border bg-background flex min-h-[28rem] flex-col overflow-clip rounded-lg border lg:min-h-0 lg:flex-1"
   >
-    <div
-      class="bg-muted-background text-muted-foreground z-10 flex h-11 shrink-0 items-center gap-2 border-b px-[7px] max-lg:sticky max-lg:top-(--actic-sticky-top,4rem)"
+    <EditorToolbar
+      {title}
+      class="max-lg:sticky max-lg:top-(--actic-sticky-top,4rem)"
     >
-      {@render leading?.()}
-      <div class="ml-auto flex items-center gap-0.5">
+      {#snippet leading()}
         {#if compiling}
-          <Spinner class="text-muted-foreground h-4 w-4" />
+          <span class="flex items-center p-1">
+            <Spinner class="text-muted-foreground h-4 w-4" />
+          </span>
         {/if}
-        {@render beforeToolbar?.()}
+        {@render pageActions?.()}
         <ToolbarButton
           label={m.actic_preview_autocompile()}
           active={autocompile}
@@ -117,8 +119,8 @@
             <Download class="size-4" />
           {/if}
         </ToolbarButton>
-      </div>
-    </div>
+      {/snippet}
+    </EditorToolbar>
     <div
       bind:this={scrollBox}
       class="bg-muted min-h-0 flex-1 overflow-auto p-4"

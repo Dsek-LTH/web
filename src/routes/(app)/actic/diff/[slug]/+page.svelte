@@ -92,7 +92,7 @@
       </p>
     {/if}
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {#snippet trailing(cmView: EditorView | undefined)}
+      {#snippet pageActions(cmView: EditorView | undefined)}
         <!-- Marker buttons stay visible in autodiff mode but greyed out:
              markers belong to manual diffing (they'd disable autodiff). -->
         <ToolbarButton
@@ -128,7 +128,7 @@
           bind:value={session.source}
           diagnostics={session.diagnostics}
           {title}
-          {trailing}
+          {pageActions}
           diffMarkers
           downloadItems={[
             ...(session.autodiff
@@ -165,21 +165,11 @@
         oncompile={() => session!.compileNow()}
         onsave={() => session!.saveDraftNow()}
         ondownload={() => session!.downloadPdf()}
+        title={session!.autodiff
+          ? m.actic_diff_mode()
+          : m.actic_preview_title()}
       >
-        {#snippet leading()}
-          <!-- Text-only, styled like /write's preview title; the mode is also
-               shown by the diff/eye toggle at the right of the bar. -->
-          <div class="min-w-0 flex-1">
-            <span
-              class="text-foreground block truncate pr-4 pl-[7px] text-sm font-medium"
-            >
-              {session!.autodiff
-                ? m.actic_diff_mode()
-                : m.actic_preview_title()}
-            </span>
-          </div>
-        {/snippet}
-        {#snippet beforeToolbar()}
+        {#snippet pageActions()}
           <ToolbarButton
             label={m.actic_diff_autodiff()}
             description={session!.canAutodiff
